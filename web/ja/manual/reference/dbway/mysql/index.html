@@ -1,0 +1,542 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,MySQL,取扱い,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>MySQLの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>MySQLの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>MySQL 5.0 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>あり</dd>
+		<dt>(同梱)JDBCドライバ</dt><dd>mysql-connector-java-5.1.40-bin.jar</dd>
+	</dl>
+	<div class="relatedword"><a href="./mysqljdbc.html">MySQLのJDBCドライバ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = com.mysql.jdbc.Driver
+    ; url      = jdbc:mysql://[host]:[port]/[dbname]
+    ; schema   = 
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はURLから自動判別されるため設定不要</li>
+		<li>schema は未使用(空指定でOK)</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-mysql-exampleの場合 {host=localhost,port=3306} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = com.mysql.jdbc.Driver
+    ; url      = jdbc:mysql://localhost:3306/exampledb
+    ; schema   = 
+    ; user     = exampledb
+    ; password = exampledb
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>CHAR, VARCHAR, TEXT, ...TEXT</dd>
+		<dt>java.lang.Integer</dt><dd>INTEGER, ...INT, {NUMERIC(1-9, 0)}, {DECIMAL(1-9, 0)}</dd>
+		<dt>java.lang.Long</dt><dd>BIGINT, {NUMERIC(10-18, 0)}, {DECIMAL(10-18, 0)}</dd>
+		<dt>java.math.BigDecimal</dt><dd>FLOAT, DOUBLE, NUMERIC(n, m), DECIMAL(n, m))</dd>
+		<dt>java.util.Date</dt><dd>DATE, YEAR</dd>
+		<dt>java.sql.Time</dt><dd>TIME</dd>
+		<dt>java.sql.Timestamp</dt><dd>DATETIME, TIMESTAMP</dd>
+		<dt>java.lang.Boolean</dt><dd>BIT, BOOLEAN</dd>
+		<dt>byte[]</dt><dd>BINARY, VARBINARY, BLOB, ...BLOB</dd>
+	</dl>
+	<h3 id="unsupportedtype">未サポートのデータ型</h3>
+	<dl class="keymainlist">
+		<dt>ENUM</dt><dd>文字列として利用可能</dd>
+		<dt>SET</dt><dd>カンマ区切りの文字列として利用可能</dd>
+	</dl>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">Identity</em> を利用します。
+	</p>
+	<p>
+		Identity情報はメタデータから取得できるので、設定なしで利用可能です。
+	</p>
+	<p>
+		一つ注意なのは、MySQLの仕様としてトランザクション外での insert
+		後の採番された値の取得ができません。(トランザクションをサポートしているストレージエンジンであることが前提として)
+		採番された値を登録後に利用する場合は、トランザクション内で実行するようにして下さい。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+	<div class="relatedpage"><a href="#engine">this - MySQLのストレージエンジンに注意</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">limit</em> を利用します。
+	</p>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="point">limit</span> 80, 20
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="point">limit</span> <span class="comment">/*pmb.pageStartIndex*/</span><span class="literal">80</span>, <span class="comment">/*pmb.fetchSize*/</span><span class="literal">20</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		TypedParameterBean における ManualPaging の自動判別ロジックは、"limit" かつ "pmb.fetchSize"
+		という文字列が含まれることです。("limit" は大文字小文字は区別せず)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+	<h3 id="foundrows">found_rows()関数の利用</h3>
+	<p>
+		MySQLでは、sql_calc_found_rows & found_rows()
+		構文の利用で、カウント検索のコストを抑えられる可能性があります。
+		(MySQLはカウント検索がネックになりやすいため有効です)
+	</p>
+	<h4>ConditionBean で found_rows()</h4>
+	<p>
+		ConditionBeanでは、Union を利用しない検索で CountLater オプションを指定した場合に、found_rows()
+		が利用されます<span class="frm">(@since 0.9.8.8)</span>。ただ、CountLater
+		オプションはデフォルトで有効になっていますので<span class="frm">(@since 0.9.9.0A)</span>、MySQL利用時はデフォルトで found_rows()
+		が利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html#countlater">ConditionBean - カウント検索を後に</a></div>
+	<h4>外だしSQL で found_rows()</h4>
+	<p>
+		外だしSQLでは、CountLater オプションをした上で、IFコメントを使って切り替えます。
+		CountLater オプションはデフォルトで有効になっています<span class="frm">(@since 0.9.9.0A)</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html#countlater">外だしSQL - カウント検索を後に</a></div>
+<pre><span class="codetitle">e.g. found_rows() を利用したページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="point">sql_calc_found_rows</span>
+       foo_id
+     , bar_name
+     , <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span> 
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="keyword">limit</span> <span class="comment">/*pmb.pageStartIndex*/</span><span class="literal">80</span>, <span class="comment">/*pmb.fetchSize*/</span><span class="literal">20</span>
+<span class="comment">-- ELSE select</span> <span class="point">found_rows()</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<h4>Union と found_rows()</h4>
+	<p>
+		Union を利用すると fetch_rows() より厳密なカウントが取得できないため(正確には union all でない union
+		の場合)、Union が利用されている場合はこの方式は利用されません。ConditionBeanでは Union がある場合は通常のカウント検索となります。
+		外だしSQLでは Union との併用に注意が必要です。
+	</p>
+	<h4>トランザクション外での found_rows()</h4>
+	<p>
+		トランザクションの有無に関わらず found_rows()
+		は利用できます。通常、利用するデータソース(DataSource)次第で、トランザクションを利用しない場合に一定のコネクションが提供されない可能性があるため、
+		マルチスレッドな環境だと厳密には found_rows() が動作しない可能性があるのですが、DBFlute
+		がカウント検索とページング実データ検索で利用するコネクションを独自に必ず同じものが利用されるようにしています。
+	</p>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">for update</em> を利用します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+ <span class="point">for update</span>
+</code></pre>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">ストアドプロシージャ</em> を(DBFluteの機能としての)プロシージャとしてサポートしています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+	<dl class="keymainlist">
+		<dt>INパラメータ</dt><dd>サポート</dd>
+		<dt>OUTパラメータ</dt><dd>サポート</dd>
+		<dt>INOUTパラメータ</dt><dd>サポート</dd>
+		<dt>プロシージャリターン</dt><dd>サポート</dd>
+		<dt>ResultSetパラメータ</dt><dd>DBMSにて未サポート</dd>
+		<dt>ResultSetリターン</dt><dd>DBMSにて未サポート</dd>
+		<dt>NotParamResult</dt><dd>サポート</dd>
+		<dt>パッケージプロシージャ</dt><dd>DBMSにて未サポート <span class="frm">※そもそもパッケージの概念なし</span></dd>
+		<dt>プロシージャシノニム</dt><dd>DBMSにて未サポート <span class="frm">※そもそもシノニムの概念なし</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetparameter">ResultSetパラメータ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetreturn">ResultSetリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+	<h3 id="nextprocedure">別カタログのプロシージャ</h3>
+	<p>
+		別カタログ(別データベース)のプロシージャもオプションで自動生成できます。
+	</p>
+	<div class="detailpage"><a href="#additionalschema">this - 別カタログ(別データベース)の利用</a></div>
+	<h3 id="targetprocedure">自動生成対象プロパティの有効項目</h3>
+	<dl class="keymainlist">
+		<dt>Catalog</dt><dd>サポート <span class="frm">(AdditionalSchemaの利用)</span></dd>
+		<dt>Schema</dt><dd>利用不可 <span class="frm">(MySQLにスキーマという概念がないため)</span></dd>
+		<dt>Name</dt><dd>サポート</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../dfprop/outsidesqldefinition/index.html#targetprocedure">dfprop - プロシージャの自動生成対象プロパティ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#catalog">Catalog(カタログ)</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency/index.html">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<h3 id="fulltextsearch">ConditionBeanで全文検索</h3>
+	<p>
+		"Tritonn + Senna" や、(純粋な)MyISAM の全文検索、加えて (5.6からサポートされた)InnoDB の全文検索の条件を指定できます。
+		<span class="frm">(要は match against 構文のSQLを出力します)</span>
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wt.html#tritonn">Tritonn</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/ws.html#senna">Senna</a></div>
+<pre><span class="codetitle">e.g. 会員名称を "foo" で全文検索</span><code>
+MemberDbm dbm = MemberDbm.getInstance();
+cb.query().<span class="point">match</span>(dbm.columnMemberName(), <span class="literal">"foo"</span>, <span class="keyword">null</span>);
+<span class="comment">// where match(dfloc.MEMBER_NAME) against ('foo')</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称と会員アカウントを "foo" で BooleanMode のテキスト検索</span><code>
+MemberDbm dbm = MemberDbm.getInstance();
+List&lt;ColumnInfo&gt; textColumnList = <span class="keyword">new</span> ArrayList<ColumnInfo>();
+textColumnList.add(dbm.columnMemberName());
+textColumnList.add(dbm.columnMemberAccount());
+cb.query().<span class="point">match</span>(textColumnList, <span class="literal">"foo"</span>
+  , WayOfMySQL.FullTextSearchModifier.<span class="point">InBooleanMode</span>);
+<span class="comment">// where match(dfloc.MEMBER_NAME, dfloc.MEMBER_ACCOUNT)</span>
+<span class="comment">//       against ('foo' in boolean mode)</span>
+</code></pre>
+	<p>
+		有効なモードは以下の通りです。
+	</p>
+	<ul>
+		<li>InBooleanMode</li>
+		<li>InNaturalLanguageMode</li>
+		<li>InNaturalLanguageModeWithQueryExpansion</li>
+		<li>WithQueryExpansion</li>
+	</ul>
+	<p>
+		条件値が null もしくは空文字の場合は、ConditionBeanの基本仕様と同じく条件は無効になります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/howto.html#basicspec">ConditionBeanの使い方 - 基本仕様</a></div>
+	<p>
+		条件値はバインド変数とはなりません。これは MySQL
+		の仕様としてバインド変数が利用できないためです。
+		条件値に含まれるシングルクォーテーションとバックスラッシュに関しては、DBFluteが内部処理として自動でエスケープします<span class="frm">(@since 0.9.8.3)</span>。
+	</p>
+
+	<h2 id="originaluse">DBMS独自の利用方法</h2>
+	<h3 id="additionalschema">別カタログ(別データベース)の利用</h3>
+	<p>
+		別カタログ(別データベース)のテーブルを自動生成できます。
+		MySQLにはスキーマの概念が存在しませんが、DBFlute内部において "無名のスキーマ"
+		という概念を導入し、AdditionalSchema (追加スキーマ)として扱えるようにしています。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#othercatalog">別カタログ(OtherCatalog)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherdatabase">別データベース(OtherDatabase)</a></div>
+	<h3 id="betacursor">カーソル検索をべたページング方式で</h3>
+	<p>
+		MySQLのJDBCドライバでは、カーソル検索は色々と問題を抱えています。
+	</p>
+	<p>
+		Integer.MIN_VALUEを利用した場合のパフォーマンス劣化対策として、カーソル検索の内部動作を "べたなページング" 方式にするオプションがあります。
+		単に 1000 件ずつページング検索して、カーソル検索っぽく振る舞うやり方です。<span class="frm">@since 1.0.3</span>
+	</p>
+	<div class="detailpage"><a href="./realcursor.html#realonefetch">MySQLの本当のカーソル検索 - キャッシュなしの一件ずつフェッチ!?</a></div>
+	<h3 id="utf8unicodeci">LikeSearch で utf8_unicode_ci</h3>
+	<p>
+		LikeSearch検索で utf8_unicode_ci を利用したい場合は、LikeSearchOption の
+		getQueryClauseArranger() をオーバーライドして、CollateUTF8UnicodeArranger を戻すように実装することで実現できます。
+		<span class="frm">@since 0.9.9.1C</span>
+	</p>
+<pre><span class="codetitle">e.g. LikeSearch検索で utf8_unicode_ci を利用するLikeSearchOption @Java</span><code>
+LikeSearchOption option = <span class="keyword">new</span> LikeSearchOption() {
+    <span class="keyword">private static final long</span> serialVersionUID = 1L;
+
+    @Override
+    <span class="keyword">public</span> QueryClauseArranger getWhereClauseArranger() {
+        <span class="keyword">return new</span> CollateUTF8UnicodeArranger();
+    }
+};
+</code></pre>
+	<p>
+		1.1.x (Java版) では、LikeSearchOptionはアプリ側ではnewしないので、仕組みの中で差し替える必要があります。
+		テーブル単位で有効にするのであれば、ConditionQuery (e.g. MemberCQ) の newLikeSearchOption() メソッドをオーバーライドすると良いでしょう。
+		特定のカラムだけを有効にするのであれば、setメソッド (e.g. setMemberName_LikeSearch()) をオーバーライドしましょう。
+		<span class="frm">(いずれにせよ、ソースコードを読んで確認してから)</span>
+	</p>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="cursorselect">カーソル検索でのメモリ対策</h3>
+	<p>
+		MySQLのJDBCドライバでは、カーソル検索をしてもメモリ対策になりません。
+		検索結果のResultSetを構築した時点で、全ての検索結果のデータをメモリに持ってしまうからです。
+		<span class="frm">(少なくとも Connector/J-5.1.46 においては)</span>
+	</p>
+	<p>
+		JDBCパラメータの FetchSize に Integer.MIN_VALUE を指定すると一件ずつフェッチの動作になり、大量件数の検索に対応できます。
+	</p>
+	<div class="detailpage"><a href="./realcursor.html">MySQLの本当のカーソル検索</a></div>
+	<h3 id="queryupdate">QueryUpdate/Deleteの実現</h3>
+	<p>
+		update/delete 文の where 句のサブクエリにて更新対象のテーブルを参照できない、という制約があるため、QueryUpdate や QueryDelete
+		において、サブクエリ方式ではなく update 文の where 句に条件を埋め込む方式を採用しています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/behavior/update/queryupdate.html">Behavior - queryUpdate(entity, cb)</a></div>
+<pre><span class="codetitle">e.g. サブクエリ方式でなく where 句埋め込み方式 (複雑な条件がやりづらい) @DisplaySql</span><code>
+<span class="keyword">update</span> MEMBER
+   <span class="keyword">set</span> MEMBER_STATUS_CODE = <span class="literal">'PRV'</span>
+     , FORMALIZED_DATETIME = <span class="keyword">null</span>
+     , UPDATE_DATETIME = <span class="abbreviation">...</span>
+     , UPDATE_USER = <span class="abbreviation">...</span>
+     , VERSION_NO = VERSION_NO + 1
+ <span class="keyword">where</span> MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+</code></pre>
+	<p>
+		関連テーブルを利用した絞り込み条件は、MySQL特有のupdate文に対する結合を利用して実現しています。QueryUpdate
+		では、update文のテーブルの後でset句の前にjoin句を入れることで実現しています<span class="frm">(@since 0.9.9.5B)</span>。QueryDelete
+		では、delete文のテーブルの後でwhere句の前にjoin句を入れて、削除対象のテーブルのAlias名をdeleteの直後に指定することで実現しています<span class="frm">(@since 1.0.4C)</span>。
+	</p>
+<pre><span class="codetitle">e.g. リマインダ質問に2が含まれている会員を仮会員に一括更新 @DisplaySql</span><code>
+<span class="keyword">update</span> MEMBER mb
+    <span class="keyword">inner join</span> MEMBER_SECURITY scu
+      <span class="keyword">on</span> mb.MEMBER_ID = scu.MEMBER_ID
+   <span class="keyword">set</span> mb.MEMBER_STATUS_CODE = <span class="literal">'PRV'</span>
+     , mb.UPDATE_DATETIME = <span class="abbreviation">...</span>
+     , mb.UPDATE_USER = <span class="abbreviation">...</span>
+     , mb.VERSION_NO = mb.VERSION_NO + 1
+ <span class="keyword">where</span> scu.REMINDER_QUESTION <span class="keyword">like</span> <span class="literal">'%2%'</span> <span class="keyword">escape</span> '|'
+</code></pre>
+<pre><span class="codetitle">e.g. 会員ステータスの表示順が2以上の会員を一括削除 @DisplaySql</span><code>
+<span class="keyword">delete</span> mb MEMBER mb
+    <span class="keyword">inner join</span> MEMBER_STATUS stat
+      <span class="keyword">on</span> mb.MEMBER_STATUS_CODE = stat.MEMBER_STATUS_CODE
+ <span class="keyword">where</span> stat.DISPLAY_ORDER >= 2
+</code></pre>
+	<p>
+		ただ、複雑な条件になるとSQL表現の限界を超えてしまう可能性があるため、そのときは同じ条件の ConditionBean でリスト検索し、Entity
+		の値を変更してからバッチ更新(batchUpdateNonstrict(), batchDeleteNonstrict())を利用するようにして下さい。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/behavior/update/batchupdatenonstrict.html">Behavior - batchUpdateNonstrict(entityList)</a></div>
+	<div class="relatedpage"><a href="../../../function/ormapper/behavior/update/batchdeletenonstrict.html">Behavior - batchDeleteNonstrict(entityList)</a></div>
+	<h3 id="fakebatch">バッチ更新はバッチじゃない!?</h3>
+	<p>
+		batchInsert() や batchUpdate() などのバッチ更新ですが、MySQLのJDBCドライバの制限で実際にはバッチ更新されず、JDBCドライバの中でループでそれぞれ一件ずつ処理されます。
+		よって、他のDBMSに比べてバッチ更新のメリットは極端に少ないです。(DBFlute内の処理が一括で行われる、ログが一まとまりで見やすい、それぐらい)
+	</p>
+	<p>
+		一方で MySQL は、一つのinsert文で values 部分をカンマ区切り(複数values方式)でつなげて複数レコードを登録することができます。
+		外だしSQLのFORコメントを利用してそのinsert文を構築することで、一括での登録ができます。
+		(ただ、パフォーマンス的な優位性はどの程度あるのかは実際に試してみないとわかりません)
+	</p>
+	<p>
+		また、Connectionのプロパティで、rewriteBatchedStatements を true
+		に設定すると、MySQLがバッチ登録時に内部的に "複数values方式"
+		に変換して登録を行ってくれます。ReplaceSchemaもバッチ登録を利用しているため、このプロパティを true
+		にすることで、実行スピードを速めることができるかもしれません。
+		ただ、アプリ実行時にこのプロパティを利用する場合は、このプロパティの挙動がどのくらい信頼性のあるものなのか、しっかり確認をする方が良いでしょう。
+		<span class="frm">(jfluteが、アプリ実行時に利用している現場をあまり見たことがないため)</span>
+	</p>
+	<h3 id="easydeadlock">空振りdeleteでお手軽デッドロック</h3>
+	<p>
+		詳しくは、ブログ記事をご覧ください。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20120831/1346393321">外部サイト - MySQLでお手軽デッドロック</a></div>
+	<p>
+		DBFluteプロパティで、全ての queryUpdate(), queryDelete()
+		の実処理の直前に select count(*) して0件だったら更新処理しない、というチェックが入れることができます<span class="frm">(@since 0.9.9.7F)</span>。
+		littleAdjustmentMap.dfprop の isCheckCountBeforeQueryUpdate を true に設定して再自動生成するとそのようになります。
+		ただ、デッドロックとは縁のない queryUpdate() や queryDelete() でも、select count(*) のチェックが入ってしまいます。
+	</p>
+	<p>
+		DBFluteプロパティを設定せず、その場その場の実装で対応するのであれば、ConditionBean で enableCheckCountBeforeQueryUpdate()
+		を呼び出すと、その時の queryUpdate(), queryDelete() だけに select count(*) のチェックを入れることができます<span class="frm">(@since 1.0.4D)</span>。
+	</p>
+	<h3 id="unionboolean">Sql2EntityでunionしたBoolean型</h3>
+	<p>
+		Sql2Entityでは、CustomizeEntityのプロパティ型はJDBCのメタデータから自動判別されます。
+		通常、Boolean型のカラムはBooleanにマッピングされますが、unionしたBoolean型のカラムに関しては Integer 型になってしまいます。
+		その場合は、CustomizeEntityのプログラム型の強制指定を利用してBoolean型にすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/customizeentity.html#forcedtype">CustomizeEntity - プログラム型の強制指定</a></div>
+	<p>
+		Integer型のまま取り扱うと 1/0 の値が取得されるため、もしそのカラムがコード値 Boolean(true/false) のフラグ系区分値に関連付けていると、値が正常に取り扱えない可能性があります。
+		CDefが絡む処理で区分値を認識できないためです。その場合、姉妹コード(sisterCode)を使って 1/0 でも取り扱えるようにすることで解決できます。
+		この問題の有無にかかわらず、MySQL側が true/false と 1/0 の違いを吸収して取り扱う仕様に対応して、DBFlute側でも吸収できるようにしておいても良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/classificationdefinition/index.html#sistercode">dfprop - sisterCode</a></div>
+	<h3 id="nullsfirstlast">NullsFirst/Lastの実現</h3>
+	<p>
+		nulls first/last 構文をサポートしていないため、case when 構文を使って NullsFirst/Last
+		を実現しています。特にそのことによる制約はありませんが(UnionQuery との併用も可能)、
+		パフォーマンス上の懸念が若干拭えないので、大量レコードをソートするときは意識しておいた方が良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/query/orderby/nullsfirstlast.html">ConditionBean - NullsFirst/Last</a></div>
+	<h3 id="engine">MySQLのストレージエンジンに注意</h3>
+	<p>
+		MySQL にはストレージエンジンという概念があり、同じ MySQL とはいえストレージエンジンが違えば挙動が変わります。
+	</p>
+	<p>
+		例えば、MyISAM では外部キー制約がないため、DBFluteではテーブル間のリレーションを自動生成時に活用することができません。AdditionalForeignKey
+		を使って、DBFlute側で手動でリレーションを定義する必要があります。また、MyISAM
+		にはトランザクションがないため、例外発生時のロールバックが効かないという大きな問題があるのもさることながら、
+		DBFluteでデータを登録(insert)したときに、Identityで自動採番をした後の採番された後の値の取得ができないという細かい問題も発生します。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/additionalforeignkey/index.html">additionalForeignKeyMap.dfprop</a></div>
+	<div class="relatedpage"><a href="#autoincrement">this - 主キーでの自動採番</a></div>
+	<p>
+		もし、MyISAM である特別な理由がないのであれば、外部キー制約をサポートしている InnoDB
+		などのストレージエンジンを利用することで、そういった手間の発生を抑えることができます。
+	</p>
+	<div class="relatedpage"><a href="./supplement.html#storageengine">MySQL補足資料 - ストレージエンジンの設定</a></div>
+	<h3 id="ignorecase">ケース区別なし管理のススメ</h3>
+	<p>
+		Linux 上での MySQL は、SQL文でのテーブル名の大文字小文字を区別します。
+		開発はローカルPCの Windows で大文字小文字区別せずにSQLを書いていて、
+		いざ結合テストなどでサーバの Linux で動かしたときにSQLが動かない、というような状況が発生する可能性があります。
+		MySQL自体に、環境に依存せず大文字小文字を区別しないようにする設定があります。
+	</p>
+	<div class="detailpage"><a href="./supplement.html#ignorecase">MySQL補足資料 - テーブル名のケース区別なし管理</a></div>
+	<p>
+		ただし、DBのメタ情報においてテーブル名が小文字になるため、ConditionBean や Behavior で生成される SQL
+		上のテーブル名も小文字になってしまいます。
+		可読性のためにせめてSQL上のテーブル名だけは大文字にしたいと思うような場合は、オプションで大文字にすることができます。
+	</p>
+	<div class="detailpage"><a href="../../dfprop/littleadjustment/index.html#istablesqlnameuppercase">dfprop - isTableSqlNameUpperCase</a></div>
+	<p>
+		SchemaHTML や JavaDoc 上の表示用のテーブル名も大文字にするオプションがあります。
+	</p>
+	<div class="detailpage"><a href="../../dfprop/littleadjustment/index.html#istabledispnameuppercase">dfprop - isTableDispNameUpperCase</a></div>
+	<h3 id="sqlmode">SQLモードのススメ</h3>
+	<p>
+		MySQLのSQLモードを設定することをお奨めします。なぜなら、MySQLのデフォルト設定だと幾つか開発現場に相性の悪い仕様があるからです。
+		特に、間違ったカラムを指定した group by がしっかりとエラーになるように設定すると良いでしょう。 
+	</p>
+	<div class="detailpage"><a href="./supplement.html#sqlmode">MySQL補足資料 - SQLモード</a></div>
+	<h3 id="functiontype">Sql2Entityで関数値のデータ型</h3>
+	<p>
+		Sql2Entityで CustomizeEntity を自動生成する際に、例えば max() や sum()
+		のような関数を利用した項目に対応するプログラム型が想定しない型になる場合があります。
+	</p>
+	<p>
+		通常、Sql2EntityではSQLを実行して得られるメタ情報から、項目のデータ型や小数点などの情報から対応するプログラム型を判別しますが、
+		MySQLではその情報が少なく判別し切れない場合があります。例えば、本来 Long 型になって欲しいところが BigDecimal
+		型になってしまったりなど。その場合は、プログラム型の強制指定を利用して微調整すると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/sql2entity/customizeentity.html#forcedtype">CustomizeEntity - プログラム型の強制指定</a></div>
+	<p>
+		また、複数の関数を利用した場合に、その処理の順序でデータ型が変わることがあります。
+		例えば、min(date(FORMALIZED_DATETIME)) と date(min(FORMALIZED_DATETIME))
+		で違う型にマッピングされるとフィードバックを受けています(ただし、MySQLのバージョンなどに依存する可能性あり)。
+		この場合、後者だと java.util.Date にマッピングされます。
+		バッドノウハウと言えますが、このように(結果を変わらないことを前提に)関数の処理順序を調整することで、想定するプログラム型にマッピングさせることができる場合もあります。
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		MySQL を使ったExample実装 <em class="keyword">dbflute-mysql-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにMySQLと付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<dl class="textlist">
+		<dt>DBコメントの取得</dt>
+		<dd>
+			JDBC経由ではコメント情報が取得できないため(nullが戻ってくる)、information_schema.tables および information_schema.columns
+			を直接参照して取得しています。ちなみに、MySQLにはスキーマの概念はないのですが、table_schema
+			カラムの値にはデータベース名が格納されています。また、InnoDB だと アプリで設定したコメントに加えて、InnoDB
+			が提供するテーブルの物理情報も一緒に取得されてしまうため、結構無理矢理切り離しています。(自動生成に利用した環境の物理情報はあまり重要でないため)
+		</dd>
+		<dt>メタ情報取得時の大文字小文字リトライ</dt>
+		<dd>
+			メタ情報取得時に大文字小文字を区別せずに取得できるように(念のため)リトライ処理を行いますが、MySQL で Windows で lower_case_table_names = 0
+			の場合に、"errno: 121" のエラーが発生してしまうため、MySQL ではリトライはしていません。
+			リトライせずとも正常にメタ情報が取得できるので特に問題ありません。
+		</dd>
+		<dt>プロシージャ取得時のカタログ名</dt>
+		<dd>
+			DatabaseMetaData.getProcedureColumns() にて他のデータベースのプロシージャのメタ情報を取得する際、
+			第三引数のプロシージャ名にデータベース名(カタログ名)を prefix として付与しなければならないため、そのようにしています。
+			(第一引数にてデータベース名を明示的に指定しているにも関わらず)
+		</dd>
+	</dl>
+
+	<h2 id="supplement">MySQL補足資料</h2>
+	<p>
+		MySQLの補足資料をまとめています。
+	</p>
+	<div class="detailpage"><a href="./supplement.html">MySQLの補足資料</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

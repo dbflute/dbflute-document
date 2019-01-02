@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,Java,FirstStep,ファーストステップ,はじめの一歩,Beginner,ビギナー,はじまり,Feature,特徴,Basic,基本,心得" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Java Beginner's Hint (初心者向けJavaヒント) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Java Beginner's Hint</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		Javaの基本的な特徴について補足資料です。DBFluteと直接関係はありませんが、
+		現場ではJava初心者がいきなり開発することもありますので、
+		ここでは現場で重要と思われる、Java初心者向けのヒント(心得)を幾つかピックアップして補足的に書きたいと思います。
+		<span class="frm">(基本的な文法や詳しい挙動などはJavaの本などで学んでください)</span>
+	</p>
+
+	<h2 id="objectoriented">オブジェクト指向であること</h2>
+	<h3 id="oopoint">これだけは押さえておきたい概念</h3>
+	<p>
+		Javaは、オブジェクト指向の考え方をプログラムに置き換えることによって効率化を測っています。
+		ここでは深くオブジェクト指向は説明しませんが、これだけは押さえておきたい概念を紹介します。
+	</p>
+	<p>
+		データ(情報)とそれを取り扱う処理(振舞い)を一緒に管理し、振舞いの再利用性を高くしています。
+	</p>
+<pre><span class="codetitle">e.g. Object Oriented @Java</span><code>
+<span class="comment">// this object has file path and connection to the file</span>
+File file = <span class="keyword">new</span> File(<span class="literal">"/tmp/java-beginners-workshop.txt"</span>);
+
+<span class="keyword">if</span> (file.exists()) { <span class="comment">// behavior (determination about the file)</span>
+    file.delete(); <span class="comment">// behavior (manipulation to the file)</span>
+}
+</code></pre>
+	<p>
+		ここでは、Fileクラスを例にしています。Fileクラスは、ファイルパスという情報を保持しています。
+		そのパスが示すファイルシステム上の物理ファイルへ接続し、存在有無や削除処理などの振舞い(メソッド)を呼び出すことができます。
+	</p>
+	<p>
+		重要なのは、ファイル自体にそのファイルを取り扱うための振舞い(メソッド)が存在しているというところです。
+		delete(file) ではなく file.delete() というのがポイントです。
+	</p>
+	<h3 id="oopoint">これだけですが、これを伝えたい</h3>
+	<p>
+		実はここで説明するのはこれだけです。
+		カプセル化やポリモーフィズムなどオブジェクト指向の重要なポイントがもっともっとありますが、
+		ここではとりあえず上記のポイント、これをしっかり伝えておきたいと考えました。
+		<span class="frm">(オブジェクト指向の基本は本などで学んでください)</span>
+	</p>
+	<p>
+		ただ、実際のJavaのプログラムでは、必ずしもこのようになっているとは限りません。
+		思いっきり delete(file) っぽい書き方があったりします。全てがオブジェクト指向わけではありません。
+		あくまでオブジェクト指向は効率化のための一つの道具でありそれ自体が目的ではないので、あまり業務にフィットしない場面ではその限りではないのです。
+	</p>
+	<p>
+		一方で、その線引きは曖昧であるため、オブジェクト指向っぽく作った方が良い場面でも、delete(file)
+		になってしまうことも多くあります。これはなかなか解決されていない問題です。
+		また、そのときそのときのアーキテクチャに依存する面もあり、単純に delete(file) or file.delete() という 1/0 の問題でもありません。
+		ものすごい単純な概念でありながら、とても奥深い面も持ち合わせていて難しい問題でもあります。
+		それを理解した上で、Javaのソースコードを読んでいく必要があるでしょう。
+	</p>
+
+	<h2 id="exceptionstacktrace">例外メッセージとスタックトレース</h2>
+	<p>
+		Javaにおけるエラーの読み方は必ず理解しておいたほうが良いでしょう。
+		エラーが出ても目を背けず、しっかり読み解いていくことが速い原因究明に結びつきます。
+	</p>
+	<h3 id="stacktracereading">スタックトレースの読み方</h3>
+	<p>
+		例えば、以下のような例外メッセージとスタックトレースがあるとします。(一部省略)
+	</p>
+<pre><span class="codetitle">e.g. Exception Message & StackTrace @Log</span><code>
+java.lang.IllegalStateException: The status code was illegal: abc
+    at <span class="abbreviation">...</span>logic.FooLogic.handle(FooLogic.java:54)
+    at <span class="abbreviation">...</span>action.FooAction.execute(FooAction.java:44)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+</code></pre>
+	<p>
+		この例外情報から読み取れることは以下の通り。
+	</p>
+	<dl class="valuemainlist">
+		<dt>例外クラス</dt><dd>IllegalStateException</dd>
+		<dt>例外メッセージ</dt><dd>The status code was illegal: abc</dd>
+		<dt>例外発生個所</dt><dd>FooLogicの54行目、handle()メソッド内</dd>
+		<dt>handle()呼び出し</dt><dd>FooActionの44行目、execute()メソッド内でhandle()を呼び出し</dd>
+		<dt>execute()呼び出し</dt><dd>リフレクションからの呼び出し (Native Method)</dd>
+	</dl>
+	<p>
+		例外クラスと例外メッセージで、原因を漠然と想像することができます。
+		また、スタックトレースを追跡することで、例外発生個所とそこまでの呼び出し階層を知ることができます。
+		この情報から実際のソースコードを追っていけば、多くの場合原因がわかります。
+		(例外メッセージがどれだけ親切かどうかが鍵)
+	</p>
+	<p>
+		不正なステータスコード "abc" が指定されたようです。さて、そんな適当なステータスコード、どこからやってきたんでしょう？
+		変なテストデータがあるのでしょうか？違う値をステータスコードとして扱ってしまってはいないでしょうか？
+		そのように追っていくことで、原因を突き止めていけるでしょう。
+	</p>
+	<p>
+		逆に、自分が例外を発生させる場合に、例外メッセージにどんな情報を入れておけば原因を追求しやすいのか、これがわかれば心温まる優しいメッセージを作ることができるでしょう。
+	</p>
+	<h3 id="nestedexception">ネストした例外を見逃さない</h3>
+	<p>
+		例外はネストしている可能性があります。例えば、以下のコードでは例外(Inner)が別の例外(Wrapper)にラップされています。
+	</p>
+<pre><span class="codetitle">e.g. Exception Message & StackTrace @Java</span><code>
+<span class="keyword">public void</span> check() <span class="keyword">throws</span> Exception {
+    <span class="keyword">try</span> {
+        throwWrapperException();
+    } <span class="keyword">catch</span> (ExampleWrapperException e) {
+        log(e);
+    }
+}
+
+<span class="keyword">protected void</span> throwWrapperException() {
+    <span class="keyword">try</span> {
+        throwInnerException();
+    } <span class="keyword">catch</span> (ExampleInnerException e) {
+        <span class="keyword">throw new</span> ExampleWrapperException(<span class="literal">"Wrapper Exception"</span>, e);
+    }
+}
+
+<span class="keyword">protected void</span> throwInnerException() {
+    <span class="keyword">throw new</span> ExampleInnerException(<span class="literal">"Inner Exception"</span>);
+}
+</code></pre>
+	<p>
+		"Inner Exception" が発生して、それを途中で catch して "Wrapper Exception" に詰め替えてまた例外を発生させています。
+		すると、例外情報を以下のようになります。(一部省略)
+	</p>
+<pre><span class="codetitle">e.g. Exception Message & StackTrace @Log</span><code>
+java.lang.ExampleWrapperException: Wrapper Exception
+    at <span class="abbreviation">...</span>FooLogic.throwWrapperException(FooLogic.java:54)
+    at <span class="abbreviation">...</span>FooLogic.check(FooLogic.java:44)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    <span class="abbreviation">...</span>
+Caused by: java.lang.ExampleInnerException: Inner Exception
+    at <span class="abbreviation">...</span>FooLogic.throwInnerException(FooLogic.java:59)
+    at <span class="abbreviation">...</span>FooLogic.throwWrapperException(FooLogic.java:52)
+    ... 20 more
+</code></pre>
+	<p>
+		まず一番上には、いつも通りの例外情報が表示され、スタックトレースの途中でネストした例外、ここでは "Inner Exception"
+		が表示されます。これは何層にも渡る可能性があります。
+	</p>
+	<p>
+		なぜこのように例外をラップするのか？
+		末端の処理におけるその例外の原因と、それを呼び出した側の処理におけるその例外の原因のニュアンスが一致するとは限りません。
+		そのままラップせずに例外を素通り(throw)してしまうと、最終的に原因がよくわからない可能性もあるのです。
+		呼び出し側で例外をしっかりラップして、ラップ例外のメッセージの方に呼び出し側でしか知り得ない情報を載せておくことで、
+		より正確な原因を通知することができるのです。(これを "例外の翻訳" と呼びます)
+	</p>
+	<p>
+		例えば、DBFluteでは、MySQLのJDBCドライバが発生させる例外をラップして、DBFluteの例外に翻訳しています。
+		このようにすることで、DBFluteでしか知り得ない情報をメッセージに載せることができ、より迅速な原因究明ができるようにしています。
+	</p>
+	<p>
+		とはいえ、ラップ例外のメッセージだけで原因が完全にわかるわけではありません。
+		ラップする方の例外のメッセージは、そのメッセージ次第ですがより抽象度が高い内容になるものです。
+		"詳しくはラップされた例外のメッセージを見てください" というニュアンスを含んでると考えていいです。
+		必ず、ネストされた(ラップされた)例外のメッセージも読んだ上で原因を考えましょう。
+	</p>
+	<h3 id="beforedebugger">デバッガー起動前に読みましょう</h3>
+	<p>
+		例外メッセージを正しく読めれば、かつ、例外メッセージが親切であれば、それだけで原因が判明することが多いです。
+		それを読まずにいきなり(あてもなく)デバッガーを起動してデバッグし始めるのは時間がもったいないと考えられます。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20090224/1235473382">外部サイト - jfluteの日記 - デバッグ手順(スタックトレース重要)</a></div>
+	<h3 id="editorlinenumber">行番号を表示しましょう</h3>
+	<p>
+		例えば Eclipse のエディターは、デフォルトで行番号が表示されていません。
+		いくら行番号がわかっても、エディター上で行番号がわからなければ意味がありません。
+		ワークスペースの設定 "Window - Preferences" の "General - Editors - Text Editors"
+		にて、行番号を表示するチェックがありますので、行番号が表示されていない場合はぜひ表示しましょう。
+	</p>
+
+	<h2 id="nullpointer">NullPointerException</h2>
+	<p>
+		Javaでは避けられない事案です。
+	</p>
+	<h3 id="nullpoiterreading">NullPointerの読み解き方</h3>
+	<p>
+		値の入っていない(null状態の)変数に対して、メソッド呼び出しなどを行うと NullPointerException
+		は発生します。Java自体がこの例外をthrowします。
+	</p>
+<pre><span class="codetitle">e.g. Basic NullPointerException @Java</span><code>
+(53行目) String nullStr = <span class="keyword">null</span>;
+(54行目) <span class="keyword">int</span> len = nullStr.length(); <span class="comment">// NullPointerException here</span>
+</code></pre>
+	<p>
+		この場合の例外情報は以下のようになります。
+	</p>
+<pre><span class="codetitle">e.g. StackTrace of NullPointerException @Java</span><code>
+java.lang.NullPointerException
+    at <span class="abbreviation">...</span>FooLogic.handle(FooLogic.java:54)
+    at <span class="abbreviation">...</span>FooAction.execute(FooAction.java:23)
+</code></pre>
+	<p>
+		この例外からわかることは、NullPointerExceptionが発生したということ、そして、FooLogicの54行目、handle()メソッド内にて発生したということ。
+		54行目を見たときに、nullに対してメソッド呼び出ししている可能性のある変数は、nullStr です。
+	</p>
+	<h3 id="nullpoiterunknown">特定できないNullPointer</h3>
+	<p>
+		しかしながら、以下のようなコードだと、何が null なのかが特定できません。
+	</p>
+<pre><span class="codetitle">e.g. Basic NullPointerException @Java</span><code>
+(54行目) check(member.getMemberStatus().getDisplayOrder());
+</code></pre>
+	<p>
+		54行目でNullPointerExceptionが発生したとして、nullの可能性があるのは二つ。
+		member変数がnull、もしくは、getMemberStatus()の戻り値がnull。例外情報からは特定ができません。
+		前後関係や可能性を推測して、"memberよりもgetMemberStatus()がnullの方があり得るなぁ" と突き詰めていくことになります。
+	</p>
+	<p>
+		そのようにならないためにも、getMemberStatus()の戻り値を一旦変数に置いて、NullPointerException
+		の可能性を常に一行につき一つにしておくのもプログラミングのお作法の一つではあります。
+		ただ、割り切ってそのようには書かないことも多いのも事実です。
+	</p>
+	<p>
+		ちなみに、getDisplayOrder()の戻り値がnullかどうかは無関係です。
+		check()メソッドの引数にその戻り値を指定しているわけですが、メソッドの引数がnullでも別に問題はありません。
+		check()メソッドがnullを受け付けないにしても、それはそれでcheck()メソッド内でNullPointerExceptionが発生するはずです。
+	</p>
+	<h3 id="nullpoiterwrapper">ラッパー型変換NullPointer</h3>
+	<p>
+		nullの変数に対するメソッド呼び出し以外にも、NullPointerException を発生させる要因があります。
+		nullのInteger型のラッパー型の変数に対して足し算や掛け算を行うと発生します。
+	</p>
+<pre><span class="codetitle">e.g. Wrapper Type Null Pointer @Java</span><code>
+Integer count = <span class="keyword">null</span>;
+Integer plusOne = count + <span class="literal">1</span>; <span class="comment">// null pointer</span>
+</code></pre>
+	<p>
+		NullPointerExceptionが発生して行番号を確かめてみて変数に "."
+		ドットとしている箇所が見当たらなくても、こういうパターンも想定されるので注意です。
+	</p>
+
+	<h2 id="equalsequal">equals()と "=="</h2>
+	<p>
+		Javaが誕生以来、なかなか無くならないバグです。
+	</p>
+	<h3 id="basicdiff">基本的な違い</h3>
+	<p>
+		簡単に説明すると以下のような違いがあります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>equals()</dt><dd>各オブジェクトルールに従った比較</dd>
+		<dt>"=="</dt><dd>インスタンスが同じかどうかの比較</dd>
+	</dl>
+	<p>
+		equals()メソッドは、Objectクラスに定義された全てのクラスに存在するメソッドです。
+		それぞれのクラスはこのメソッドをオーバーライドして、そのクラスに適した等値判定を行えるようにします。
+	</p>
+	<p>
+		"==" は、そのクラスのルールがなんであれ、とにかくその二つのオブジェクトのインスタンスが同じかどうかを比較します。
+		全く同じ値を持ったオブジェクトだとしてもインスタンスが違えば false です。
+	</p>
+<pre><span class="codetitle">e.g. equals() and "==" @Java</span><code>
+<span class="keyword">if</span> (<span class="keyword">new</span> File(<span class="literal">"/tmp/memo.txt"</span>).equals(<span class="keyword">new</span> File(<span class="literal">"/tmp/memo.txt"</span>))) { <span class="comment">// true</span>
+}
+
+<span class="keyword">if</span> (<span class="keyword">new</span> File(<span class="literal">"/tmp/memo.txt"</span>) == <span class="keyword">new</span> File(<span class="literal">"/tmp/memo.txt"</span>)) { <span class="comment">// false</span>
+}
+
+File file1 = <span class="keyword">new</span> File(<span class="literal">"/tmp/memo.txt"</span>);
+File file2 = file1;
+<span class="keyword">if</span> (file1 == file2) { <span class="comment">// true</span>
+}
+</code></pre>
+	<h3 id="integercache">Integerのキャッシュに注意</h3>
+	<p>
+		Integerクラスでは、さらにややこしくなります。
+		Integer.valueOf()メソッドは、内部である程度キャッシュしているIntegerインスタンスを戻します。
+		1, 2, 3 など小さな値は、よく利用される数値として常に同じインスタンスが戻ってきます。
+	</p>
+<pre><span class="codetitle">e.g. equals() and "==" of Integer @Java</span><code>
+<span class="keyword">if</span> (Integer.valueOf(2) == Integer.valueOf(2)) { <span class="comment">// true</span>
+}
+
+<span class="keyword">if</span> (Integer.valueOf(1000) == Integer.valueOf(1000)) { <span class="comment">// false</span>
+}
+</code></pre>
+	<p>
+		小さな値の時はうまく動いていても、値が大きくなったら動かなくなるというとても危険なコードです。
+		キャッシュされたIntegerかどうかは意識せずに、一律 equals() を使うようにした方が良いでしょう。
+	</p>
+	<h3 id="howtouse">どういう風に区別していく？</h3>
+	<p>
+		インスタンスが同じかどうかを業務的に判定する場面はほとんどありません。Integerのインスタンスが同じか違うかを意識することに業務的な意味はほぼありません。
+		つまり、"==" を使う場面はかなり限られるでしょう。ただ、intなどのプリミティブ型に関しては、そもそもオブジェクトではないため equals()
+		が利用できません。強制的に "==" を使っていくことになります。
+	</p>
+	<p>
+		また、ENUMに関しては、もともとそれぞれの要素が絶対にシングルトン(インスタンスが一つしかない)であるため、"=="
+		を使っても大丈夫だったりします。その方が見やすいということで実際に "==" で結ばれているコードは多く見かけます。
+		また、間違った型違いのインスタンスと比較しようとしたときにコンパイルエラーになってくれるのとミスも防げます。
+		しかしながら、ENUMだから "==" でOK、他のオブジェクトは equals()
+		という区別を常に意識するのも思ったよりも大変で、"== やっちゃいけないところでやっちゃった事件" はなかなかなくなりません。
+		なので、とにかく "." (ドット) で補完して equals() が出てこなかったら (つまりプリミティブ型だったら) "=="
+		を初めて使うというようなルールでも問題ないかと思います。
+		<span class="frm">("==" によるトラブルの方が潜在化しやすいやっかいなバグになりやすいので、そちらの方が防ぎたいという考え方)</span>
+	</p>
+
+	<h2 id="primitivewrapper">プリミティブ型とラッパー型</h2>
+	<p>
+		Javaは完全なオブジェクト指向言語とは言えない要素があります。その一つが、プリミティブ型と言われる型の存在です。
+		int型やlong型など、従来の手続き型のような "値" だけを表す型です。
+		これらプリミティブ型には、振舞い(メソッド)がありません。単なる値でしかないのです。
+		equals()メソッドもありませんし、toString()もありません。Object型を継承しているわけではありません。
+		オブジェクトではないので null も入りません。
+	</p>
+<pre><span class="codetitle">e.g. Primitive Type @Java</span><code>
+<span class="keyword">int</span> count = <span class="literal">0</span>;
+++count;
+<span class="keyword">if</span> (count == <span class="literal">1</span>) {
+}
+count<span class="point">.xxx</span> <span class="comment">// you cannot call its method</span>
+count<span class="point"> = null</span>; <span class="comment">// you cannot set null</span>
+</code></pre>
+	<p>
+		それではオブジェクト指向のようなメリットを得られないので、その "値" をラップしたクラスがそれぞれ用意されています。
+		例えば、int型であれば java.lang.Integer です。
+	</p>
+	<dl class="keymainlist">
+		<dt>byte</dt><dd>java.lang.Byte</dd>
+		<dt>short</dt><dd>java.lang.Short</dd>
+		<dt>int</dt><dd>java.lang.Integer</dd>
+		<dt>long</dt><dd>java.lang.Long</dd>
+		<dt>float</dt><dd>java.lang.Float</dd>
+		<dt>double</dt><dd>java.lang.Double</dd>
+		<dt>boolean</dt><dd>java.lang.Boolean</dd>
+		<dt>char</dt><dd>java.lang.Character</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Wrapper Type @Java</span><code>
+<span class="keyword">Integer</span> count = Integer.valueOf(<span class="literal">0</span>);
+++count;
+<span class="keyword">if</span> (count.equals(<span class="literal">1</span>)) {
+}
+String countStr = count.toString() <span class="comment">// you can call</span>
+count = <span class="keyword">null</span>; <span class="comment">// you can set null</span>
+count.toString(); <span class="comment">// you can get NullPointerException</span>
+</code></pre>
+	<p>
+		Java5からオートボクシングが導入され、プリミティブ型とラッパー型の変換は自動で行われるようになり、
+		あまり意識せずに実装できるようにはなりました。
+	</p>
+<pre><span class="codetitle">e.g. Wrapper Type @Java</span><code>
+<span class="keyword">Integer</span> count = 0; <span class="comment">// you can set int value</span>
+<span class="keyword">if</span> (count == 1) { <span class="comment">// you can use "=="</span>
+}
+</code></pre>
+	<p>
+		ただ、これも単に変換がやりやすくなったというだけで、プログラム上にプリミティブ型とラッパー型が混在していることには変わりはありません。
+		Javaのプログラミングにおいては、どうしてもこの区別をつけた上で実装する必要があります。
+	</p>
+	<h3 id="primitivecase">プリミティブ型のケース</h3>
+	<p>
+		オブジェクト指向言語としてのメリットを享受するなら、もうプリミティブ型を使わなくてもいいのでは？と思われるかもしれません。
+		確かに一理ありますが、実際の現場ではなかなかそうなっていないのが現状です。自分が実装する時も、ソースを読む時もそれを踏まえておく必要があります。
+	</p>
+	<h4 id="notnulltype">nullを防ぐ型として</h3>
+	<p>
+		プリミティブ型でもラッパー型でもどっちでもいいような場合、かつ、nullが絶対に入らない、nullが入って欲しくないような場合に、
+		プリミティブ型を使うことがあります。for文のカウンターとしてのint型が主な例です。0から数えていくので、nullが入る必要がありません。
+	</p>
+	<p>
+		ただ、他のオブジェクトは全て null が入る可能性があるのに、数値や判定だけそこに対して神経質になるのもちょっとバランスが悪いとも考えられます。
+		なので、どこまで厳密にこのきっかけでプリミティブ型を使っていくかは曖昧です。
+	</p>
+	<p>
+		ただ、その中でもboolean型だけは厳密に近いものと言えます。どちらかというと、boolean型はプリミティブ型の方が多く利用されます。
+		trueかfalseかの二択を表現するものであることから "nullはどっち!?" という紛れが入るととても紛らわしくなります。
+		逆にBoolean型が利用されていると、"これは null が入るからあえてラッパー型を使っているのかな!?"
+		と読み手では想像してしまうくらいです。
+	</p>
+	<h4 id="memoryeco">メモリ節約として</h4>
+	<p>
+		利用されるメモリ領域は、当然のことながらプリミティブ型の方が少ないです。ほとんどのプログラムにおいて、そこまで神経質になる必要はないでしょう。
+		ただ、高負荷が想定されるフレームワークの内部処理などにおいて、局所的にこのきっかけでプリミティブ型の利用を検討することがあります。
+	</p>
+	<p>
+		例えば、String型のsubstring()の引数や、indexOf()の戻り値などは全てint型です。
+		String型のような基本的なAPIは、まるで息を吸うかのごとく数多くの場所で利用されることが想定されます。
+		substring()は、nullを受け付ける意味がないのでintという面もありますが、indexOf()は見つからなかった時は -1
+		が戻ってきます。NotFound は nullで表現しても構わないとも考えられますが、
+		仮にIntegerを使った場合に比べれば、int型を使うことによって無駄なインスタンスの生成は抑制されているでしょう
+	</p>
+	<div class="relatedpage"><a href="./string.html#substring">Java - String - substring()</a></div>
+	<div class="relatedpage"><a href="./string.html#indexof">Java - String - indexOf()</a></div>
+	<p>
+		これは、"配列を使うのか？リスト型を使うのか？" という話にも関連します。
+	</p>
+	<h4 id="apidriven">APIの都合次第で</h4>
+	<p>
+		プリミティブ型を使うきっかけがなくても、利用するAPIの受け取る型がプリミティブ型である場合は、
+		こちらの処理の中でも最初からプリミティブ型で取り扱うことがあります。
+		無駄な変換が発生させないようにする、という面もありますが、そこまで深く考えずAPIに合わせるという面もあります。
+		APIの方では、nullを防ぐとか、メモリ節約とか、色々ときっかけがあったのかも知れません。
+	</p>
+	<h4 id="magicnumber">マジックナンバー注意</h4>
+	<p>
+		逆にプリミティブ型である必要がないのにプリミティブ型になっている場合に注意です。
+		値が存在しない、処理ができなかった、数値を判断できなかった場合など、素直に null で表現してもいいのでは!?
+		と思うような場面で、"-1" や "999999999" などのあり得ない値を null 代わりに利用してしまうと、
+		思わぬ誤動作を生む可能性もあります。
+	</p>
+	<p>
+		例えば、その数値が別の数値と計算されるような場合、そのあり得ない値も含めて計算されてしまい、
+		エラーで落ちずにあたかも正常に動作したかのように間違った結果を生んでしまいます。何が一番怖いかって、その間違いに気付かないことが怖いです。
+		null の Integer に対する足し算や掛け算であれば NullPointerException が発生するので間違いに気付くことができます。
+	</p>
+	<p>
+		StringのindexOf()の戻り値は -1 で見つからなかったことを表現していますが、
+		作った人に聞いたわけではないので確かにではありませんが、
+		計算に利用されるような値ではないという想定と、メモリ節約の考慮を優先してint型になっていると想像できます。
+	</p>
+	<div class="relatedpage"><a href="./string.html#indexof">Java - String - indexOf()</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

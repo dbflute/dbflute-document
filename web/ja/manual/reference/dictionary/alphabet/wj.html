@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 J | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 J</h1>
+	<p>
+		"J" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="javabeansrule" class="dicword">JavaBeansRule</h2>
+	<p>
+		JavaBeans のルールのことを示します。DBFluteでは、プロパティ名の先頭文字に関して利用されることが多いです。
+	</p>
+	<p>
+		例えば、"foo_value" という名前のカラムをプロパティ名に置き換えると、"fooValue"
+		というのが通常です。ただし、"m_foo_value" という名前だった場合は "MFooValue"
+		というように先頭が大文字になります。これは JavaBeansRule に従っているためです。
+		もし、大文字小文字を区別してプロパティ名を意識するような場面で、"mFooValue"
+		と指定しても正しく解釈されないので注意が必要です。
+	</p>
+	<p>
+		ただ、DBFlute においてそもそもそういった場面はあまり多くありません。
+		そもそも大文字小文字を区別せずにプロパティ名を受け付けるような処理の場合は意識する必要はありません。
+		独自に定数アノテーションを定義するような場合などにおいて意識する場面があります。
+	</p>
+	<div class="relatedword"><a href="./wc.html#constantannotation">ConstantAnnotation (定数アノテーション)</a></div>
+
+	<h2 id="jdbc" class="dicword">JDBC</h2>
+	<p>
+		一般的な用語で、JavaプログラムからリレーショナルデータベースにアクセスするためのAPIです。
+		DBFluteでは、JDBC経由でデータベース(スキーマ)のメタ情報を取得します。JDBCタスクの略称でもあります。
+	</p>
+	<div class="relatedword"><a href="#jdbc">JDBC Task</a></div>
+
+	<h2 id="jdbcdriver" class="dicword">JDBC Driver (JDBCドライバ)</h2>
+	<p>
+		一般的な用語で、JDBCでデータベースを操作するためのjarファイルもしくはクラスです。
+		DBFluteではデータベース(スキーマ)のメタ情報を取得するためにJDBCドライバを必要とします。
+	</p>
+	<div class="relatedword"><a href="./wj.html#jdbc">JDBC</a></div>
+
+	<h2 id="jdbctask" class="dicword">JDBC Task (JDBCタスク)</h2>
+	<p>
+		DBFluteタスクの一つで、データベースからメタ情報を取得します。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/jdbc/index.html">JDBC Task (JDBCタスク)</a></div>
+	<div class="relatedword"><a href="#jdbc">JDBC</a></div>
+
+	<h2 id="jdbctype" class="dicword">JDBC Type (JDBC型)</h2>
+	<p>
+		主にJDBC(java.sql.Types)で定義されるデータ型を示します。
+		自動生成におけるデータ型マッピングの内部的な中間型で、カラムのデータ型は一旦このJDBC型にマッピングされた後、
+		このJDBCタイプに対応するプログラム型にマッピングされます。
+		DBFluteプロパティなどで、型の指定方法として、このJDBC型(の文字列表現)を利用する場合があります。
+		(例えば、共通カラムのそれぞれのカラムのデータ型を定義するような場合)
+	</p>
+	<p>
+		DBFluteではJDBCでは定義されていない型を幾つか拡張しています(例えば、UUIDなど)。
+		また、定義されている全ての型を取り扱っているわけではありません。
+		(そういう意味では、厳密にはDBFlute型とも言えるかもしれません)
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/typemapping/index.html#defaultmapping">JDBC型とプログラム型のデフォルトマッピング</a></div>
+	<div class="relatedpage"><a href="../../dfprop/commoncolumn/index.html">commonColumnMap.dfprop</a></div>
+	<div class="relatedword"><a href="./wp.html#programtype">Program Type (プログラム型)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

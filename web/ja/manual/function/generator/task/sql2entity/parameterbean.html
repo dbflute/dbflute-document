@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ParameterBean,SQLの引数,SQLのパラメータ,外だしSQLの検索条件,Sql2Entity" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ParameterBean | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ParameterBean</h1>
+	<p>
+		Sql2Entityで自動生成される ParameterBean についてのページです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Sql2Entity</a></div>
+	${indexlist}
+
+	<h2 id="about">ParameterBeanとは？</h2>
+	<p>
+		SQLへ渡すパラメータ(引数)は実開発ではかなり多くなりがちです。引数が多くなればなるほどメソッドはわかりにくいものになります。
+		DBFluteの外だしSQLでは、<em class="keyword">SQLへ渡すパラメータオブジェクト</em> を利用し、呼び出しメソッドの引数を必ず
+		"一つのオブジェクト" という形にします。そのパラメータオブジェクトのことを ParameterBean と呼びます。
+	</p>
+	<h3 id="typed">TypedParameterBean</h3>
+	<p>
+		また、何のSQLを呼び出すか？ 戻り値Entityの型は何か？
+		といった情報も合わせて型付けされた ParameterBean を TypedParameterBean と呼びます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/concept.html#typedandfree">外だしSQLの実装コンセプト - タイプセーフ、そして、自由度考慮</a></div>
+	<h3 id="procedure">プロシージャ対応のParameterBean</h3>
+	<p>
+		ParameterBeanには、プロシージャ対応のもの(ProcedurePmb)が存在します。
+		同じParameterBeanではありますが、生成の課程や役割などにちょっとした違いがあります。
+		このページでは、ProcedurePmbでないParameterBeanがメインに説明されています。
+	</p>
+	<div class="relatedpage"><a href="./procedurepmb.html">ProcedurePmb</a></div>
+	<h3 id="emptyasnull">空文字は null として扱われる</h3>
+	<p>
+		ParameterBeanのString型のプロパティの空文字は null として扱われます。よって、外だしSQLで空文字なのか null
+		なのかを意識する必要はなく、IFコメントで "nullでないこと"
+		という条件で分岐可能です。(ただし、ListやMap型プロパティの要素のString型の値はそのまま空文字として扱われます)
+	</p>
+<pre><span class="codetitle">e.g. String型プロパティは空文字かどうかは条件に含めてなくてもOK @OutsideSql</span><code>
+<span class="comment">/*IF pmb.memberName != null*/</span>
+<span class="abbreviation">...</span>
+<span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		地味なことですが、画面側フレームワークによっては
+		"存在しない値" の表現が空文字だったり null
+		だったりとします。ParameterBeanではそういった細かいことを極力気にしないで済むようにしています。
+	</p>
+	<div class="relatedpage"><a href="#emptystring">this - getメソッドの空文字フィルタ</a></div>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+
+	<h2 id="autogenerate">ParameterBeanの自動生成</h2>
+	<h3 id="sql2entity">Sql2Entityで自動生成される</h3>
+	<p>
+		ParameterBeanは、Sql2Entityタスクで自動生成されます。
+		出力先ディレクトリと出力クラスのパッケージは、デフォルトではGenerateタスクで自動生成されるクラスと同じで、Behavior
+		のパッケージ配下の <em class="keyword">pmbean</em> パッケージに出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/applicationoutsidesql/index.html">現場フィット - アプリごとの外だしSQL</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#sqlpackage">dfprop - sqlPackage</a></div>
+	<p>
+		外だしSQLに、ParameterBeanを生成したいというマーク <em class="keyword">(ParameterBeanマーク)</em>
+		を記述し、Sql2Entityタスクを実行することでParameterBeanが自動生成されます。
+		(ParameterBeanのみの自動生成の場合は、Sql2Entityタスクで該当の外だしSQLが実際のDBに実行されませんが、外だしSQLは必ず
+		2Way-SQL で記述されていることを前提とすることに変わりはありません)
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/about.html#twowaysql">外だしSQL - 2Way-SQL</a></div>
+	<div class="relatedpage"><a href="./index.html">Sql2Entityタスク</a></div>
+	<h3 id="deleteold">古いクラスは削除される</h3>
+	<p>
+		外だしSQLのどこにも記述されていない既存の<span class="existscloset" title="exists a closet option">古いParameterBeanは(ファイルシステム上から)削除されます</span>。
+		古いParameterBeanを利用しているプログラムはコンパイルエラーとして検知できます。
+	</p>
+
+	<h2 id="parameterbeanmark">ParameterBeanマーク</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<p>
+		ParameterBeanの生成を示すマークは、SQLの行コメントで、<em class="keyword">!df:pmb!</em>
+		という形で記述します。これを <em class="keyword">ParameterBeanマーク</em> と呼びます。生成されるクラス名は以下のような感じ。
+	</p>
+	<dl class="keymainlist">
+		<dt>SimpleMemberPmb</dt><dd>例えば、MemberBhv_selectSimpleMember.sql であれば</dd>
+	</dl>
+	<p>
+		CustomizeEntityとは違い "どういったプロパティ構造を保持するか" をメタデータとして取得することができません。
+		そこで、プロパティ項目を <em class="keyword">パラメータコメントから自動判別</em> して導出するためのマークを付与します。同じくSQLの行コメント形式 "-- "
+		で、<em class="keyword">!!AutoDetect!!</em> と記述します。これで、パラメータコメントで利用するプロパティを持った ParameterBean が自動生成されます。
+	</p>
+	<div class="relatedpage"><a href="./pmbautodetect.html">ParameterBean - プロパティ項目の自動判別</a></div>
+<pre><span class="codetitle">e.g. "MemberBhv_selectSimpleMember.sql" に対応する ParameterBean を生成 @OutsideSql</span><code>
+<span class="point">-- !df:pmb!</span>
+<span class="point">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="keyword">and</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span>
+</code></pre>
+	<p>
+		自動判別を利用せずに、明示的にプロパティを宣言することもできます。
+		同じくSQLの行コメント形式 "-- " で、"!![プログラム型 プロパティ名]!!"
+		という形で記述します。
+	</p>
+<pre><span class="codetitle">e.g. "MemberBhv_selectSimpleMember.sql" に対応する ParameterBean を生成 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="point">-- !!Integer memberId!!</span>
+<span class="point">-- !!String memberName!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="keyword">and</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span>
+</code></pre>
+	<p>
+		プログラム上でパッケージ名を指定しなければいけないプログラム型において、よく利用される型(Date, Timestamp, List
+		など)においてはパッケージ名は自動解決され、それらクラスに関してはパッケージ名を省略することができます。
+	</p>
+	<div class="relatedpage"><a href="#packageresolve">this - プログラム型のパッケージ解決</a></div>
+	<p>
+		自動判別と明示的宣言を併用することもできます。その場合、同じプロパティは明示的宣言の方が優先されます。
+		自動判別を使いつつ、微調整をしたいときに明示的宣言を併用すると良いでしょう。
+	</p>
+	<h3 id="otherspec">その他補足仕様</h3>
+	<p>
+		一つの外だしSQLに CustomizeEntityマーク と一緒に記述することができます。逆に CustomizeEntityマーク
+		がなくても利用できます。(その場合は、ParameterBean だけを自動生成することになりますが、TypedParameterBean としての利用はできません)
+	</p>
+	<p>
+		ParameterBean のクラス名を明示的に指定することもできます。
+	</p>
+	<p>
+		SQLの行コメントで、"![ParameterBeanのクラス名]!"
+		という形で記述します。主に、他のSQLで ParameterBean を再利用するなど、SQL名に依存しない名前を付けたいようなときに利用します。
+	</p>
+<pre><span class="codetitle">e.g. SimpleMemberPmb という名前の ParameterBean を生成 @OutsideSql</span><code>
+<span class="comment">-- !SimpleMemberPmb!</span>
+<span class="comment">-- !!String memberId!!</span>
+<span class="comment">-- !!Date fromBirthdate!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="option">ParameterBeanのオプション</h2>
+	<p>
+		ParameterBeanには様々なオプションがあります。効果的に使いましょう。
+	</p>
+	<h3 id="classoption">クラスのオプション</h3>
+	<dl class="longkeymainlist">
+		<dt><a href="./pmbclassoption.html#pagingoption">ページング検索のオプション</a></dt><dd>-- !df:pmb extends Paging!</dd>
+	</dl>
+	<h3 id="propertyoption">プロパティのオプション</h3>
+	<dl class="longkeymainlist">
+		<dt><a href="./pmbpropoption.html#likesearch">LikeSearch条件のオプション</a></dt><dd>:like, :likeContain, :likePrefix, ... <span class="frm">※もしくは自動判別</span></dd>
+		<dt><a href="./pmbpropoption.html#datefromto">DateFromTo条件のオプション</a></dt><dd>:fromDate, :toDate, :fromDate(option), ...</dd>
+		<dt><a href="./pmbpropoption.html#classification">区分値条件のオプション</a></dt><dd>:cls(MemberStatus)</dd>
+		<dt><a href="./pmbpropoption.html#refcolumn">参照カラムのオプション</a></dt><dd>:ref(MEMBER.MEMBER_STATUS_CODE), ref(MEMBER)</dd>
+		<dt><a href="./pmbpropoption.html#propcomment">プロパティのコメント</a></dt><dd>-- !!...!! // ..., :comment(...)</dd>
+	</dl>
+
+	<h2 id="autodetect">プロパティ項目の自動判別</h2>
+	<h3 id="detectexample">AutoDetect の概要</h3>
+	<p>
+		プロパティ項目をIFコメントやバインド変数コメントなどから自動判別することが可能です。
+	</p>
+	<div class="detailpage"><a href="./pmbautodetect.html">ParameterBeanの自動判別</a></div>
+	<dl class="longkeymainlist">
+		<dt><a href="./pmbautodetect.html#autodetect">プロパティ項目の自動判別</a></dt><dd>-- !!AutoDetect!!</dd>
+		<dt><a href="./pmbautodetect.html#alternatebool">代理判定メソッドの自動判別</a></dt><dd>/*IF pmb.existsPurchase()*/</dd>
+	</dl>
+	<h3 id="detectexample">AutoDetect の Example</h3>
+<pre><span class="codetitle">e.g. プロパティ項目を自動判別 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="keyword">and</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. IFコメントで代理判定メソッドを指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!<span class="point">AutoDetect</span>!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.<span class="point">existsPurchase()</span>*/</span>
+ <span class="keyword">and exists</span> (<span class="keyword">select</span> PURCHASE_ID
+             <span class="keyword">from</span> PURCHASE
+             <span class="abbreviation">...</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+
+	<!-- _/_/_/_/_/_/_/_/ -->
+	<!-- Resolve Package  -->
+	<!-- _/_/_/_/_/_/_/_/ -->
+	<h2 id="packageresolve">プログラム型のパッケージ解決</h2>
+	<p>
+		明示的宣言で指定するプログラム型のパッケージ名は、頻繁に利用されることが想定されるクラスに関しては自動で解決されます。
+	</p>
+	<h3 id="basicpkg">基本的なパッケージ解決</h3>
+	<p>
+		以下のクラスは自動で解決されます。
+	</p>
+	<dl class="keymainlist">
+		<dt>BigDecimal</dt><dd>java.math.BigDecimal</dd>
+		<dt>Date</dt><dd>java.util.Date</dd>
+		<dt>Timestamp</dt><dd>java.sql.Date</dd>
+		<dt>Time</dt><dd>java.sql.Time</dd>
+		<dt>List</dt><dd>java.util.List</dd>
+		<dt>Map</dt><dd>java.util.Map</dd>
+	</dl>
+<pre><span class="codetitle">e.g. パッケージが解決されるので指定がシンプルに @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!BigDecimal big1!!</span>
+<span class="comment">-- !!Date birthdate!!</span>
+<span class="comment">-- !!Timestamp formalizedDatetime!!</span>
+<span class="comment">-- !!List&lt;Integer&gt; countList!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="domainpkg">DomainEntityのパッケージ解決</h3>
+	<p>
+		DBFluteが自動生成する DomainEntity に関しては、"$$Domain$$.[entity-name]"
+		という形式で記述することでパッケージ名が解決されます。<span class="frm">@since 0.9.7.1</span>
+	</p>
+<pre><span class="codetitle">e.g. DomainEntityを指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!$$Domain$$.Member member!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="cmbeanpkg">CustomizeEntityのパッケージ解決</h3>
+	<p>
+		同様に、CustomizeEntity に関して、"$$Customize$$.[entity-name]"
+		という形式で記述することでパッケージ名が解決されます。<span class="frm">@since 0.9.7.1</span>
+	</p>
+<pre><span class="codetitle">e.g. CustomizeEntityを指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!$$Customize$$.SimpleMember member!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3="pmbpkg">ParameterBeanのパッケージ解決</h3>
+	<p>
+		さらに、ParameterBean に関して、"$$Pmb$$.[pmb-name]"
+		という形式で記述することでパッケージ名が解決されます。<span class="frm">@since 0.9.7.1</span>
+	</p>
+<pre><span class="codetitle">e.g. (別の)ParameterBeanを指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!$$Pmb$$.SimpleMemberPmb memberPmb!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="cdefpkg">CDefのパッケージ解決</h3>
+	<p>
+		また、区分値定義の "CDef" クラスに関して、"$$CDef$$" と記述することでパッケージ名が解決されます。ENUM
+		をプロパティ型にしたい場合に有効ですが、区分値を条件にする際の支援機能は別途あるため、
+		基本的にはリストの要素型として扱うケース<span class="frm">(@since 0.9.8.0)</span>での利用が想定されています。
+	</p>
+	<div class="relatedpage"><a href="./pmbpropoption.html#parameterbean.html">this - 区分値条件のオプション</a></div>
+<pre><span class="codetitle">e.g. CDefを指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!$$CDef$$.MemberStatus status!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. CDefをリストの要素として指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!List&lt;$$CDef$$.MemberStatus&gt; statusList!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="otherpkg">それ以外はフルパッケージ指定</h3>
+	<p>
+		それ以外で、かつ、プログラミング言語上の文法的にパッケージ補完が必要なクラスに関しては、フルパッケージで指定します。
+	</p>
+<pre><span class="codetitle">e.g. フルパッケージでプロパティの型を指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!com.example.DokujiDate fromBirthdate!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="structure">ParameterBeanの構造</h2>
+	<p>
+		ParameterBeanは FetchBeanインターフェース および ParameterBeanインターフェース を実装し、
+		GenerationGap (ジェネレーションギャップ)になっています。
+	</p>
+	<p>
+		アプリケーションで意識するメソッドは全て set で始まるメソッド(検索条件の指定)となります。
+	</p>
+	<h3 id="emptystring">getメソッドの空文字フィルタ</h3>
+	<p>
+		アプリケーションで意識することはないメソッドですが、パラメータの get メソッドでは空文字は null
+		にフィルタされます。Exクラスによる拡張でクラスごともしくはプロパティごとにこの挙動を変えることはできます。
+		但し、内部構造が変わる可能性もありますので、必ずオーバーライド漏れを検知できるように拡張して下さい。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/we.html#exclass">ExClass (Exクラス)</a></div>
+	<h3 id="serializable">Serializableである</h3>
+	<p>
+		ParameterBeanは、Serializable です。<span class="frm">@since 0.9.7.0</span>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

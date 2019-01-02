@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ParameterBean,オプション,Option" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ParameterBeanのクラスオプション | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ParameterBeanのクラスオプション</h1>
+	<p>
+		ページング検索など、ParameterBeanのクラスに付けるオプションについてのページです。
+	</p>
+	<div class="relatedpage"><a href="./parameterbean.html">ParameterBean</a></div>
+	${indexlist}
+
+	<h2 id="pagingoption">ページング検索のオプション</h2>
+	<p>
+		自動生成する ParameterBean にページング機能を拡張することができます。
+		ParameterBeanのクラス名の指定部分の後ろに、<em class="keyword">extends Paging</em>
+		と付与します。<span class="frm">@since 0.9.7.5 (より前では extends SPB ※0.9.7.5以降でも利用可能)</span>
+	</p>
+<pre><span class="codetitle">e.g. ページング検索用のParameterBeanを生成 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb</span> <span class="point">extends Paging</span><span class="comment">!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		このように指定することで ParameterBeanは、<em class="keyword">SimplePagingBean</em>
+		を継承したものになり、<em class="keyword">paging()</em>
+		メソッドでページング条件の指定ができるようになります。このメソッドは、ConditionBeanにおける paging() メソッドと同じ仕様です。
+	</p>
+<pre><span class="codetitle">e.g. ページング検索用のParameterBeanを生成 {1ページ20件で3ページ目} @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.<span class="point">paging(20, 3)</span>;
+<span class="abbreviation">...</span> = memberBhv.outsideSql().manualPaging().selectPage(<span class="abbreviation">...</span>, pmb, <span class="abbreviation">...</span>);
+</code></pre>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - ManualPaging</a></div>
+	<p>
+		TypedParameterBean においては、そのSQLが ManualPaging を期待するかどうか自動判別されます。
+		ManualPaging と判別された場合、AutoPaging で呼び出してしまうなどの間違いをコンパイル時に検知できます。
+		具体的には、そのSQL文の中にページング条件の要素(MySQLなら limit 句、Oracleなら rownum
+		など)が含まれているかどうかで判別されます。
+	</p>
+	<div class="relatedpage"><a href="./parameterbean.html#typed">ParameterBean - TypedParameterBean</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/index.html#paging">DBMSごとの取扱い - ページング検索の条件</a></div>
+	<p>
+		ただし、この判定はSQLをパースしているわけではなく単なる文字列によるため、誤判定が発生する可能性もあるかもしれません。
+		判別結果がうまく要件と一致しない場合は、明示的に(強制的に) Manual なのか Auto
+		なのかをこのページング検索のオプションで指定することができます。"extends ManualPaging" とすると
+		ManualPaging、"extends AutoPaging とすると AutoPaging になります。
+	</p>
+<pre><span class="codetitle">e.g. ManualPaging であることを明示的に指定 (自動判別に頼らない) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb</span> <span class="point">extends ManualPaging</span><span class="comment">!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

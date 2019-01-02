@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,additionalTableMap.dfprop" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>additionalTableMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>additionalTableMap</h1>
+	${indexlist}
+
+	<h2 id="about">additionalTableMapとは？</h2>
+	<p>
+		手動でテーブル定義を設定するためのDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の additionalTableMap.dfprop という名前のテキストファイルです。主に JDBCタスク
+		を実行する際に参照され、JDBCタスクが生成する SchemaXML にその内容を追加します。
+	</p>
+	<p>
+		このプロパティは TwoEdgedSword 扱いです。<em class="keyword">厳重注意のもと</em> 利用して下さい。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<h3 id="mainpattern">主な利用パターン</h3>
+	<dl class="textlist">
+		<dt>テーブルのメタデータが取得できない</dt>
+		<dd>
+			JDBCドライバの仕様などでテーブルのメタデータが取得できないようなオブジェクトに対してこのプロパティが有効です。
+			但し、このような状況はほとんど発生しないことを想定しています。
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/generator/task/jdbc">JDBCタスク</a></div>
+	<h3 id="restriction">制限</h3>
+	<p>
+		次のような制限があります。
+	</p>
+	<ul>
+		<li>FK制約の設定はできない (additionalForeignKeyで代替すること)</li>
+		<li>Unique制約の設定はできない (additionalUniqueKeyで代替すること)</li>
+	</ul>
+	<div class="relatedpage"><a href="../additionalforeignkey">additionalForeignKeyMap.dfprop</a></div>
+	<div class="relatedpage"><a href="../additionaluniquekey">additionalUniqueKeyMap.dfprop</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、テーブルとカラムについての情報を定義します。テーブルごとに、テーブル名とその
+		<em class="keyword">columnMap</em> (カラムについての情報)をmap型のプロパティ、および、テーブルコメント用の
+		<em class="keyword">comment</em> を定義します。columnMapはカラムごとの情報を map型のプロパティ
+		で定義します。テーブルコメントは必須ではありません。また、テーブル名は、(既に自動生成対象となる)メタデータが取得できるテーブルと同じ名前は指定できません。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">additionalTableMapの仕様 @additionalTableMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [table-name] = <span class="keyword">map:</span>{
+        ; columnMap = <span class="keyword">map:</span>{
+            [column-name] = <span class="keyword">map:</span>{
+                type = [column-JDBC-type] ; required = [true or false]
+                ; size = [column-size]
+                ; primaryKey = [true or false] ; autoIncrement = [true or false]
+            }
+            ; [column-name] = <span class="keyword">map:</span>{
+                type = [column-JDBC-type] ; required = [true or false]
+                ; size = [column-size]
+            }
+        }
+        ; comment = [table comment]
+    }
+    ; ...
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="tablename">table-name (*)</h3>
+	<p>
+		テーブル名を指定します。mapのキーになっていて、ユニークである必要があります。
+		実際のデータベース上のテーブルと同じ名前を記述するようにして下さい。
+	</p>
+	<h3 id="columnname">column-name (*)</h3>
+	<p>
+		カラム名を指定します。mapのキーになっていて、(指定されたテーブル内で)ユニークである必要があります。
+		実際のデータベース上のテーブルと同じ名前を記述するようにして下さい。
+	</p>
+	<h3 id="type">type (*)</h3>
+	<p>
+		カラムのデータ型に対応するJDBCタイプを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>JDBCタイプ</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<p>
+		JDBCタイプのマッピング表を参考に適切なタイプを指定します。
+	</p>
+	<div class="relatedpage"><a href="../typemapping/index.html#defaultmapping">JDBCタイプのマッピング表 (デフォルト)</a></div>
+	<h3 id="required">required</h3>
+	<p>
+		NotNull制約を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false (NotNullならtrue)</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="size">size</h3>
+	<p>
+		カラムの桁数を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>実際のカラムの桁数</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<h3 id="primarykey">primaryKey</h3>
+	<p>
+		主キーか否かを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false (PKカラムならtrue)</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="autoincrement">autoIncrement</h3>
+	<p>
+		自動採番されるカラム(Identityカラムなど)か否かを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false (自動採番されるカラムならtrue)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<h3 id="default">default</h3>
+	<p>
+		デフォルト制約を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>デフォルト値</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<h3 id="comment">comment</h3>
+	<p>
+		コメント(DBコメント)を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>コメント内容</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+
+	<h2 id="example">Example</h2>
+<pre><span class="codetitle">e.g. とあるテーブルを定義する例 @additionalTableMap.dfprop</span><code>
+map:{
+    ; VENDOR_ADDITIONAL_TABLE = map:{
+        ; columnMap = map:{
+            ; TEST_ID = map:{
+                type = INTEGER ; required = true
+                ; primaryKey = true ; autoIncrement = true
+            }
+            ; TEST_NAME = map:{ type = VARCHAR ; required = true ; size = 123 }
+        }
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

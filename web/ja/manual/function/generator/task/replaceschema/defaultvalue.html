@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,データ登録,LoadData" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>デフォルト値の設定 (defaultValueMap.dataprop) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>デフォルト値の設定</h1>
+	${indexlist}
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		例えば、共通カラムのようなカラムでは、ReplaceSchemaで登録するときは固定の値を登録しても特に問題が無い場合があります。
+		そのようなときにデータファイルにそれらカラムのデータを律儀に登録するのではなく、"あるカラムは一律のある値を登録する" ということが可能です。
+	</p>
+
+	<h2 id="howto">使い方</h2>
+	<p>
+		データファイルと同じディレクトリに <em class="keyword">defaultValueMap.dataprop</em> という名前のテキストファイルを配置して、
+		カラム名と固定の値を定義します。そして、データファイルのヘッダ行において対象カラムのカラム定義(列自体)を省略(削除)することで、
+		データ登録処理でそのカラムに対して指定された固定の値を登録するようになります。
+	</p>
+<pre><span class="codetitle">e.g. 共通的なカラムに固定の値を定義 @defaultValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; REGISTER_DATETIME = <span class="keyword">sysdate</span>
+    ; REGISTER_USER     = <span class="literal">foo</span>
+    ; REGISTER_PROCESS  = <span class="literal">bar</span>
+    ; UPDATE_DATETIME   = <span class="keyword">sysdate</span>
+    ; UPDATE_USER       = <span class="literal">foo</span>
+    ; UPDATE_PROCESS    = <span class="literal">bar</span>
+    ; VERSION_NO        = <span class="literal">0</span>
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>defaultValueMap.dataprop (UTF-8)</dd>
+		<dt>プロパティ</dt>
+		<dd>カラム名と固定値の定義</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"sysdate" が指定されている場合は、登録時の現在日時を登録</li>
+				<li>カラム名は大文字小文字区別なし</li>
+				<li>全てのデータファイル形式で有効</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		定義されたカラムの一部のカラムしか定義されていないテーブルでも、
+		その一部のカラムに対して固定の値が登録されます(Behaviorでの共通カラムの自動設定とは挙動が異なります)。
+		ここでは "共通カラムの自動設定" というよりも、"共通カラム対する疑似のデフォルト制約" という感じになります。
+	</p>
+	<p>
+		convertValueMap.dataprop と併用する場合、変換対象となった値に対しては、デフォルト値は適用されません。
+		つまり、変換結果として null になったものは、デフォルト値が設定されていてもそのまま null として登録されます。 
+	</p>
+	<div class="detailpage"><a href="./convertvalue.html">値のコンバート設定 (convertValueMap.dataprop)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

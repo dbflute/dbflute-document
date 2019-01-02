@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DIコンテナ,取扱い,違い,Example,DependencyInjection,インジェクション" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>DIコンテナごとの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DIコンテナごとの取扱い</h1>
+	<p>
+		DIコンテナごとの機能・挙動の違いの情報について
+	</p>
+	${indexlist}
+
+	<h2 id="precondition">DIコンテナとの連携</h2>
+	<p>
+		DBFluteは、<em class="keyword">DIコンテナと連携して利用されることを前提</em> としています。
+	</p>
+	<h3 id="nodiapp">アプリでDIコンテナを利用しない場合</h3>
+	<p>
+		もし、アプリケーションにてDIコンテナを利用しない場合でも、<em class="keyword">DBFlute内部での管理用としてDIコンテナが必要</em>
+		となるため、その時は、<em class="keyword">依存ライブラリが少なく設定ファイルが存在しない Google Guice</em>
+		がお奨めです。アプリケーションからは、Guice経由でDBFluteを利用(Behaviorを取得)するようにして下さい(アプリ側で統一的なユーティリティクラスを作ると良いでしょう)。
+	</p>
+	<div class="relatedpage"><a href="../../../environment/setup/injection.html">セットアップ - DI環境の調整</a></div>
+
+	<h2 id="dicontainer">取り扱っているDIコンテナ</h2>
+	<p>
+		実際に利用するDIコンテナのページは必ずご覧下さい。
+	</p>
+	<ul>
+		<li><a href="./seasar/index.html">Seasar(S2Container)</a></li>
+		<li><a href="./spring/index.html">Spring Framework</a></li>
+		<li><a href="./guice/index.html">Google Guice</a></li>
+		<li><a href="./cdi/index.html">CDI (JSR-299)</a></li>
+	</ul>
+
+	<h2 id="bhvdi">DIの方法 (Behavior)</h2>
+	<p>
+		DIの方法は、DIコンテナによっては変わりますので、必ず確認をしておいて下さい。
+	</p>
+	<div class="relatedpage"><a href="./seasar/index.html#diway">Seasar(S2Container) - DIの方法 (Behavior)</a></div>
+	<div class="relatedpage"><a href="./spring/index.html#diway">Spring Framework - DIの方法 (Behavior)</a></div>
+	<div class="relatedpage"><a href="./guice/index.html#diway">Google Guice - DIの方法 (Behavior)</a></div>
+	<div class="relatedpage"><a href="./lucy/index.html#diway">T2 Lucy - DIの方法 (Behavior)</a></div>
+	<div class="relatedpage"><a href="./cdi/index.html#diway">CDI (JSR=299) - DIの方法 (Behavior)</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		DIコンテナごとのExample実装があります。
+	</p>
+	<div class="detailpage"><a href="../example/index.html#dicontainer">Exampleプロジェクト - DIコンテナ</a></div>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

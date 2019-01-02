@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,自動採番,Alias,LocalName,LogicalName,別名,和名,論理名,DBコメント" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>別名(和名)の利用 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>別名(和名)の利用</h1>
+	${indexlist}
+
+	<h2 id="about">別名(和名)とは？</h2>
+	<p>
+		ここでいう別名とは、テーブルやカラムの論理名のことを示します。
+		例えば、MEMBERテーブルであれば別名は "会員" です。
+	</p>
+	<p>
+		別名は、実際のテーブル名やカラム名(物理名)とは違いプログラミングの処理では利用されませんが、
+		人がそのテーブルやカラムを理解するのに重要で、例えばER図に物理名に加えて別名が定義されることで、業務データモデルがわかりやすいものとなります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		できればこの別名をプログラムに近いドキュメントでも利用したいものです。
+		ですが、データベースの機能として別名を定義する領域は用意されていません。そのテーブルやカラムの説明を定義する
+		"DBコメント(テーブルコメントやカラムコメント)" という領域だけが用意されているのが通常です。
+	</p>
+
+	<h2 id="ondbcomment">別名(和名)をDBコメントに</h2>
+	<p>
+		DBFluteはDBコメントは取得できますが、さすがにER図の上だけで定義されている別名を取得することはできません。
+		それでも、DBFluteで自動生成されるドキュメント(SchemaHTMLやクラスのJavaDocコメント)に、この別名を載せることができれば実装上の助けとなるでしょう。
+	</p>
+	<p>
+		そこで、DBコメントの中に <em class="keyword">別名[区切り文字]説明</em>
+		という形式で両方のデータを定義しておいて、その区切り文字が何なのかをDBFluteプロパティで定義すれば、
+		DBFluteが別名と説明を分離して取得し、それぞれのドキュメントにそれらが反映されます。
+	</p>
+	<h3 id="conceptimage">別名定義の概念図</h3>
+	<p class="imgbox">図 : 別名定義の概念図
+		<a href="../../../../../data/model/doc-AliasDefinition-view.png" title="別名定義の概念図"><img src="../../../../../data/model/doc-AliasDefinition-view.png" alt="別名定義の概念図" width="550" height="390" /></a>
+	</p>
+
+	<h3 id="aliasdef">別名の定義</h3>
+	<p>
+		documentDefinitionMap.dfprop の aliasDelimiterInDbComment
+		に、区切り文字(デリミタ)を設定します。習慣的に ":" (コロン)が推奨されますが、ERDツールなどDBコメントを定義する処理に合わせましょう。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#aliasdelimiterindbcomment">dfprop - aliasDelimiterInDbComment</a></div>
+	<p>
+		また、全てのテーブルやカラムに必ずしも別名や説明があるとは限りませんので、デリミタが存在しない場合のDBコメントは別名なのか説明なのか、
+		これをERDツールなどDBコメントを定義する処理に合わせて決定します。デフォルトではDBFluteは "説明"
+		と認識しますので、もしデリミタが存在しない場合は別名ということであれば、同じく documentDefinitionMap.dfprop
+		の isDbCommentOnAliasBasis を true に設定します。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#isdbcommentonaliasbasis">dfprop - isDbCommentOnAliasBasis</a></div>
+	<p>
+		設定できたら、再自動生成してみましょう。Docタスクを実行すると、SchemaHTML では別名と説明が独立して表現されます。
+		Generateタスクを実行すると、Entity や ConditionBean のテーブルやカラムに対応するメソッドに別名が表示されます。
+	</p>
+	<h3 id="descdef">説明をJavaDocに</h3>
+	<p>
+		一方で、"説明" をJavaDocコメントに反映させるのは別途設定が必要です。これは、DBコメントの "説明"
+		がJavaDocコメントに向いているかどうか、どのような "説明" を入れるか次第で変わってくるため、デフォルトでは OFF になっています。
+	</p>
+	<p>
+		もし、"説明" が実装する上で参照すると役立つ情報になっている、かつ、JavaDocコメントのフォーマットに適しているのであれば、
+		documentDefinitionMap.dfprop の isEntityJavaDocDbCommentValid を true
+		にして再自動生成します。すると、Entity や ConditionBean のテーブルやカラムに対応するメソッドに "説明" が表示されます。
+	</p>
+
+	<div class="inucolumn">
+		<h2>地味ながら活用したい機能</h2>
+		<p>
+			とても地味ですが、しっかり活用できるとディベロッパーが地味に助かるものです。
+			カラムには業務を表すのに適した名前が付けられるべきですが、確かに限度もあります。
+			ローカル言語の名前がしっかり付いているとわかりやすいものです。
+		</p>
+		<p>
+			逆に、このようにJavaDocコメントに "見るに値する便利な情報"
+			が入っていることで、ディベロッパーが IDE (Eclipseなど)でメソッド補完したときに、
+			JavaDocコメントをしっかり見る習慣のきっかけにもなります。
+		</p>
+		<p>
+			ちなみに、DBコメント作成の DDL
+			は、ERDツールから自動生成したいものです。
+			別名と説明の両方をいい感じにDBコメントに定義する機能が求められます。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

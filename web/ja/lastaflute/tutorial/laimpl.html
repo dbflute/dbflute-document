@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>LastaFluteの実装チュートリアル | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteの実装チュートリアル</h1>
+	<div class="relatedpage"><a href="../index.html">LastaFluteトップページ</a></div>
+	<p>
+		LastaFluteで実装するディベロッパーは、このページをブックマーク！
+	</p>
+	<p>
+		そもそも LastaFlute のプロジェクト環境自体がまだ存在していない場合は、スタートアップを参照。
+	</p>
+	<div class="relatedpage"><a href="../howto/startup/index.html">LastaFluteでスタートアップ</a></div>
+	${indexlist}
+
+	<h2 id="architecture">アーキテクチャ概念マップ</h2>
+	<p>
+		もしよければ、壁紙にどうぞ。
+	</p>
+	<p class="imgbox">
+		<a href="../../../data/model/lastaflute/lastaflute-architecture-map.png" title="LastaFlute Architecture"><img src="../../../data/model/lastaflute/lastaflute-architecture-map.png" alt="LastaFlute Architecture" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="style">ディベロッパーの実装スタイル</h2>
+	<h3 id="threecrazy">三人の勇者、もしくは狂人</h3>
+	<dl class="shortvaluemainlist">
+		<dt><em class="mark">ホットデプロイ</em></dt><dd><em class="keyword"><a href="../lastadi/index.html">Lasta Di</a></em></dd>
+		<dt><em class="mark">規約ベースAction</em></dt><dd><em class="keyword"><a href="../howto/action/index.html">LastaFlute Action</a></em></dd>
+		<dt><em class="mark">Java8 DBFlute</em></dt><dd><em class="keyword"><a href="../../tutorial/onjava8.html">DBFlute on Java8</a></em></dd>
+	</dl>
+	<h3 id="twoprospect">二つの挑戦</h3>
+	<dl class="shortvaluemainlist">
+		<dt><em class="mark">見通しのValidation</em></dt><dd><em class="keyword"><a href="../howto/action/lavalidation.html">Transparent Validation</a></em></dd>
+		<dt><em class="mark">素早さのJSON API</em></dt><dd><em class="keyword"><a href="../howto/action/lajsonapi.html">Lightening JSON API</a></em></dd>
+	</dl>
+	<h3 id="fourpresent">五つの贈り物</h3>
+	<dl class="shortvaluemainlist">
+		<dt><em class="mark">専用dfprop</em></dt><dd><em class="keyword"><a href="../howto/dbflute/ladfprop.html">lastafluteMap.dfprop</a></em></dd>
+		<dt><em class="mark">なんでも自動生成</em></dt><dd><em class="keyword"><a href="../howto/dbflute/lafreegen.html">FreeGen</a></em></dd>
+		<dt><em class="mark">Actionドキュメントも？</em></dt><dd><em class="keyword"><a href="../howto/dbflute/lastadoc.html">LastaDoc</a></em></dd>
+		<dt><em class="mark">循環テストデータ</em></dt><dd><em class="keyword"><a href="../howto/dbflute/cyclicdata.html">Cyclic TestData</a></em></dd>
+		<dt><em class="mark">DBFluteとスムーズな連携</em></dt><dd><em class="keyword"><a href="../howto/dbflute/ladbflute.html">LastaFlute DBFlute Collaboration</a></em></dd>
+	</dl>
+	<h3 id="fourprospect">四つの眺望</h3>
+	<dl class="shortvaluemainlist">
+		<dt><em class="mark">プロジェクト構成</em></dt><dd><em class="keyword"><a href="../howto/structure/projstructure.html">Project Structure</a></em></dd>
+		<dt><em class="mark">パッケージ構成</em></dt><dd><em class="keyword"><a href="../howto/structure/pkgstructure.html">Package Structure</a></em></dd>
+		<dt><em class="mark">デプロイ環境</em></dt><dd><em class="keyword"><a href="../howto/structure/builddeploy.html">Build Deploy</a></em></dd>
+		<dt><em class="mark">環境切り替え</em></dt><dd><em class="keyword"><a href="../howto/structure/envswitch.html">Env Switch</a></em></dd>
+	</dl>
+	<h3 id="tenambition">十の野心</h3>
+	<dl class="shortvaluemainlist">
+		<dt><em class="mark">タイプセーフメール</em></dt><dd><em class="keyword"><a href="../howto/architecture/typesafemail.html">Typesafe Mail</a></em></dd>
+		<dt><em class="mark">タイプセーフproperties</em></dt><dd><em class="keyword"><a href="../howto/architecture/objsafeprop.html">Typesafe Properties</a></em></dd>
+		<dt><em class="mark">化け物のようなログ</em></dt><dd><em class="keyword"><a href="../howto/architecture/friendlylogging.html">Friendly Logging</a></em></dd>
+		<dt><em class="mark">開拓の例外ハンドリング</em></dt><dd><em class="keyword"><a href="../howto/architecture/exceptionhandling.html">Exception Handling</a></em></dd>
+		<dt><em class="mark">非同期処理 (asyc)</em></dt><dd><em class="keyword"><a href="../howto/architecture/asynchronous.html">Asyncronous</a></em></dd>
+		<dt><em class="mark">ストレートなジョブ (Job)</em></dt><dd><em class="keyword"><a href="../howto/architecture/jobscheduling.html">Job Scheduling</a></em></dd>
+		<dt><em class="mark">定まったリモートAPI呼び出し</em></dt><dd><em class="keyword"><a href="../howto/architecture/remoteapicall.html">RemoteApi Call</a></em></dd>
+		<dt><em class="mark">気軽な前後処理</em></dt><dd><em class="keyword"><a href="../howto/architecture/actionhook.html">ActionHook</a></em></dd>
+		<dt><em class="mark">組み込みログイン制御</em></dt><dd><em class="keyword"><a href="../howto/architecture/logincontrol.html">Login Control</a></em></dd>
+		<dt><em class="mark">気づかう現場フィットADさん</em></dt><dd><em class="keyword"><a href="../howto/architecture/assistantdirector.html">AssistantDirector</a></em></dd>
+	</dl>
+	<h3 id="onedesign">一つのデザイン</h3>
+	<dl class="shortvaluemainlist">
+		<dt><em class="mark">Actionの実装デザイン</em></dt><dd><em class="keyword"><a href="../howto/impldesign/actiondesign.html">Action ImplDesign</a></em></dd>
+	</dl>
+
+	<h2 id="prepare">まず準備</h2>
+	<dl class="shortkeymainlist">
+		<dt>LastaFluteって何？</dt><dd>まずは、LastaFluteってなにもの？を知りましょう</dd>
+		<dt>データベースの準備</dt><dd>MySQLのインストール、my.cnfの設定</dd>
+		<dt>開発環境の構築</dt><dd>Java8環境、EclipseならEMechaなどのプラグイン</dd>
+		<dt>Exampleをclone</dt><dd>参考実装である、Exampleをいつでも見られるように clone しておく</dd>
+	</dl>
+	<h3 id="whatlasta">LastaFluteって何？</h3>
+	<p>
+		トップページにいろいろ書いてあります。
+	</p>
+	<div class="detailpage"><a href="../index.html">LastaFluteトップページ</a></div>
+	<h3 id="database">データベースの準備</h3>
+	<p>
+		デフォルトでは MySQL を利用しますので、3306ポートの MySQL をインストールしましょう。
+	</p>
+	<p>
+		<span class="frm">(厳密には、シングルプロジェクトのExampleであるharborプロジェクトを動かすだけなら不要です。マルチプロジェクトのmaihamaプロジェクトや、新しいスタートアップの環境ではMySQLが必要です)</span>
+	</p>
+	<p>
+		そして、my.cnf の [mysqld] の欄にて、以下の設定を入れることがオススメします。
+		もちろん、プロジェクトのカスタマイズ設定があれば調整して構いません。特にこだわりがなければ、これをそのままコピーして貼りつけましょう。
+		<span class="frm">(my.cnf or my.ini の場所にご注意を、よく調べてください)</span>
+	</p>
+<pre><span class="codetitle">e.g. MySQL の my.cnf のオススメ設定 @Java</span><code>
+<span class="comment"># /* * * * * * * * * * * * * * * * * * * * * * * * Custom Settings</span>
+<span class="localvar">character_set_server</span>=<span class="literal">utf8mb4</span>
+<span class="localvar">lower_case_table_names</span>=<span class="literal">1</span>
+
+<span class="comment"># to avoid easy deadlock of repeatable-read</span>
+<span class="localvar">transaction-isolation</span>=<span class="literal">READ-COMMITTED</span>
+
+<span class="comment"># TRADITIONAL contains STRICT_ALL_TABLES, NO_ZERO_DATE and so on...</span>
+<span class="localvar">sql_mode</span>=<span class="literal">"TRADITIONAL"</span>
+<span class="comment"># * * * * * * * * * */</span>
+</code></pre>
+	<h3 id="ifeclipse">IDE, もし Eclipse なら...</h3>
+	<p>
+		<em class="keyword">EMecha</em> と <em class="keyword">ERFlute</em> を入れましょう。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>DBFlute,Lasta支援</dt><dd><em class="keyword"><a href="../../manual/function/helper/emecha/install.html">EMecha のインストール</a></em> <span class="frm">※手順に沿って</span></dd>
+		<dt>ERDエディター</dt><dd><em class="keyword"><a href="../../manual/function/helper/erflute/index.html">ERFlute トップページ</a></em> <span class="frm">※リンク先のページからダウンロード</span></dd>
+	</dl>
+	<p>
+		JavaDeveloper Edition であれば、メニューの Help - Eclipse Marketplace から以下をインストールしましょう。
+	</p>
+	<ul>
+		<li><em class="keyword">SQL Development Tools</em> <span class="frm">(EMecha の EMEditor や PMEditor が動くように)</span></li>
+		<li><em class="keyword">HTML Editor (WTP)</em> <span class="frm">(HTMLを編集できるように)</span></li>
+	</ul>
+	<p>
+		また、Eclipse の workspace の Preferences にて、<em class="keyword">DBFlute補完テンプレート</em>
+		を設定しましょう。すると、<em class="smallmark">化け物のような補完支援</em>で楽しくスピーディーに実装できます。
+		IntelliJ 版もあります。
+	</p>
+	<div class="relatedpage"><a href="../../tutorial/onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
+	<dl class="shortkeymainlist">
+		<dt>補完テンプレート</dt><dd><a href="http://dbflute.seasar.org/download/misc/settings/dbflute-eclipse-editor-templates.zip">dbflute-eclipse-editor-templates.zip</a> <span class="frm">(既存設定を残しつつそのままImport)</span></dd>
+	</dl>
+	<h3 id="ifintellij">IDE, もし IntelliJ なら...</h3>
+	<p>
+		IntelliJでも、補完テンプレートあります。<span class="frm">(ただ、Eclipse版よりもちょっと機能が少ないです)</span>
+	</p>
+	<div class="relatedpage"><a href="../../tutorial/onjava8.html#intellij">さあ、補完してみよう！ - IntelliJ IDEA なら</a></div>
+	<dl class="shortkeymainlist">
+		<dt>補完テンプレート</dt><dd><a href="http://dbflute.seasar.org/download/misc/settings/dbflute-intellij-live-templates.jar">dbflute-intellij-live-templates.jar</a> <span class="frm">(既存設定を残しつつそのままImport)</span></dd>
+	</dl>
+	<h3 id="othererd">ERDツールは別のでもOK</h3>
+	<p>
+		ER図を描くのに ERFlute でなくても構いません。別のツールでも、要は生成された DDL を replace-schema-10-basic.sql
+		に出力して ReplaceSchema ができればOKです。
+	</p>
+	<h3 id="cloneexample">Exampleをclone</h3>
+	<p>
+		自分が開発する環境に近い Example を。<span class="frm">(README の Quick Trial を参考に)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>シングルプロジェクト</dt><dd><em class="keyword"><a href="https://github.com/lastaflute/lastaflute-example-harbor">lastaflute-example-harbor | Github</a></em></dd>
+		<dt>マルチプロジェクト</dt><dd><em class="keyword"><a href="https://github.com/lastaflute/lastaflute-example-maihama">lastaflute-example-maihama | Github</a></em></dd>
+	</dl>
+
+	<h2 id="acquaintanceship"><em class="keyword">ディベロッパーの心得</em></h2>
+	<p>
+		Lastaディベロッパーに、<em class="mark">五つ</em>、大切な心得！<span class="frm">(リズミカル、スッキリ、サクサク、シナガラ、キナガラ)</span>
+	</p>
+	<dl class="textlist">
+		<dt>1. <em class="mark">ホットデプロイ</em>でリズミカル実装</dt>
+		<dd>
+			Action, Form, Logic など、<em class="keyword">appパッケージ配下</em> は (開発時は) 再起動せずに修正が反映されます。
+		</dd>
+		<dd>
+			アプリは起動しっぱなしで、"直してリロード直してリロード" を楽しみましょう。
+			ただ、DBFluteで自動生成されるクラスは app 配下ではないので <em class="keyword">自動生成したら再起動</em> と覚えておきましょう。
+		</dd>
+		<dt>2. <em class="mark">Java8バリバリ</em>でスッキリ実装</dt>
+		<dd>Java8 の文法をふんだんに利用することを前提としています。</dd>
+		<dd>
+			スタートアップでは、いちど "ざっくりと" 書いたコードを何度も読み直しては修正して...の繰り返しなので、<em class="keyword">すっきりと読みやすいコード</em>
+			にしたいものです。DBFluteも Java8 を最大限利用します。知らなくても、学べるチャンスとわりきって楽しみましょう。<span class="frm">(ただし、本末転倒にご注意を。バランス大事です)</span>
+			<div class="relatedpage"><a href="../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+		</dd>
+		<dt>3. <em class="mark">ショートカットとコード補完</em> でサクサク実装</dt>
+		<dd>Javaをスタートアップで使うからには、Javaならではのスピードを楽しみましょう。</dd>
+		<dd>
+			DBFlute の ConditionBean などでよく利用するコード補完はもちろん、変数やメソッド名の rename
+			など、スタートアップの開発に欠かせない <em class="keyword">リファクタリング機能</em> はしっかりと指に馴染ませましょう。
+		</dd>
+		<dd>
+			環境構築で入れた <em class="keyword">DBFlute補完テンプレート</em> は、いちどは反復練習しておきたい！
+		</dd>
+		<dt>4. <em class="mark">コードリーディング</em> で発見シナガラ実装</dt>
+		<dd>
+			ソースコードを読みながら実装していくことを前提としています。
+		</dd>
+		<dd>
+			スタートアップではじっくりフレームワークを学ぶ時間もないため、必要になったときに "とっさに"
+			ソースコードを読んで要点だけ押さえて実装を進めていくことが大切です。
+			LastaFluteの方も、読みやすさも考慮して、できるだけシンプルな実装を心がけています。
+			発見をしながらのスピード開発を楽しみましょう。
+		</dd>
+		<dt>5. <em class="mark">jflute</em> に遠慮なく聞キナガラ実装</dt>
+		<dd>
+			近くにいなければ、<em class="keyword">DBFluteユーザーの集いML</em> や <em class="keyword">Twitter</em> などで遠慮なく聞きましょう。
+			開発者に直接聞くことをぜひ楽しんでください。jfluteは、それがフィードバックとなって、さらに LastaFlute の品質があげることができるのです。それこそオープンソースの醍醐味。
+			<div class="relatedpage"><a href="https://groups.google.com/forum/#!forum/dbflute">DBFluteユーザの集い | Google Group</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="tenclause"><em class="keyword">ディベロッパーの十か条</em></h2>
+	<p>
+		いちどざっくり眺めて、また忘れた頃にまた見返すとよいでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt><a href="../lastadi/index.html">ホットデプロイ (Lasta Di)</a></dt><dd>appパッケージの下は再起動不要、一方で、<em class="smallmark">自動生成したら再起動</em></dd>
+		<dt><a href="../howto/action/index.html">規約ベースAction</a></dt><dd><em class="mark">Action</em> class + <em class="mark">Execute</em> method</dd>
+		<dt>FreeGenでタイプセーフ</dt><dd><a href="../howto/architecture/objsafeprop.html">タイプセーフProperties</a>, <a href="../howto/architecture/typesafemail.html">タイプセーフMailFlute</a>, ...</dd>
+		<dt>JettyBoot</dt><dd>アプリは main() メソッドで起動 <span class="frm">(TomcatBootでもOK)</span></dd>
+		<dt><a href="../howto/architecture/friendlylogging.html">フレンドリーログに注目</a></dt><dd>とにかくログをしっかり読めば、大抵のことのはわかるはず</dd>
+		<dt>凝り性JavaDocに注目</dt><dd>いたるところにリッチJavaDoc...例えば、Actionで <em class="smallmark">this.docu...</em></dd>
+		<dt>リクエストトランザクション</dt><dd>Actionメソッドはすでにトランザクション</dd>
+		<dt>ActionHook</dt><dd>横断的な共通処理は、ActionHook で実装 <span class="frm">(Interceptor はあまり使わない)</span></dd>
+		<dt>循環テストデータ</dt><dd><a href="../../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a> と <a href="../../manual/function/generator/task/doc/loaddatareverse.html">LoadDataReverse</a> の合わせ技</dd>
+		<dt><a href="../../tutorial/developer.html#tenclause">DBFluteの十か条</a></dt><dd>DBFluteフルパワー！...なので、九たす十で合計十九か条でした...</dd>
+	</dl>
+
+	<h2 id="sourcereading">LastaFluteのソースを読もう</h2>
+	<p>
+		なにかあったときのためにも、LastaFluteのソースを読みましょう。
+	</p>
+	<h3 id="toactionmodel">Actionまでの道のりマップ</h3>
+	<p class="imgbox">
+		<a href="../../../data/model/lastaflute/lastaflute-action-across.png" title="LastaFlute toAction"><img src="../../../data/model/lastaflute/lastaflute-action-across.png" alt="LastaFlute toAction" width="550" height="380" /></a>
+	</p>
+	<h3 id="toactiontag">コメントにハッシュタグ埋めてます</h3>
+	<p>
+		ServletFilter から Action クラスが呼ばれるまでの道のりに #to_action
+		というハッシュタグをコメントに埋め込んでいますので、ソースコードgrepして目印にしてみてください。
+	</p>
+
+	<h2 id="devfaq">LastaFluteの実装FAQ</h2>
+	<p>
+		どこを見れば実装できますか？
+		実際に開発を始めたいんですけど環境構築は？
+	</p>
+	<div class="detailpage"><a href="./faqimpl.html">LastaFluteの実装FAQ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,setupSelect,関連テーブル,結合,select句,join,関連テーブル,親テーブル,ForeignTable,業務的one-to-one,BizOneToOne,FixedCondition" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>SetupSelect(BizOneToOne) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SetupSelect(BizOneToOne)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		業務的one-to-one に対する SetupSelect(Relation) です。
+		固定条件に対してバインド変数がある場合は引数が定義されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/bizonetoone/index.html">現場フィット - 業務的one-to-one</a></div>
+	<p>
+		会話上では、<em class="keyword">せっとあっぷせれくとびずわんとぅわん</em>、<em class="keyword">業務的one-to-oneのせっとあっぷせれくと</em>
+		などと表現します。SetupSelect(Relation)
+		という名前自体に、業務的one-to-oneの関連テーブルへの絞り込み条件も含まれますが、"業務的one-to-oneのテーブルに対して"
+		ということを強調したい場合に明示的な表現として利用されます。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<p>
+		<em class="keyword">setupSelect_[biz-one-to-one-table]()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. SetupSelectの実装手順 (Eclipseでコード補完) {MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+<span class="comment">// 1. .seS まで打つと関連テーブル選択</span>
+<span class="comment">// 2. MA (MemberAddress) で enter</span>
+cb.seSMA
+--
+cb.<span class="point">setupSelect_MemberAddressAsValid</span>(targetDate);
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<p>
+		基本的な仕様は通常の SetupSelect と同じです。バインド変数や別リレーションのカラムを利用した場合に特有の仕様が存在します。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/bizonetoone/index.html#bindvariable">業務的one-to-one - バインド変数コメント</a></div>
+	<div class="detailpage"><a href="../../../genbafit/implfit/bizonetoone/index.html#over">業務的one-to-one - 別リレーションのカラム利用</a></div>
+	<div class="relatedpage"><a href="./index.html">SetupSelect(Relation)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

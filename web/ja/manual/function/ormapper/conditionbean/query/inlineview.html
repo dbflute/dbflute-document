@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,inline,インラインビュー,from句のサブクエリ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>InlineView | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>InlineView</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		インラインビューに絞り込み条件を設定します。
+	</p>
+	<p>
+		ConditionBean の InlineView は、絞り込み条件だけが設定できるインラインビューで、select
+		句は変わりません(select * from ...)。よって、役割的には OnClause とほぼ同義と考えられます。
+	</p>
+	<div class="relatedpage"><a href="./onclause.html">OnClause</a></div>
+	<p>
+		会話上では、<em class="keyword">いんらいんびゅー</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query().query[relation]() の後、<em class="keyword">inline()</em>
+		を呼び出し、その後続けて、関連テーブルの Query (絞り込み条件)を実装します。
+	</p>
+<pre><span class="codetitle">e.g. InlineViewの実装手順 (Eclipseでコード補完) {MemberStatus} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().queryMemberStatus().inl <span class="comment">// .inl と打って enter</span>
+--
+cb.query().queryMemberStatus().<span class="point">inline()</span>.setDisplayOrder_Equal(<span class="literal">2</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 会員ステータスの表示順が 2 のものだけを結合 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> <span class="point">(select * from MEMBER_STATUS where DISPLAY_ORDER = 2)</span> dfrel_0
+      <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="alsobasepoint">基点テーブルでも利用できる</h3>
+	<p>
+		基点テーブルに対しても利用できますが、業務的には意味がないと想定されます。
+	</p>
+	<h3 id="collabolation">他の機能との組み合わせ</h3>
+	<p>
+		他の機能との組み合わせは以下の通りです。
+	</p>
+	<ul>
+		<li>OrScopeQuery は利用可能</li>
+		<li>InScopeRelation 利用可能 <span class="frm">(OnClause では不可)</span></li>
+		<li>ColumnQuery は不可</li>
+		<li>ExistsReferrer, (Query)DerivedReferrer などの相関サブクエリは不可</li>
+	</ul>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

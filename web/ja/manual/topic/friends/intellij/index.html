@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,IntelliJ,IntelliJの設定の共有,.ideaの共有,IntelliJのプロジェクト設定" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Friends - IntelliJ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Friends - IntelliJ</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、同時に利用するととても便利なライブラリを紹介します。
+	</p>
+	${indexlist}
+
+	<h2 id="overview">DBFlute と IntelliJ</h2>
+	<p>
+		DBFluteは、利用上において特に IntelliJ に依存してはいません。ですが、IntelliJ 上で DBFlute
+		の利用を支援するための情報や設定のExampleなどが提供されています。
+	</p>
+
+	<h2 id="shareinspections">Inspections設定の共有</h2>
+	<h3 id="noisywarning">警告ノイズたち</h3>
+	<p>
+		以下、代表的な警告ノイズです。
+	</p>
+	<ul>
+		<li>一行だけの Lambda が Expression Style にできるよ</li>
+		<li>その Lambda が Method Reference にできるよ</li>
+		<li>その Behavior のインスタンス変数、初期化されてないよ</li>
+	</ul>
+	<p>
+		特に DBFlute の場合、Lambda の中がたまたま一行でも、すぐに追加される可能性高いですし、cb.query()
+		の一行は横に長くなりがちなので、最初から Block Style で書きたいと思う人も多いです。
+		また、op -&gt; op.likePrefix() など、Lambda引数の型をあまり意識せずに短く書きたいことも多く、無理に Method Reference
+		にしたくないと思う人も多いです。
+	</p>
+	<p>
+		つまり "余計なお世話警告" になってしまいっていて、これらが警告ノイズとなり本質的な警告を見逃してしまう可能性があります。
+		IntelliJの設定を調整して、心地よい警告ライフを過ごしたいものです。
+	</p>
+	<p>
+		IntelliJでこれらを OFF にする方法は、Twitterで "jflute intellij" で検索してください。
+	</p>
+	<p>
+		ただ、警告を調整したら、必ずチーム内で共有しなければなりません。警告の設定が人によってズレてると結局その警告は機能しないからです。
+	</p>
+	<h3 id="dbflutespections">jfluteお手製の警告調整済xml</h3>
+	<p>
+		大変だと思うので、警告調整済みの IntelliJ の .idea ディレクトリに配置する xml を用意しています。
+	</p>
+	<dl class="keymainlist">
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/inspectionProfiles/DBFlutespection.xml">DBFlutespection.xml</a></dt><dd>調整されたInspectionsのProfileの設定</dd>
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/inspectionProfiles/profiles_settings.xml">profiles_settings.xml</a></dt><dd>このプロジェクトで DBFlutespection を使うと決めている</dd>
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/misc.xml">misc.xml</a></dt><dd>EntryPointsManagerでDIのアノテーションが設定されている</dd>
+	</dl>
+	<p>
+		これら設定ファイル、オープンソースとして公開されています。
+		<span class="frm">(コピーして使ってOKです。また更新するかもしれませんので、時々ウォッチを。ちなみに、LastaFluteのExampleですがそこ関係ありません)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/">(Single Project) lastaflute-example-harbor | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/">(Multi Project) lastaflute-example-maihama | Github</a></div>
+	<p>
+		三つのファイルをコピーして構成どおりの場所に配置し、バージョン管理システム(git)のコミット対象にして共有すれば、チームメンバーみな調整済みの同じ警告設定になります。
+	</p>
+	<p>
+		もし、シングルプロジェクトなら... <span class="frm">(プロジェクトルート直下に)</span>
+	</p>
+<pre><span class="codetitle">e.g. IntelliJのInspectionsに関する設定ファイルの構成 (シングルプロジェクト) @Directory</span><code>
+[project-root] <span class="comment">// if single project</span>
+ |-src/main/java
+ |-src/test/java
+ |-<span class="abbreviation">...</span>
+ |-<span class="subpoint">.idea</span>
+ |  |-inspectionProfiles
+ |  |  |-<span class="point">DBFlutespection.xml</span>
+ |  |  |-<span class="point">profiles_settings.xml</span>
+ |  |-<span class="point">misc.xml</span>
+ |  |-<span class="abbreviation">...</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もし、マルチプロジェクトなら... <span class="frm">(リポジトリルートの直下に)</span>
+	</p>
+<pre><span class="codetitle">e.g. IntelliJのInspectionsに関する設定ファイルの構成 (マルチプロジェクト) @Directory</span><code>
+[repository-root] <span class="comment">// if multi project</span>
+ |-<span class="abbreviation">...</span>
+ |-<span class="subpoint">.idea</span>
+ |  |-inspectionProfiles
+ |  |  |-<span class="point">DBFlutespection.xml</span>
+ |  |  |-<span class="point">profiles_settings.xml</span>
+ |  |-<span class="point">misc.xml</span>
+ |  |-<span class="abbreviation">...</span>
+ |-maihama-dockside
+ |-maihama-hangar
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もし、少し合わないところや、さらにOFFにしたい警告があるようであれば、これを土台にさらに設定を調整しても良いでしょう。
+		<span class="frm">(DBFlutespection という Profile 名も変更してしまって構いません)</span>
+	</p>
+	<p>
+		misc.xml は、すでに存在しているかもしれません。misc というからにはいろいろなものが入るのでしょう。
+		LastaFluteのExampleからコピーして利用するときも、そのまま利用できるとは限りません。
+		MavenProjectsManager の設定値がプロジェクト構成に寄って変わると思われるので、
+		すでに存在している場合は自分のプロジェクトに合わせて適切にマージをしましょう。
+	</p>
+	<p>
+		そして、gitignoreの設定も調整しましょう。
+	</p>
+	<div class="detailpage"><a href="#gitignorestrategy">this - gitignore戦略は？</a></div>
+
+	<h2 id="shareformatter">フォーマッター設定の共有</h2>
+	<h3 id="saddefault">残念なデフォルトフォーマット</h3>
+	<p>
+		当然、人によって違うかもしれませんが、IntelliJのデフォルトのコードフォーマットを残念と思う人は多いです。
+		ただ、それは Eclipse も同様なので、やはりちゃんと調整してを共有するのが吉です。
+	</p>
+	<p>
+		IntelliJであれこれ調整する方法は、Twitterで "jflute intellij" で検索してください。
+	</p>
+	<p>
+		フォーマットを調整したら、必ずチーム内で共有しなければなりません。フォーマットの設定が人によってズレてると100%カオスだからです。
+	</p>
+	<h3 id="saveactions">保存したら自動でフォーマット</h3>
+	<p>
+		フォーマッターをしっかり設定しても、フォーマットする人としない人が混ざるとただの差分地獄になります。
+		やるからにはしっかり使ってもらう施策が必要です。ショートカットキーを浸透させるのも手ですが、そもそもフォーマットを自動化してしまうのも手です。
+		ここでは、後者の方法を紹介します。
+	</p>
+	<p>
+		IntelliJに、Save Actions というプラグインをインストールして設定すると、保存(ctrl+S)するときに自動的にフォーマットがかかるようになります。
+		<span class="frm">(厳密には、IntelliJは自動で保存がされるので、その場合はフォーマットされません。明示的な保存(ctrl+S)をしたときにフォーマットされます)</span>
+	</p>
+	<div class="detailpage"><a href="https://plugins.jetbrains.com/plugin/7642-save-actions">Save Actions | JetBrains</a></div>
+	<ul>
+		<li>Save Actionsプラグインのjarファイルをダウンロード</li>
+		<li>Preferences の Plugins にて、そのjarファイルをimport</li>
+	</ul>
+	<p>
+		これは、チームメンバーみなに入れてもらわないといけません。
+	</p>
+	<p>
+		また、フォーマッターを使っているプロジェクトと使っていないプロジェクトを兼務している場合に、使っていないプロジェクトで勝手にフォーマッターがかかってしまうとよくありません。
+		メニューの File - Other Settings - Default Settings の Save Actions にて、activate を OFF にしましょう。
+		こうすると、Save Actionsの設定がされていないプロジェクトで勝手に Save Actions が有効になってしまうのを防ぐことができます。
+	</p>
+	<p>
+		もろもろの Save Actions の調整方法は、Twitterで "jflute intellij" で検索してください。
+	</p>
+	<h3 id="dbflutestyle">jfluteお手製のフォーマット調整済xml</h3>
+	<p>
+		大変だと思うので、Save Actionsの設定も含めて、フォーマット調整済の IntelliJ の .idea ディレクトリに配置する xml を用意しています。
+	</p>
+	<p>
+		さらに、こちらのフォーマット設定は、DBFluteが提供している Eclipseの "DBFlute Style"
+		なフォーマッターとほぼ同じになるように調整されていますので、IntelliJ, Eclipse
+		どちらでフォーマットしてもほぼ同じになるようになっています。<span class="frm">("IDEはお好きように" という開発スタイルがしやすいように)</span>
+	</p>
+	<dl class="longkeymainlist">
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/codeStyleSettings.xml">codeStyleSettings.xml</a></dt><dd>調整されたプロジェクトのコードフォーマットの設定</dd>
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/saveactions_settings.xml">saveactions_settings.xml</a></dt><dd>Save Actinosの設定</dd>
+	</dl>
+	<p>
+		これら設定ファイル、オープンソースとして公開されています。
+		<span class="frm">(コピーして使ってOKです。また更新するかもしれませんので、時々ウォッチを。ちなみに、LastaFluteのExampleですがそこ関係ありません)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/">(Single Project) lastaflute-example-harbor | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/">(Multi Project) lastaflute-example-maihama | Github</a></div>
+	<p>
+		二つのファイルををコピーして構成どおりの場所に配置し、バージョン管理システム(git)のコミット対象にして共有すれば、チームメンバーみな調整済みの同じフォーマット設定になります。
+		また、Save Actionsプラグインが入っていれば、保存(ctrl+S)で自動的にフォーマットがかかります。
+	</p>
+	<p>
+		もし、シングルプロジェクトなら... <span class="frm">(プロジェクトルート直下に)</span>
+	</p>
+<pre><span class="codetitle">e.g. IntelliJのフォーマッターに関する設定ファイルの構成 (シングルプロジェクト) @Directory</span><code>
+[project-root] <span class="comment">// if single project</span>
+ |-src/main/java
+ |-src/test/java
+ |-<span class="abbreviation">...</span>
+ |-<span class="subpoint">.idea</span>
+ |  |-inspectionProfiles
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-<span class="subpoint">codeStyleSettings.xml</span>
+ |  |-<span class="subpoint">saveactions_settings.xml</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もし、マルチプロジェクトなら... <span class="frm">(リポジトリルート直下に)</span>
+	</p>
+<pre><span class="codetitle">e.g. IntelliJのフォーマッターに関する設定ファイルの構成 (マルチプロジェクト) @Directory</span><code>
+[repository-root] <span class="comment">// if multi project</span>
+ |-<span class="abbreviation">...</span>
+ |-<span class="subpoint">.idea</span>
+ |  |-inspectionProfiles
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-<span class="subpoint">codeStyleSettings.xml</span>
+ |  |-<span class="subpoint">saveactions_settings.xml</span>
+ |-maihama-dockside
+ |-maihama-hangar
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		そして、gitignoreの設定も調整しましょう。
+	</p>
+	<div class="detailpage"><a href="#gitignorestrategy">this - gitignore戦略は？</a></div>
+
+	<h2 id="gitignorestrategy">gitignore戦略は？</h2>
+	<h3 id="wholeidea">個人設定とプロジェクト設定が混じった.idea</h3>
+	<p>
+		ちょっと困ったことに、個人設定とプロジェクト設定が混じって.idea配下に保存されます。
+	</p>
+	<p>
+		ゆえに、.ideaをignoreすれば良いわけでもなく、commitすれば良いわけでもないのが痛いところ。
+		しっかり個別個別に調整しないといけません。
+	</p>
+	<h3 id="adjustedgitignore">jfluteお手製のgitignore</h3>
+	<p>
+		Inspectionsやフォーマッターの設定などを考慮したgitignore設定がこちらです。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/">(Single Project) lastaflute-example-harbor | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/">(Multi Project) lastaflute-example-maihama | Github</a></div>
+<pre><span class="codetitle">e.g. IntelliJのgitignore戦略 @gitignore</span><code>
+<span class="comment"># IntelliJ IDEA</span>
+**/.idea/*
+!**/.idea/inspectionProfiles
+!**/.idea/codeStyleSettings.xml
+!**/.idea/misc.xml
+!**/.idea/saveactions_settings.xml
+**/*.iml
+/out
+</code></pre>
+	<p>
+		びっくりマークを使って、git対象のものを指定しています。<span>(以前は、ひたすら除外を指定する方式でしたが、後からこういった指定の仕方ができることがわかりました。yu1roありがとう！)</span>
+	</p>
+	<p>
+		"**/" にしているのは、マルチプロジェクトなどで階層化されている場合に、下の階層の.ideaディレクトリも対象にできるようにするためです。
+		シングルプロジェクトやアプリプロジェクト直下なら不要ではありますが、場所によって書き方を変えるとややこしいので、気にせず付けておいて良いでしょう。
+	</p>
+	<p>
+		ただ、"/out" は、IntelliJとは無関係なoutというディレクトリが問答無用でignoreになってしまうとややこしいだろうということで、直下だけにしています。
+	</p>
+	<p>
+		gitignoreの場所は、それぞれの現場の慣習があるので、いい感じに取り込んでもらえればですが、Exampleではこのような配置を想定しています。
+	</p>
+	<p>
+		もし、シングルプロジェクトなら... <span class="frm">(プロジェクトルート直下に)</span>
+	</p>
+<pre><span class="codetitle">e.g. gitignoreファイルの構成 (シングルプロジェクト) @Directory</span><code>
+[project-root] <span class="comment">// if single project</span>
+ |-src/main/java
+ |-src/test/java
+ |-<span class="abbreviation">...</span>
+ |-.idea
+ |-<span class="subpoint">.gitignore</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もし、マルチプロジェクトなら... <span class="frm">(リポジトリルート直下に)</span>
+	</p>
+<pre><span class="codetitle">e.g. gitignoreファイルの構成 (マルチプロジェクト) @Directory</span><code>
+[repository-root] <span class="comment">// if multi project</span>
+ |-<span class="abbreviation">...</span>
+ |-.idea
+ |-<span class="subpoint">.gitignore</span>
+ |-<span class="abbreviation">...</span>
+ |-maihama-dockside
+ |-maihama-hangar
+ |-<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="dotidea">.ideaディレクトリへの意識</h2>
+	<p>
+		.ideaディレクトリの扱いは、少し気をつけないといけません。
+	</p>
+	<h3 id="multiproject">マルチプロジェクトのジレンマかな？</h3>
+	<p>
+		IntelliJでプロジェクトを開く時、どこを基点にして開くか？の選択肢があります。
+		開く基点をチームメンバーで統一などをしないのであれば、ルートごとに .idea を配置しないと共有できません。
+	</p>
+	<p>
+		例えば、マルチプロジェクトのmaihamaプロジェクトにて、複数のアプリプロジェクトをまるごとimportするために、
+		リポジトリのルートで開くとします。その場合は、[リポジトリのルート]/.idea が参照されます。
+	</p>
+	<p>
+		ですが、とある一つのアプリプロジェクトだけをimportする場合は、その開いたアプリプロジェクトのルートの.ideaが参照されます。
+	</p>
+<pre><span class="codetitle">e.g. IntelliJのマルチプロジェクトのときの.ideaさんたち @Directory</span><code>
+[repository-root]
+ |-<span class="subpoint">.idea</span>            <span class="comment">// リポジトリのルートで開いたときに利用される</span>
+ |-maihama-base
+ |-maihama-dockside
+ |  |-<span class="subpoint">.idea</span>         <span class="comment">// docksideプロジェクトのルートで開いたときに利用される</span>
+ |-maihama-hangar
+ |  |-<span class="subpoint">.idea</span>         <span class="comment">// harngarプロジェクトのルートで開いたときに利用される</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		どちらで開かれるかわからないのであれば、両方(というかすべて)に .idea を配置しておかないといけません。
+		つまり、何か設定の変更をしたときに、すべての.ideaを修正しないといけません。
+		ほとんどがコピーで済むので、実際には手間はそこまでかかりませんが、忘れてズレてしまいそうですし、misc.xmlは厳密に同じにはならないように思います<span class="frm">(MavenProjectsManager周り)</span>。
+	</p>
+	<p>
+		基本的には、必ずリポジトリルートで開く、というのを手順化した方が良さそうです。
+	</p>
+	<h3 id="singleproject">シングルプロジェクトでも変わらずジレンマかな？</h3>
+	<p>
+		では、シングルプロジェクトであれば気にしなくて良いかというと、必ずしもそうではありません。
+	</p>
+	<p>
+		結局、そのシングルプロジェクトを、リポジトリルート直下ではなく、ひとつフォルダを経由して配置している場合、マルチプロジェクトと同じ話になります。
+	</p>
+<pre><span class="codetitle">e.g. IntelliJのシングルプロジェクトでも気をつけないといけないとき @Directory</span><code>
+[repository-root]
+ |-<span class="subpoint">.idea</span>            <span class="comment">// リポジトリのルートで開いたときに利用される</span>
+ |-harbor
+ |  |-<span class="subpoint">.idea</span>         <span class="comment">// harborプロジェクトのルートで開いたときに利用される</span>
+</code></pre>
+	<p>
+		とにもかくにも、ちゃんと狙った場所の.ideaが有効になっているかどうか？を気にしてプロジェクトを開くようにしないといけません。
+	</p>
+	<h3 id="importproject">Import Projectのジレンマかな？</h3>
+	<p>
+		.ideaを予め配置してgit管理にした後、他の人がそのプロジェクトを IntelliJ で開こうとするとき、多くの方が "Import Project" を使うと思います。
+	</p>
+	<p>
+		ただ、Import Project 経由で開こうとすると、最後に ".ideaを上書きしますか？"
+		と聞かれます。Noの場合は先に進めないので、OKで上書きするしかありません。そうすると、せっかく仕込んでいた .idea
+		の設定ファイルたちがデフォルトの設定で上書きor削除されてしまいます。それに気付いて Revert して元に戻せばいいですが、気づかずにそのまま削除コミット(変更コミット)してしまう可能性もあります。
+	</p>
+	<p>
+		<em class="keyword">気付くしかありません。</em>
+	</p>
+	<p>
+		手順の中に、import直後の.ideaの差分は必ず Revert すること、という風に入れておきましょう。 
+	</p>
+	<p>
+		"Import Project" ではなく、"Open" で開けば上書きされないのですが、自分で Maven の import
+		などをしないといけないので、多くの人が "Import Project" を使うでしょう。
+	</p>
+
+	<h2 id="dbflutelivetemplate">DBFlute な Live Template</h2>
+	<p>
+		DBFluteが提供している Eclipse の Editor Templates の IntelliJ 版を提供しています。
+	</p>
+	<div class="relatedpage"><a href="../../../../tutorial/onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
+	<p>
+		メニューの File - Import Setttings... で以下の jar ファイルを指定して <em class="keyword">Live Templates だけ選択して</em> import すれば利用できます。
+		<span class="frm">(Live Templates 以外を選択すると、ご自身の設定が上書きされる可能性があります)</span>
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>補完テンプレート</dt><dd><a href="http://dbflute.seasar.org/download/misc/settings/dbflute-intellij-live-templates.jar">dbflute-intellij-live-templates.jar</a></dd>
+	</dl>
+	<p>
+		裏技は使えませんが、アンスコで始まる系の補完はほとんどそのまま利用できます。_ll, _li
+		をぜひ活用していきましょう！Eclipseよりも使いやすくなっている部分もあります。
+	</p>
+	<p>
+		Deco, Hakiba, thank you for your migration from Eclipse.
+	</p>
+<!-- __content-end__ --></div></div>
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Generate,自動生成" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Generateタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Generateタスク</h1>
+	${indexlist}
+
+	<h2 id="about">Generateタスクとは？</h2>
+	<p>
+		メタデータを元に、主に "Entity" などのテーブル対応のクラスを自動生成するDBFluteタスクです。
+	</p>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>実装開始直前 (開発用DBスキーマの作成後)</li>
+		<li>DB変更の発生</li>
+		<li>DBFluteアップグレード直後</li>
+		<li>本番運用後のDB変更</li>
+	</ul>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">generate.(bat|sh)</em> をコマンドから実行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップが終わった時点から利用できます。
+		但し、スキーマのメタデータがないと無意味ですので、実行前にJDBCタスクが必ず(一度は)実行されていることが前提です。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		Generateタスクを実行すると処理が始まります。
+	</p>
+	<ul class="flowlist">
+		<li><a href="#schemaxml">1. SchemaXMLを参照</a></li>
+		<li><a href="#deleteold">2. 古いクラスを削除</a></li>
+		<li><a href="#generate">3. クラスを自動生成</a></li>
+		<li><a href="#bqptobhv">4. BehaviorQueryPathをBehaviorに反映</a></li>
+		<li><a href="#refresh">5. Eclipseプロジェクトをリフレッシュ(オプション)</a></li>
+	</ul>
+	<h3 id="schemaxml">1. SchemaXMLを参照</h3>
+	<p>
+		JDBCタスクで出力された SchemaXML (スキーマのメタ情報)を読み込みます。
+	</p>
+	<div class="relatedpage"><a href="../jdbc/index.html">JDBCタスク</a></div>
+	<h3 id="deleteold">2. 古いクラスを削除</h3>
+	<p>
+		存在していないテーブル対応の既存の<span class="existscloset">クラスは、(ファイルシステム上から)削除されます</span>。
+	</p>
+	<p>
+		但し、一度自動生成した後(そのとき古いクラスを生成して)、自動生成の出力先ディレクトリやパッケージ構造などの設定を変更して再自動生成した場合は、
+		以前の環境における古いクラスは削除されません。(DI設定ファイルの名前の変更なども同様です)
+	</p>
+	<h3 id="generate">3. クラスを自動生成</h3>
+	<p>
+		取得したメタデータからクラスを自動生成します。
+	</p>
+	<p>
+		クラスファイルは、<em class="keyword">自動生成するクラスの出力先ディレクトリ(basicInfoMap.dfpropのgenerateOutputDirectory)</em>
+		配下にパッケージ構造をそのままディレクトリ構造として出力します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/basicinfo/index.html#generateoutputdirectory">dfprop - generateOutputDirectory</a></div>
+	<p>
+		パッケージ構造は、<em class="keyword">基底のパッケージ(basicInfoMap.dfpropのpackageBase)</em>
+		にそれぞれの<span class="existscloset">クラス固有のパッケージ構造</span>を付け足したものになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/basicinfo/index.html#packagebase">dfprop - packageBase</a></div>
+	<dl class="keymainlist">
+		<dt>allcommon</dt><dd>DBFluteランタイムと連携する共通クラス <span class="frm">(allcommon)</span></dd>
+		<dt>Entity</dt><dd>データを反映させるクラス <span class="frm">(bsentity|exentity)</span></dd>
+		<dt>DBMeta</dt><dd>メタデータを保持するクラス <span class="frm">(bsentity.dbmeta)</span></dd>
+		<dt>Behavior</dt><dd>DBアクセス処理を提供するクラス <span class="frm">(bsbhv|exbhv)</span></dd>
+		<dt>ConditionBean(など)</dt><dd>検索条件を組み立てるクラス <span class="frm">(cbean)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/index.html">allcommon</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/entity/index.html">Entity</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/entity/dbmeta/index.html">DBMeta</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/behavior/index.html">Behavior</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/index.html">ConditionBean</a></div>
+	<h4 id="disetting">DI設定ファイルも自動生成</h4>
+	<p>
+		クラスと同時にDI設定ファイルも自動生成されます。DI設定ファイルは、利用しているDIコンテナによって
+		<em class="keyword">XML ファイル</em> のものと <em class="keyword">クラス</em> のものと分かれます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/diway/index.html">DIコンテナごとの取扱い</a></div>
+	<p>
+		XMLファイルの場合は、<em class="keyword">DBFluteが自動生成するリソース(basicInfoMap.dfpropのresourceOutputDirectory)</em>
+		配下に出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/basicinfo/index.html#resourceoutputdirectory">dfprop - resourceOutputDirectory</a></div>
+	<p>
+		クラスの場合は、共通クラス(allcommon)の一部として出力されます。
+	</p>
+	<h3 id="bqptobhv">4. BehaviorQueryPathをBehaviorに反映</h3>
+	<p>
+		<span class="existscloset" title="exists a closet option">BehaviorQueryPathをBehaviorに反映</span>します。
+		Sql2Entityタスクで定義したBehaviorQueryPathを削除しないためにGenerateタスクでも同じ処理を実行しています。
+	</p>
+	<div class="relatedpage"><a href="../sql2entity/index.html#bqptobhv">Sql2Entity - BehaviorQueryPathをBehaviorに反映</a></div>
+	<h3 id="refresh">5. Eclipseプロジェクトをリフレッシュ(オプション)</h3>
+	<p>
+		refreshDefinitionMap.dfprop にてリフレッシュ設定がされている場合に、
+		指定されているEclipseプロジェクトをリフレッシュ(更新)します。
+		これにより、ファイルシステム上は生成されていてもEclipse上には反映されていないという状態が発生しません。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/refreshdefinition/index.html">refreshDefinitionMap.dfprop</a></div>
+
+	<h2 id="unsupportedname">サポートされない名前</h2>
+	<p>
+		特殊なテーブル名やカラム名はサポートされません。
+	</p>
+	<div class="detailpage"><a href="../../../../../environment/supported.html#unsupportedname">サポートされない名前</a></div>
+
+	<h2 id="variousoption">様々なオプション</h2>
+	<p>
+		DBFluteプロパティを利用することで、様々なオプションが利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/index.html">DBFluteプロパティ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ProcedurePmb,プロシージャ対応のParameterBean,ProcedureParameterBean,ストアドプロシージャ,OUTパラメータ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ProcedurePmb | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ProcedurePmb</h1>
+	<p>
+		プロシージャを呼び出すためのParameterBeanについてのページです。
+	</p>
+	<div class="relatedpage"><a href="./parameterbean.html">ParameterBean</a></div>
+	${indexlist}
+
+	<h2 id="about">ProcedurePmbとは？</h2>
+	<p>
+		ProcedurePmb は <em class="keyword">(ストアド)プロシージャ対応のParameterBean</em>
+		です。外だしのSQLファイルに対するパラメータ(引数)ではなく、プロシージャに対するパラメータオブジェクトという位置付けで、
+		ProcedurePmbを指定することで容易にプログラムからプロシージャを呼び出すことができます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+	<p>
+		通常のParameterBeanとは違い、パラメータを渡すという役割だけでなく、
+		<em class="keyword">どのプロシージャを呼び出すか</em> を指定したり、<em class="keyword">OUTパラメータやプロシージャリターン</em>
+		を受け取ったりとプロシージャコールに対する総合的なオブジェクトとなります。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wo.html#outparameter">OUTパラメータ</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン値</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wp.html#procedurecall">プロシージャコール</a></div>
+	<dl class="textlist">
+		<dt>空文字はnullとして扱われる</dt>
+		<dd>
+			通常のParameterBeanと同様です。OUTパラメータやプロシージャリターンにプロシージャ側で空文字が設定された場合も、getメソッド経由ではnullになります。
+			<div class="relatedpage"><a href="./parameterbean.html#emptyasnull">ParameterBean - 空文字はnullとして扱われる</a></div>
+		</dd>
+		<dt>外だしSQLとの関係は？</dt>
+		<dd>
+			DBFluteにおいては、外だしSQLとプロシージャは別物という扱いではなく、プロシージャも 外だしのSQL
+			の一つという扱いをしています。よって、自動生成はSql2Entity経由、実行は BehaviorのoutsideSql()メソッド
+			というようになっています。
+			<div class="relatedpage"><a href="#howto">this - ProcedurePmbの利用</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="autogenerate">ProcedurePmbの自動生成</h2>
+	<h3 id="sql2entity">Sql2Entityで自動生成される</h3>
+	<p>
+		通常のParameterBeanと同様に、ProcedurePmbもSql2Entityタスクで自動生成されます。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Sql2Entityタスク</a></div>
+	<p>
+		但し、これはオプションの動きとなります。<em class="keyword">outsideSqlDefinitionMap.dfprop にて、ProcedurePmbの自動生成を有効</em>
+		にすることで初めて自動生成されます。プロシージャは外部プログラムのために作成されることも多く、
+		必ずしもDBFluteを利用しているアプリケーションから呼び出すとは限らない可能性があるためです。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#isgenerateprocedureparameterbean">dfprop - isGenerateProcedureParameterBean</a></div>
+	<p>
+		設定を有効すると、Sql2Entityタスクでプロシージャのメタデータが取得され、ProcedurePmbが自動生成されます。
+		特にプロシージャ側にSql2Entityマークのようなものを埋め込む必要はありません。
+	</p>
+	<h3 id="generatedclass">自動生成されるクラス</h3>
+	<p>
+		パッケージ(出力先)は、通常の ParameterBean と同じです。
+	</p>
+	<p>
+		クラス名は、<em class="keyword">[プロシージャ名] + Pmb</em> という形式となり、
+		プロシージャを識別する部分の名前に関しては、プロシージャの名前に "_"
+		(アンダースコア)が含まれている場合は、その文字を区切りとしたキャメルケースに直します。
+		そうでない場合は、基本的にプロシージャの名前をそのまま利用します。
+		但し、全てが大文字の場合(メタデータとして)は先頭だけ大文字にして後は小文字になります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>SP_FOO</dt><dd>SpFooPmb</dd>
+		<dt>SPFOO</dt><dd>SpfooPmb</dd>
+		<dt>SpFoo</dt><dd>SpFooPmb</dd>
+	</dl>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wc.html#camelcase">キャメルケース(CamelCase)</a></div>
+<pre><span class="codetitle">e.g. SP_NO_PARAMETER という名前のプロシージャ (引数なし) {MySQL} @Procedure</span><code>
+<span class="keyword">create procedure</span> SP_NO_PARAMETER()
+<span class="keyword">begin</span>
+<span class="keyword">end</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. SP_NO_PARAMETER のプロシージャコール (引数なし) @Java</span><code>
+SpNoParameterPmb pmb = <span class="keyword">new</span> <span class="point">SpNoParameterPmb()</span>;
+<span class="literal">xxxBhv</span>.outsideSql().call(pmb); <span class="comment">// SP_NO_PARAMETERが実行される</span>
+</code></pre>
+	<h3 id="paramprop">パラメータのプロパティ</h3>
+	<p>
+		メタデータで認識されたパラメータ(プロシージャリターンも含む)は、ProcedurePmb
+		のプロパティとして自動生成されます。このプロパティを使って、INパラメータを設定したり、OUTパラメータを受け取ったりします。
+	</p>
+	<p>
+		プロパティの型は、テーブルの自動生成におけるマッピングと同じです。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/typemapping/index.html#defaultmapping">JDBC型とプログラム型のデフォルトマッピング</a></div>
+<pre><span class="codetitle">e.g. IN, OUT, INOUT パラメータ (SP_IN_OUT_PARAMETER) {MySQL} @Procedure</span><code>
+<span class="keyword">create procedure</span> SP_IN_OUT_PARAMETER(
+      <span class="attribute">in</span> v_in_varchar <span class="dbtype">varchar(32)</span>
+    , <span class="attribute">out</span> v_out_varchar <span class="dbtype">varchar(32)</span>
+    , <span class="attribute">inout</span> v_inout_varchar <span class="dbtype">varchar(32)</span>
+)
+<span class="keyword">begin</span>
+  <span class="keyword">set</span> v_out_varchar = <span class="literal">'qux'</span>;
+  <span class="keyword">set</span> v_inout_varchar = <span class="literal">'quux'</span>;
+<span class="keyword">end</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. IN, OUT, INOUT パラメータの利用 (SP_IN_OUT_PARAMETER) @Java</span><code>
+SpInOutParameterPmb pmb = <span class="keyword">new</span> SpInOutParameterPmb();
+pmb.<span class="point">setVInVarchar</span>(<span class="literal">"foo"</span>); <span class="comment">// INパラメータの設定</span>
+<span class="comment">//pmb.setVOutVarchar("bar"); // OUTパラメータなので設定なし</span>
+pmb.<span class="point">setVInOutVarchar</span>(<span class="literal">"baz"</span>); <span class="comment">// INOUTパラメータの設定</span>
+<span class="literal">xxxBhv</span>.outsideSql().call(pmb);
+String outParam = pmb.<span class="point">getVOutVarchar()</span>; <span class="comment">// OUTパラメータの受け取り (qux)</span>
+String inOutParam = pmb.<span class="point">getVInOutVarchar()</span>; <span class="comment">// INOUTパラメータの受け取り (quux)</span>
+</code></pre>
+<pre><span class="codetitle">e.g. プロシージャリターンのあるプロシージャ (SP_RETURN_PARAMETER) {PostgreSQL} @Procedure</span><code>
+<span class="keyword">create or replace function</span> SP_RETURN_PARAMETER()
+<span class="keyword">returns</span> <span class="dbtype">integer</span> <span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  <span class="keyword">return</span> <span class="literal">1</span>;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. プロシージャリターンの利用 (SP_RETURN_PARAMETER) @Java</span><code>
+SpReturnParameterPmb pmb = <span class="keyword">new</span> SpReturnParameterPmb();
+xxxBhv.outsideSql().call(pmb); <span class="comment">// 実行</span>
+Integer returnValue = pmb.<span class="point">getReturnValue()</span>; <span class="comment">// プロシージャリターンの受け取り (1)</span>
+</code></pre>
+	<p>
+		プロパティ名は、(メタデータとして取得された)パラメータ名を元にして、クラス名と同じ法則("Pmb" の付与は除外)が適用されます。
+		但し、NotParamResultは除く(後述)。
+	</p>
+	<div class="relatedpage"><a href="#resultsethandling">this - 結果セットの取扱い</a></div>
+	<h3 id="supportedtype">サポートされる型</h3>
+	<p>
+		基本的に、Entityの自動生成におけるサポートと変わりはありません。それぞれのDBMSごとにサポートされる型が決まっています。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#datatype">MySQL - データ型マッピング</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/postgresql/index.html#datatype">PostgreSQL - データ型マッピング</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#datatype">Oracle - データ型マッピング</a></div>
+	<p>
+		但し、非常にプロシージャのみで利用される型(されやすい型)もありますので、幾つかの型はサポートされています。
+		例えば、Oracle のTABLE型(PL/SQL表)やVARRAY型、OBJECT型など、複雑な構造の場合はサポートされないなど限定的ではありますが、
+		実現できる範囲での対応がされています。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#parametertype">Oracle - プロシージャパラメータの型</a></div>
+	<p>
+		サポートされない型は、Entityのプロパティでは String 型にマッピングされるのに対し、プロシージャのパラメータでは
+		Object 型にマッピングされます<span class="frm">(@since 0.9.7.6)</span>。プロシージャにおけるサポートされない型の場合、文字列では表現できない特殊な型の場合が多いと想定されるためです。
+		加えて、ValueType を独自に作成し設定することで、サポートされない多くの型も扱えるようになります。
+		その場合、アプリでは Object 型で渡し Object 型でもらい、独自の ValueType でJDBCに対応する型に変換して処理する、という形になります。
+		また、Object 型もどうにかしたい場合は、プロシージャのパラメータ定義の設定も含めて ProcedurePmb を手動作成すれば独自のプロパティ型を利用できます。
+	</p>
+	<div class="detailpage"><a href="#structure">this - ProcedurePmb の構造</a></div>
+	<h3 id="merit">自動生成によるメリット</h3>
+	<p>
+		DBFluteではSql2Entityタスクを利用することで、どのプロシージャを呼び出すのか、どのパラメータに値をセットするのか、これらが全て
+		<em class="keyword">タイプセーフに解決</em>
+		されます。プロシージャ側で名前やパラメータに変更があった場合も、それらをコンパイルエラーで検知することができます。
+	</p>
+	<h3 id="deleteold">古いクラスは削除される</h3>
+	<p>
+		外だしSQLのどこにも記述されていない既存の<span class="existscloset" title="exists a closet option">古いProcedurePmbは(ファイルシステム上から)削除されます</span>。
+		古いProcedurePmbを利用しているプログラムはコンパイルエラーとして検知できます。
+	</p>
+	<h3 id="target">自動生成対象を指定</h3>
+	<p>
+		自動生成するプロシージャを指定したい場合は、<em class="keyword">outsideSqlDefinitionMap.dfprop にて指定</em>
+		することができます。アプリケーションから呼び出さないプロシージャが大量にあるときに有効です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#targetprocedurenamelist">dfprop - targetProcedureNameList</a></div>
+	<h3 id="proceduresynonym">プロシージャ参照のシノニムも自動生成</h3>
+	<p>
+		プロシージャ参照のシノニムも同様に自動生成したい場合は、<em class="keyword">outsideSqlDefinitionMap.dfprop にて指定</em>
+		することができます。別スキーマのプロシージャを呼び出すのにシノニム経由にする場合などに有効です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#proceduresynonymhandlingtype">dfprop - procedureSynonymHandlingType</a></div>
+	<h3 id="resultsetgen">ResultSet 対応のCustomizeEntityも自動生成</h3>
+	<p>
+		ResultSet 対応の CustomizeEntity を自動生成することも可能です。
+	</p>
+	<div class="detailpage"><a href="#resultsethandling">this - ResultSetの取扱い</a></div>
+	<h3 id="overload">オーバーロードはもうひと手間</h3>
+	<p>
+		例えば、Oracle のパッケージプロシージャにおけるオーバーロードされたプロシージャ(パラメータ構成の違う同名のプロシージャ)を呼び出すには、
+		もうひと手間必要です。
+	</p>
+	<p>
+		自動生成される ProcedurePmb は、プロシージャ名でユニーク判定をしているため、最小公倍数のパラメータが定義されます。
+		よってそのままでは呼び出せず、自動生成された ProcedurePmb
+		を継承してパラメータ情報のアノテーションの上書きでパラメータ構成を調整(不要なパラメータを上書きで無効化)することで呼び出すことができます。
+		(プロシージャ変更による影響をすぐに検知するために、自動テストを必ず書くことが推奨されます)
+	</p>
+	<div class="relatedpage"><a href="#parameterdef">this - プロシージャのパラメータ定義</a></div>
+	<p>
+		ただし、"同名型違いのパラメータ" がオーバーロードプロシージャ間で存在する場合はサポートされません。例えば、同じ foo_value
+		という名前でありながらプロシージャが変わると文字列になったり数値になったりするような場合です。ProcedurePmb
+		に生成されるプロパティの型はそのいずれかの型に限定されるため、パラメータ構成を調整したとしても実行時に型違いエラーになる可能性があります。
+	</p>
+	<h3 id="dbway">DBMSごとの取扱い</h3>
+	<p>
+		DBMSへの依存が強い領域ですので、DBMSごとの取扱いを必ずご確認下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dbway/index.html">DBMSごとの取扱い</a></div>
+
+	<h2 id="resultsethandling">結果セットの取扱い</h2>
+	<p>
+		プロシージャが結果セット(ResultSet)を戻す場合、DBFluteにおける扱いは大きく二つに分かれます。
+	</p>
+	<ul>
+		<li>A. 結果セット対応の CustomizeEntity を自動生成</li>
+		<li>B. List&lt;Map&lt;String, Object&gt;&gt;を利用</li>
+	</ul>
+	<h3 id="resultsetwaya">A. 結果セット対応のCustomizeEntityを自動生成</h3>
+	<p>
+		Sql2Entityにてプロシージャを実際に実行し、そこから得られるメタデータから CustomizeEntity
+		を自動生成します(オプション)。<em class="keyword">outsideSqlDefinitionMap.dfprop</em>
+		にて、<em class="keyword">プロシージャの CustomizeEntity の自動生成を有効に</em> することで自動生成されるようになります。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#isgenerateprocedurecustomizeentity">dfprop - isGenerateProcedureCustomizeEntity</a></div>
+<pre><span class="codetitle">e.g. OUTパラメータの結果セットの受け取り {PostgreSQL} @Procedure</span><code>
+<span class="keyword">create or replace function</span> SP_RESULT_SET_PARAMETER(cur_member <span class="keyword">out</span> <span class="dbtype">refcursor</span>)
+<span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur_member <span class="keyword">for</span>
+    <span class="keyword">select</span> MEMBER_ID, MEMBER_NAME, BIRTHDATE
+      <span class="keyword">from</span> MEMBER;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. OUTパラメータの結果セットの受け取り {PostgreSQL} @Java</span><code>
+SpResultSetParameterPmb pmb = <span class="keyword">new</span> SpResultSetParameterPmb();
+<span class="attribute">memberBhv</span>.outsideSql().call(pmb);
+List&lt;<span class="point">SpResultSetParameterCurMember</span>&gt; memberList = pmb.<span class="point">getCurMember()</span>;
+<span class="keyword">for</span> (SpResultSetParameterCurMember member : memberList) {
+    <span class="abbreviation">...</span> = member.getMemberId();
+    <span class="abbreviation">...</span> = member.getMemberName();
+    <span class="abbreviation">...</span> = member.getBirthdate();
+}
+</code></pre>
+	<p>
+		これにより、プロシージャ内のSQLの select 句の構成を変更したときに、その変更のアプリへの影響をプログラムでコンパイルエラーとして検知できるようになります。
+	</p>
+	<h4>テスト値は内部で自動設定</h4>
+	<p>
+		通常の外だしSQLでは、テスト値はアプリで任意のものを指定できますが、プロシージャのパラメータは、DBFlute内部で自動で設定して実行されます。
+		例えば、以下のような値が設定されます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>STRING</dt><dd>"0"</dd>
+		<dt>NUMBER</dt><dd>0</dd>
+		<dt>BOOLEAN</dt><dd>FALSE</dd>
+		<dt>DATE</dt><dd>2006-09-26 18:21:00 <span class="frm">@since 0.9.7.1</span></dd>
+		<dt>UUID</dt><dd>FD8C7155-3A0A-DB11-BAC4-0011F5099158</dd>
+		<dt>OTHER</dt><dd>"0" <span class="frm">※文字列として</span></dd>
+	</dl>
+	<h4>クラスのパッケージ(出力先)と名前</h4>
+	<p>
+		クラスのパッケージ(出力先)は、通常の CustomizeEntity と同様です。クラス名は、<em class="keyword">[プロシージャ名] + [パラメータ名] + Pmb</em>
+		となります。但し、NotParamResult の場合はメタデータとして名前が存在しないため、パラメータ名部分が "...NotParamResult1..."
+		という形式の固定名で(複数対応のため)番号付きとなります。
+	</p>
+	<h4>プロパティの自動生成</h4>
+	<p>
+		<em class="keyword">自動生成した CustomizeEntity を要素にしたList型の、結果セットに対応するプロパティ</em> が ProcedurePmb
+		に自動生成されます。プロパティ名は、OUTパラメータやプロシージャリターンに関しては、通常のパラメータと同じです。
+		NotParamResultに関しては、"notParamResult1" という形式の固定名で番号付きとなります
+	</p>
+	<h4>NotParamResultの検知</h4>
+	<p>
+		実は "B" 方式(デフォルト)では、NotParamResult のためのプロパティは自動生成されず、この "A"
+		方式においてのみ、自動生成されます。これは、NotParamResultの情報は(実行なしで取得できる)メタデータからは取得できないためです。
+		この実際に実行して結果セットの情報を得る方式であれば、NotParamResult の有無を検知して、自動生成することができます。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+<pre><span class="codetitle">e.g. NotParamResult形式の結果セットの受け取り {MySQL} @Procedure</span><code>
+<span class="keyword">create procedure</span> SP_RETURN_RESULT_SET()
+<span class="keyword">begin</span>
+  <span class="keyword">select</span> MEMBER_ID, MEMBER_NAME, BIRTHDATE <span class="keyword">from</span> MEMBER;
+  <span class="keyword">select</span> * <span class="keyword">from</span> MEMBER_LOGIN;
+<span class="keyword">end</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. NotParamResult形式の結果セットの受け取り {MySQL} @Java</span><code>
+SpReturnResultSetPmb pmb = <span class="keyword">new</span> SpReturnResultSetPmb();
+<span class="attribute">memberBhv</span>.outsideSql().call(pmb);
+List&lt;<span class="point">SpReturnResultSetNotParamResult1</span>&gt; memberList = pmb.<span class="point">getNotParamResult1()</span>;
+<span class="keyword">for</span> (SpReturnResultSetNotParamResult1 member : memberList) {
+    <span class="abbreviation">...</span> = member.getMemberId();
+    <span class="abbreviation">...</span> = member.getMemberName();
+    <span class="abbreviation">...</span> = member.getBirthdate();
+}
+List&lt;<span class="point">SpReturnResultSetNotParamResult2</span>&gt; loginList = pmb.<span class="point">getNotParamResult2()</span>;
+<span class="keyword">for</span> (SpReturnResultSetNotParamResult2 login : loginList) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		NotParamResult に対応するプロパティの名前は、"notParamResult[index]"
+		が基本ですが、例えばSQLServerのテーブル値ファンクションのように、call 文 ではなく、select
+		文にて実行される "戻り値のような、必ず一つだけの NotParamResult" の場合は、"returnResult" という名前になります。
+	</p>
+	<h4>実行する対象のプロシージャを指定</h4>
+	<p>
+		デフォルトでは、<em class="keyword">基本的に(自動生成対象となっている)全てのプロシージャが実行</em> されます(NotParamResult
+		をサポートしていないDBMSでは、OUTパラメータ(プロシージャリターンも含む)が無いものは実行されません)。プロシージャは気軽に実行されては困るようなケースがあるため、
+		その場合は、<em class="keyword">outsideSqlDefinitionMap.dfprop</em> にて、<em class="keyword">実際に実行して CustomizeEntity
+		の自動生成を行うプロシージャを明示的に指定</em> します。但し、対象外にした中に結果セットを取扱うプロシージャがある場合は、そのプロシージャは "B"
+		方式を利用します。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#executionmetaprocedurenamelist">dfprop - executionMetaProcedureNameList</a></div>
+	<p>
+		デフォルトでは、実行に失敗したプロシージャのエラーは、ワーニングとしてタスクは続行されますが(よって、自動生成されてないときは必ずログを見ること)、
+		DBFluteプロパティで明示的に対象を絞っての実行の場合は、一つでの失敗したときにはタスクが中断します。
+		明示的に指定しているということは、必要なプロシージャだけが実行されるということになるため、エラーで続行させる必要はないと考えこのようにしています。
+	</p>
+	<h3 id="resultsetwayb">B. List&lt;Map&lt;String, Object&gt;&gt;を利用</h3>
+	<p>
+		こちらは、デフォルトの挙動になります。自動生成される結果セットに対応するプロパティの型が List&lt;Map&lt;String, Object&gt;&gt;
+		となります。マップのキー値は、(select句で指定された)カラム名(FlexibleName)となります。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wf.html#flexiblename">FlexibleName</a></div>
+	<p>
+		この方式はタイプセーフではないため、<em class="keyword">できるだけ "A" 方式の利用をお奨め</em> しますが、どうしても "A"
+		方式を採用できない場合(対象外にしたプロシージャ)においてのみ、この方式を利用します。
+	</p>
+	<h4>NotParamResultのプロパティは手動で</h4>
+	<p>
+		NotParamResultに関しては、その有無を(実行なしで取得できる)メタデータからは取得できないため、ProcedurePmb
+		のExクラスにて手動でプロパティを追加する必要があります。
+	</p>
+<pre><span class="codetitle">e.g. ProcedurePmbのExクラスでNotParamResultのプロパティを手動で定義 @Java</span><code>
+<span class="keyword">public static final</span> String notParamResult1_PROCEDURE_PARAMETER = <span class="literal">"notParamResult, 1000"</span>;
+<span class="keyword">protected</span> List&lt;Map&lt;String, Object&gt;&gt; <span class="attribute">_notParamResult1</span>;
+<span class="keyword">public</span> List&lt;Map&lt;String, Object&gt;&gt; getNotParamResult1() {
+    <span class="keyword">return</span> <span class="attribute">_notParamResult1</span>;
+}
+<span class="keyword">public void</span> setNotParamResult1(List&lt;Map&lt;String, Object&gt;&gt; notParamResult1) {
+    <span class="attribute">_notParamResult1</span> = notParamResult1;
+}
+</code></pre>
+	<p>
+		PROCEDURE_PARAMETER の定数アノテーションには、一つ目の要素として "notParamResult"
+		を固定で、二つ目の要素として、任意の番号を指定します(基本的に1000からの連番)。この番号は、複数の NotParamResult
+		を定義する場合に、プロシージャ側の定義順序と合わせるためのものです。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wc.html#constantannotation">ConstantAnnotation (定数アノテーション)</a></div>
+	<h4>手動で作ったEntityでも構わない</h4>
+	<p>
+		このとき、Mapの代わりに手動で作った(独自の) Entity
+		を指定しても構いません。定義されているプロパティ名と結果セットの内容が一致していれば、Entity
+		にデータがマッピングされます。
+	</p>
+
+	<h2 id="escape">プロシージャのエスケープ</h2>
+	<p>
+		プロシージャ実行時の call 構文のSQLは、"{"、"}" に囲われます(JDBCのエスケープ処理)。
+	</p>
+<pre><span class="codetitle">e.g. 実行されるプロシージャの call 構文のSQL(エスケープされる) @Java</span><code>
+<span class="point">{</span><span class="keyword">call</span> SP_FOO('bar', ?)<span class="point">}</span>
+</code></pre>
+	<p>
+		通常は、これ以上これに関して意識する必要はありません。
+		但し、このエスケープ処理が施されている場合に限って実行ができないプロシージャが存在することが <em class="keyword">稀に</em>
+		あります。そのようなプロシージャに遭遇したときは、Exクラスにて isEscapeStatement() をオーバーライドして、false
+		を戻すようにします。すると、その ProcedurePmb を使ったプロシージャコールは、エスケープ処理が施されません。
+		滅多にない現象ですので、その問題が発生してからこの機能を意識する、というので特に問題ないでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#procedureescape">DBMSごとの取扱い - Oracle - プロシージャのエスケープ</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wp.html#procedureescape">プロシージャのエスケープ</a></div>
+
+	<h2 id="structure">ProcedurePmbの構造</h2>
+	<p>
+		それぞれのプロシージャに対応する ProcedurePmb クラスは、ProcedurePmb
+		インターフェースを実装し、ジェネレーションギャップになっています。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wg.html#generationgap">GenerationGap (ジェネレーションギャップ)</a></div>
+	<p>
+		アプリケーションで意識するメソッドは全て set で始まるメソッド(検索条件の指定)が主になりますが、
+		OUTパラメータやプロシージャリターンを受け取るために get で始まるメソッドも利用することがあります。
+	</p>
+	<h3 id="parameterdef">プロシージャのパラメータ定義</h3>
+	<p>
+		ProcedurePmbの中では、プロシージャのパラメータ定義が宣言されています。
+	</p>
+<pre><span class="codetitle">e.g. ProcedurePmbのパラメータ定義 @Java</span><code>
+<span class="comment">// -----------------------------------------------------</span>
+<span class="comment">//                                   Procedure Parameter</span>
+<span class="comment">//                                   -------------------</span>
+<span class="keyword">public static final</span> String VInVarchar_PROCEDURE_PARAMETER = <span class="literal">"in, 0"</span>;
+<span class="keyword">public static final</span> String VOutVarchar_PROCEDURE_PARAMETER = <span class="literal">"out, 1"</span>;
+<span class="keyword">public static final</span> String VInoutVarchar_PROCEDURE_PARAMETER = <span class="literal">"inout, 2"</span>;
+
+<span class="comment">// [property-name]_PROCEDURE_PARAMETER</span>
+<span class="comment">// [property-name] は、JavaBeansRule なので</span>
+<span class="comment">// v_in_varchar は VInVarchar</span>
+<span class="comment">// vv_in_varchar は vvInVarchar</span>
+</code></pre>
+	<p>
+		"[property-name]_PROCEDURE_PARAMETER" という形式の定数アノテーションで、値は String 型で "[in or out or inout], [bind-order]"
+		という形式です。"property-name" は JavaBeansRule ですので、先頭文字の大文字小文字にはご注意下さい。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wj.html#javabeansrule">JavaBeansRule</a></div>
+	<p>
+		アプリケーションで直接意識することはありませんが、JDBC次第でメタデータを正しく取得できない場合に、
+		この定義を参考にExクラスで補完することで解決することがあります。
+		但し、これらは既にDBFluteの内部構造ですので、仕様が変わったときのために必ず影響が検知できるような自動テストと共に拡張して下さい。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/we.html#exclass">ExClass (Exクラス)</a></div>
+	<p>
+		同じ名前の定数をExクラスでも定義した場合は、Exクラスのものが優先されます。また、値が null
+		の場合は、そのパラメータ定義は無効とみなされる、Bsクラスに宣言されたパラメータ定義を無効にすることもできます。
+		(オーバーロードプロシージャに対応する場合などに利用します)
+	</p>
+	<div class="relatedword"><a href="#overload">this - オーバーロードはもうひと手間</a></div>
+	<h3 id="valuetype">ValueType の調整</h3>
+	<p>
+		デフォルトの ValueType ではなく、パラメータごとに独自の ValueType
+		を指定することができます。これを利用することで、パラメータのJDBC周りの処理(バインド処理やOUTパラメータ取得など)の調整ができます。
+	</p>
+<pre><span class="codetitle">e.g. ProcedurePmb のExクラスで独自の ValueType を定義 @Java</span><code>
+<span class="keyword">public class</span> SpInOutParameterPmb <span class="keyword">extends</span> BsSpInOutParameterPmb {
+
+    <span class="keyword">public static final</span> String VInVarchar_VALUE_TYPE = <span class="literal">"fooType"</span>;
+    <span class="keyword">public static final</span> ValueType VOutVarchar_VALUE_TYPE = <span class="keyword">new</span> FooType();
+
+    <span class="abbreviation">...</span>
+}
+<span class="comment">// [property-name]_VALUE_TYPE</span>
+<span class="comment">// [property-name] は、JavaBeansRule なので</span>
+<span class="comment">// v_in_varchar は VInVarchar</span>
+<span class="comment">// vv_in_varchar は vvInVarchar</span>
+</code></pre>
+	<p>
+		"[property-name]_VALUE_TYPE" という形式の定数アノテーションで、値が String 型の場合は、"プラグインValueType"
+		のキーの名前で、ValueType 型の場合<span class="frm">(@since 0.9.7.6)</span>は適用させる ValueType
+		のインスタンスを指定します。"property-name" は JavaBeansRule ですので、先頭文字の大文字小文字にはご注意下さい。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#pluginvaluetype">DBFluteConfig - プラグインValueType</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wj.html#javabeansrule">JavaBeansRule</a></div>
+	<p>
+		基本的にBsクラスには定義されていませんが、特殊な方の場合にDBFluteが自動で設定することがあります。
+		同じ名前の定数をExクラスでも定義した場合や、値が null の場合の挙動は、プロシージャのパラメータ定義と同じです。
+	</p>
+	<div class="relatedword"><a href="#parameterdef">this - プロシージャのパラメータ定義</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/we.html#exclass">ExClass (Exクラス)</a></div>
+	<p>
+		ValueType を独自に作成する必要はありますが、このように拡張することでサポートされない型も扱えるようになるかもしれません。
+	</p>
+
+	<h2 id="howto">ProcedurePmbの使い方</h2>
+	<p>
+		パラメータを設定したProcedurePmbクラスのインスタンスを <em class="keyword">外だしSQLのcall()メソッド</em> の引数に指定します。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/procedure/call.html">外だしSQL - call()</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

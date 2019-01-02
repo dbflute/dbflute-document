@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,機能,Example" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>ConditionBean | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ConditionBean</h1>
+	${indexlist}
+
+	<h2 id="basic">ConditionBeanの基本</h2>
+	<dl class="keymainlist">
+		<dt><a href="./about.html">ConditionBeanについて</a></dt>
+		<dd>ConditionBeanとは？概念やその存在意義などわりと事務的な話</dd>
+		<dt><a href="./howto.html">ConditionBeanの使い方</a></dt>
+		<dd>実装手順やコード補完など <span class="frm">※ディベロッパーは必ず一度は目を通しましょう</span></dd>
+	</dl>
+
+	<h2 id="function">ConditionBeanの機能</h2>
+	<h3 id="select">データの取得</h3>
+	<dl class="textlist">
+		<dt>取得できるカラム</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基点テーブルのカラム (デフォルト) - <span class="frm">new FooCB()</span></li>
+				<li>many-to-one, one-to-one のカラム : <a href="./setupselect/index.html">SetupSelect(Relation)</a> - <span class="frm">cb.setupSelect_Foo() (.with...)</span></li>
+				<li>業務的one-to-one のカラム : <a href="./setupselect/bizonetoone.html">SetupSelect(BizOneToOne)</a> - <span class="frm">cb.setupSelect_Foo(value) (.with...)</span></li>
+				<li>one-to-many のカラム (バッチフェッチ) : <a href="../behavior/select/loadreferrer.html">Behavior.LoadReferrer</a> - <span class="frm">bhv.loadFooList(...)</span></li>
+				<li>子テーブルの導出カラム (one-to-many) : <a href="./specify/derivedreferrer.html">(Specify)DerivedReferrer</a> - <span class="frm">cb.specify().derivedFooList()...</span></li>
+			</ul>
+		</dd>
+		<dt>取得に関する調整</dt>
+		<dd>
+			<ul>
+				<li>取得カラムの指定 : <a href="./specify/specifycolumn.html">SpecifyColumn</a> - <span class="frm">cb.specify().columnFoo(), cb.specify().specifyFoo().column...</span></li>
+				<li>結果セットの統合 : <a href="./sidebar/unionquery.html">UnionQuery</a> - <span class="frm">cb.union(new UnionQuery...), cb.unionAll(new UnionQuery...)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="query">データの絞り込み</h3>
+	<dl class="textlist">
+		<dt>利用できるカラム</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基点テーブルのカラム : <a href="./query/index.html">Query</a> - <span class="frm">cb.query().set...</span></li>
+				<li>many-to-one, one-to-one のカラム <span class="frm">(*1)</span> : <a href="./query/relation.html">Query(Relation)</a> - <span class="frm">cb.query().queryFoo().set...</span></li>
+				<li>業務的one-to-one のカラム <span class="frm">(*1)</span> : <a href="./query/bizonetoone.html">Query(BizOneToOne)</a> - <span class="frm">cb.query().queryFoo(value).set...</span></li>
+				<li>子テーブルのカラム (one-to-many) <span class="frm">(*2)</span> : <a href="./query/existsreferrer.html">ExistsReferrer</a> - <span class="frm">cb.query().existsFooList(new SubQuery...)</span></li>
+				<li>子テーブルの導出カラム (one-to-many) : <a href="./query/derivedreferrer.html">(Query)DerivedReferrer</a> - <span class="frm">cb.query().derivedFooList()...</span></li>
+			</ul>
+			<span class="frm">*1: 親テーブルの条件で絞り込み</span> <span class="frm">*2: 子テーブルの条件で絞り込み</span>
+		</dd>
+		<dt>絞り込み条件</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>等値 (=) : <a href="./query/equal.html">Equal</a> - <span class="frm">cb.query().setFoo_Equal(value)</span></li>
+				<li>非等値 (&lt;&gt;) : <a href="./query/notequal.html">NotEqual</a> - <span class="frm">cb.query().setFoo_NotEqual(value)</span></li>
+				<li>大なり (&gt;) : <a href="./query/greaterthan.html">GreaterThan</a> - <span class="frm">cb.query().setFoo_GreaterThan(value)</span></li>
+				<li>小なり (&lt;) : <a href="./query/lessthan.html">LessThan</a> - <span class="frm">cb.query().setFoo_LessThan(value)</span></li>
+				<li>大なりイコール (&gt;=) : <a href="./query/greaterequal.html">GreaterEqual</a> - <span class="frm">cb.query().setFoo_GreaterEqual(value)</span></li>
+				<li>小なりイコール (&lt;=) : <a href="./query/lessequal.html">LessEqual</a> - <span class="frm">cb.query().setFoo_LessEqual(value)</span></li>
+				<li>対象値の列挙 (in ('a', 'b')) : <a href="./query/inscope.html">InScope</a> - <span class="frm">cb.query().setFoo_InScope(valueList)</span></li>
+				<li>前方一致の条件 (PrefixSearch条件) : <a href="./query/prefixsearch.html">PrefixSearch</a> - <span class="frm">cb.query().setFoo_PrefixSearch(value)</span></li>
+				<li>曖昧検索の条件 (LikeSearch条件) : <a href="./query/likesearch.html">LikeSearch</a> - <span class="frm">cb.query().setFoo_LikeSearch(value, option)</span></li>
+				<li>null かどうか (is null) : <a href="./query/isnull.html">IsNull</a> - <span class="frm">cb.query().setFoo_IsNull()</span></li>
+				<li>null か空文字かどうか (is null or empty) : <a href="./query/isnullorempty.html">IsNullOrEmpty</a> - <span class="frm">cb.query().setFoo_IsNullOrEmpty()</span></li>
+				<li>null でないかどうか (is not null) : <a href="./query/isnotnull.html">IsNotNull</a> - <span class="frm">cb.query().setFoo_IsNotNull()</span></li>
+				<li>日時の汎用的なFromTo条件 (FromTo条件) : <a href="./query/fromto.html">FromTo</a> - <span class="frm">cb.query().setFoo_FromTo(...)</span></li>
+				<li>日付の定型的なFromTo条件 (DateFromTo条件) : <a href="./query/datefromto.html">DateFromTo</a> - <span class="frm">cb.query().setFoo_DateFromTo(...)</span></li>
+				<li>数値の汎用的なRangeOf条件 (RangeOf条件) : <a href="./query/rangeof.html">RangeOf</a> - <span class="frm">cb.query().setFoo_RangeOf(...)</span></li>
+				<li>子テーブルの条件で絞り込み (exists) : <a href="./query/existsreferrer.html">ExistsReferrer</a> - <span class="frm">cb.query().existsFooList(new SubQuery...)</span></li>
+				<li>関連テーブルの条件で絞り込み (in) : <a href="./query/inscoperelation.html">InScopeRelation</a> - <span class="frm">cb.query().inScopeFooList(new SubQuery...)</span></li>
+				<li>子テーブルの導出カラムで絞り込み : <a href="./query/derivedreferrer.html">(Query)DerivedReferrer</a> - <span class="frm">cb.query().derivedFooList()...</span></li>
+				<li>自分自身の導出値との比較で絞り込み : <a href="./query/scalarcondition.html">(Myself)ScalarCondition</a> - <span class="frm">cb.query().scalar_Equal().max(...)</span></li>
+				<li>自分自身の回避的サブクエリで絞り込み : <a href="./query/myselfinscope.html">MyselfInScope</a> - <span class="frm">cb.query().myselfInScope(new SubQuery...)</span></li>
+				<li>カラム同士の比較で絞り込み : <a href="./query/columnquery.html">ColumnQuery</a> - <span class="frm">cb.columnQuery(new SpecifyQuery...).lessThan...</span></li>
+			</ul>
+		</dd>
+		<dt>連結条件</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>デフォルトは "and 条件" : <a href="./query/index.html">Query</a> - <span class="frm">cb.query().set...</span></li>
+				<li>明示的な指定で "or 条件" も可能 : <a href="./query/orscopequery.html">OrScopeQuery</a> - <span class="frm">cb.orScopeQuery(new OrQuery...)</span></li>
+			</ul>
+		</dd>
+		<dt>絞り込みに関する調整</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"on 句" による結合前の絞り込み : <a href="./query/onclause.html">OnClause</a> - <span class="frm">cb.query().queryFoo().on().set...</span></li>
+				<li>インラインビューによる結合前の絞り込み : <a href="./query/inlineview.html">InlineView</a> - <span class="frm">cb.query().queryFoo().inline().set...</span></li>
+				<li>ページング条件 : <a href="./sidebar/paging.html">Paging</a> - <span class="frm">cb.paging(20, 4)</span></li>
+				<li>"先頭のn件" 条件 : <a href="./sidebar/fetchfirst.html">FetchFirst</a> - <span class="frm">cb.fetchFirst(20)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="orderby">データの並び替え</h3>
+	<dl class="textlist">
+		<dt>利用できるカラム</dt>
+		<dd>
+			<ul>
+				<li>基点テーブルのカラム : <a href="./query/index.html">Query</a> - <span class="frm">cb.query().addOr...</span></li>
+				<li>many-to-one, one-to-one のカラム <span class="frm">(*1)</span> : <a href="./query/relation.html">Query(Relation)</a> - <span class="frm">cb.query().queryFoo().addOr...</span></li>
+				<li>業務的one-to-one のカラム <span class="frm">(*1)</span> : <a href="./query/bizonetoone.html">Query(BizOneToOne)</a> - <span class="frm">cb.query().queryFoo(value).addOr...</span></li>
+				<li>(one-to-many)子テーブルの導出カラム : <a href="./query/orderby/specifiedderivedorderby.html">SpecifiedDerivedOrderBy</a> - <span class="frm">cb.query().addSpecifiedDer...</span></li>
+			</ul>
+			<span class="frm">*1: 親テーブルのカラムで並び替え</span>
+		</dd>
+		<dt>並び替え条件</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>昇順・降順ソート : <a href="./query/orderby/index.html">OrderBy</a> - <span class="frm">cb.query().addOrderBy_Foo_Asc()</span></li>
+				<li>指定した値の順番で並べる : <a href="./query/orderby/manualorder.html">ManualOrder</a> - <span class="frm">cb.query().addOrderBy_Foo_Asc().withManualOrder(orderList)</span></li>
+				<li>null を先・後に並べる : <a href="./query/orderby/nullsfirstlast.html">NullsFirst/Last</a> - <span class="frm">cb.query().addOrderBy_Foo_Asc().withNullsFirst()</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="selectstyle">検索スタイル</h3>
+	<dl class="textlist">
+		<dt>DomainEntityのオブジェクトグラフ</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>一件検索 (Entity) : <a href="../behavior/select/selectentity.html">Behavior.selectEntity()</a> - <span class="frm">bhv.selectEntity(cb)</span></li>
+				<li>リスト検索 (ListResultBean) : <a href="../behavior/select/selectlist.html">Behavior.selectList()</a> - <span class="frm">bhv.selectList(cb)</span></li>
+				<li>ページング検索 (PagingResultBean) : <a href="../behavior/select/selectpage.html">Behavior.selectPage()</a> - <span class="frm">bhv.selectPage(cb)</span></li>
+				<li>カーソル検索 (一件ずつフェッチ) : <a href="../behavior/select/selectcursor.html">Behavior.selectCursor()</a> - <span class="frm">bhv.selectCursor(cb, new EntityRow...)</span></li>
+			</ul>
+		</dd>
+		<dt>(一般的な)集計関数を使ったスカラ値</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>カウント検索 (select count(*)) : <a href="../behavior/select/selectcount.html">Behavior.selectCount()</a> - <span class="frm">bhv.selectCount(cb)</span></li>
+				<li>スカラ検索 (select max(...)) : <a href="../behavior/select/scalarselect.html">Behavior.scalarSelect()</a> - <span class="frm">bhv.scalarSelect(type).max(...)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="other">その他</h3>
+	<dl class="textlist">
+		<dt>検索全体に関する調整</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>更新ロック (各種DBMSの構文を利用) : <a href="./sidebar/lockforupdate.html">LockForUpdate</a> - <span class="frm">cb.lockForUpdate()</span></li>
+				<li>InnerJoinの自動判別 (チューニング用) : <a href="./sidebar/innerjoinautodetect.html">InnerJoinAutoDetect</a> - <span class="frm">cb.allowInnerJoinAutoDetect()</span></li>
+				<li>JDBCパラメータの指定 (queryTimeoutなど) : <a href="./sidebar/statementconfig.html">StatementConfig</a> - <span class="frm">cb.configure(...)</span></li>
+				<li>DBMS依存の機能 (ロックや全文検索など) : <a href="../../genbafit/implfit/databasedependency/index.html">DatabaseDependency</a></li>
+				<li>無効な条件のチェック (無効な条件があったら例外) : <a href="./sidebar/checkinvalidquery.html">CheckInvalidQuery</a> - <span class="frm">cb.checkInvalidQuery()</span></li>
+			</ul>
+			<dl class="hierarchylist">
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd>※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<dt><a href="./sidebar/emptystringquery.html">EmptyStringQuery</a></dt>
+						<dd>空文字条件の許可 (空文字を有効な値として扱う)</dd>
+						<dt><a href="./sidebar/checksafetyresult.html">CheckSafetyResult</a></dt>
+						<dd>安全件数のチェック (指定件数以上なら例外)</dd>
+						<dt><a href="./sidebar/disablerelationmappingcache.html">DisableRelationMappingCache</a></dt>
+						<dd>関連テーブルのインスタンスキャッシュを無効化 (まず不要な機能)</dd>
+						<dt><a href="./query/manualinnerjoin.html">(Manual)InnerJoin</a></dt>
+						<dd>結合方式を明示的に内部結合に(危険要注意)</dd>
+						<dt><a href="./sidebar/embedcondition.html">EmbedCondition</a></dt>
+						<dd>バインド変数なし埋め込み条件 (危険要注意)</dd>
+						<dt><a href="./sidebar/pagingselectandquerysplit.html">PagingSelectAndQuerySplit</a></dt>
+						<dd>ページング検索でselect句とwhere句を分割実行</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+	</dl>
+	<dl class="textlist">
+		<dt>その他いろいろ</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>表示用SQLの取得 (外だしSQLの土台) : <a href="./various/todisplaysql.html">ToDisplaySql</a> - <span class="frm">cb.toDisplaySql()</span></li>
+				<li>PKの抽象化 (複合主キー対応) : <a href="./various/primarykeyabstraction.html">PrimaryKeyAbstraction</a></li>
+				<li>インターフェース経由での抽象的な利用 : <a href="./various/interfacedispatch.html">InterfaceDispatch</a></li>
+				<li>テーブルのメタデータの取得 (DBアクセスなし) : <a href="./various/tableinfo.html">TableInfo</a></li>
+				<li>利用してはいけない : <a href="./various/dontuse.html">Don't Use</a></li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="scope">ConditionBeanのスコープ</h2>
+	<p>
+		ConditionBean と 外だしSQL のどちらを使ったらよいのか迷ったら？
+	</p>
+	<div class="detailpage"><a href="./cbscope.html">ConditionBeanのスコープ</a></div>
+
+	<h2 id="effective">Effective ConditionBean</h2>
+	<p>
+		ConditionBean の効果的な使い方の指南
+	</p>
+	<div class="detailpage"><a href="./effective.html">Effective ConditionBean</a></div>
+
+	<h2 id="hitome">ひとめでConditionBean</h2>
+	<p>
+		とにかく、パッと見たかったら
+	</p>
+	<div class="detailpage"><a href="./hitomecb.html">ひとめでConditionBean</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

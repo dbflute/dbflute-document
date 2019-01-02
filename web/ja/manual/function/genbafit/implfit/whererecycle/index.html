@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,where句の再利用,WhereRecycle,検索条件の再利用,条件設定の再利用,業務条件の再利用,ConditionBeanの再利用" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>where句の再利用 (ArrangeQuery) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>where句の再利用 (ArrangeQuery)</h1>
+	<p>
+		ConditionBeanにおけるwhere句の再利用テクニックについて説明をします。
+	</p>
+	<p>
+		アプリケーションごとに独自のポリシーを決めることがお奨めですので、アーキテクトの方も必ずこのページをご覧下さい。<em class="keyword">プロジェクトで統一的なやり方で横展開</em>
+		することが重要です。
+	</p>
+	${indexlist}
+
+	<h2 id="solution">where句を再利用しよう</h2>
+	<h3 id="beginning">まとまった条件があったら</h3>
+	<p>
+		例えば...
+	</p>
+	<ul>
+		<li>'S'で始まる会員</li>
+		<li>とある商品を購入</li>
+		<li>正式会員</li>
+	</ul>
+	<p>
+		を、"特別過ぎる優待会員" として扱うというような業務仕様があったとして...
+	</p>
+<pre><span class="codetitle">e.g. ある特別な商品を購入したことのある会員名称が "S" で始まる正式会員を検索 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, op -&gt; op.likePrefix());
+cb.query().setMemberStatusCode_Equal_Formalized();
+cb.query().existsPurchaseList(purchaseCB -&gt; {
+    purchaseCB.query().setProductId_Equal(SPECIAL_PRODUCT_ID);
+});
+</code></pre>
+	<p>
+		まあ、こんな感じの実装になります。
+	</p>
+	<p>
+		そして、その条件を複数箇所で使うとなったら...べたべたコピペ...あっ!?
+		"特別過ぎる優待会員" の条件が変更されたら？ひー
+	</p>
+	<p>
+		<em class="keyword">誰か一人が実装して、それをみんなが再利用</em>
+		するのが一番です。
+	</p>
+	<h3 id="wholerecycle">まるごと一緒なら...まあいいけど</h3>
+	<p>
+		もし、この特別過ぎる優待会員の条件を利用する複数箇所において、取得したいテーブル(select句)やソート順までが全く同じ仕様になる、
+		つまり、検索まるごと再利用できるのであれば、Behaviorの "Exクラス" に独自のメソッドを作って再利用するやり方でも問題ありません。
+	</p>
+	<div class="relatedpage"><a href="../domainlogicrecycle/index.html">現場フィット - ドメインロジックの再利用</a></div>
+	<h3 id="varioustablesort">取得したいテーブルやソートは違うもの</h3>
+	<p>
+		しかし、業務仕様はなかなかそういうものではなく、プロセス毎に "特別過ぎる優待会員"
+		のソートの仕方が違ったり、一緒に取得したい関連テーブルが違ったり、そもそも検索の基点テーブルが違ったり(例えば、"特別過ぎる優待会員"
+		の購入リストを検索するとか)と、"特別過ぎる優待会員"
+		という検索条件は様々な場面で様々な利用方法が考えられます。つまり、<em class="keyword">再利用したいポイントはwhere句の一部条件</em>
+		なのです。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wp.html#process">Process (プロセス)</a></div>
+	<h3 id="cqexclass">ConditionQueryのExクラスにて！</h3>
+	<p>
+		そのような場合は、<em class="keyword">ConditionQuery の "Exクラス" にまとまった条件を設定するメソッド</em>
+		を作って再利用するのが一番です。そのようにしておくことで、DB変更などで特別過ぎる優待会員の条件が変わった場合も修正は一箇所で済みます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/about.html#conditionquery">ConditionQueryとは？</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/we.html#exclass">ExClass (Exクラス)</a></div>
+
+	<h2 id="arrange">再利用メソッド (ArrangeQuery)</h2>
+	<h3 id="methodname">メソッドは arrange !?</h3>
+	<p>
+		メソッド名は arrange で始まるのが習慣としてお奨めです。この再利用メソッドを定義する方法、もしくは、そのメソッド自体を
+		<em class="keyword">ArrangeQuery</em> と呼んでいます。
+	</p>
+	<p>
+		再利用メソッドは、いかにディベロッパーに使ってもらうか(存在に気付いてもらうか)がキーポイントです。
+		<em class="keyword">query()と書いた後とりあえず "a" で補完すればその CQ の再利用メソッド(の一覧)が補完される</em>
+		という状態にしておけば、ディベロッパーが再利用メソッドを探す手間が無くなります(補完されなければ何もないということで)。
+		さらには JavaDoc がしっかり書かれていれば、ディベロッパーは補完するだけで自分が必要なメソッドかどうかが判断できます。
+	</p>
+<pre><span class="codetitle">e.g. ある特別な商品を購入したことのある会員名称が "S" で始まる正式会員という条件を設定するメソッド @Java</span><code>
+<span class="keyword">public class</span> MemberCQ <span class="keyword">extends</span> BsMemberCQ {
+
+    <span class="abbreviation">...</span>
+
+    <span class="comment">/**</span>
+    <span class="comment"> * 特別過ぎる優待会員</span>
+    <span class="comment"> */</span>
+    <span class="keyword">public void</span> arrangeTooPreferentialMember() {
+        setMemberName_LikeSearch(<span class="literal">"S"</span>, op -&gt; op.likePrefix());
+        setMemberStatusCode_Equal_Formalized();
+        existsPurchaseList(purCB -&gt; {
+            purCB.query().setProductId_Equal(<span class="attribute">SPECIAL_PRODUCT_ID</span>);
+        });
+    }
+}
+</code></pre>
+	<h3 id="use">再利用メソッドの利用</h3>
+	<p>
+		再利用メソッドが定義されていれば、後はディベロッパーはConditionBean実装時にそのメソッドを呼び出すだけです。
+		プログラム上は業務的な目的の指定だけとなり、業務仕様への依存性が減ります。
+	</p>
+<pre><span class="codetitle">e.g. 特別過ぎる優待会員を検索 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">arrangeTooPreferentialMember()</span>; 
+cb.query().addOrderBy_...();
+<span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectList(cb);
+</code></pre>
+	<p>
+		(ConditionBeanでなく)ConditionQueryのExクラスに定義することで関連テーブルでも利用可能です。
+	</p>
+<pre><span class="codetitle">e.g. 特別過ぎる優待会員の購入リストを検索 @Java</span><code>
+PurchaseCB cb = <span class="keyword">new</span> PurchaseCB();
+cb.query().queryMember().<span class="point">arrangeTooPreferentialMember()</span>;
+cb.query().addOrderBy_...();
+<span class="abbreviation">...</span> = <span class="attribute">purchaseBhv</span>.selectList(cb);
+</code></pre>
+	<h3 id="orderby">order by 句も再利用</h3>
+	<p>
+		同じ仕組みで order by 句も利用することは可能です。
+	</p>
+	<h3 id="orscopecolumnquery">OrScoprQuery や ColumnQuery は？</h3>
+	<p>
+		OrScoprQuery や ColumnQuery は、ConditionBeanドリブンのメソッドであり、ConditionQuery
+		からは利用できません。なので、ConditionQueryではなく ConditionBean のExクラスで再利用メソッドを定義する必要があります。
+		<span class="frm">(ちょっと残念ですが、ここはAPI設計がうまくいきませんでした)</span>
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="oneword">その条件、ひとことで言うと？</h2>
+		<p>
+			えーっと...
+		</p>
+		<ul>
+			<li>'S'で始まる会員</li>
+			<li>とある商品を購入</li>
+			<li>正式会員</li>
+		</ul>
+		<p>
+			これをひとことで言うと？.........特別過ぎる優待会員！
+		</p>
+		<p>
+			<em class="keyword">業務上の目的を導き出すこと</em>、これが再利用の始まりです。
+		</p>
+		<p>
+			その目的を実現するための手段は、後に変わるかもしれません。他の人も使いたいかもしれません。
+			各プログラムは、できるだけ業務上の目的だけを意識して、手段は一元管理。これは ArrangeQuery
+			だけでなく、プログラミングにおける再利用の基本となります。
+		</p>
+		<p>
+			いかに、抽象度を一つあげた業務概念を見つけるか？...常に目を光らせておきましょう。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="letsnewcb">CBインスタンスは再利用しない!?</h2>
+		<p>
+			プロセスごと (画面ごと) に欲しいデータ量が違います。
+			そこが完全一致することはあまりないと。
+			どういう風に絞り込むか？は再利用できることが多い一方で、何を取得するか？は一概に共通化できない。
+			ゆえに、SetupSelectは(あまり)再利用するべきではないとjfluteは考えています。
+		</p>
+		<p>
+			そもそも、DBFluteのポリシーとして、なんでもかんでも取得するのではなく、また、LazyLoadするのではなく、"何を取得するか？"
+			をプログラム上でベタベタに明確にすることが大切だという考えがあります。それゆえに、SetupSelectが用意されています。
+		</p>
+		<p>
+			極端な話...
+		</p>
+		<ol>
+			<li>new MemberCB()はそれぞれの画面で <span class="frm">(newは再利用しない)</span></li>
+			<li>それぞれの画面でsetupSelect <span class="frm">(データの取得は画面ごとに)</span></li>
+			<li>query()の絞り込み条件だけ、arrangeメソッドなどで再利用</li>
+		</ol>
+<pre><span class="codetitle">e.g. setupSelectはそれぞれ、query()のarrangeで再利用 @Java</span><code>
+
+<span class="comment">// 画面側のメソッドにて new</span>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+
+<span class="comment">// SetupSelectはそれぞれで欲しいもの書く</span>
+cb.setupSelect_MemberStatus();
+cb.setupSelect_MemberServiceAsOne();
+
+<span class="comment">// 絞り込みは必要に応じて小分けに再利用</span>
+cb.query().<span class="point">arrangeTooPreferentialMember()</span>; 
+cb.query().existsPurchaseList(<span class="abbreviation">...</span>)
+
+<span class="comment">// OrderByもわりと再利用しづらいもの</span>
+cb.query().addOrderBy_<span class="abbreviation">...</span>();
+
+<span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectList(cb);
+</code></pre>
+		<p>
+			という感じ。
+		</p>
+		<p>
+			通常、newする部分は一箇所にまとめるのが再利用の鉄則ではありますが、こういった業務的なクラスに関しては例外です。
+			挙動の一括変更は、Exクラスやdfpropでいろいろできるので、その部分のデメリットはほとんどありません。
+		</p>
+		<p>
+			検索まるごと再利用したいケースももちろんありますが、そこまでに数は多くないはずだと。
+			それよりも、A画面ではSetupSelectを16個、B画面ではSetupSelect2個、でもA画面で使ってる検索をB画面でも使うというような現象をあまり発生させたくないと。
+			動くは動きますが、「表示項目のわりにはちょっともったりした画面」になる可能性があります。
+			可読性的にも、何を取得しているのか？っていうのが明確な方が、画面のView側やコントローラー側の実装がやりやすいので、あまり隠蔽し過ぎない方がいいと考えます。
+		</p>
+		<p>
+			なので、BehaviorのExクラスよりも、ConditionBean, ConditionQueryのExクラスの方と親友になってほしいと思っています。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="argremote">引数リモコンパターンはやめたい</h2>
+		<p>
+			こういうのです。
+		</p>
+<pre><span class="codetitle">e.g. やって欲しくないやり方 @Java</span><code>
+
+<span class="comment">// 画面側のメソッド</span>
+<span class="keyword">public void</span> index() {
+    <span class="comment">// これもう、なに検索してるの？</span>
+    <span class="abbreviation">...</span> = <span class="attribute">logic</span>.selectNandemoMember(<span class="keyword">null</span>, <span class="attribute">"S"</span>, <span class="keyword">null</span>
+            , <span class="keyword">false</span>, <span class="keyword">true</span>, <span class="keyword">false</span>, CDef.MemberStatus.Formalized
+            , <span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">true</span>, <span class="keyword">true</span>);
+}
+
+<span class="abbreviation">...</span>
+
+<span class="comment">// ロジック側の再利用メソッド</span>
+<span class="keyword">public</span> List&lt;Member&gt; selectNandemoMember(Integer memberId
+                                      , String memberName
+                                      , Date birthdateFrom
+                                      , <span class="keyword">boolean</span> hasFormalizedDate
+                                      , <span class="keyword">boolean</span> existsPurchase
+                                      , <span class="keyword">boolean</span> existsLogin
+                                      , CDef.MemberStatus statusCode
+                                      , <span class="keyword">boolean</span> setupSelectService
+                                      , <span class="keyword">boolean</span> loadPurchase
+                                      , <span class="keyword">boolean</span> loadLogin
+                                      , <span class="keyword">boolean</span> exceptMobileLogin) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+		<p>
+			これは既に、DBFluteをラップした独自ライブラリと言えるでしょう。
+			ConditionBeanの良さを完全に打ち消してしまっています。
+			<em class="keyword">引数リモコンパターン</em> と呼んでいます。
+		</p>
+		<p>
+			こういったメソッドは、すべて一人で作り上げるのではなく、複数人が関わって徐々に育てられていきます。
+			引数がちょっとずつ増えていって...最初に作った人もこんな大きなものになるとは思っていなくて、もっと小さな便利メソッドのつもりだったはず。
+		</p>
+		<p>
+			一度こうなっていくと、あとの人は "このメソッド使って検索しないといけないのかなぁ"
+			と思い、Conditionbeanではなく...引数をリモコンとしたDBアクセスライブラリを習得し、一生懸命自分の要件を満たす組み合わせを考えます。
+			足りなければ引数を増やすか、引数の増えた新たなメソッドを追加するか...気付いたら、ConditionBeanを書いてないという状況に...
+		</p>
+		<p>
+			難しいのは、ある程度は Good です。jfluteもある程度はこういうのも作ることはあります。
+			ですが、引数でほんのちょっとだけ挙動を変える。"ほんのちょっと" と "引数リモコン"
+			の境目が曖昧です。先の通り、最初の実装者の意図しない方向に成長する可能性があります。
+		</p>
+		<p>
+			やはり、基本は "new CB" はそれぞれの画面のプログラム上で書く、というポリシーがわかりやすいのかなと。
+			丸ごと再利用する検索を作るなら作るで、わかりやすさをキープするために丁寧に取り扱いましょう。
+		</p>
+		<p>
+			ブログにも書きました。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160905/argremocon">メンテ不能の強者、引数リモコンパターン | jfluteの日記</a></div>
+	</div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、実際に ArrangeQuery を定義し、テストケースで利用しています。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

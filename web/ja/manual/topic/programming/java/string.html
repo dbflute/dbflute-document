@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,Java,String,substring,indexOf,lastIndexOf,文字列,部分文字列,切り取り" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Java - String | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Java の String の補足</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		Javaの基本APIである java.lang.String についての補足資料です。
+		DBFluteと直接関係はありませんが、基本中の基本で合わせて利用することが多いので、
+		補完的な資料として用意されています。(よく利用される機能のみ紹介)
+	</p>
+
+	<h2 id="substring">substring()</h2>
+	<p>
+		文字列の一部分を切り取ります。
+	</p>
+	<h3 id="substringmethod">メソッド仕様</h3>
+	<dl class="textlist">
+		<dt>substring(int fromIndex)</dt>
+		<dd>指定された Index からの文字列を戻す (どこから、最後まで)</dd>
+		<dd>マイナス値や対象文字列の文字数を超える Index を指定すると例外</dd>
+		<dt>substring(int fromIndex, int toIndex)</dt>
+		<dd>指定された範囲の文字列を戻す (どこから、どこまで)</dd>
+		<dd>toIndex は指定された Index "まで" を示す</dd>
+		<dd>"toIndex - fromIndex" が切り取る文字列の数となる</dd>
+		<dd>マイナス値や対象文字列の文字数を超える Index を指定すると例外</dd>
+		<dd>toIndex よりも fromIndex の方が大きい場合は例外</dd>
+	</dl>
+	<h3 id="substringbasichowto">基本的な使い方</h3>
+	<p>
+		引数の Index を指定することで、切り取る範囲を決定します。Index は 0
+		始まりであり、文字と文字の間を指し示すようなイメージでいると良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>jflute</dt><dd>[0] <em class="keyword">j</em> [1] <em class="keyword">f</em> [2] <em class="keyword">l</em> [3] <em class="keyword">u</em> [4] <em class="keyword">t</em> [5] <em class="keyword">e</em> [6]</dd>
+	</dl>
+	<p>
+		例えば、1 から 4 までという指定であれば "flu" が切り取られます。
+		最後の Index は、対象文字列の文字数、String#length() と同じ値となるため、Index
+		にはその文字数を超える値(例えば 7)を指定することはできません(例外となる)。
+	</p>
+<pre><span class="codetitle">e.g. substring() の基本 @Java</span><code>
+String name = <span class="literal">"jflute"</span>; <span class="comment">// [0] j [1] f [2] l [3] u [4] t [5] e [6]</span>
+
+String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(<span class="literal">1</span>); <span class="comment">// "flute" A. 最初の一文字を除去</span>
+String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(<span class="literal">2</span>); <span class="comment">// "lute" B. 最初の二文字を除去</span>
+String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(<span class="literal">0</span>, <span class="literal">3</span>); <span class="comment">// "jfl" C. 最初の3文字</span>
+String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(<span class="literal">1</span>, <span class="literal">4</span>); <span class="comment">// "flu" D. 一つ飛ばして3文字</span>
+
+<span class="keyword">int</span> len = name.length();
+String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(len - <span class="literal">1</span>, len); <span class="comment">// "e" E. 最後の一文字を取得</span>
+String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(len - <span class="literal">2</span>, len); <span class="comment">// "te" F. 最後の二文字を取得</span>
+</code></pre>
+	<h3 id="substringlengthif">長さチェックして分岐</h3>
+	<p>
+		文字数が大きい場合のみ切り取るというような場合は、length() と合わせてif文で分岐させます。
+	</p>
+<pre><span class="codetitle">e.g. substring() を分岐で利用 @Java</span><code>
+<span class="comment">// /- - - - - - - - - - - - - - - -</span>
+<span class="comment">// 4文字を超える文字列ならそれ以降を除去する</span>
+<span class="comment">// (つまり、文字列を必ず4文字以下のしたい)</span>
+<span class="comment">// - - - - - - - - - -/</span>
+String name = <span class="literal">"jflute"</span>;
+String cutStr;
+<span class="keyword">if</span> (name.length() > <span class="literal">4</span>) { <span class="comment">// 4文字を超える(5文字以上なら)</span>
+    cutStr = name.<span class="point">substring</span>(<span class="literal">0</span>, <span class="literal">4</span>); <span class="comment">// 4文字目までを切り取る</span>
+} <span class="keyword">else</span> {
+    cutStr = name; <span class="comment">// 切り取りようがない、もしくは、切り取る必要がない</span>
+}
+</code></pre>
+	<h3 id="substringindexof">とある文字で切り取り</h3>
+	<p>
+		とある文字で文字列を切り取る場合は、indexOf() や lastIndexOf() と合わせて利用します。
+		indexOf() で取得した Index は、substring() でそのまま利用できる Index
+		となるため、とある文字の Index を探して、その文字を基準に文字列を切り取ることができます。
+	</p>
+<pre><span class="codetitle">e.g. indexOf() と substring() のコラボレーション @Java</span><code>
+String name = <span class="literal">"jflute"</span>;
+<span class="keyword">int</span> index = name.<span class="point">indexOf</span>(<span class="literal">"u"</span>);
+<span class="keyword">if</span> (index >= 0) { <span class="comment">// 指定した文字が存在するなら</span>
+    String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(<span class="literal">0</span>, index); <span class="comment">// "jfl"</span>
+    String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(index);     <span class="comment">// "ute" ※"u"も含む</span>
+    String <span class="abbreviation">...</span> = name.<span class="point">substring</span>(index + <span class="literal">"u"</span>.length()); <span class="comment">// "te" ※"u"は含まない</span>
+} <span class="keyword">else</span> {
+    <span class="abbreviation">...</span> <span class="comment">// 要件に応じて例外にするなりなんなり</span>
+}
+</code></pre>
+	<p>
+		ファイルパスなどから拡張子を取得したり、パスを除去したファイル名を取得したりする場合は、指定された文字列の最後の Index
+		を利用する必要があるため、lastIndexOf() を活用します。
+	</p>
+<pre><span class="codetitle">e.g. lastIndexOf() と substring() のコラボレーション @Java</span><code>
+String path = <span class="literal">"topic/programming/java/string.html"</span>;
+String delimiter = <span class="literal">"/"</span>;
+<span class="keyword">int</span> index = path.<span class="point">lastIndexOf</span>(delimiter);
+String fileName;
+<span class="keyword">if</span> (index >= 0) { <span class="comment">// 指定した文字が存在するなら</span>
+    fileName = path.<span class="point">substring</span>(index + delimiter.length()); <span class="comment">// "string.html"</span>
+} <span class="keyword">else</span> {
+    fileName = path; <span class="comment">// 既にパス部分が存在していないのでそのまま</span>
+}
+</code></pre>
+
+	<h2 id="indexof">indexOf(), lastIndexOf()</h2>
+	<p>
+		指定された文字の Index (文字列の中の、その文字の位置)を取得します。
+	</p>
+	<h3 id="substringmethod">メソッド仕様</h3>
+	<dl class="textlist">
+		<dt>indexOf(String str)</dt>
+		<dd>指定された文字の "最初" に見つかった Index を戻す</dd>
+		<dd>文字の一致判定において、大文字小文字は区別される</dd>
+		<dd>指定された文字が対象文字列に存在しない場合は -1 (マイナス値)を戻す</dd>
+		<dt>lastIndexOf(String str)</dt>
+		<dd>指定された文字の "最後" に見つかった Index を戻す</dd>
+		<dd>他は indexOf() と同じ</dd>
+	</dl>
+	<h3 id="substringbasichowto">基本的な使い方</h3>
+	<p>
+		Index は 0 始まりであり、文字と文字の間を指し示すようなイメージでいると良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>jflute</dt><dd>[0] <em class="keyword">j</em> [1] <em class="keyword">f</em> [2] <em class="keyword">l</em> [3] <em class="keyword">u</em> [4] <em class="keyword">t</em> [5] <em class="keyword">e</em> [6]</dd>
+	</dl>
+	<p>
+		例えば、"u" を指定したら Index は 3 となり、"f" を指定したら 1 となります。
+	</p>
+<pre><span class="codetitle">e.g. indexOf() の基本 @Java</span><code>
+String name = <span class="literal">"jflute"</span>; <span class="comment">// [0] j [1] f [2] l [3] u [4] t [5] e [6]</span>
+
+<span class="keyword">int</span> <span class="abbreviation">...</span> = name.<span class="point">indexOf</span>(<span class="literal">"f"</span>); <span class="comment">// 1</span>
+<span class="keyword">int</span> <span class="abbreviation">...</span> = name.<span class="point">indexOf</span>(<span class="literal">"u"</span>); <span class="comment">// 3</span>
+<span class="keyword">int</span> <span class="abbreviation">...</span> = name.<span class="point">indexOf</span>(<span class="literal">"j"</span>); <span class="comment">// 0</span>
+<span class="keyword">int</span> <span class="abbreviation">...</span> = name.<span class="point">indexOf</span>(<span class="literal">"x"</span>); <span class="comment">// -1 : その文字が存在しない場合</span>
+</code></pre>
+	<p>
+		そもそもその文字列の中に指定された文字が無い場合は、Index は -1
+		(マイナス値)となります。通常、このマイナス値の Index を substring()
+		などで利用すると例外が発生してしまうため、文字の有無が確定しない場合は "0以上である"
+		という if 文で囲って処理をします。
+	</p>
+	<div class="relatedpage"><a href="#substringindexof">this - substring() - とある文字で切り取り</a></div>
+<pre><span class="codetitle">e.g. indexOf() で文字の有無が確定しない場合 @Java</span><code>
+<span class="comment">// /- - - - - - - - - - - - - - - - - - - - - -</span>
+<span class="comment">// "u" が存在する文字列なら、"u" より前の文字列を取得する</span>
+<span class="comment">// - - - - - - - - - -/</span>
+String name = <span class="abbreviation">...</span>;
+<span class="keyword">int</span> index = name.<span class="point">indexOf</span>(<span class="literal">"u"</span>);
+<span class="keyword">if</span> (<span class="point">index >= 0</span>) { <span class="comment">// 指定した文字が存在するなら</span>
+    String <span class="abbreviation">...</span> = name.substring(<span class="literal">0</span>, index); <span class="comment">// "jflute" なら "jfl"</span>
+} <span class="keyword">else</span> {
+    <span class="abbreviation">...</span> <span class="comment">// 要件に応じて例外にするなりなんなり</span>
+}
+</code></pre>
+
+	<p>
+		TODO jflute
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

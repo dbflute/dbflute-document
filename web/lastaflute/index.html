@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../css/sub.css";</style>
+	<title>LastaFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>Tolerance-to-DB-change O/R Mapper</span></a>
+	<img src="../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute</h1>
+	<div class="relatedpage"><a href="../ja/lastaflute/index.html">Japanese Page of LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">What is LastaFlute?</h2>
+	<p>
+		Typesafe Web Framework for LeAn STArtup with DBFlute and Java8
+	</p>
+	<h3 id="rhythmspeed"><em class="mark">Rhythm & Speed</em> Programming</h3>
+	<p>
+		Startup has repeated <em class="keyword">trial & error</em> so light-weight development environment is needed.
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark">Hot Deploy</em></dt><dd>fix action and immediately confirm it without reboot</dd>
+		<dt><em class="mark">Lightening Boot</em></dt><dd>fast reboot even if it needs to reboot</dd>
+	</dl>
+	<p>
+		&nbsp;
+	</p>
+	<p>
+		.........................................................<em class="keyword">rhythmical thinking is speed</em>
+	</p>
+	<h3 id="adaptable"><em class="mark">Adaptable-to-Change</em> Programming</h3>
+	<p>
+		Startup has repeated <em class="keyword">requirement change</em> so safety mechanism is needed.
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark">Hard Typesafe</em></dt><dd>typesafe action implementation and condition-bean</dd>
+		<dt><em class="mark">Aggressive DB Change</em></dt><dd>DBFlute on Full Power, and FreeGen</dd>
+		<dt><em class="mark">Crazy Logging</em></dt><dd>looks-like-good log</dd>
+	</dl>
+	<p>
+		&nbsp;
+	</p>
+	<p>
+		.........................................................<em class="keyword">safety is speed</em>
+	</p>
+	<h3 id="naturally"><em class="mark">Naturally-be-so</em> Programming</h3>
+	<p>
+		Startup has also repeated <em class="keyword">human resource change</em> so power of natural is needed.
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark">Convention Mapping</em></dt><dd>URL = class + method: searchable class from URL</dd>
+		<dt><em class="mark">Less Choice</em></dt><dd>remove unneeded option, uniform as possible</dd>
+		<dt><em class="mark">Default Libraries</em></dt><dd>from configuration to mail library</dd>
+	</dl>
+	<p>
+		&nbsp;
+	</p>
+	<p>
+		.........................................................<em class="keyword">unshaken is speed</em>
+	</p>
+	<h3 id="cast">LastaFlute Cast</h3>
+	<p class="imgbox">
+		<a href="../data/model/lastaflute/lastaflute-cast-view.png" title="LastaFlute Cast"><img src="../data/model/lastaflute/lastaflute-cast-view.png" alt="LastaFlute Cast" width="550" height="380" /></a>
+	</p>
+	<h3 id="repository">LastaFlute Repository <span class="frm">(with License, Fork info)</span></h3>
+	<p>
+		The source codes are in Github. You can also see the license and fork information.
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute">Github - LastaFlute</a></div>
+
+	<h2 id="howtoimpl">How to implement</h2>
+	<p>
+		Java8-on-parade Action.
+	</p>
+	<div class="detailpage"><a href="./howto/action/index.html">Action Tutorial | LastaFlute</a></div>
+	<h3 id="bigconvention">Mapping Convention</h3>
+	<dl class="valuemainlist">
+		<dt>Request URL</dt><dd><em class="mark">Action</em> class + <em class="mark">Execute</em> method</dd>
+	</dl>
+	<h3 id="pkgconvention">Package Convention</h3>
+	<dl class="valuemainlist">
+		<dt>Application Package</dt><dd>[your domain].app <span class="frm">e.g. org.docksidestage.app</span></dd>
+		<dt>Web Package</dt><dd>[Application Root].web <span class="frm">e.g. org.docksidestage.app.web</span></dd>
+		<dt>Action's Package</dt><dd>*you can use Action's prefix package</dd>
+	</dl>
+	<h3 id="htmlresponse">Example for HTML response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as HTML response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+                        , ProductSearchForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; (), () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    PagingResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    List&lt;ProductRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">page</span>.mappingList(<span class="localvar">product</span> -&gt; {
+        <span class="keyword">return</span> mappingToBean(<span class="localvar">product</span>);
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>).renderWith(<span class="localvar">data</span> -&gt; {
+        <span class="localvar">data</span>.register(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        registerPagingNavi(<span class="localvar">data</span>, <span class="localvar">page</span>, <span class="localvar">form</span>);
+    });
+}
+</code></pre>
+	<h3 id="jsonresponse">Example for JSON response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as JSON response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    validate(<span class="localvar">body</span>, <span class="localvar">messages</span> -&gt; {});
+    ListResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    SearchPagingBean&lt;ProductRowBean&gt; <span class="localvar">bean</span> = createPagingBean(page);
+    <span class="keyword">return</span> asJson(<span class="localvar">bean</span>);
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

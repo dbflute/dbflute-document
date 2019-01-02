@@ -1,0 +1,48 @@
+@charset "UTF-8";
+
+#container {
+	background-image: none;
+}
+#mainbar {
+	background-image: none;
+}
+#footer {
+	background-image: none;
+}
+#sidebar ul ul li {
+	background-image: url("../../image/parts/cb/sidebar-keyspace.gif");
+}
+#sidebar ul a {
+	background-image: url("../../image/parts/cb/sidebar-keyspace.gif");
+}
+#sidebar ul ul a {
+	background-image: none;
+}
+#sidebar ul a:hover {
+	background-image: none;
+}
+#sidebar ul ul a:hover {
+	background-image: none;
+}
+#sidebar ul ul li.upper-space {
+	background-image: url("../../image/parts/cb/sidebar-keyspace.gif");
+}
+#content h1 {
+	background-image: url("../../image/parts/cb/head-flutist.gif");
+}
+#content h2 {
+	background-image: url(../../image/parts/cb/head-score.gif);
+}
+#content div.detailpage a, #content div.detailpage span {
+	background-image: url("../../image/parts/cb/mark-fortissimo.gif");
+}
+#content div.relatedpage a, #content div.relatedpage span {
+	background-image: url("../../image/parts/cb/mark-mezzopiano.gif");
+}
+#content div.relatedword a, #content div.relatedword span {
+	background-image: url("../../image/parts/cb/mark-pianissimo.gif");
+}
+#content div.inucolumn {
+	background-image: none;
+}
+

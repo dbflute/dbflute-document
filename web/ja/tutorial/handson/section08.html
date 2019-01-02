@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 8 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 8</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、ハンズオンの続きです。
+	</p>
+	<div class="relatedpage"><a href="./section07.html">(ひとつまえ) ハンズオンセクション 7</a></div>
+	<p>
+		"Behaviorで更新、削除 (+ 排他制御、共通カラム)" を学んでいきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		<em class="keyword">src/main/java</em> 配下に org.docksidestage.handson.logic.HandsOn08Logic
+		クラスを作成してください。この時点では空っぽで構いません。また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		【事務連絡】org.dbflute.handson から、org.docksidestage.handson に変わりました。
+		org.dbfluteで開始した人は、そのまま org.dbflute で続けてOKです。もし、移行するなら log4j.properties と basicInfoMap.dfprop
+		の該当箇所を修正してください。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20150311">ハンズオンニュース - org.docksidestageに変更</a></div>
+
+	<h2 id="exclusivecontrol">排他制御</h2>
+	<p>
+		実装する前に、更新処理でついてまわる "排他制御" という概念を理解しましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+
+	<h2 id="update">排他制御ありの更新</h2>
+	<p>
+		それでは、まずは排他制御ありの更新です。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/behavior/update/update.html">Behavior - update()</a></div>
+	<p>
+		以下のロジックを作成してみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>void updateMemberChangedToFormalized(Integer memberId, Long versionNo)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された会員を正式会員に更新する</li>
+				<li>排他制御ありで更新する</li>
+				<li>引数の値で null は許されない</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_updateMemberChangedToFormalized_会員が更新されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>任意の仮会員の会員IDとバージョンNOを渡して更新すること</li>
+				<li>テストデータ上で任意の仮会員のIDが何番なのかに依存しないように</li>
+				<li>更新処理後、DB上のデータが更新されていることをアサート</li>
+			</ul>
+		</dd>
+		<dd>test_updateMemberChangedToFormalized_排他制御例外が発生すること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>何かしらの方法で排他制御例外を発生させてみること</li>
+				<li>排他制御例外の内容をログに出力して目視確認すること</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="commoncolumn">共通カラムの設定</h3>
+	<p>
+		既に共通カラムの設定は前回のセクションで完了しています。なので、更新日時や更新ユーザは明示的に設定する必要はありません。
+	</p>
+
+	<h2 id="updatenonstrict">排他制御なしの更新</h2>
+	<p>
+		それでは排他制御なしの更新のエクササイズです。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>void updateMemberChangedToFormalizedNonstrict(Integer memberId)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された会員を正式会員に更新する</li>
+				<li>排他制御なしで更新する</li>
+				<li>引数の値で null は許されない</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_updateMemberChangedToFormalizedNonstrict_会員が更新されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>任意の仮会員の会員IDを渡して更新すること</li>
+				<li>更新処理後、DB上のデータが更新されていることをアサート</li>
+			</ul>
+		</dd>
+		<dd>test_updateMemberChangedToFormalizedNonstrict_排他制御例外が発生しないこと()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>通常なら排他制御例外が起きるはずの状況でも排他制御例外が発生しないことをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="delete">排他制御なしの削除</h2>
+	<p>
+		それでは排他制御なしの削除のエクササイズです。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>void deletePurchaseSimply(Integer memberId)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された会員の購入を排他制御なしで削除する <span class="frm">※queryDelete(...)</span></li>
+				<li>検索処理は入れずに削除してみましょう</li>
+				<li>苦難があっても頑張って削除してみましょう</li>
+				<li>引数の値は null も許される (null なら何もしない)</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_deletePurchaseSimply_購入が削除されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>任意の正式会員の会員IDを渡して削除すること</li>
+				<li>削除処理後、DB上のデータが削除されていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="ifyoulikedeadlock">もしよければ、デッドロックを</h2>
+	<p>
+		せっかくなので、ちょっとデッドロックしてみましょう。<span class="frm">(講師によるデッドロック話あり)</span>
+	</p>
+	<dl class="textlist">
+		<dt>※ロジックは作らずにテストクラスに直接実装</dt>
+		<dd>---</dd>
+		<dt>テストメソッド</dt>
+		<dd>test_IfYouLike_DeadLock()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>cannonball()メソッドを使ってデッドロックを発生させてみること</li>
+				<li>例外メッセージに "Deadlock" という文字が含まれていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		ハンズオンで使っている UTFlute のドキュメントをじっくり読んでから実装してみましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/helper/utflute/index.html">UTFlute</a></div>
+<pre><span class="codetitle">e.g. cannonball()を使ってデッドロックの参考コード @Java</span><code>
+cannonball(<span class="keyword">new</span> CannonballRun() {
+    <span class="keyword">public</span> void drive(CannonballCar car) {
+        car.projectA(<span class="keyword">new</span> CannonballProjectA() {
+            <span class="keyword">public void</span> plan(CannonballDragon dragon) {
+                dragon.expectNormallyDone();
+                updateFoo();
+            }
+        }, 1);
+        car.projectA(<span class="keyword">new</span> CannonballProjectA() {
+            <span class="keyword">public void</span> plan(CannonballDragon dragon) {
+                dragon.expectNormallyDone();
+                updateBar();
+            }
+        }, 2);
+        car.projectA(<span class="keyword">new</span> CannonballProjectA() {
+            <span class="keyword">public void</span> plan(CannonballDragon dragon) {
+                dragon.expectOvertime();
+                updateBar();
+            }
+        }, 1);
+        car.projectA(<span class="keyword">new</span> CannonballProjectA() {
+            <span class="keyword">public void</span> plan(CannonballDragon dragon) {
+                updateFoo();
+            }
+        }, 2);
+    }
+}, <span class="keyword">new</span> CannonballOption().threadCount(<span class="attribute">2</span>).expectExceptionAny(<span class="attribute">"Deadlock"</span>));
+</code></pre>
+	<p>
+		さらに、MySQLでは様々なデッドロックが存在します。ブログ記事をご覧下さい。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20120831/1346393321">外部サイト - MySQLでお手軽デッドロック</a></div>
+
+	<h2 id="refactor">リファクタリングしましょう！</h2>
+	<p>
+		それぞれのエクササイズで、同じようなプログラムがありませんでしょうか？...例えば、任意の仮会員を検索するような処理とか。
+	</p>
+	<p>
+		テストクラスとはいえ、あまり冗長するとメンテナンスが大変です。まあ、このケースだととても小さなプログラムですが、
+		トレーニングだと思って、少なくとも "任意" というロジックが一箇所になるといいですね。うまく private メソッドを作って再利用するようにしましょう。
+	</p>
+	<p>
+		もしできるならば、IDE (e.g. Eclipseとか) の機能を使って、メソッドの抽出をするとよいでしょう。
+		<span class="frm">(Eclipseなら、メソッドにしたい部分を選択して、ctrl+1 => extract to method)</span>
+	</p>
+	<div class="inucolumn">
+		<h3>コードの再利用って難しい!?</h3>
+		<p>
+			同じコードが二つあったら再利用？
+		</p>
+		<p>
+			結果的にそうなるケースが多いですが、厳密には <em class="keyword">意味が同じだから再利用</em> をすべきです。
+		</p>
+		<p>
+			業務ロジックというのは非常に複雑なもので、同じコードがあったとしても、たまたま同じコードになっただけで、目的や背景が違うというようなことがあります。
+		</p>
+		<p>
+			そういうときに安易に再利用してしまうと、ちょっとした要件の変更などで、すぐに同じではなくなってしまいます。
+			すると、あまりコードは修正したくないという思いが働き、無理矢理メソッドの中で if 文で分岐させてつじつまを合わせたり...オプションのような形で綺麗にできればOKですが、
+			積み重なるとどんどんカオスになり...A画面の修正なのに、関係ないはずのB画面がバグったり...
+		</p>
+		<p>
+			多くの場合でコードが同じであれば意味も同じなので、なおさらやっかいです。時々 "だけ"
+			違うことがあるみたいな。普段から、そのロジックの <em class="keyword">意味や役割を考えてコードに接する意識</em> が大切だと考えます。
+		</p>
+	</div>
+
+	<!-- 初心者向けの裏課題 (見つけてしまった人はやってみましょう)
+	<h2 id="ifyoulike">もしよければ、バッチを</h2>
+	<p>
+		できるひとは、データ取込バッチを想定した実装をしてみましょう。
+		TSVファイルから、会員や商品などの情報を取り込みます。
+		想定としては、別システムの会員情報と購入の履歴をこちらのシステムに引き継ぐというものです。
+		新規登録だけでなく、情報の更新も行われます。
+	</p>
+	<h3 id="tsvfile">TSVファイルの仕様</h3>
+	<p>
+		TSVファイルの項目は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>会員のなまえ</dt><dd>会員の会員名称に対応</dd>
+		<dt>ログインアカウント</dt><dd>会員の会員アカウントに対応</dd>
+		<dt>うまれた日だよ</dt><dd>会員の生年月日に対応。yyyy/MM/dd 形式。</dd>
+		<dt>商品のなまーえ</dt><dd>商品の商品名称に対応</dd>
+		<dt>商品の品番</dt><dd>商品の商品ハンドルコードに対応</dd>
+		<dt>商品の定価</dt><dd>商品の定価に対応。'1,000円' という形式。</dd>
+		<dt>生産中止フラグ</dt><dd>商品の商品ステータスに対応。'Y' なら生産中止、'N' なら生産販売可能</dd>
+		<dt>商品カテゴリコード</dt><dd>商品の商品カテゴリに対応。商品カテゴリマスタの値そのまま。</dd>
+		<dt>商品を買った日時</dt><dd>購入の購入日時に対応。yyyy/MM/dd HH:mm:ss 形式。</dd>
+		<dt>商品を買った個数</dt><dd>購入の購入数量に対応。</dd>
+		<dt>払った金額</dt><dd>購入の購入価格に対応。先頭に不要な "df:" という文字がある。</dd>
+	</dl>
+	<p>
+		会員のなまえが存在しない場合(nullもしくはトリムして空っぽである)は、削除データという扱いとなり、ログインアカウントに該当する会員を削除する。
+		そのときは、会員の他の項目と購入の値は存在しない。
+		また同じように、商品のなまーえが存在せず(nullもしくはトリムして空っぽである)、商品の品番が存在する場合は、
+		削除データという扱いとなり、既に存在している商品を削除する必要がある。
+		そのときは、商品の他の項目と購入の値は存在しない。会員も商品も両方削除のこともあれば、片方だけは通常通り登録するということもある。
+	</p>
+	<p>
+		※本来、ERDのカージナリティの通り、会員に対して会員セキュリティ情報と会員サービス情報は必須ですが、
+		ここでは割り切ってスコープ対象外にしています。
+	</p>
+	<h3 id="nontsv">TSVファイルにない項目</h3>
+	<p>
+		TSVファイルの項目にないものは、固定の値を登録。
+	</p>
+	<dl class="keymainlist">
+		<dt>会員ステータスコード</dt><dd>問答無用で正式会員に</dd>
+		<dt>支払完了フラグ</dt><dd>問答無用で支払完了に</dd>
+		<dt>正式会員日時</dt><dd>insert時の現在日時</dd>
+	</dl>
+	<h3 id="making">作り方</h3>
+	<p>
+		ロジッククラス 'HandsOn08MergeLogic' に、mergeOtherSystemData() というメソッドを作り、その中で実装します。
+		TSVファイルは実際には存在しないため、読み込み処理をモックにします。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>void mergeOtherSystemData()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>TSV読み込み部分はテストでモックにできるようメソッド化 (未実装というメッセージの例外を投げる)</li>
+				<li>TSVの項目に対応したDTOクラス 'MemberProductMeta' (ロジックと同パッケージ) を作成すること</li>
+				<li>MemberProductMeta のプロパティは全て String 型で定義</li>
+				<li>現在日時の取得は、'CurrentDateLogic' (ロジックと同パッケージ) を作成し、そこから取得するように</li>
+				<li>それぞれのテーブルごとにメソッド化して、読みやすいソースに</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_mergeOtherSystemData_データが登録もしくは更新されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>TSV読み込み部分をモックにして、固定のデータ(モックデータ)を作成してテストすること</li>
+				<li>モックデータは、会員二人、購入商品五つ、商品二種類以上用意すること</li>
+				<li>モックデータには、それぞれ新規のレコードと既に存在するレコードを用意すること</li>
+				<li>実行処理後、DB上のデータが登録もしくは更新されていることをアサート</li>
+			</ul>
+		</dd>
+		<dd>test_mergeOtherSystemData_削除データの場合は削除されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>削除用の固定のデータ(モックデータ)を作成してテストすること</li>
+				<li>実行処理後、存在するデータに対する削除データの場合は、そのデータが削除されていることを確認</li>
+				<li>実行処理後、存在しないデータに対する削除データの場合は、特になにも例外が発生しないことを確認</li>
+			</ul>
+		</dd>
+	</dl>
+	-->
+
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section09.html">ハンズオンセクション 9</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

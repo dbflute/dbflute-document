@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,LastaFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>気づかうAssistantDirector | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>気づかうAssistantDirector</h1>
+	<p>
+		LastaFluteを制御します。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteeトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="overview">LastaFluteの現場フィット</h2>
+	<p>
+		<em class="keyword">LastaFluteのコンポーネント</em> を、現場にフィットさせるにはどうしたらよいでしょう？
+	</p>
+	<p>
+		みんな優秀なタレントではありますが、なかなか気難しい連中です。
+	</p>
+	<h3 id="bigpolicy">設定ファイルのコピーはしない</h3>
+	<p>
+		Di xmlのコピー拡張による調整は、フレームワーク変更への耐性がなくなってしまうため基本的にやりません。
+		インクリメンタル開発では、フレームワークも進化していく可能性があるため、フレームワーク内部構造への依存度は少なくしたいものです。
+	</p>
+	<h3 id="extpoint">拡張ポイントがあらかじめ用意されている</h3>
+	<p>
+		代わって、<em class="mark">AssistantDirector</em> と呼ばれる、あらかじめ LastaFlute の方で用意した拡張ポイントがあり、それ経由で様々な設定を LastaFlute に反映していきます。
+	</p>
+	<p>
+		クラスは、<em class="mark">mylasta</em> パッケージにあり、例えば、Maihamaプロジェクトであれば、MaihamaFwAssistantDirector となります。
+	</p>
+<pre><span class="codetitle">e.g. MaihamaプロジェクトのAssistantDirector @Directory</span><code>
+maihama-common <span class="comment">// commonプロジェクト (DBFluteも含む)</span>
+ |-src/main/java <span class="comment">// Maihamaプロジェクト共通クラスたち</span>
+ |  |-org.docksidestage <span class="comment">// アプリのドメインパッケージ</span>
+ |     |-<span class="abbreviation">...</span>
+ |     |-<span class="subpoint">mylasta</span> <span class="comment">// Maihama固有のLastaFlute対応クラスのパッケージ</span>
+ |        |-action <span class="comment">// Actionに関するパッケージ</span>
+ |        |-direction <span class="comment">// LastaFluteをMaihama風にするパッケージ</span>
+ |           |-sponsor <span class="comment">// AssistantDirectorで設定する処理を切り出したクラスなど</span>
+ |           |  |-<span class="abbreviation">...</span>
+ |           |
+ |           |-MaihamaConfig <span class="comment">// maihama_config 対応クラス(自動生成)</span>
+ |           |-MaihamaEnv    <span class="comment">// maihama_env 対応クラス(自動生成)</span>
+ |           |-<span class="spotlight"><span class="point">MaihamaFwAssistantDirector</span></span> <span class="comment">// ☆Lastaの現場フィットを司る</span>
+</code></pre>
+	<p>
+		マルチプロジェクトであれば、さらにそれぞれのアプリの mylasta
+		に下に、サブクラスがあります。アプリ固有の Direction を指定する場合は、サブクラスの方でオーバーライドして調整します。
+	</p>
+	<h3 id="appconfig">外だしの設定は [App]Config から</h3>
+	<p>
+		AssistantDirectorはクラスとして提供されています。設定というのは、必ずしも "値"
+		になるとは限らないからです。例えば、<em class="keyword">Lambdaで書かれたコールバック実装自体が設定にも</em> なり得ます。
+	</p>
+	<p>
+		もし、外だしの設定ファイルから値を取得したい場合は、AssistantDirectorの中で <em class="mark">[App]Config</em>
+		インターフェースを使って、<em class="smallmark">[app]_config.properties</em> や <em class="smallmark">[app]_env.properties</em> の値を参照します。
+	</p>
+	<div class="relatedpage"><a href="./objsafeprop.html">LastaFluteのタイプセーフProperties</a></div>
+<pre><span class="codetitle">e.g. [app]_env.propertiesなど @Directory</span><code>
+maihama-common <span class="comment">// commonプロジェクト (DBFluteも含む)</span>
+ |-src/main/resources  <span class="comment">// dbflute.xml や properties など</span>
+ |  |-dbflute.xml         <span class="comment">// DBFluteの xml (自動生成)</span>
+ |  |-lasta_di.properties <span class="comment">// Lasta Diの微調整properties (SmartDeploy設定など)</span>
+ |  |-<span class="spotlight"><span class="subpoint">maihama_config.properties</span></span>  <span class="comment">// Maihamaプロジェクト共通の通常コンフィグ</span>
+ |  |-<span class="spotlight"><span class="subpoint">maihama_env.properties</span></span>     <span class="comment">// Maihamaプロジェクト共通の環境依存コンフィグ</span>
+ |  |-maihama_env_integration.properties <span class="comment">// 環境依存コンフィグの結合用</span>
+ |  |-maihama_env_production.properties  <span class="comment">// 環境依存コンフィグの本番用</span>
+ |  |-maihama_label.properties   <span class="comment">// Maihamaプロジェクト共通のラベルリソース</span>
+ |  |-maihama_message.properties <span class="comment">// Maihamaプロジェクト共通のメッセージリソース</span>
+</code></pre>
+<pre><span class="codetitle">e.g. [App]Config の DI @Java</span><code>
+@Resource
+<span class="keyword">private</span> MaihamaConfig <span class="attribute">maihamaConfig</span>;
+</code></pre>
+	<h3 id="sponsor">細かい要件は Sponsor から</h3>
+	<p>
+		AssistantDirectorの中にすべての設定を実装すると巨大になってしまうので、<em class="mark">sponsor</em>
+		パッケージの下に、それぞれのカテゴリごとに実装クラスが分かれています。
+	</p>
+<pre><span class="codetitle">e.g. Maihamaプロジェクトのパッケージ構成 @Directory</span><code>
+maihama-common <span class="comment">// commonプロジェクト (DBFluteも含む)</span>
+ |-src/main/java <span class="comment">// Maihamaプロジェクト共通クラスたち</span>
+ |  |-org.docksidestage <span class="comment">// アプリのドメインパッケージ</span>
+ |     |-<span class="abbreviation">...</span>
+ |     |-<span class="subpoint">mylasta</span> <span class="comment">// Maihama固有のLastaFlute対応クラスのパッケージ</span>
+ |        |-action <span class="comment">// Actionに関するパッケージ</span>
+ |        |  |-MaihamaLabels   <span class="comment">// maihama_label 対応のクラス (自動生成)</span>
+ |        |  |-MaihamaMessages <span class="comment">// maihama_message 対応のクラス (自動生成)</span>
+ |        |  |-MaihamaUserBean <span class="comment">// ログインしているユーザー情報のBean</span>
+ |        |-direction <span class="comment">// LastaFluteをMaihama風にするパッケージ</span>
+ |           |-<span class="spotlight"><span class="subpoint">sponsor</span></span> <span class="comment">// AssistantDirectorで設定する処理を切り出したクラスなど</span>
+ |           |  |-MaihamaActionAdjustmentProvider <span class="comment">// Action微調整</span>
+ |           |  |-MaihamaApiFailureHook <span class="comment">// APIリクエストの例外発生時の共通Hook</span>
+ |           |  |-MaihamaCookieResourceProvider <span class="comment">// クッキーのリソース</span>
+ |           |  |-MaihamaCurtainBeforeListener <span class="comment">// アプリ起動直前リスナー</span>
+ |           |  |-MaihamaListedClassificationProvider <span class="comment">// リスト表示される区分値</span>
+ |           |  |-MaihamaMailDeliveryDepartmentCreator <span class="comment">// メール配信部署の作成</span>
+ |           |  |-MaihamaSecurityResourceProvider <span class="comment">// 暗号化リソースなど</span>
+ |           |  |-MaihamaTimeResourceProvider <span class="comment">// 現在日時リソース</span>
+ |           |  |-MaihamaUserLocaleProcessProvider <span class="comment">// ユーザーロケール処理</span>
+ |           |  |-MaihamaUserTimeZoneProcessProvider <span class="comment">// ユーザータイムゾーン処理</span>
+ |           |
+ |           |-MaihamaConfig <span class="comment">// maihama_config 対応クラス(自動生成)</span>
+ |           |-MaihamaEnv    <span class="comment">// maihama_env 対応クラス(自動生成)</span>
+ |           |-<span class="spotlight"><span class="point">MaihamaFwAssistantDirector</span></span> <span class="comment">// ☆Lastaの現場フィットを司る</span>
+</code></pre>
+
+	<h2 id="assist">Asssit Direction</h2>
+	<p>
+		基本的なアシストの設定です。AssistantDirectorの根幹となる config の設定がされています。
+	</p>
+	<div class="relatedpage"><a href="./objsafeprop.html">LastaFluteのタイプセーフProperties</a></div>
+<pre><span class="codetitle">e.g. Assist Direction の実装 @Java</span><code>
+@Override
+<span class="keyword">protected void</span> prepareAssistDirection(FwAssistDirection <span class="localvar">direction</span>) {
+    <span class="localvar">direction</span>.directConfig(nameList -&gt; setupAppConfig(nameList)
+            , <span class="literal">"maihama_config.properties"</span>, <span class="literal">"maihama_env.properties"</span>);
+}
+<span class="keyword">protected abstract void</span> setupAppConfig(List&lt;String&gt; nameList);
+</code></pre>
+	<p>
+		propertiesの読み込みと同時に、propertiesの継承関係を構築しています。
+	</p>
+	<p>
+		マルチプロジェクトであれば、さらにサブクラスで setupAppConfig() を実装して追加します。
+	</p>
+
+	<h2 id="core">Core Direction</h2>
+	<p>
+		LastaFluteの core なコンポーネントの調整です。
+	</p>
+<pre><span class="codetitle">e.g. Assist Direction の実装 @Java</span><code>
+@Override
+<span class="keyword">protected void</span> prepareCoreDirection(FwCoreDirection <span class="localvar">direction</span>) {
+    <span class="comment">// this configuration is on maihama_env.properties because this is true only when development</span>
+    <span class="localvar">direction</span>.directDevelopmentHere(<span class="attribute">maihamaConfig</span>.isDevelopmentHere());
+
+    <span class="comment">// titles of the application for logging are from configurations</span>
+    <span class="localvar">direction</span>.directLoggingTitle(<span class="attribute">maihamaConfig</span>.getDomainTitle(), <span class="attribute">maihamaConfig</span>.getEnvironmentTitle());
+
+    <span class="comment">// this configuration is on sea_env.properties because it has no influence to production</span>
+    <span class="comment">// even if you set true manually and forget to set false back</span>
+    <span class="localvar">direction</span>.directFrameworkDebug(<span class="attribute">maihamaConfig</span>.isFrameworkDebug()); <span class="comment">// basically false</span>
+
+    <span class="comment">// you can add your own process when your application's curtain before</span>
+    <span class="localvar">direction</span>.directCurtainBefore(createCurtainBeforeHook());
+
+    <span class="localvar">direction</span>.directSecurity(createSecurityResourceProvider());
+    <span class="localvar">direction</span>.directTime(createTimeResourceProvider());
+    <span class="localvar">direction</span>.directJson(createJsonResourceProvider());
+    <span class="localvar">direction</span>.directMail(createMailDeliveryDepartmentCreator().create());
+}
+
+<span class="keyword">protected</span> MaihamaCurtainBeforeHook createCurtainBeforeHook() {
+    <span class="keyword">return new</span> MaihamaCurtainBeforeHook();
+}
+
+<span class="keyword">protected</span> MaihamaSecurityResourceProvider createSecurityResourceProvider() { <span class="comment">// #change_it_first</span>
+    <span class="keyword">final</span> InvertibleCryptographer inver = InvertibleCryptographer.createAesCipher(<span class="attribute">"maihama:dockside"</span>);
+    <span class="keyword">final</span> OneWayCryptographer oneWay = OneWayCryptographer.createSha256Cryptographer();
+    <span class="keyword">return new</span> MaihamaSecurityResourceProvider(inver, oneWay);
+}
+
+<span class="keyword">protected</span> MaihamaTimeResourceProvider createTimeResourceProvider() {
+    <span class="keyword">return new</span> MaihamaTimeResourceProvider(<span class="attribute">maihamaConfig</span>);
+}
+
+<span class="keyword">protected</span> MaihamaJsonResourceProvider createJsonResourceProvider() {
+    <span class="keyword">return new</span> MaihamaJsonResourceProvider();
+}
+
+<span class="keyword">protected</span> MaihamaMailDeliveryDepartmentCreator createMailDeliveryDepartmentCreator() {
+    <span class="keyword">return new</span> MaihamaMailDeliveryDepartmentCreator(<span class="attribute">maihamaConfig</span>);
+}
+</code></pre>
+	<p>
+		さらに、FwCoreDirection にて様々な Direction を指定することができるので探してみましょう。
+	</p>
+	<p>
+		メインで使う暗号化コンポーネントたち、設定の調整はプロジェクト作成時に真っ先にやりましょう。
+	</p>
+	<p>
+		Provider など実装自体を渡すものは、sponsorパッケージに出すとよいでしょう。
+		AssistantDirectorのクラスは、網羅性を高めるために、それらを new するだけにします。
+	</p>
+
+	<h2 id="db">DB Direction</h2>
+	<p>
+		LastaFlute の DB にまつわるコンポーネントの調整です。
+	</p>
+<pre><span class="codetitle">e.g. DB Direction の実装 @Java</span><code>
+@Override
+<span class="keyword">protected void</span> prepareDbDirection(FwDbDirection <span class="localvar">direction</span>) {
+    <span class="localvar">direction</span>.directClassification(createListedClassificationProvider());
+}
+
+<span class="keyword">protected</span> ListedClassificationProvider createListedClassificationProvider() {
+    <span class="keyword">return new</span> MaihamaListedClassificationProvider();
+}
+</code></pre>
+	<p>
+		少ないですねぇ。
+	</p>
+
+	<h2 id="web">Web Direction</h2>
+	<p>
+		LastaFlute の Web にまつわるコンポーネントの調整です。
+	</p>
+<pre><span class="codetitle">e.g. Web Direction の実装 @Java</span><code>
+@Override
+<span class="keyword">protected void</span> prepareWebDirection(FwWebDirection <span class="localvar">direction</span>) {
+    <span class="localvar">direction</span>.directRequest(createUserLocaleProcessProvider(), createUserTimeZoneProcessProvider());
+    <span class="localvar">direction</span>.directCookie(createCookieResourceProvider());
+    <span class="localvar">direction</span>.directAdjustment(createActionAdjustmentProvider());
+    <span class="localvar">direction</span>.directMessage(<span class="localvar">nameList</span> -&gt; setupAppMessage(<span class="localvar">nameList</span>), <span class="literal">"maihama_message"</span>, <span class="literal">"maihama_label"</span>);
+    <span class="localvar">direction</span>.directApiCall(createApiFailureHook());
+}
+
+<span class="keyword">protected</span> MaihamaUserLocaleProcessProvider createUserLocaleProcessProvider() {
+    <span class="keyword">return new</span> MaihamaUserLocaleProcessProvider();
+}
+
+<span class="keyword">protected</span> MaihamaUserTimeZoneProcessProvider createUserTimeZoneProcessProvider() {
+    <span class="keyword">return new</span> MaihamaUserTimeZoneProcessProvider();
+}
+
+<span class="keyword">protected</span> MaihamaCookieResourceProvider createCookieResourceProvider() { <span class="comment">// #change_it_first</span>
+    <span class="keyword">final</span> InvertibleCryptographer <span class="localvar">cr</span> = InvertibleCryptographer.createAesCipher(<span class="literal">"dockside:maihama"</span>);
+    <span class="keyword">return new</span> MaihamaCookieResourceProvider(<span class="attribute">maihamaConfig</span>, <span class="localvar">cr</span>);
+}
+
+<span class="keyword">protected</span> MaihamaActionAdjustmentProvider createActionAdjustmentProvider() {
+    <span class="keyword">return new</span> MaihamaActionAdjustmentProvider();
+}
+
+<span class="keyword">protected abstract void</span> setupAppMessage(List&lt;String&gt; <span class="localvar">nameList</span>);
+
+<span class="keyword">protected</span> MaihamaApiFailureHook createApiFailureHook() {
+    <span class="keyword">return new</span> MaihamaApiFailureHook();
+}
+</code></pre>
+	<p>
+		さらに、FwWebDirection にて様々な Direction を指定することができるので、ぜひ探索を。
+	</p>
+	<p>
+		クッキー (Cookie) の暗号化の設定も、プロジェクト作成時に真っ先に。
+	</p>
+	<p>
+		マルチプロジェクトであれば、メッセージリソースの追加の設定がサブクラスで行われます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

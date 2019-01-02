@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>名前付き区分値の自動生成(namedcls) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>名前付き区分値の自動生成(namedcls)</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<div class="relatedpage"><a href="./ladfprop.html">lastafluteMap.dfprop</a></div>
+	<div class="relatedpage"><a href="./appcls.html">アプリ区分値の自動生成</a></div>
+	${indexlist}
+
+	<h2 id="about">名前付き区分値とは？</h2>
+	<p>
+		名前付き区分値は、DBの区分値にて定義されない、とある業務ドメインに特化したスコープを自由に決められる区分値です。
+	</p>
+	<p>
+		例えば、RemoteApi呼び出しをするときの、リモート側の区分値を定義するのに利用されたりします。
+		リモート側の区分値は、厳密にはアプリのものとも言えず、特定の業務スコープを持っています。
+		そういう場合は、アプリ区分値(appcls)を使うよりも、名前付き区分値でカテゴライズしてあげたほうが良いでしょう。
+	</p>
+	<p>
+		業務ドメイン区分値って名前にした方が良かったかも...ってちょっと思ったりしています。
+	</p>
+	<h3 id="diffwithappcls">アプリ区分値とはどう違う？</h3>
+	<p>
+		アプリ区分値と似ていますが、アプリ区分値はあくまで、とあるアプリプロジェクト (maihama-docksideなど)
+		という業務ドメインに特化した固定的な区分値です。名前付き区分値は、どういった領域を表現するか自由に決められます。
+		<span class="frm">(アプリ区分値は、名前付き区分値の一種と言えます)</span>
+	</p>
+	<p>
+		また、アプリ区分値はcommonプロジェクトでは利用できませんので、アプリをまたがる場合は自然と名前付き区分値になります。
+		これは、アプリをまたがるようなものは名前を特定してカテゴライズしたもので表現した方がわかりやすいだろう、という考えのもとにそうしています。
+	</p>
+	<h3 id="iflastaflute">LastaFluteではどうしてる？</h3>
+	<p>
+		LastaFluteでは、lastafluteMap.dfprop に namedcls を指定して自動生成します。
+	</p>
+	<p>
+		DBFluteの区分値のクラス CDef と同じように、[自由な名前]CDef というクラスが自動生成され、DBの区分値と同じような形で利用ができます。
+		Classificationインターフェースをimplementsしています。
+	</p>
+	<p>
+		また、DBの区分値との連携もできます。要素の定義をするときにDBの区分値を指定して、関連付けさせることができます。
+		そうすることで、定義の冗長化を防ぐとともに、DBFluteのCDefとの変換メソッドが付与されるなど、よりスムーズな実装が可能です。
+	</p>
+
+	<h2 id="howtonamedcls">名前付き区分値の作り方</h2>
+	<p>
+		まったくゼロの状態から作成する手順は以下の通りです。<span class="frm">(1,2は最初の一回だけなので、二個目以降は3から)</span>
+	</p>
+	<ul>
+		<li>1. lastafluteMap.dfprop に namedcls を追加</li>
+		<li>2. [app]_[name]_cls.dfprop を作成</li>
+		<li>3. dfpropで名前付き区分値を定義</li>
+		<li>4. FreeGenを叩いてCDefを自動生成</li>
+		<li>5. 自動生成された[Name]CDefをプログラムで利用</li>
+	</ul>
+	<h3 id="addfreegen">1. lastafluteMap.dfprop に namedcls を追加</h3>
+	<p>
+		最初の一回だけです。lastafluteMap.dfprop の freeGenList に namedcls を追加します。
+		<span class="frm">(Exampleからスタートアップした場合は、大抵最初から定義されているので、多くの場合は不要なステップです)</span>
+	</p>
+	<p>
+		commonプロジェクトとアプリプロジェクトそれぞれに定義します。
+		<span class="frm">(使わないところでは指定しなくてもいいですが、どこで動いてどこで動かないとかになりがちなので、使う場合はすべてに指定してしまって良いでしょう。もしくは、commonだけにするとか...)</span>
+	</p>
+<pre><span class="codetitle">e.g. Maihamaプロジェクトの lastafluteMap.dfprop @lastafluteMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># your service name, camel case, initial uncapitalised</span>
+    ; serviceName = <span class="literal">maihama</span>
+
+    <span class="comment"># package for your domain name, e.g. com.example</span>
+    ; domainPackage = <span class="literal">org.docksidestage</span>
+
+    <span class="comment"># settings for common project of all web applications</span>
+    ; commonMap = <span class="keyword">map:</span>{
+        ; path = <span class="literal">..</span>
+        ; freeGenList = <span class="keyword">list:</span>{ env ; config ; label ; message ; mail ; template ; doc ; <span class="point">namedcls</span> }
+        ; propertiesHtmlList = <span class="keyword">list:</span>{ env ; config ; label ; message }
+    }
+
+    <span class="comment"># settings for web applications</span>
+    ; appMap = <span class="keyword">map:</span>{
+        ; <span class="literal">dockside</span> = <span class="keyword">map:</span>{
+            ; path = <span class="literal">../../maihama-dockside</span>
+            ; freeGenList = <span class="keyword">list:</span>{ env ; config ; label ; message ; mail ; template ; html ; doc ; appcls ; <span class="point">namedcls</span> }
+            ; propertiesHtmlList = <span class="keyword">list:</span>{ env ; config ; label ; message }
+        }
+        ; <span class="literal">hangar</span> = <span class="keyword">map:</span>{
+            ; path = <span class="literal">../../maihama-hangar</span>
+            ; freeGenList = <span class="keyword">list:</span>{ env ; config ; label ; message ; mail ; template ; doc ; appcls ; <span class="point">namedcls</span> }
+            ; propertiesHtmlList = <span class="keyword">list:</span>{ env ; config ; label ; message }
+        }
+    }
+
+    <span class="comment"># you can override (several) default settings like this:
+    #; overrideMap = map:{
+    #    ; dockside.freeGen.mail.targetDir = ./playsql/data/mail
+    #}</span>
+}
+</code></pre>
+	<h3 id="makedfprop">2. [app]_[name]_cls.dfprop を作成</h3>
+	<p>
+		commonプロジェクト、もしくは、アプリプロジェクトの src/main/resources 配下に namedcls というパッケージを作って、その下に [app]_[name]_cls.dfprop
+		という名前のテキストファイルを作成します。[name] は小文字で指定します。<span class="frm">(commonプロジェクトの場合、[app]はサービス名になります)</span>
+	</p>
+<pre><span class="codetitle">e.g. docksideプロジェクトでのseaという名前付き区分値のdfpropの置き場所 @Directory</span><code>
+src/main/resources
+ |-<span class="subpoint">namedcls</span>
+ |  |-<span class="point">dockside_sea_cls.dfprop</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 名前付き区分値のdfpropのひながた @[app]_[name]_cls.dfprop</span><code>
+<span class="comment"># /---------------------------------------------------------------------------
+# namedcls: (NotRequired - Default map:{})
+#
+# The definition of named classification.
+#
+# Specification:
+# map: {
+#     [classification-name] = list:{
+#         ; map:{ topComment=[comment]; codeType=[String(default) or Number or Boolean] }
+#         ; map:{ refCls=[projectName]@[DB classification name] ; refType=[included or exists or matches] }
+#         ; map:{ code=[code]; name=[name]; alias=[alias]; comment=[comment] }
+#     }
+# }
+#
+# *The line that starts with '#' means comment-out.
+#</span>
+<span class="keyword">map:</span>{
+}
+<span class="comment"># ----------------/</span>
+</code></pre>
+	<h3 id="definecls">3. dfpropで名前付き区分値を定義</h3>
+	<p>
+		DBFluteのDB区分値の定義の仕方とほとんど同じです。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/dfprop/classificationdefinition/index/html">classificationDefinitionMap | DBFlute</a></div>
+<pre><span class="codetitle">e.g. アプリ区分値の定義、検索用の会員ステータス区分値 @[app]_[name]_cls.dfprop</span><code>
+<span class="comment"># /---------------------------------------------------------------------------
+# namedcls: (NotRequired - Default map:{})
+#
+# The definition of named classification.
+#
+# Specification:
+# map: {
+#     [classification-name] = list:{
+#         ; map:{ topComment=[comment]; codeType=[String(default) or Number or Boolean] }
+#         ; map:{ refCls=[projectName]@[DB classification name] ; refType=[included or exists or matches] }
+#         ; map:{ code=[code]; name=[name]; alias=[alias]; comment=[comment] }
+#     }
+# }
+#
+# *The line that starts with '#' means comment-out.
+#</span>
+<span class="keyword">map:</span>{
+    ; SearchMemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{ topComment=MemberStatus for search condition ; codeType=String }
+        ; <span class="keyword">map:</span>{ code=FML; name=Formalized; alias=正式会員; comment=ちゃんとしてる }
+        ; <span class="keyword">map:</span>{ code=PRV; name=Provisinal; alias=仮会員; comment=ちゃんとしてない }
+        ; <span class="keyword">map:</span>{ code=WDL; name=Withdrawal; alias=退会会員; comment=ちゃんとできなかった }
+        ; <span class="keyword">map:</span>{ code=ALL; name=All; alias=すべて; comment=すべての会員ステータス }
+    }
+}
+<span class="comment"># ----------------/</span>
+</code></pre>
+	<p>
+		アプリ区分値に関係のない機能 (isCheckImplicitSet, tableなど) は利用できません。
+	</p>
+	<p>
+		一方で、アプリ区分値固有の機能 (refClsなど) もあります。
+	</p>
+	<div class="relatedpage"><a href="#relatedtodb">this - DB区分値との連携</a></div>
+	<h3 id="gencdef">4. FreeGenを叩いてCDefを自動生成</h3>
+	<p>
+		DBFlute の FreeGen (manage.sh 12) を叩きます。
+	</p>
+	<p>
+		すると、mylasta.appcls の下に AppCDef が自動生成されます。
+	</p>
+	<h3 id="usecdef">5. 自動生成された[Name]CDefをプログラムで利用</h3>
+	<p>
+		DBの区分値と同じように利用することができます。
+	</p>
+	<p>
+		Classificationインターフェースをimplementsしているので、DBのCDefで利用できるフレームワークの仕組みのほとんどが、同じように利用できます。
+	</p>
+
+	<h2 id="relatedtodb">DB区分値との連携</h2>
+	<p>
+		アプリ区分値と同じです。
+	</p>
+	<div class="detailpage"><a href="./appcls.html#relatedtodb">アプリ区分値の自動生成 - DB区分値との連携</a></div>
+
+	<h2 id="hierarchy">commonとアプリの階層化？</h2>
+	<p>
+		common の namecls と、アプリの
+	</p>
+	<p>
+		TODO jflute commonはcommon、アプリはアプリ、階層化したい場合は、そもそも名前を変えましょう
+	</p>
+
+	<h2 id="appclsfornow">迷ったらひとまずアプリ区分値で</h2>
+	<p>
+		名前付き区分値にすべきかどうか？最初からは、なかなかわからないものです。
+	</p>
+	<p>
+		迷ったら、ひとまずアプリ区分値で作っておいて、
+		複数のアプリ区分値を作っていくうちに業務ドメインがわかってきたり、アプリ間で使いたくなったりしたときに、
+		名前付き区分値に移行するとかでも良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./appcls.html">アプリ区分値の自動生成</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

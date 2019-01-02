@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFlute Intro,イントロ,支援ツール,Hacomment" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Hacomment (はこめんと) on Intro | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Hacomment (はこめんと) on Intro</h1>
+	<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
+	<div class="relatedpage"><a href="./decomment.html">Decomment (でこめんと) on Intro</a></div>
+	${indexlist}
+
+	<h2 id="about">Hacommentとは？</h2>
+	<h3 id="whatfunction">ズバリなに？</h3>
+	<p>
+		HistoryHTMLのそれぞれのDB変更履歴に対して、<em class="keyword">HistoryHTMLで履歴コメントを追加・修正する、DBFlute Intro の機能</em> です。
+	</p>
+	<p>
+		<em class="keyword">複数人で追加・修正してもgitコンフリクトを起こさずマージできる</em>
+		のが特徴です。
+	</p>
+	<p>
+		DecommentのHistoryHTML版と言って良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./decomment.html">Decomment (でこめんと) on Intro</a></div>
+	<div class="relatedpage"><a href="../../generator/task/doc/historyhtml.html">HistoryHTML</a></div>
+	<p class="imgbox">ハコメントのダイアログ
+		<a href="../../../../../data/snapshot/intro/hacomment/intro-hacomment-open-dialog-snapshot.png" title="DBFluteIntro Hacomment OpenDialog"><img src="../../../../../data/snapshot/intro/hacomment/intro-hacomment-open-dialog-snapshot.png" alt="DBFluteIntro Hacomment OpenDialog" width="550" height="330" /></a>
+	</p>
+	<h3 id="whatcomment">どんなことを書く？</h3>
+	<p>
+		例えば、このようなものを書いておくと良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>DB変更の理由</dt><dd>どんな背景があって、このDB変更をしたのか？</dd>
+		<dt>スプリント名</dt><dd>そのDB変更をしたスプリント名などフェーズがわかるもの</dd>
+	</dl>
+	<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
+	<h3 id="whyintro">Introはどう関係しているの？</h3>
+	<p>
+		DBFlute Introが、入力された履歴コメントを受け付ける中継サーバーとなって、DBFluteクライアント内に保存をします。
+		詳しくは、Decommentのページを参考に。
+	</p>
+	<div class="relatedpage"><a href="./decomment.html">Decomment (でこめんと) on Intro</a></div>
+
+	<h2 id="howto">Hacommentの使い方</h2>
+	<h3 id="precondition">DBFlute Introを起動</h3>
+	<p>
+		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。
+	</p>
+	<div class="relatedpage"><a href="#setup">this - Hacommentの環境構築</a></div>
+	<h3 id="boothistoryhtml">HistoryHTMLを起動</h3>
+	<p>
+		Intro の Operate 画面の、<em class="mark">Open the table history ...</em> リンクをクリックします。
+	</p>
+	<p class="imgbox">Operate画面のドキュメントリンクあり
+		<a href="../../../../../data/snapshot/intro/operate/intro-operate-linkdoc-snapshot.png" title="DBFluteIntro Operate LinkDoc"><img src="../../../../../data/snapshot/intro/operate/intro-operate-linkdoc-snapshot.png" alt="DBFluteIntro Operate LinkDoc" width="550" height="300" /></a>
+	</p>
+	<p>
+		すると、HistoryHTMLが表示されます。
+	</p>
+	<p class="imgbox">HistoryHTMLのExample
+		<a href="../../../../data/model/alto/doc/doc-HistoryHtml-example.png" title="HistoryHTML Example"><img src="../../../../data/model/alto/doc/doc-HistoryHtml-example.png" alt="HistoryHTML Example" width="550" height="700" /></a>
+	</p>
+	<p>
+		そもそも、まだ HistoryHTML が存在しないのであれば、単純にDB変更がまだないので、時を待ちましょう。
+	</p>
+	<h3 id="registerhacomment">ハコメントの登録</h3>
+	<p>
+		HistoryHTML上の "diffNo" 付近をクリックすると、ダイアログが開きます。
+	</p>
+	<p class="imgbox">ハコメントのダイアログを開く
+		<a href="../../../../../data/snapshot/intro/hacomment/intro-hacomment-open-dialog-snapshot.png" title="DBFluteIntro Hacomment OpenDialog"><img src="../../../../../data/snapshot/intro/hacomment/intro-hacomment-open-dialog-snapshot.png" alt="DBFluteIntro Hacomment OpenDialog" width="550" height="330" /></a>
+	</p>
+	<p>
+		テキストエリアで何か入力して...
+	</p>
+	<p class="imgbox">ハコメントのダイアログで入力
+		<a href="../../../../../data/snapshot/intro/hacomment/intro-hacomment-input-snapshot.png" title="DBFluteIntro Hacomment Input"><img src="../../../../../data/snapshot/intro/hacomment/intro-hacomment-input-snapshot.png" alt="DBFluteIntro Hacomment Input" width="550" height="240" /></a>
+	</p>
+	<p>
+		OKするとハコメントが登録され、すぐに反映されます。
+	</p>
+	<p class="imgbox">ハコメントが表示された！
+		<a href="../../../../../data/snapshot/intro/hacomment/intro-hacomment-displayed-snapshot.png" title="DBFluteIntro Hacomment Displayed"><img src="../../../../../data/snapshot/intro/hacomment/intro-hacomment-displayed-snapshot.png" alt="DBFluteIntro Hacomment Displayed" width="550" height="210" /></a>
+	</p>
+	<h3 id="gitcommit">gitでpieceファイルをコミット</h3>
+	<p>
+		登録されたハコメントは、DBFluteクライアント内に "pieceと呼ばれるファイル" <span class="frm">(詳しくは後述)</span> で保存され、そのpieceファイルをgitでコミットすることで他の人に共有されます。
+	</p>
+	<div class="relatedpage"><a href="#savehacomment">this - ハコメントはどう保存される？</a></div>
+	<p>
+		ただし、この時点では、Intro経由で HistoryHTML を開いたときだけハコメント (追加した分のコメント) が表示されます。
+		ブラウザで直接HistoryHTMLを開いても表示されるようになるのは、まだこのあと "Docタスク" 叩いた後です。
+	</p>
+	<h3 id="realpickup">DocタスクでHistoryHTMLに固定化</h3>
+	<p>
+		ブラウザで直接HistoryHTMLを開いても表示されるようにするためには、<em class="mark">Docタスク</em> 叩きます。
+		多くの人が、HistoryHTMLを閲覧するときはブラウザで直接開くと想定されるので、これにて本当に皆が参照する共有コメントとなります。
+	</p>
+	<p>
+		ただ、チーム開発の場合、DocタスクはDB変更専用のブランチ (alter_dbブランチなど)
+		で実行するような運用になっていると思いますので、<em class="keyword">わざわざハコメントのために Doc を叩くのではなく、自然の流れに任せる</em> で良いかと思います。
+		コメントですので、気付いたら反映されているくらいでいいかと。
+	</p>
+
+	<h2 id="conflictway">コンフリクトするとどうなる？</h2>
+	<h3 id="conflictconcept">gitコンフリクトはせず業務的なコンフリクト</h3>
+	<p>
+		同じテーブル同じカラムのコメントを複数人で同時に修正しても、gitコンフリクトはしないように作られていますが、
+		(当然のことながら)業務的なコンフリクトは発生します。
+	</p>
+	<h3 id="conflictexp">HistoryHTML上でコンフリクトの表現</h3>
+	<p>
+		HistoryHTMLのコメント上で、コンフリクトが表現されます。
+	</p>
+	<ul>
+		<li>コメント表示が "赤字" になる</li>
+		<li>デリミタ "=======" つなぎで複数のコメントが連結表示される</li>
+	</ul>
+	<p class="imgbox">ハコメントのコンフリクト
+		<a href="../../../../../data/snapshot/intro/hacomment/intro-hacomment-conflict-view-snapshot.png" title="DBFluteIntro Hacomment ConflictView"><img src="../../../../../data/snapshot/intro/hacomment/intro-hacomment-conflict-view-snapshot.png" alt="DBFluteIntro Hacomment ConflictView" width="550" height="240" /></a>
+	</p>
+	<h3 id="conflictresolve">コンフリクトの解消方法</h3>
+	<p>
+		クリックすれば、同じようにダイアログが開き、同じ要領でそのままコンフリクトしたコメントを修正することができます。
+		<span class="frm">(自動マージは一切されず、必ず人間が目で見て修正する方式です)</span>
+	</p>
+
+	<h2 id="savehacomment">ハコメントはどう保存される？</h2>
+	<h3 id="underclient">DBFluteクライアントに保存される</h3>
+	<p>
+		DBFluteクライアントの schema/hacomment にテキストファイルとして保存されます。
+	</p>
+<pre><span class="codetitle">e.g.  @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-<span class="subpoint">schema</span>
+ |  |  |-<span class="point">hacomment</span> <span class="comment">// hacomment resources</span>
+ |  |  |  |
+ |  |  |  |-pickup <span class="comment">// decomment pickup</span>
+ |  |  |  |  |-hacomment-pickup.dfmap
+ |  |  |  |
+ |  |  |  |-piece <span class="comment">// decomment pieces</span>
+ |  |  |  |  |-hacomment-piece-diffdate20140531134623-20180520-152039-490-jflute-6bdd7dc4.dfmap
+ |  |  |  |  |-hacomment-piece-diffdate20150925164239-20180520-153244-270-jflute-9bea9041.dfmap
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="piecebyhacomment">ハコメントごとにpieceファイルが保存される</h3>
+	<p>
+		一つ一つのハコメントを <em class="mark">piece</em> と呼んでいます。
+		<span class="frm">(一回のOKボタンに付き、一ファイルが作成されます)</span>
+	</p>
+	<p>
+		pieceファイルは、schema/hacomment/piece 配下に保存されます。
+	</p>
+<pre><span class="codetitle">e.g.  @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |  |-decomment <span class="comment">// decomment resources</span>
+ |  |  |  |
+ |  |  |  |-pickup <span class="comment">// decomment pickup</span>
+ |  |  |  |  |-decomment-pickup.dfmap
+ |  |  |  |
+ |  |  |  |-<span class="subpoint">piece</span> <span class="comment">// decomment pieces</span>
+ |  |  |  |  |-<span class="point">hacomment-piece-diffdate20140531134623-20180520-152039-490-jflute-6bdd7dc4.dfmap</span>
+ |  |  |  |  |-hacomment-piece-diffdate20150925164239-20180520-153244-270-jflute-9bea9041.dfmap
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="pickupbydoc">Docタスクでpickupファイルが作成・更新される</h3>
+	<p>
+		pieceたちを集荷した情報を <em class="mark">pickup</em> と呼んでいます。
+	</p>
+	<p>
+		pickupファイルは、Docタスクを叩くと schema/hacomment/pickup 配下に保存されます。
+	</p>
+<pre><span class="codetitle">e.g. pickup for hacomment @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |  |-hacomment <span class="comment">// hacomment resources</span>
+ |  |  |  |
+ |  |  |  |-<span class="subpoint">pickup</span> <span class="comment">// decomment pickup</span>
+ |  |  |  |  |-<span class="point">hacomment-pickup.dfmap</span>
+ |  |  |  |
+ |  |  |  |-piece <span class="comment">// hacomment pieces</span>
+ |  |  |  |  |-<span class="comment">// pieces are deleted</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		pickupには、pieceファイルたちの情報がすべて含まれています。
+		これらの情報は HistoryHTML にも反映されるので、ブラウザで直接 HistoryHTML
+		を開いたときでも、登録されたハコメントたちが表示されるようになります。
+	</p>
+	<p>
+		一方で、集荷されたpieceファイルたちは不要になりますので削除されます。
+	</p>
+
+	<h2 id="setup">Hacommentの環境構築</h2>
+	<h3 id="availablever">必要なDBFluteのバージョン</h3>
+	<p>
+		DBFlute と DBFlute Intro が以下のバージョン以降である必要があります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>DBFlute</dt><dd><em class="mark">1.1.8</em> <span class="frm">(2018/5/19リリース)</span></dd>
+		<dt>DBFlute Intro</dt><dd><em class="mark">0.2.1</em> <span class="frm">(2018/5/20リリース)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../../environment/newest.html">DBFluteの最新バージョン</a></div>
+	<h3 id="dbflutefirst">DBFluteが先にある場合</h3>
+	<p>
+		すでに DBFlute の環境が整っている場合は、DBFluteタスクの manage.sh|bat の 88 (intro)
+		を実行すれば、プロジェクト直下に DBFlute Intro がダウンロードされ、自動的に起動します。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro のjarファイルを dbflute-intro ディレクトリ配下に @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-mydbflute
+ |  |-dbflute-1.1.8 <span class="comment">// engine</span>
+ |
+ |-<span class="point">dbflute-intro.jar</span> <span class="comment">// downloaded by manage task</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		一度ダウンロードしておけば、ダウンロードは発生しないので、実行するだけのコマンドとして manage の 88 が利用できます。
+	</p>
+	<h3 id="introfirst">DBFlute Introが先にある場合</h3>
+	<p>
+		DBFlute Intro の機能を使って、DBFluteをセットアップしましょう。
+	</p>
+	<div class="detailpage"><a href="./index.html#useflow">DBFlute Intro - 使い方の流れ</a></div>
+	<h3 id="upgradeintro">DBFlute Introのアップグレード</h3>
+	<p>
+		削除してダウンロードです。
+	</p>
+	<ol>
+		<li>dbflute-intro.jar を削除</li>
+		<li>manage.sh|bat の 88 (intro) を実行 <span class="frm">(jarがなければダウンロードされる)</span></li>
+	</ol>
+	<h3 id="gitignorestrategy">DBFlute Introはgitignoreする？</h3>
+	<p>
+		どちらでも構いません。ディベロッパーからすれば、manage を叩いて起動することには変わりはないので、どちらであっても利用してる分には意識しません。
+	</p>
+	<p>
+		Introのバージョンを強制させたい場合は、コミット対象にしておけば横展開が簡単にはあります。
+		ただ、それなりのサイズではあるので、やはりignoreにしてIntroのアップグレードは各自に任せるのも良いでしょう。
+		<span class="frm">(LastaFluteのExampleでは、デフォルトでignoreになっています)</span>
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="silentdb">DB変更履歴を大切にしよう</h2>
+		<p>
+			DB変更の経緯を知ることで、いまのDB構造が理解しやすくなります。
+		</p>
+		<p>
+			DBはおいそれと修正できないものです。なので、中には "仕方なくこういうDB変更になった"
+			というのもあるでしょう。ソースコードであれば、そういうものはコメントで残しておきやすいですが、
+			DB変更というイベントに対してのコメントを書く場所はあまりありません。 
+		</p>
+		<p>
+			テーブルやカラムのDBコメントも同じですが...
+		</p>
+		<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20170628/letsdbcomment">コードにコメント書くのにDBにコメント書かないの？ | jfluteの日記</a></div>
+		<p>
+			<em class="keyword">DB変更履歴にもコードと同じようにコメントしておきましょう！</em>
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,インターフェースディスパッチ,インターフェース経由,抽象実装" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CB - InterfaceDispatch | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CB - InterfaceDispatch</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		アーキテクト向けの機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wa.html#architect">Architect (アーキテクト)</a></div>
+	<p>
+		ConditionBeanには、インターフェースディスパッチ(抽象実装)ができるように、インターフェース経由で機能が利用できるメソッドが用意されています。
+	</p>
+	<p>
+		通常の利用では必要ありませんので、
+		"知ってしまったら使ってしまいそう" と思われる方は、このページは読まずに、すぐにDBFlute内の適当なページに飛んで下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/programming/completion/camelcase.html">DBFlute内の適当なページ</a></div>
+
+	<h2 id="interface">インターフェースメソッド</h2>
+	<p>
+		それぞれの ConditionBean は、"ConditionBean"
+		というインターフェースを実装しています。
+	</p>
+	<h3 id="select">データ取得</h3>
+	<dl class="textlist">
+		<dt>invokeSetupSelect()</dt>
+		<dd>
+			指定されたプロパティ(foreignPropertyNamePath)に対応するリレーションを SetupSelect
+			します。プロパティ名は、"." (ドット)つなぎでネストした階層を辿っていくことが可能です。
+		</dd>
+	</dl>
+	<h3 id="query">絞り込み・ソート条件</h3>
+	<p>
+		ConditionQuery も同様に "ConditionQuery" というインターフェースを実装しています。
+	</p>
+	<dl class="textlist">
+		<dt>localCQ()</dt>
+		<dd>query() で取得される ConditionQuery をインターフェース形式で取得します。</dd>
+		<dt>localCQ().invokeValue()</dt>
+		<dd>指定されたカラム名(columnFlexibleName)の ConditionValue を取得します。</dd>
+		<dd>※アプリでは基本的に必要としません。</dd>
+		<dt>localCQ().invokeQuery()</dt>
+		<dd>
+			絞り込み条件を設定します。
+			<dl class="keymainlist">
+				<dt>columnFlexibleName</dt><dd>カラム名 (Flexible)。"." (ドット)つなぎでリレーションを表現できる</dd>
+				<dt>conditionKeyName</dt><dd>比較条件のキー名 (Equal, LessThan など)</dd>
+				<dt>value</dt><dd>条件値 (Object型)</dd>
+				<dt>option</dt><dd>ConditionOption (LikeSearchOptionなど)。オーバーロード引数。</dd>
+			</dl>
+		</dd>
+		<dt>localCQ().invokeQueryEqual()</dt>
+		<dd>
+			頻度が高いと想定されている Equal に特化した invokeQuery() です。比較条件の指定がありません。
+		</dd>
+		<dt>localCQ().invokeOrderBy()</dt>
+		<dd>
+			ソート条件を設定します。
+			<dl class="keymainlist">
+				<dt>columnFlexibleName</dt><dd>カラム名 (Flexible)。"." (ドット)つなぎでリレーションを表現できる</dd>
+				<dt>isAsc</dt><dd>昇順かどうか (false なら降順)</dd>
+			</dl>
+		</dd>
+		<dt>localCQ().invokeForeignCQ()</dt>
+		<dd>
+			指定されたプロパティ(foreignPropertyName)に対応する関連テーブルの ConditionQuery
+			を取得します。プロパティ名は、"." (ドット)つなぎでネストした階層を辿っていくことが可能です。
+		</dd>
+		<dt>localCQ().invokeHasForeignCQ()</dt>
+		<dd>
+			指定されたプロパティ(foreignPropertyName)に対応する関連テーブルの ConditionQuery
+			があるかどうかを判定します。プロパティ名は、"." (ドット)つなぎでネストした階層を辿っていくことが可能です。
+		</dd>
+		<dd>※アプリでは基本的に必要としません。</dd>
+	</dl>
+	<h3 id="pkdispatch">PKを抽象的に扱うメソッド</h3>
+	<p>
+		PKのデータ型、および、単一PKなのか複合PKなのか、これらを吸収して抽象的に実装するためのメソッドが用意されています。
+	</p>
+	<dl class="textlist">
+		<dt>acceptPrimaryKeyMap()</dt>
+		<dd>
+			PrimaryKey の値が格納された Map を受け取って、等値条件を設定するメソッドです。
+			DBMeta の extractPrimaryKeyMap() を使って取得した Map を利用すれば、Entity
+			に格納されている PK の値をそのまま ConditionBean に登録できます。
+		</dd>
+		<dd>
+			<em class="keyword">[PKのカラム名] = [PKの値]</em>
+			という形式で登録されている必要があります。
+		</dd>
+		<dt>addOrderBy_PK_Asc()</dt>
+		<dd>
+			PK の昇順(Asc)で OrderBy を設定します。
+		</dd>
+		<dt>addOrderBy_PK_Desc()</dt>
+		<dd>
+			PK の降順(Desc)で OrderBy を設定します。
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="./primarykeyabstraction.html#order">PrimaryKeyAbstraction - PKで並べる</a></div>
+<pre><span class="codetitle">e.g. PKを抽象的に扱って一件検索 @Java</span><code>
+BehaviorReadable bhv = <span class="abbreviation">...</span>
+Entity entity = <span class="abbreviation">...</span> <span class="comment">// 例えば、PKのみ格納されてるとして</span>
+
+<span class="comment">// PKの等値条件</span>
+ConditionBean cb = bhv.newConditionBean();
+cb.<span class="keyword">acceptPrimaryKeyMap</span>(entity.getDBMeta().extractPrimaryKeyMap(entity));
+
+Entity entity = bhv.readEntity(); <span class="comment">// 指定されたPKで一件検索</span>
+</code></pre>
+	<h3 id="tableinfo">テーブルのメタデータ</h3>
+	<p>
+		getDBMeta() から DBMeta インターフェースを取得できます。
+	</p>
+	<div class="detailpage"><a href="./tableinfo.html">CB - TableInfo</a></div>
+	<h3 id="nodependent">テーブルに依存しないメソッド</h3>
+	<p>
+		幾つかのそもそもメソッド仕様がテーブルに依存しないメソッドが、インターフェースメソッドになっています。
+		以下、主なものを列挙しています。
+	</p>
+	<ul>
+		<li>paging()</li>
+		<li>enablePagingCountLater()</li>
+		<li>disablePagingReSelect()</li>
+		<li>fetchFirst()</li>
+		<li>fetchScope()</li>
+		<li>fetchPage()</li>
+		<li>lockForUpdate()</li>
+		<li>checkSafetyResult()</li>
+		<li>checkInvalidQuery()</li>
+		<li>configure()</li>
+		<li>toDisplaySql()</li>
+		<li>hasWhereClause()</li>
+		<li>hasOrderByClause()</li>
+		<li>clearOrderBy()</li>
+	</ul>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

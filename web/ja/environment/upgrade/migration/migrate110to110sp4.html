@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 1.1.0 to 1.1.0-sp4 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 1.1.0 to 1.1.0-sp4</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3 id="dfproprename">なんとかDefinitionMap.dfprop の Definition</h3>
+	<p>
+		まず、互換性は保たれているので、無理に移行する必要はありません。
+	</p>
+	<p>
+		幾つかのdfpropファイルの名前が変わりました。
+	</p>
+	<ul>
+		<li>documentDefinitionMap.dfprop to <em class="mark">documentMap.dfprop</em></li>
+		<li>includeQueryMap.dfprop to <em class="mark">conditionBeanMap.dfprop</em></li>
+		<li>optimisticLockDefinitionMap.dfprop to <em class="mark">optimisticLockMap.dfprop</em></li>
+		<li>outsideSqlDefinitionMap.dfprop to <em class="mark">outsideSqlMap.dfprop</em></li>
+		<li>refreshDefinitionMap.dfprop to <em class="mark">refreshMap.dfprop</em></li>
+		<li>replaceSchemaDefinitionMap.dfprop to <em class="mark">replaceSchemaMap.dfprop</em></li>
+		<li>sequenceDefinitionMap.dfprop to <em class="mark">sequenceMap.dfprop</em></li>
+	</ul>
+	<p>
+		sp4以降では、ファイルをrenameしてもそのまま動作しますので、よければ試してみてください。
+	</p>
+	<h3 id="tolittle">いくつか littleAdjustment に</h3>
+	<p>
+		refreshMap.dfprop や optimisticLockMap は、同じ内容を littleAdjustmentMap.dfprop
+		で指定できるようになっています。dfprop配下をスッキリさせるため、小さなdfpropは統合しています。
+	</p>
+<pre><span class="codetitle">e.g. refreshMap と optimisticLockMap @littleAdjustmentMap.dfprop</span><code>
+    # /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o refreshMap: (NotRequired - Default map:{projectName=$$AutoDetect$$ ; requestUrl=http://localhost:8386/})
+    #  If you use synchronizer and specify this property, no need to refresh(F5) your eclipse project.
+    #  The projectName can be set plural names by slash '/'. e.g. sea/land
+    #
+    #; refreshMap = map:{
+    #    ; projectName = $$AutoDetect$$
+    #    ; requestUrl = http://localhost:8386/
+    #}
+    # - - - - - - - - - -/
+
+    # /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o optimisticLockMap: (NotRequired - Default map:{})
+    #  The definition for optimistic lock of DBFlute.
+    #
+    #; optimisticLockMap = map:{
+    #    # o updateDateFieldName: (NotRequired - Default '')
+    #    ; updateDateFieldName = UPDATE_DATE
+    #
+    #    # o versionNoFieldName: (NotRequired - Default 'VERSION_NO')
+    #    #  The column name of version no for optimistic lock.
+    #    #  Basically you don't need this if your tables have the column 'VERSION_NO'.
+    #    #  because the default value is 'VERSION_NO'.
+    #    ; versionNoFieldName = VERSION_NO
+    #}
+    # - - - - - - - - - -/
+</code></pre>
+	<h3 id="lambdaentity">互換モード、LambdaのselectEntity()の戻り値</h3>
+	<p>
+		1.0.x から 1.1.x に互換モードで移行した人だけが対象です。
+	</p>
+	<p>
+		isAvailableSelectEntityPlainReturn を true にすることで、selectEntity()の戻り値が Optional
+		ではなくそのままのEntityが戻るようになりますが、同時に isMakeCallbackConditionBeanSetup を true
+		にして、Lambda引数のselectEntity()も生成しているとき、そちらだけは Optional になるようになっています。
+		<span class="frm">(sp3までは、両方とも Plain な Entity だった)</span>
+	</p>
+	<p>
+		これにより、古い方のselectEntity()だけは完全に今まで通りで、新しいLambda引数のselectEntity()はOptionalで完全に新しいやり方で実装していくことができます。
+	</p>
+	<p>
+		もし、Lambda引数のselectEntity()も Plain な Entity にしたいときは、isAvailableLambdaSelectEntityForcedlyOptional を false にします。
+	</p>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<p>
+		特になし
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

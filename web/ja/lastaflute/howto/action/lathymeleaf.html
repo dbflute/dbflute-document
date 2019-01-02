@@ -1,0 +1,484 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Thymeleaf,HTML Template,HTMLテンプレート" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFlute の Thymeleaf | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute の Thymeleaf</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<div class="relatedpage"><a href="./index.html">LastaFlute の Action</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="usethymeleaf">Thymeleafを利用</h3>
+	<p>
+		LastaFluteで、サーバーサイドHTMLでWebアプリを作成する場合、Thymeleaf
+		がオススメです。Exampleでも Thymeleaf を利用しています。
+	</p>
+	<p>
+		LastaFlute と Thymeleaf の連携ライブラリ <em class="smallmark">Lasta Thymeleaf</em> も提供しています。
+	</p>
+	<h3 id="usefreegen">FreeGenを使ってタイプセーフ指定</h3>
+	<p>
+		DBFluteのFreeGenの仕組みを使って、HTMLテンプレートの指定をタイプセーフにします。
+	</p>
+	<ol>
+		<li>ThymeleafのHTMLテンプレートを作成 <span class="frm">(src/main/webapp/WEB-INF/view配下)</span></li>
+		<li>DBFlute の FreeGen を叩く <span class="frm">(manage.sh 12)</span></li>
+		<li>Actionクラスで自動生成されたパス定義を利用 <span class="frm">(asHtml(path_...))</span></li>
+	</ol>
+<pre><span class="codetitle">e.g. you can use Template Path for HtmlResponse @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index() {
+    <span class="abbreviation">...</span>
+    <span class="keyword">return</span> asHtml(<span class="point">path_Mypage_MypageHtml</span>);
+}
+</code></pre>
+	<h3 id="uselacolon">la:属性を使ってスムーズ連携</h3>
+	<p>
+		la:[attr-name] というLastaFluteオリジナルの属性が幾つか提供されていて、LastaFluteやDBFluteとのスムーズな連携ができます。
+		<span class="frm">(特に、区分値のCDefとの連携やバリデーションエラーとの連携は便利です)</span>
+	</p>
+<pre><span class="codetitle">e.g. la:property as productName, related to form property @Html</span><code>
+&lt;input type=<span class="literal">"text"</span> <span class="point">la:property</span>=<span class="literal">"productName"</span>/&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. la:optionCls as productStatus, related to CDef.ProductStatus @Html</span><code>
+&lt;select la:property=<span class="literal">"productStatus"</span>&gt;
+    &lt;option value="" th:text=<span class="literal">"#{labels.listbox.caption.tell}"</span>>&lt;/option&gt;
+    &lt;option <span class="point">la:optionCls</span>=<span class="literal">"ProductStatus"</span>>&lt;/option&gt;
+&lt;/select&gt;
+</code></pre>
+	<h3 id="architecture">Lasta Thymeleafのアーキテクチャ</h3>
+	<p class="imgbox">
+		<a href="../../../../data/model/lastaflute/thymeleaf/lastaflute-thymeleaf-architecture-map.png" title="LastaFlute Thymeleaf Architecture"><img src="../../../../data/model/lastaflute/thymeleaf/lastaflute-thymeleaf-architecture-map.png" alt="LastaFlute Thymeleaf Architecture" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="genhtmlpath">HtmlPathを自動生成しよう</h2>
+	<h3 id="genconcept">自動生成のコンセプト</h3>
+	<p>
+		JavaプログラムからHTMLテンプレートのファイルを指定するとき、ファイル名をハードコードするのではなく、自動生成された定義を利用します。
+		自動生成の仕組みを利用して、HTMLテンプレートとプログラム上の指定にズレが発生しないようにしています。
+	</p>
+<pre><span class="codetitle">e.g. you can use Template Path for HtmlResponse @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index() {
+    <span class="abbreviation">...</span>
+    <span class="keyword">return</span> asHtml(<span class="point">path_Mypage_MypageHtml</span>);
+}
+</code></pre>
+	<h3 id="genhowto">自動生成のやり方</h3>
+	<p>
+		まず、HTMLテンプレートを作成 <span class="frm">(まだ空っぽでもOK)</span>
+	</p>
+	<p>
+		WEB-INF/viewの下であればファイル名や配置ディレクトリは任意ですが、対応する Action
+		クラスがわかるような名前を付けましょう。例えば、以下のように。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>product/<em class="mark">product_list</em>.html</dt><dd>/product/list/</dd>
+		<dt>profile/<em class="mark">profile_password_change</em>.html</dt><dd>/profile/password/change/</dd>
+		<dt>mypage/<em class="mark">mypage</em>.html</dt><dd>/mypage/</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Template File Location @Directory</span><code>
+src/main/webapp
+ |-WEB-INF
+    |-view <span class="comment">// HtmlTemplateの配置場所</span>
+    |  |-product <span class="comment">// productパッケージに対応</span>
+    |  |  |-<span class="subpoint">product_list.html</span>     <span class="comment">// /product/list/</span>
+    |  |  |-product_purchase.html <span class="comment">// /product/purchase/</span>
+    |  |
+    |  |-profile
+    |  |  |-<span class="subpoint">profile_password_change.html</span> <span class="comment">// /profile/password/change/</span>
+    |  |  |-profile_withdrawal.html      <span class="comment">// /profile/withdrawal/</span>
+    |  |
+    |  |-mypage
+    |  |  |-<span class="subpoint">mypage.html</span> <span class="comment">// /mypage/</span>
+    |  |
+    |  |-root.jsp <span class="comment">// '/'</span>
+    |
+    |-web.xml
+</code></pre>
+	<p>
+		そして、DBFlute の FreeGen を叩くと、パス定義が自動生成されて、Actionクラスで補完できるようになります。
+		<span class="frm">(自動生成された定義は Action クラスが implements しているのでそのまま補完できます)</span>
+	</p>
+	<div class="relatedpage"><a href="../dbflute/lafreegen.html">なんでも自動生成 (FreeGen)</a></div>
+	<h3 id="gentiming">自動生成のタイミング</h3>
+	<p>
+		少なくとも、自動生成してからでないと Action の実装は完結しません。
+	</p>
+	<p>
+		自動生成は中身を見ませんので、<em class="keyword">とりあえず空っぽの状態でHTMLテンプレートのファイルだけ作って自動生成をしておいて、Actionの実装をしながらテンプレートも同時に実装していく</em>
+		というやり方でも良いでしょう。
+	</p>
+	<h3 id="gitconflict">コンフリクトはしない？</h3>
+	<p>
+		自動生成されるクラスは単純な定義だけなので、基本的にGitの機能で自動マージされますので、気にせずトピックブランチでコミットしてOKでしょう。
+		もし、同じディレクトリに同じファイル名を作った場合は、そもそもHTMLテンプレート自体がコンフリクトするでしょう。
+	</p>
+
+	<h2 id="laoriginal">LastaFluteオリジナル表現</h2>
+	<h3 id="laproperty">la:property="プロパティ名"</h3>
+	<p>
+		入力項目のinputタグと、Formのプロパティを紐付ける属性です。
+	</p>
+<pre><span class="codetitle">e.g. la:property as productName, related to form property @Html</span><code>
+&lt;input type=<span class="literal">"text"</span> <span class="point">la:property</span>=<span class="literal">"productName"</span>/&gt;
+</code></pre>
+	<p>
+		リクエスト時は対応するFormのプロパティにマッピングされ、レスポンス時は対応するFormのプロパティの値が表示されます。
+		<span class="frm">(単に、name属性とvalue属性で、同じプロパティ名を二回書くのを省略しているだけとも言えます)</span>
+	</p>
+	<p>
+		バリデーションエラー表示のときは、class属性に "validError" (validation の error という意味) が付与されます<span class="frm">(既存のclass属性に対して追加になる)</span>。
+		バリデーションエラー対象の項目 (テキストボックスなど) に色を付けたりするのに利用できます。
+	</p>
+<pre><span class="codetitle">e.g. la:errors result, required check @Html</span><code>
+&lt;input name=<span class="literal">"productName"</span> value=<span class="literal">""</span> class=<span class="point">"validError"</span> type=<span class="literal">"text"</span>&gt;
+</code></pre>
+	<p>
+		対応するクラスは、PropertyAttrProcessor です。
+	</p>
+	<h3 id="laoptioncls">la:optionCls="区分値名"</h3>
+	<p>
+		リストボックスのoptionタグを、CDef や AppCDef の区分値を使って構築する属性です。
+	</p>
+<pre><span class="codetitle">e.g. la:optionCls as productStatus, related to CDef.ProductStatus @Html</span><code>
+&lt;select la:property=<span class="literal">"productStatus"</span>&gt;
+    &lt;option value="" th:text=<span class="literal">"#{labels.listbox.caption.tell}"</span>>&lt;/option&gt;
+    &lt;option <span class="point">la:optionCls</span>=<span class="literal">"ProductStatus"</span>>&lt;/option&gt;
+&lt;/select&gt;
+</code></pre>
+	<p>
+		CDef や AppCDef は、sponsor.[App]ListedClassificationProvider にて解決されます。
+		アプリのクラスなので、新しく NamedCls を使ったり、全体の優先順位を変えたりなど、自由にカスタマイズできます。
+	</p>
+	<p>
+		対応するクラスは、OptionClsAttrProcessor です。
+	</p>
+	<h3 id="laerrors">la:errors="プロパティ名"</h3>
+	<p>
+		バリデーションエラーや業務例外のメッセージを表示するための属性です。
+	</p>
+<pre><span class="codetitle">e.g. la:errors as productStatus, related to CDef.ProductStatus @Html</span><code>
+&lt;form th:action=<span class="literal">"@{/member/edit/}"</span> action=<span class="literal">"#"</span> method=<span class="literal">"post"</span>&gt;
+    &lt;span <span class="point">la:errors</span>=<span class="literal">"_global"</span>/&gt;
+    <span class="abbreviation">...</span>
+    &lt;input type=<span class="literal">"text"</span> <span class="point">la:property</span>=<span class="literal">"memberName"</span>/&gt;
+    &lt;span <span class="point">la:errors</span>=<span class="literal">"memberName"</span>/&gt;
+</code></pre>
+	<p>
+		指定されたプロパティに対応するエラーメッセージが表示されます。
+	</p>
+<pre><span class="codetitle">e.g. la:errors result, required check @Html</span><code>
+&lt;input name=<span class="literal">"productName"</span> value=<span class="literal">""</span> class=<span class="literal">"validError"</span> type=<span class="literal">"text"</span>&gt;
+&lt;span class=<span class="literal">"errors"</span>&gt;<span class="point">is required</span>&lt;/span&gt;
+</code></pre>
+	<p>
+		エラー発生時は、そのspanタグのclass属性に <em class="mark">errors</em>
+		というスタイルが自動的に付与されます<span class="frm">(既存のclass属性に対して追加となる)</span>。エラーメッセージに色を付けたりするのに利用できます。エラーが発生しないときは、spanタグ自体が消えます。
+	</p>
+	<p>
+		一つのプロパティに複数のエラーメッセージが関連付けられることもあります。
+		<span class="frm">(そのままのspanだと、ブラウザのデフォルトとして半角空白一つ挟んで並んで表示されます。それが見た目として不都合な場合は、class の errors を使ったりタグを変えたりしてデザインを調整すると良いでしょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. la:errors result, plural messages for one property @Html</span><code>
+&lt;input name=<span class="literal">"productName"</span> value=<span class="literal">"sealandpiari"</span> class=<span class="literal">"validError"</span> type=<span class="literal">"text"</span>&gt;
+&lt;span class=<span class="literal">"errors"</span>&gt;<span class="subpoint">length must be between 0 and 10</span>&lt;/span&gt;
+&lt;span class=<span class="literal">"errors"</span>&gt;<span class="subpoint">not a well-formed email address</span>&lt;/span&gt;
+</code></pre>
+	<p>
+		<em class="mark">主語なしメッセージ方式</em> であれば、spanタグで入力項目のタグのすぐ近くに配置するのがオーソドックスです。違うタグでも利用できますので、そこはHTMLのコーディングポリシーに合わせましょう。
+		一方で、特定のプロパティに属さないメッセージ <span class="frm">(業務例外のメッセージも含む)</span>
+		も表示する場合は、<em class="mark">_global</em> を指定した la:errors を上部にひとつ配置しておくと良いでしょう。
+	</p>
+	<p>
+		<em class="mark">主語ありメッセージ方式</em> であれば、プロパティ名に <em class="mark">all</em> と指定することで、すべてのプロパティに対するメッセージが展開されます。
+		この場合は、画面の上部にひとつ配置するのがオーソドックスです。liタグなどで利用することが想定されます。
+		加えて、[app]_message.propertiesにて、{item}を使って主語ありメッセージにしておく必要があります。
+	</p>
+	<div class="relatedpage"><a href="./usermessages.html#subjectivemessage">ユーザーメッセージ (UserMessages) - 主語ありメッセージ</a></div>
+	<p>
+		対応するクラスは、ErrorsAttrProcessor です。
+	</p>
+	<h3 id="latoken">la:token="true"</h3>
+	<p>
+		二度押し防止のトークンを出力します。
+	</p>
+<pre><span class="codetitle">e.g. la:token on hidden field @Html</span><code>
+&lt;form th:action=<span class="literal">"@{/member/edit/}"</span> action=<span class="literal">"#"</span> method=<span class="literal">"post"</span>&gt;
+    &lt;input type=<span class="literal">"hidden"</span> <span class="point">la:token</span>=<span class="literal">"true"</span>/&gt;
+</code></pre>
+	<p>
+		formタグの直下などに配置したhiddenフィールドに付与するのがオーソドックスです。
+		Actionで発行したトークンが展開され、submit時にリクエストパラメーターとして送信されて二度押し防止チェックされます。
+	</p>
+	<p>
+		Actionでトークンの発行処理をする必要があります。
+	</p>
+	<div class="relatedpage"><a href="./index.html#token">DoubleSubmit Token</a></div>
+	<p>
+		対応するクラスは、TokenAttrProcessor です。
+	</p>
+	<h3 id="labels">#{labels.キー}</h3>
+	<p>
+		HTMLテンプレートのなかで、[app]_label.properties を利用することができます。
+	</p>
+<pre><span class="codetitle">e.g. use label of [app]_label.properties @Html</span><code>
+&lt;span th:text="<span class="point">#{labels.productName}</span>"&gt;labels.productName&lt;/span&gt;
+&lt;input type=<span class="literal">"text"</span> la:property=<span class="literal">"productName"</span>/&gt;
+</code></pre>
+	<p>
+		項目表現を統一したり、多言語対応するときなどに役に立ちます。
+		プロジェクトで利用するかしないかは、統一的なポリシーにした方が良いでしょう。
+		<span class="frm">(割り切って全く利用しないという選択肢もあるでしょう)</span>
+	</p>
+	<h3 id="handyformat">#handy.format(日付)</h3>
+	<p>
+		日付のフォーマットを、HTMLテンプレート内で実行することができます。
+	</p>
+<pre><span class="codetitle">e.g. format date of Birthdate as config's pattern @Html</span><code>
+&lt;span th:text="<span class="point">${#handy.format(member.birthdate)}</span>"&gt;dummy&lt;/span&gt;
+</code></pre>
+	<p>
+		日付フォーマット (Pattern) を指定しないメソッドの場合は、[app]_config.properties で定義されているフォーマットが利用されます。
+		統一的なフォーマット管理ができます。<span class="frm">(デフォルトのフォーマットと考えて良いでしょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. date patterns in [app]_config.properites @Html</span><code>
+<span class="comment"># The pattern of date as application standard used by e.g. Thymeleaf handy.format()</span>
+app.standard.date.pattern = <span class="literal">yyyy/MM/dd</span>
+
+<span class="comment"># The pattern of date-time as application standard used by e.g. Thymeleaf handy.format()</span>
+app.standard.datetime.pattern = <span class="literal">yyyy/MM/dd HH:mm:ss</span>
+
+<span class="comment"># The pattern of time as application standard used by e.g. Thymeleaf handy.format()</span>
+app.standard.time.pattern = <span class="literal">HH:mm:ss</span>
+</code></pre>
+	<p>
+		"デフォルトとは違うフォーマットで表示" というような場合は、第二引数でフォーマットを指定します。
+	</p>
+<pre><span class="codetitle">e.g. format date of Birthdate as specified pattern @Html</span><code>
+&lt;span th:text=<span class="literal">"${#handy.format(member.birthdate, '<span class="point">yyyy@MM@dd</span>')}"</span>&gt;dummy&lt;/span&gt;
+</code></pre>
+	<p>
+		"日付部分(yyyy/MM/dd)はデフォルトと同じだけど、時間部分(HH:mm:ss)だけがデフォルトとは違う" というような場合に、<em class="smallmark">$$date$$</em>, <em class="smallmark">$$datetime$$</em>, <em class="smallmark">$$time$$</em> が利用できます。
+	</p>
+<pre><span class="codetitle">e.g. format date of FormalizedDatetime as specified pattern @Html</span><code>
+&lt;span th:text=<span class="literal">"${#handy.format(member.formalizedDatetime, '<span class="point">$$date$$ HH@mm@ss</span>')}"</span>&gt;dummy&lt;/span&gt;
+</code></pre>
+	<p>
+		HtmlBeanのプロパティは、LocalDate, LocalDateTime など日付型で定義します。
+		プロパティの値が null なら format() の戻りは null になり、th:textの制御によって画面の表示上は "空" になります。
+		<span class="frm">(そもそも必須項目であれば、@Required を付けておきましょう)</span> 
+	</p>
+<pre><span class="codetitle">e.g. date property as LocalDate in HtmlBean @Java</span><code>
+@Required
+<span class="keyword">public</span> LocalDate <span class="attribute">latestPurchaseDate</span>;
+</code></pre>
+	<p>
+		Action側でフォーマットするやり方もできますが、実装ポリシーを定めないとフォーマットの実装の仕方や管理がバラバラになる可能性もあります。
+		HTMLテンプレートでのフォーマットでも統一的な管理ができますし、さらにプロパティの型を日付型のまま扱えてタイプセーフになるので、特に大きな理由がなければ
+		#handy.format() を使うのをオススメしています。<span class="frm">(いずれにせよ、画面ごとに変えるのではなくプロジェクト全体で統一しましょう)</span>
+	</p>
+	<p>
+		#handy は、他にもメソッドがあります。詳しくは HandyDateExpressionProcessor を参照。
+	</p>
+	<h3 id="errorsobj">${errors.exists('プロパティ名')}</h3>
+	<p>
+		エラーメッセージがあるかどうか、判定することができます。
+		例えば、バリデーションエラーのときに、エラー対象のテキストボックスにスタイルを付けたい時に利用できます。
+	</p>
+<pre><span class="codetitle">e.g. add valid-error if validation error to memberName @Html</span><code>
+&lt;input type=<span class="literal">"text"</span>
+    la:property=<span class="literal">"memberName"</span>
+    th:class="<span class="point">${errors.exists('memberName')} ? 'valid-error'</span>"/&gt;
+</code></pre>
+	<p>
+		la:errorsは、内部的にはこの "errorsオブジェクト" を使っています。
+	</p>
+	<p>
+		errorsオブジェクトには、他にもメソッドがあります。詳しくは ErrorMessages を参照。
+	</p>
+
+	<h2 id="htmlbean">HtmlBeanを作ろう</h2>
+	<h3 id="htmlbeanmapping">HtmlBeanに詰め替えよう</h3>
+	<p>
+		DBFluteから検索したEntityは、HtmlBeanに詰め替えて registerData()
+		に登録します。Entityのまま registerData() に登録することはできません。<span class="frm">(LastaFluteが、できる範囲でチェックしています)</span>
+	</p>
+<pre><span class="codetitle">e.g. mapping entity to HTML bean in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(cb -&gt; {
+        <span class="abbreviation">...</span>
+    });
+    List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+        SeaLandRowBean <span class="localvar">bean</span> = <span class="keyword">new</span> SeaLandRowBean();
+        <span class="localvar">bean</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+        <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+            <span class="localvar">bean</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+        });
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="localvar">bean</span>;
+    }).collect(Collectors.toList());
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>).renderWith(<span class="localvar">data</span> -&gt; {
+        <span class="localvar">data</span>.<span class="subpoint">register</span>(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+    });
+}
+</code></pre>
+	<p>
+		HTMLテンプレートの世界はコンパイルセーフではないので、Entityを直接渡して参照すると、DB変更時のコンパイルエラー検出ができなくなります。
+		HTMLテンプレートの中でDBのスキーマ構造を意識した実装をしないようにしましょう。
+	</p>
+	<h3 id="htmlbeanvalidation">HtmlBeanのバリデーション</h3>
+	<p>
+		Thymeleafに渡す HtmlBean に、@Required などの "Validatorアノテーション" を付与してバリデーションすることができます。
+	</p>
+	<div class="detailpage"><a href="./lavalidation.html#responsevalidation">番外. レスポンスデータのバリデーション</a></div>
+<pre><span class="codetitle">e.g. Required annotation in HTML bean class @Java</span><code>
+<span class="keyword">public class</span> SeaLandBean {
+
+    <span class="subpoint">@Required</span>
+    <span class="keyword">public</span> Integer <span class="attribute">memberId</span>;
+
+    <span class="subpoint">@Required</span>
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		不正なデータを渡してしまっても、HTMLテンプレートの処理の中ではエラーにならず表示されてしまう可能性も高いですし、エラーになったとしてもテンプレート処理内だとデバッグがしづらいものです。
+		渡す前にチェックをかけられるとデバッグコストが減るでしょう。また、可読性も良くなります。
+	</p>
+	<p>
+		キリがないというのもあるので、@Required (+ @Valid) だけ付けるというのでも良いでしょう。
+	</p>
+
+	<h2 id="prepare">Lasta Thymeleafの環境準備</h2>
+	<p>
+		Lasta Thymeleaf を使った "Exampleプロジェクト" (e.g. harbor, dockside)
+		からスタートアップすれば自然と組み込まれていますが、もしゼロから準備するのであれば、このようになります。
+	</p>
+	<h3 id="dependslathyme">lasta-thymeleafの依存ライブラリ定義</h3>
+	<p>
+		pom.xml に lasta-remoteapi を定義します。
+	</p>
+<pre><span class="codetitle">e.g. Lasta Thymeleaf dependency @pom.xml</span><code>
+&lt;lasta.thymeleaf.version&gt;<span class="literal">0.3.1</span>&lt;/lasta.thymeleaf.version&gt;
+
+<span class="abbreviation">...</span>
+
+&lt;dependency&gt;
+    &lt;groupId&gt;<span class="literal">org.lastaflute.html</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="literal">lasta-thymeleaf</span>&lt;/artifactId&gt;
+    &lt;version&gt;<span class="literal">${lasta.thymeleaf.version}</span>&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+	<h3 id="assistlathyme">AssistantDirectorで組み込み</h3>
+	<p>
+		AssistantDirector の prepareWebDirection() にて LastaThymeleaf を組み込みます。
+	</p>
+<pre><span class="codetitle">e.g. Lasta Thymeleaf in AssistantDirector @Java</span><code>
+@Override
+protected void prepareWebDirection(FwWebDirection direction) {
+    direction.directRequest(createUserLocaleProcessProvider(), createUserTimeZoneProcessProvider());
+    <span class="abbreviation">...</span>
+    <span class="subpoint">direction.directHtmlRendering(createHtmlRenderingProvider());</span>
+}
+
+<span class="abbreviation">...</span>
+
+protected HtmlRenderingProvider createHtmlRenderingProvider() {
+    return <span class="point">new ThymeleafRenderingProvider()</span>.asDevelopment(config.isDevelopmentHere());
+}
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		asDevelopment()で、[app]_env.properties の development.here (開発環境かどうか？)
+		のプロパティと連動させるのがオススメです。
+	</p>
+	<h3 id="lastaflutemap">lastafluteMap.dfpropで自動生成定義</h3>
+	<p>
+		HTMLテンプレートのパス定義が自動生成されるようにするために、lastafluteMap.dfprop の freeGenList に <em class="mark">html</em> を追加します。
+	</p>
+<pre><span class="codetitle">e.g. add html to freeGenList @lastafluteMap.dfprop</span><code>
+; appMap = <span class="keyword">map:</span>{
+    ; harbor = <span class="keyword">map:</span>{
+        ; path = ..
+        ; freeGenList = <span class="keyword">list:</span>{ env ; <span class="abbreviation">...</span> ; template ; <span class="point">html</span> ; doc ; <span class="abbreviation">...</span> }
+        ; propertiesHtmlList = <span class="keyword">list:</span>{ env ; config ; label ; message }
+    }
+}
+</code></pre>
+
+	<div class="inucolumn">
+		<h2 id="thymeleaf3">Thymeleaf3対応を進めています</h2>
+		<p>
+			2018年4月時点の最新バージョン 0.3.1 では、Thymeleaf2 を利用しています。 
+		</p>
+		<p>
+			現場の協力も得ながら(大感謝！)、Thymeleaf3対応を進めています。
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h2 id="userblog">ユーザーの方のブログをご紹介</h2>
+		<p>
+			実際に業務で Lasta Thymeleaf を利用されていた方が素敵なブログを書いてくださっているのでご紹介します。
+			ありがとうございます！<span class="frm">(リンクの承諾も頂いています)</span> 
+		</p>
+		<ul>
+			<li><a href="http://oza-note.xyz/using-dbflute-cdef-by-lasta-thymeleaf">DBFluteの区分値をLastaThymeleafで使う方法 | おざノート</a></li>
+			<li><a href="http://oza-note.xyz/make-selectbox-with-cdef-by-lasta-thymeleaf">DBFluteの区分値でセレクトボックスを簡単に作成する方法 | おざノート</a></li>
+		</ul>
+		<p>
+			とっても嬉しいものですね。しかも、すごくわかりやく丁寧に書かれています。
+			もちろん、もっと早くドキュメントができていたら、ユーザーの方がこういった試行錯誤せずにスムーズに利用できたのかもしれませんので、
+			そこは大変申し訳ないところでごめんなさい...。
+		</p>
+		<p>
+			Lasta Thymeleaf 以外の話題も書いてくださっています。
+		</p>
+		<div class="relatedpage"><a href="../architecture/logincontrol.html">組み込みログイン制御 - ユーザーの方のブログをご紹介</a></div>
+		<div class="relatedpage"><a href="../startup/multi.html">Startup as Multi-Project - ユーザーの方のブログをご紹介</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

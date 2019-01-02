@@ -1,0 +1,400 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,alter,本番環境,本番サーバ,リリース後のDB変更,alter文の自動生成" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>AlterCheck (旧方式) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>AlterCheck (旧方式)</h1>
+	${indexlist}
+
+	<h2 id="notice">通知</h2>
+	<p>
+		バージョン 0.9.8.3 限定の方式です。0.9.8.4 から、さらに現場フィットするように改善されました。
+	</p>
+	<div class="relatedpage"><a href="./altercheck.html">新方式 - AlterCheck</a></div>
+	
+	<h2 id="overview">概要</h2>
+	<p>
+		ReplaceSchema で差分DDLを検証する仕組みがあります<span class="frm">(@since 0.9.8.3)</span>。
+		<em class="keyword">AlterCheck</em> と呼ばれるこの仕組みを利用してフルDDLと差分SQLをしっかりと整合性をとって運用していくことが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="./livingdbmigration.html">LivingDBMigration</a></div>
+	<p>
+		前のDB(PreviousDB)に差分DDL(AlterSQL)を加えたものと、フルDDL(CreateSQL)の実行結果は同じはずです。ReplaceSchema
+		で差分SQLを実行し、その後でフルDDLを使った通常の ReplaceSchema を実行して差分をチェックします(AlterCheck)。
+		この課程を自動化します。
+	</p>
+	<dl class="textlist">
+		<dt>AlterSQL を実行</dt>
+		<dd>PreviousDB にそのまま AlterSQL を実行し、メタデータを保持しておきます。</dd>
+		<dt>CreateSQL を実行</dt>
+		<dd>CreateSQL を使った通常の ReplaceSchema 処理を実行し、またその結果のメタデータを取得します。</dd>
+		<dt>二つの結果の差分を検証</dt>
+		<dd>
+			二つのメタデータをチェックし、差があれば PreviousDB を復元してタスクを中断します。
+			差分を確認して AlterSQL を直し再度 ReplaceSchema タスクを実行、これを差がなくなるまで繰り返します。
+			差がなければ "PreviousDB + AlterSQL" と CreateSQL
+			の結果が同じであるということが確認され、DB は新しいDB構造の状態になります。
+		</dd>
+	</dl>
+
+	<h2 id="howto">AlterCheck の利用方法</h2>
+	<h3 id="previousdb">(前の)最新の状態に</h3>
+	<p>
+		まずは、Subversion などのバージョン管理からリソースを全て最新の状態にし、もしDB変更に関わる更新がある場合は、
+		(いつも通りの) ReplaceSchema を実行して、DBを(前の)最新の状態にします。この時点で ReplaceSchema
+		は必ず成功していなければなりません。
+	</p>
+	<h3 id="sqlfile">SQLファイルの配置</h3>
+	<p>
+		playsql の配下の migration/alter ディレクトリに AlterSQL を配置します。alter-schema で始まる .sql
+		のファイルが AlterSQL として認識されます。このディレクトリに AlterSQL が一つ以上あると ReplaceSchema が
+		AlterCheck を行います。
+	</p>
+	<p>
+		また、migration/create に CreateSQL を配置します。playsql 配下の SQL
+		と同じ仕様でそのときのDB変更で変わったファイル、もしくは、新しく追加されたファイルだけを配置します。(いつもの) playsql
+		配下に直接置かないことで、PreviousDB に戻す処理(ロールバック)を自動化することができます。
+	</p>
+<pre><span class="codetitle">e.g. AlterSQL と CreateSQL の配置 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-<span class="point">migration</span>
+    |  |-<span class="point">alter</span>
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |-<span class="point">create</span>
+    |     |-replace-schema-10-basic.sql
+    |     |-replace-schema-20-view.sql
+    |     |-take-finally.sql
+</code></pre>
+	<p>
+		また、新DB用のデータファイルも create 配下に配置することができます。
+	</p>
+	<div class="relatedpage"><a href="#loaddata">this - 新DB用のデータファイル</a></div>
+	<h3 id="altersql">AlterSQL の実行</h3>
+	<p>
+		この状態で ReplaceSchema タスクを実行すると、まずは AlterSQL
+		が実行されます。そもそも AlterSQL が実行に失敗する場合は、ReplaceSchema は PreviousDB
+		にロールバックし、タスクをすぐに中断します。
+	</p>
+	<p>
+		その際、AlterSQL が NG であることを示すマークファイル(AlterNGマーク)が alter 配下に作成されます。
+		お決まりの最後のログメッセージ(Final Message)の情報をもとに AlterSQL
+		を直したら ReplaceSchema を再実行します。AlterCheck が成功、もしくは、別の NG が発生したらこのファイルは削除されます。
+	</p>
+	<div class="relatedpage"><a href="../index.html#finalmessage">最後のログメッセージ</a></div>
+<pre><span class="codetitle">e.g. AlterSQL の実行自体にエラーがあることを示すAlterNGマーク @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration</span>
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |  |-<span class="point">alter-NG.dfmark</span>
+    |  |-create
+    |     |-replace-schema-10-basic.sql
+    |     |-replace-schema-20-view.sql
+    |     |-take-finally.sql
+</code></pre>
+	<p>
+		AlterSQL の実行が終わると、DBFlute はその状態のメタデータを取得し、migration/schema 配下に SchemaXML
+		として出力します。ここでの SchemaXML は内部的なリソースとして扱われるため、通常は意識する必要はありません。
+	</p>
+	<h3 id="createsql">CreateSQL の実行</h3>
+	<p>
+		その後 DBFlute は、PreviousDB へのロールバックを実現するために、playsql 配下の上書き予定の SQL を migration/tmp/previous
+		ディレクトリにバックアップし、代わりに CreateSQL を playsql
+		配下に配置します。この一時ディレクトリも通常意識する必要はありません。そして、いつもの ReplaceSchema
+		の処理を実行されます。つまり、CreateSQL を使った最新のDBの状態への Replace となります。
+	</p>
+	<p>
+		この処理でエラーが発生した(CreateSQLやデータファイルに不備があった)場合、バックアップされた SQL などが元の場所に戻り、PreviousDB
+		へロールバックされます。その際、CreateSQL が NG であることを示すマークファイル(CreateNGマーク)が create 配下に作成されます。
+		最後のログメッセージ(Final Message)の情報をもとに CreateSQL やデータファイルを直して再実行します。
+		AlterCheck が成功、もしくは、別の NG が発生したらこのファイルは削除されます。
+	</p>
+	<div class="relatedpage"><a href="#loaddata">this - 新DB用のデータファイル</a></div>
+	<div class="relatedpage"><a href="../index.html#finalmessage">最後のログメッセージ</a></div>
+	<h3 id="altercheck">AlterCheck の実行</h3>
+	<p>
+		実行に成功した場合は、DBFlute は再度その状態のメタデータを取得し、AlterSQL 実行直後のものと比べます。差があれば、AlterSQL と CreateSQL
+		が不整合の状態にあると言え、バックアップされた SQL などが元の場所に戻り、PreviousDB へロールバックされ、AlterNGマークが作成されてタスクは終了します。
+	</p>
+	<p>
+		そのときの差分情報は、migration/schema 配下に alter-check-result.diffmap というテキストファイルに出力されます。
+		これを参考に AlterSQL を直し、再度 ReplaceSchema を実行します。
+	</p>
+<pre><span class="codetitle">e.g. AlterSQL の実行自体にエラーがあることを示すAlterNGマーク @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |  |-alter-NG.dfmark
+    |  |-create
+    |  |  |-replace-schema-10-basic.sql
+    |  |  |-replace-schema-20-view.sql
+    |  |  |-take-finally.sql
+    |  |-schema
+    |     |-<span class="point">alter-check-result.diffmap</span>
+</code></pre>
+	<p>
+		この差分結果は、HistoryHTML で利用されているものと同様のものです。ここでは、"PreviousDB + AlterSQL" から "CreateSQL"
+		への差、ということで出力されます。例えば、テーブルが追加されている(ADD)とある場合、AlterSQL でそのテーブルを ADD
+		するように修正、と解釈できます。
+	</p>
+	<p>
+		また、差分ルールは HistoryHTML の仕様と同じです。例えば、"カラム定義順序の違い" や "同じ構造で制約名だけの変更"
+		など、基本的にアプリに影響のない微修正ものに関しては差として認識されません。
+	</p>
+	<div class="relatedpage"><a href="../doc/historyhtml.html">HistoryHTML</a></div>
+	<h3 id="successstory">AlterCheck が成功</h3>
+	<p>
+		AlterCheck が成功した場合は、CreateSQLは playsql 配下に配置された状態のままとなり、そのままコミットできる形になります。
+		AlterSQL は、migration/history 配下の日付付きのディレクトリに保存のために配置されます。
+		バックアップされた PreviousDB 用の SQL や一時的に利用していたリソース(差分結果やSchemaXMLなど)は削除されます。
+	</p>
+	<p>
+		最後のログメッセージには、AlterSQL の実行結果と CreateSQL の実行結果の両方が表示され正常終了となります。
+	</p>
+	<div class="relatedpage"><a href="../index.html#finalmessage">最後のログメッセージ</a></div>
+	<div class="inucolumn">
+		<h3 id="aboutngmark">NGマークは NG の強調</h3>
+		<p>
+			そもそもNGマークの役割についてですが、単なる NG であることの強調という意味に尽きます。
+		</p>
+		<p>
+			しっかりとコンソールや dbflute.log
+			でエラーメッセージを見てアクションを取って欲しいのですが、
+			あまりコンソールを見ずに(エラーに気付かずに)先に進んでしまうこともありえるので、おおげさにマークファイルを出力しています。
+		</p>
+	</div>
+
+	<h2 id="rollbackfailure">ロールバックの失敗</h2>
+	<p>
+		そもそもロールバックが失敗するような状態で AlterCheck を利用することが基本的に許されませんが、万が一ロールバックの失敗した場合は、
+		そもそも PreviousDB の環境が確立されていないということで、PreviousDB が NG 状態であることを示すマークファイル(PreviousNGマーク)が
+		migration 配下に作成されます。このマークがあると、ReplaceSchema は AlterCheck を行わず、いつも通りの ReplaceSchema
+		を実行します。つまり、PreviousDB のためのリソースを使った ReplaceSchema が実行されます。
+	</p>
+	<p>
+		PreviousDB が確立した状態になるまで AlterCheck は封印されます。
+		成功すると自動的にPreviousNGマークは削除され、AlterCheck を使った ReplaceSchema が実行できるようになります。
+	</p>
+	<div class="inucolumn">
+		<h3>ロールバックがポイント</h3>
+		<p>
+			PreviousDB へ自動でロールバックされることが、この機能のポイントであると言えるでしょう。
+			<em class="keyword">AlterSQL や CreateSQL (or データファイル) の修正の後にすぐに再実行して検証する</em>
+			というワークフローを実践することができるのです。
+		</p>
+		<p>
+			やり方がベタなので、少々ロールバックの処理自体に時間が取られますが、中途半端な状態になってしまうとそもそも AlterSQL
+			を適用できなくなってしまいますし、元に戻すのに若干の面倒な作業が発生してしまいます。
+		</p>
+		<p>
+			ちなみに、ロールバック処理自身の情報は、最後のログメッセージ(Final Message)にはロールバック自体がエラーになるときを除いては登場しません。
+			FinalInfo では AlterSQL や CreateSQL の結果が優先して表示されます。
+		</p>
+		<div class="relatedpage"><a href="../index.html#finalmessage">最後のログメッセージ</a></div>
+	</div>
+
+	<h2 id="loaddata">新DB用のデータファイル</h2>
+	<p>
+		DB変更の影響はSQLだけでなく、エクセルデータやTSVデータなどのデータファイルにも及びます。
+		新しい構造のために修正されたデータファイルは、migration/create/data
+		配下に配置します。そこからの配置はいつものデータファイルの配置(playsql/data)と同じ仕様です。
+	</p>
+	<p>
+		また、dataprop ファイルも同じように新しい構造用に配置することができます。
+	</p>
+<pre><span class="codetitle">e.g. 新しい構造のためのデータファイルの配置 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |  |-alter-NG.dfmark
+    |  |-create
+    |  |  |-data
+    |  |  |  |-common
+    |  |  |  |  |-xls
+    |  |  |  |     |-<span class="point">10-master.xls</span>
+    |  |  |  |-ut
+    |  |  |     |-tsv
+    |  |  |     |  |-UTF-8
+    |  |  |     |     |-<span class="point">10-PURCHASE.tsv</span>
+    |  |  |     |-xls
+    |  |  |        |-<span class="point">20-member.xls</span>
+    |  |  |        |-<span class="point">defaultValueMap.dataprop</span>
+    |  |  |-replace-schema-10-basic.sql
+    |  |  |-replace-schema-20-view.sql
+    |  |  |-take-finally.sql
+</code></pre>
+
+	<h2 id="outsidescript">AlterSQL で外部スクリプト</h2>
+	<p>
+		AlterSQL において、SQLの実行だけでなく外部スクリプトを実行することができます。
+		DBへの差分反映は、単純なSQLで済まされない場合もあります。DBMSのコマンドを利用して特殊な操作をすることもあるでしょう。
+		そういう場合のために、外部スクリプトが実行できるようになっています。
+	</p>
+	<p>
+		AlterSQL のSQLファイルと同じディレクトリに、alter-schema で始まる拡張子が .bat もしくは .sh
+		のスクリプトファイルを配置します。SQLファイルも含めてファイル名の昇順で実行されます。
+	</p>
+<pre><span class="codetitle">e.g. AlterSQL の外部スクリプトの配置 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |  |-<span class="point">alter-schema-30-special.sh</span>
+    |  |-create
+    |  |  |-replace-schema-10-basic.sql
+    |  |  |-replace-schema-20-view.sql
+    |  |  |-take-finally.sql
+</code></pre>
+	<p>
+		スクリプトの exitCode が 0 以外の場合は、スクリプト実行エラーとみなされます。
+	</p>
+	<p>
+		スクリプトのコンソールログは、固定で UTF-8
+		として取得され、DBFluteタスクのログと一緒に出力されます。なので場合によっては、ログが文字化けする可能性はありますが、処理に影響はありません。
+	</p>
+	<div class="inucolumn">
+		<h3 id="alterbeta">あえて AlterSQL はベタに</h3>
+		<p>
+			AlterSQL の実装方法として、SQLファイルと外部スクリプトというベタな方式に絞っているのは、本番環境への適用を考えてのことです。
+			本番環境のDBは、多くの場合開発者の手の届かないところにあります。
+			また、DBFluteを本番環境のDBが見える場所に配置して直接接続できるというようなことも少ないでしょう。
+			それはセキュリティのことを考えると当然のこととも言えます。
+		</p>
+		<p>
+			というわけで、AlterCheck の時点で DBFlute に依存した形式でチェックをしてもあまり意味がないとも言えます。
+			例えば、DB変更の一貫として必要となるデータをエクセルデータやTSVデータなどで管理して DBFlute
+			の機能で登録しても(そういった機能は実装可能ですが)、本番環境では別の方法(DBMS のコマンドなど)で追加する必要があるかもしれません。
+		</p>
+		<p>
+			そういうことから、あえて AlterSQL はベタに実装することを想定した仕様にしています。
+			ただ、この本番環境適用は、そもそも多種多様でまだまだ分析の余地のある領域でもあるため、
+			今後の分析次第ではまた違った解釈で色々なアプローチを検討していくかもしれません。<span class="frm">(2011/05/01現在)</span>
+		</p>
+	</div>
+	<h2 id="largedev">運用後でもまとまった開発なら</h2>
+	<p>
+		運用後の開発でも、ある程度まとまった規模の開発であれば、最終的な AlterSQL を作成する前に、ローカルのDBを何度も
+		ReplaceSchema して更新していくことになるでしょう。
+	</p>
+	<p>
+		そういった場合は、とにかく
+		<em class="keyword">まとまった開発が始まる直前のスキーマ(リリースまでの本番DBと同じ状態)を再現できるように</em>
+		だけしておいて、何も気にせずローカルDBを更新していきましょう。そして、いざ開発が落ち着いてきて AlterSQL
+		を作成したら、一旦ローカル環境を以前のスキーマに戻して AlterCheck を使うと良いでしょう。
+	</p>
+	<p>
+		要は、playsql 配下のリソース(DDLやデータなど)を残しておくことがポイントなのですが、
+		バージョン管理システムでタグ付けしておいてもいいですし、ベタにコピーして退避させておいてもいいでしょう。
+		そのプロジェクトの運用に合った形でうまく AlterCheck を利用できればと。
+	</p>
+
+	<h2 id="changeoutput">ChangeOutput</h2>
+	<p>
+		AlterSQL を(手動)作成するのに HistoryHTML で PreviousDB との差分を参考にしたいと思っても、そもそも順番が逆転していますから HistoryHTML
+		を参考にすることはできません(HistoryHTML に PreviousDB との差分が反映されるのは AlterCheck の後になりますので)。そういう場合は、AlterCheck
+		を実行する前に CreateSQL だけで PreviousDB との差分を出力する機能 <em class="keyword">ChangeOutput</em>
+		が利用できます。
+	</p>
+	<p>
+		migration/create 配下に CreateSQL を配置して ReplaceSchema を実行すると、その CreateSQL と PreviousDB
+		との差分が出力されます。実行後は PreviousDB の状態にロールバックされます。CreateSQL
+		やロールバックエラーになった場合の挙動に関しては、AlterCheck と同様です。
+	</p>
+	<p>
+		差分結果は、migration/schema 配下の change-output-result.diffmap
+		というテキストファイルに出力されますので、AlterSQL の作成の参考として差分を確認すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. PreviousDB との差分を出力 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-create
+    |  |  |-replace-schema-10-basic.sql
+    |  |  |-replace-schema-20-view.sql
+    |  |  |-take-finally.sql
+    |  |-schema
+    |     |-<span class="point">change-output-result.diffmap</span> <span class="comment">// PreviousDB との差分</span>
+</code></pre>
+	<p>
+		ただし、差分を全く把握せずにDB変更を進めて、この機能での差分結果にまるまる寄りかかって AlterSQL を作成するというのは、そもそもあまり健康的なことではありません。
+		あくまで、既に別途管理していた差分情報、もしくは、頭の中で整理していた差分情報をより明瞭にするという目的での利用が想定されます。
+	</p>
+	<p>
+		一方で、この機能は、単純に二つのDDLの差をチェックする用途にも利用できます。
+	</p>
+	<div class="inucolumn">
+		<h3 id="nonrequired">ChangeOutputは必要であれば</h3>
+		<p>
+			AlterCheck は毎回必ず利用したい機能ですが、ChangeOutput
+			は必要であれば使うという流れで良いでしょう。AlterSQL
+			を作成する前のちょっとした支援機能という位置付けで。
+		</p>
+		<p>
+			もちろん AlterSQL の作成において、ChangeOutput
+			の内容を踏まえて作成する習慣が付いているのであれば遠慮なく毎回利用しましょう。
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h3 id="ddldiff">DDLのDIFFにも利用できる</h3>
+		<p>
+			ChangeOutput は本来の目的とは別に、単に <em class="keyword">二つのDDLの構造の差を確かめる</em>
+			する用途にも利用できます。例えば、同じスキーマを作成する手動で作成されたDDLとツールで自動生成されたDDL、
+			これらが同じ結果をもたらすかどうか確認できます。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Friends - ERMaster-b | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Friends - ERMaster-b</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、同時に利用するととても便利なライブラリを紹介します。
+	</p>
+	${indexlist}
+
+	<h2 id="overview">ERMaster-b とは？</h2>
+	<p>
+		本家のERMasterからフォークされて、大量のテーブル数にも耐えられるように拡張されたものです。
+	</p>
+	<div class="detailpage"><a href="https://github.com/naoki-iwami/ermaster-b">Github - ermaster-b</a></div>
+	<h3 id="improvement">プチ改善されたものたち</h3>
+	<p>
+		よく使うものを一部紹介。
+	</p>
+	<dl class="keymainlist">
+		<dt>個別ダイアグラムの作成</dt><dd>特定のテーブルだけにフォーカスした個別のダイアグラムを作成できる</dd>
+		<dt>テーブルOutline</dt><dd>ダイアグラム上で ctrl+ O (おー) してテーブル名検索できる</dd>
+		<dt>テーブル選択ショートカット</dt><dd>テーブルを選択して enter するとテーブル編集へ</dd>
+		<dt>カラム選択ショートカット</dt><dd>テーブル編集画面でカラムを選択して space するとカラム編集へ</dd>
+		<dt>DDL出力先の相対パス指定</dt><dd>DDL出力先で、workspace内のファイルを相対パスで指定できる</dd>
+		<dt>FK制約名のデフォルト</dt><dd>FK引いたときにFK制約名がデフォルトで入る (MySQLのみ)</dd>
+	</dl>
+
+	<h2 id="collaboration">DBFlute と ERMaster-b のコラボ</h2>
+	<p>
+		ERMaster-bで、DBコメントをコロン区切りで "論理名:説明" という風にしてDDLを出力しておいて、そして、DBFlute側で別名の設定をしておけば、
+		いいかんじにDBFlute内で別名(論理名)と説明が区別されてドキュメントが見やすくなります。
+	</p>
+	<div class="relatedpage"><a href="../../../../function/genbafit/implfit/aliasdefinition/index.html">現場フィット - 別名(和名)の利用</a></div>
+
+	<h2 id="download">ERMaster-bのダウンロード</h2>
+	<p>
+		<a href="http://dbflute.seasar.org/download/misc/friends/ermaster-b-eclipse-plugin.zip">ermaster-b-eclipse-plugin.zip</a> (dropins形式)
+	</p>
+	<h3 id="plugins">動作に必要なプラグイン</h3>
+	<p>
+		Eclipse の Java Developer edition だと、デフォルトでは動きません。
+		以下のプラグインをインストールすると動作しました。
+	</p>
+	<dl class="lolongvaluemainlist">
+		<dt>Update Site</dt><dd>http://download.eclipse.org/eclipse/updates/4.5 <span class="frm">(Eclipse-4.5なら)</span></dd>
+		<dt>Plugin Name</dt><dd>Eclipse PDE Plug-in Developer Resources</dd>
+	</dl>
+	<h3 id="howtoinstall">Eclipseへのインストール方法</h3>
+	<p>
+		Eclipseへのインストールについては、Eclipseのページを参考に。
+	</p>
+	<div class="relatedpage"><a href="../index.html">Friends - Eclipse</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

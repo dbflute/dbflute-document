@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,スキーマ初期化,InitializeSchema" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>スキーマ初期化 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>スキーマ初期化</h1>
+	${indexlist}
+	<h2 id="overview">処理概要</h2>
+	<p>
+		DBFluteプロパティ databaseInfoMap.dfprop
+		に定義されたスキーマに接続し、スキーマのメタデータを元に対象となるオブジェクトをdropします。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+	<ul>
+		<li><a href="#truncate">全てのテーブルにtruncate実行</a></li>
+		<li><a href="#fk">全てのFK制約をdrop</a></li>
+		<li><a href="#table">全てのテーブルをdrop</a></li>
+		<li><a href="#sequence">全てのシーケンスをdrop</a></li>
+		<li><a href="#procedure">全てのプロシージャをdrop</a></li>
+		<li><a href="#dblink">全てのDBリンクをdrop</a></li>
+	</ul>
+	<p>
+		基本的に <em class="keyword">drop対象となるオブジェクトは全て接続したスキーマ(メインスキーマ)のオブジェクト</em>
+		に限ります。AdditionalSchema の設定はここには影響しません。但し、<em class="keyword">オプションで別スキーマのオブジェクトをdrop</em>
+		することが可能です。
+	</p>
+	<div class="detailpage"><a href="#additionaldrop">this - 別スキーマのテーブル削除</a></div>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<p>
+		一つでも実行に失敗した場合(truncate処理を除く)は、ReplaceSchemaが中断されます。
+	</p>
+	<p>
+		これらの処理は全て "オートコミットモード" で実行されます。ただ、これら処理は基本的にDDL文なのでトランザクションの有無はそもそも無関係です。
+	</p>
+	<h2 id="truncate">全てのテーブルにtruncate実行</h2>
+	<p>
+		FK制約などでtruncateが失敗するテーブルは素通りします。
+		よって全てのテーブルがtruncateされるわけではなく、(比較的レコード量が多いと思われる)FK参照されないテーブルのみ対象となります。
+	</p>
+	<p>
+		これは、後の実行する drop table のパフォーマンスを向上させるために行っています。
+		例えば、100万件のレコードを保持するテーブルを何もせずdropしようとするとかなり時間を費やします。
+	</p>
+	<p>
+		オプションでこの処理を抑制することは可能です(但し、基本的に非推奨)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#issuppresstruncatetable">dfprop - isSuppressTruncateTable</a></div>
+	<h2 id="fk">全てのFK制約をdrop</h2>
+	<p>
+		全てのテーブルを正確にdropするために、事前にFK制約を全てdropします。
+	</p>
+	<p>
+		オプションでこの処理を抑制することは可能です(但し、基本的に非推奨)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#issuppressdropforeignkey">dfprop - isSuppressDropForeignKey</a></div>
+	<div class="inucolumn">
+		<h3>コラム１：FKのdropの功名</h3>
+		<p>
+			手動でDB再構築をしようとした場合、FKのdropが結構面倒なものです。
+			例えば、テーブル名が変わってしまった場合など、ERDツールなどから自動生成するdrop文に古いFK制約に関するdrop文が含まれておらず、
+			テーブルがdropできないで再構築が失敗してしまうなど、ちょっとしたギャップが手間を発生させてしまいますが、ReplaceSchemaではその手間は全くありません。
+		</p>
+	</div>
+	<h2 id="table">全てのテーブルをdrop</h2>
+	<p>
+		テーブルだけでなく、databaseInfoMap.dfprop の objectTypeTargetList
+		に定義されているオブジェクトが対象となります。例えば、ビューやシノニムなども、このプロパティ次第ではdrop対象となります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo">dfprop - objectTypeTargetList</a></div>
+	<p>
+		そのスキーマに定義されている全てのテーブルをdropします。例えば、自動生成対象外のテーブルもdropされます。
+		オプションで自動生成対象のテーブルのみをdropするように変更可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#isdropgeneratetableonly">dfprop - isDropGenerateTableOnly</a></div>
+	<p>
+		オプションでこの処理を抑制することは可能です(但し、基本的に非推奨)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#issuppressdroptable">dfprop - isSuppressDropTable</a></div>
+	<h2 id="sequence">全てのシーケンスをdrop</h2>
+	<p>
+		sequenceDefinitionMap.dfprop に定義されているシーケンスかどうかに関係なく、全てのシーケンスをdropします。
+	</p>
+	<p>
+		オプションでこの処理を抑制することは可能です(但し、基本的に非推奨)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#issuppressdropsequence">dfprop - isSuppressDropSequence</a></div>
+
+	<h2 id="procedure">全てのプロシージャをdrop</h2>
+	<p>
+		outsideSqlDefinitionMap.dfprop でのSql2Entityでの自動生成対象とするか否かの設定に関係なく、全てのプロシージャをdropします。
+	</p>
+	<p>
+		そのスキーマに定義されている全てのプロシージャをdropします。例えば、自動生成対象外のプロシージャもdropされます。
+		オプションで自動生成対象のプロシージャのみをdropするように変更可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#isdropgenerateprocedureonly">dfprop - isDropGenerateProcedureOnly</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/sql2entity/procedure.html#targetlist">OutsideSql - プロシージャの自動生成対象の指定</a></div>
+	<p>
+		オプションでこの処理を抑制することは可能です(但し、基本的に非推奨)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#issuppressdropprocedure">dfprop - isSuppressDropProcedure</a></div>
+
+	<h2 id="dblink">全てのDBリンクをdrop</h2>
+	<p>
+		DBリンクをサポートしているDBMS、かつ、DBリンク情報が取得できるDBMSにおいて、DBリンクをdropします。
+	</p>
+	<p>
+		対象となっているDBMSは、Oracle です。
+	</p>
+	<p>
+		この挙動はDBリンクの作成もReplaceSchemaにおいて実行することを前提としていますが、
+		そうでない場合のために、オプションでこの挙動を無効にすることが可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#issuppressdropdblink">dfprop - isSuppressDropDBLink</a></div>
+
+	<h2 id="typeobject">全てのTYPEオブジェクトをdrop</h2>
+	<p>
+		TYPEオブジェクトをサポートしているDBMS、かつ、TYPEオブジェクト情報が取得できるDBMSにおいて(Oracle)、TYPEオブジェクトをdropします(<span class="frm">@since 0.9.7.6</span>)。
+	</p>
+	<p>
+		対象となっているDBMSは、Oracle です。
+	</p>
+	<p>
+		この挙動はTYPEオブジェクトの作成もReplaceSchemaにおいて実行することを前提としています。
+		テーブルとプロシージャのdropが両方とも無効に設定されたときに、この挙動も一緒に無効になります。(単独での抑制はできません)
+	</p>
+
+	<h2 id="additionaldrop">別スキーマのテーブル削除</h2>
+	<p>
+		オプションで、メインスキーマのテーブル削除前に、別スキーマのテーブルを削除することができます。
+	</p>
+	<p>
+		例えば、<em class="keyword">FK制約などで依存関係がある複数DB構成</em>
+		のときに、もう片方のDBをdropしないとReplaceSchema処理を続行できないという場合に、<em class="keyword">その片方のDBを先にdrop</em>
+		するように設定しておきます(その後、その片方のDBに対するReplaceSchemaは別途実行すること)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#additionaldropmaplist">dfprop - additionalDropMapList</a></div>
+<pre><span class="codetitle">e.g. 隣のスキーマのテーブルを削除 @replace-schema-xxx.sql</span><code>
+; additionalDropMapList = <span class="keyword">list:</span>{
+    ; <span class="keyword">map:</span>{
+        ; url = jdbc:oracle:thin:...
+        ; schema = NEXTEXAMPLEDB
+        ; user = nextexampledb
+        ; password = nextexampledb
+        ; propertiesMap = map:{}
+        ; objectTypeTargetList = list:{TABLE;VIEW}
+        ; tableExceptList = list:{}
+        ; tableTargetList = list:{}
+        ; isDropAllTable = false
+    }
+}
+</code></pre>
+
+	<h2 id="initializefirstsql">スキーマ初期化前のSQL</h2>
+	<p>
+		スキーマ初期化前に独自のSQLを実行することができます。
+	</p>
+	<p>
+		DBMSの特性上、どうしてもスキーマ初期化前に独自のSQLを実行する必要があるような場合に有効です。
+		例えば、PostgreSQLにおいて pg_trgm などの extension を利用する場合に、スキーマ初期化前に extension を事前に drop
+		する必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/postgresql/index.html#extensionhandling">DBMSごとの取扱い - PostgreSQL - Extension利用時の微調整</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#initializefirstsqllist">dfprop - initializeFirstSqlList</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

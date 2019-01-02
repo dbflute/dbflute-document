@@ -1,0 +1,565 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,区分値,Classification,定数値,ENUM,タイプセーフ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>区分値 (Classification) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>区分値</h1>
+	${indexlist}
+
+	<h2 id="image">ぱっと見イメージ</h2>
+<pre><span class="codetitle">e.g. テーブル区分値を利用する例 {MemberStatus} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; table=MEMBER_STATUS; code=MEMBER_STATUS_CODE
+            ; name=MEMBER_STATUS_NAME; comment=DESCRIPTION
+            ; orderBy=DISPLAY_ORDER
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 区分値の設定や判定、絞り込み条件設定 @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.<span class="point">setMemberStatusCode_Formalized()</span>; <span class="comment">// 設定メソッド (正式会員にする)</span>
+<span class="abbreviation">...</span>
+<span class="keyword">if</span> (member.<span class="point">isMemberStatusCodeFormalized()</span>) { <span class="comment">// 判定メソッド (正式会員かどうか)</span>
+    <span class="abbreviation">...</span>
+}
+String statusCode = <span class="abbreviation">...</span> <span class="comment">// リクエストなどから飛んで来たら</span>
+member.<span class="point">setMemberStatusCodeAsMemberStatus</span>(
+    CDef.MemberStatus.codeOf(statusCode)); <span class="comment">// CDef型での設定メソッド</span>
+
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">setMemberStatusCode_Equal_Formalized()</span>; <span class="comment">// 条件メソッド (正式会員)</span>
+</code></pre>
+
+	<h2 id="about">区分値とは？</h2>
+	<p>
+		DBFluteでは、あるカラムに格納される意味のある決まった値の集合(カテゴリ)を <em class="keyword">区分値</em>
+		と呼びます。例えば、MaihamaDBでは、会員ステータスコード(MEMBER_STATUS_CODE: 正式会員、仮会員、退会会員)、商品ステータスコード(PRODUCT_STATUS_CODE: 生産可能、販売可能、...) が該当します。
+		<span class="frm">(区分値という言葉を、"区分わけするための値たち" というニュアンスとして捉えています)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		また、その区分値のそれぞれの値 (例えば、正式会員) を <em class="keyword">区分値要素</em>
+		と呼びます。区分値と関連付けられたカラムには、その区分値で定義されていない要素は通常格納されませんが、実際に制約が存在するかどうかは区分値の実現方法次第です。
+		例えば、テーブルで管理していれば、FK制約により区分値に定義されていない値の登録を防ぐことができます。
+	</p>
+	<p>
+		ただし、区分値、区分値要素と明確に言葉を定義してはいますが、文脈から判断できるような場合は
+		<em class="keyword">区分値要素を単に区分値と呼ぶことも</em> あります。
+		<span class="frm">(というか、ほとんどの場合、文脈で判断して "区分値" としか言わないかも...するとでも時々会話がすれ違うことも)</span>
+	</p>
+	<h3 id="clstype">区分値のタイプ</h3>
+	<p>
+		区分値には大きく二つのタイプがあります。
+	</p>
+	<dl class="textlist">
+		<dt>テーブル区分値</dt>
+		<dd>
+			テーブル管理されていて定義がデータとして実際に存在する区分値。MaihamaDBでは、会員ステータスや商品ステータスが該当する。
+			FK制約によるチェックの恩恵を得ることができる。
+			<div class="relatedpage"><a href="../../../../reference/example/maihamadb.html">MaihamaDB</a></div>
+			<div class="relatedpage"><a href="#tablecls">this - 区分値の設定 - テーブル区分値</a></div>
+		</dd>
+		<dt>暗黙の区分値</dt>
+		<dd>
+			ドキュメント上で決められているだけで、その定義は人しか知らない区分値。MaihamaDBでは、フラグ系のカラムが該当する。
+			別途チェック制約などを利用しない限り、DB上でのチェックは掛からない。
+			<div class="relatedpage"><a href="#implicitcls">this - 区分値の設定 - 暗黙の区分値</a></div>
+		</dd>
+	</dl>
+	<p>
+		前者の方が制約の恩恵を得ることもでき、明示的でわかりやすいため、全ての区分値がこの方式で扱えるのであればそれに越したことはありませんが、例えば
+		"フラグ" (0 or 1) のような汎用的で統一的な区分値の場合は後者のやり方で実現することも多く、一つのアプリ内に混在することも想定されます。
+	</p>
+	<p>
+		また一方で、テーブル区分値は (DB設計者としては) 面倒だと思われがちですが、そこから得られるメリットとは比べられるものではありません。
+	</p>
+	<div class="detailpage"><a href="#meritforall">this - 面倒でも全体の利益のために</a></div>
+	<h3 id="clsattribute">区分値要素の属性</h3>
+	<p>
+		(DBFluteにて定義する)区分値要素が持つ属性は以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>コード (code)</dt>
+		<dd>
+			区分値要素の実際のデータベース上で利用するコード値です。
+			char型の文字列だったり、数値だったりとDB設計次第でデータ型は変わります。必須の項目です。
+		</dd>
+		<dt>名前(識別名) (name)</dt>
+		<dd>
+			区分値要素を識別する名前です。基本的には英名を想定しており、メソッド名の一部やENUMの定数名などに利用されます。
+			よって、そういった場所での利用に適した文字列であることが求められます。必須の項目です。
+		</dd>
+		<dt>別名(表示名) (alias)</dt>
+		<dd>
+			区分値要素の別名(表示名)です。基本的には人が見るための表示用の名前を想定しており、リストボックスでのラベルやJavaDocコメントなどで利用されます。
+			ただ、テーブル区分値の場合は、そもそもカラムから取得できるため、あまりプログラム上で利用されることは少ないかもしれません<span class="frm">(キャッシュとしてあえて利用することがありえるかも)</span>。
+		</dd>
+		<dd>
+			国際化対応するときは、これ一つでは足りないので、subItemMapの機能を使て別途言語ごとに属性を追加していく必要があります。
+			<div class="relatedpage"><a href="#subitemmap">SubItemMap</a></div>
+		</dd>
+		<dt>コメント(説明) (comment)</dt>
+		<dd>
+			区分値要素のコメント(説明)です。SchemaHTMLやJavaDocなどのドキュメントなどで利用されます。プログラム上で取得することはできません。
+		</dd>
+	</dl>
+	<h3 id="difficult">区分値の扱いの難しさ</h3>
+	<p>
+		それぞれの区分値要素は、業務的に意味を持った値であるため、DBアクセスにおける検索条件やプログラム上での判定条件などに頻繁に利用されます。
+		もっとも単純で、区分値の取扱いにおける問題を何も解決していない区分値の利用例が以下の通りです。
+	</p>
+<pre><span class="codetitle">e.g. 区分値の取扱いにおける問題を何も解決していない区分値の利用例 {MemberStatus} @Java</span><code>
+<span class="keyword">if</span> (<span class="literal">"FML"</span>.equals(member.getMemberStatusCode())) {
+}
+</code></pre>
+	<p>
+		いわゆるハードコードというやり方で、以下のデメリットがあります。
+	</p>
+	<ul>
+		<li>コードのタイプミスが発生する(発生してもなかなか気付かない)</li>
+		<li>コード変更が発生した場合の影響範囲の特定が難しい</li>
+	</ul>
+	<p>
+		タイプミスもさることながら、コード変更も重要なポイントです。要はDB変更の亜種であり、どうしても将来的に必要なコード変更であったりする可能性も十分あります。
+		また、ステータスのような区分値は、運用開始後も追加されたり変更されたりする可能性が高い部類のものです。
+		プログラムとしてはぜひともコード変更に強いやり方で実装したいところです。
+	</p>
+
+	<h2 id="solution">区分値のタイプセーフ解決</h2>
+	<p>
+		DBFluteでは、<em class="keyword">区分値はタイプセーフ</em>、そして、<em class="keyword">コード変更にも強い</em>
+		をポリシーとしています。具体的には、区分値定義から区分値メソッドを自動生成して、プログラム上ではそのメソッド経由で区分値処理を行うようにします。
+		(コード変更が発生した場合は、メソッド名に影響が出ないレベルであれば影響なし、メソッド名に影響があるレベルであればコンパイルエラーとして検知)
+	</p>
+	<dl class="valuemainlist">
+		<dt>Entity</dt>
+		<dd><a href="../../../ormapper/entity/index.html#classification">区分値を設定するメソッド、区分値を判定するメソッド</a></dd>
+		<dt>ConditionBean</dt>
+		<dd><a href="../../../ormapper/conditionbean/howto.html#classification">区分値で検索条件を設定するメソッド</a></dd>
+		<dt>ParameterBean</dt>
+		<dd><a href="../../../generator/task/sql2entity/pmbpropoption.html#classification">区分値でパラメータを設定するメソッド</a></dd>
+	</dl>
+<pre><span class="codetitle">e.g. 区分値の設定や判定、絞り込み条件設定 @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.<span class="point">setMemberStatusCode_Formalized()</span>; <span class="comment">// 設定メソッド (正式会員にする)</span>
+<span class="abbreviation">...</span>
+<span class="keyword">if</span> (member.<span class="point">isMemberStatusCodeFormalized()</span>) { <span class="comment">// 判定メソッド (正式会員かどうか)</span>
+    <span class="abbreviation">...</span>
+}
+
+String statusCode = <span class="abbreviation">...</span> <span class="comment">// リクエストなどから飛んで来たら</span>
+member.<span class="point">setMemberStatusCodeAsMemberStatus</span>(
+    CDef.MemberStatus.codeOf(statusCode)); <span class="comment">// CDef型での設定メソッド</span>
+
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">setMemberStatusCode_Equal_Formalized()</span>; <span class="comment">// 条件メソッド (正式会員)</span>
+</code></pre>
+	<p>
+		補完のとき、JavaDocコメントにも注目です。
+	</p>
+	<p class="imgbox">図 : Entityでの区分値メソッドの補完
+		<a href="../../../../../data/model/genba/genba-implfit-Classification-is-completion.png" title="Entityでの区分値メソッドの補完"><img src="../../../../../data/model/genba/genba-implfit-Classification-is-completion.png" alt="Entityでの区分値メソッドの補完" width="540" height="120" /></a>
+	</p>
+	<p>
+		区分値の説明が表示されるので、"この区分値ってどういうものだっけ？"
+		という疑問が生まれても、実装しながら理解することができます。
+	</p>
+	<p class="imgbox">図 : ConditionBeanでの区分値メソッドの補完
+		<a href="../../../../../data/model/genba/genba-implfit-Classification-cb-completion.png" title="ConditionBeanでの区分値メソッドの補完"><img src="../../../../../data/model/genba/genba-implfit-Classification-cb-completion.png" alt="ConditionBeanでの区分値メソッドの補完" width="540" height="120" /></a>
+	</p>
+
+	<h2 id="setting">区分値の設定(dfprop)</h2>
+	<p>
+		区分値メソッドを生成するための区分値定義に関する設定を、classificationDefinitionMap.dfprop
+		にて定義を行います。設定方法は、区分値のタイプにより分かれます。
+	</p>
+	<h3 id="tablecls">テーブル区分値</h3>
+	<p>
+		区分値要素がデータベース上に存在していますので(ReplaceSchemaなどでデータ登録されていることが前提)、
+		対応するテーブル名やカラム名を定義し、自動生成時に実際にそのテーブルのデータを検索して、区分値定義を取得します。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/classificationdefinition/index.html">classificationDefinitionMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. テーブル区分値を利用する例 {MemberStatus} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; table=MEMBER_STATUS; code=MEMBER_STATUS_CODE
+            ; name=MEMBER_STATUS_NAME; comment=DESCRIPTION
+            ; orderBy=DISPLAY_ORDER
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		どのカラムがどの区分値に関連付くのか明確なため、classificationDeploymentMap.dfprop
+		の設定は不要です。(DBFluteがFKの関連を辿って自動で判断します)
+	</p>
+	<dl class="textlist">
+		<dt>名前(識別名)に対応するカラムがない場合</dt>
+		<dd>
+			区分値要素の名前(識別名)に対応するカラムがない場合は、業務的に表示用として利用するカラム(別名(alias)に対応するカラム)を代わりに
+			name に定義します(その場合、そのカラムは識別名と表示名を兼任したカラムであると想定されます)。その場合は、alias
+			の定義は省略できます(省略すると name と同じ値となります)。
+		</dd>
+		<dd>
+			どうしても、対応させる適切なカラムが存在しない場合は、コードに対応するカラム(と同じカラム)を指定します。
+			その場合、メソッド名にはコード値が利用されますが、タイプセーフであることに変わりはありません。
+			但し、コード値が区分値要素を見分けるのにわかりにくい表現である場合は、comment
+			をしっかり定義して、JavaDocコメントでの補足を利用して実装しやすいようにする必要があるでしょう。
+		</dd>
+		<dt>コメント(説明)に対応するカラムがない場合</dt>
+		<dd>
+			コメント(説明)に対応するカラムがなくても業務上問題ない(可能性の高い)ものではありますが、
+			ディベロッパーの実装を助ける重要な補助要素ではありますので、テーブル区分値のテーブルに、相当するカラムを定義しておくことをお奨めします。
+			それは単にDBFluteにおける話だけではなく、開発全体の利益(区分値を管理する上でのドキュメントの充実)につながるものと考えられます。
+		</dd>
+		<dt>テーブル区分値における別名(表示名)の扱い</dt>
+		<dd>
+			テーブル区分値では、別名(表示名)を定義した場合、JavaDocなどのドキュメント上の充実だけの利用を想定しており、プログラム上での取得は想定されません。
+			厳密には取得できなくはないのですが、ディベロッパーからは取得しづらいような仕組みになっています。
+			テーブル区分値の場合は、実際のカラムから取得して利用することができ(また、そうするべきであると考えられる)、その必要性はほとんどないためです。
+		</dd>
+	</dl>
+	<h3 id="implicitcls">暗黙の区分値</h3>
+	<p>
+		定義が(DBFluteが参照できる世界の)どこにも存在していませんので、DBFluteプロパティ上に具体的な区分値要素を定義していきます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/classificationdefinition/index.html">classificationDefinitionMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. 暗黙の区分値を利用する例 {MemberStatus} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{code=PRV;name=Provisional;alias=仮会員  ;comment=入会直後のステータスで一部のサイトサービスが利用可能}
+        ; <span class="keyword">map:</span>{code=FML;name=Formalized ;alias=正式会員;comment=正式な会員としてサイトサービスが利用可能}
+        ; <span class="keyword">map:</span>{code=WDL;name=Withdrawal ;alias=退会会員;comment=退会が確定した会員でサイトサービスはダメ}
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		また、区分値定義だけでは、どのテーブルのどのカラムにその区分値が関連付くものかも判断が付きませんので、その関連付けを
+		classificationDeploymentMap.dfprop にて設定する必要があります。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/classificationdeployment/index.html">classificationDeploymentMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. 暗黙の区分値のカラムとの関連付けをする例 {MemberStatus,Flg} @classificationDeploymentMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$ALL$$</span>       = <span class="keyword">map:</span>{suffix:_FLG = Flg} <span class="comment"># 全テーブルの_FLGで終わるカラム</span>
+    ; MEMBER_STATUS = <span class="keyword">map:</span>{MEMBER_STATUS_CODE = MemberStatus}
+}
+</code></pre>
+
+	<h2 id="cdef">ENUMクラス(CDef)の利用</h2>
+	<p>
+		DBFluteの区分値機能の内部構造として、実は自動生成されるENUMが存在します。allcommonパッケージ配下の CDef
+		というクラスです。このクラスの内部クラスとして全ての区分値に対応するENUMが存在します。
+		但し、基本的には実装上は区分値はメソッド解決されるため、あまり意識することはありません。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/runtime/allcommon/index.html#cdef">DBFluteランタイム - allcommon - CDef</a></div>
+
+	<h2 id="schemahtml">SchemaHTMLでの表示</h2>
+	<p>
+		Docタスクで自動生成される SchemaHTML
+		では、設定された区分値の一覧が望むことができます。
+		また、テーブルのカラム情報の中に関連する区分値へのリンクがあり、どのカラムがどの区分値と関連するのかがすぐにわかるようになっています。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/doc/schemahtml.html#classification">SchemaHTML - 区分値一覧</a></div>
+
+	<h2 id="forcedcls">ネイティヴ型メソッドの削除</h2>
+	<p>
+		区分値メソッドを生成しても、ネイティヴ型の設定メソッドはデフォルトの設定では残っています。
+		そのメソッドを呼び出せないようにして区分値メソッドでの設定の強制力を高めたい場合は、
+		littleAdjustmentMap.dfprop の isForceClassificationSetting を true
+		にすることで、ネイティヴ型の設定メソッドを不可視(protected)にすることが可能です。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#isforceclassificationsetting">dfprop - isForceClassificationSetting</a></div>
+	<p>
+		また、こちらの設定を有効にした場合は、一緒に isCheckSelectedClassification
+		も true にしておくと良いでしょう。ネイティヴ型の設定メソッドを不可視にしておきながら、このプロパティを true にしない理由は(ほぼ)ないでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#ischeckselectedclassification">dfprop - isCheckSelectedClassification</a></div>
+	<p>
+		多くの開発現場で、この設定を true に適用できるでしょう。"デフォルトのジレンマ"
+		のコラムを読んで特に問題ないと思えるのであれば、積極的に設定していった方が良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#defaultdilemma">this - デフォルトのジレンマ</a></div>
+
+	<h2 id="checkimplicitset">暗黙の区分値チェック</h2>
+	<p>
+		暗黙の区分値は、データ登録時には何の制約もありません。
+		アプリ実装ではDBFluteの区分値メソッドを使ってタイプセーフにできますが、ReplaceSchemaのエクセルデータ作成ではケアレスミスが簡単に起きてしまいます。
+		そこで、DBFluteのオプションで登録時に自動チェックすることができます。
+	</p>
+	<p>
+		暗黙の区分値の定義の topComment の map の中で、isCheckImplicitSet を true
+		に設定すると、ReplaceSchema のデータ登録時や、Entity の Setter にて、正しい区分値かどうかの存在チェックがされるようになります。
+	</p>
+<pre><span class="codetitle">e.g. 暗黙の区分値チェックを設定する例 {MemberStatus} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{
+            ; topComment=入会から退会までの会員のステータスを示す; codeType=String
+            ; <span class="point">isCheckImplicitSet</span>=true
+        }
+        ; <span class="keyword">map:</span>{code=PRV;name=Provisional;alias=仮会員  ;comment=<span class="abbreviation">...</span>}
+        ; <span class="keyword">map:</span>{code=FML;name=Formalized ;alias=正式会員;comment=<span class="abbreviation">...</span>}
+        ; <span class="keyword">map:</span>{code=WDL;name=Withdrawal ;alias=退会会員;comment=<span class="abbreviation">...</span>}
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		特に、エクセルデータの作成作業では、ケアレスミスで簡単に間違った値をついつい入力しがちです。間違った値でテストをしてもデバッグが大変なだけでいいことがありません。
+		テストデータ作成者の精神的負担を軽減する意味でも、積極的に設定していった方が良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#defaultdilemma">this - デフォルトのジレンマ</a></div>
+
+	<div class="inucolumn">
+		<h2 id="defaultdilemma">デフォルトのジレンマ</h2>
+		<p>
+			DBFluteとしては、ネイティヴ型の設定メソッドの削除も暗黙の区分値チェックも、デフォルトでそうなるようにしたくてしょうがありません。
+			ですが、それをやっていません。
+		</p>
+		<div class="relatedpage"><a href="#forcedcls">this - ネイティヴ型メソッドの削除</a></div>
+		<div class="relatedpage"><a href="#checkimplicitset">this - 暗黙の区分値チェック</a></div>
+		<p>
+			もし万が一、別のアプリで利用する区分値とか、知らされてなかったとか、そもそも区分値の全てのセットがわからないとか、つまり、いわゆる
+			"隠れ区分値" があるような場合、DBFluteのチェックがトラブルの原因になる可能性があるからです。
+		</p>
+		<p>
+			そんなむちゃくちゃな状況ありえないでしょうと思われるかもしれませんが、実際の現場では少なからず区分値の管理が徹底できていないところもあります。
+			もし、DBFluteのデフォルトの仕様がトラブルを引き起こす原因になってしまったら、フレームワークとしての信用に関わる問題となる可能性があります。
+		</p>
+		<p>
+			そういうことから、デフォルトではなく明示的に true にしてもらうようにしています。"隠れ区分値"
+			なんてうちではありえない、あっちゃだめだ、と言えるなら(ほとんどの開発でそう言えるかと)、それら設定はすぐさま true にした方が良いでしょう。
+		</p>
+	</div>
+
+	<h2 id="groupingmap">区分値のグルーピング (GroupingMap)</h2>
+	<h3 id="groupingmapoverview">グルーピングの概要</h3>
+	<p>
+		例えば、正式会員と仮会員とで "サービスが利用可能なステータス"
+		というように複数のステータスに対して業務的な意味付けがある場合、プログラム上ではその複数のステータスを使った判定処理が想定されます。
+		その意味付けをあらかじめ定義(グルーピング)しておいて、その複数のステータスを使った判定メソッドを生成することができます。
+		<span class="frm">@since 0.9.9.7A</span>
+	</p>
+	<div class="detailpage"><a href="./groupingmap.html">区分値のグルーピング (GroupingMap)</a></div>
+<pre><span class="codetitle">e.g. サービスが利用可能なステータスのグルーピング判定 @classificationDefinitionMap.dfprop</span><code>
+Member member = <span class="abbreviation">...</span>
+<span class="keyword">if</span> (member.<span class="point">isMemberStatusCode_ServiceAvailable()</span>) {
+}
+
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">setMemberStatusCode_InScope_ServiceAvailable()</span>;
+</code></pre>
+
+	<h2 id="sistercode">姉妹コードの利用 (SisterCode)</h2>
+	<p>
+		指定されたコード値とは別のコード値を取り扱いたいときがあります。例えば、フラグ系の区分値において、1/0 だけでなく、true/false
+		でも扱えるようになど。その場合、CDef の codeOf() で true や false でも識別できるようになります。<span class="frm">@since 0.9.9.4B</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/classificationdefinition/index.html#sistercode">dfprop - sisterCode</a></div>
+<pre><span class="codetitle">e.g. 暗黙の区分値で姉妹コードを利用する例 {Flg} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; Flg = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=フラグ; codeType=Number}
+        ; <span class="keyword">map:</span>{
+            ; code=1; name=True; alias=Checked; comment=フラグが立っている
+            ; <span class="point">sisterCode</span>=true
+        }
+        ; <span class="keyword">map:</span>{
+            code=0; name=False; alias=Unchecked; comment=フラグが立っていない
+            ; <span class="point">sisterCode</span>=false
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		また、フラグ系の区分値(要素が二つ固定)で、姉妹コードに true と false
+		が指定されている場合は、Entity や ConditionBean に Boolean 型で設定できるメソッドが追加されます。
+	</p>
+<pre><span class="codetitle">e.g. 姉妹コードによる Boolean 型設定メソッドの例 {Flg} @Java</span><code>
+MemberLogin login = <span class="keyword">new</span> MemberLogin();
+login.<span class="point">setMobileLoginFlgAsBoolean</span>(isMobileLogin());
+</code></pre>
+	<p>
+		※テーブル区分値でも利用できます。<span class="frm">@since 1.0.5N patch at 2015/01/27, @since 1.1.0-sp1</span>
+	</p>
+
+	<h2 id="subitemmap">独自の属性を追加 (SubItemMap)</h2>
+	<p>
+		区分値に独自の属性を追加することができます。
+		<span class="frm">@since 0.9.9.3C</span>
+	</p>
+	<p>
+		それぞれの区分値要素のmapの中で、subItemMapというプロパティで独自の属性を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/classificationdefinition/index.html#subitemmap">dfprop - subItemMap</a></div>
+	<h3 id="subitemmapexample">独自の属性</h3>
+<pre><span class="codetitle">e.g. 暗黙の区分値で独自の属性を追加する例 @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MaihamaStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=独自の属性のExample; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; code=SEA; name=Sea; alias=海だよ; comment=DocksideとかHangarとか
+            ; subItemMap=map:{
+                ; priceType=MYS ; rank=2
+            }
+        }
+        ; <span class="keyword">map:</span>{
+            ; code=LND; name=Land; alias=陸だよ; comment=ShowbaseとかOrleansとか
+            ; subItemMap=map:{
+                rank=5
+            }
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		この場合、priceType と rank という独自の属性が追加されています。
+		CDefでは、subItemMap()というメソッドで設定されたmapをそのまま取得することができます。
+		まず、一部の区分値要素にしか設定されていない priceType は、必ずこの方法で取得します。
+	</p>
+<pre><span class="codetitle">e.g. 独自の属性をCDefから取得する(基本) @classificationDefinitionMap.dfprop</span><code>
+String priceType = (String)CDef.MaihamaStatus.Sea.<span class="point">subItemMap()</span>.get(<span class="literal">"priceType"</span>);
+</code></pre>
+	<p>
+		一方で、rank の方は全ての区分値要素に設定されています。
+		このような場合は、既にそのキー名のメソッドが CDef に追加されています。
+	</p>
+<pre><span class="codetitle">e.g. 独自の属性をCDefから取得する(要素) @classificationDefinitionMap.dfprop</span><code>
+String rank = CDef.MaihamaStatus.Sea.<span class="point">rank()</span>;
+</code></pre>
+	<p>
+		属性の値は、基本的に全て文字列(String型)として扱われます。
+		数字を指定しても、true/falseを指定しても String
+		です。精度などの自動判別が正確にできないため、アプリ側でパースする必要があります。
+	</p>
+	<p>
+		属性の値に、map型やlist型を指定することもできますが、こちらも単なる文字列として扱われます。
+		DBFluteランタイムの MapListString クラスなどを利用してパースして利用します。
+		ただ、全ての要素に設定した場合のメソッドの戻り値は String ではなく、Object になります。
+		これは、将来の拡張のために Object にしていますが、既に破綻しているように思えます。
+	</p>
+	<p>
+		こちらテーブル区分値でも利用できます。その場合は、キャッシュ的な意味合いでの利用となります。
+		subItemMapのキーに対して、対応するカラムを指定すればOKです。
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、テストケースの中で区分値メソッドが利用できるように設定されています。
+		(他のほとんどのExampleでも同様に利用されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+
+	<div class="inucolumn">
+		<h2 id="meritforall">面倒でも全体の利益のために</h2>
+		<p>
+			テーブル区分値は、DB設計者からすると若干面倒な構成と言えるかもしれません。
+			ERDツールなどで、新しくテーブルを定義して、カラム名を入力して属性を埋めていってなど、地味に大変な作業ではあります。
+			ただ、面倒という理由とテーブル区分値のメリットを天秤に掛けるのはあまり健康的ではありません。
+			面倒だからテーブルは作らないというのは、DB設計者にとっての(短絡的な)メリットであり、
+			ディベロッパーやその他関係者などシステム開発全体のメリットではありません。
+		</p>
+		<h3>テーブル区分値のメリット</h3>
+		<p>
+			テーブル区分値には以下のメリットがあります。
+		</p>
+		<ul>
+			<li>FK制約の恩恵を得られる(区分値カラムにてチェックが掛かる)</li>
+			<li>テーブルになっていることでSQLでの表現が豊かになる(CBも同様)</li>
+			<li>区分値ごとに独自の属性を追加しやすい(テーブルにカラムを追加すればよい)</li>
+			<li>名称や独自の属性値などの変更がテーブル更新だけで反映できる(ただし作り方次第)</li>
+			<li>区分値の名称や独自の属性などをSQLの結合で簡単に取得できる</li>
+			<li>区分値の関連が明確でわかりやすく、ディベロッパーに仕様が伝わりやすい</li>
+			<li>CraftDiffと合わせれば、区分値の変更履歴、AlterCheckでのチェック対象など</li>
+		</ul>
+		<p>
+			逆に解釈すると、テーブル区分値を利用しないということは、(本来定型化できる)区分値の定義・実装をプログラム、
+			つまり、ディベロッパーに委譲(丸投げ)していると言えます。また、"ディベロッパーに仕様が伝わりやすい"
+			というのは、DB設計者にもメリットになります。DB設計者は質問攻めに会いやすいもので、常に忙しくなりがちです。
+			DBが仕様が伝わりやすい構造になっていれば、その分のその質問は減ることにつながります。
+		</p>
+		<p>
+			もちろん、何がなんでもテーブル区分値である必要はなく、例えば、"フラグ"
+			(0 or 1)のようなもともと定型的、統一的、固定的なものは、テーブル区分値によるメリットが薄れるため、
+			バランス良く暗黙の区分値と共存するのも一つの手です。
+		</p>
+		<h3>周辺ツール(DBFlute)でのメリット</h3>
+		<p>
+			また、周辺ツールにもメリットがあります。ここではDBFluteにおけるメリットを挙げます。
+		</p>
+		<ul>
+			<li>"どのカラムがどの区分値に関連付くか" を手動で設定する必要がない</li>
+			<li>CB の DerivedReferrer などで区分値のテーブルを経由して区分値ごとの集計などがしやすい</li>
+		</ul>
+		<p>
+			その多くの機能に同じことが言えますが、つまり、区分値の関連がDB上に表現されているのか、されていないのか、
+			それ次第で自動化による恩恵を得られるかどうかが変わります。
+			(暗黙のルールというのは、ツールではどうにも解決できないものです)
+		</p>
+		<h3>快適なDB設計のために</h3>
+		<p>
+			一つの役割(一人の人)の都合によって、システム全体のメリットが享受できなくなってしまうことほど悲しいものはないと言えるでしょう。
+			また一方で、DB設計者に負荷が掛かれば掛かるほど、個人のメリットに流れてしまいがちです。
+			DB設計者が快適にシステム全体のメリットを発生させられるようにするために、DB設計の工数を最初からしっかり余裕をもって確保したり、
+			単純作業を別の人に手伝わせるなど、負荷が掛かりすぎないようなマネジメント考慮ができると良いでしょう。
+		</p>
+		<h3>All-in-Oneテーブル区分値はNG</h3>
+		<p>
+			ここでは、一つの区分値を一つのテーブルで管理するテーブル区分値を対象にしています。
+			例えば、システム上で登場する全ての区分値を一つのテーブルで管理する "All-in-Oneテーブル区分値"
+			は議論の対象としていませんし、DBFluteとしては積極的なサポートはしていません。
+			(先述したテーブル区分値のメリットのほとんどが失われるため)
+		</p>
+		<div class="detailpage"><a href="../../../../topic/dbdesign/allinonetableclassification.html">DB設計 - All-in-Oneテーブル区分値</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

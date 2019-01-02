@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Doc,HistoryHTML,変更履歴,スキーマの差分,DB変更内容" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>HistoryHTML | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>HistoryHTML</h1>
+	<p>
+		Alto DBFlute のパートです。
+	</p>
+	<div class="relatedpage"><a href="../../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">HistoryHTMLとは？</h2>
+	<p>
+		スキーマの変更履歴を人が見やすい形にまとめたドキュメントです。<span class="frm">@since 0.9.7.1</span>
+	</p>
+	<div class="detailpage"><a href="../../../../../data/doc/harbor/history-maihamadb.html">HistoryHTML (history-maihamadb.html)</a></div>
+	<p>
+		DBFluteが自動生成のためにメタデータを取得するたびに、一つ前のメタデータと内容の比較をしてスキーマ構造に違いがあった部分だけをドキュメントにまとめます。
+	</p>
+	<h3 id="basicexample">HistoryHTMLの例</h3>
+	<p class="imgbox">HistoryHTMLの例
+		<a href="../../../../../data/doc/harbor/history-maihamadb.html" title="HistoryHTML Example"><img src="../../../../../data/model/alto/doc/doc-HistoryHtml-example.png" alt="HistoryHTML Example" width="550" height="700" /></a>
+	</p>
+	<p>
+		DB変更は、実はDB設計者にとっても重い作業です。変更内容を記録し、通知しなければなりません。たくさんある場合などはその記録が追いつかない場合もしばしば。
+		とはいえ、記録がなければ、そのDB変更がいつ頃のものだったのか(どういうきっかけだったのか)、わかりにくくなってしまいます。通知がなければ、ディベロッパーは困ります。
+		DBFluteは、常にDB構造が通過する部分でもあります。その記録と通知の支援になるドキュメントを生成できれば、DB設計者もディベロッパーも助かると考えています。
+	</p>
+
+	<h2 id="sequence">シーケンス定義の違い</h2>
+	<p>
+		PostgreSQL や Oracle のシーケンスも差分として認識されます<span class="frm">(@since 0.9.9.7F)</span>。
+	</p>
+	<p>
+		シーケンスの追加や削除、インクリメントサイズの変更や初期値などがチェックされます。
+	</p>
+
+	<h2 id="columnorder">カラム定義順序の違い</h2>
+	<p>
+		デフォルトでは、テーブル内のカラム定義の順序の違いは差分として認識されません。
+		アプリケーションの動作に影響する可能性が低い要素であり、単なる順序調整も一つのDB変更と認識されてしまうとノイズになってしまうからです。
+	</p>
+	<p>
+		ただ、カラム定義順序を重視するアプリケーションである場合は、documentDefinitionMap.dfprop の isCheckColumnDefOrderDiff
+		を true にすることで、カラム定義順序も差分として認識されるようになります。<span class="frm">@since 0.9.9.0D</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#ischeckcolumndeforderdiff">dfprop - isCheckColumnDefOrderDiff</a></div>
+
+	<h2 id="dbcomment">DBコメントの違い</h2>
+	<p>
+		デフォルトでは、テーブルやカラムのDBコメントの違いは差分として認識されません。
+		アプリケーションの動作に影響する可能性が低い要素であり、単なる文言修正も一つのDB変更と認識されてしまうとノイズになってしまうからです。
+	</p>
+	<p>
+		ただ、DBコメントの履歴を重視するアプリケーションである場合は、documentDefinitionMap.dfprop の isCheckDbCommentDiff
+		を true にすることで、DBコメントも差分として認識されるようになります。<span class="frm">@since 0.9.9.0D</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#ischeckdbcommentdiff">dfprop - isCheckDbCommentDiff</a></div>
+
+	<h2 id="procedure">ストアドプロシージャの違い</h2>
+	<p>
+		オプションで、プロシージャの差分もチェックできます<span class="frm">(@since 0.9.9.7F)</span>。
+	</p>
+	<p>
+		documentDefinitionMap.dfprop の isCheckProcedureDiff を true
+		にすることで、プロシージャも差分として認識されるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#ischeckprocedurediff">dfprop - isCheckProcedureDiff</a></div>
+	<p>
+		プロシージャの追加や削除、プロシージャのソースコードの行数、文字数、ハッシュ値がチェックされます。
+		プロシージャの行単位での具体的な差分は表示できませんが、"とにかく何かが違う"
+		というのを知ることができます(一文字でも違えばハッシュ値が差分となります)。
+		具体的な差分は別途優秀なDIFFツールなどで追う方が見やすいと考え、DBFluteでは検知だけにしています。
+	</p>
+	<p>
+		以下の例では、SP_IN_OUT_PARAMETERというプロシージャが、行数が一行減った上にソースコードの文字数が30文字減ったことがわかります。
+		もし、行数も変わらず文字数も全く同じになる変更だったとしても、ハッシュ値だけが差分として検知され、"何かが変わった"
+		ということだけはわかります。<span class="frm">(ただし、天文学的な確率で同じハッシュ値になってしまうことはあり得ますが...)</span>
+	</p>
+	<p class="imgbox">ProcedureDiffの例
+		<a href="../../../../../data/model/alto/doc/doc-ProcedureDiff-example.png" title="ProcedureDiff Example"><img src="../../../../../data/model/alto/doc/doc-ProcedureDiff-example.png" alt="ProcedureDiff Example" width="550" height="220" /></a>
+	</p>
+
+	<h2 id="craftdiff">手作り差分チェック (CraftDiff)</h2>
+	<p>
+		DBFluteではチェックされない要素を独自にチェック対象にさせることもできます。
+		スキーマやテーブルの権限にマスタデータなど、SQLで検索できるものであればなんでも差分チェックできます。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/projectfit/craftdiff/index.html">現場フィット - 手作り差分チェック (CraftDiff)</a></div>
+
+	<h2 id="comment">コメントの付与</h2>
+	<p>
+		ある時点のDB変更が、(業務的に)どういうものだったのかをコメントすることができます。<span class="frm">@since 0.9.7.2</span>
+	</p>
+	<p>
+		DBFluteクライアント/schema/project-history-exampledb.diffmap
+		を直接編集し、"comment" という項目にコメントを書くと、HistoryHTML でそれが表示されるようになります。
+	</p>
+<pre><span class="codetitle">e.g. DB変更にコメントを付与 @project-history-exampledb.diffmap</span><code>
+<span class="abbreviation">...</span>
+    ; 2010/11/26 19:52:15 = <span class="keyword">map:</span>{
+        ; diffDate = 2010/11/26 19:52:15
+        ; <span class="point">comment = 会員検索画面追加によるDB変更</span>
+        ; tableCount = <span class="keyword">map:</span>{
+            ; next = 16
+            ; previous = 13
+        }
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="miscspec">もろもろの細かいお話</h2>
+	<h3 id="constraintname">制約名の変更は対象外</h3>
+	<p>
+		制約名の変更、例えば、PKの制約名の変更、FKの制約名の変更(カラム構成で判断)、これらはドキュメントには記載されません。
+		制約の増減があるわけではないので、あまりディベロッパーにとっても重要度は高い情報ではなく、対象にすると内部的な実現でややこしい問題があるため割り切っています。
+	</p>
+	<p>
+		具体的には、制約名をDDLで省略すると SYS12345 というように自動生成された名前になることもあり、そうするとDBを作り直すたびに制約名は変わって意味のない差分が積み上がってしまう可能性があるのです。
+		よって、少なくとも制約名の変更をデフォルトで差分にすることができないのです。<span class="frm">(自動生成された名前なのかどうかを正確に判別するのは難しいため、差分ノイズが発生しないことを優先しています)</span>
+	</p>
+	<h3 id="schemahtml">SchemaHTMLとの連携</h3>
+	<p>
+		テーブル名(最新で存在するもの)は、SchemaHTMLへのリンクになります。<span class="frm">@since 0.9.7.2</span>
+	</p>
+	<div class="relatedpage"><a href="./schemahtml.html">SchemaHTML</a></div>
+	<h3 id="splithistory">頃合いをみて分割</h3>
+	<p>
+		HistoryHTMLはDB変更があればあるほどどんどん追記されていきます。
+		長い期間の運用であまりに大きくなり過ぎてしまった場合は、HistoryHTML
+		を日付をつけてファイル名変更し、DBFluteクライアント/schema/project-history-exampledb.diffmap
+		を削除(もしくはこれもファイル名変更で保存)することで、HistoryHTMLを分割することができます。
+		<span class="frm">(単に手動でバックアップするだけ...)</span>
+	</p>
+	<p>
+		開発中のDB変更、運用が始まってからのDB変更、二次開発のDB変更というように、フェーズの変わり目で分割していくのも良いでしょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

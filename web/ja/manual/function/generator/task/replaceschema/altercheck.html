@@ -1,0 +1,471 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,alter,本番環境,本番サーバ,リリース後のDB変更,alter文の自動生成" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>AlterCheck | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>AlterCheck</h1>
+	<p>
+		Alto DBFlute のパートです。
+	</p>
+	<div class="relatedpage"><a href="../../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		ReplaceSchema で差分DDLを検証する仕組みがあります<span class="frm">(@since 0.9.8.4)</span>。
+		<em class="keyword">AlterCheck</em> と呼ばれるこの仕組みを利用してフルDDLと差分DDLをしっかりと整合性をとって運用していくことが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="./livingdbmigration.html">LivingDBMigration</a></div>
+	<p>
+		<em class="keyword">前のDB(Previous-DB) + 差分DDL(AlterDDL) = 最新のフルDDL(NextDDL)</em>
+	</p>
+	<p>
+		前のDBに差分DDLを加えたものと、最新のフルDDLの実行結果は同じはずです。ReplaceSchema
+		で前のDBの状態に戻して差分DDLを実行し、その後で最新のフルDDLで最新のDBを作って差分をチェックします。この課程を自動化します。
+	</p>
+	<h3 id="worddef">言葉の定義</h3>
+	<dl class="textlist">
+		<dt>PreviousDDL</dt>
+		<dd>前の状態のスキーマをゼロから復元するためのフルDDL (+ データ)</dd>
+		<dd>playsql/migration/previous 配下</dd>
+		<dt>AlterDDL</dt>
+		<dd>本番に適用させる予定の前の状態のスキーマを最新にする差分DDL (+ スクリプト)</dd>
+		<dd>playsql/migration/alter 配下</dd>
+		<dt>NextDDL</dt>
+		<dd>最新の状態のスキーマをゼロから作成するフルDDL (+ データ)</dd>
+		<dd>playsql 配下 ※いつもの場所、本線(メイン)のDDL</dd>
+	</dl>
+	<h3 id="checkflow">チェックの流れ</h3>
+	<p>
+		大きく二つのステップがあります。
+	</p>
+	<dl class="textlist">
+		<dt>PreviousDDL を保存</dt>
+		<dd>Previous-DB を再現するためのDDLをコピー保存 <span class="frm">(前回のリリース後からDB変更前に)</span></dd>
+		<dt>AlterCheck を実行</dt>
+		<dd>Previous-DB + AlterDDL と NextDDL の結果をチェック <span class="frm">(DB変更後からリリース前)</span></dd>
+	</dl>
+	<h3 id="conceptimage">AlterCheck概念図</h3>
+	<p class="imgbox">図 : AlterCheck概念図
+		<a href="../../../../../data/model/reps-AlterCheck-view.png" title="AlterCheck概念図"><img src="../../../../../data/model/reps-AlterCheck-view.png" alt="AlterCheck概念図" width="550" height="390" /></a>
+	</p>
+	<h3 id="nowok">そもそもいま本番とズレてない？</h3>
+	<p>
+		一番最初の導入したて AlterCheck の場合に、そもそも現時点で本番DBと開発DBがズレてしまっていては、いくら AlterCheck
+		をしてもズレてる状態をキープし続けるだけです。SchemaSyncCheck を使ってチェックしてズレがあれば直すと良いでしょう。
+	</p>
+	<div class="detailpage"><a href="../doc/schemasynccheck.html">SchemaSyncCheck</a></div>
+	<p>
+		さて、本番DBと開発DBにズレがなくなれば、ここからが AlterCheck の活躍の場面です。
+	</p>
+
+	<h2 id="saveprevious">まずは SavePrevious</h2>
+	<h3 id="beforedbchange">DB変更する前に、今を保存</h3>
+	<p>
+		DB変更する前(前回リリース直後)に、DB変更前のDBを復元できる DDL
+		やデータをまるごと保存します。これが(リリースするまでは)本番DBと同じ構造を表現する PreviousDDL となります。
+	</p>
+	<p>
+		Manageタスクで、<em class="keyword">SavePrevious</em> を指定して実行します<span class="frm">(@since 0.9.9.7B)</span>。
+	</p>
+	<div class="relatedpage"><a href="../manage/index.html">Manageタスク</a></div>
+<pre><span class="codetitle">e.g. Manageタスクで SavePrevious の実行 (シェル) @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="point">save-previous</span>
+
+ or
+
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh   <span class="comment">// Enter, and then select the number</span>
+</code></pre>
+	<h3 id="previouszip">ZIP形式で保存される</h3>
+	<p>
+		すると、playsql 直下の DDL やデータがまるごと playsql/migration/previous
+		配下にコピー保存されます。さらに、妥当性をチェックするために内部的に ReplaceSchema が実行されます。正常に終了した場合は、migration
+		配下に previous-OK.dfmark (単に OK を強調するマーク) が作成されます。
+	</p>
+<pre><span class="codetitle">e.g. PreviousDDL が正常に保存された場合 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-previous
+    |  |  |-<span class="point">previous-20120804-1746.zip</span> <span class="comment">// saved at 2012/08/04 17:46</span>
+    |  |-previous-OK.dfmark
+</code></pre>
+	<p>
+		万が一、開発前にこの課程を忘れてしまった場合でも、後でバージョン管理システムから直前のバージョンを取得して
+		SavePrevious しても AlterCheck は利用できます。本番環境のDDLダンプでも構いません。要は migration/previous
+		配下に Previous-DB を復元できる DDL が手動でも配置されればOKなのです。
+		また、ZIP形式でなくても、previous配下に直接 replace-schema.sql を配置すれば AlterCheck 時に認識されます。
+		<span class="frm">(内部的には、ZIPファイルがなければ展開されているファイルをそのまま利用します)</span>
+	</p>
+	<p>
+		さてこの後、思う存分DB変更をして開発を続けてください。
+	</p>
+
+	<h2 id="altercheck">AlterCheck の実行</h2>
+	<h3 id="letsalter">そろそろ alter 文を作らないとぅ</h3>
+	<p>
+		DB変更した後、開発が落ち着いてDB構造も固まって、"そろそろ alter 文を作らないとぅ"
+		というタイミングにて、現在の最新状態(NextDDL)と Previous-DB + AlterDDL の整合性をチェックします。
+	</p>
+	<h3 id="warmingup">まずは、ウォーミングアップ</h3>
+	<p>
+		alter文はどこに書けばいいのか!? 差分ってどんな風にみれるのか!?
+		まずは何も考えず何の準備もせず、そのままAlterCheckタスクをいきなり実行してみてみましょう。
+	</p>
+	<p>
+		Manageタスクで、<em class="keyword">AlterCheck</em> を指定して実行します<span class="frm">(@since 0.9.9.7B)</span>。
+	</p>
+	<div class="relatedpage"><a href="../manage/index.html">Manageタスク</a></div>
+<pre><span class="codetitle">e.g. Manageタスクで AlterCheck の実行 (シェル) @Command</span><code>
+<span class="abbreviation">...</span>$ sh manage.sh <span class="point">alter-check</span>
+
+ or
+
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh   <span class="comment">// Enter, and then select the number</span>
+</code></pre>
+	<p>
+		AlterCheckタスクは中断され(Failure)、前のスキーマと今のスキーマの純粋なDB変更の差分が検知されます。その差分は
+		migration/schema 配下の <em class="keyword">alter-check-result.html</em> に出力されます。 
+	</p>
+<pre><span class="codetitle">e.g. AlterCheck の結果 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-<span class="abbreviation">...</span>
+    |  |-schema
+    |     |-<span class="point">alter-check-result.html</span>
+</code></pre>
+	<p>
+		この時点で、playsql/migration配下に alter というディレクトリが自動で作成され、デフォルトのAlterDDLのファイルも作成されます。
+		<span class="frm">(あらかじめ手動で作成しても構いません。内部的にはファイルがなければ空っぽで作成しておいて、そのまま空のAlterDDLとして差分チェックをしているだけです)</span>
+	</p>
+<pre><span class="codetitle">e.g. AlterDDL の配置 @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-<span class="point">alter</span>
+    |  |  |-<span class="point">alter-schema.sql</span>
+    |  |-previous
+    |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="writeandcheck">alter文を書いてチェック</h3>
+	<p>
+		このSQLファイルに、今回のDB変更で本番環境に適用する予定の AlterDDL を記述します。AlterDDL
+		のファイル名は、alter-schema で始まり .sql で終わる名前にします。必要に応じて、複数のファイルに分割が可能です。
+	</p>
+	<p>
+		AlterDDL を作成した状態でAlterCheckタスクを実行すると、Previous-DB に AlterDDL を適用した結果と、NextDDL
+		の結果が比較され、もし結果に不整合(食い違い)がある場合は AlterCheck は中断され、その差分が先ほどの
+		alter-check-result.html に出力されます。差分がなくなるまで AlterDDL を修正してはチェックしてを繰り返します。
+	</p>
+	<p>
+		この差分結果は、HistoryHTML で利用されているものと同様のものです。ここでは、"Previous-DB + AlterDDL" から "NextDDL"
+		への差、ということで出力されます。例えば、テーブルが追加されている(ADD)とある場合、"AlterDDL でそのテーブルを ADD
+		するように修正するべし" と解釈できます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>Previous</dt><dd>Previous-DB + AlterDDL</dd>
+		<dt>Next</dt><dd>NextDDL (期待値)</dd>
+	</dl>
+	<p>
+		また、差分ルールは HistoryHTML の仕様と同じです。例えば、"カラム定義順序の違い" や "同じ構造で制約名だけの変更"
+		など、基本的にアプリに影響のない微修正ものに関しては差として認識されません。
+	</p>
+	<div class="relatedpage"><a href="../doc/historyhtml.html">HistoryHTML</a></div>
+	<p>
+		ちなみに、このSQLファイルのエンコーディングは UTF-8 で、insert文などのデータ値の中に改行が含まれていたら、その改行は "LF"
+		として扱われます。<span class="frm">(ReplaceSchemaのデータ登録で利用されるエクセルデータの改行もLFとして扱われます)</span>
+	</p>
+	<p>
+		また、CraftDiffを利用している場合は、その差分も AlterCheck
+		でチェックされます。AlterCheck の時の CraftDiff のTSVファイルは、playsql/migration/schema/craftdiff
+		配下に出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/craftdiff/index.html">現場フィット - 手作り差分チェック (CraftDiff)</a></div>
+	<h3 id="whennodiff">差分がなくなったら</h3>
+	<p>
+		差分がなくなったらAlterCheckタスクは正常終了し、その AlterDDL は妥当性のチェック済みとして
+		migration/history 配下に保存されます(alter配下から移動します)。
+		ZIPファイル名には、どの PreviousDB に対応する AlterDDL なのかがわかるように、PreviousDDLの日付が入っています。
+	</p>
+<pre><span class="codetitle">e.g. AlterDDLが保存されるHistory @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter <span class="comment">// SQL files was moved to history</span>
+    |  |-previous
+    |  |-history
+    |  |  |-201208
+    |  |     |-20120806_1023 <span class="comment">// saved at 2012/08/06 10:23</span>
+    |  |        |-<span class="point">checked-alter-to-20120804-1746.zip</span> <span class="comment">// for 2012/08/04 17:46</span>
+    |  |-schema
+</code></pre>
+	<h3 id="aftercheck">正常終了後のDBの状態</h3>
+	<p>
+		AlterCheck正常終了後のDBは、PreviousDB に AlterDDL を適用させたものとなっています。
+		そのままアプリを起動してテストを行えば、より本番に近い状態のテスト環境として利用できます。
+	</p>
+	<h3 id="errorlog">エラー発生時のログ</h3>
+	<p>
+		タスク実行がエラーになったとき、原因が実行時エラーなのか、不整合なのか、または別のエラーなのか、コンソールやタスクログの
+		<em class="keyword">最後のログメッセージ(Final Message)</em> でそれらを確認することができます。
+	</p>
+	<div class="relatedpage"><a href="../index.html#finalmessage">最後のログメッセージ</a></div>
+	<div class="inucolumn">
+		<h3>0.9.9.7B, 0.9.9.7A より前では...</h3>
+		<p>
+			0.9.9.7B より前のバージョンでは、Manageタスクでの実行ではなく、migraton配下に save-previous.dfmark
+			というファイル(中身は空でよい)を作成して、ReplaceSchemaタスクを実行すると SavePrevious が実行されました。
+			まあ、alter配下に AlterDDL を配置した状態でReplaceSchemaタスクを実行すると AlterCheck が実行されました。
+		</p>
+		<p>
+			AlterCheckは、ReplaceSchemaの仕組みを利用していますが、ReplaceSchemaとは目的も運用タイミングも違うので、
+			明示的に別のタスクとして独立しました。
+		</p>
+		<p>
+			また、0.9.9.7A より前のバージョンでは、ZIP形式ではなく一つ一つのファイルがそのまま保存されます。
+			新しいバージョンでも "ZIPがなければ一つ一つのファイルを探す"
+			仕様になっているので、スムーズなバージョン移行は可能です。
+		</p>
+	</div>
+
+	<h2 id="ngseries">そもそもDDLがNGだったら</h2>
+	<h3 id="previousng">PreviousNGマーク</h3>
+	<p>
+		そもそも PreviousDDL が文法的に間違っていて実行時にエラーとなった場合、および、不整合があって差分が発生した場合、
+		previous-NG.dfmark が作成されます。再実行で SavePrevious が正常に終了したら自動的に削除されます。
+	</p>
+<pre><span class="codetitle">e.g. PreviousNGマーク @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-<span class="point">previous-NG.dfmark</span>
+</code></pre>
+	<h3 id="alterng">AlterNGマーク</h3>
+	<p>
+		そもそも AlterDDL が文法的に間違っていて実行時にエラーとなった場合、および、不整合があって差分が発生した場合、
+		migration 配下に alter-NG.dfmark というファイルが作成されます。これは単に AlterDDL
+		がダメだったよ、ということをおおげさに表現するマークファイルです。AlterCheck が成功したら自動的に削除されます。
+	</p>
+<pre><span class="codetitle">e.g. AlterNGマーク @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |-<span class="point">alter-NG.dfmark</span>
+</code></pre>
+	<h3 id="nextng">NextNGマーク</h3>
+	<p>
+		そもそも AlterCheck 実行時の最新状態、つまり playsql 直下のDDLやデータが文法的に間違っていて実行時にエラーとなる場合、
+		migration 配下に next-NG.dfmark というファイルが作成されます。これは単に NextDDL
+		がダメだったよ、ということをおおげさに表現するマークファイルです。AlterCheck が成功したら自動的に削除されます。
+	</p>
+<pre><span class="codetitle">e.g. NextNGマーク @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |-<span class="point">next-NG.dfmark</span>
+</code></pre>
+	<div class="inucolumn">
+		<h3 id="aboutngmark">NGマークは NG の強調</h3>
+		<p>
+			そもそもNGマークの役割についてですが、単なる NG であることの強調という意味に尽きます。
+		</p>
+		<p>
+			しっかりとコンソールや dbflute.log
+			でエラーメッセージを見てアクションを取って欲しいのですが、
+			あまりコンソールを見ずに(エラーに気付かずに)先に進んでしまうこともありえるので、おおげさにマークファイルを出力しています。
+		</p>
+	</div>
+
+	<h2 id="recheck">チェック後にまたDB変更があったら</h2>
+	<p>
+		DB変更してAlterDDLも作ってAlterCheckもしてさあ本番環境にリリース待ちという状態で、
+		またDB変更が入ってしまうということはよくあります。その場合は、チェック済みのAlterDDLにもう一度修正を入れる必要があります。
+	</p>
+	<p>
+		新たなDB変更の後、いきなりAlterCheckを実行してみてください。
+		直近のチェック済みのAlterDDLと新たなDB変更が入ったNextDDLが比較されます。
+		新たな差分が出力されると同時に、history上の直近のチェック済みのAlterDDLがalterディレクトリ配下に自動で復活します。
+		そのAlterDDLを修正し、差分がなくなるまでAlterCheckを繰り返します。
+	</p>
+<pre><span class="codetitle">e.g. AlterDDLが保存されるHistory @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-<span class="point">alter-schema.sql</span> <span class="comment">// revived from checked alter</span>
+    |  |-previous
+    |  |-history
+    |  |  |-201208
+    |  |     |-20120806_1023
+    |  |     |  |-checked-alter-to-20120804-1746.zip
+    |  |-schema
+</code></pre>
+	<p>
+		差分がなくなったら、また新たなチェック済みのAlterDDLとしてhistoryに保存されます。
+		また、一つ前のチェック済みAlterDDLは不要なので、スキップされたことを示すZIPファイル名に変更されます。
+	</p>
+<pre><span class="codetitle">e.g. AlterDDLが保存されるHistory @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |-previous
+    |  |-history
+    |  |  |-201208
+    |  |     |-20120806_1023
+    |  |     |  |-<span class="point">skipped-alter-to-20120804-1746.zip</span>
+    |  |     |-20120807_2136
+    |  |        |-<span class="point">checked-alter-to-20120804-1746.zip</span>
+    |  |-schema
+</code></pre>
+	<p>
+		正常に運用していれば checked のZIPファイルは必ず一つしかできません。
+		(DB変更リリース済みの checked のZIPファイルは、SavePrevious で finished に変更される)
+	</p>
+
+	<h2 id="released">DB変更を本番環境にリリースしたら</h2>
+	<p>
+		次のDB変更に備えて、SavePrevious をしておきましょう。
+		忘れてDB変更をしてしまうと、PreviousDDLをバージョン管理システムなどからわざわざ復帰させる必要がありますので、
+		DB変更の予定がなくても保存しておくと良いでしょう。
+	</p>
+	<p>
+		その際、既に本番にリリース済み(であるはず)の checked
+		のZIPファイルは、checked 部分のが finished に変更され、リリース済みであることがわかるようになります。 
+	</p>
+<pre><span class="codetitle">e.g. 本番リリース後のSavePreviousでcheckedがfinishedに @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |-previous
+    |  |  |-<span class="point">previous-20120807-0108.zip</span>
+    |  |-history
+    |  |  |-201208
+    |  |     |-20120806_1023
+    |  |     |  |-skipped-alter-to-20120804-1746.zip
+    |  |     |-20120807_2136
+    |  |        |-<span class="point">finished</span>-alter-to-20120804-1746.zip
+    |  |-schema
+</code></pre>
+	<p>
+		この状態で AlterCheck タスクを実行すれば、
+		alterディレクトリ配下にデフォルトの空っぽのSQLファイル(alter-schema.sql)が作成され、
+		新たなDB変更への旅のはじまりとなります。逆に、alter配下にSQLファイルがなく、history に checked が残っているときに AlterCheck
+		を実行すると、直近の checked のAlterDDLが復帰し、"チェック後にまたDB変更があったら" の流れになってしまいます。
+	</p>
+	<div class="relatedpage"><a href="#recheck">this - チェック後にまたDB変更があったら</a></div>
+	<p>
+		ゆえに、正常に運用していれば checked のZIPファイルは必ず一つしかできません。
+	</p>
+
+	<h2 id="outsidescript">AlterDDL で外部スクリプト</h2>
+	<p>
+		AlterDDL において、SQLの実行だけでなく外部スクリプトを実行することができます。
+		DBへの差分反映は、単純なSQLで済まされない場合もあります。DBMSのコマンドを利用して特殊な操作をすることもあるでしょう。
+		そういう場合のために、外部スクリプトが実行できるようになっています。
+	</p>
+	<p>
+		AlterDDL のSQLファイルと同じディレクトリに、alter-schema で始まる拡張子が .bat もしくは .sh
+		のスクリプトファイルを配置します。SQLファイルも含めてファイル名の昇順で実行されます。
+	</p>
+<pre><span class="codetitle">e.g. AlterDDL の外部スクリプトの配置 @playsql</span><code>
+dbflute_maihamadb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema-10-basic.sql
+    |  |  |-alter-schema-20-view.sql
+    |  |  |-<span class="point">alter-schema-30-special.sh</span>
+</code></pre>
+	<p>
+		スクリプトの exitCode が 0 以外の場合は、スクリプト実行エラーとみなされます。
+	</p>
+	<p>
+		スクリプトのコンソールログは、固定で UTF-8
+		として取得され、DBFluteタスクのログと一緒に出力されます。なので場合によっては、ログが文字化けする可能性はありますが、処理に影響はありません。
+	</p>
+	<div class="inucolumn">
+		<h3 id="alterbeta">あえて AlterDDL はベタに</h3>
+		<p>
+			AlterDDL の実装方法として、SQLファイルと外部スクリプトというベタな方式に絞っているのは、本番環境への適用を考えてのことです。
+			本番環境のDBは、多くの場合開発者の手の届かないところにあります。
+			また、DBFluteを本番環境のDBが見える場所に配置して直接接続できるというようなことも少ないでしょう。
+			それはセキュリティのことを考えると当然のこととも言えます。
+		</p>
+		<p>
+			というわけで、AlterCheck の時点で DBFlute に依存した形式でチェックをしてもあまり意味がないとも言えます。
+			例えば、DB変更の一貫として必要となるデータをエクセルデータやTSVデータなどで管理して DBFlute
+			の機能で登録しても(そういった機能は実装可能ですが)、本番環境では別の方法(DBMS のコマンドなど)で追加する必要があるかもしれません。
+		</p>
+		<p>
+			そういうことから、あえて AlterDDL はベタに実装することを想定した仕様にしています。
+			ただ、この本番環境適用は、そもそも多種多様でまだまだ分析の余地のある領域でもあるため、
+			今後の分析次第ではまた違った解釈で色々なアプローチを検討していくかもしれません。<span class="frm">(2011/05/01現在)</span>
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="ddldiff">DDLのDIFFにも利用できる</h2>
+		<p>
+			AlterCheck は本来の目的とは別に、単に <em class="keyword">二つのDDLの構造の差を確かめる</em>
+			する用途にも利用できます。例えば、同じスキーマを作成する手動で作成されたDDLとツールで自動生成されたDDL、
+			これらが同じ結果をもたらすかどうか確認できます。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

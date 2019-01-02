@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,プロシージャ,ストアド,ストアドプロシージャ,ストアドファンクション,ストアド対応,プロシージャ対応,O/Rマッパ,O/R Mapper,Java,C#,Procedure,Stored,Stored Procedure,CallableStatement,PL/SQL,PL/pgSQL,Transact-SQL,T-SQL,create procedure,create function" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>プロシージャコール | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>プロシージャコール</h1>
+	${indexlist}
+
+	<h2 id="about">プロシージャコールとは？</h2>
+	<p>
+		DBFluteでは、ストアドプロシージャ、および、ストアドファンクションなどのDBに組み込まれた処理のことをひっくるめて
+		<em class="keyword">プロシージャ</em> と呼びます。そして、アプリなどからのプロシージャ呼び出しをプロシージャコールと呼びます。
+		また、DBFluteのプロシージャコール機能を ProcedureCall と表現します。
+	</p>
+	<h3 id="difficult">プロシージャコールの悩み</h3>
+	<p>
+		プロシージャ内部の実装については、DBFluteでは何も関与しません(できません)。
+		ここでは、アプリからのプロシージャコールの際の実装上の悩みに着目します。以下のような悩みが考えられます。
+	</p>
+	<dl class="textlist">
+		<dt>プロシージャの名前</dt><dd>呼び出すプロシージャの名前の指定でスペルミスでの呼び出しミス</dd>
+		<dt>パラメータ</dt><dd>プロシージャのパラメータ(引数)の名前の指定でスペルミスでの設定ミス</dd>
+		<dt>結果セット(ResultSet)</dt><dd>プロシージャの結果セットの受け取り用 Entity を作成(スペルミスでのマッピングミス)</dd>
+		<dt>プロシージャ変更</dt><dd>結果、全てタイプセーフではないため、プロシージャの変更(DB変更とも言える)に弱い</dd>
+	</dl>
+	<p>
+		およそ、DBFluteを使わずにSQLをJDBCダイレクトに発行させたときに発生する悩みとほぼ同じです。
+		結局、何も対策していなければ、"呼び出し" というレイヤにおける悩みに変わりはありません。特に "プロシージャ変更"
+		に関しては、アプリのプログラムとプロシージャのプログラムは遠い関係にありがちで(作成者も違えば、管理組織も違うかも)、
+		同期漏れのデバッグコストが発生する可能性を秘めています。
+	</p>
+
+	<h2 id="solution">タイプセーフなプロシージャコール</h2>
+	<h3 id="generate">対応クラスの自動生成</h3>
+	<p>
+		DBFluteでは、<em class="keyword">プロシージャコールはタイプセーフ</em>、そして、<em class="keyword">プロシージャ変更にも強い</em>
+		をポリシーとしています。具体的には、以下の通りです。
+	</p>
+	<ul>
+		<li>プロシージャのメタデータからプロシージャ対応のクラス(ParameterBean)を自動生成</li>
+		<li>プロシージャ実行のメタデータから結果セット対応のクラス(CustomizeEntity)を自動生成</li>
+	</ul>
+	<p>
+		やっていることは、実は通常の外だしSQL(OutsideSql)と同じことです。どちらかというと、プロシージャも
+		"外に出しているSQL" というニュアンスで、広い意味で外だしSQLと捉えることができます。実際に DBFlute
+		のプロシージャコールの実装方法は、ほぼ外だしSQLと同じやり方で呼び出します。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/about.html#about">外だしSQLとは？</a></div>
+	<h3 id="tolerance">プロシージャ変更に強い</h3>
+	<p>
+		これにより、プロシージャコールの悩みは吹き飛びます。
+	</p>
+	<dl class="textlist">
+		<dt>プロシージャの名前</dt>
+		<dd>プロシージャの名前に対応した ParameterBean を利用することで呼び出しミスは発生しない</dd>
+		<dt>パラメータ</dt>
+		<dd>パラメータ(の名前)に対応したプロパティを利用することで設定ミスは発生しない</dd>
+		<dt>結果セット</dt>
+		<dd>結果セット(select句)に対応した Entity を利用することでマッピングミスは発生しない</dd>
+		<dt>プロシージャ変更</dt>
+		<dd>
+			プロシージャの名前変更、パラメータ変更(パラメータの増減、パラメータ名や型の変更)、結果セットの変更(select句の構成変更)は、
+			プログラムのコンパイルエラーとなって検知でき、同期漏れは発生しない。
+		</dd>
+	</dl>
+	<h3 id="howto">利用方法の概要</h3>
+	<p>
+		プロシージャ対応の ParameterBean や CustomizeEntity は、外だしSQLのと同じく Sql2Entity
+		タスクにて自動生成できます。プロシージャ対応の ParameterBean を ProcedurePmb と呼びます。
+		ProcedurePmb の仕様がそのまま、DBFluteにおけるプロシージャへのアプローチ(サポート状況も含めて)を表現していると言えます。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+	<p>
+		クラスができ上がったら、あとはそのクラスを使ってアプリから呼び出すだけです。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/procedure/call.html">外だしSQL - call()</a></div>
+	<h4>IN, OUTパラメータ</h4>
+	<p>
+		対応するプロパティ経由で、INパラメータは call() 前に設定し、OUTパラメータは call() 後に取得します。
+		また、INOUTパラメータは、INパラメータとOUTパラメータの両方の特性を持ちます。
+	</p>
+<pre><span class="codetitle">e.g. IN, OUT, INOUT パラメータ (SP_IN_OUT_PARAMETER) {MySQL} @Procedure</span><code>
+<span class="keyword">create procedure</span> SP_IN_OUT_PARAMETER(
+      <span class="attribute">in</span> v_in_varchar <span class="dbtype">varchar(32)</span>
+    , <span class="attribute">out</span> v_out_varchar <span class="dbtype">varchar(32)</span>
+    , <span class="attribute">inout</span> v_inout_varchar <span class="dbtype">varchar(32)</span>
+)
+<span class="keyword">begin</span>
+  <span class="keyword">set</span> v_out_varchar = <span class="literal">'qux'</span>;
+  <span class="keyword">set</span> v_inout_varchar = <span class="literal">'quux'</span>;
+<span class="keyword">end</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. IN, OUT, INOUT パラメータの利用 (SP_IN_OUT_PARAMETER) @Java</span><code>
+SpInOutParameterPmb pmb = <span class="keyword">new</span> SpInOutParameterPmb();
+pmb.<span class="point">setVInVarchar</span>(<span class="literal">"foo"</span>); <span class="comment">// INパラメータの設定</span>
+<span class="comment">//pmb.setVOutVarchar("bar"); // OUTパラメータなので設定なし</span>
+pmb.<span class="point">setVInOutVarchar</span>(<span class="literal">"baz"</span>); <span class="comment">// INOUTパラメータの設定</span>
+<span class="literal">xxxBhv</span>.outsideSql().call(pmb);
+String outParam = pmb.<span class="point">getVOutVarchar()</span>; <span class="comment">// OUTパラメータの受け取り (qux)</span>
+String inOutParam = pmb.<span class="point">getVInOutVarchar()</span>; <span class="comment">// INOUTパラメータの受け取り (quux)</span>
+</code></pre>
+	<h4>プロシージャリターン</h4>
+	<p>
+		プロシージャリターン値(戻り値)も受け取れます。OUTパラメータと同じ扱いとなります。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン</a></div>
+<pre><span class="codetitle">e.g. プロシージャリターンのあるプロシージャ (SP_RETURN_PARAMETER) {PostgreSQL} @Procedure</span><code>
+<span class="keyword">create or replace function</span> SP_RETURN_PARAMETER()
+<span class="keyword">returns</span> <span class="dbtype">integer</span> <span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  <span class="keyword">return</span> <span class="literal">1</span>;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. プロシージャリターンの利用 (SP_RETURN_PARAMETER) @Java</span><code>
+SpReturnParameterPmb pmb = <span class="keyword">new</span> SpReturnParameterPmb();
+xxxBhv.outsideSql().call(pmb); <span class="comment">// 実行</span>
+Integer returnValue = pmb.<span class="point">getReturnValue()</span>; <span class="comment">// プロシージャリターンの受け取り (1)</span>
+</code></pre>
+	<h4>結果セット (ResultSet)</h4>
+	<p>
+		結果セット(ResultSet)は、コール後に対応するプロパティから Entity (のリスト)を取得します。
+	</p>
+<pre><span class="codetitle">e.g. OUTパラメータの結果セットの受け取り {PostgreSQL} @Java</span><code>
+<span class="keyword">create or replace function</span> SP_FOO_PROC(cur_member <span class="keyword">out</span> <span class="dbtype">refcursor</span>)
+<span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur_member <span class="keyword">for</span>
+    <span class="keyword">select</span> MEMBER_ID, MEMBER_NAME, BIRTHDATE
+      <span class="keyword">from</span> MEMBER;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. OUTパラメータの結果セットの受け取り {PostgreSQL} @Java</span><code>
+SpFooProcPmb pmb = <span class="keyword">new</span> SpFooProcPmb();
+<span class="attribute">memberBhv</span>.outsideSql().call(pmb);
+List&lt;<span class="point">SpFooProcCurMember</span>&gt; memberList = pmb.<span class="point">getCurMember()</span>;
+<span class="keyword">for</span> (SpFooProcCurMember member : memberList) {
+    <span class="abbreviation">...</span> = member.getMemberId();
+    <span class="abbreviation">...</span> = member.getMemberName();
+    <span class="abbreviation">...</span> = member.getBirthdate();
+}
+</code></pre>
+	<div class="inucolumn">
+		<h3 id="callframework">プロシージャ呼び出しフレームワーク</h3>
+		<p>
+			DB変更に強いをポリシーとする DBFlute は、そのDB変更という言葉にプロシージャ実装の変更も含みます。基本的には
+			<em class="keyword">ConditionBean や外だしSQLなどを使ってDBアクセスをすることが前提のポリシー</em>
+			ですが、いざというときのパフォーマンスを発揮するプロシージャ、そして、
+			組織文化によってプロシージャでのDBアクセスをメインすることもあるため、様々な場面でプロシージャが活躍することがあります。
+		</p>
+		<p>
+			DBMSごとの方言も(かなり)激しく、Java や C#
+			などとは全く違った世界が展開されているため全ての機能をサポートするのは難しいですが、プロシージャを目の前にした途端に
+			DBFlute の良さが完全には消えてしまう、ということがないように <em class="keyword">プロシージャ呼び出しフレームワーク</em>
+			としても有用であるようにと作られています。
+		</p>
+	</div>
+
+	<h2 id="document">プロシージャ一覧の生成</h2>
+	<p>
+		プロシージャの一覧を SchemaHTML で参照することができます。どんなプロシージャがあるのか、ディベロッパーがすぐに把握できます。
+		アーキテクトもプロシージャを管理する上で役に立つでしょう。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/doc/schemahtml.html#outsidesql">SchemaHTML - 外だしSQLの一覧</a></div>
+
+	<h2 id="dbms">DBMSごとのプロシージャの取扱い</h2>
+	<p>
+		プロシージャは DBMS ごとの方言がとても激しいものです。複雑な構造のものはサポートされない場合もあります。
+		DBMSごとの取扱いを参考に、利用する DBMS でのプロシージャの取扱いの特徴をよく押さえて利用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href=".././../../../reference/dbway/postgresql/index.html#procedure">PostgreSQL - プロシージャ</a></div>
+	<div class="relatedpage"><a href=".././../../../reference/dbway/mysql/index.html#procedure">MySQL - プロシージャ</a></div>
+	<div class="relatedpage"><a href=".././../../../reference/dbway/oracle/index.html#procedure">Oracle - プロシージャ</a></div>
+	<div class="relatedpage"><a href=".././../../../reference/dbway/db2/index.html#procedure">DB2 - プロシージャ</a></div>
+	<div class="relatedpage"><a href=".././../../../reference/dbway/sqlserver/index.html#procedure">SQLServer - プロシージャ</a></div>
+	<div class="inucolumn">
+		<h3 id="feedback">フィードバックの重要性</h3>
+		<p>
+			プロシージャの世界は広く、(DBFluteとして)未到達の部分も多いです。いざ呼び出せないプロシージャなどに直面したときには
+			<em class="keyword">フィードバック</em> を頂ければ、実現可能性次第で対応される可能性もあるでしょう。
+			特にプロシージャに関しては、トップダウンで全ての機能・事象を把握することが困難なため、
+			要望ベースのボトムアップで対応していくというスタンスをとっています。
+		</p>
+		<div class="relatedpage"><a href="../../../../topic/office/feedback.html">Topic - フィードバック</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

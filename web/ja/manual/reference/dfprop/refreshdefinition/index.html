@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,refreshDefinitionMap.dfprop,Eclipse,F5" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>refreshMap (refreshDefinitionMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>refreshMap</h1>
+	<p>
+		Java6版までは、refreshDefinitionMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	<p>
+		そもそも、Java8版からは、littleAdjustmentMap のひとつのプロパティとして取り込まれました。
+	</p>
+	<div class="relatedpage"><a href="../littleadjustment/index.html">littleAdjustmentMap</a></div>
+	${indexlist}
+
+	<h2 id="about">refreshMapとは？</h2>
+	<p>
+		Eclipseの自動リフレッシュについての設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の littleAdjustmentMap.dfprop の中のひとつのプロパティです。主に
+		Generateタスク、Sql2Entityタスク にて参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/index.html">Sql2Entityタスク</a></div>
+	<p>
+		環境を整えて設定すると、<em class="keyword">DBFluteで自動生成した後にEclipse上のプロジェクトが自動でリフレッシュ</em>
+		されるので、自動生成後に手動で F5 (Refresh)する必要がなくなります。ResourceSynchronizer
+		プラグインをEclipse側で実行させておくことを前提とします。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/dbflutefit/refreshproject/index.html">現場フィット - 自動生成後の自動更新</a></div>
+	<div class="relatedpage"><a href="../../../topic/friends/resourcesynchronizer.html">ResourceSynchronizerプラグイン</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々なkey-value形式のプロパティを定義します。
+	</p>
+<pre><span class="codetitle">refreshMapの仕様 @littleAdjustmentMap.dfprop</span><code>
+; refreshMap = <span class="keyword">map:</span>{
+    ; projectName = [Eclipse-project]
+    ; requestUrl = [ResourceSynchronizer's URL]
+}
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="projectName">projectName (*)</h3>
+	<p>
+		DBFluteクライアントを配置したEclipseプロジェクト名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>Eclipseプロジェクト名</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>複数プロジェクト指定は、"/" (スラッシュ)区切りで指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="requestUrl">requestUrl (*)</h3>
+	<p>
+		ResourceSynchronizer用に送信するURLを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>URL (基本的には、"http://localhost:8386/")</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+
+	<h2 id="example">Example</h2>
+<pre><span class="codetitle">設定例 @littleAdjustmentMap.dfprop</span><code>
+; refreshMap = <span class="keyword">map:</span>{
+    ; projectName = dbflute-basic-example
+    ; requestUrl = http://localhost:8386/
+}
+</code></pre>
+<pre><span class="codetitle">複数プロジェクト指定の設定例 @littleAdjustmentMap.dfprop</span><code>
+; refreshMap = <span class="keyword">map:</span>{
+    ; projectName = dbflute-basic-example/dbflute-spring-example
+    ; requestUrl = http://localhost:8386/
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

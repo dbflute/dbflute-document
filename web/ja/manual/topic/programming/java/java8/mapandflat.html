@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,Java" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Java - map() and flatMap() | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>map() and flatMap()</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		コピーして自身のテキストエディターで見たほうが見やすいです。
+	</p>
+<pre><span class="codetitle">e.g. map() and flatMap() view @Java</span><code>
+
+# ========================================================================================
+#                                                                               List map()
+#                                                                               ==========
+List&lt;Member&gt; memberList = memberBhv.selectList(...);
+List&lt;Integer&gt; memberIdList = memberList.stream()
+                                       .map(mb -&gt; mb.getMemberId()) // returns Integer
+                                       .collect(Collectors.toList());
+
+ +- List&lt;Member&gt; ---+                  |- List&lt;Integer&gt; -----+
+ |                  |                  |                     |
+ |  {1, "sea"}      | ---- map() ----&gt; |       1             |
+ |  {2, "land"}     | mb.getMemberId() |       2             |
+ |  {3, "piary"}    |                  |       3             |
+ |                  |                  |                     |
+ +------------------+                  +---------------------+
+
+ empty list:
+ +- List&lt;Member&gt; ---+                  |- List&lt;Integer&gt; -----+
+ |                  |                  |                     |
+ |  *empty          | ---- map() ----&gt; |     *empty          |
+ |                  | mb.getMemberId() |                     |
+ |                  |                  |                     |
+ +------------------+                  +---------------------+
+
+# ========================================================================================
+#                                                                           List flatMap()
+#                                                                           ==============
+List&lt;Member&gt; memberList = memberBhv.selectList(...);
+memberBhv.loadPurchase(memberList, ...);
+List&lt;Purchase&gt; purchaseList
+        = memberList.stream()
+                    .flatMap(mb -&gt; mb.getPurchaseList().stream()) // returns Stream
+                    .collect(Collectors.toList());
+
+ +- List&lt;Member&gt; ---------------+                      +- List&lt;Purchase&gt; ----+
+ |                              |                      |                     |
+ |  {1, "sea"}                  |                      |   {101, 1, ...}     |
+ |    |-{101, 1, ...}           |                      |   {102, 1, ...}     |
+ |    |-{102, 1, ...}           | ---- flatMap() ----&gt; |   {103, 2, ...}     |
+ |  {2, "land"}                 | mb.getPurchaseList() |   {104, 2, ...}     |
+ |    |-{103, 2, ...}           |   .stream()          |   {105, 3, ...}     |
+ |    |-{104, 2, ...}           |                      |                     |
+ |  {3, "piary"}                |                      +---------------------+
+ |    |-{105, 3, ...}           |
+ |                              |
+ +------------------------------+
+
+ without flat:
+ +- List&lt;Member&gt; ---------------+                      +- List&lt;List&lt;Purchase&gt;&gt; --+
+ |                              |                      |                         |
+ |  {1, "sea"}                  |                      |  +-----------------+    |
+ |    |-{101, 1, ...}           |                      |  | {101, 1, ...}   |    |
+ |    |-{102, 1, ...}           |                      |  | {102, 1, ...}   |    |
+ |  {2, "land"}                 | ------ map() ------&gt; |  +-----------------+    |
+ |    |-{103, 2, ...}           | mb.getPurchaseList() |  | {103, 2, ...}   |    |
+ |    |-{104, 2, ...}           |                      |  | {104, 2, ...}   |    |
+ |  {3, "piary"}                |                      |  +-----------------+    |
+ |    |-{105, 3, ...}           |                      |  | {105, 3, ...}   |    |
+ |                              |                      |  +-----------------+    |
+ +------------------------------+                      +-------------------------+
+
+ empty list:
+ +- List&lt;Member&gt; ---------------+                      +- List&lt;Purchase&gt; ----+
+ |                              |                      |                     |
+ |    *empty                    | ---- flatMap() ----&gt; |   *empty            |
+ |                              | mb.getPurchaseList() |                     |
+ |                              |   .stream()          |                     |
+ +------------------------------+                      +---------------------+
+
+# ========================================================================================
+#                                                                           Optional map()
+#                                                                           ==============
+Optional&lt;Member&gt; optMember = memberBhv.selectEntity(...);
+Optional&lt;Integer&gt; optMemberId = optMember.map(mb -&gt; mb.getMemberId()); // returns Integer
+
+ +- Optional&lt;Member&gt; --+                   +- Optional&lt;Integer&gt; ---+
+ |                     |                   |                       |
+ | {1, "sea"}          | ---- map() -----&gt; |  (1)                  |
+ |                     | mb.getMemberId()  |                       |
+ +---------------------+                   +-----------------------+
+
+ +- Optional&lt;Member&gt; --+                   +- Optional&lt;Integer&gt; ---+
+ |                     |                   |                       |
+ | *empty              | ---- map() -----&gt; | *empty                |
+ |                     | mb.getMemberId()  |                       |
+ +---------------------+                   +-----------------------+
+
+ return null:
+ +- Optional&lt;Member&gt; --+                   +- Optional&lt;Integer&gt; -+
+ |                     |                   |                     |
+ | {null, "sea"}       | ---- map() -----&gt; | *empty              |
+ |                     | mb.getMemberId()  |                     |
+ +---------------------+                   +---------------------+
+
+ detail:
+ +- Optional&lt;Member&gt; --+                                         +- Optional&lt;Integer&gt; ---+
+ |                     |                                         |                       |
+ |                     | ------------ map() -------------------&gt; |                       |
+ |                     |                                         |                       |
+ | {1, "sea"}          | if present:                             |                       |
+ |  or                 |   mb.getMemberId() =&gt; (1) ----(wrap)---/`\---&gt; (1)              |
+ | {null, "sea"}       |                    =&gt; null              |                       |
+ |  or                 |                          \------+       |       or              |
+ | *empty              | else                            |       |                       |
+ |                     |   *empty-------(cast only)------+-----&gt;&gt;|      *empty           |
+ |                     |                                         |                       |
+ +---------------------+                                         +-----------------------+
+
+# ========================================================================================
+#                                                                       Optional flatMap()
+#                                                                       ==================
+Optional&lt;Member&gt; optMember = memberBhv.selectEntity(...);
+Optional&lt;MemberWithdrawal&gt; optWdl = optMember.flatMap(mb -&gt; mb.getMemberWithdrawalAsOne()) // returns Optional
+
+ +- Optional&lt;Member&gt; ---------------------+                               +- Optional&lt;MemberWithdrawal&gt; ----+
+ |                                        |                               |                                 |
+ |  mb:{1, "sea"}                         | -------- flatMap() ---------&gt; |   wdl:{1, 2016/7/20, ...}       |
+ |   |                                    | mb.getMemberWithdrawalAsOne() |                                 |
+ |   |                                    |                               +---------------------------------+
+ |   | +- Optional&lt;MemberWithdrawal&gt; -+   |                                   ^
+ |   +-| wdl:{1, 2016/7/20, ...}      |--/`\--&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---^
+ |     +------------------------------+   |
+ +----------------------------------------+
+
+ +- Optional&lt;Member&gt; ---------------------+                               +- Optional&lt;MemberWithdrawal&gt; ----+
+ |                                        |                               |                                 |
+ |  mb:{1, "sea"}                         | -------- flatMap() ---------&gt; |   *empty                        |
+ |   |                                    | mb.getMemberWithdrawalAsOne() |                                 |
+ |   |                                    |                               +---------------------------------+
+ |   | +- Optional&lt;MemberWithdrawal&gt; -+   |                                   ^
+ |   +-| *empty                       |--/`\--&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---^
+ |     +------------------------------+   |
+ +----------------------------------------+
+
+ +- Optional&lt;Member&gt; ---------------------+                               +- Optional&lt;MemberWithdrawal&gt; ----+
+ |                                        |                               |                                 |
+ |  *empty                                | -------- flatMap() ---------&gt; |   *empty                        |
+ |                                        | mb.getMemberWithdrawalAsOne() |                                 |
+ +----------------------------------------+                               +---------------------------------+
+
+ without flat:
+ +- Optional&lt;Member&gt; --------------------+                               +- Optional&lt;Optional&lt;MemberWithdrawal&gt;&gt; -+
+ |                                       |                               |                                        |
+ |  mb:{1, "sea"}                        | ----------- map() ----------&gt; |   +- Optional&lt;MemberWithdrawal&gt; -+     |
+ |   |                                   | mb.getMemberWithdrawalAsOne() |   | {101, 1, ...}                |     |
+ |   |                                   |                               |   +------------------------------+     |
+ |   | +- Optional&lt;MemberWithdrawal&gt; -+  |                               |       ^                                |
+ |   +-| wdl:{1, 2016/7/20, ...}      |-/`\--&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;--/`\--&gt;---^                                |
+ |     +------------------------------+  |                               |                                        |
+ +---------------------------------------+                               +----------------------------------------+
+
+ detail:
+ +- Optional&lt;Member&gt; -------------+                                             +- Optional&lt;MemberWithdrawal&gt; -+
+ |                                |                                             |                              |
+ |                                | -------------- flatMap() -----------------&gt; |                              |
+ |                                |                                             |                              |
+ | mb:{1, "sea"} - wdl:{101, ...} | if present:                                 |                              |
+ |                                |   mb.getMemberWithdrawalAsOne()             |                              |
+ |  or                            |     =&gt; Optional({101, ...})                 |                              |
+ |                                |            \--(non wrap)---(null check)---&gt;&gt;|   {101, ...}                 |
+ | mb:{2, "land"} - *empty        |     =&gt; *empty                               |                              |
+ |  or                            |            \------------------+             |    or                        |
+ | *empty                         | else                          |             |                              |
+ |                                |   *empty -------(cast only)---+-----------&gt;&gt;|   *empty                     |
+ |                                |                                             |                              |
+ +--------------------------------+                                             +------------------------------+
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

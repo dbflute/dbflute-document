@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,CustomizeEntity,SQL対応のEntity,外だしSQLのEntity,Sql2Entity" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CustomizeEntity | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CustomizeEntity</h1>
+	<p>
+		Sql2Entityで自動生成される CustomizeEntity についてのページです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Sql2Entity</a></div>
+	${indexlist}
+
+	<h2 id="about">CustomizeEntityとは？</h2>
+	<p>
+		テーブル対応のEntityを DomainEntity と呼ぶのに対し、<em class="keyword">SQL対応のEntity</em>
+		を CustomizeEntity と呼びます。CustomizeEntityは <em class="keyword">SQLのselect句と同じプロパティ構造</em> を持ちます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/entity/index.html">Entity</a></div>
+	<p>
+		例えば、"select * from MEMBER" というようなSQLの結果はDomainEntityで受け取ることができますが、
+		"select MEMBER_ID, MAX(xxx) from ... group by MEMBER_ID"
+		というようなSQLの結果はDomainEntityでは受け取れないため、そのSQLのselect句と同じ構造を持ったCustomizeEntityで受け取るようにします。
+	</p>
+
+	<h2 id="autogenerate">CustomizeEntityの自動生成</h2>
+	<h3 id="sql2entity">Sql2Entityで自動生成される</h3>
+	<p>
+		CustomizeEntityは、Sql2Entityタスクで自動生成されます。
+		出力先ディレクトリと出力クラスのパッケージは、デフォルトではGenerateタスクで自動生成されるクラスと同じで、Entity
+		のパッケージ配下の <em class="keyword">customize</em> パッケージに出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/applicationoutsidesql/index.html">現場フィット - アプリごとの外だしSQL</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#sqlpackage">dfprop - sqlPackage</a></div>
+	<p>
+		外だしSQLに、このSQLに対応するCustomizeEntityを生成したいというマーク <em class="keyword">(CustomizeEntity)</em>
+		を記述し、Sql2Entityタスクを実行することでCustomizeEntityが自動生成されます。
+		(CustomizeEntityの自動生成対象となる外だしSQLは、Sql2Entityタスクで実際のDBに対して実行されるため、外だしSQLは必ず
+		"2Way-SQL" で記述されていることを前提とします)
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/about.html#twowaysql">外だしSQL - 2Way-SQL</a></div>
+	<h3 id="merit">自動生成によるメリット</h3>
+	<p>
+		外だしSQLで利用する戻り値の型は、DomainEntity
+		でなく、<em class="keyword">そのSQL独自の構造を持ったEntity</em>
+		であって欲しい場合が多々あります。そのEntityを手動で作成すると面倒なのはもとより
+		"プロパティ名とSQLで定義したカラム名が食い違うバグ" も発生します。
+		よって、DBFluteではSql2Entityタスクを利用して、<em class="keyword">SQL文そのものから定義すべきプロパティ名を導出して自動生成し</em>、そのような問題を解決します。
+		手動作成の面倒な点もなくなり、入力ミスなどによる名称定義の食い違いでのバグも一切なくなります。
+	</p>
+	<h3 id="deleteold">古いクラスは削除される</h3>
+	<p>
+		外だしSQLのどこにも記述されていない既存の<span class="existscloset" title="exists a closet option">古いCustomizeEntityは(ファイルシステム上から)削除されます</span>。
+		古いCustomizeEntityを利用しているプログラムはコンパイルエラーとして検知できます。
+	</p>
+
+	<h2 id="customizeentitymark">CustomizeEntityマーク</h2>
+	<p>
+		CustomizeEntityの生成を示すマークは、SQLの行コメント形式 "-- " で、<em class="keyword">#df:entity#</em>
+		という形で記述します。これを CustomizeEntityマーク と呼びます。
+		例えば、SQLファイルの名前が MemberBhv_selectSimpleMember.sql なら、CustomizeEntityのクラス名は SimpleMember となります。
+		(SQL業務名がそのまま名前となります)
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/concept.html#tabledriven">外だしSQLの実装コンセプト - テーブル駆動でSQLを管理</a></div>
+<pre><span class="codetitle">e.g. "MemberBhv_selectSimpleMember.sql" に対応する CustomizeEntity を生成 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		CustomizeEntity のクラス名を明示的に指定することもできます。SQLの行コメントで、"#[Entityのクラス名]#"
+		という形で記述します。主に、他のSQLで CustomizeEntity を再利用するなど、SQL名に依存しない名前を付けたいようなときに利用します。
+	</p>
+
+<pre><span class="codetitle">e.g. SimpleMemberという名前のCustomizeEntityを生成 @OutsideSql</span><code>
+<span class="comment">-- #SimpleMember#</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		CustomizeEntityマークは、基本的に select文 に対して記述することを想定しています。
+		update文 に対しての記述は意味のないことです。
+	</p>
+
+	<h2 id="option">CustomizeEntityのオプション</h2>
+	<h3 id="pkmark">PKの設定</h3>
+	<p>
+		生成されるCustomizeEntityが持つ情報として、<em class="keyword">そのSQL(の結果レコード)をユニークに識別するPK</em>
+		を設定することができます。そうすることでは、CustomizeEntityの equals()メソッド や hasPrimaryKey()メソッド
+		にて指定されたPKを利用するようになります。また、外だしSQLの LoadReferrer を利用する場合はこのPKマークの指定が必須です。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/behavior/select/loadreferrer.html#outsidesql">Behavior - 外だしSQLでもLoadReferrer</a></div>
+	<p>
+		SQLの行コメント で、<em class="keyword">*[主キー]*</em>
+		という形で記述します(複数指定する場合はカンマ区切りで指定)。これを
+		CustomizeEntityのPKマーク と呼びます。
+	</p>
+<pre><span class="codetitle">e.g. MEMBER_IDをPKとして扱いたい場合 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="point">-- *MEMBER_ID*</span>
+<span class="keyword">select</span> MEMBER_ID, MAX(<span class="abbreviation">...</span>), <span class="abbreviation">...</span>
+  <span class="keyword">from</span> PURCHASE
+    <span class="keyword">left outer join</span> <span class="abbreviation">...</span>
+ <span class="keyword">group by</span> MEMBER_ID
+</code></pre>
+	<p>
+		ここでは、元のカラム名ではなく、検索結果上で利用される名前を指定します。例えば、エリアス名が付いている場合は、エリアス名を指定します。
+	</p>
+<pre><span class="codetitle">e.g. エリアス名が付いているのでPK_IDをPKマークに指定 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="point">-- *PK_ID*</span>
+<span class="keyword">select</span> MEMBER_ID <span class="point">as PK_ID</span>, MAX(<span class="abbreviation">...</span>), <span class="abbreviation">...</span>
+  <span class="keyword">from</span> PURCHASE
+    <span class="keyword">left outer join</span> <span class="abbreviation">...</span>
+ <span class="keyword">group by</span> MEMBER_ID
+</code></pre>
+	<p>
+		メタデータから該当カラムの対応するテーブルの情報が取得できない DBMS
+		のときのために、PKカラムに関しては、このPKマークにて関連テーブルを明示的に指定することができます(他の DBMS で設定しても問題はありませんが特に意味はありません)。外だしSQLの
+		LoadReferrer では対応テーブルの情報が必要なため(本来、メタデータから自動解決される)、単にJavaDocコメントでの表示だけの話でなく、そういった
+		DBMS の場合においての補完機能となります。<span class="frm">@since 0.9.7.5</span>
+	</p>
+<pre><span class="codetitle">e.g. 指定したPKの関連テーブルを明示的に指定 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="comment">-- *<span class="point">MEMBER</span>.MEMBER_ID*</span>
+<span class="keyword">select</span> MEMBER_ID, MAX(<span class="abbreviation">...</span>), <span class="abbreviation">...</span>
+  <span class="keyword">from</span> PURCHASE
+    <span class="keyword">left outer join</span> <span class="abbreviation">...</span>
+ <span class="keyword">group by</span> MEMBER_ID
+</code></pre>
+	<div class="inucolumn">
+		<h4>コラム：SQLのユニーク性の明示</h4>
+		<p>
+			CustomizeEntityを利用してBehaviorから更新処理を行うというようなことはないので、LoadReferrer
+			を使わないのであれば、実際にPKの設定が必要になる場面はあまりないかもしれません。
+			ですが、"外だしSQLは結果のユニーク性" がわかりづらいものになりがちで、そのような場合にある種 "ドキュメントという位置付け"
+			でそのSQLのユニーク性を宣言しておくことは、後でそのSQLをメンテナンスする人にとってはとてもありがたいことでしょう。
+			(SQLが)複雑でわかりにくいかもとふと思ったときに、このPKの設定をしておくと良いでしょう。
+		</p>
+	</div>
+	<h3 id="cursor">CursorHandling</h3>
+	<p>
+		<em class="keyword">CustomizeEntityマークのオプション</em> として、TypeSafeCursor
+		を生成することができます。TypeSafeCursorのオプションが指定されている場合はCustomizeEntityは生成されません。
+	</p>
+	<div class="detailpage"><a href="./typesafecursor.html">TypeSafeCursor</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/select/selectcursor.html">外だしSQL - カーソル検索</a></div>
+<pre><span class="codetitle">e.g. TypeSafeCursorを生成 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="comment">-- +cursor+</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="scalar">ScalarHandling</h3>
+	<p>
+		<em class="keyword">CustomizeEntityマークのオプション</em> で、単一のカラム を String や Integer
+		などのスカラ型で扱うようにすることができます<span class="frm">(@since 0.9.8.0)</span>。
+		CustomizeEntityマークに加えて、SQLの行コメントで "+scalar+" と指定すると Entity
+		は自動生成されず、select句に定義されている単一のカラムに対応するデータ型(スカラ型)が戻り値Entityの型として
+		TypeParameterBean に関連付けられます。
+	</p>
+<pre><span class="codetitle">e.g. スカラ型のオプションを指定 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="comment">-- +scalar+</span>
+<span class="keyword">select</span> MEMBER_NAME
+  <span class="keyword">from</span> MEMBER
+</code></pre>
+	<p>
+		フリースタイル形式では単に第三引数にスカラ型を指定すれば良いだけなので、これは TypedParameterBean に対してのみ有効のオプションです。
+		<span class="frm">(ちなみに、フリースタイル形式は、1.1より outside().traditionalStyle() という呼び出しに変わっています)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/select/selectentity.html#scalar">(外だしSQL)selectEntity() - スカラ型で受け取る</a></div>
+	<h3 id="domain">DomainHandling</h3>
+	<p>
+		<em class="keyword">CustomizeEntityマークのオプション</em> で、BehaviorQuery に対応する DomainEntity
+		型で扱うようにすることができます<span class="frm">(@since 0.9.8.1)</span>。
+		CustomizeEntityマークに加えて、SQLの行コメントで "+domain+" と指定すると Entity
+		は自動生成されず、BehaviorQuery に対応する DomainEntity が戻り値Entityの型として
+		TypeParameterBean に関連付けられます。(対象の外だしSQLが BehaviorQuery である必要あり)
+	</p>
+<pre><span class="codetitle">e.g. DomainEntity 型のオプションを指定 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="comment">-- +domain+</span>
+<span class="keyword">select</span> MEMBER_ID, MEMBER_NAME, BIRTHDATE
+  <span class="keyword">from</span> MEMBER
+</code></pre>
+	<p>
+		フリースタイル形式では単に第三引数に DomainEntity 型を指定すれば良いだけなので、これは TypedParameterBean に対してのみ有効のオプションです。
+		<span class="frm">(ちなみに、フリースタイル形式は、1.1より outside().traditionalStyle() という呼び出しに変わっています)</span>
+	</p>
+	<h3 id="recylclingentity">他の自動生成Entityは指定できない!?</h3>
+	<p>
+		例えば、sea.sql で自動生成した CustomizeEntity を、land.sql で再利用しようと思ってもできません。
+		もし land.sql で sea.sql の Entity 名を指定しても重複エラーとなります。
+	</p>
+	<p>
+		それができてしまうと、land.sql の方では結局自動生成の恩恵を受けることができず、SQLとEntityの "ズレ"
+		を検知することができません。land.sql の select 句でスペルミスなどがあってもコンパイルで検知されません。
+	</p>
+	<p>
+		では、もし二つのSQLで select 句が全く同じな場合、どうすれば良いのでしょう？
+	</p>
+	<p>
+		sea.sql, land.sql ではそれぞれ普通に自動生成し、select 句の項目に合わせた getter
+		メソッドを列挙したインターフェースを(手動)作成し、それぞれの CustomizeEntity の Ex
+		クラスにて implements するやり方をオススメしています。
+	</p>
+	<p>
+		実際に、検索されたデータを取り扱うロジックでは、インターフェースで受け取るようにします。
+		インターフェースの手動作成の分少々面倒ですが、そのまま自動生成の恩恵を受けることができ、sea と land のズレを防ぎます。
+		<span class="frm">(どうしても面倒なのであれば、フリースタイル形式で)</span>
+	</p>
+	<h3 id="forcedtype">プログラム型の強制指定</h3>
+	<p>
+		CustomizeEntityのプロパティの型(プログラム型)は、メタデータより取得したDB上のデータ型情報を元にマッピングされます。
+		通常ほとんどの場合はこれで問題はありませんが、JDBCドライバ次第でほんの稀に予期せぬ型にマッピングされることがあります。
+		そのような場合に、型を強制的に指定することができます。SQLの行コメントで <em class="keyword">##プログラム型 カラム名##</em>
+		という形で記述します。するとのそのカラムにマッピング型が指定された型になります。
+	</p>
+<pre><span class="codetitle">e.g. PURCHASE_PERCENTをBigDecimalに強制的にマッピング @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="comment">-- ##BigDecimal PURCHASE_PERCENT##</span>
+select sum(PURCHASE_PERCENT) as PURCHASE_PERCENT
+  from ...
+</code></pre>
+
+	<h2 id="columncomment">検索カラムのコメント</h2>
+	<p>
+		※こちらの機能ですが、documentMap.dfprop の isEntityJavaDocDbCommentValid が true
+		に設定されていることが前提となります。<span class="frm">(ぜひ、true にしてもらいたいプロパティです)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#isentityjavadocdbcommentvalid">dfprop - isEntityJavaDocDbCommentValid</a></div>
+	<p>
+		検索カラム(select句に列挙するカラム)にコメントを付与して、CustomizeEntityのJavaDocコメントに追記することができます。
+		<span class="frm">@since 0.9.9.1A</span>
+	</p>
+	<p>
+		もともとDBFluteがその検索カラムがどのテーブルのどのカラムなのかを探してJavaDocコメントにしますが、
+		それができるかはJDBCドライバの実装に依存しますし、副問い合わせによる導出カラムなどではメタデータは取得できない可能性ありますし、
+		そもそも外だしSQLならではの補足や説明が書きたいでしょう。
+	</p>
+	<h3 id="commoncolumnway">検索カラムのコメントの定義の仕方</h3>
+	<p>
+		select句のカラム定義のすぐ後ろに行コメントマーク "--" に続いて "//"
+		と入れた後にコメントを書くと、それがJavaDocコメントに付与されます。
+		JavaDoc上では、もともとのメタデータによるコメントに続いて "改行 + //" が付与されて、その後にコメントが追記されます。
+	</p>
+<pre><span class="codetitle">e.g. 検索カラムにコメントを付与する @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+
+<span class="keyword">select</span> MEMBER_ID <span class="comment">-- // 検索結果のユニーク性を表現する項目</span>
+     , MEMBER_NAME <span class="comment">-- // スラスラ(//)ってなんか Java っぽい</span>
+     , (<span class="keyword">select</span> max(PURCHASE_PRICE)
+          <span class="keyword">from</span> 
+         <span class="keyword">where</span> <span class="abbreviation">...</span>
+       ) as MAX_PURCHASE_PRICE <span class="comment">-- // 最大購入価格: 未払いは含めない</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		このようにしておくことで、外だしSQL上でわかりやすいだけでなく、
+		プログラム上で実装しながら、検索カラムの特性が補完時に表示されるJavaDocコメントで確認できます。
+	</p>
+	<p>
+		ParameterBeanのプロパティ宣言でも同じようなことができます。合わせて利用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./pmbpropoption.html#propcomment">ParameterBean - プロパティのコメント</a></div>
+	<h3 id="commoncolumnspec">検索カラムのコメントの細かい仕様</h3>
+	<p>
+		JavaDocには追記したくないけど、外だしSQL上ではコメントとして書きたいというような内容のものがある場合は、
+		行コメントマーク "--" と "//" の間にそのコメントを書くことができます。つまり、"--" と "//"
+		は同じ行であれば離して書くことができます。
+	</p>
+<pre><span class="codetitle">e.g. JavaDocに追記しないコメントも書く @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+
+<span class="keyword">select</span> MEMBER_ID <span class="comment">-- これはJavaDocに追記しない // これはJavaDocへ</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		内部的には文字列パースによって実現しているため、書き方によってはJavaDocに追記されないことがあります。
+		"as" や "." や "," などがポイントとなっていて、基本的には "as" が付いていれば正常に抽出される可能性が高いです。
+		以下のような基本的な書き方がされていればほとんどの場合において問題はありません。
+	</p>
+	<ul>
+		<li>... as [カラム名]</li>
+		<li>, [テーブル別名].[カラム名]</li>
+		<li>[テーブル別名].[カラム名],</li>
+		<li>, [カラム名]</li>
+		<li>[カラム名],</li>
+		<li>select [カラム名]</li>
+	</ul>
+	<p>
+		一つの行に二つの検索カラムを定義していたり、カラム定義と行コメントの間に何かしらの記述があったりした場合は、
+		正常にパースすることができない可能性があります。また、ダブルクォーテーションなどで囲ったカラム名はサポート対象外です。
+	</p>
+
+	<h2 id="structure">CustomizeEntityの構造</h2>
+	<p>
+		CustomizeEntityクラスの構造は、基本的に DomainEntity
+		と同じです(内部的にも同じテンプレートが利用されています)。なので、Entity インターフェースを実装しており、DBMeta
+		(SQLのメタデータ)にもアクセスできます。また ジェネレーションギャップになっています。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/entity/index.html">Entity</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wg.html#generationgap">GenerationGap (ジェネレーションギャップ)</a></div>
+	<h3 id="commoncolumn">共通カラム(CommonColumn)の認識</h3>
+	<p>
+		SQLの構造 (select句) として(全ての)共通カラムを含んでいる場合、<em class="keyword">自動的に共通カラムを持ったCustomizeEntity</em>
+		となります。つまり、EntityDefinedCommonColumn インターフェースを実装します。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/entity/index.html#commoncolumn">Entity - 共通カラム</a></div>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム</a></div>
+	<h3 id="classification">区分値メソッドの生成</h3>
+	<p>
+		<em class="keyword">DBFluteプロパティの設定にて区分値と関連付けられているカラムの条件に一致するカラム</em>
+		をSQLの構造 (select句) として含んでいる場合、自動的に区分値メソッドを持ったCustomizeEntityとなります。
+		Sql2Entityのメタデータとしてカラムの参照先カラムが判明している場合は、
+		その参照先カラムの情報をもとに一致するかどうか判定されます(ただし、これはJDBCドライバ次第)。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/entity/index.html#classification">Entity - 区分値</a></div>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+<pre><span class="codetitle">e.g. MEMBER_STATUS_CODEという名前が区分値として関連付けられている場合 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+select MEMBER_ID
+     , MEMBER_STATUS_CODE <span class="comment">-- treated as classification</span>
+     , MEMBER_STATUS_CODE as FOO <span class="comment">-- treated as classification (depends on JDBC)</span>
+     , 0 as MEMBER_STATUS_CODE <span class="comment">-- treated as classification</span>
+  from MEMBER
+</code></pre>
+<pre><span class="codetitle">e.g. _FLGで終わるカラムが区分値として関連付けられている場合 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+select MEMBER_ID
+     , 0 as DELETE_FLG <span class="comment">-- treated as classification</span>
+     , 0 as DELETE_NOFLG <span class="comment">-- NOT treated as classification</span>
+  from MEMBER
+</code></pre>
+	<p>
+		JDBCドライバがどうしてもカラムのメタデータを提供できないケースがあります。
+		例えば、インラインビューでunionを使っているなど、ケースはDMBSによってさまざまです。
+	</p>
+	<p>
+		そこで、強制的に区分値の関連付けヒントを指定することができます。
+		検索カラムのコメントの中で <em class="keyword">cls([区分値名])</em> と指定すると、指定された区分値が関連付きます。<span class="frm">@since 1.0.5M</span>
+	</p>
+<pre><span class="codetitle">e.g. _FLGで終わるカラムが区分値として関連付けられている場合 @OutsideSql</span><code>
+<span class="comment">-- #df:entity#</span>
+select MEMBER_ID
+     , MEMBER_STATUS_CODE <span class="comment">-- // コメントの中であればどこでもOK cls(MemberStatus)</span>
+  from MEMBER
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,最新,Newest,新しい,Latest,ダウンロード,Download,DBFluteモジュール,DBFluteModule,DBFluteランタイム,DBFluteRuntime" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>DBFluteの最新バージョン | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteの最新バージョン</h1>
+	${indexlist}
+
+	<h2 id="newest">最新バージョンの情報</h2>
+	<h3 id="java8newest">Java8 <span class="frm">(1.1.x)</span></h3>
+	<dl class="valuemainlist">
+		<dt>バージョン</dt><dd>1.1.9</dd>
+		<dt>リリース日</dt><dd>2019/01/01</dd>
+		<dt>製品ステータス</dt><dd>Product</dd>
+	</dl>
+	<h3 id="java6newest">Java6,7 <span class="frm">(1.0.x)</span></h3>
+	<dl class="valuemainlist">
+		<dt>バージョン</dt><dd>1.0.5N</dd>
+		<dt>リリース日</dt><dd>2014/12/01</dd>
+		<dt>製品ステータス</dt><dd>Product</dd>
+	</dl>
+	<h3 id="engineruntime">エンジンとランタイムのバージョン関係</h3>
+	<p>
+		DBFluteエンジンとDBFluteランタイムは、バージョン番号が一致します。
+		<span class="frm">(自動生成されるクラスのバージョンと、それらクラスから参照されるライブラリのバージョンが一致しないとコンパイルエラーになる可能性あり)</span>
+	</p>
+	<div class="relatedpage"><a href="../manual/function/generator/module/index.html">DBFluteモジュール</a></div>
+	<div class="relatedpage"><a href="../manual/function/ormapper/runtime/index.html">DBFluteランタイム</a></div>
+
+	<h2 id="download">最新バージョンのダウンロード</h2>
+	<h3 id="java8engine">Java8</h3>
+	<p>
+		DBFluteエンジンはこちら: <a href="https://github.com/dbflute/dbflute-core/releases/download/dbflute-1.1.9/dbflute-1.1.9.zip">dbflute-1.1.9.zip</a>
+	</p>
+	<p>
+		dbflute-maven-plugin を使って、ダウンロードからセットアップまでできます。
+	</p>
+	<div class="relatedpage"><a href="./setup/maven.html">Mavenによるセットアップ</a></div>
+	<p>
+		DBFluteランタイムは、MavenCentralにて org.dbflute - dbflute-runtime で取得できます。
+	</p>
+	<h3 id="java6engine">Java6,7</h3>
+	<p>
+		DBFluteエンジンはこちら: <a href="http://dbflute.seasar.org/download/dbflute/dbflute-1.0.5N.zip">dbflute-1.0.5N.zip</a>
+	</p>
+	<p>
+		EMecha(Eclipse Plugin) もしくは Maven DBFlute Plugin
+		を利用可能な場合は、そちらからダウンロード可能なので、ここからダウンロードする必要はありません。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/helper/emecha/index.html">EMecha (Eclipse Plugin)</a></div>
+	<div class="relatedpage"><a href="../manual/function/helper/maven/index.html">Maven DBFlute Plugin</a></div>
+	<p>
+		※DBFlute.NET(C#版)に関しては、別途サイトが設けられていますのでそちらをご利用ください。 
+	</p>
+	<div class="relatedpage"><a href="http://dbflute.net.sandbox.seasar.org/ja/environment/newest.html">DBFlute.NET - 最新バージョン</a></div>
+	<p>
+		DBFluteランタイムはこちら: <a href="http://maven.seasar.org/maven2/org/seasar/dbflute/dbflute-runtime/1.0.5N/dbflute-runtime-1.0.5N.jar">dbflute-runtime-1.0.5N.jar</a>
+		| <a href="http://maven.seasar.org/maven2/org/seasar/dbflute/dbflute-runtime/1.0.5N/dbflute-runtime-1.0.5N-sources.jar">dbflute-runtime-1.0.5N-sources.jar</a>
+	</p>
+	<p>
+		Mavenでクラスパスを管理されている場合は、dependency 定義を追加することでクラスパスに反映できるので、
+		こちらからダウンロードする必要はありません。
+	</p>
+	<div class="relatedpage"><a href="./setup/runtime.html">セットアップ - dependency定義を追加</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

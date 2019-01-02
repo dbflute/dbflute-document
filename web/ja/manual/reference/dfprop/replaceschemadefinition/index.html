@@ -1,0 +1,571 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,replaceSchemaDefinitionMap.dfprop,ReplaceSchema" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>replaceSchemaMap (replaceSchemaDefinitionMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>replaceSchemaMap</h1>
+	<p>
+		Java6版までは、replaceSchemaDefinitionMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">replaceSchemaMapとは？</h2>
+	<p>
+		ReplaceSchemaタスクについての設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の replaceSchemaMap.dfprop <span class="frm">(replaceSchemaDefinitionMap.dfprop)</span> という名前のテキストファイルです。基本的に ReplaceSchemaタスク にて参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/index.html">ReplaceSchemaタスク</a></div>
+	<h3 id="connection">DB接続設定は別のプロパティ</h3>
+	<p>
+		ReplaceSchemaのDB接続設定は databaseInfoMap.dfprop のものを利用します。
+	</p>
+	<div class="relatedpage"><a href="../databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々な key-value 形式のプロパティを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		必須のプロパティはありません。
+	</p>
+	<h3 id="repsenvtype">repsEnvType <span class="frm">@since 0.9.8.5</span></h3>
+	<p>
+		ReplaceSchemaの環境タイプを指定します。
+	</p>
+	<p>
+		例えば、データ登録において登録対象とするデータのタイプを指定します。
+		ここで指定したのと同じ名称のディレクトリを <em class="keyword">[DBFluteクライアント]/playsql/data</em>
+		配下から探して、DBに登録するデータを読み込みます。(もし、"it" なら playsql/data/it 配下)
+	</p>
+	<p>
+		このプロパティの設定値を切り替えることで、<em class="keyword">単体テスト環境、結合テスト環境および実環境ごとに使用するデータを切り替える</em>
+		ということが実現できます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#repsenvtype">ReplaceSchema - 環境ごとの切り替え</a></div>
+	<p>
+		また、スキーマ作成(CreateSchema)や最終チェック(TakeFinally)でも利用できます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/createtable.html#repsenvtype">ReplaceSchema - 環境ごとの実行チェック</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>タイプ名 (ディレクトリ名に利用できる名前)</dd>
+		<dt>デフォルト</dt><dd>DBFluteの環境タイプ or ut</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFluteの環境タイプが指定されている場合はデフォルトがその値に</li>
+				<li>習慣的に <em class="keyword">ut、it、product</em> などがお奨め</li>
+				<li>common は環境タイプにおける予約語なので利用できない</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		何も指定していなければ、DBFluteの環境タイプと値が同期します。
+	</p>
+	<div class="relatedpage"><a href="../environmenttype.html">環境タイプごとの dfprop</a></div>
+	<h3 id="dataloadingtype">dataLoadingType <span class="frm">@until 0.9.8.4</span></h3>
+	<p>
+		古いバージョンにおける repsEnvType と同じ役割のプロパティです。
+		デフォルト値が固定で ut であること以外は同じ仕様です。
+	</p>
+	<h3 id="islogginginsertsql">isLoggingInsertSql</h3>
+	<p>
+		DBへの登録したデータを一レコードずつログに出力するか否か指定します。ReplaceSchema 
+		で大量のデータを取り扱うようになって、少しでもデータ登録の処理が速く終わるようにしたい場合に "false"
+		にします。但し、データ登録でエラーが発生した場合は、一時的にこの設定を戻し、ログに出力されたデータを見てデバッグするようにして下さい。
+	</p>
+	<p>
+		このプロパティは、全部出すか全部出さないかの両極端なものです。
+		先頭の一部のレコードだけを表示するというオプションが別途存在しますので、そちらを利用することが推奨されます。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#logginginserttype">ReplaceSchema - データ登録 - loggingInsertType</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true</dd>
+	</dl>
+	<h3 id="isloggingreplacesql">isLoggingReplaceSql <span class="frm">@since 0.9.9.4B</span></h3>
+	<p>
+		スキーマ初期化やスキーマ構築(replace-schema.sqlやtake-finally.sqlなど)のSQLをログに出力するか否かを指定します。 
+		ほんのわずかでも処理が速く終わるようにしたい場合に "false" にします。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true</dd>
+	</dl>
+	<h3 id="iserrorsqlcontinue">isErrorSqlContinue <span class="frm">@since 0.9.9.2F</span></h3>
+	<p>
+		エラーのSQLがあった場合に、タスクを中断せずに続行して次の処理に移るか否かを指定します。
+		続行したとしても、タスクの結果は FAILURE となります。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="sqlfileencoding">sqlFileEncoding</h3>
+	<p>
+		ReplaceSchemaで実行するDDLのSQLファイル(replace-schema-xxx.sqlなど)のエンコーディングを指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/createtable.html">ReplaceSchema - テーブル作成</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>エンコーディング (Javaで認識できるもの)</dd>
+		<dt>デフォルト</dt><dd>UTF-8</dd>
+	</dl>
+	<h3 id="skipsheet">skipSheet</h3>
+	<p>
+		データ登録で利用するエクセルデータの中で、登録対象外とするシート名を正規表現で指定します。
+		ツールなどで生成されたエクセルデータで、データとは無関係のシートが存在する場合に有効です。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>正規表現 (Javaで認識できるもの)</dd>
+		<dt>デフォルト</dt><dd>なし（登録対象とするシートなし）</dd>
+	</dl>
+	<p>
+		このプロパティとは別に、コメントアウトされたシートは登録対象外となります。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/loadxls.html#xlsdataspec">ReplaceSchema - エクセルファイルのデータ仕様</a></div>
+	<h3 id="ischeckschemapolicyinreps">isCheckSchemaPolicyInReps</h3>
+	<p>
+		SchemaPolicyCheck が、ReplaceSchema の DDL (CreateSchema) 実行直後に実行されます。
+		早い段階でチェックを検知するのに有効です。
+		<span class="frm">(AdditionalSchemaのテーブルなど、ReplaceSchemaの時点ではチェックしづらいものは除外されますが、ほとんどのポリシーが実施されます)</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="conventionaltakeassertmap">conventionalTakeAssertMap <span class="frm">@since 1.1.7</span></h3>
+	<p>
+		ReplaceSchema の TakeFinally のタイミングにて、規約的なアサートを実行できます。
+		例えば、"テストデータが一件も存在しないテーブルがあったらエラー" にするなど、定型的で横断的なチェックが可能です。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>emptyTableMapで、空っぽのテーブルに対するアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		"テストデータが一件も存在しないテーブルがあったらエラー" というアサートは、emptyTableMap を利用します。
+		<span class="frm">(つまり、テーブルを追加したら必ず一件以上はテストデータを入れましょう、というチェックですね)</span>
+	</p>
+<pre><span class="codetitle">e.g. テストデータが一件も存在しないテーブルがあったらエラー @replaceSchemaMap.dfprop</span><code>
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o conventionalTakeAssertMap: (NotRequired - Default map:{})
+    #  Does it assert data by conventional rule in take-finally
+    #  For example, you can check empty table (no-data).
+    #</span>
+    ; conventionalTakeAssertMap = <span class="keyword">map:</span>{
+        ; <span class="point">emptyTableMap</span> = <span class="keyword">map:</span>{
+            ; isFailure = <span class="keyword">true</span>
+            ; workableRepsEnvTypeList = <span class="keyword">list:</span>{ut}
+            ; tableExceptList = <span class="keyword">list:</span>{}
+            ; tableTargetList = <span class="keyword">list:</span>{}
+            ; errorIfFirstDateAfter = <span class="keyword">null</span>
+        }
+    }
+    <span class="comment"># - - - - - - - - - -/</span>
+</code></pre>
+	<p>
+		既存テーブルは諦めるとして、"これから追加されるテーブルだけはテストデータを一件以上入れよう"
+		という場合は、errorIfFirstDateAfter に "今日" を入れましょう。
+	</p>
+<pre><span class="codetitle">e.g. 新しいテーブルで、テストデータが一件も存在しなかったらエラー @replaceSchemaMap.dfprop</span><code>
+            <span class="abbreviation">...</span>
+            ; tableTargetList = <span class="keyword">list:</span>{}
+            ; <span class="point">errorIfFirstDateAfter</span> = <span class="literal">2018/09/28</span>
+        }
+        <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		比較対象となるテーブル作成日(firstDate)は、SchemaPolicyCheck における firstDate と仕組みは同じです。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/schemapolicy/index.html#firstdate">DB設計のチェックスタイル - これから追加されるものだけチェック</a></div>
+	<h3 id="isincrementsequencetodatamax">isIncrementSequenceToDataMax</h3>
+	<p>
+		テーブルのPKに関連付けたシーケンスの次の採番値を、登録したデータの最大値に 1
+		を足したもの調整にするか指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#isincrementsequencetodatamax">ReplaceSchema - シーケンス値の調整</a></div>
+	<div class="relatedpage"><a href="../sequencedefinition/index.html">sequenceDefinitionMap.dfprop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>シーケンスが利用できるDBのみサポート</li>
+				<li>sequenceDefinitionMap.dfprop にて設定したシーケンスが対象</li>
+				<li>PostgreSQLの serial、bigserial のシーケンスも対象</li>
+				<li>減算シーケンスは問答無用で対象外</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="issuppressbatchupdate">isSuppressBatchUpdate</h3>
+	<p>
+		エクセルデータからの登録を "バッチ更新" せず、１件ずつ実行するか指定します。このプロパティを true
+		にすると、実行速度は遅くなりますが、エラーの原因となるデータの特定がしやすくなります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/loadxls.html#issuppressbatchupdate">ReplaceSchema - バッチ更新をしないで登録</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="objecttypetargetlist">objectTypeTargetList</h3>
+	<p>
+		databaseInfoMap.dfprop の objectTypeTargetList の設定を ReplaceSchema で独自に上書きするプロパティ。
+		主にスキーマ初期化時の対象となるオブジェクトを指定します。<span class="frm">@since 0.9.8.2</span>
+	</p>
+	<p>
+		一つ以上のオブジェクトが指定されていると、ReplaceSchema においてはこのプロパティが利用されます。
+		例えば、ビュー(VIEW)は自動生成しないが、ReplaceSchemaとしては管理したいという場合に有効です。
+		プロパティの仕様は databaseInfoMap.dfprop のものと同じです。
+	</p>
+	<div class="relatedpage"><a href="../databaseinfo/index.html#objecttypetargetlist">databaseInfoMap の objectTypeTargetList</a></div>
+	<h3 id="isdropgeneratetableonly">isDropGenerateTableOnly <span class="frm">@until 0.9.8.2</span></h3>
+	<p>
+		自動生成対象外のテーブルを削除対象としないか指定します。このプロパティを true
+		にすると、自動生成対象外のテーブルを削除対象としません。自動生成対象の調整は、databaseInfoMap.dfprop
+		で設定します。自動生成対象外のテーブルの環境構築が、ReplaceSchema管理でなく独自管理になっているの場合に有効です。
+		<span class="frm">(廃止されました)</span>
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#table">ReplaceSchema - 全てのテーブルをdrop</a></div>
+	<div class="relatedpage"><a href="../databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="isdropgenerateprocedureonly">isDropGenerateProcedureOnly <span class="frm">@until 0.9.8.2</span></h3>
+	<p>
+		自動生成対象外のプロシージャを削除対象としないか指定します。このプロパティを true
+		にすると、自動生成対象外のプロシージャを削除対象としません。自動生成対象の調整は、outsideSqlDefinitionMap.dfprop
+		で設定します。自動生成対象外のプロシージャの環境構築が、ReplaceSchema管理でなく独自管理になっているの場合に有効です。
+		<span class="frm">(廃止されました)</span>
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#procedure">ReplaceSchema - 全てのプロシージャをdrop</a></div>
+	<div class="relatedpage"><a href="../outsidesqldefinition/index.html#targetprocedure">dfprop - 自動生成対象プロシージャの調整</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		プロシージャの自動生成を無効の状態でこのプロパティを有効にした場合は、どのプロシージャも削除されません。
+	</p>
+	<div class="relatedpage"><a href="../outsidesqldefinition/index.html#generateprocedure">dfprop - プロシージャ対応クラスの自動生成</a></div>
+	<h3 id="filtervariablesmap">filterVariablesMap</h3>
+	<p>
+		SQLに埋め込む変数名と、その変数を置換する値を map型プロパティ で指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/createtable.html#filtervariables">ReplaceSchema - 変数のフィルタ</a></div>
+	<p>
+		テスト環境と実環境でスキーマが異なるために同じDDLを実行できない場合などに、このプロパティの設定と環境の切り替えを併用することで問題を解決できます。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/environmenttype.html">環境ごとのDBFluteプロパティ</a></div>
+<pre><span class="codetitle">e.g. スキーマ名を置換したい場合 (変数の利用) @replace-schema-xxx.sql</span><code>
+<span class="keyword">create table</span> <span class="comment">/*$schemaA*/</span>.TABLE
+</code></pre>
+<pre><span class="codetitle">e.g. スキーマ名を置換したい場合 (フィルタ設定) @replaceSchemaDefinitionMap.dfprop</span><code>
+; filterVariablesMap = <span class="keyword">map</span>:{ <span class="point">schemaA = FOO</span> ; schemaB = BAR }
+</code></pre>
+<pre><span class="codetitle">e.g. スキーマ名を置換したい場合 (実行されるSQL) @SQL</span><code>
+<span class="keyword">create table</span> <span class="point">FOO</span>.TABLE
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<p>
+		設定の有無に関わらず利用できる(予約された)変数があります。databaseInfoMap.dfprop
+		の値を参照することができます。<span class="frm">@since 0.9.8.3</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>dfprop.mainCatalog</dt><dd>接続対象のデータベース名(カタログ名)</dd>
+		<dt>dfprop.mainSchema</dt><dd>接続対象のスキーマ名</dd>
+		<dt>dfprop.mainUser</dt><dd>接続DBユーザ</dd>
+		<dt>dfprop.mainPassword</dt><dd>接続DBユーザのパスワード</dd>
+		<dt>sys.basedir</dt><dd>DBFluteクライアントの絶対パス <span class="frm">@since 0.9.9.0A</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. databaseInfoMap.dfprop の値を利用してフィルタ @SQL</span><code>
+<span class="keyword">create database</span> <span class="comment">/*$dfprop.mainCatalog*/</span>;
+</code></pre>
+	<p>
+		埋め込み変数コメント形式ではなく、ダイレクトな文字列置換としても利用できます。置換前の文字に "direct:"
+		を付与すると、その文字に対する単純な文字列置換となります。<span class="frm">@since 0.9.9.1B</span>
+	</p>
+<pre><span class="codetitle">e.g. ダイレクトな文字列置換を利用したい場合 (フィルタ設定) @replaceSchemaDefinitionMap.dfprop</span><code>
+; filterVariablesMap = <span class="keyword">map</span>:{ <span class="attribute">direct:</span>foo = bar }
+</code></pre>
+	<h3 id="additionalusermap">additionalUserMap</h3>
+	<p>
+		SQLの一部を別のユーザで実行したい場合に、そのユーザを指定します。
+	</p>
+	<p>
+		このプロパティを設定したうえでSQLに指定のコメントを記述すると、SQLの実行ユーザを切り替えることができます。
+		基本的に、(アプリユーザの作成のための)システムユーザでの実行を想定しています。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/createtable.html#systemuser">ReplaceSchema - システムユーザでの実行</a></div>
+<pre><span class="codetitle"> additionalUserMapの仕様 @replaceSchemaDefinitionMap.dfprop</span><code>
+additionalUserMap = <span class="keyword">map</span>:{
+    ; [user-def-name] = <span class="keyword">map</span>:{ <span class="comment"># ユーザ定義名 (任意の名前で、SQL上で指定される)</span>
+        ; url = [url] <span class="comment"># デフォルト: databaseInfoMap.dfprop の設定と同じ</span>
+        ; schema = [schema] <span class="comment"># デフォルト: databaseInfoMap.dfprop の設定と同じ</span>
+        ; user = [user] <span class="comment"># 必須</span>
+        ; password = [password] <span class="comment"># デフォルト: 空パスワード</span>
+    }
+    ...
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<p>
+		環境ごとにパスワードが異なる場合のために、password
+		で外だしのパスワードファイルを指定することができます。
+		そのパスワードファイルはバージョン管理システムにはコミットしないように設定することで、環境ごとのパスワードを指定できます。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/systemuser.html#pwdfile">システムユーザでの実行 - パスワードファイルの利用</a></div>
+	<p>
+		この外だしファイルの機能は、url や user でも利用できます<span class="frm">(@since 0.9.9.8)</span>。
+	</p>
+	<h3 id="additionaldropmaplist">additionalDropMapList</h3>
+	<p>
+		テーブル削除時に、追加的にテーブルを削除する設定を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#additionaldrop">ReplaceSchema - 別スキーマのテーブル削除</a></div>
+	<p>
+		メインスキーマのテーブル削除の処理の前に、別スキーマのテーブルを削除することができます。
+		FK制約などで自スキーマを参照しているスキーマを削除する必要がある場合に有効です。
+	</p>
+<pre><span class="codetitle">e.g. additionalDropMapListの仕様 @replaceSchemaDefinitionMap.dfprop</span><code>
+; additionalDropMapList = <span class="keyword">list:</span>{
+    ; <span class="keyword">map:</span>{
+        ; url = [url] <span class="comment"># デフォルト: databaseInfoMap.dfprop の設定と同じ</span>
+        ; schema = [schema] <span class="comment"># 必須: 但し、空指定あり (空指定に意味のあるDBMSに限り)</span>
+        ; user = [user] <span class="comment"># デフォルト: databaseInfoMap.dfprop の設定と同じ</span>
+        ; password = [password] <span class="comment"># デフォルト: databaseInfoMap.dfprop の設定と同じ</span>
+        ; propertiesMap = map:{[key-value]} <span class="comment"># デフォルト: 省略時は設定なし</span>
+        ; objectTypeTargetList = list:{[object-list]} <span class="comment"># デフォルト: list:{TABLE;VIEW}</span>
+
+        <span class="comment"># 以下、廃止されました @until 0.9.8.2</span>
+        ; tableExceptList = list:{[table-list as hint]} <span class="comment"># デフォルト: 設定なし</span>
+        ; tableTargetList = list:{[table-list as hint]} <span class="comment"># デフォルト: 設定なし</span>
+        ; isDropAllTable = [true or false] <span class="comment"># 全テーブルを削除か否か。デフォルト: false</span>
+    }
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>list型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<h3 id="playsqldirectory">playSqlDirectory</h3>
+	<p>
+		ReplaceSchemaの処理が評価する(メインの) playsql ディレクトリを指定します。<span class="frm">@since 0.9.9.0A</span>
+	</p>
+	<p>
+		このプロパティを指定すると、DBFluteクライアント/playsql は利用されなくなり、代わりに指定されたディレクトリが playsql
+		になります。<em class="keyword">めったなことでは利用しないことが前提です</em>
+	</p>
+	<p>
+		このプロパティは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteクライアントからの相対パス</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<h3 id="applicationplaysqldirectory">applicationPlaySqlDirectory</h3>
+	<p>
+		アプリごとのReplaceSchemaの処理が評価する playsql ディレクトリを指定します。<span class="frm">@since 0.9.7.0</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/applicationplaysql/index.html">現場フィット - アプリごとのPlaySql(テストデータ)</a></div>
+	<p>
+		テーブル作成、データ登録、最終チェックの三つの処理において、それぞれのタイミングでメインの playsql
+		の評価が終わった後に、指定された playsql 配下のリソースが同様に処理されます。
+	</p>
+	<ol>
+		<li>メインの playsql のテーブル作成 (replace-schema.sql)</li>
+		<li>追加の playsql のテーブル作成 (同上)</li>
+		<li>メインの playsql のデータ登録 (common と dataLoadingTypeのもの)</li>
+		<li>追加の playsql のデータ登録 (同上) ※ただし、エクセルデータのみ対象</li>
+		<li>メインの playsql の最終チェック (take-finally.sql)</li>
+		<li>追加の playsql の最終チェック (同上)</li>
+	</ol>
+<pre><span class="codetitle">e.g. applicationPlaySqlDirectoryの利用例 @replaceSchemaDefinitionMap.dfprop</span><code>
+; applicationPlaySqlDirectory = ../../foo-project/dbflute_apbranch/playsql
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteクライアントからの相対パス</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<h3 id="arrangebeforerepsmap">arrangeBeforeRepsMap</h3>
+	<p>
+		ReplaceSchema実行前に、ファイルコピーなどのアレンジ操作を指定します。<span class="frm">@since 0.9.8.5</span>
+	</p>
+	<p>
+		例えば、DDLの出力先を保存できないERDツールや、フルパスで保存してしまうERDツールなどを利用している場合に、
+		このプロパティを利用してReplaceSchema実行前にDBFlute管理外の場所に出力されたDDLファイルを playsql
+		配下にコピーさせることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/arrangebeforereps.html">ReplaceSchema実行前の調整</a></div>
+<pre><span class="codetitle">e.g. arrangeBeforeRepsMapの仕様 @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; define = <span class="keyword">map:</span>{
+        ; [from-string] = [to-string]
+    }
+    ; copy = <span class="keyword">map:</span>{
+        <span class="comment"># DBFluteクライアントからの相対パス or 絶対パス</span>
+        ; [src-path] = [dest-path]
+    }
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>アレンジ操作は copy のみ利用可能</li>
+				<li>define でパス表現で有効なの定数定義が利用可能 <span class="frm">@since 0.9.9.1B</span></li>
+				<li>"/" で始まれば絶対パス、それ以外はDBFluteクライアントからの相対パス</li>
+				<li>ディレクトリのコピーは指定できない</li>
+				<li>src が "foo/*.bar" と指定された場合、dest が固定ファイルであれば、foo 配下の唯一の bar ファイルが src となる (複数存在した場合は例外となる)</li>
+				<li>src が "foo/*.bar" と指定された場合、dest がディレクトリ(ドット "." を含まない)であれば、src が "foo/*.bar" なら、foo 配下の全ての bar ファイルが src となる <span class="frm">@since 0.9.9.1A</span></li>
+				<li>src で指定されたファイルがない場合でも特にエラーにはならない(ログ出力のみ)</li>
+				<li>dest のファイルが既に存在している場合は、上書き処理される</li>
+				<li>src, dest 共にパス表現(一つ以上のスラッシュを含む)であること</li>
+				<li>copyにて、おもむろに df:clean を付けるとそのディレクトリのファイルを削除してからコピー</li>
+			</ul>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. dbflute-spring-exampleのplaysqlからSQLなどをコピーしてくる @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; define = <span class="keyword">map:</span>{
+        ; <span class="attribute">$$SrcDir$$</span> = ../../dbflute-spring-example/dbflute_exampledb/playsql
+        ; <span class="attribute">$$DestDir$$</span> = ./playsql
+    }
+    ; copy = <span class="keyword">map:</span>{
+        ; <span class="attribute">$$SrcDir$$</span>/*.sql = <span class="attribute">$$DestDir$$</span>
+        ; <span class="attribute">$$SrcDir$$</span>/data/common/xls/*.xls = <span class="attribute">$$DestDir$$</span>/data/common/xls
+        ; <span class="attribute">$$SrcDir$$</span>/data/ut/xls/*.xls = <span class="attribute">$$DestDir$$</span>/data/ut/xls
+        ; <span class="attribute">$$SrcDir$$</span>/data/ut/csv/*.csv = <span class="attribute">$$DestDir$$</span>/data/ut/csv df:clean
+    }
+}
+</code></pre>
+	<h3 id="issuppresstruncatetable">isSuppressTruncateTable</h3>
+	<p>
+		テーブル削除の前の truncate 処理を抑制するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#truncate">ReplaceSchema - 全てのテーブルにtruncate実行</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false（Truncateする）</dd>
+	</dl>
+	<h3 id="issuppressdropforeignkey">isSuppressDropForeignKey</h3>
+	<p>
+		テーブル削除の前のFK制約の削除処理を抑制するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#fk">ReplaceSchema - 全てのFK制約をdrop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (削除する)</dd>
+	</dl>
+	<h3 id="issuppressdroptable">isSuppressDropTable</h3>
+	<p>
+		テーブルの削除処理を抑制するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#table">ReplaceSchema - 全てのテーブルをdrop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (削除する)</dd>
+	</dl>
+	<h3 id="issuppressdropsequence">isSuppressDropSequence</h3>
+	<p>
+		テーブル削除の前のシーケンスの削除処理を抑制するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#sequence">ReplaceSchema - 全てのシーケンスをdrop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (削除する)</dd>
+	</dl>
+	<h3 id="issuppressdropprocedure">isSuppressDropProcedure</h3>
+	<p>
+		テーブル削除の前のプロシージャの削除処理を抑制するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#procedure">ReplaceSchema - 全てのプロシージャをdrop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (削除する)</dd>
+	</dl>
+	<h3 id="issuppressdropdblink">isSuppressDropDBLink</h3>
+	<p>
+		テーブル削除の前のDBリンクの削除処理を抑制するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#dblink">ReplaceSchema - 全てのDBリンクをdrop</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (削除する)</dd>
+	</dl>
+	<h3 id="initializefirstsqllist">initializeFirstSqlList <span class="frm">@since 0.9.9.4B</span></h3>
+	<p>
+		スキーマ初期化を実行する前に実行するSQLを指定します。
+	</p>
+	<p>
+		DBMSの特性上、どうしてもスキーマ初期化前に独自のSQLを実行する必要があるような場合に有効です。
+		例えば、PostgreSQLにおいて pg_trgm などの extension を利用する場合に、スキーマ初期化前に extension を事前に drop
+		する必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/postgresql/index.html#extensionhandling">DBMSごとの取扱い - PostgreSQL - Extension利用時の微調整</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html">ReplaceSchema - スキーマ初期化</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>SQL文字列のリスト</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された順序で実行される</li>
+			</ul>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

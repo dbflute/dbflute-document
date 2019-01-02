@@ -1,0 +1,387 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Doc,LoadDataReverse,データエクセルテンプレート,エクセルデータの土台,エクセルデータの雛形,エクセルデータのひな形,データダンプ,Dump" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>LoadDataReverse | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LoadDataReverse</h1>
+	<p>
+		Alto DBFlute のパートです。
+	</p>
+	<div class="relatedpage"><a href="../../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">LoadDataReverseとは？</h2>
+	<p>
+		DB上のデータを、エクセルやTSVなどのデータファイルとして出力する機能です<span class="frm">(@since 0.9.8.4)</span>。
+	</p>
+	<p>
+		主に以下の二つの目的があります。
+	</p>
+	<dl class="textlist">
+		<dt>ReplaceSchema導入のために、既存データベースからテストデータの抽出</dt>
+		<dd>
+			ReplaceSchema をまだ導入していない場合に、LoadDataReverse で既存のテストデータベースからテストデータを抽出して、そのまま
+			ReplaceSchema のデータにするとスムーズに導入ができるでしょう。
+		</dd>
+		<dt>画面で登録したデータを ReplaceSchema で利用する "循環テストデータ運用" ができるように</dt>
+		<dd>
+			アプリ画面でデータ登録して LoadDataReverse で抽出して ReplaceSchema する、というような流れの
+			<em class="keyword">循環テストデータ運用</em> を LoadDataReverse で実現できます。
+		</dd>
+		<dd>
+			整合性のとれたテストデータを手動で作成していくのは大変な作業です。
+			既に信頼できるアプリの画面があるのであれば、その画面で登録したデータをエクセルにできれば、効率的にテストケースを増やしていけます。
+			アプリが完璧でないにしても、出力後に人が目視で確認して業務的な微調整をすれば良いでしょう。それは同時にアプリの動作レビューにもなります。
+		</dd>
+	</dl>
+	<h3 id="lreverseimage">LoadDataReverse概念図</h3>
+	<p class="imgbox">図 : LoadDataReverse概念図
+		<a href="../../../../../data/model/doc-LoadDataReverse-view.png" title="LoadDataReverse概念図"><img src="../../../../../data/model/doc-LoadDataReverse-view.png" alt="LoadDataReverse概念図" width="550" height="330" /></a>
+	</p>
+
+	<h2 id="howto">利用方法</h2>
+	<p>
+		ReplaceSchemaの導入や、"循環テストデータ運用" の利用を前提として説明します。 
+	</p>
+	<h3 id="dfprop">dfpropで出力設定</h3>
+	<p>
+		documentDefinitionMap.dfprop の loadDataReverseMap を有効にして、isReplaceSchemaDirectUse <span class="frm">(@since 1.0.4B)</span> を true にします。
+		<span class="frm">(recordLimit は -1 で)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#loaddatareversemap">dfprop - loadDataReverseMap</a></div>
+<pre><span class="codetitle">e.g. 単に出力するだけの設定 @documentDefinitionMap.dfprop</span><code>
+    <span class="abbreviation">...</span>
+
+    ; loadDataReverseMap = <span class="keyword">map:</span>{
+        ; recordLimit = -1
+        ; <span class="point">isReplaceSchemaDirectUse</span> = <span class="keyword">true</span>
+        ; isOverrideExistingDataFile = <span class="keyword">false</span>
+        ; isSynchronizeOriginDate = <span class="keyword">false</span>
+    }
+    <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="managetask">manageタスクで叩く</h3>
+	<p>
+		そして、Manageタスクで LoadDataReverse
+		を実行します<span class="frm">(@since 0.9.9.7B)</span>。
+	</p>
+	<div class="relatedpage"><a href="../manage/index.html">Manageタスク</a></div>
+<pre><span class="codetitle">e.g. Manageタスクで LoadDataReverse の実行 (シェル) @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh load-data-reverse
+
+ or
+
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh   <span class="comment">// Enter, and then select the number</span>
+</code></pre>
+	<h3 id="reversexls">reversexlsに出力される</h3>
+	<p>	
+		すると、DB上のデータが、DBFluteクライアント/playsql/data/reservexls <span class="frm">(@since 1.0.4B)</span>
+		配下に cyclic-data-[セクション番号]-xxx.xls という形式の名前で出力されます。これは、通常の xls
+		ディレクトリとは違い、TSVやCSVのデータ登録よりも先に実行されるエクセルデータの配置領域です。
+	</p>
+	<dl class="textlist">
+		<dt>出力先ディレクトリ</dt>
+		<dd><em class="keyword">DBFluteクライアント/playsql/data/[現在のdataLoadingType]/reversexls</em></dd>
+		<dd>※dataLoadingTypeは、デフォルトでは ut</dd>
+		<dt>ファイル名</dt>
+		<dd><em class="keyword">cyclic-data-[セクション番号]-xxx.xls</em></dd>
+	</dl>
+	<div class="relatedpage"><a href="../replaceschema/loadxls.html#xlsfiledir">データ登録(エクセル) - エクセルファイルの配置</a></div>
+<pre><span class="codetitle">e.g. データ出力先 @Directory</span><code>
+dbflute_exampledb
+ |-dfprop
+ |-<span class="abbreviation">...</span>
+ |-playsql
+ |  |-data
+ |  |  |-ut
+ |  |  |  |-<span class="point">reversexls</span>
+ |  |  |  |  |-cyclic-data-01-foo.xls
+ |  |  |  |  |-cyclic-data-02-bar.xls
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |  |-loadingControlMap.dataprop
+ |  |  |  |  |-reverse-data-result.dfmark
+ |  |  |  |
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		同じディレクトリに reverse-data-result.dfmark
+		というファイルが作成されます。どのエクセルファイルに、どのテーブルのデータがどれだけ出力されたかなどの出力結果が記載されています。
+		その他、出力日時や実行時のプロパティ情報などが確認できます。
+	</p>
+
+	<h2 id="adjustment">いろいろな調整、微調整</h2>
+	<h3 id="removenormalxls">xlsディレクトリの方はもう要らない</h3>
+	<p>
+		既に ReplaceSchema 運用していて循環テストデータ運用を始める際に、同じ dataLoadingType (通常は ut) の xls
+		ディレクトリ配下のエクセルデータをそのまま置いておくと reversexls
+		の方のデータと内容が重複してしまいます。xlsディレクトリの方のエクセルデータは削除しておきましょう。
+	</p>
+	<h3 id="overrideexisting">既存エクセルに出力するオプション</h3>
+	<p>
+		LoadDataReverseで出力したデータがそのまま手動調整なしで ReplaceSchema
+		で登録できれば一番ですが、必ずしもそうできるとは限らないので、出力後に手動で微調整が必要かもしれません。
+		また、エクセルファイルの構成(テーブルの定義位置やエクセルファイル名)を人のわかりやすい構成に直したいものです。
+		ただ、手動調整しても、デフォルトでは出力時に DBFlute が自動構成されたもので上書きされてしまいます。
+	</p>
+	<p>
+		手動調整後、手動で調整された既存のエクセルファイルの構成のままデータ出力したい場合は、
+		isOverrideExistingDataFile を true にすると、既存の構成がキープされます。FK順序の調整は完全に人に委ねられたと言える状態になります。
+		また、既存のエクセルに存在しないテーブルは、unknown
+		という名前の付いたファイルに一律出力されますので、出力後に手動でいい感じに調整します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#loaddatareversemap">dfprop - loadDataReverseMap</a></div>
+	<p>
+		ただし、まだDB変更が多い段階では手動調整のコストが高くなるので、調整の必要なく循環ができるのであれば、しばらくはこのオプションは使わない方がよいでしょう。
+		どのエクセルにどのテーブルが出力されたかは、reverse-data-result.dfmark を見ればわかりますので。
+	</p>
+	<h3 id="synchronizeorigindate">DateAdjustmentの同期オプション</h3>
+	<p>
+		データ登録制御 (loadingControlMap.dataprop) の相対的な日付調整における基準日を、自動的に同期することができます。
+		日付調整が有効の状態で LoadDataReverse すると、調整された後のデータがエクセルデータとして出力されます。
+		よって、基準日は LoadDataReverse を実行した日付にするのがベストであると言えます。
+	</p>
+	<p>
+		isSynchronizeOriginDate
+		を true に設定すると、基準日が実行した日付に修正され、実行のたびにつどつど手動で修正する必要がなくなり、修正忘れも防ぐことができます。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/loadxls.html#dateadjustment">ReplaceSchema - datapropにて相対値の指定 (DateAdjustment)</a></div>
+	<p>
+		同期処理の結果は、LoadDataReverse
+		を実行したときに作成される出力結果の確認ドキュメント(reverse-data-result.dfmark)に記載されるので、
+		本当に同期されたかどうかを確認したいときは、そのファイルを見ると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#resultdfmark">this - 出力結果の確認ドキュメント</a></div>
+
+	<h2 id="consideration">いろいろな考慮</h2>
+	<h3 id="fkorder">FK順序の考慮</h3>
+	<p>
+		ReplaceSchemaのエクセルデータの土台のためという目的を考慮して、FK順序を "ある程度"
+		考慮して順番でテーブルのデータが出力されます。厳密には完璧ではありませんが、単純な関連であればそのままの順番で
+		ReplaceSchema に適用できるでしょう。
+	</p>
+	<div class="relatedpage"><a href="#loaddatareverse">this - LoadDataReverse</a></div>
+	<p>
+		FK制約違反が発生する場合は、手動でエクセルの順序を調整する必要があります。
+	</p>
+	<h3 id="largename">長いテーブル名の考慮</h3>
+	<p>
+		エクセルのシート名に利用できる文字数に、(約)30文字までという制限があります。
+		それを超えるテーブル名がある場合は、ReplaceSchema の長いテーブル名対応の機能に沿った tableNameMap.dataprop
+		を生成します。その場合のシート名は DBFlute が決め打った仮の名前になっているので、これを土台にする場合は手動で微調整すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/loadxls.html#tablenamemap">エクセルデータ - エクセルシート名制限回避の設定(dataprop)</a></div>
+	<h3 id="reflargedata">ラージデータの考慮</h3>
+	<p>
+		エクセルの一つのセルに格納できる文字数に、(約)32,767文字までという制限があります。
+		それを超えるカラムデータがある場合は、別シートに分割して出力されます。ReplaceSchema では、その分割されたデータは結合されて登録されます。
+		<span class="frm">(@since 1.0.5C)</span>
+	</p>
+	<h3 id="exceptcommon">commonのテーブルは出力対象外</h3>
+	<p>
+		common配下のエクセルデータで定義されているテーブルは出力されません。
+		ReplaceSchemaの直接利用を想定したときに不要と思われるためです。<span class="frm">(出力してしまうと、重複したデータとなってしまう)</span>
+	</p>
+	<h3 id="backuplatest">一つ前の出力結果をバックアップ</h3>
+	<p>
+		実行すると、出力ディレクトリ配下の既存のエクセルファイルは全て削除された上でデータが出力されます。
+		念のため、それら削除されるエクセルファイルを ZIP に固めたファイルを "出力ディレクトリ/backup"
+		ディレクトリ配下に latest-data.zip という名前で保存します。実行するたびに、この ZIP
+		ファイル自体を上書きしていきますので、二世代前のものは保存されません。
+	</p>
+	<h3 id="overexcel">エクセルの最大行数を超えた場合</h3>
+	<p>
+		DBFluteがサポートしているエクセルの最大行数が 655xx なので、出力最大レコード数を 65000
+		と決め打ちで絞っています。もし、それを超える件数のデータが入っていて、かつ、recordLimit
+		をそれ以上に設定した場合は、別途 TSV
+		データとして出力されます<span class="frm">(@since 0.9.8.3)</span>。TSVファイルは、reversetsv
+		ディレクトリに出力されます<span class="frm">(@since 1.0.4B)</span>。<span class="frm">(1.0.4Bより前のバージョンでは、tsvに出力されます)</span>
+	</p>
+	<p>
+		TSV データへの出力は、一件ずつのフェッチ式になっているため、大量件数でもメモリ不足になることは基本的にありません。
+	</p>
+	<h3 id="manydata">全体的に行数が多い場合</h3>
+	<p>
+		逆に、エクセルの最大行数を超えていない場合で、全体的なテーブルの累積行数が多いとメモリ不足になる可能性があります。
+		<span class="frm">(エクセルへの書き込みはライブラリの都合上、フェッチ式になっていないため)</span>
+	</p>
+	<p>
+		その場合、タスクのメモリ設定を調整することで実行できるようになる可能性がありますが、
+		基本的には LoadDataReverse はそのような大容量のデータを落とすための機能ではありません。
+	</p>
+	<div class="relatedpage"><a href="../index.html#memory">DBFluteタスク - タスクのメモリ設定</a></div>
+
+	<h2 id="spec">細かい仕様</h2>
+	<p>
+		細かい仕様を把握して、どのような調整を行えば良いのか判断していきましょう。
+	</p>
+	<dl class="textlist">
+		<dt>バイナリ型のデータは全て null で出力</dt>
+		<dd>バイナリ型のデータはサポートされず、全て null として出力されます。</dd>
+		<dd>
+			テストデータとして必要な場合は、手動で準備します。
+			<div class="relatedpage"><a href="../replaceschema/loaddata.html#binary">データ登録 - バイナリデータの登録</a></div>
+		</dd>
+		<dt>JDBCタスクで取得されるテーブルが対象</dt>
+		<dd>
+			自動生成対象外(JDBCタスクの時点で対象外)となっているテーブルのデータは出力されません。
+			そのテーブルのデータも出力したい場合は、一時的にそのテーブルも自動生成対象にする必要があります。
+			<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+		</dd>
+		<dt>ビュー(VIEW)は対象外</dt>
+		<dd>
+			ビュー(VIEW)はデータ出力対象外です。
+			当然のことと言えば当然ですが、ビューをシノニムの代わりに使っているような場合は、
+			この機能を利用するときだけ一時的にその参照先テーブルを自動生成対象にする必要があります。
+		</dd>
+		<dt>追加スキーマのテーブルは対象外</dt>
+		<dd>
+			AdditionalSchema で定義されている追加スキーマのテーブルは対象外です。
+			そもそも ReplaceSchema で取り扱うスキーマはメインスキーマであることが基本なためです。
+		</dd>
+		<dt>シノニム(SYNONYM)は出力される</dt>
+		<dd>
+			シノニム(SYNONYM)はデータ出力対象です。ただし、シノニムが自動生成対象になっていることが前提です。
+			シノニムの参照先テーブルも自動生成対象となっている場合は、重複してデータが出力されますので、手動調整でどちらか片方を削除する必要があります。
+		</dd>
+		<dt>FK制約の順序考慮は厳密ではない</dt>
+		<dd>
+			テーブル間で複雑な参照関係を持っている場合に、FK制約の順序考慮が厳密にならない可能性があります。
+			その場合は、手動でエクセルのシートの順序を変えたり、エクセルファイル構成を変えたりと調整する必要があります。
+		</dd>
+		<dt>厳密な精度は保証されない</dt>
+		<dd>例えば、日付型は以下のような形式で出力されます。</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>DATE : yyyy/MM/dd <span class="frm">(Oracleは HH:mm:ss も追加)</span></li>
+				<li>TIMESTAMP : yyyy/MM/dd HH:mm:ss.SSS</li>
+				<li>TIME : HH:mm:ss</li>
+			</ul>
+		</dd>
+		<dd>
+			もし、TIMESTAMP型がこの書式を超える細かい精度を持っていると、その精度は失われます。
+		</dd>
+		<dd>
+			その他の型は、単なるJDBCドライバの時点で文字列に変換したものを利用します。
+			JDBCドライバや文字列に直した時の特徴的な仕様によって、精度が失われる可能性はあります。
+		</dd>
+		<dd>
+			これら精度を厳密に移行したい場合は、手動で調整する必要があります。
+			また、あくまでテストデータの移行というのを大前提としているので、実業務の本番データの移行などでは利用できません。
+		</dd>
+		<dt>その他、メジャーでない型はサポートされない</dt>
+		<dd>
+			例えば、PostgreSQL の OID 型など、取扱いの難しいものなどはサポートされません。
+			明示的にサポートしていないわけではなく、そういった型がある場合、単にJDBCドライバの時点で文字列に変換したものが出力されます。
+			よって、JDBCドライバがその文字列を再解析できる場合は、ReplaceSchema でその文字列のままで登録できるかもしれません。
+		</dd>
+	</dl>
+
+	<h2 id="simpleoutput">単に出力するだけの利用も</h2>
+	<p>
+		エクセル形式でデータを閲覧するためや、データを加工して多目的に利用するなど、ReplaceSchemaと関係なく "単にデータ出力するだけ" の利用もできます。
+	</p>
+	<p>
+		その場合は、documentDefinitionMap.dfprop の loadDataReverseMap にて、isReplaceSchemaDirectUse は false にして実行します。
+	</p>
+<pre><span class="codetitle">e.g. 単に出力するだけの設定 @documentDefinitionMap.dfprop</span><code>
+    <span class="abbreviation">...</span>
+
+    ; loadDataReverseMap = <span class="keyword">map:</span>{
+        ; recordLimit = -1
+        ; <span class="point">isReplaceSchemaDirectUse</span> = <span class="keyword">false</span>
+        ; isOverrideExistingDataFile = <span class="keyword">false</span>
+        ; isSynchronizeOriginDate = <span class="keyword">false</span>
+    }
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		エクセルの出力先は playsql ではなく、DBFluteクライアントの output/doc/data
+		配下となります。こちらは、特に DBFlute のどの機能からも参照されません。
+	</p>
+<pre><span class="codetitle">e.g. 単に出力するだけでのデータ出力先 @Directory</span><code>
+dbflute_exampledb
+ |-dfprop
+ |-output
+ |  |-doc
+ |  |  |-data
+ |  |     |-reverse-data-01-foo.xls
+ |  |     |-reverse-data-02-bar.xls
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		この場合、ReplaceSchemaへの直接出力のときとは違い、ReplaceSchemaのテストデータのcommon配下のエクセルに定義されたテーブルであっても出力されます。
+		<span class="frm">(もう ReplaceSchema とは関係がありません)</span>
+	</p>
+
+	<h2 id="usehistory">利用方法の歴史的変遷</h2>
+	<p>
+		機能が発展していく中で、利用方法がちょっとずつ変わってきた歴史があります。
+	</p>
+	<dl class="textlist">
+		<dt>0.9.9.7A 以前ではDocタスクにて <span class="frm">(@until 0.9.9.7A)</span></dt>
+		<dd>
+			0.9.9.7A 以前では、Manageタスクでの実行ではなく、プロパティの設定を有効にしてDocタスクを実行すると LoadDataReverse が実行されました。
+		</dd>
+		<dt>1.0.4A 以前ではプロパティ名が違う <span class="frm">(@until 1.0.4A)</span></dt>
+		<dd>
+			1.0.4A 以前では、playsqlに直接出力するプロパティ isReplaceSchemaDirectUse が、isOutputToPlaySql
+			となっていました。ちなみに、既存のエクセルファイルに上書きや、DateAdjustment
+			の基準日の同期などのオプションは、このプロパティ名の変更と共にサポートされた機能です。
+			このとき、一気に LoadDataReverse が現場フィットするように改良されました。
+		</dd>
+		<dt>1.0.4A 以前では共通カラムはオプション <span class="frm">(@until 1.0.4A)</span></dt>
+		<dd>
+			1.0.4A 以前では、デフォルトでは共通カラムは出力されません<span class="frm">(@until 1.0.4A)</span>。
+			共通カラムを出力したい場合は、documentDefinitionMap.dfprop の loadDataReverseMap の isContainsCommonColumn <span class="frm">(@until 1.0.4A)</span> を true にします。
+		</dd>
+		<dd>
+			1.0.4B 以降では、<span class="existscloset">共通カラムは必ず出力されます。</span>
+			共通カラムを除外するメリットが現場の利用状況を想定したときにあまりないと判断されたためです。
+		</dd>
+	</dl>
+
+	<h2 id="notdump">厳密なデータダンプではない</h2>
+	<p>
+		<em class="keyword">この機能は、本番の業務データの移行などで利用できるデータダンプ(DataDump)ではありません</em>。
+		人の目で見る、もしくは、手動での調整を入れて ReplaceSchema
+		におけるエクセルデータの土台にする、という目的のものです。
+		もし、業務の一環としてのデータダンプを目的とするなら、もっとデータの精密度を高めたり、もっと色々な状況に対応できるようにしたりする必要があるでしょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SQLite,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SQLiteの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SQLiteの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>SQLite 3 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>なし</dd>
+		<dt>(推奨)JDBCドライバ</dt><dd>sqlite-jdbc-3.6.20.x.jar <span class="frm">(Exampleで利用)</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+	<p>
+		DBFluteの SQLite 対応は、(正式サポートではない)準サポートです。
+	</p>
+	<div class="relatedpage"><a href="../index.html#semisupport">準サポートのDBMS</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = org.sqlite.JDBC
+    ; url      = jdbc:sqlite:../src/main/resources/[...]/[dbname].db
+    ; schema   = 
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はそもそも対応する概念がないため設定不要</li>
+		<li>schema はそもそも対応する概念がないため設定不要</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-sqlite-exampleの場合 {dbname=exampledb} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = org.sqlite.JDBC
+    ; url      = jdbc:sqlite:../src/main/resources/exampledb/exampledb.db
+    ; schema   = 
+    ; user     = sa
+    ; password = 
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>TEXT, DATE, DATETIME, (others...)</dd>
+		<dt>java.lang.Integer</dt><dd>INTEGER</a></dd>
+	</dl>
+	<h3 id="typemapping">任意のマッピング</h3>
+	<p>
+		ほとんどが String にマッピングされてしまうので、任意の型へのマッピングの調整をお奨めします。例えば、DATE や DATETIME を
+		java.util.Date や java.sql.Timestamp
+		に関連付けると扱いやすくなります。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/numericautomapping/index.html">現場フィット - NUMERICの自動マッピング</a></div>
+	<p>
+		但し、逆に捉えるとほとんどの型が未サポートのデータ型とも言えますので、未サポートのデータ型に対する取扱いも必ず理解した上でご利用下さい。
+	</p>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">Identity</em> を利用します。
+	</p>
+	<p>
+		Identity情報はメタデータから取得できるので、設定なしで利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">limit</em>、<em class="keyword">offset</em> を利用します。
+	</p>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="keyword">select</span> ...
+  <span class="keyword">from</span> MEMBER dfloc  
+ <span class="keyword">order by</span> dfloc.MEMBER_NAME <span class="keyword">asc</span> 
+ <span class="keyword">offset</span> 80 <span class="keyword">limit</span> 20
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> ...
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> ... 
+ <span class="keyword">where</span> ...
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> ... 
+ <span class="keyword">offset</span> <span class="comment">/*$pmb.pageStartIndex*/</span><span class="literal">80</span> <span class="keyword">limit</span> <span class="comment">/*$pmb.fetchSize*/</span><span class="literal">20</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>offset や limit ではバインド変数が利用できないので、埋め込み変数("$" を付与)を利用すること</li>
+	</ul>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">for update</em> を利用します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+ <span class="point">for update</span>
+</code></pre>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">*未検証</em>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<p>
+		SQLiteに関しては特になし
+	</p>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="nullsfirstlast">NullsFirst/Last</h3>
+	<p>
+		nulls first/last 構文をサポートしていないため、case when 構文を使って NullsFirst/Last
+		を実現しています。union 句での case when 構文がサポートされないため、UnionQuery と NullsFirst/Last を合わせてることはできません。
+		(また、パフォーマンス上の懸念が多少あるので、大量データのときには注意して下さい)
+	</p>
+	<h3 id="suppressdropfk">ReplaceSchemaでFKのdrop処理の抑制</h3>
+	<p>
+		SQLite用のFK制約の drop 構文に対応できていないため、ReplaceSchema
+		のFKのdrop処理にてエラーになります。FK制約があるままでもテーブルの drop
+		ができることを利用し(<em class="keyword">*どういうことなのか未検証</em>)、FKのdrop処理を抑制することでReplaceSchemaが利用できます。
+		replaceSchemaDefinitionMap.dfprop の isSuppressDropForeignKey
+		を有効にすることでFKのdrop処理を抑制できます。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/replaceschemadefinition/index.html#issuppressdropforeignkey">dfprop - isSuppressDropForeignKey</a></div>
+	<h3 id="uniqueconstraint">一意制約違反の例外が不明</h3>
+	<p>
+		SQLiteの一意制約違反の判定が不明のため(SQLStateは null だし、errorCodeは常に 0 だし)、EntityAlreadyExistsException
+		によるハンドリングができません(他のエラーと同様にSQLFailureExceptionが発生)。
+	</p>
+	<h3 id="updatelock">更新ロックができない</h3>
+	<p>
+		SQLiteの更新ロック(for update)の構文が不明のため、ConditionBeanの lockForUpdate()
+		は利用できません(for updateが付与されますがエラーになります)。
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		SQLite を使ったExample実装 <em class="keyword">dbflute-sqlite-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにSQLiteと付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<dl class="textlist">
+		<dt>PreparedStatementのBigDecimalが未サポート</dt>
+		<dd>
+			PreparedStatement の setBigDecimal() がサポートされていないため、ReplaceSchema
+			でのデータ登録処理の中でより細かい型の判定をするようにしました。
+		</dd>
+		<dt>sqlite_で始まるテーブルの(自動)除外</dt>
+		<dd>
+			作成されたテーブルの構成次第で、自動で sqlite_
+			で始まる(システム)テーブルが作成され、そのままだと自動生成対象になってしまうため、DBFluteで明示的に(自動で)除外されるようにしました。
+		</dd>
+	</dl>
+
+	<h2 id="supplement">SQLite補足資料</h2>
+	<h3>Identity設定</h3>
+	<p>
+		PRIMARY KEY の後に AUTOINCREMENT を定義します。
+	</p>
+<pre><span class="codetitle">e.g. Identity設定 {MEMBERのMEMBER_IDにIdentity} @DDL</span><code>
+<span class="keyword">create table</span> MEMBER (
+    MEMBER_ID <span class="dbtype">INTEGER</span> <span class="attribute">NOT NULL PRIMARY KEY AUTOINCREMENT</span>,
+    MEMBER_NAME <span class="dbtype">TEXT</span> <span class="attribute">NOT NULL</span>,
+    ...
+) ;
+</code></pre>
+	<h3>発行された連番を insert 実行後に取得</h3>
+<pre><span class="codetitle">e.g. 発行された連番を insert 実行後に取得 @SQL</span><code>
+<span class="keyword">select</span> last_insert_rowid()
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

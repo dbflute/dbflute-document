@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Manage,manage,Upgrade,アップグレード,バージョンアップ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Upgradeタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Upgradeタスク</h1>
+	${indexlist}
+
+	<h2 id="about">Upgradeタスクとは？</h2>
+	<p>
+		DBFluteのアップグレードを行うタスクです。<span class="frm">@since 1.0.5K</span>
+	</p>
+	<p>
+		DBFluteエンジンのダウンロードし、DBFluteクライアントのエンジンへの参照を更新します。
+		デフォルトでは、最新版がダウンロードされます。
+	</p>
+	<p>
+		残念ながら pom.xml で管理されているDBFluteランタイムは更新されませんので、そこは手動です。
+	</p>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		Manageタスクを叩き...
+	</p>
+<pre><span class="codetitle">e.g. とりあえずManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh
+</code></pre>
+	<p>
+		94 (upgrade) を入力して enter します。
+	</p>
+<pre><span class="codetitle">e.g. Manageタスクのメニュー @Command</span><code>
+     |\  |-\ |-- |      |      
+     | | |-\ |-  | | | -+- /_\ 
+     |/  |-/ |   | |_|  |  \-  
+
+ &lt;&lt;&lt; DB Change &gt;&gt;&gt; *delete database
+   0 : replace-schema  => drop tables and create schema
+   1 : renewal         => call 0-&gt;21-&gt;22-&gt;23-&gt;25-&gt;24
+   7 : save-previous  8 : alter-check
+
+ &lt;&lt;&lt; Generate &gt;&gt;&gt;
+   2 : regenerate  => call 21-&gt;22-&gt;23-&gt;25-&gt;24
+  21 : jdbc        22 : doc  23 : generate
+  24 : sql2entity  25 : outside-sql-test
+
+ &lt;&lt;&lt; Utility &gt;&gt;&gt;
+   4 : load-data-reverse  5 : schema-sync-check
+  11 : refresh  12 : freegen  13 : take-assert
+  88 : intro    <span class="point">94 : upgrade</span>  97 : help
+
+(input on your console)
+What is your favorite task? (number):
+</code></pre>
+
+	<h2 id="afterthat">その後...</h2>
+	<p>
+		この時点で、DBFluteはダウンロードされた最新版を利用するようになっています。
+	</p>
+	<p>
+		(ここは手動で)pom.xmlでDBFluteランタイムを最新版に合わせ、再自動生成していきましょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+
+	<h2 id="specifyversion">バージョン指定する場合</h2>
+	<p>
+		Manageを叩くときに、引数で指定します。
+	</p>
+<pre><span class="codetitle">e.g. バージョン指定でアップグレード @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="point">upgrade 1.1.0</span>
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

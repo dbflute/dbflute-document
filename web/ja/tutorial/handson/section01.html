@@ -1,0 +1,730 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 1 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 1</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		まずは <em class="smallmark">環境構築</em>、そして、<em class="smallmark">DBFluteのセットアップから自動生成まで</em> を体験してみましょう。
+	</p>
+	<p>
+		<span class="frm">※環境構築やセットアップも、ハンズオンの一部です。くれぐれも油断なきよう...</span>
+	</p>
+
+	<h2 id="preread">まず読みましょう</h2>
+	<p>
+		DBFluteのことをざっくり押さえておきましょう。
+	</p>
+	<dl class="longkeymainlist">
+		<dt><a href="http://dbflute.seasar.org/ja/introduction/index.html">DBFluteの紹介 | DBFlute</a></dt><dd>DBFluteオフィシャルの紹介ページ</dd>
+		<dt><a href="https://speakerdeck.com/jflute/dbflute-bridges-between-db-and-app">架け橋DBFlute | SpeakerDeck</a></dt><dd>講演会でのスライド資料</dd>
+	</dl>
+
+	<h2 id="firstenv">前提環境</h2>
+	<h3 id="jdk">JDKのインストール <span class="frm">(もし、なければ)</span></h3>
+	<p>
+		(Java8以上の) JDKをインストールしてください。
+	</p>
+	<p>
+		Javaの開発をするには、JRE (実行環境) ではなく JDK (開発環境) が必要です。
+	</p>
+	<h3 id="maven">Mavenのインストール <span class="frm">(もし、なければ)</span></h3>
+	<p>
+		Maven がインストールしてください。
+	</p>
+	<p>
+		コマンドラインで mvn が利用できる状態にしましょう<span class="frm">(WindowsならPathの設定なども忘れずに)</span>。
+	</p>
+	<p>
+		DBFluteハンズオンでは、Eclipseを使う場合に maven-eclipse-plugin を使って連携することを想定してます。
+		勉強のためにあえてシンプルなやり方を採用しています。IntelliJなら...不要かもしれません。
+	</p>
+	<h3 id="eclipse">Eclipseの準備 <span class="frm">(もし、Eclipseを使うなら)</span></h3>
+	<p>
+		Eclipse-4.6 以上を用意してください。
+	</p>
+	<p>
+		<span class="frm">※幾つかの専用の Eclipse プラグインをインストールするため、ハンズオン専用の Eclipse を用意することが推奨</span>
+	</p>
+	<h3 id="intellij">IntelliJなら？</h3>
+	<p>
+		もともと、Eclipseを前提に作られたハンズオンなので、ところどころで "IntelliJだと違うな"
+		というポイントがあるかと思いますが、そこはいい感じに空気を読んでください。IntelliJでも問題なくハンズオンは進められます。
+	</p>
+
+	<h2 id="prepare">環境準備</h2>
+	<h3 id="workspace">workspaceの作成</h3>
+	<p>
+		新規でハンズオン専用のworkspaceを任意の場所に作成してください。
+		<span class="frm">(workspaceは、DBFluteハンズオン作業用のディレクトリと考えてOKです。後のcloneするプロジェクトをここに配置する想定です)</span>
+	</p>
+<pre><span class="codetitle">e.g. DBFluteハンズオン用のワークスペース @Directory</span><code>
+<span class="comment">// Windowsなら</span>
+C:\projects
+    |-dbflute
+       |-eclipse-dbflute
+       |-workspace  <span class="comment">// 例えばここ (場所は任意)</span>
+
+<span class="comment">// MacOSXなら</span>
+~/works
+    |-dbflute
+       |-eclipse-dbflute
+       |-workspace  <span class="comment">// 例えばここ (場所は任意)</span>
+</code></pre>
+	<p>
+		あらかじめディレクトリを作成しておきましょう。
+	</p>
+	<h4 id="booteclipse">Eclipseで起動しておきましょう <span class="frm">(if Eclipse)</span></h4>
+	<p>
+		もし Eclipse なら、 Eclipseを起動してそのディレクトリ (workspace)
+		を選んでください。起動直後に別の workspace が開いてしまう場合は、メニューの
+		"File" - "Switch Workspace" から workspace を切り替えてください。
+		workspaceの設定もハンズオンで変更するので、独立した workspace が推奨されます。
+		この時点ではプロジェクトは一つもなく空っぽの workspace となっています。
+	</p>
+	<p>
+		Eclipseのworkspaceで利用するJavaは、JREではなくJDKです。
+		Preferences の Installed JREs で、JDKになっているか確認しましょう。JREになっている場合はそこで調整できます。
+	</p>
+	<h3 id="clone">プロジェクトのclone</h3>
+	<dl class="longvaluemainlist">
+		<dt>GITリポジトリ</dt><dd>https://github.com/dbflute-session/dbflute-hands-on.git</dd>
+		<dt>プロジェクト</dt><dd>dbflute-hands-on</dd>
+	</dl>
+	<p>
+		<em class="keyword">※社内で別途 "gitリポジトリ" が用意されている場合は、そちらを利用してください。</em>
+	</p>
+	<p>
+		<span class="frm">(用意されているかどうかわからない場合は、近くの人に聞いてみてください)</span>
+	</p>
+	<h4 id="egitflow">もし、EGitのときの参考手順 <span class="frm">(if Eclipse)</span></h4>
+	<p>
+		EGit (GitクライアントのEclipseプラグイン) を使う場合は、このようになります。
+	</p>
+	<ol>
+		<li>Preferences の Team - Git - Configuration にて autocrlf が "もし" true になら false に</li>
+		<li><em class="keyword">Gitリポジトリエクスプローラー</em>にてリポジトリのクローン (ユーザー・パスワードなし)</li>
+		<li><em class="keyword">Working Directory</em> を選択して右クリック <em class="keyword">Import Projects...</em></li>
+		<li><em class="keyword">Import as general project</em> を選択して Next, そして次も Finish でおしまい</li>
+	</ol>
+	<p>
+		<span class="frm">(<em class="keyword">dbflute-hands-on</em> を選択して右クリック、ってのが大事...あとその後、<em class="keyword">general project</em> ってのがポイント。一方で、もし社内のひな形で <em class="keyword">.project</em> が含まれている場合は、general ではなく <em class="keyword">Import existing project</em> を選択)</span>
+	</p>
+	<div class="inucolumn">
+		<h3 id="gitmaster">もし、社内でひな形が用意されてる場合は...</h3>
+		<p>
+			すでに社内でひな形が用意されてる場合は、そちらを clone してください。
+		</p>
+		<p>
+			チームでハンズオンを行っていく場合は、社内のGitに hands-on
+			なるリポジトリを用意して、master
+			ブランチにプロジェクトのひな形をコミットしておいて、各人masterをもとにそれぞれのブランチを作ってハンズオンを進めていくという形がオススメです。
+		</p>
+		<p>
+			したら、コミットも自由にできてバックアップになりますし、フォローワーがレビューもしやすくなります。
+			各人が、別のPCでハンズオンの続きをやるってこともやりやすくなります。
+		</p>
+		<p>
+			実際に jflute は、コミットされたハンズオンのコードをレビューして、
+			todo形式でレビューコメントを入れてコミットして、実装者に修正してもらってまたこっちで確認して、というような運用でハンズオンを通してプログラミングのフォローを行っています。
+		</p>
+	</div>
+	<h3 id="mysql">MySQLのセットアップ</h3>
+	<p>
+		ハンズオンでは、3306ポートのMySQLではなく、専用のMySQLインスタンスを起動して利用します。
+		なので、すでに (3306ポートの) MySQL をインストールされている方も、セットアップが必要です。
+	</p>
+	<h4>ダウンロードと配置</h4>
+	<p>
+		MySQLのオフィシャルサイトからローカル環境に対応する MySQL のインストーラー無し版(ZIPアーカイブ版など)をダウンロードし、localdb/mysql に配置します。
+		<span class="frm">(以下の配置であれば、MySQL本体は Git のコミット対象になりません。gitignore に登録されています。間違っても MySQL 本体を Git にコミットしないように)</span>
+	</p>
+	<div class="detailpage"><a href="http://dev.mysql.com/downloads/mysql/">Official Site - MySQL Download</a></div>
+<pre><span class="codetitle">e.g. MySQLの配置場所 @Directory</span><code>
+PROJECT_ROOT
+ |-<span class="abbreviation">...</span>
+ |-localdb
+ |  |-<span class="point">mysql</span>
+ |     |-bin
+ |     |-data
+ |     |-docs
+ |     |-<span class="abbreviation">...</span>
+ |-script
+ |-tutorial
+</code></pre>
+	<h4>Mac でも Windows でも、初期化の手続きを</h4>
+	<p>
+		<em class="keyword">起動する前に</em> MySQL を初期化してあげる必要があります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>MySQL-8.0</dt><dd>mysqld で初期化コマンド叩く  <span class="frm">※Mac/Windows両方で必要</span></dd>
+	</dl>
+	<p>
+		MySQL-8.0 での初期化コマンドは、mysqlディレクトリにて以下を叩きます。
+		<span class="frm">(dataディレクトリが作成され、rootのパスワードが空っぽになります)</span>
+	</p>
+<pre><span class="codetitle">Macのときの MySQL-8.0 での初期化コマンド @Command</span><code>
+./bin/mysqld --defaults-file=../my.cnf --datadir=./data --basedir=./ --initialize-insecure
+</code></pre>
+	<h4>MySQLを起動してみましょう</h4>
+	<p>
+		そして、<em class="smallmark">localdb/boot-mysql.bat|sh</em> を実行し、MySQL を起動してください。
+	</p>
+	<p>
+		さらに、login-mysql-root.bat|sh を実行し、MySQLのコマンドコンソールにて "show databases;" と打って enter
+		して、作成されているデータベースは特にないこと(デフォルトのデータベースだけが存在)を確認してください。 
+	</p>
+	<p>
+		今後、ハンズオンを中断する場合は、localdb/close-mysql.bat|sh
+		を実行し、MySQLをシャットダウンし、そして、またハンズオンを再開するときは、boot-mysql.bat|sh を実行してください。
+		<span class="frm">(Windowsであれば、Eclipse上からbatファイルをダブルクリックで実行できます: ctrl+shift+Rで実行でもOKです)</span>
+	</p>
+	<h3 id="eclipseplugin">Eclipseプラグインのセットアップ <span class="frm">(if Eclipse)</span></h3>
+	<p>
+		以下のEclipseプラグインをそれぞれインストールしてください。
+	</p>
+	<dl class="textlist">
+		<dt>EMecha</dt>
+		<dd>
+			DBFluteライフを支援するプラグイン
+		</dd>
+		<dd></dd>
+		<dd>
+			<em class="keyword">Java8</em> なら、DBFlute-EMecha.zip を解凍し、Eclipse の dropinsディレクトリ配下に配置:
+			<a href="https://github.com/dbflute-emecha/dbflute-emecha-eclipse/releases">https://github.com/dbflute-emecha/dbflute-emecha-eclipse/releases</a>
+		</dd>
+		<dd>
+			<em class="keyword">Java6,7</em> なら、更新サイトからインストール: <em class="keyword">http://eclipse.seasar.org/updates/3.3</em>
+		</dd>
+		<dd>
+			<div class="relatedpage"><a href="../../manual/function/helper/emecha/index.html">EMechaプラグイン</a></div>
+		</dd>
+		<dt>Quick JUnit</dt>
+		<dd>JUnitを使う際のちょっとした便利プラグイン</dd>
+		<dd>更新サイトURL: <em class="keyword">http://quick-junit.sourceforge.jp/updates/current</em></dd>
+		<dd>Help - Install New Software から更新サイトURLを指定してインストール。</dd>
+	</dl>
+
+	<h2 id="project">プロジェクトのセットアップ</h2>
+	<h3 id="makepomxml">pom.xmlの作成</h3>
+	<p>
+		Maven の設定ファイルである pom.xml を作成します。さすがに、0から作るのは大変なので、ハンズオンでひな形を用意しています。
+		<em class="smallmark">tutorial/material/eclipse/prototype-pom.xml</em> を、プロジェクト直下に <em class="mark">pom.xml</em>
+		という名前でコピーしましょう。ちなみに、pom.xml やその他幾つかのリソースは gitignore 設定となっています。
+	</p>
+	<p>
+		pom.xmlの中身を覗いてみましょう。どんな依存ライブラリがあるのか？など把握しておくと良いでしょう。
+		もし、依存ライブラリのバージョンが古ければ、ここで最新にしても良いでしょう。
+	</p>
+	<p>
+		ちなみに、pom.xmlって、こんな役割のものです。
+	</p>
+<pre><span class="codetitle">e.g. pom.xml concept model @Model</span><code>
+                  Java API (Stringとか) ←こいつだけじゃ足りない！
+  E                
+  c      ... <--(Download) sea-1.1.jar -> mystic-2.1.jar -> hangar-0.8.jar
+  l  M                         ↓       -> bigband-3.4.jar
+  i  2                     sea-1.5.jar -> mystic-2.4.jar -> hangar-1.7.jar
+  p  E-(直参照)-+                       -> bigband-3.7.jar -> piari-1.3.jar
+  s          +-+
+  e          |   あ  o     land-3.2.jar -> oneman-1.8.jar -> bigband-3.5.jar
+  ↓          |   ぷ /|\
+.classpath   |   り /\     piari-1.0.jar -> dstore-2.0.jar -> oneman-2.5.jar
+  ↑          +-↓
+  |           <<< pom.xml >>> ← sea と land と piari が欲しいぞと書いてある
+  |                   ↑
+  |                  M a v e n   ------------------+
+  +-(自動生成)--   (eclipse-plugin)                 ↓↓
+                                                Mavenセントラルサーバー
+                                                +------------------+
+                                                | sea.jar pom.xml  |
+                                                | land.jar pom.xml |
+                                                +------------------+
+</code></pre>
+	<h3 id="makeproject">プロジェクトの作成</h3>
+	<h4>もし、Eclipse なら</h4>
+	<p>
+		Eclipseの場合は、script 配下の maven-eclipse.bat|sh を実行し、コンソールのログを見て正常終了が確認できたらEclipse上でプロジェクトをリフレッシュ(F5)してください。
+	</p>
+	<p>
+		すると、そのプロジェクトが Maven 管理された Java プロジェクトになり、既に存在している UnitContainerTestCase がコンパイルされます。
+		ただし、この時点ではコンパイルエラーになっているはずです。コンパイルエラーで正常です。
+	</p>
+	<p>
+		<span class="frm">(ちなみに、この時点では、maven-eclipse.bat|sh の "call dbflute_maihamadb/manage.bat refresh"
+		において、そんなコマンドはないとエラーが発生しますが、Mavenのコマンドさえ成功していればOKです)</span>
+	</p>
+	<h4>もし、IntelliJ なら</h4>
+	<p>
+		IntelliJの場合は、pom.xmlを指定してMavenプロジェクトとしてimportしてください。
+	</p>
+	<h3 id="workprojdiff">workspaceの設定とプロジェクトの設定</h3>
+	<h4>もし、Eclipse なら</h4>
+	<p>
+		workspace は、そのローカルPCの workspace ディレクトリのEclipse設定と考えてよいでしょう。
+		これらは Git 管理にはなりません(しません)ので、他の人と共有されません。
+		個人設定と捉えることもできますが、他の人と共有したくなるようなものもあるのがジレンマです。
+	</p>
+	<p>
+		一方で、プロジェクトの設定は、プロジェクト直下の.settingsディレクトリに保存されます。
+		Git管理にすることができるので、他の人と共有できます。つまり、最初のひとりがやっておけば、他の人はやる必要がありません。
+		強制力があるのはこちらです。
+	</p>
+	<p>
+		さて、<em class="smallmark">#workspace</em> であれば workspace の設定、<em class="smallmark">#project</em> であればプロジェクトの設定、
+		いずれにせよハンズオンの環境としては最初ですから、どちらも必要です。ですが、その違いを意識しながら設定していきましょう。
+		他の人がこのプロジェクトを参照するとき、共有されるものとされないものがあるわけです。
+	</p>
+	<p>
+		DBFluteハンズオンでは、それらの設定をすること自体もエクササイズです。
+		自分で別の環境を作るときには必要ですから、内容を把握しながら設定していきましょう。
+	</p>
+	<h4>もし、IntelliJ なら</h4>
+	<p>
+		IntelliJの場合は、.idea ディレクトリの中にworkspaceの設定とプロジェクトの設定が混在しています。
+		ハンズオンでは、DBFluteを使う際に設定されておいたほうが良い IntelliJ
+		のオプションがすでにコミットされていますので、ハンズオンではそれが有効になっています。
+		<span class="frm">(逆に、そのへんの設定をするエクササイズはありません)</span>
+	</p>
+	<h3 id="encoding">エンコーディングの調整 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace #project</span></h3>
+	<p>
+		プロジェクトのエンコーディングを UTF-8 にしてください。プロジェクトを選択して、"alt + enter"
+		すると、プロジェクトの設定画面が開きますので、Resource の "Text file encoding" で UTF-8
+		を指定。また、改行コードをLFに統一したいので、"line delimiter" で Unix を指定。
+	</p>
+	<p>
+		また、参照ライブラリのJavaDocコメントなどが UTF-8 であることが多いため、ワークスペースのエンコーディングも
+		UTF-8 にします。メニューの Window - Preferences の <em class="keyword">General - Workspace</em>
+		にて同じ要領で設定できます。(Mac なら メニューの Eclipse - 環境設定...)
+	</p>
+	<p>
+		Windows なら流れるように <em class="keyword">alt -&gt; W -&gt; P</em> を押せば、Macなら <em class="keyword">command + , (カンマ)</em>
+		を押せば Preferences を開けます。<span class="frm">(この後、何度も開きますので...)</span>
+	</p>
+	<h3 id="linecolor">行番号の表示、背景色の設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
+	<p>
+		Preferences の <em class="keyword">General - Editors - Text Editors</em> を選択。
+		ここでは、テキストエディターに関する様々な調整ができます。
+	</p>
+	<p>
+		行番号は必ず表示しておきましょう。スタックトレースやログなどからソースコードを追うために行番号は頻繁に利用します。"Show line numbers"
+		にチェックを入れます。また、Background color で好きな背景色を設定するととても落ち着くでしょう。
+	</p>
+	<h3 id="typefilters">Type Filters を設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
+	<p>
+		Preferences の <em class="keyword">Java - Appearance - Type Filters</em> を選択。ここでは、クラス型の補完で "表示させたくない"
+		パッケージやクラスを定義することができます。
+	</p>
+	<p>
+		例えば java.util.List は、毎度毎度 "java.awt.Listとどっちを選ぶ？"
+		と聞かれてしまいます。Type Filters にて "java.awt.*" と設定すれば、そんなことはもう聞かれません。
+		もう、絶対に使わないのにも関わらず、わりとよく出てくる紛らわしいものを設定しておくと良いでしょう。 
+	</p>
+	<dl class="keymainlist">
+		<dt>java.awt.*</dt><dd>awtパッケージを使うことは今の開発ではまずない</dd>
+		<dt>com.sun.*</dt><dd>sunパッケージのクラスを使うことはほとんどない</dd>
+		<dt>sun.*</dt><dd>sunパッケージが意外と紛らわしい!?</dd>
+		<dt>java.sql.Date</dt><dd>業務のプログラムでjava.sql.Dateを使うことはまずない</dd>
+	</dl>
+	<p>
+		また、ハンズオンでは MySQL を利用しますが、MySQLのJDBCドライバのLogクラスが、commons-logging
+		のLogクラス補完時に紛れるので、com.mysql.jdbc.log.* も除外しておくと良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>com.mysql.jdbc.log.*</dt><dd>MySQLのJDBCドライバのLogクラスを使うことはまずない</dd>
+	</dl>
+	<p>
+		さらにアドリブで、こちらも外しちゃってもいいかと思います。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.StringBuffer</dt><dd>文字列連結を同期化する必要性はほぼない、StringBuilder でOK</dd>
+		<dt>java.util.Calendar</dt><dd>少なくともハンズオンでは HandyDate を使ってください</dd>
+	</dl>
+	<p>
+		キリがないのでこの辺にしておきますが、つどつど気付いたときに登録していくと良いでしょう。
+	</p>
+	<p>
+		IntelliJでやられている方でも、似たような機能があると思われるので試してみてください。
+	</p>
+	<h3 id="mavensources">Maven の Sources の設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
+	<p>
+		Maven で管理されたライブラリのソースコードは、デフォルトではダウンロードされず関連付けもない状態である可能性があります。
+		すると、ソースコードが見られないだけでなく、パラメーターの補完などで変数名が arg0 とかになってしまうことがあります。
+	</p>
+	<p>
+		Preferences の Maven にて、Download Artifact Sources のチェックが外れていたらチェックを付けます。
+		そして、maven-eclipse.bat(sh) をもう一度叩いて、プロジェクトをF5してみましょう。
+	</p>
+	<h3 id="hierarchical">Package Presentation の調整 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
+	<p>
+		これは好みによるので任意ですが、特にFlat形式にこだわりがなければやってみましょう。
+	</p>
+	<p>
+		Eclipse のデフォルトは、Package Presentation が Flat
+		で、パッケージがたくさんあるプロジェクトだと、ずらーっと並んで見づらいと感じることがあります。
+		特にDBFluteで自動生成されるクラスは、パッケージをたくさん持っているので Hierarchical の方が扱いやすくなります。
+	</p>
+	<p>
+		Hierarchical に変更する場合は、(Java パースペクティブの)パッケージエクスプローラの右上の下矢印っぽいマークの部分 (View Menu)
+		から、Package Presentation の Hierarchical を選択します。
+	</p>
+	<p>
+		この時点では、"わからない人はまだよくわからない" と思われるので、この後DBFluteのクラスを自動生成した後に試してみると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#generate">this - Generateタスクの実行</a></div>
+	<h3 id="editortemplates">エディターテンプレートを設定 <span class="frm">#workspace</span></h3>
+	<p>
+		DBFlute固有のコード補完のテンプレートを設定しましょう。
+	</p>
+	<h4>もし、Eclipse なら</h4>
+	<p>
+		Preferences の <em class="keyword">Java - Editor - Templates</em> を選択。
+		まず、既存のテンプレートをすべて選択して、Remove してください<span class="frm">(これをやらないと二重に登録される可能性あり)</span>。
+		そして、"Import..." にて <em class="smallmark">tutorial/material/eclipse/java-editor-templates.xml</em> を取り込んでください。
+		コード書くときに色々と良いことがあります。
+	</p>
+	<div class="relatedpage"><a href="../onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
+	<h4>もし、IntelliJ なら</h4>
+	<p>
+		IntelliJ用のテンプレートも用意しています。<span class="frm">(Eclipseに比べて少ないですが...)</span>
+	</p>
+	<div class="relatedpage"><a href="../onjava8.html#intellij">さあ、補完してみよう！ - IntelliJ IDEA なら</a></div>
+	<h3 id="miscsettings">その他いろいろworksace設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
+	<p>
+		好みもありますが、その他やっておくと良いだろうという設定を記しておきます。
+	</p>
+	<dl class="textlist">
+		<dt>ドット "." 始まりのファイルが見えるように</dt>
+		<dd>
+			デフォルトではドット "." で始まるファイルは見えないようになっているので、パッケージエクスプローラのフィルタの設定で一時的に見えるようにします。
+			(Java パースペクティブの)パッケージエクスプローラの右上の下矢印っぽいマークの部分 (View Menu) から Filters
+			を選択すると、フィルタ対象の設定が調整できます。".* resource" のチェックを外すと "." で始まるファイルが見るようになります。
+		</dd>
+		<dt>ctrl + H のカスタマイズ</dt>
+		<dd>
+			File Search だけにする。ほぼ File Search しか使わないのに、Java Search がデフォルトになるため。
+		</dd>
+		<dd>
+			プロジェクトを選択して、ctrl+Hを押すと、検索ダイアログが表示されます。左下の "Customize..." で File Search だけチェック。
+		</dd>
+		<dt>ctrl + F のカスタマイズ</dt>
+		<dd>
+			インクリメンタルサーチを有効に。便利なので。<span class="frm">(普段、ctrl+Jを使っている人はあまり気にしないかもですが)</span>
+		</dd>
+		<dd>
+			何かしらテキストファイルを開いて、ctrl+Fを押すと検索ダイアログが表示されます。
+			そこで Incremental にチェックを付ける。(その後、キャンセルしても、記憶されます)
+		</dd>
+		<dt>ツールバーの整理</dt>
+		<dd>
+			ツールバーの不要な要素を除去。多いと二行になってコード領域が狭くなるため。ツールバーで右クリック "Customize Perspective..."
+			の Tool Bar Visibility にて、Launch 以外はチェックを外す(but ここは好みで)。
+		</dd>
+		<dt>コンソールのバッファサイズ</dt>
+		<dd>
+			大きな処理だとログがあっという間に最初の方のログが切れてしまうので、Preferences の Run/Debug - Console 
+			の "Console buffer size" を 800000 (八十万) に。
+		</dd>
+		<dt>ビューの配置</dt>
+		<dd>
+			利用しているPCの画面の大きさに合わせて、いい感じに調整。Problems を Fast View (Minimize)
+			にしたりなど。通常は横長で縦が短いディスプレイが多いので、コードができるだけ縦に見通せるようにするといいでしょう。
+		</dd>
+	</dl>
+	<h3 id="formatter">フォーマッターのインポート <span class="frm">(if Eclipse)</span> <span class="frm">#project</span></h3>
+	<p>
+		Eclipseには、コードをフォーマットする機能があります。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/friends/eclipse/formatter.html">Eclipse - コードフォーマッター</a></div>
+	<p>
+		ただ、Eclipseのデフォルトのフォーマット定義は <em class="keyword">かなり</em> 使いづらいため、プロジェクトのプロパティの "Java Code Style" の Formatter
+		にて、"Enable project specific settings" にチェックを入れ、import にて <em class="smallmark">tutorial/material/eclipse/code-formatter-profile.xml</em>
+		を指定して適用してください。
+	</p>
+	<p>
+		このフォーマット定義は、横幅を 140 に、コメント内のフォーマットを OFF にしています。 
+	</p>
+	<h3 id="saveaction">フォーマッターの自動化 <span class="frm">(if Eclipse)</span> <span class="frm">#project</span></h3>
+	<p>
+		<em class="mark">(Eclipseのみ)</em>
+	</p>
+	<p>
+		フォーマッタ設定やショートカットを実践したばかりでなんですが、保管時(保存: ctrl +
+		S)に自動でフォーマッタが動くように設定することができます。わざわざショートカットを打つ必要もありません。
+	</p>
+	<p>
+		プロジェクトのプロパティの "Java Editor" の "Save Actions"
+		にて、"Enable project specific settings" にチェックを入れ、さらに "Perform the selected actions on
+		save"、および、"Format source code"
+		にチェックを入れましょう。
+	</p>
+	<p>
+		さらに "Organize imports" にもチェックを入れましょう。これは import
+		文を整理してくれるアクション(ctrl + shift + O)です。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/programming/shortcut/codejustcut.html">コード調整ショートカット</a></div>
+
+	<h2 id="dfsetup">DBFluteのセットアップ</h2>
+	<h3 id="dfclient6">DBFluteクライアントの作成 <span class="frm">※Java6, 7</span></h3>
+	<p>
+		Java6,7の方は、別ページにて
+	</p>
+	<div class="detailpage"><a href="./java67/sec1java67.html">Java6,7のセクション1切り出し</a></div>
+	<h3 id="dfclient8">DBFluteクライアントの作成 <span class="frm">※Java8</span></h3>
+	<p>
+		DBFlute Maven Plugin <span class="frm">(ハンズオンのpom.xmlですでに定義済み)</span> を使って、インストールします。
+	</p>
+	<div class="relatedpage"><a href="../../environment/setup/maven.html">Mavenによるセットアップ</a></div>
+	<p>
+		まずは、コマンドラインで <em class="mark">dbflute:download</em> ゴールを叩きます。<span class="frm">(プロジェクト直下にて)</span>
+	</p>
+<pre><span class="codetitle">e.g. dbflute:download ゴールを叩く！ @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">mvn</span> -e dbflute:download
+</code></pre>
+	<p>
+		その後、コマンドラインで <em class="mark">dbflute:create-client</em> ゴールを叩きます。
+	</p>
+<pre><span class="codetitle">e.g. dbflute:create-client ゴールを叩く！ @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">mvn</span> -e dbflute:create-client
+</code></pre>
+	<h3 id="adjustdfprop">DBFluteプロパティ(dfprop)の調整</h3>
+	<p>
+		<em class="mark">basicInfoMap.dfprop</em> のプロパティ値を修正します。<em class="keyword">(忘れずに)</em>
+	</p>
+	<dl class="valuemainlist">
+		<dt>database</dt><dd>mysql</dd>
+		<dt>targetContainer</dt><dd>lasta_di</dd>
+	</dl>
+	<p>
+		<em class="mark">databaseInfoMap.dfprop</em> のプロパティ値を修正します。<em class="keyword">(忘れずに)</em>
+	</p>
+	<dl class="valuemainlist">
+		<dt>driver</dt><dd>com.mysql.jdbc.Driver</dd>
+		<dt>url</dt><dd>jdbc:mysql://localhost:43376/maihamadb</dd>
+		<dt>schema</dt><dd>※空っぽ</dd>
+		<dt>user</dt><dd>maihamadb</dd>
+		<dt>password</dt><dd>maihamadb</dd>
+	</dl>
+	<h3 id="replaceschema">ReplaceSchemaの実行</h3>
+	<p>
+		アプリユーザとスキーマ(テーブル構造を含む)を作成するために、ReplaceSchemaを利用します。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></div>
+	<h4>DBユーザ自動作成のための設定</h4>
+	<p>
+		[DBFluteクライアント]/dfprop配下の <em class="mark">replaceSchemaMap.dfprop</em> の additionalUserMap プロパティを以下のように設定してください。コメントアウトされた雛形があるので、そのコメントアウトを外して修正しましょう。
+		これは、システムユーザによるアプリユーザ、スキーマの作成を自動化するための準備です。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/replaceschema/systemuser.html">システムユーザによる実行</a></div>
+<pre><span class="codetitle">e.g. additionalUserMap の設定 @replaceSchemaMap.dfprop</span><code>
+    <span class="abbreviation">...</span>
+
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o additionalUserMap: (NotRequired - Default map:{})
+    #  You can set additional users.
+    #  Elements of this map are as below:
+    #   o key of map: User Definition Name (userDefName)
+    #   o url: (NotRequired - Default same as one of main schema)
+    #   o schema: (NotRequired - Default treated as no schema setting)
+    #   o user: (Required)
+    #   o password: password plainly or path to password file (with default password)
+    #       e.g. foo or df:dfprop/system-password.txt|foo
+    #       (NotRequired - Default '')
+    #   o isSkipIfNotFoundPasswordFileAndDefault: Does it skip the user SQL statement
+    #       when using password file but not found it and also default password?
+    #       (NotRequired - Default false)
+    #</span>
+    ; additionalUserMap = <span class="keyword">map:</span>{
+        ; system = <span class="keyword">map:</span>{
+            ; url = <span class="literal">jdbc:mysql://localhost:43376</span>
+            ; user = <span class="literal">root</span>
+            ; password = <span class="literal">df:dfprop/system-password.txt|</span>
+        }
+    }
+    <span class="comment"># - - - - - - - - - -/</span>
+
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		password に "df:dfprop/system-password.txt" と "|" を加えることで、
+		rootのパスワードは以下のようなルールで決定されます。
+	</p>
+	<dl class="keymainlist">
+		<dt>パスワードファイルがあれば</dt><dd>パスワードファイルの中のパスワードが有効</dd>
+		<dt>パスワードファイルがなければ</dt><dd>「|」より右側の文字列がパスワード (この場合は「空パスワード」)</dd>
+	</dl>
+	<p>
+		ハンズオンの MySQL は、rootのパスワードが "空" であることを想定しているので、特にパスワードファイルを作成する必要はありません。
+		もし違う場合は、パスワードファイルを作成してください。
+	</p>
+	<h4>DBユーザ、テーブル作成DDLの配置</h4>
+	<p>
+		<em class="smallmark">tutorial/material/dbflute/playsql-createschema-ddl-1st.zip</em> を解凍して、<em class="smallmark">replace-schema-00-system.sql</em> と
+		<em class="smallmark">replace-schema-10-basic.sql</em> を、以下のようにDBFluteクライアントの playsql 配下に配置してください。
+		デフォルトで配置されている空っぽのreplace-schema.sqlは削除してください。
+	</p>
+<pre><span class="codetitle">e.g. CreateSchema用のDDLの配置場所 @Directory</span><code>
+PROJECT_ROOT
+ |-<span class="abbreviation">...</span>
+ |-dbflute_maihamadb
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-playsql
+ |  |  |-<span class="point">replace-schema-00-system.sql</span>
+ |  |  |-<span class="point">replace-schema-10-basic.sql</span>
+ <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		これにて、システムユーザの権限を利用してアプリユーザと Example の DB (MaihamaDBと呼ばれる) のテーブル作成の準備が整いました。
+		<span class="frm">(後の演習のために、この時点では明らかにおかしいカラム名などERDと若干の違いがあります)</span>
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+	<h4>ReplaceSchemaを叩く！</h4>
+	<p>
+		DBFluteタスクである、ReplaceSchemaタスクを実行してください。
+	</p>
+	<p>
+		Windows の Eclipse であれば、"リソースの検索" <em class="keyword">(ctrl + shift + R)</em> で
+		"manage.bat" を検索してそのまま実行、メニューが出ますので 0 番 (replace-schema) を押して Enter すればOKです。
+		<span class="frm">(Macの人はターミナルから manage.sh を...)</span>
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/index.html">DBFluteタスク</a></div>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/replaceschema/index.html">ReplaceSchemaタスク</a></div>
+	<p>
+		コンソールのログを見て、正常終了していることを確認してください。
+		DBFluteタスクのログファイルである、DBFluteクライアント/log/dbflute.log でも確認することができます。
+	</p>
+	<p>
+		ハンズオンをどこかの Git で管理する場合は、logファイルを .gitignore に登録しておきましょう。
+		<span>(logディレクトリに.gitignoreファイルを作成し、*.logと指定しておくでOKです)</span>
+	</p>
+	<p>
+		再度、MySQLにログインし、maihamadb データベースが作られていることを確認してください。
+	</p>
+	<h3 id="jdbc">JDBCタスクの実行</h3>
+	<p>
+		まず、DBFluteクライアントの schema 配下には、readme しかないことを確認してください。
+	</p>
+	<p>
+		DBFluteタスクである、JDBCタスク (manage.bat|sh で21番) を実行してください。実行の仕方は、ReplaceSchemaを実行したときと同じで、
+		manage.bat|sh はいつでも気軽に叩けるようにしておきましょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/index.html">DBFluteタスク</a></div>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/jdbc/index.html">JDBCタスク</a></div>
+	<p>
+		DBFluteクライアントの schema 配下に、テーブル構造の情報(スキーマのメタデータ)が XML 形式で出力されているはずです<span class="frm">(Eclipse上で確認するなら、プロジェクトのリフレッシュが必要)</span>。
+	</p>
+	<h3 id="doc">Docタスクの実行</h3>
+	<p>
+		まず、DBFluteクライアントの output/doc 配下には、readme しかないことを確認してください。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/doc/index.html">Docタスク</a></div>
+	<p>
+		Docタスク (manage.bat|sh で22番) を実行してください。DBFluteクライアントの output/doc 配下に、テーブル構造の情報(スキーマのメタデータ)が HTML
+		形式で出力されているはずです。
+	</p>
+	<h3 id="generate">Generateタスクの実行</h3>
+	<p>
+		まず、src/main/java 配下には、何もクラスがないことを確認してください。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/generate/index.html">Generateタスク</a></div>
+	<p>
+		そして、Generateタスク (manage.bat|sh で23番) を実行してください。DBFluteタスクが正常終了していれば、src/main/java 配下にテーブル対応のクラスが自動生成されるはずです。
+		コンパイルが正常に通っていることを確認してください。
+	</p>
+	<p>
+		<span class="frm">(...コンパイル確認中)</span>
+	</p>
+	<p>
+		もし、コンパイルエラーであれば、DBFluteエンジンとDBFluteランタイムのバージョンを確認してみてください。
+		自動生成されたクラスとDBFluteランタイムのjarファイルのバージョンは一致していなければなりません。
+		食い違っていれば、DBFluteランタイムのバージョンを修正して合わせましょう。
+	</p>
+	<p>
+		これで本当にコンパイルエラーなくなれば、セクション１はおしまいです！
+	</p>
+	<p>
+		そういえば、先ほど Package Presentation (if Eclipse) がよくわからなかった人は、ここで Hierarchical に変更してみましょう。
+		src/main/java配下の表現の仕方がガラリと変わるはずです。
+	</p>
+	<div class="relatedpage"><a href="#hierarchical">this - Package Presentation を Hierarchical に</a></div>
+
+	<div class="inucolumn">
+		<h2 id="devtu">ディベロッパーのためのチュートリアル</h2>
+		<p>
+			さあ、ディベロッパーのためのチュートリアルをブックマークしましょう！
+		</p>
+		<div class="detailpage"><a href="../../tutorial/developer.html">ディベロッパーのためのチュートリアル</a></div>
+		<p>
+			今後、何かとこのページを見ることになるかと思います。
+			DBFluteのさまざまなページを辿ることができるエントリページになっています。
+			まずは一度さらっと読んでみて、"ここにこういうことが書いてあるんだ"
+			となんとなく理解してみて、そして、このあと困ったことがあったら、このページを開いて情報を探していくとよいでしょう。
+		</p>
+	</div>
+	
+	<div class="inucolumn">
+		<h2 id="reviewflute">jfluteのレビューポイント</h2>
+		<p>
+			以下、改めてチェックしてみてください。
+		</p>
+		<ul>
+			<li>Encodingや改行コードの設定、されていますか？ <span class="frm">(if Eclipse)</span></li>
+			<li>Encodingや改行コードの設定、プロジェクトの設定に入ってますか？ <span class="frm">(if Eclipse)</span></li>
+			<li>フォーマッターや自動化の設定、されていますか？ <span class="frm">(if Eclipse)</span></li>
+			<li>フォーマッターや自動化の設定、project の設定になってますか？ <span class="frm">(if Eclipse)</span></li>
+			<li>DBFluteクライアントのlogの ".log" ファイルたちは gitignore になってますか？</li>
+			<li>そもそもコンパイルは通ってますか？ <span class="frm">(エラーになってないですか？)</span></li>
+		</ul>
+		<p>
+			<em class="keyword">環境構築のような作業を抜けなくできる</em> というのも、重宝されるスキルです。
+		</p>
+	</div>
+	
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section02.html">ハンズオン セクション 02</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

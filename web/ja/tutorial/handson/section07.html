@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 7 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 7</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、ハンズオンの続きです。
+	</p>
+	<div class="relatedpage"><a href="./section06.html">(ひとつまえ) ハンズオンセクション 6</a></div>
+	<p>
+		"Behaviorで登録 (+ 自動採番、共通カラム)" を学んでいきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		<em class="keyword">src/main/java</em> 配下に org.docksidestage.handson.logic.HandsOn07Logic
+		クラスを作成してください。この時点では空っぽで構いません。また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		【事務連絡】org.dbflute.handson から、org.docksidestage.handson に変わりました。
+		org.dbfluteで開始した人は、そのまま org.dbflute で続けてOKです。もし、移行するなら log4j.properties と basicInfoMap.dfprop
+		の該当箇所を修正してください。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20150311">ハンズオンニュース - org.docksidestageに変更</a></div>
+
+	<h2 id="insert">データの登録</h2>
+	<p>
+		今までひたすら検索をやってきましたが、ここでようやく登録です。
+		Behavior から Entity をもらうのではなく、Entity を渡してみましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/behavior/update/insert.html">Behavior - insert()</a></div>
+	<p>
+		以下のロジックを作成してみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド (HandsOn07Logic)</dt>
+		<dd>Member insertMyselfMember()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>自分自身の会員を登録</li>
+				<li>正式会員で登録</li>
+				<li>現在日時を取得する Logic を作成して、正式会員日時を入れる</li>
+			</ul>
+		</dd>
+		<dt>現在日時取得ロジック (CurrentTimeLogic)</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>currentDate() : LocalDate で現在日時を戻す</li>
+				<li>currentDateTime() : LocalDateTime で現在日時を戻す</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_insertMyselfMember_会員が登録されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>登録後の Entity から主キーの値を使って検索すること</li>
+				<li>とりあえず、会員名称と生年月日だけアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../manual/function/genbafit/implfit/autoincrement/index.html">現場フィット - 自動採番</a></div>
+
+	<div class="inucolumn">
+		<h2 id="notcurrentfromjava">現在日時は、Javaから取らない</h2>
+		<h3 id="changecurrent">現在日時は差し替えたい</h3>
+		<p>
+			現在日時は、各機能が直接 Java から取らないのが流儀です。
+		</p>
+		<p>
+			アプリには、月初、月末、年末など時間限定でないと動かないプログラムもよくあります。
+			それらをテストするのにはどうしたらいいでしょう？
+			PCのシステム日付を変える方法もありますが、ファイル更新日時などがひっくり返って戻したときに予期せぬ挙動をしたり、ライセンス周りの挙動がおかしくなったりと、
+			あまりやりたいことではありません。
+		</p>
+		<h3 id="currentinterface">統一した現在日時インターフェース</h3>
+		<p>
+			そこでよく利用されるのが、アプリで "現在日時を提供するインターフェース"
+			を用意して、その実装をちょっとだけ差し替えることで自由に "アプリ内の現在日時" を変更する方法です。
+			実際には、実装の差し替えというよりかは設定ファイルで変更できるするようにします。
+		</p>
+		<p>
+			そのためには、それぞれが直接 Java から現在日時を取ってはいけないのです。
+		</p>
+		<p>
+			新しい開発プロジェクトに入って現在日時を取得する場面に遭遇したら、まずは聞いてみましょう。
+			現在日時を取得する統一的なインターフェースがありますでしょうか？
+		</p>
+		<h3 id="sologic">ということでロジックを</h3>
+		<p>
+			ということで、このハンズオンでは、現在日時を取得するロジックを作ってもらいました。
+			もし、本当に現在日時を差し替えてテストしたいとなれば、このロジックを切り替えたり、ロジックの中でうまく fake
+			するような処理を入れたりするとよいでしょう。
+		</p>
+	</div>
+
+	<h2 id="commoncolumn">共通カラムの設定</h2>
+	<p>
+		先ほどのロジックで、登録日時や更新日時はどうしたでしょうか？
+	</p>
+	<p>
+		...個別個別に設定しないと登録できなかったかと思います。
+		ですが、DBFlute には、データ登録・更新時に発生する共通カラムへの定型的な設定処理、これを自動で行う機能があります。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム</a></div>
+	<h3 id="dfpropandgen">dfpropに設定して自動生成</h3>
+	<p>
+		UnitTest環境では、UTFluteの中ですでに AccessContext は設定されているので、このエクササイズでやるのではdfpropでの共通カラムの設定と自動生成だけとなります。
+	</p>
+	<p>
+		commonColumnMap.dfprop に、以下の内容を設定して再自動生成(DocとGenerate)してください。
+	</p>
+	<p>
+		<span class="frm">※Java6 (DBFlute-1.0.x) なら getAccessLocalDateTimeOnThread() は getAccessTimestampOnThread()
+		に変更</span>
+	</p>
+<pre><span class="codetitle">e.g. DBFluteプロパティでの共通カラムの設定 @commonColumnMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; commonColumnMap = <span class="keyword">map:</span>{
+        ; REGISTER_DATETIME=TIMESTAMP ; REGISTER_USER=VARCHAR
+        ; UPDATE_DATETIME=TIMESTAMP   ; UPDATE_USER=VARCHAR
+    }
+    ; beforeInsertMap = <span class="keyword">map:</span>{
+        ; REGISTER_DATETIME = <span class="attribute">$$AccessContext$$</span>.getAccessLocalDateTimeOnThread()
+        ; REGISTER_USER     = <span class="attribute">$$AccessContext$$</span>.getAccessUserOnThread()
+        ; UPDATE_DATETIME   = entity.getRegisterDatetime()
+        ; UPDATE_USER       = entity.getRegisterUser()
+    }
+    ; beforeUpdateMap = <span class="keyword">map:</span>{
+        ; UPDATE_DATETIME   = <span class="attribute">$$AccessContext$$</span>.getAccessLocalDateTimeOnThread()
+        ; UPDATE_USER       = <span class="attribute">$$AccessContext$$</span>.getAccessUserOnThread()
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="confirmrerun">SchemaHTML確認、そして、テスト再実行</h3>
+	<p>
+		まずは、SchemaHTML (schema-maihamadb.html) を確認してみましょう。共通カラム部分のデザインがほんの少し変わったはずです。
+	</p>
+	<p>
+		そして、先ほどのロジックから共通カラムの設定をコメントアウトしてテストを再実行してみてください。
+		ログで共通カラムの登録された値を確認してみてください。
+	</p>
+	<h3 id="versionno">バージョンNOも設定不要</h3>
+	<p>
+		バージョンNOに関しては次のセッションで詳しく説明がありますが、
+		とりあえず登録時にバージョンNOは明示的に設定する必要はないということだけ覚えておいてください。
+	</p>
+
+	<h2 id="morelogic">さらに登録してみましょう</h2>
+	<p>
+		では、エクササイズです。さらに登録してみましょう。
+	</p>
+	<p>
+		※ExampleDB の ERD と、この時点で利用している実際のテーブル構造(主にカラム名やカラムの構造)では、<em class="keyword">明らかにおかしいカラム名</em>
+		があったりなど、一部食い違っているのでご注意ください。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>Member insertYourselfMember()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>誰かを正式会員として登録</li>
+				<li>業務的に必須の関連テーブルも登録</li>
+			</ul>
+		</dd>
+		<dt>テストメソッド</dt>
+		<dd>test_insertYourselfMember_会員が登録されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>登録されていることを代表的なカラムを利用してアサート</li>
+				<li>関連テーブルの登録もアサート</li>
+				<li>登録していない関連テーブルが登録されていないこともアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section08.html">ハンズオンセクション 8</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

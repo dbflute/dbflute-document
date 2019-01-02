@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,checkSafetyResult,件数チェック,全件検索チェック" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CheckSafetyResult | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CheckSafetyResult</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">玄人向け</em> のスポット対応の機能です。普段は意識する必要はありません。
+	</p>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		ConditionBeanの検索結果が指定された件数を超えた場合に例外にします。
+	</p>
+	<p>
+		例えば、"このテーブルは件数が膨大なので間違っても全件検索したくない" かつ "絶対に n 件以下のデータであることが業務上確定している"
+		というような場合に、(フェッチ処理の途中で)指定した件数を超えたことがすぐに例外で検知できます。
+		膨大な件数のテーブルを間違って全件検索してしまうと、DBアクセスの処理が戻ってきません(一件検索であれば二件目のデータ取得時に例外になるので、主にリスト検索が対象)。
+		テストすれば分かることとはいえ、SQLの処理が戻ってくるまでは何が起きているのかわからなかったりして(特に画面を経由した実行の場合)、意外にコストが掛かります。
+	</p>
+	<p>
+		無効な条件による予期せぬ全件検索などは、CheckInvalidQuery
+		を使えば防げますが、それ以外の要因で余計な件数のデータが取れてしまうのを防ぐことができます。
+		例えば、絶対に 3 件しか取れないはずの検索が、データの不備で 4 件以上取れてしまう、というような場合のチェックにも利用できます。
+	</p>
+	<div class="relatedpage"><a href="./checkinvalidquery.html">CheckInvalidQuery</a></div>
+	<h3 id="twoedgedsword">諸刃の剣</h3>
+	<p>
+		TwoEdgedSword 認定のされた機能です。しっかり、精度高く利用しないと、逆にカオスを生み出します。
+		"場合によっては指定件数以上の検索もするかもしれない"
+		というような場合にチェックを掛けてしまうと、いざというときに逆に面倒なことになります。
+		(特に、本番運用の中で初めてそういう場面が発生した、とかになるとかなりややこしい問題となるでしょう)
+	</p>
+	<div class="inucolumn">
+		<h3 id="selectentity">一件検索では内部的に利用</h3>
+		<p>
+			実は、一件検索(selectEntity)では内部的にこの機能を使っています。
+			一件検索が二件目のデータ取得時にすぐに例外になって早い段階で検知できるようになっているのはそういうことなのです。
+		</p>
+		<div class="relatedpage"><a href="../../behavior/select/selectentity.html">Behavior - selectEntity(cb)</a></div>
+	</div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		絞り込み条件などを設定する前に、ConditionBean の checkInvalidQuery() を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanに絞り込み条件が設定されているかどうか (Eclipseでコード補完) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.chSR <span class="comment">// .chSR と打って enter</span>
+--
+cb.<span class="point">checkSafetyResult(safetyMaxResultSize)</span>
+--
+cb.checkSafetyResult(<span class="literal">3</span>); <span class="comment">// 3 件以上で例外</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<p>
+		QueryUpdate や QueryDelete では無効です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

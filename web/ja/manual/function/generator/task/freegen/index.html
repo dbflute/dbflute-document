@@ -1,0 +1,380 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,FreeGen" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>FreeGenタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>FreeGenタスク</h1>
+	${indexlist}
+
+	<h2 id="about">FreeGenタスクとは？</h2>
+	<p>
+		なんでも自動生成DBFluteタスクです。
+	</p>
+	<p>
+		例えば、Solrの schema.xml
+		を読み込んで対応するクラスを自動生成したり、JSONの定義を読み込んで対応するクラスを自動生成したり、様々な用途で利用されます。
+	</p>
+	<p>
+		DBFluteのメインの自動生成とは切り離された機能です。
+		DBFluteの自動生成エンジンを間借りして好きなものを読み込んで好きなものを自動生成するためのものと考えてよいでしょう。
+	</p>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>自動生成したいとき</li>
+	</ul>
+	<h3 id="map">FreeGenのインフラマップ</h3>
+	<p class="imgbox">図 : FreeGenのインフラマップ
+		<a href="../../../../../../data/model/generator/freegen/dbflute-freegen-infrastructure-map.png" title="FreeGenのインフラマップ"><img src="../../../../../../data/model/generator/freegen/dbflute-freegen-infrastructure-map.png" alt="FreeGenのインフラマップ" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">manage.(bat|sh)</em> の 12 (freegen) を選択して実行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		FreeGenタスクを実行すると...
+	</p>
+	<ol>
+		<li>[DBFluteクライアント]/dfprop/freeGenMap.dfprop が読み込まれる</li>
+		<li>[DBFluteクライアント]/freegen/ControlFreeGen.vm が実行される</li>
+	</ol>
+
+	<h2 id="howto">FreeGenの使い方</h2>
+	<h3 id="onetoone">ひとつのリソースでひとつのクラス <span class="frm">#one-to-one class</span></h3>
+	<p>
+		例えば、message.properties から MessageDef というクラスを生成するなら...
+	</p>
+<pre><span class="codetitle">e.g. message definition @message.properties</span><code>
+<span class="attribute">sea.land</span> = good morning
+<span class="attribute">piari.bonvo</span> = good afternoon
+<span class="abbreviation">...</span>
+</code></pre>
+	<dl class="shortkeymainlist">
+		<dt>テーブル</dt><dd>message.properties自体</dd>
+		<dt>カラム</dt><dd>propertiesのそれぞれのプロパティ</dd>
+	</dl>
+	<h4>freeGenMap.dfprop</h4>
+	<p>
+		dfprop は以下のようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/freegen/index.html">freeGenMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. dfprop for one-to-one @freeGenMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MessageGen = <span class="keyword">map:</span>{
+        ; resourceMap = <span class="keyword">map:</span>{
+            ; resourceType = PROP
+            ; resourceFile = ../src/main/resources/message.properties
+        }
+        ; outputMap = <span class="keyword">map:</span>{
+            ; outputDirectory = ../src/main/java
+            ; package = org.docksidestage.freegen.message
+            ; templateFile = MessageDef.vm
+            ; className = MessageDef
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		templateFileは、DBFluteクライアント の　freegen ディレクトリからのパスとなります。
+	</p>
+	<h4>ControlFreeGen.vm</h4>
+	<p>
+		ControlFreeGen.vm では、以下のようなメソッドやプロパティを使って制御します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>request.isOnlyOneTable()</dt><dd>単一のテーブルか否か？ <span class="frm">(ここでは true の方で実装)</span></dd>
+		<dt>request.table</dt><dd>Loadされたテーブル情報 <span class="frm">(テンプレートファイル内で利用)</span></dd>
+		<dt>request.templatePath</dt><dd>テンプレートファイルのパス <span class="frm">(指定された templateFile 含む)</span></dd>
+		<dt>request.generateFilePath</dt><dd>自動生成ファイルのパス <span class="frm">(指定された package, className 含む)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. control for one-to-one as Normal Gen @ControlFreeGen.vm</span><code>
+<span class="localvar">$manager</span>.info(<span class="literal">"requestList: ${requestList.size()}"</span>)
+
+<span class="keyword">#foreach</span> (<span class="localvar">$request</span> <span class="keyword">in</span> <span class="localvar">$requestList</span>)
+<span class="keyword">#set</span> (<span class="localvar">$optionMap</span> = <span class="localvar">$request</span>.optionMap)
+<span class="localvar">$request</span>.enableOutputDirectory()
+<span class="localvar">$manager</span>.makeDirectory(<span class="localvar">$request</span>.generateDirPath)
+
+<span class="comment">##
+## &lt;&lt;&lt;  Normal Gen  &gt;&gt;&gt;
+##</span>
+<span class="keyword">#if</span> (<span class="localvar">$request</span>.isOnlyOneTable())
+  <span class="keyword">#set</span> (<span class="localvar">$table</span> = <span class="localvar">$request</span>.table)
+  <span class="localvar">$manager</span>.info(<span class="literal">"parse('${request.generateFilePath}')"</span>)
+  <span class="point">$generator.parse($request.templatePath, $request.generateFilePath, "", "")</span>
+<span class="keyword">#else</span>
+  <span class="keyword">#foreach</span> (<span class="localvar">$table</span> <span class="keyword">in</span> <span class="localvar">$request</span>.tableList)
+    <span class="keyword">#set</span> (<span class="localvar">$path</span> = <span class="literal">"${request.generateDirPath}/${table.camelizedName}.java"</span>)
+    <span class="localvar">$manager</span>.makeDirectory(<span class="keyword">$path</span>)
+    <span class="localvar">$manager</span>.info(<span class="literal">"parse('${path}')"</span>)
+    <span class="localvar">$generator</span>.parse($request.templatePath, <span class="localvar">$path</span>, <span class="literal">""</span>, <span class="literal">""</span>)
+  <span class="keyword">#end</span>
+<span class="keyword">#end</span>
+
+<span class="keyword">#end</span>
+</code></pre>
+	<p>
+		上記の例を、特にカスタマイズせずにこのまま利用しても良いでしょう。
+	</p>
+	<h4>Velocityテンプレート</h4>
+	<p>
+		指定された Velocity のテンプレートの中では、以下のプロパティを使ってテンプレートを実装します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>table</dt><dd>Loadされたテーブル情報</dd>
+		<dt>request.className</dt><dd>指定されたクラス名</dd>
+		<dt>table.columnList</dt><dd>Loadされたカラム情報のリスト</dd>
+	</dl>
+<pre><span class="codetitle">e.g. control for one-to-one as Normal Gen @ControlFreeGen.vm</span><code>
+<span class="comment">/**
+ * @author FreeGen
+ */</span>
+<span class="keyword">public class</span> <span class="subpoint">${request.className}</span> {
+#foreach ($column in $table.<span class="subpoint">columnList</span>)
+
+    /** ${column.comment}, name=${column.capCamelName}, variable=${column.variableCount} */
+    <span class="keyword">public static final</span> String ${column.defName} = "${column.propertyKey}";
+
+    <span class="abbreviation">...</span>
+#end
+</code></pre>
+	<p>
+		columnで利用可能なプロパティは、DfFreeGenTableLoader を implements
+		した TableLoader によって変わりますので、ソースコードをご覧ください。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/tree/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen/table">DBFlute Engine - FreeGen - TableLoader | Github</a></div>
+	<h3 id="onetomany">ひとつのリソースで複数のクラス <span class="frm">#one-to-many classes</span></h3>
+	<p>
+		例えば、schema.json から、それぞれのテーブルに対応するクラスを生成するなら...
+	</p>
+<pre><span class="codetitle">e.g. table definition as JSON @schema.json</span><code>
+MEMBER: {
+	<span class="attribute">$comment</span> : "member table"
+	, <span class="attribute">$type</span> : "table"
+	, MEMBER_ID : { type: "numeric", comment: "identity" }
+	, MEMBER_NAME : { type: "varchar" }
+	, MEMBER_STATUS_CODE : { type: "varchar" }
+	, MEMBER_STATUS : { type: "ref" }
+},
+PURCHASE: {
+	<span class="attribute">$comment</span> : "purchase table"
+	, <span class="attribute">$type</span> : "table"
+	, PURCHASE_ID : { type: "numeric" }
+	, MEMBER_ID : { type: "numeric" }
+	, MEMBER : { type: "ref" }
+},
+<span class="abbreviation">...</span>
+</code></pre>
+	<dl class="shortkeymainlist">
+		<dt>テーブル</dt><dd>jsonの中の一つ一つのテーブル定義</dd>
+		<dt>カラム</dt><dd>テーブルの中のカラム定義</dd>
+	</dl>
+	<h4>freeGenMap.dfprop</h4>
+	<p>
+		dfpropは以下のようになります。(className は使わないので unused)
+	</p>
+<pre><span class="codetitle">e.g. dfprop for one-to-many @freeGenMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; TableBeanGen = <span class="keyword">map:</span>{
+        ; resourceMap = <span class="keyword">map:</span>{
+            ; resourceType = JSON_SCHEMA
+            ; resourceFile = ../src/main/resources/json/schema.json
+        }
+        ; outputMap = <span class="keyword">map:</span>{
+            ; outputDirectory = ../src/main/java
+            ; package = org.docksidestage.freegen.bean
+            ; templateFile = TableBean.vm
+            ; className = <span class="subpoint">unused</span>
+        }
+        ; optionMap = <span class="keyword">map:</span>{
+            ; tablePath = map
+            ; mappingMap = <span class="keyword">map:</span>{
+                ; type = <span class="keyword">map:</span>{ numeric = Integer ; varchar = String }
+            }
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		optionMap は、テーブルに関するオプション情報です<span class="frm">(昔は tableMap でした)</span>。
+		任意にプロパティを指定してテンプレート内で利用することもできますし、resourceTypeによって指定が必須のプロパティや自動的に設定されるプロパティなどもあります。
+	</p>
+	<p>
+		resourceTypeによって変わるプロパティは、DfFreeGenTableLoader を implements
+		した TableLoader によって変わりますので、ソースコードをご覧ください。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/tree/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen/table">DBFlute Engine - FreeGen - TableLoader | Github</a></div>
+	<h4>ControlFreeGen.vm</h4>
+	<p>
+		ControlFreeGen.vm では、以下のようなメソッドやプロパティを使って制御します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>request.isOnlyOneTable()</dt><dd>単一のテーブルか否か？ <span class="frm">(ここでは false の方で実装)</span></dd>
+		<dt>request.tableList</dt><dd>Loadされたテーブル情報のリスト</dd>
+		<dt>request.templatePath</dt><dd>テンプレートファイルのパス <span class="frm">(指定された templateFile 含む)</span></dd>
+		<dt>table.generateDirPath</dt><dd>自動生成の出力先ディレクトリのパス <span class="frm">(指定された package 含む)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. control for one-to-one as Normal Gen @ControlFreeGen.vm</span><code>
+<span class="localvar">$manager</span>.info(<span class="literal">"requestList: ${requestList.size()}"</span>)
+
+<span class="keyword">#foreach</span> (<span class="localvar">$request</span> <span class="keyword">in</span> <span class="localvar">$requestList</span>)
+<span class="keyword">#set</span> (<span class="localvar">$optionMap</span> = <span class="localvar">$request</span>.optionMap)
+<span class="localvar">$request</span>.enableOutputDirectory()
+<span class="localvar">$manager</span>.makeDirectory(<span class="localvar">$request</span>.generateDirPath)
+
+<span class="keyword">#if</span> (<span class="localvar">$request</span>.isOnlyOneTable())
+  <span class="keyword">#set</span> (<span class="localvar">$table</span> = <span class="localvar">$request</span>.table)
+  <span class="localvar">$manager</span>.info(<span class="literal">"parse('${request.generateFilePath}')"</span>)
+  <span class="localvar">$generator</span>.parse(<span class="localvar">$request</span>.templatePath, <span class="localvar">$request</span>.generateFilePath, <span class="literal">""</span>, <span class="literal">""</span>)
+<span class="keyword">#else</span>
+  <span class="keyword">#foreach</span> (<span class="localvar">$table</span> <span class="keyword">in</span> <span class="localvar">$request</span>.tableList)
+    <span class="keyword">#set</span> (<span class="localvar">$path</span> = <span class="literal">"${request.generateDirPath}/${table.camelizedName}.java"</span>)
+    <span class="localvar">$manager</span>.makeDirectory(<span class="keyword">$path</span>)
+    <span class="localvar">$manager</span>.info(<span class="literal">"parse('${path}')"</span>)
+    <span class="point">$generator.parse($request.templatePath, $path, "", "")</span>
+  <span class="keyword">#end</span>
+<span class="keyword">#end</span>
+
+<span class="keyword">#end</span>
+</code></pre>
+	<p>
+		上記の例を、特にカスタマイズせずにこのまま利用しても良いでしょう。
+	</p>
+	<h4>Velocityテンプレート</h4>
+	<p>
+		指定された Velocity のテンプレートの中では、以下のプロパティを使ってテンプレートを実装します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>table</dt><dd>tableListのループの現在のテーブル情報</dd>
+		<dt>table.columnList</dt><dd>そのテーブルのカラム情報のリスト</dd>
+	</dl>
+<pre><span class="codetitle">e.g. control for one-to-one as Normal Gen @ControlFreeGen.vm</span><code>
+<span class="comment">/**
+ * @author FreeGen
+ */</span>
+<span class="keyword">public class</span> <span class="subpoint">${table.camelizedName}</span> {
+
+#foreach ($column in $table.<span class="subpoint">columnList</span>)
+#if ($column.isNormalColumn)
+#set ($javaNative = ${column.type})
+#elseif ($column.isRefColumn)
+#set ($javaNative = ${column.camelizedName})
+#end
+    /** ${column.name} */
+    <span class="keyword">protected</span> ${javaNative} ${column.uncapCamelName};
+
+#end
+    <span class="abbreviation">...</span>
+#end
+</code></pre>
+	<p>
+		table や columnで利用可能なプロパティは、DfFreeGenTableLoader を implements
+		した TableLoader によって変わりますので、ソースコードをご覧ください。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/tree/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen/table">DBFlute Engine - FreeGen - TableLoader | Github</a></div>
+	<h3 id="onetofree">ひとつのリソースで自由に <span class="frm">#one-to-free classes</span></h3>
+	<p>
+		一つのリソースで、自由に自動生成したいのであれば... <span class="frm">(というか、このパターンが一番多いかなと)</span>
+	</p>
+	<p>
+		templateFile も unused にします。
+	</p>
+<pre><span class="codetitle">e.g. dfprop for one-to-free @freeGenMap.dfprop</span><code>
+{
+    <span class="keyword">map:</span>{
+        ; TableBeanGen = <span class="keyword">map:</span>{
+            ; resourceMap = <span class="keyword">map:</span>{
+                ; resourceType = JSON_SCHEMA
+                ; resourceFile = ../src/main/resources/json/schema.json
+            }
+            ; outputMap = <span class="keyword">map:</span>{
+                ; outputDirectory = ../src/main/java
+                ; package = org.docksidestage.freegen.bean
+                ; templateFile = <span class="subpoint">unused</span>
+                ; className = <span class="subpoint">unused</span>
+            }
+            ; optionMap = <span class="keyword">map:</span>{
+                ; tablePath = map
+                ; mappingMap = <span class="keyword">map:</span>{
+                    ; type = <span class="keyword">map:</span>{ numeric = Integer ; varchar = String }
+                }
+            }
+        }
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
+		そして、ControlFreeGen.vm にて、requestName で分岐させて自由にやります。
+	</p>
+<pre><span class="codetitle">e.g. control for one-to-one as Normal Gen @ControlFreeGen.vm</span><code>
+<span class="point">#if ($request.requestName == "TableBeanGen")</span>
+  ##
+  ## &lt;&lt;&lt;  Table Bean Gen  &gt;&gt;&gt;
+  ##
+  #foreach ($table in $request.tableList)
+    <span class="subpoint">#set ($path = "${request.generateDirPath}/bean/bs/Bs${table.camelizedName}.java")</span>
+    $manager.makeDirectory($path)
+    $request.info("parse('${path}')")
+    <span class="subpoint">$generator.parse("./json/BsJsonBean.vm", $path, "", "")</span>
+
+    <span class="subpoint">#set ($path = "${request.generateDirPath}/bean/ex/${table.camelizedName}.java")</span>
+    $manager.makeDirectory($path)
+    $request.info("parse('${path}')")
+    #if (!$files.file(${generator.outputPath},$path).exists())
+      <span class="subpoint">$generator.parse("./json/ExJsonBean.vm", $path, "", "")</span>
+    #end
+  #end
+#end
+</code></pre>
+	<div class="inucolumn">
+		<h3 id="letsread">コードを読もう</h3>
+		<p>
+			とはいえ、ソースコードを読まないと使い方はよくわからないと思います。
+		</p>
+		<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/tree/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen">DBFlute Engine - FreeGen | Github</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

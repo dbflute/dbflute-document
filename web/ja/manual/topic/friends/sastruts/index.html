@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Friends - SAStruts | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Friends - SAStruts</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、親和性の高いフレームワークを紹介します。
+	</p>
+	${indexlist}
+
+	<h2 id="about">SAStrutsとは？</h2>
+	<p>
+		詳しくは本家サイトにて。フォロー的な内容だけここでは書いておきます。
+	</p>
+	<div class="detailpage"><a href="http://sastruts.sandbox.seasar.org/">SAStruts本家サイト</a></div>
+	<h3 id="across">SAStrutsのAction一気通貫</h3>
+	<p class="imgbox">図 : SAStrutsのAction一気通貫
+		<a href="../../../../../data/model/friends/sastruts/friends-sastruts-action-across.png" title="SAStrutsのAction一気通貫"><img src="../../../../../data/model/friends/sastruts/friends-sastruts-action-across.png" alt="SAStrutsのAction一気通貫" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="validation">SAStrutsのバリデーション</h2>
+	<p>
+		ちょっと書いてみました。
+	</p>
+	<div class="detailpage"><a href="./validation.html">SAStrutsのバリデーション</a></div>
+
+	<h2 id="blank">Enhanced SAStruts Blank</h2>
+	<h3 id="overview">Blank概要</h3>
+	<p>
+		(一応) <em class="keyword">Maven + Jetty + DBFlute</em> を前提とした必要最低限のクラスと設定などが用意されている、わりと良い感じの Blank
+		プロジェクトをここでは提供しています。<span class="frm">(たいした依存じゃないので Jetty や DBFlute じゃなくて活用できます)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>Maven</dt><dd>ある程度の pom.xml に定義、M2E用の .classpath を組み込み</dd>
+		<dt>Jetty</dt><dd>(開発環境では) <a href="https://github.com/dbflute-session/jetty-boot">JettyBoot</a> を使ってmain()起動</dd>
+		<dt>ロギングやエラー処理</dt><dd>リクエスト情報などのデバッグログ、エラーロギング <span class="frm">(web.xmlで設定済み)</span></dd>
+		<dt>S2起動エラー捕捉</dt><dd>Seasarの起動時エラーをLog4j出力(web.xmlで設定済み)</dd>
+		<dt>設定ファイル見た目綺麗に</dt><dd>.properties や .dicon や web.xml などの中身の見た目を綺麗に</dd>
+		<dt>設定ファイル実践的ひな形</dt><dd>.properties や .dicon や web.xml などに実践的なひな形を用意</dd>
+	</dl>
+	<p>
+		※DBFlute自体はインストールされていません。
+	</p>
+	<h3 id="downloadhowto">ダウンロード＆利用方法</h3>
+	<p>
+		以下のリンクからダウンロードできます。
+	</p>
+	<p>
+		<a href="http://dbflute.seasar.org/download/misc/friends/enhanced-sastruts-blank.zip">enhanced-sastruts-blank.zip</a>
+	</p>
+	<p>
+		まずはZIPを解凍して、Eclipseのプロジェクトとして import します。
+		その後、DBFluteをセットアップして、自動生成すればOKです。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

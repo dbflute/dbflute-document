@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,暗号化,復号化,SQL関数,Cipher,encrypt,decrypt,ハッシュ関数,SHA1,パスワード" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>暗号化・復号化処理の組み込み (GearedCipher) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>暗号化・復号化処理の組込み (GearedCipher)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		主にSQL関数を使った暗号化処理を、ConditionBean や Behavior などに組み込むことができます。
+		<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<p>
+		これを、<em class="keyword">GearedCipher</em> と呼びます。
+	</p>
+	<h3 id="invertiblecase">可逆のケース</h3>
+	<p>
+		Behaviorで更新すると...
+	</p>
+<pre><span class="codetitle">e.g. Behavior の updateNonstrict() で暗号化 {MEMBER.UPDATE_USER} @Java</span><code>
+Member security = <span class="keyword">new</span> Member();
+security.setMemberId(<span class="literal">3</span>);
+security.<span class="point">setUpdateUser</span>(<span class="literal">"foo"</span>); <span class="comment">// プレーンテキストのままセット</span>
+<span class="attribute">memberBhv</span>.updateNonstrict(security);
+</code></pre>
+<pre><span class="codetitle">e.g. Behavior の updateNonstrict() で暗号化 {MEMBER.UPDATE_USER} @DisplaySql</span><code>
+<span class="keyword">update</span> MEMBER
+   <span class="keyword">set</span> UPDATE_USER = <span class="point">hex(aes_encrypt('foo', 'himitsu'))</span>
+     , <span class="abbreviation">...</span>
+     , VERSION_NO = VERSION_NO + 1
+ <span class="keyword">where</span> MEMBER_ID = 3
+</code></pre>
+	<p>
+		ConditionBeanで検索すると...
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで暗号化した上で比較 {MEMBER.UPDATE_USER} @Java</span><code>
+MemberCB cb = new MemberCB();
+cb.query().setMemberId_Equal(<span class="literal">1</span>);
+Member member = <span class="attribute">memberBhv</span>.selectEntityWithDeletedCheck(cb);
+String updateUser = member.getUpdateUser(); <span class="comment">// 復号化された foo が取れる</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ConditionBeanで暗号化した上で比較 {MEMBER.UPDATE_USER} @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as MEMBER_NAME, <span class="abbreviation">...</span>
+     , <span class="point">convert(aes_decrypt(unhex(dfloc.UPDATE_USER), 'himitsu') using utf8)</span>
+       as UPDATE_USER
+  <span class="keyword">from</span> MEMBER dfloc
+</code></pre>
+	<h3 id="noninvertiblecase">不可逆のケース</h3>
+	<p>
+		検索条件でも...
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで暗号化した上で比較 {MEMBER_SECURITY.LOGIN_PASSWORD} @Java</span><code>
+MemberSecurityCB cb = <span class="keyword">new</span> MemberSecurityCB();
+cb.query().setLoginPassword_Equal(<span class="literal">"foo"</span>); <span class="comment">// プレーンテキストのままセット</span>
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ConditionBeanで暗号化した上で比較 {MEMBER_SECURITY.LOGIN_PASSWORD} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> dfloc.LOGIN_PASSWORD = sha1(<span class="literal">'foo'</span>) <span class="comment">-- 暗号化された値同士で比較</span>
+</code></pre>
+
+	<h2 id="howto">組み込みのやり方</h2>
+	<h3 id="dbfluteconfig">DBFluteConfig</h3>
+	<p>
+		DBFluteConfig で GearedCipherManager を登録します。暗号化カラムに対して CipherFunctionFilter
+		の実装クラスを関連付けます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html">allcommon - DBFluteConfig</a></div>
+<pre><span class="codetitle">e.g. 暗号化・復号化処理の組み込み {MEMBER.UPDATE_USER} @Java</span><code>
+<span class="comment">// 実際にキーをどのようにして扱うかは実業務では厳密に考慮する必要がある</span>
+<span class="comment">// ここではとりあえず Example ということで簡単でベタなやり方で表現している</span>
+<span class="keyword">final</span> String secretKey = <span class="abbreviation">...</span>
+
+GearedCipherManager manager = <span class="keyword">new</span> GearedCipherManager();
+ColumnInfo updateUser = MemberDbm.getInstance().columnUpdateUser();
+manager.addFunctionFilter(updateUser, <span class="keyword">new</span> CipherFunctionFilter() {
+    <span class="keyword">public</span> String encrypt(String valueExp) {
+        String exp = <span class="literal">"hex(aes_encrypt(%1$s, '%2$s'))"</span>;
+        <span class="keyword">return</span> String.format(exp, valueExp, secretKey);
+    }
+
+    <span class="keyword">public</span> String decrypt(String valueExp) {
+        String exp = <span class="literal">"convert(aes_decrypt(unhex(%1$s), '%2$s') using utf8)"</span>;
+        <span class="keyword">return</span> String.format(exp, valueExp, secretKey);
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 不可逆の暗号化処理の組み込み {MEMBER_SECURITY.LOGIN_PASSWORD} @Java</span><code>
+GearedCipherManager manager = <span class="keyword">new</span> GearedCipherManager();
+ColumnInfo loginPassword = MemberSecurityDbm.getInstance().columnLoginPassword();
+manager.addFunctionFilter(loginPassword, <span class="keyword">new</span> CipherFunctionFilter() {
+    <span class="keyword">public</span> String encrypt(String valueExp) {
+        <span class="keyword">return</span> <span class="literal">"sha1("</span> + valueExp + <span class="literal">")"</span>;
+    }
+
+    <span class="keyword">public</span> String decrypt(String valueExp) {
+        <span class="keyword">return</span> valueExp; <span class="comment">// どのみち戻せないのでそのまま</span>
+    }
+});
+</code></pre>
+	<h3 id="severalfilter">フィルタの複数登録</h3>
+	<p>
+		同じカラムに対して複数のフィルタを追加した場合は、追加された順番にフィルタが実行されます。
+	</p>
+
+	<h2 id="scope">組み込み対象</h2>
+	<h3 id="scopepolicy">ポリシー</h3>
+	<ul>
+		<li>アプリから値をDBに格納する場合は暗号化</li>
+		<li>DBからアプリで値を取得する場合は復号化</li>
+		<li>DBからDBに直接データを移行する場合は何もしない (暗号化されたデータを維持)</li>
+		<li>DB上の値とDB上の値の比較条件では互いに復号化する (復号化された状態で比較)</li>
+		<li>外だしSQLやプロシージャは全くの対象外 (何もしないというより何もできない)</li>
+	</ul>
+	<h3 id="scopefunction">対象となる機能</h3>
+	<p>
+		組み込んだ暗号化・復号化処理が動作する機能は以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>ConditionBeanによる検索</dt>
+		<dd>
+			カラムデータを取得するときに復号化、検索条件では暗号化。
+			ScalarSelectも含む。
+		</dd>
+		<dd>
+			DerivedReferrer では集計関数の処理の前に復号化されます。
+			よって、(Query)DerivedReferrer ではアプリから指定した暗号化されない条件値と復号化された集権関数の結果で比較されます。
+		</dd>
+		<dd>
+			ScalarCondition では対象のカラムと集計関数の中において復号化され、復号化された状態同士で比較されます。
+			よって、パフォーマンス上の問題がある場合は、ファンクションインデックスなどの導入も検討した方が良いでしょう。
+		</dd>
+		<dd>
+			ColumnQuery では、互いのカラムで復号化されます。ScalarCondition
+			と同じくファンクションインデックスなどの導入も考慮に入れると良いでしょう。
+		</dd>
+		<dt>一件登録・更新</dt>
+		<dd>カラムデータを更新するときに暗号化</dd>
+		<dt>バッチ登録・更新</dt>
+		<dd>カラムデータを更新するときに暗号化</dd>
+		<dt>ConditionBeanによる更新・削除</dt>
+		<dd>カラムデータを更新するときに暗号化、検索条件では暗号化</dd>
+		<dt>ConditionBeanによる登録の固定値</dt>
+		<dd>queryInsert() における固定値の埋め込みにだけ暗号化 <span class="frm">(その他は暗号化も復号化もなし)</span></dd>
+	</dl>
+	<p>
+		基本的には、暗号化対象のカラムはあまりそれ自体のデータを使って複雑な計算処理や比較条件などが行われないことが前提となっています。
+		例えば、ログインパスワードやクレジット番号などを想定しているため、それらのカラムに対して利用することが考えにくい
+		ScalarCondition は対象外となっていますし、その他にもドキュメントとして列挙されているもの以外でのグレーゾーンな領域で、
+		業務的に効果的でない仕様になっている可能性はあります。
+	</p>
+	<h3 id="scopeoutcolumn">対象外のカラム</h3>
+	<p>
+		また、暗号化対象カラムが以下の場合は利用できません。
+	</p>
+	<ul>
+		<li>PK</li>
+		<li>FK</li>
+		<li>排他制御カラム</li>
+	</ul>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-mysql-example では、実際に暗号化・復号化処理を組み込んでいます。
+		ぜひExampleを参考にしてみてください。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#database">DBFlute Example - データベース(DBMS)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

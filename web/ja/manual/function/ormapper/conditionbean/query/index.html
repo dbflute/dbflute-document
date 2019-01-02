@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,絞り込み条件,where句" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Query | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Query</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		基点テーブル、もしくは、関連テーブルの<em class="keyword">絞り込み・並び替えの条件を設定</em>
+		するための前準備をします。ConditionBean自体にはその機能が備わっていないため、ConditionBeanが保持する基点テーブルの
+		ConditionQuery を取得し、絞り込み・並び替えの条件を設定します(続けて、関連テーブルの ConditionQuery
+		も取得できます)。但し、通常 ConditionQuery
+		を変数に受け取ったりすることはなく(変数に受け取ることは推奨されません)、その存在を意識する必要はありません。
+	</p>
+	<p>
+		会話上では、<em class="keyword">くえり</em> もしくは <em class="keyword">くえりメソッド</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		<em class="keyword">query()</em>
+		を呼び出します。その後に続けて、基点テーブルに関する条件設定メソッドを呼び出すことができます。(基本的な)絞り込み条件であれば
+		<em class="keyword">.set[column-name]...</em>、並び替え条件であれば .addOrderBy...
+		を呼び出します。(他にも色々な機能が利用できます)
+	</p>
+<pre><span class="codetitle">e.g. Queryの実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.q <span class="comment">// ".q" とだけ打って enter</span>
+--
+cb.<span class="point">query()</span>.set<span class="abbreviation">...</span> <span class="comment">// 続けて、呼び出したい機能を呼び出す</span>
+</code></pre>
+	<p>
+		関連テーブルに関する条件設定に関しては、<em class="keyword">query()</em>
+		の後に続けて、query[relation-table]() を呼び出し、同様の手順で条件設定メソッドを呼び出すことができます。
+	</p>
+	<div class="detailpage"><a href="./relation.html">Query(Relation)</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="severalcall">条件連結は and 条件</h3>
+	<p>
+		<em class="keyword">複数の絞り込み条件は and 条件</em>
+		として連結されます。(or 条件は OrScopeQuery にて)
+	</p>
+	<div class="relatedpage"><a href="../howto.html#basicspec">ConditionBeanの使い方 - 基本仕様</a></div>
+	<div class="relatedpage"><a href="./orscopequery.html">OrScopeQuery</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

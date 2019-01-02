@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,環境,アップグレード,Upgrade,EMecha,Maven" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>DBFluteのアップグレード | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteのアップグレード</h1>
+	${indexlist}
+
+	<h2 id="way">アップグレード方法</h2>
+	<h3 id="manage">いますでに 1.0.5K, 1.1.0 以降なら</h3>
+	<p>
+		DBFlute自体にアップグレードする機能が含まれています。まずは、Manageタスクを叩きましょう。
+	</p>
+<pre><span class="codetitle">e.g. manage.sh を叩く！ @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh
+</code></pre>
+	<p>
+		表示されたメニューに upgrade (94) がありますので、94 と入力して enter
+		すると、DBFluteエンジンがダウンロードされます。DBFluteクライアントもダウンロードしたバージョンを参照するようになります。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/manage/upgrade.html">Upgradeタスク</a></div>
+	<p>
+		今度は、ReplaceSchemaを使っているなら Manage タスクの renewal (1), 使ってないなら regenerate (2)
+		を叩いて、自動生成し直します。<span class="frm">(この時点ではまだコンパイルエラーの可能性あり)</span>
+	</p>
+	<p>
+		そして、DBFluteランタイムを最新にしましょう。例えば、Mavenで依存ライブラリを管理しているなら、(手動で) pom.xml を修正します。
+	</p>
+	<h3 id="oldstyle">それ以前のバージョンからアップグレード</h3>
+	<p>
+		DBFluteのアップグレードには３つの方法があります。移行情報を確認の上いずれかを選んで下さい。
+	</p>
+	<ul>
+		<li><a href="./emecha.html"><em class="keyword">EMecha(Eclipse Plugin)</em> でウィザード画面からアップグレード</a></li>
+		<li><a href="./maven.html"><em class="keyword">Maven DBFlute Plugin</em> でコマンドからアップグレード</a></li>
+		<li><a href="./plain.html">テンプレートを利用して <em class="keyword">手動</em> でアップグレード</a></li>
+	</ul>
+
+	<h2 id="patch">DBFlute Engineのパッチ</h2>
+	<p>
+		DBFlute Engineは、バージョンを変えずにパッチが提供されることがあります。
+	</p>
+	<p>
+		主に、ReplaceSchema や SchemaHTML
+		など、DB管理支援ツールとしての機能において、早めに提供したほうが良いだろうというものがあったときに提供されます。
+		DBFlute Runtimeは何も変わりませんので、パッチを適用して自動生成をし直して自動生成クラスに差分が何もないようであれば、アプリ実行時への影響は何もないと言えます。
+	</p>
+	<h3 id="patchconfirm">パッチが提供されているか確認</h3>
+	<p>
+		ChangeLogで確認をすることができます。最新版の対応項目で例えば <em class="smallmark">*6/30パッチ</em> <span class="frm">(6月30日付けのパッチであることを示す)</span>
+		というように書いたものがあればパッチが存在します。その最新のパッチ日付を確認しましょう。
+	</p>
+	<div class="detailpage"><a href="../changelog/index.html">ChangeLog</a></div>
+	<p>
+		パッチが提供されている場合は、公開されている DBFlute Engine がすでにパッチ適用済みのものになっています。<span class="frm">(つまり、単純な上書き運用です)</span>
+	</p>
+	<h3 id="patchcurrent">利用しているバージョンの確認</h3>
+	<p>
+		現在、利用しているバージョンの詳細 <span class="frm">(パッチの日付を含む)</span> は、DBFlute Engine の <em class="mark">product-is-dbflute-1.x.x</em>
+		ファイルの <em class="mark">Deploy Date</em> <span class="frm">(デプロイ日付)</span> で確認できます。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Engineのバージョン詳細ファイル {maihamadb, 1.1.8} @Directory</span><code>
+[PROJECT]
+ |
+ |-dbflute_maihamadb <span class="comment">// DBFlute Client</span>
+ |  |-<span class="abbreviation">...</span>
+ |
+ |-mydbflute
+ |  |-dbflute-1.1.8 <span class="comment">// DBFlute Engine</span>
+ |  |-<span class="abbreviation">...</span>
+ |  |-<span class="point">product-is-dbflute-1.1.8</span>
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. バージョン詳細ファイルの中身 {maihamadb, 1.1.8 patch 2018/06/30} @Directory</span><code>
+It's a mark file!
+
+[Product Name]
+DBFlute
+
+[Product Version]
+1.1.8
+
+[Deploy Date]
+<span class="point">2018-06-30 11:41:25.475</span>
+</code></pre>
+	<p>
+		最新のパッチ日付よりもデプロイ日付の方が古ければ、パッチが存在すると言えます。
+	</p>
+	<h3 id="patchhowto">パッチの適用方法</h3>
+	<p>
+		パッチを適用するときは、以下のような流れになります。
+	</p>
+	<ol>
+		<li>DBFlute Engineの最新版を手動でダウンロード</li>
+		<li>mydbflute配下の DBFlute Engineをまるごと差し替え</li>
+		<li>通常のアップグレード時と同じに、再自動生成</li>
+	</ol>
+<pre><span class="codetitle">e.g. DBFlute Engineのパッチを当てるときの差し替えディレクトリ {maihamadb, 1.1.8} @Directory</span><code>
+[PROJECT]
+ |
+ |-dbflute_maihamadb <span class="comment">// DBFlute Client</span>
+ |  |-<span class="abbreviation">...</span>
+ |
+ |-mydbflute
+ |  |-<span class="point">dbflute-1.1.8</span> <span class="comment">// このディレクトリをまるごと差し替え</span>
+ |  |-<span class="abbreviation">...</span>
+ |  |-product-is-dbflute-1.1.8
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		最新版のダウンロードは、最新バージョンのページにて。
+	</p>
+	<div class="detailpage"><a href="../newest.html">DBFluteの最新バージョン</a></div>
+
+	<h2 id="migration">DBFluteの移行情報</h2>
+	<p>
+		移行時の注意点は必ず目を通して下さい。
+	</p>
+	<div class="detailpage"><a href="./migration/index.html">DBFluteの移行情報</a></div>
+
+	<h2 id="oldversion">DBFluteの過去バージョン</h2>
+	<p>
+		EMecha(Eclipse Plugin) もしくは Maven DBFlute Plugin
+		を利用する場合は、DBFluteモジュールはそちらからダウンロード可能です。
+	</p>
+	<div class="detailpage"><a href="../older.html">DBFluteの過去バージョン</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

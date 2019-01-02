@@ -1,0 +1,578 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,additionalForeignKeyMap.dfprop,ForeingKey制約,FK制約,外部キー,参照テーブル,FKがない,業務的one-to-one,ConditionBeanでの結合" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>additionalForeignKeyMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>additionalForeignKeyMap</h1>
+	${indexlist}
+
+	<h2 id="about">additionalForeignKeyMapとは？</h2>
+	<p>
+		実質的なFK(ForeignKey)の関連がありながらも実際には(FK)制約が存在しないテーブルおよびビューなどにおいて、
+		<em class="keyword">DBFluteが生成するEntityにて関連として扱えるようにする</em> DBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の additionalForeignKeyMap.dfprop という名前のテキストファイルです。主に Generateタスク
+		を実行する際に参照され、実際にFK制約が存在しないテーブルでも、このプロパティの設定を行うことで関連を持ったEntityを生成できます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate">Generateタスク</a></div>
+	<h3 id="ifnot">FK制約がない場合のDBFlute</h3>
+	<p>
+		FK制約がない場合(かつ、このプロパティを利用しない場合)は、ConditionBeanやEntityなどにおいてその関連を扱うことができません。例えば
+		"ConditionBeanで会員を基点として会員ステータスも一緒に取得"
+		というような検索ができません。FK制約自体に多くのメリットがあるため、基本的にはFK制約がしっかりDB側に付与されていることが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/fkconstraint.html">DB設計 - FK制約について</a></div>
+	<h3 id="mainpattern">主な利用パターン</h3>
+	<dl class="textlist">
+		<dt>FK制約は存在しないが実質的にFKである</dt>
+		<dd>
+			基本的にはFK制約がしっかりDB側に付与されていることが推奨されますが、
+			DB側の事情によってFK制約が存在しない場合(かつ、実質的なFKの関連がある場合)にこのプロパティが有効です。
+		</dd>
+		<dt>ビューなどそもそもFK情報を持たないオブジェクト</dt>
+		<dd>
+			参照先のテーブルなどがFK制約を持っている場合(ビューの構造的・要件的にその関連を扱いたい場合)にこのプロパティが有効です。
+		</dd>
+		<dt>"業務的one-to-one" となるような関連</dt>
+		<dd>
+			<em class="keyword">業務的one-to-one</em> となるような擬似FKの設定も可能です。ExampleDBにおける
+			会員(MEMBER)テーブル と 会員住所情報(MEMBER_ADDRESS)テーブル
+			を例として、会員と会員住所情報の関係において "指定された日付が有効期間内であればone-to-one"
+			というような業務的な制約がある場合に、その固定の条件(<em class="keyword">fixedCondition</em>)を付与することで "擬似FK"
+			を設定することが出来ます。これはつまり ConditionBean や Entity
+			において、会員から会員住所情報を(固定条件付きの結合を利用して)参照できることを意味します。その固定条件にはバインド変数が利用できます。
+		</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html">現場フィット - 業務的one-to-one</a></div>
+	<div class="relatedpage"><a href="../../example/maihamadb.html">MaihamaDB</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、<em class="keyword">FKの名前</em>
+		とそれに対するテーブル名とカラム名を定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">additionalForeignKeyMapの仕様 @additionalForeignKeyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [FK-name] = <span class="keyword">map:</span>{
+        ; localTableName = [local-table-name]
+        ; foreignTableName = [foreign-table-name]
+        ; localColumnName = [local-column-name for FK]
+        ; foreignColumnName = [foreign-column-name for PK (or UQ)]
+        ; fixedCondition = [fixed-condition for "on" clause of join]
+        ; fixedSuffix = [fixed-suffix]
+        ; fixedInline = [true or false]
+        ; fixedReferrer = [true or false]
+        ; fixedOnlyJoin = [true or false]
+        ; suppressJoin = [true or false]
+        ; suppressSubQuery = [true or false]
+    }
+    ; ...
+}
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="fkname">FK-name (*)</h3>
+	<p>
+		FKの名前を指定します。mapのキーになっていて、ユニークである必要があります。
+		習慣的に、実際にDBに存在するFK制約を含めてもユニークな名前(かつ、大文字で "FK_" で始まるもの)を付けることをお奨めします。
+	</p>
+	<h3 id="localtablename">localTableName (*)</h3>
+	<p>
+		FK制約を設定するテーブル名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブルの名前 (自動生成対象になっていること) or $$ALL$$</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (ただし実体と合わせることを推奨)</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		$$ALL$$ と指定すると、全てのテーブルの localColumnName
+		と同じ名前のカラムに対して一括設定します。FKカラムの名前が統一的な場合に有効です。<span class="frm">@since 0.9.7.1</span>
+	</p>
+	<h3 id="foreigntablename">foreignTableName (*)</h3>
+	<p>
+		FKの参照先テーブル名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブルの名前 (自動生成対象になっていること)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (ただし実体と合わせることを推奨)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="localcolumnname">localColumnName</h3>
+	<p>
+		FKとして扱うカラム名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラムの名前 (自動生成対象になっていること)</dd>
+		<dt>デフォルト</dt><dd>参照先テーブルのPKカラム名</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (ただし実体と合わせることを推奨)</li>
+				<li>参照元テーブルのFKカラム名と参照先テーブルのPKカラム名と同一の場合は省略可能</li>
+				<li>fixedOnlyJoin が true のときは省略可能 <span class="frm">@since 1.0.5M</span></li>
+				<li>複合FKの場合は、"/" (スラッシュ)区切りで複数のカラムを指定 (foreignColumnNameの順番と合わせること)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="foreigncolumnname">foreignColumnName</h3>
+	<p>
+		FKの参照先として扱うカラム名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラムの名前 (自動生成対象になっていること)</dd>
+		<dt>デフォルト</dt><dd>参照元テーブルのFKカラム名</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (ただし実体と合わせることを推奨)</li>
+				<li>参照元テーブルのFKカラム名と参照先テーブルのPKカラム名と同一の場合は省略可能</li>
+				<li>fixedOnlyJoin が true のときは省略可能 <span class="frm">@since 1.0.5M</span></li>
+				<li>複合FKの場合は、"/" (スラッシュ)区切りで複数のカラムを指定 (localColumnNameの順番と合わせること)</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		文字列と数値の間であれば、localColumnName とデータ型の違うカラムを foreignColumnName
+		として指定することができます<span class="frm">(@since 0.9.9.0C)</span>。
+		推奨されませんが、DBの構造上どうにもならない場合に有効です。ただし、正常に動作するかどうかは DBMS の暗黙の型変換の仕様次第となります。
+		また、この場合は TwoEdgedSword 認定となるため、ケースバイケース(DBFlute の他の機能との相性など)で利用できないことがあります。 
+	</p>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<h3 id="fixedcondition">fixedCondition</h3>
+	<p>
+		絞り込み条件を付けることでFKとして参照可能な関連における場合の固定条件をSQLで指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html">現場フィット - 業務的one-to-one</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>条件を記述したSQL (join句の "on句" に追加される条件式)</dd>
+		<dt>デフォルト</dt><dd>固定条件なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"$$foreignAlias$$" を参照先テーブルのエリアスとして利用可能</li>
+				<li>"$$localAlias$$" を参照元テーブルのエリアスとして利用可能</li>
+				<li>"$$over([テーブル名].[リレーション名])$$" で別リレーションのテーブルのエリアスとして利用可能</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html#over">現場フィット - 業務的one-to-one - OverRelation</a></div>
+	<h4>バインド変数コメント</h4>
+	<p>
+		値の中では、バインド変数コメントを利用して、バインド変数を利用した固定条件にすることができます。
+		ただし、外だしSQLのバインド変数コメントとは違うところがあって、その変数のプログラム型を、"変数名([プログラム型])"
+		という形式で(必ず)指定します。パッケージ名の解決は、ParameterBeanにおけるプログラム型のパッケージ解決と同じです。
+		(例えば、java.util.DateはDateでOK)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/pmcomment.html#bindvariable">パラメータコメント - バインド変数コメント</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#packageresolve">ParameterBean - プログラム型のパッケージ解決</a></div>
+<pre><span class="codetitle">e.g. targetDate という変数名でjava.util.Date型のバインド変数 @additionalForeignKeyMap.dfprop</span><code>
+<span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+</code></pre>
+<pre><span class="codetitle">e.g. memberStatus という変数名でCDef.MemberStatus型のバインド変数 @additionalForeignKeyMap.dfprop</span><code>
+<span class="attribute">$$foreignAlias$$</span>.MEMBER_STATUS_CODE &lt;= <span class="comment">/*memberStatus($$CDef$$.MemberStatus)*/</span>null
+</code></pre>
+	<p>
+		固定条件で利用する条件値をアプリから指定したい場合に有効です。この条件値は、ConditionBeanの該当リレーションの SetupSelect
+		や Query メソッドの引数で指定できます。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで targetDate を指定 @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span>;
+cb.setupSelect_MemberAddressAsValid(currentDate);
+</code></pre>
+	<h4>埋め込み区分値コメント</h4>
+	<p>
+		埋め込み区分値コメントで(定義された)区分値を参照して、コード値を条件に埋め込むことができます(バインド変数ではない)。
+		埋め込みであることを示す、"$" を付けた後に "cls([区分名.要素名])" という形式で指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/pmcomment.html#embeddedvariable">パラメータコメント - 埋め込み変数コメント</a></div>
+	<div class="relatedpage"><a href="../classificationdefinition/index.html">classificationDefinitionMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. Flg 区分値の True に対応するコード値を埋め込まれた条件に @additionalForeignKeyMap.dfprop</span><code>
+<span class="attribute">$$foreignAlias$$</span>.VALID_FLG &lt;= <span class="comment">/*$cls(Flg.True)*/</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 実行されたときのSQL上の埋め込まれた条件 @ExecutedSql</span><code>
+<span class="attribute">$$foreignAlias$$</span>.VALID_FLG &lt;= 1
+</code></pre>
+	<p>
+		区分値要素ではなく、区分値のグループを指定することもできます<span class="frm">(@since 1.0.5L)</span>。
+		InScope(in)の条件で使うことを想定しています。
+	</p>
+<pre><span class="codetitle">e.g. MemberStatus 区分値の serviceAvailable グループを指定 @additionalForeignKeyMap.dfprop</span><code>
+<span class="attribute">$$foreignAlias$$</span>.MEMBER_STATUS_CODE <span class="keyword">in</span> <span class="comment">/*$cls(MemberStatus.serviceAvailable)*/</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 実行されたときのSQL上の埋め込まれたグループ条件 @ExecutedSql</span><code>
+<span class="attribute">$$foreignAlias$$</span>.MEMBER_STATUS_CODE <span class="keyword">in</span> (<span class="literal">'FML'</span>, <span class="literal">'PRV'</span>)
+</code></pre>
+	<h4>IFコメント <span class="frm">(@since 0.9.9.1C)</span></h4>
+	<p>
+		バインド変数の値に対してIFコメントを付与して、例えばバインド変数の有無によって条件を有効にしたり無効にしたりできます<span class="frm">(@since 0.9.9.1C)</span>。
+		業務的one-to-oneを実現する上で必須でない固定条件がある場合に有効です。
+	</p>
+	<p>
+		例えば、targetDate というバインド変数を定義していた場合、外だしSQLと同じ形式のIFコメントの中ででは、"$$parameterBase$$.targetDate"
+		という記述でそのバインド変数を参照することができます。$$parameterBase$$
+		という変数がそのバインド変数を保持するオブジェクトまでのパスに置き換わります。
+	</p>
+<pre><span class="codetitle">e.g. targetDate というバインド変数に対するIFコメント @additionalForeignKeyMap.dfprop</span><code>
+<span class="comment">/*IF $$parameterBase$$.targetDate != null*/</span>
+<span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+<span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		バインド変数を利用していない場合は $$parameterBase$$
+		は利用できません。一つでもバインド変数があれば利用できます。
+		(埋め込み区分値はここで言うバインド変数には含まれません)
+	</p>
+	<p>
+		また、IFコメントで区分値に対する判定を行うこともできます<span class="frm">(@since 1.1.9)</span>。
+		IFコメントの条件式にて、バインド変数で指定された区分値の code() の等値条件の比較対象として、$cls([区分値要素]) を指定します。
+		<span class="frm">(code()メソッドを忘れずに！)</span>
+	</p>
+<pre><span class="codetitle">e.g. IFコメントで埋め込み区分値との比較、Bronzeならポイントが100以上 @additionalForeignKeyMap.dfprop</span><code>
+<span class="attribute">$$foreignAlias$$</span>.SERVICE_RANK_CODE = <span class="comment">/*serviceRank(<span class="attribute">$$CDef$$</span>.ServiceRank)*/</span>
+<span class="comment">/*IF $$parameterBase$$.serviceRank.<span class="subpoint">code()</span> == <span class="point">$cls(ServiceRank.Bronze)</span>*/</span>
+<span class="keyword">and</span> <span class="attribute">$$foreignAlias$$</span>.SERVICE_POINT_COUNT &gt;= <span class="literal">100</span>
+<span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		一方で、ここ dfprop におけるIFコメントの表現はかなり限定的です。基本的には外だしSQLのIFコメントとして扱われるので、表現力はそれと全く同じです。
+		少し dfprop の都合による調整が行われていて、$$parameterBase$$ や $cls()
+		などを利用できるようになっていますが、必要性が生じた時に積み上げで対応しているので、ちょっと違うパターンだと動かないこともあるでしょう。
+	</p>
+	<h4>改行をうまく活用 <span class="frm">@since 0.9.9.1B</span></h4>
+	<p>
+		fixedCondition で指定した値の中の改行は、SQL上で反映されます<span class="frm">(@since 0.9.9.1B)</span>。
+		改行後のインデントはそのままSQLに反映されます。その特性を活かしてSQL上でいい感じにフォーマットされるように調整して書くと良いでしょう。
+	</p>
+	<p>
+		例えば、二つ目以降の条件がある場合は、一つ目の条件の前は 9 個の半角空白、二つ目以降の条件の前、つまり and の前には 5
+		個の半角空白を入れると良いでしょう。この場合、一つ目の条件は、先頭の空白はトリムされるので(fixedConditionプロパティの値自体はトリムされるため)、
+		どこに定義してもSQL上は変わりませんので、二つ目以降の条件に合わせてみやすく定義しておくと良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. 会員から会員住所情報への有効期間条件付きのFK @additionalForeignKeyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+         <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+     <span class="keyword">and</span> <span class="attribute">$$foreignAlias$$</span>.VALID_END_DATE &gt;= <span class="comment">/*targetDate(Date)*/</span>null
+        ; fixedSuffix = AsValid
+    }
+}
+</code></pre>
+	<p>
+		サブクエリがある場合などは、サブクエリの開始と終了マーク $$sqbegin$$, $$sqend$$
+		を指定することで、アプリ実行時のSQLにおいてサブクエリのインデントが綺麗に調整されます<span class="frm">(@since 0.9.9.4A)</span>。
+		この場合、全体的に左にベタッと寄せた上でそれぞれの行(from,whereなど)のインデント調整をすると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. 会員から直近の会員ログイン情報へのFK @additionalForeignKeyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; FK_MEMBER_MEMBER_LOGIN_LATEST = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_LOGIN
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+<span class="attribute">$$foreignAlias$$</span>.LOGIN_DATETIME = (<span class="attribute">$$sqbegin$$</span>
+<span class="keyword">select</span> max(LOGIN_DATETIME)
+  <span class="keyword">from</span> MEMBER_LOGIN
+ <span class="keyword">where</span> MEMBER_ID = <span class="attribute">$$localAlias$$</span>.MEMBER_ID
+)<span class="attribute">$$sqend$$</span>
+        ; fixedSuffix = AsLatest
+    }
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/pmcomment.html#embeddedvariable">パラメータコメント - 埋め込み変数コメント</a></div>
+	<div class="relatedpage"><a href="../classificationdefinition/index.html">classificationDefinitionMap.dfprop</a></div>
+
+	<h4>旧バージョン：改行は保たれない <span class="frm">@until 0.9.9.1A</span></h4>
+	<p>
+		fixedCondition で指定した値の中の改行は、SQL上には反映されません<span class="frm">(@until 0.9.9.1A)</span>。よって、プロパティ記述上の都合で(見やすいように)改行しても構いません。
+		(二行目以降は、空白インデントを一つ入れることで、前の行の最後との間に空白が入るようになります)
+	</p>
+	<h3 id="fixedsuffix">fixedSuffix</h3>
+	<p>
+		関連名を修飾する Suffix です。自動生成されるメソッド名などに付与されます。例えば "AsValid"
+		と指定した場合、"cb.setupSelect_...AsValid()" となります。
+	</p>
+	<p>
+		fixedCondition を利用したリレーションに <em class="keyword">業務的な意味を付与</em> するのに有効です。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>任意の文字列 (関連の業務的な表現に適していること)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基本的には大文字始まりのキャメルケース</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="fixedinline">fixedInline <span class="frm">@since 0.9.9.4A</span></h3>
+	<p>
+		固定条件(fixedCondition)をインラインビューに展開するか否かを指定します。
+		通常は、on 句に展開されますが、この設定を true にするとインラインビュー(from句のサブクエリ)に展開されます。
+	</p>
+	<p>
+		主に、導出レコードに対するリレーション(導出的one-to-one)で、DBMSの文法上の制約回避に利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html#derivedonetoone">導出的one-to-one</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="fixedreferrer">fixedReferrer <span class="frm">@since 0.9.9.7A</span></h3>
+	<p>
+		固定条件(fixedCondition)を付与した時も、逆参照のリレーションを付与するか否かを指定します。
+		通常は、固定条件がある場合は逆参照は付与されませんが、この設定を true にすると付与されます。
+	</p>
+	<p>
+		主に、基点テーブルを絞り込むことで成立させる業務的many-to-oneのときに利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html#manytoone">業務的many-to-one</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="fixedonlyjoin">fixedOnlyJoin <span class="frm">@since 1.0.5M</span></h3>
+	<p>
+		fixedCondition だけで 1:1 になるか否かを指定します。true にすると、localColummName と foreignColumnName
+		を省略することができます。例えば、消費税のような特定のリレーションを持たず日付だけで管理されているようなテーブルと業務的one-to-oneを結ぶことができます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="suppressjoin">suppressJoin <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		このリレーションによる ConditionBean での join, つまり SetupSelect(Relation) や Query(Relation)
+		などのメソッド生成を抑制するか否かを指定します。
+	</p>
+	<p>
+		このプロパティは、既に物理FKが存在する場合でも反映されます。
+		パフォーマンス上の都合などで、とあるテーブルととあるテーブルでは物理的に結合をしたくない場合に有効です。
+		<span class="frm">(利用には細心の注意を、結合が必要なのに抑制されているとディベロッパーが混乱します)</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="suppresssubquery">suppressSubQuery <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		このリレーションによる ConditionBean での SubQuery, つまり ExistsReferrer や DerivedReferrer
+		などのメソッド生成を抑制するか否かを指定します。
+	</p>
+	<p>
+		このプロパティは、既に物理FKが存在する場合でも反映されます。
+		パフォーマンス上の都合などで、とあるテーブルととあるテーブルでは物理的に SubQuery でつなげたくない場合に有効です。
+		<span class="frm">(利用には細心の注意を、SubQueryが必要なのに抑制されているとディベロッパーが混乱します)</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="comment">comment</h3>
+	<p>
+		そのリレーションシップにコメントを付与します。JavaDocなどに利用されるので、業務的な説明や利用上の注意などを書いておくと良いでしょう。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>文字列</dd>
+		<dt>デフォルト</dt><dd>null</dd>
+	</dl>
+<pre><span class="codetitle">e.g. commentで業務的な説明を入れておこう @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+    ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+    ; fixedCondition = <span class="abbreviation">...</span>
+    ; fixedSuffix = AsValid
+    ; comment = <span class="literal">ここはコメントだよぅ</span>
+}
+</code></pre>
+
+	<h2 id="splitdfprop">dfpropファイルの分割</h2>
+	<h3 id="removeline">ある程度は工夫...</h3>
+	<p>
+		この dfprop は、しっかり使いこなし始めると、かなり大きなファイルになる可能性があります。
+	</p>
+	<p>
+		ある程度は、改行を工夫して、ファイルが長くならないようにしますが...
+	</p>
+<pre><span class="codetitle">e.g. あまり縦長にしないようにいいかんじに @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+    ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+    ; fixedCondition =
+     <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+ and <span class="attribute">$$foreignAlias$$</span>.VALID_END_DATE &gt;= <span class="comment">/*targetDate(Date)*/</span>null
+    ; fixedSuffix = AsValid
+    ; comment = <span class="literal">"ここはコメントだよぅ"</span>
+}
+</code></pre>
+	<p>
+		ぜんぜん変わりませんね。。。見やすさをキープするためには、既にこれが限界。
+	</p>
+	<h3 id="dosplit">ファイルを分割しよう</h3>
+	<p>
+		かなり大きくなってきたら、会員系、商品系、レポート系など、カテゴリごとにファイルを分割すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. カテゴリごとにファイルを分割 @Directory</span><code>
+dfprop
+ |-<span class="abbreviation">...</span>
+ |-additionalForeignKeyMap_<span class="point">land</span>.dfprop  <span class="comment">// ランド系</span>
+ |-additionalForeignKeyMap_<span class="point">sea</span>.dfprop   <span class="comment">// シー系</span>
+ |-additionalForeignKeyMap.dfprop       <span class="comment">// 本体</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ファイル分割の設定を本体のdfpropにて @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$split$$</span> = <span class="keyword">map:</span>{
+        ; <span class="point">land</span> = dummy
+        ; <span class="point">sea</span> = dummy
+    }
+
+    <span class="comment"># 本体の dfprop にも定義はできる</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+         <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+     and <span class="attribute">$$foreignAlias$$</span>.VALID_END_DATE &gt;= <span class="comment">/*targetDate(Date)*/</span>null
+        ; fixedSuffix = AsValid
+        ; comment = <span class="literal">"ここはコメントだよぅ"</span>
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		dummyは、将来拡張のための固定値です。
+	</p>
+	<p>
+		EMechaによるキー重複チェックが、ファイル間では効かないので設定ミスに注意しましょう。
+	</p>
+
+	<h2 id="example">Example</h2>
+<pre><span class="codetitle">e.g. 会員から会員ステータスへのFK @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_STATUS_CODE = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER             ; foreignTableName  = MEMBER_STATUS
+    ; localColumnName = MEMBER_STATUS_CODE ; foreignColumnName = MEMBER_STATUS_CODE
+}
+</code></pre>
+<pre><span class="codetitle">e.g. カラム名が同じ場合のカラム名指定の省略 @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_STATUS_CODE = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER             ; foreignTableName  = MEMBER_STATUS
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 会員から会員ステータスへの複合FK (会員ステータスコードと生年月日でFKの場合) @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_STATUS_CODE = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER             ; foreignTableName  = MEMBER_STATUS
+    ; localColumnName = MEMBER_STATUS_CODE/BIRTHDATE
+    ; foreignColumnName = MEMBER_STATUS_CODE/BIRTHDATE
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 会員から会員ステータスへの有効フラグ条件付きのFK @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_STATUS_CODE_AS_VALID = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER             ; foreignTableName  = MEMBER_STATUS
+    ; localColumnName = MEMBER_STATUS_CODE ; foreignColumnName = MEMBER_STATUS_CODE
+    ; fixedCondition = <span class="attribute">$$foreignAlias$$</span>.VALID_FLG = 1
+    ; fixedSuffix = AsValid
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 会員から会員住所情報への有効期間条件付きのFK @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+    ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+    ; fixedCondition =
+     <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+ and <span class="attribute">$$foreignAlias$$</span>.VALID_END_DATE &gt;= <span class="comment">/*targetDate(Date)*/</span>null
+    ; fixedSuffix = AsValid
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 最終ログインのレコードに対する業務的one-to-one @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_MEMBER_LOGING_LATEST = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_LOGIN
+    ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+    ; fixedCondition =
+<span class="attribute">$$foreignAlias$$</span>.LOGIN_DATETIME = (<span class="attribute">$$sqbegin$$</span>
+<span class="keyword">select</span> max(login.LOGIN_DATETIME)
+  <span class="keyword">from</span> MEMBER_LOGIN login
+ <span class="keyword">where</span> login.MEMBER_ID = <span class="attribute">$$foreignAlias$$</span>.MEMBER_ID
+)<span class="attribute">$$sqend$$</span>
+    ; fixedSuffix = AsLatest
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../example/maihamadb.html">MaihamaDB</a></div>
+	<h3 id="independent">e.g. とある関連はつながらないように <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		FK制約はあるけど、そのテーブルとそのテーブルは結合やサブクエリでコラボしないようにする。
+	</p>
+<pre><span class="codetitle">e.g. 会員ログインと会員は一緒には過ごせない @additionalForeignKeyMap.dfprop</span><code>
+; FK_MEMBER_LOGIN_MEMBER = <span class="keyword">map:</span>{
+    ; localTableName  = MEMBER_LOGIN ; foreignTableName  = MEMBER
+    ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+    ; suppressJoin = <span class="keyword">true</span> ; suppressSubQuery = <span class="keyword">true</span>
+}
+</code></pre>
+	<p>
+		実際にFK制約が無い場合でも、SchemaHTMLなどのドキュメント上はリレーションを表現させつつ、でも結合やサブクエリでのコラボを抑制したい場合にも利用できます。
+	</p>
+	<h3 id="independent">e.g. 誰からも参照されないように <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		FK制約はあるけど、そのテーブルが誰からも結合やサブクエリされないようにする。
+		<span class="frm">(厳密には、参照元のカラム名に合致するリレーションにおいてのみ適用される。カラム名が違うリレーションは別途定義を追加する必要がある)</span>
+	</p>
+<pre><span class="codetitle">e.g. (MEMBER_ID経由での)会員に対する結合やサブクエリはできない @additionalForeignKeyMap.dfprop</span><code>
+; FK_ALL_MEMBER_ID_MEMBER = <span class="keyword">map:</span>{
+    ; localTableName  = <span class="attribute">$$ALL$$</span> ; foreignTableName  = MEMBER
+    ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+    ; suppressJoin = <span class="keyword">true</span> ; suppressSubQuery = <span class="keyword">true</span>
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

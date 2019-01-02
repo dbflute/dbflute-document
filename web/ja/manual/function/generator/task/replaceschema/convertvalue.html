@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,データ登録,LoadData" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>値のコンバート設定 (convertValueMap.dataprop) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>値のコンバート設定</h1>
+	${indexlist}
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		ReplaceSchemaのデータ登録にて、データファイルに定義されている値をそのまま登録するのではなく、ある値にマッピングしたり変換をかけたりすることが可能です。
+		もともとはTSVやCSVでの利用を想定していた機能でしたが、エクセルデータでも利用することができます<span class="frm">(@since 0.9.9.0A)</span>。
+	</p>
+
+	<h2 id="howto">使い方</h2>
+	<p>
+		データファイルと同じディレクトリに "convertValueMap.dataprop" という名前のテキストファイルを配置して、
+		カラム名とマッピングする値を定義します。すると、insert処理するときにマッピングした値で登録します。
+	</p>
+<pre><span class="codetitle">e.g. TSVで定義されている一文字のコードを三文字のコードへ変換して登録 @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    MEMBER_STATUS_CODE = <span class="keyword">map:</span>{ F = FML ; P = PRV ; W = WDL }
+    ; [column-name] = <span class="keyword">map:</span>{[mapping-definition]}
+    ; ...
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>convertValueMap.dataprop (UTF-8)</dd>
+		<dt>プロパティ</dt>
+		<dd>カラム名とマッピングする値</dd>
+	</dl>
+	<h3 id="mappingspec">マッピング定義の基本仕様</h3>
+	<ul>
+		<li>カラム名は大文字小文字区別なし</li>
+		<li>値のマッピングは大文字小文字区別あり</li>
+		<li>定義された上から順番通りに変換処理が実行される</li>
+		<li>変換処理に複数該当する場合は該当した全ての変換処理が実行される</li>
+		<li>複数処理されるとき、次の変換処理の判定は前の変換処理が施された値に対して行われる</li>
+		<li>変換処理された場合は defaultValueMap.dataprop の処理対象外となる <span class="frm">@since 0.9.8.2</span></li>
+		<li>変換処理された場合は 空文字を null として扱うデフォルトの挙動は無効になる <span class="frm">@since 0.9.8.2</span></li>
+		<li>変換前の値の前に "contain:" を付けると、値に含まれているその文字が置換される <span class="frm">@since 0.9.7.5</span></li>
+	</ul>
+	<h3 id="mappingcontrolchar">マッピング定義の制御文字</h3>
+	<ul>
+		<li>改行とタブを表現するために一部制御文字(\r, \n, \t)が利用できる <span class="frm">@since 0.9.7.5</span></li>
+		<li>制御文字をエスケープして、制御文字自体を表現できる <span class="frm">e.g. "\\r", "\\n", "\\t"</span> <span class="frm">@since 0.9.7.5</span></li>
+		<li>エスケープ文字のエスケープはエスケープ文字でエスケープ <span class="frm">e.g. "\\"</span> <span class="frm">@since 0.9.7.5</span></li>
+	</ul>
+<pre><span class="codetitle">e.g. "\n" という文字を本物の改行に変換する @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; CONVERTED_COLUMN = <span class="keyword">map:</span>{
+        ; <span class="attribute">contain:</span>\\n = \n
+    }
+    <span class="abbriviation">...</span>
+}
+</code></pre>
+	<h3 id="mappingnullempty">マッピング定義のワイルドカード</h3>
+	<ul>
+		<li>カラム名に $$ALL$$ と指定すると全てのカラムが変換対象 <span class="frm">@since 0.9.7.5</span></li>
+		<li>カラム名に $$type(VARCHAR)$$ と指定するとVARCHAR型のカラムが変換対象 <span class="frm">@since 1.1.1</span></li>
+		<li>カラム名に $$LINE$$ と指定すると分解する前の一行の文字列に対して置換(後述) <span class="frm">@since 0.9.8.2</span></li>
+	</ul>
+	<p>
+		<span class="frm">※$$type(VARCHAR)$$ の VARCHAR は任意のJDBC型に置き換えられます。(e.g. INTEGER, DATE)</span>
+	</p>
+<pre><span class="codetitle">e.g. 全てのカラムにおいて "\n" という文字を本物の改行に変換する @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{
+        ; <span class="attribute">contain:</span>\\n = \n
+    }
+    <span class="abbriviation">...</span>
+}
+</code></pre>
+	<h3 id="mappingnullempty">マッピング定義のNullや空文字</h3>
+	<ul>
+		<li>null や空文字を、それぞれ $$null$$ と $$empty$$ と指定できる <span class="frm">@since 0.9.8.2</span></li>
+		<li>TSVやCSVファイルの空っぽのデータは $$empty$$ でヒットさせることができる <span class="frm">@until 1.1.1</span></li>
+		<li>TSVやCSVファイルの空っぽのデータは $$null$$ でヒットさせることができる <span class="frm">@since 1.1.2</span></li>
+		<li>エクセルの空っぽのデータは $$null$$ でヒットさせることができる <span class="frm">@until 1.1.0-sp9</span></li>
+	</ul>
+	<p>
+		<span class="frm">※どのバージョンでも、どのファイル形式でも、デフォルトでは空データは null で登録されます。</span>
+	</p>
+<pre><span class="codetitle">e.g. VARCHAR型の空っぽの値(セル)を空文字として登録 @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$type(VARCHAR)$$</span> = <span class="keyword">map:</span>{
+        ; <span class="attribute">$$null$$</span> = <span class="attribute">$$empty$$</span>
+    }
+    <span class="abbriviation">...</span>
+}
+</code></pre>
+	<h3 id="linereplace">分解前の行文字列を変換対象に</h3>
+	<p>
+		これはTSVやCSVなどのでデリミタデータのみの機能です。カラム名に $$LINE$$
+		と指定すると、一行の文字列をカラムに分解する前に変換処理を行います。
+		暗黙に "contains:" 指定がされているものとして処理されます。 
+		どうしてもデータ仕様が合わないなど分解処理自体でエラーになってしまう場合に有効です。
+	</p>
+	<p>
+		例えば、データの中に、"ダブルクォーテーション(一つ) + タブ"
+		という文字列があると、そのダブルクォーテーションは値の終端で、その次のタブは区切り文字、と判断され、正常に登録されません。
+		本来、値としてのダブルクォーテーションはもう一つダブルクォーテーションを並べてエスケープする必要がありますが、
+		どうしてもそのようなデータ形式にできない場合に、この機能を使って強制的にエスケープさせることでそのデータを正常に登録することができます。
+		MySQLの機能で取得したデリミタデータではダブルクォーテーションのエスケープがバックスラッシュで行われるため、その次の値にたまたまタブがあったりするとこの状況に当てはまります。
+		(最終手段と考えてください)
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#delimiterdata">MySQLの取扱い - デリミタデータの取得</a></div>
+<pre><span class="codetitle">e.g. バックスラッシュによるエスケープをダブルクォーテーションに置換 @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$LINE$$</span> = <span class="keyword">map:</span>{
+        ; \\\\ = \\
+        ; \\" = ""
+    }
+    <span class="abbriviation">...</span>
+}
+</code></pre>
+	<h3 id="stringfilter">String型文字列の微調整</h3>
+	<p>
+		String特有の微調整変換処理を施すことができます。<span class="frm">@since 1.1.2</span>
+	</p>
+<pre><span class="codetitle">e.g. 全ての String 型のカラムにて、null (値が存在しない) だったら空文字にする @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{ <span class="attribute">$$String$$</span> = <span class="attribute">$$NullToEmpty$$</span> }
+    ; ...
+}
+</code></pre>
+	<h3 id="timestampfilter">Timestamp型文字列の微調整</h3>
+	<p>
+		Timestamp特有の微調整変換処理を施すことができます。<span class="frm">@since 0.9.9.0A</span>
+	</p>
+	<p>
+		例えば、"2011-07-29 12:34:56.8" という値がデータファイルに指定されていた場合、デフォルトでは
+		"2011-07-29 12:34:56.008" として認識されます。"." 以降はミリ秒(SSS)を指定する領域となっているので、この場合つまりは
+		8 ミリ秒が指定されたとみなされます。
+	</p>
+	<p>
+		これを、プロジェクトの特性上、"2011-07-29 12:34:56.800" と認識したいという場合は、変換前の値に $$Timestamp$$
+		を指定し、変換後の値として $$ZeroSuffixMillis$$ を指定すると、Timestamp型のカラムの挙動がそのように変更されます。
+	</p>
+<pre><span class="codetitle">e.g. 全ての Timestamp 型のカラムにて、不足桁のミリ秒の後ろに 0 を埋める @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{ <span class="attribute">$$timestamp$$</span> = <span class="attribute">$$ZeroSuffixMillis$$</span> }
+    ; ...
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

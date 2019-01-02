@@ -1,0 +1,293 @@
+@charset "UTF-8";
+
+/* ---------------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------- css reset { */
+/* ---------------------------------------------------------------------------------------- */
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0px;
+	padding: 0;
+	border: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+/* ------------------------------------------------------------------------------- reset } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- base layout { */
+/* ---------------------------------------------------------------------------------------- */
+body {
+}
+#container {
+	margin-left: 30px;
+	width: 850px;
+	position: absolute;
+}
+#mainbar {
+	margin-left: 160px;
+	padding: 0 40px;/*sideline*/
+}
+#header {
+	height: 120px;
+}
+#content {
+}
+#sidebar {
+	width: 200px;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+#footer {
+	height: 100px;
+	margin-left: 160px;
+	padding-left: 40px;
+}
+/* -------------------------------------------------------------------------- base layout } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- base font & color { */
+/* ---------------------------------------------------------------------------------------- */
+body {
+	font-family: Verdana, "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", Meiryo, "メイリオ", "MS P Gothic", "ＭＳ Ｐゴシック", sans-serif;
+	background-color: #fff;
+}
+#container {
+	background: #fff url("../image/parts/backside-right.png") repeat-y top right;
+}
+#mainbar {
+	background: transparent url("../image/parts/backside-left.png") repeat-y top left;
+}
+#header {
+	background: #aad1f0 url("../image/parts/header-back.png") repeat-x 0 0;
+	/* RGB:170,209,240*/
+}
+#content {
+	background: #fcffff url("../image/parts/background.png") repeat-x 0 0;
+	/* RGB:252,255,255 */
+	border-bottom: solid 1px #666;
+}
+#footer {
+	background: transparent url("../image/parts/backside-left.png") repeat-y top left;
+}
+/* --------------------------------------------------------------------- base font & color } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------- header { */
+/* ---------------------------------------------------------------------------------------- */
+#header div.navi-upper {
+	padding: 8px 10px 0 0;
+	text-align: right;
+	color: #666;
+	font-size: 77%;/*10px*/
+}
+#header div.navi-upper a {
+	color: #444;
+	margin: 0 1em;
+	letter-spacing: 0.2em;
+}
+#header div.navi-upper span {
+	margin: 0 0 0 1em;
+}
+#header div.navi-main {
+	background: transparent url("../image/parts/header-naviscore.png") no-repeat bottom left;
+	height: 95px;
+	position: relative;
+}
+#header ul li {
+	list-style-type: none;
+	position: absolute;
+}
+#header li.hd-introduction {
+	top: 44px;
+	left: 95px;
+}
+#header li.hd-tutorial {
+	top: 52px;
+	left: 190px;
+}
+#header li.hd-architect {
+	top: -16px;
+	left: 50px;
+}
+#header li.hd-developer {
+	top: 12px;
+	left: 65px;
+}
+#header li.hd-environment {
+	top: 45px;
+	left: 360px;
+}
+#header li.hd-install {
+	top: -8px;
+	left: 85px;
+}
+#header li.hd-upgrade {
+	top: 18px;
+	left: 100px;
+}
+#header li.hd-manual {
+	top: 53px;
+	left: 530px;
+}
+#header ul a:hover {
+	line-height: 50px;
+}
+#header li.hd-introduction a:hover {
+	line-height: 70px;
+}
+
+/* ------------------------------------------------------------------------------- header } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------ sidebar { */
+/* ---------------------------------------------------------------------------------------- */
+#sidebar div.logo {
+	margin: 17px 0 38px 5px;
+}
+
+/* 通常版 */
+/*
+#sidebar ul {
+	list-style-type: none;
+	background: transparent url(../image/parts/one-pixel.png) repeat-y 15px 0;
+}
+#sidebar ul li {
+	margin: 0 0 8px 0;
+	padding: 0 0 0 10px;
+	font-weight: bold;
+}
+#sidebar ul li ul {
+	background: none;
+}
+#sidebar ul li ul li {
+	background: transparent url(../image/parts/one-pixel.png) repeat-x 0 8px;
+	margin: 0 0 0 10px;
+	padding: 0 0 0 5px;
+	font-weight: normal;
+}
+#sidebar ul li ul li ul {
+	background: transparent url(../image/parts/one-pixel.png) repeat-y 18px 0;
+}
+#sidebar ul li ul li ul li {
+	margin: 0 0 0 8px;
+	padding: 0 0 0 5px;
+}
+#sidebar ul li a {
+	background:white;
+	color: #666;
+	display: block;
+	padding: 3px;
+}
+#sidebar ul li a:hover {
+	color: #fff;
+	background-color: #d3d3d3;
+}
+*/
+
+/** 鍵盤バージョン **/
+#sidebar ul {
+	margin-left: 10px;
+	margin-right: 10px;
+	list-style-type: none;
+	border-left: solid 1px #999;
+}
+#sidebar ul ul {
+	margin-left: 0;
+	margin-right: 0;
+	border: none;
+}
+#sidebar ul ul li {
+	background: transparent url(../image/parts/sidebar-keyspace.png) no-repeat 0 8px;
+	padding-left: 30px;
+	margin: 0 0 7px 0;
+}
+#sidebar ul a {
+	display: block;
+	padding: 3px 2px 0 2px;
+	background: transparent url(../image/parts/sidebar-keyspace.png) no-repeat 0 -2px;
+	color: #666;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 85%;/*11px*/
+}
+#sidebar ul ul a {
+	padding: 3px 0 0 6px;
+	border-top: solid 2px #eee;
+	border-left: solid 4px #888;
+	border-bottom: solid 3px #333;
+	background: #444 url(../image/parts/sidebar-keygloss.png) no-repeat 0 0;
+	color: #fff;
+	line-height: 1.05em;
+	font-weight: normal;
+}
+#sidebar ul a:hover {
+	background: transparent url(../image/parts/sidebar-keydown.png) no-repeat 0 -2px;
+	color: #333;
+}
+#sidebar ul ul a:hover {
+	background: #111 url(../image/parts/sidebar-keygloss.png) no-repeat 0 0;
+	border-top-color: #ccc;
+	border-left-color: #333;
+	border-bottom-color: #000;
+	padding-left: 5px;
+	color: #fff;
+}
+#sidebar ul ul li.upper-space {
+	padding-top: 15px;
+	background: transparent url(../image/parts/sidebar-keyspace.png) repeat-y 0 0;
+}
+/* ------------------------------------------------------------------------------ sidebar } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------- footer { */
+/* ---------------------------------------------------------------------------------------- */
+#footer {
+	padding-top: 40px;
+	font-size: 77%;/*10px*/
+}
+#footer div {
+	color: #666;
+	text-align: center;
+	width: 300px;
+	margin: 0 auto;
+	padding-bottom: 10px;
+	border-bottom: solid 1px #999;
+}
+#footer div a {
+	margin: 0 10px;
+}
+#footer ul.footer-navi {
+	margin: 10px 0;
+	text-align: center;
+}
+#footer ul.footer-navi ul {
+	display: inline;
+}
+#footer li {
+	display: inline;
+	list-style-type: none;
+	margin: 5px;
+}
+#footer a{
+	text-decoration: none;
+	color: #666;
+}
+#footer a:hover{
+	text-decoration: underline;
+}
+/* ------------------------------------------------------------------------------- footer } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------ content { */
+/* ---------------------------------------------------------------------------------------- */
+
+
+
+/* ------------------------------------------------------------------------------ content } */

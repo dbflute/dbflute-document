@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,排他制御,exclusivecontrol,楽観的並行性制御,OptimisticLock,すれ違い,バージョン番号,VersionNo,更新日時,UpdateDate" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>排他制御(楽観的並行性制御) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>排他制御(楽観的並行性制御)</h1>
+	${indexlist}
+
+	<h2 id="about">排他制御とは？</h2>
+	<p>
+		すれ違い更新を防ぐための処理で、DBFluteには、その中の方式の一つである楽観的並行性制御(OptimistickLock)を自動化するための支援機能が備わっています。
+		よって、DBFluteにおいて、排他制御と言う場合は、ほとんどの場合において楽観的並行性制御のことを示します。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/programming/dbaccess/exclusivecontrol.html">DBアクセス - 排他制御</a></div>
+	<div class="relatedpage"><a href="../../../../topic/dbdesign/exclusivecontrol.html">DB設計 - 排他制御</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wc.html#concurrentupdate">ConcurrentUpdate (すれ違い更新)</a></div>
+	<p>
+		まずは、<em class="keyword">更新時の排他制御</em>、そして、<em class="keyword">バージョン番号を使った方式</em>
+		をメインに説明を進めていきます。その後で、それ以外のポイント(更新日時を使った方式、検索時の排他制御など)を説明します。
+	</p>
+
+	<h2 id="concept">排他制御の概念図</h2>
+	<p class="imgbox">図 : 排他制御の概念図
+		<a href="../../../../../data/model/genba/genba-implfit-ExclusiveControl-view.png" title="排他制御の概念図"><img src="../../../../../data/model/genba/genba-implfit-ExclusiveControl-view.png" alt="ExampleDBのER図" width="550" height="390" /></a>
+	</p>
+
+	<h2 id="solution">排他制御メソッド</h2>
+	<p>
+		DBFluteでは、<em class="keyword">排他制御対象(排他制御カラムを持っている)テーブル</em> の Behavior
+		では、(もともと存在する) <em class="keyword">update() の処理に排他制御が追加</em> され、新たに排他制御なしの
+		updateNonstrict() が生成されます。(delete()、insertOrUpdate()、batchUpdate() などに関しても同様)
+	</p>
+	<div class="relatedpage"><a href="#versionno">this - バージョン番号</a></div>
+	<div class="relatedpage"><a href="#updatedate">this - 更新日時</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/we.html#exclusivecontrolcolumn">ExculusiveControlColumn (排他制御カラム)</a></div>
+	<h3 id="validcon">排他制御あり</h3>
+	<ul>
+		<li><a href="../../../ormapper/behavior/update/update.html">update()</a></li>
+		<li><a href="../../../ormapper/behavior/update/delete.html">delete()</a></li>
+		<li><a href="../../../ormapper/behavior/update/insertorupdate.html">insertOrUpdate()</a></li>
+		<li><a href="../../../ormapper/behavior/update/batchupdate.html">batchUpdate()</a></li>
+		<li><a href="../../../ormapper/behavior/update/batchdelete.html">batchDelete()</a></li>
+	</ul>
+	<p>
+		where句に、指定された(Entityにsetされた)バージョン番号による等値条件が入り、すれ違いが発生した(更新・削除結果が 0
+		件の)場合は、排他制御用例外である EntityAlreadyUpdatedException が発生します。
+		また、更新処理の場合は、排他制御カラムは
+		<em class="keyword">Entityに設定されているにプログラム上でインクリメント(+1)された値で更新</em>
+		されます。更新後のEntityには、(インクリメントされた)その値が格納されています。
+	</p>
+	<div class="relatedpage"><a href="../../runtimefit/exceptionhandling/index.html#exclusive">現場フィット - 例外ハンドリング - 排他制御の例外</a></div>
+<pre><span class="codetitle">e.g. バージョン番号を利用したupdate()のSQL {MEMBER} @log4j.properties</span><code>
+<span class="keyword">update</span> MEMBER <span class="keyword">set</span> MEMBER_NAME = <span class="abbreviation">...</span>, <span class="point">VERSION_NO = </span><span class="literal">1</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="literal">3</span> <span class="keyword">and</span> <span class="point">VERSION_NO = </span><span class="literal">0</span>
+</code></pre>
+	<h3 id="invalidcon">排他制御なし</h3>
+	<ul>
+		<li><a href="../../../ormapper/behavior/update/updatenonstrict.html">updateNonstrict()</a></li>
+		<li><a href="../../../ormapper/behavior/update/deletenonstrict.html">deleteNonstrict()</a></li>
+		<li><a href="../../../ormapper/behavior/update/deletenonstrictignoredeleted.html">deleteNonstrictIgnoreDeleted()</a></li>
+		<li><a href="../../../ormapper/behavior/update/insertorupdatenonstrict.html">insertOrUpdateNonstrict()</a></li>
+		<li><a href="../../../ormapper/behavior/update/batchupdatenonstrict.html">batchUpdateNonstrict()</a></li>
+		<li><a href="../../../ormapper/behavior/update/batchdeletenonstrict.html">batchDeleteNonstrict()</a></li>
+	</ul>
+	<p>
+		特に、where句にバージョン番号による等値条件は入らずに処理されます。更新処理の場合は、排他制御カラムは
+		<em class="keyword">DB上の値にSQL上でインクリメント(+1)された値で更新</em>
+		されます。ゆえに、アプリでEntityにバージョン番号を明示的にsetする必要はありません(setしてもそれは無視されます)。
+		更新後のEntityには、(インクリメントされた)その値は格納されません。
+	</p>
+<pre><span class="codetitle">e.g. バージョン番号を利用したupdateNonstrict()のSQL {MEMBER} @log4j.properties</span><code>
+<span class="keyword">update</span> MEMBER <span class="keyword">set</span> MEMBER_NAME = <span class="abbreviation">...</span>, <span class="point">VERSION_NO = VERSION_NO + </span><span class="literal">1</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="literal">3</span>
+</code></pre>
+
+	<h2 id="versionno">バージョン番号</h2>
+	<p>
+		バージョン番号は、DBFluteにおいて最も推奨される楽観的並行性制御の実現方法です。
+		排他制御カラムと言った場合は、このバージョン番号を示すことが多いです。
+	</p>
+	<p>
+		もし、バージョン番号カラムの名前が、<em class="keyword">VERSION_NO</em>
+		の場合は、DBFluteで自動でそのカラムを排他制御用のカラムとして認識するため設定は不要です。
+		(バージョン番号カラムが定義されているテーブルの Behavior の排他制御が有効になります)
+	</p>
+	<p>
+		それ以外の名前の場合は、littleAdjustmentMap.dfprop の optimisticLockMap の versionNoFieldName にて明示的に設定をします。
+		<span class="frm">(@since 1.1.0 (Java8版), 以前は optimisticLockDefinitionMap.dfprop でした)</span>
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#optimisticlockmap">dfprop - optimisticLockMap</a></div>
+	<p>
+		ExampleDB では、このバージョン番号を利用しています。ほとんどの Example で試されています。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/index.html">DBFlute Example</a></div>
+
+	<h2 id="updatedate">更新日時</h2>
+	<p>
+		更新日時は、バージョン番号がどうしても設定できない環境の場合に利用することを想定した楽観的並行性制御の実現方法です。
+		排他制御の厳密さは、DBMSのミリ秒の精度に依存するため、利用するデータ型の精度に注意する必要があります。
+	</p>
+	<p>
+		利用する場合は、更新日時カラムの名前を optimisticLockDefinitionMap.dfprop の updateDateFieldName にて明示的に設定をします。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/optimisticlockdefinition/index.html#updatedatefieldname">dfprop - updateDateFieldName</a></div>
+	<p>
+		dbflute-multipledb-seasar-example にて、Example があります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+
+	<h2 id="deletedcheck">検索時の排他制御</h2>
+	<p>
+		検索時の排他制御は、主に selectEntityWithDeletedCheck() が対応します。
+		例えば、検索一覧画面である条件で検索して、あるレコードを選択して詳細画面へ遷移する直前で、
+		そのレコードが別の人によって削除、もしくは、(詳細画面では扱えなくなる)削除に等しい更新がされた場合に、詳細画面の表示ロジックの中で
+		selectEntityWithDeletedCheck() を利用していれば、EntityAlreadyDeletedException
+		が発生します。これが検索時の排他制御の例外となります。(そのようにアプリの実装として統一されていることが前提です)
+	</p>
+	<p>
+		このようなケースが業務的にあり得るのか、はたまた、そもそもアプリとしてそこまで考慮する(要件がある)のか、グレーゾーンになりがちですので、
+		この例外をどのように扱うかはアプリの状況に合わせて検討する必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../runtimefit/exceptionhandling/index.html#exclusive">現場フィット - 例外ハンドリング - 排他制御の例外</a></div>
+
+	<h2 id="schemahtml">SchemaHTMLでの表示</h2>
+	<p>
+		Docタスクで自動生成される SchemaHTML
+		では、排他制御カラムは他のカラムとは見た目の表現が少し違い、区別が付くようになっています。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/doc/schemahtml.html#tablecolumn">SchemaHTML - テーブル一覧・カラム情報</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、テストケースの中で実際にバージョン番号を利用した排他制御を利用しています。
+		(他の多くのExampleでも同様に利用されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+	<p>
+		また、dbflute-multipledb-seasar-example では、更新日時を利用した排他制御を利用しています(LibraryDBの方)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

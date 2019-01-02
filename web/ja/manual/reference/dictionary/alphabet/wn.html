@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 N | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 N</h1>
+	<p>
+		"N" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="nonerelation" class="dicword">{n : 1} 型リレーション</span></h2>
+	<p>
+		基点テーブルのレコード一つに対し、必ず一つの関連テーブルのレコードが存在するようなリレーションのことを示します。要は、"相手が絶対にいるリレーション"
+		と言えます。業務的な論理構造ではなく、実装上意識すべき物理構造を示した表現です。
+	</p>
+	<p>
+		実装上の特徴としては、<em class="keyword">基点テーブルのFKカラムが NotNull</em>、もしくは、<em class="keyword">カージナリティが
+		"1 : 1" (相手が必ず存在)の one-to-one</em> <span class="frm">(よく "1:必ず1" と呼んでいます)</span> であることです。
+	</p>
+	<p>
+		例えば、購入の会員へのリレーション、会員の会員ステータスへのリレーションが該当します。
+		また、基点の "n" には 1 も含まれると捉え、会員の会員セキュリティ情報へのリレーションのような(相手が必ずいる) one-to-one も該当します。
+	</p>
+	<div class="relatedpage"><a href="../../example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		また、静的な構造だけでなく、SQL上の一時的なビューにおいてもこの表現を利用します。
+		例えば、会員の会員ステータスは {n : 1} 型リレーションですが、OnClause や InlineView
+		で結合先だけを絞り込む条件を指定した場合は、そのSQL上ではそのリレーションは(一時的な) {n : 0..1}
+		型リレーションと表現することがあります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/query/onclause.html">OnClause</a></div>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/query/inlineview.html">InlineView</a></div>
+	<p>
+		会話上では、<em class="keyword">えぬわんがたりれーしょん</em> もしくは <em class="keyword">えぬわんりれーしょん</em> と表現します。
+	</p>
+	<div class="relatedword"><a href="#nzeroonerelation">{n : 0..1} 型リレーション</a></div>
+
+	<h2 id="nzeroonerelation" class="dicword">{n : 0..1} 型リレーション</span></h2>
+	<p>
+		基点テーブルのレコード一つに対し、関連テーブルのレコードが存在しない可能性のあるリレーションのことを示します。要は、"相手がいるとは限らないリレーション"
+		と言えます。業務的な論理構造ではなく、実装上意識すべき物理構造を示した表現です。
+	</p>
+	<p>
+		実装上の特徴としては、<em class="keyword">基点テーブルのFKカラムが Nullable</em>、もしくは、<em class="keyword">カージナリティが
+		"1 : 0..1" の one-to-one</em> <span class="frm">(よく "1:いないかもしれない1" と呼んでいます)</span> であることです。
+	</p>
+	<p>
+		例えば、会員退会情報の退会理由へのリレーションが該当します。
+		また、基点の "n" には 1 も含まれると捉え、会員の会員退会情報へのリレーションのような(相手がいないかもしれない) one-to-one も該当します。
+	</p>
+	<div class="relatedpage"><a href="../../example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		また、静的な構造だけでなく、SQL上の一時的なビューにおいてもこの表現を利用します。
+		例えば、会員退会情報の退会理由は {n : 0...1} 型リレーションですが、退会理由コードに IsNotNull
+		の条件を指定した場合や、退会理由のカラムで絞り込み条件(IsNullは除く)を指定した場合は、そのSQL上ではそのリレーションは(一時的な) {n : 1}
+		型リレーションと表現することがあります。
+	</p>
+	<p>
+		会話上では、<em class="keyword">えぬぜろわんがたりれーしょん</em> もしくは <em class="keyword">えぬぜろわんりれーしょん</em> と表現します。
+	</p>
+	<div class="relatedword"><a href="#nonerelation">{n : 1} 型リレーション</a></div>
+
+	<h2 id="notparamresult" class="dicword">NotParamResult(Set) <span class="frm">for プロシージャ</span></h2>
+	<p>
+		プロシージャにおける、(OUT)パラメータ経由での取得ではない ResultSet (結果セット)のこと(概念)を、DBFluteではこのように呼びます。
+		主に、MySQL、DB2、そして、SQLServerがサポートしています。複数の ResultSet を戻せるのが特徴です。
+		JDBCでは、CallableStatement.getResultSet() を利用して取得します(二つ目以降の ResultSet は getMoreResult()
+		を呼び出してからもう一度 getResultSet())。
+	</p>
+<pre><span class="codetitle">e.g. NotParamResultを利用して複数の ResultSet を戻すプロシージャ {MySQL} @Procedure</span><code>
+<span class="keyword">create procedure</span> SP_RETURN_RESULT_SET_MORE()
+<span class="keyword">begin</span>
+  <span class="keyword">select</span> * <span class="keyword">from</span> MEMBER;
+  <span class="keyword">select</span> * <span class="keyword">from</span> MEMBER_STATUS;
+<span class="keyword">end</span>;
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

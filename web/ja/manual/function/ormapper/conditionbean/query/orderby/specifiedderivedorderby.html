@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,SpecifiedDerivedOrderBy,導出カラムで並べる,導出カラムでソート" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>SpecifiedDerivedOrderBy | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SpecifiedDerivedOrderBy</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		子テーブルの導出カラムでソートします。
+	</p>
+	<p>
+		(Specify)DerivedReferrer と必ずセットで利用します。
+	</p>
+	<div class="relatedpage"><a href="../../specify/derivedreferrer.html">(Specify)DerivedReferrer</a></div>
+	<p>
+		会話上では、<em class="keyword">すぺしふぁいどでぃらいぶどおーだーばい</em>
+		と表現します。ややこしいので、DerivedReferrer の OrderBy と表現することもあります。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		まずは、(Specify)DerivedReferrer を実装して、その後 query() に続いて addSpecifiedDerivedOrderBy_[Asc/Desc]()
+		を呼び出して、DerivedReferrer で使った導出カラムのエリアス名を引数に指定します。
+	</p>
+<pre><span class="codetitle">e.g. 子テーブルの導出カラムで並べる実装手順 (Eclipseでコード補完) {BIRTHDATE} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().derivedMemberLoginList().max(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+    <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+        subCB.specify().<span class="point">columnLoginDatetime()</span>; <span class="comment">// 導出カラムの指定</span>
+        subCB.query().setMobileLoginFlg_Equal_False(); <span class="comment">// 絞り込み条件</span>
+    }
+}, Member.ALIAS_latestLoginDatetime);
+cb.query().addSD <span class="comment">// .addSD まで打って Asc か Desc を選択</span>
+--
+cb.query().<span class="point">addSpecifiedDerivedOrderBy_Desc</span>(Member.ALIAS_latestLoginDatetime);
+</code></pre>
+	<h3 id="manytoonetomany">親テーブルの子テーブル</h3>
+	<p>
+		親テーブルの子テーブルの導出カラムも、最終的には基点テーブルのカラムと同レベルのカラムと扱われているため、特に変わらず基点テーブルの
+		Query に対してソートを指定します。
+	</p>
+<pre><span class="codetitle">e.g. 親テーブルの子テーブルの導出カラムで並べる実装手順 (Eclipseでコード補完) {BIRTHDATE} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">specifyMemberStatus()</span>.derivedMemberLoginList().max(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+    <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+        subCB.specify().columnLoginDatetime(); <span class="comment">// 導出カラムの指定</span>
+        subCB.query().setMobileLoginFlg_Equal_False(); <span class="comment">// 絞り込み条件</span>
+    }
+}, Member.ALIAS_latestLoginDatetime);
+cb.query().<span class="point">addSpecifiedDerivedOrderBy_Desc</span>(Member.ALIAS_latestLoginDatetime);
+</code></pre>
+	<p>
+		Query(Relation) で親テーブルの Query にて指定しても動作します。特に違いはありません。
+	</p>
+	<h3 id="nullsfirstlast">NullsFirst/Last の活用</h3>
+	<p>
+		導出カラムは関数の仕様として、データ存在しない場合に null
+		になるケースが想定されますので、DerivedReferrerOption で coalesce を利用していない場合は、NullsFirst/Last が必要になる場面が多いと想定されます。
+	</p>
+	<div class="relatedpage"><a href="../../specify/derivedreferrer.html#funcfilter">(Specify)DerivedReferrer - 導出値をSQL関数でフィルタ</a></div>
+	<div class="relatedpage"><a href="./nullsfirstlast.html">NullsFirst/Last</a></div>
+<pre><span class="codetitle">e.g. 最終ログイン日時の昇順で、ログインしたことない人を後に並べる @Java</span><code>
+<span class="abbreviation">...</span>
+cb.query().addSpecifiedDerivedOrderBy_Asc(Member.ALIAS_latest<span class="abbreviation">...</span>).<span class="point">withNullsLast()</span>;
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="nullargument">エリアス名は必須</h3>
+	<p>
+		エリアス名は必須です。
+	</p>
+	<h3 id="afterderivedreferrer">必ず DerivedReferrer の後に</h3>
+	<p>
+		(Specify)DerivedReferrer の処理の後で呼び出される必要があります。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

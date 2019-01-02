@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Oracle,取扱い,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DB2の取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DB2の取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>DB2 8 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>なし</dd>
+		<dt>(推奨)JDBCドライバ</dt><dd>db2jcc.jar <span class="frm">(Exampleで利用)</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">データベース接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver = com.ibm.db2.jcc.DB2Driver
+    ; url      = jdbc:db2://[host]:[port]/[dbname]
+    ; schema   = [SCHEMA]
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はURLから自動判別されるため設定不要</li>
+		<li>schema は大文字で指定</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-db2-exampleの場合 {host=localhost,port=50000} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = com.ibm.db2.jcc.DB2Driver
+    ; url      = jdbc:db2://localhost:50000/dfexdb
+    ; schema   = DFEXDB
+    ; user     = db2admin
+    ; password = <span class="abbreviation">...</span>
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>CHAR, VARCHAR, CLOB, DBCLOB</dd>
+		<dt>java.lang.Integer</dt><dd>SMALLINT, INTEGER, {DECIMAL(1-9, 0)}</dd>
+		<dt>java.lang.Long</dt><dd>BIGINT, {DECIMAL(10-18, 0)}</dd>
+		<dt>java.math.BigDecimal</dt><dd>FLOAT, DOUBLE, REAL, DECIMAL(n, m)</dd>
+		<dt>java.util.Date</dt><dd>DATE</dd>
+		<dt>java.sql.Time</dt><dd>TIME</dd>
+		<dt>java.sql.Timestamp</dt><dd>TIMESTAMP</dd>
+		<dt>byte[]</dt><dd>BLOB</dd>
+	</dl>
+	<h3 id="automapping">自動マッピング</h3>
+	<p>
+		DECIMAL に関しては、自動マッピング機能が利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/numericautomapping/index.html">現場フィット - NUMERICの自動マッピング</a></div>
+	<h3 id="unsupportedtype">未サポートのデータ型</h3>
+	<dl class="keymainlist">
+		<dt>GRAPHIC</dt><dd><em class="keyword">*未検証</em></dd>
+		<dt>VARGRAPHIC</dt><dd><em class="keyword">*未検証</em></dd>
+		<dt>LONG VARGRAPHIC</dt><dd><em class="keyword">*未検証</em></dd>
+		<dt>...CHAR FOR BIT DATA</dt><dd>byte[]にマッピングされるが...<em class="keyword">*未検証</em></dd>
+	</dl>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">シーケンス</em> と <em class="keyword">Identity</em> のどちらかを利用します。
+	</p>
+	<p>
+		Identity情報はメタデータから取得できるので、設定なしで利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#isincrementsequencetodatamax">ReplaceSchema - データ登録 - シーケンス値の調整</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">row_number()</em> 関数を利用します。
+	</p>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="point">select</span> *
+  <span class="point">from</span> (
+<span class="point">select</span> plain.*, <span class="point">row_number() over()</span> <span class="keyword">as</span> rn
+  <span class="point">from</span> (
+<span class="keyword">select</span> ...
+  <span class="keyword">from</span> ...
+ <span class="keyword">where</span> ...
+ <span class="keyword">order by</span> ...
+       ) plain
+       ) ext
+ <span class="point">where</span> ext.rn &gt; <span class="literal">80</span>
+   <span class="point">and</span> ext.rn &lt;= <span class="literal">100</span>
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="point">select</span> *
+  <span class="point">from</span> (
+<span class="point">select</span> plain.*, <span class="point">row_number() over()</span> <span class="keyword">as</span> rn
+  <span class="point">from</span> (
+<span class="keyword">select</span> ...
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> ...
+ <span class="keyword">where</span> ...
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> ...
+       ) plain
+       ) ext
+ <span class="point">where</span> ext.rn &gt; <span class="comment">/*pmb.pageStartIndex*/</span><span class="literal">80</span>
+   <span class="point">and</span> ext.rn &lt;= <span class="comment">/*pmb.pageEndIndex*/</span><span class="literal">100</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		TypedParameterBean における ManualPaging の自動判別ロジックは、"row_number()"
+		という文字列が含まれることです。(大文字小文字は区別せず)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">for update with RS</em> を利用します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+ <span class="point">for update with RS</span>
+</code></pre>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">ストアドプロシージャ</em>
+		を(DBFluteの機能としての)プロシージャとしてサポートしています。
+	</p>
+	<p>
+		(<em class="keyword">ストアドファンクション *未検証</em>)
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+	<dl class="keymainlist">
+		<dt>INパラメータ</dt><dd>サポート</dd>
+		<dt>OUTパラメータ</dt><dd>サポート</dd>
+		<dt>INOUTパラメータ</dt><dd>サポート</dd>
+		<dt>プロシージャリターン</dt><dd>サポート (*1)</dd>
+		<dt>ResultSetパラメータ</dt><dd>DBMSにて未サポート</dd>
+		<dt>ResultSetリターン</dt><dd>DBMSにて未サポート</dd>
+		<dt>NotParamResult</dt><dd>サポート</dd>
+		<dt>パッケージプロシージャ</dt><dd>DBMSにて未サポート <span class="frm">※そもそもパッケージの概念なし</span></dd>
+		<dt>プロシージャシノニム</dt><dd>DBMSにて未サポート <span class="frm">※エリアスはプロシージャで利用不可</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetparameter">ResultSetパラメータ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetreturn">ResultSetリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+	<p>
+		*1: プロシージャリターンの有無の情報がメタデータから取得できないため、ProcedurePmb
+		のプロシージャリターン対応のプロパティは、Exクラスに手動で作成する必要があります。PROCEDURE_PARAMETER
+		の定数アノテーションは、"return, -1" という固定値を指定します。
+	</p>
+<pre><span class="codetitle">e.g. ProcedurePmbのExクラスでプロシージャリターンのプロパティを手動で定義 {returnValue} @Java</span><code>
+<span class="keyword">public static final</span> Integer returnValue_PROCEDURE_PARAMETER = <span class="literal">"return, -1"</span>;
+<span class="keyword">protected</span> Integer <span class="attribute">_returnValue</span>;
+<span class="keyword">public</span> Integer getReturnValue() {
+    <span class="keyword">return</span> <span class="attribute">_returnValue</span>;
+}
+<span class="keyword">public void</span> setReturnValue(Integer returnValue) {
+    <span class="attribute">_returnValue</span> = returnValue;
+}
+</code></pre>
+	<h3 id="nextprocedure">別スキーマのプロシージャ</h3>
+	<p>
+		別スキーマのプロシージャもオプションで自動生成でき...<em class="keyword">*未検証</em>
+	</p>
+	<div class="detailpage"><a href="#additionalschema">this - 別スキーマの利用</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/whahihuheho.html#betsuschema">別スキーマ(AdditionalSchema)</a></div>
+	<h3 id="targetprocedure">自動生成対象プロパティの有効項目</h3>
+	<dl class="keymainlist">
+		<dt>Catalog</dt><dd>利用不可 <span class="frm">(メタデータとしてカタログ名が取得できないため)</span></dd>
+		<dt>Schema</dt><dd>サポート</dd>
+		<dt>Name</dt><dd>サポート</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../dfprop/outsidesqldefinition/index.html#targetprocedure">dfprop - プロシージャの自動生成対象プロパティ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#catalog">Catalog(カタログ)</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<h3 id="changelock">分離レベルに応じてロックの方法を変更する</h3>
+	<p>
+		分離レベルによってロックの方法を変更することが出来ます。
+	</p>
+	<p>
+		反復可能読み取り(RR)、読み取り固定(RS)、カーソル固定(CS)、非コミット読み取り(UR)のいずれかを指定することができます。
+	</p>
+<pre><span class="codetitle">e.g. selectした行を反復可能読み取り(RR)でロック @Java</span><code>
+cb.lockWithRR();
+<span class="comment">// select ... for update with RR</span>
+</code></pre>
+
+	<h2 id="originaluse">DBMS独自の利用方法</h2>
+	<h3 id="alias">ALIAS(別名)の利用</h3>
+	<p>
+		databaseInfoMap.dfprop の variousMap の objectTypeTargetList に ALIAS
+		を追加することで、自動生成対象にすることができます。
+	</p>
+	<div class="detailpage"><a href="../../dfprop/databaseinfo/index.html#variousmap">databaseInfoMap - variousMap</a></div>
+	<h4>テーブル参照のALIAS自動生成の特徴</h4>
+	<ul>
+		<li>通常のテーブルと全く同じようにプログラム上で扱うことができる</li>
+		<li>ALIASのメタデータ(PK、FK、UQなど)を完全サポート <span class="frm">(参照先テーブルから取得)</span></li>
+		<li>ALIASの参照先テーブル自体は(直接利用しないなら)自動生成対象から除外してもよい</li>
+		<li>FK先テーブルにALIASがある場合はそのALIASの方に対して(のみ)関連が作成される</li>
+	</ul>
+	<h4>プロシージャ参照のALIAS</h4>
+	<p>
+		DB2は、プロシージャのALIASをサポートしていません。
+	</p>
+	<h3 id="additionalschema">別スキーマの利用</h3>
+	<p>
+		<em class="keyword">別スキーマのテーブルを自動生成できます</em>。
+		但し、DB2自体にはデータベースという概念はありますが、JDBCにおけるカタログをサポートしていないため(メタデータとしてカタログ名が取得できないため)、
+		<em class="keyword">別カタログ(別データベース)のスキーマは自動生成できません</em>。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherschema">別スキーマ(OtherSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#othercatalog">別カタログ(OtherCatalog)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherdatabase">別データベース(OtherDatabase)</a></div>
+	<p>
+		但し、ALIAS が利用できる環境であれば、別スキーマのテーブルを参照する ALIAS を自動生成対象に含めることで代替することができます。
+		ALIAS であれば、外だしSQL(OutsideSql)でもSQL上のテーブルのスキーマ修飾を意識する必要がありません。
+	</p>
+	<div class="relatedpage"><a href="#alias">this - ALIAS(別名)の利用</a></div>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="nullsfirstlast">NullsFirst/Lastの実現</h3>
+	<p>
+		nulls first/last 構文をサポートしていないため、case when 構文を使って NullsFirst/Last
+		を実現しています。union 句での case when 構文がサポートされないため、UnionQuery と NullsFirst/Last を合わせてることはできません。
+		(また、パフォーマンス上の懸念が多少あるので、大量データのときには注意して下さい)
+	</p>
+	<h3>BLOB、CLOBを使う場合の注意点</h3>
+	<p>
+		DB2のJDBCドライバでは、ResultSetType が ScrollInsensitive、ScrollSensitive の場合に BLOB、CLOB が取得できません。 
+	</p>
+	<p>
+		DBFluteのデフォルトは ForwardOnly ですが 外だしSQLの自動ページング(AutoPaging)では ScrollInsensitive
+		が(デフォルトで)利用されますので、外だしSQLで BLOB、CLOB
+		をページング検索するときは、手動ページング(ManualPaging)を利用するか、StatementConfig で ForwardOnly
+		に設定して検索するようにして下さい。但し、ForwardOnly
+		にした場合は、(自動)ページング処理の実現方式がポインタシフトではなくループスルーに変わります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/option/statementconfig.html">OutsideSql - configure() (StatementConfig)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wl.html#loopthrough">ループスルー(LoopThrough)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#pointershift">ポインタシフト(PointerShift)</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		DB2 を使ったExample実装 (テスト環境) があります。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-test/dbflute-test-dbms-db2">dbflute-test-dbms-db2 | Github</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにDB2と付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<dl class="textlist">
+		<dt>Identity(always)のメタデータ</dt>
+		<dd>
+			通常、Identityはテーブルとの関連がJDBCのメタデータとして取得できるので、明示的な設定は不要なのですが、DB2の "generated always as identity"
+			を利用するとメタデータが取得できないため、DBFlute内部でDB2のスキーマ情報テーブルを直接検索して情報を補完しています。
+		</dd>
+		<dt>全角の "％" や "＿" もワイルドカード</dt>
+		<dd>
+			DB2は、全角の "％" や "＿" もワイルドカードとして扱われるため、曖昧検索のエスケープ処理にて、これらも対象としています。
+			但し、DBMSごとの分岐がとてもしづらい部分での処理のため、DBMSに関わらずエスケープしています。
+			(全角をワイルドカードにしない他のDBMSでは単にエスケープ文字が無視されるだけで、動作に問題ないことはテストで確認されている)
+		</dd>
+	</dl>
+
+	<h2 id="supplement">DB2補足資料</h2>
+	<h3>シーケンスを作成</h3>
+<pre><span class="codetitle">e.g. シーケンスを作成 {SEQ_MEMBER} @SQL</span><code>
+<span class="keyword">create sequence</span> SEQ_MEMBER <span class="keyword">as</span> <span class="attribute">INT</span> <span class="keyword">start with</span> 1 <span class="keyword">increment by</span> 1
+</code></pre>
+	<h3>シーケンスを取得</h3>
+<pre><span class="codetitle">e.g. シーケンスを取得 {SEQ_MEMBER} @SQL</span><code>
+<span class="keyword">values</span> <span class="attribute">nextval</span> <span class="keyword">for</span> SEQ_MEMBER
+</code></pre>
+	<h3>Identity設定</h3>
+<pre><span class="codetitle">e.g. Identity設定 {MEMBER_IDにIdentity(by default)} @SQL</span><code>
+<span class="keyword">create table</span> MEMBER(
+    MEMBER_ID <span class="dbtype">int</span> <span class="keyword">generated by</span> <span class="attribute">default</span> <span class="keyword">as identity</span> <span class="attribute">NOT NULL PRIMARY KEY</span>,
+    MEMBER_NAME <span class="dbtype">VARCHAR(200)</span>,
+    ...
+)
+</code></pre>
+<pre><span class="codetitle">e.g. creaet文でIdentity設定 {MEMBER_IDにIdentity(by always)} @SQL</span><code>
+<span class="keyword">create table</span> MEMBER(
+    MEMBER_ID <span class="dbtype">int</span> <span class="keyword">generated by</span> <span class="attribute">always</span> <span class="keyword">as identity</span> <span class="attribute">NOT NULL PRIMARY KEY</span>,
+    MEMBER_NAME <span class="dbtype">VARCHAR(200)</span>,
+    ...
+)
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

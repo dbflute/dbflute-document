@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,バランス重視,DBアクセス,ConditionBean,外だしSQL,OutsideSql,2WaySQL,Torque,S2Dao" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>バランス重視のDBアクセスI/F | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>バランス重視のDBアクセスI/F</h1>
+	<p>
+		DBFluteが提供する <em class="keyword">バランス重視</em> のDBアクセスI/F(インターフェース)について説明します。
+	</p>
+	${indexlist}
+
+	<h2 id="balance">バランス重視</h2>
+	<p>
+		DBFluteは、タイプセーフな検索条件API <em class="keyword">ConditionBean</em>
+		と、自由度が高いながらSQLの安全性を保てる <em class="keyword">外だしSQL(OutsideSql)</em>
+		を利用し、その適材適所のバランスを重視しています。
+	</p>
+	<dl class="valuemainlist">
+		<dt>よくあるSQL</dt><dd><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> <span class="frm">*タイプセーフ＆目的ドリブン</span></dd>
+		<dt>ちょいムズSQL</dt><dd><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL(OutsideSql)</a> <span class="frm">*2Way-SQL</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. MEMBER(会員)テーブルの検索(ConditionBean) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberName_Equal(<span class="literal">"Stojkovic"</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. MEMBER(会員)テーブルの検索(OutsideSql) @OutsideSql</span><code>
+<span class="keyword">select</span> member.MEMBER_ID, ...
+&nbsp;&nbsp;<span class="keyword">from</span> MEMBER member
+&nbsp;<span class="keyword">where</span> member.MEMBER_ID = <span class="comment">/*pmb.memberName*/</span><span class="literal">'Savicevic'</span>
+</code></pre>
+	<p class="imgbox">図 : バランス重視のDBアクセスの概念図
+		<a href="../data/model/allcore-two-access-interface.png" title="バランス重視のDBアクセスの概念図"><img src="../data/model/allcore-two-access-interface.png" alt="バランス重視のDBアクセスの概念図" width="550" height="380" /></a>
+	</p>
+	<h2 id="outsidesql">外だしSQLの重要性</h2>
+	<p>
+		複雑(非定型)なSQLは、アプリケーションで肝となるDBアクセスロジックである可能性が高いです。
+		その複雑性からバグも発生しやすく、時には実行計画と睨めっこしなければならないような大事な大事なSQLであり、それらは
+		<em class="keyword">2Way-SQL</em> を大いに活用して最適なSQLを作り上げます。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2Way-SQL</a></div>
+
+	<h2 id="alloutside">全て外だしSQLで実装したら？</h2>
+	<p>
+		しかし、簡単(定型的)なSQLまで外だしSQLを実装するのはそれはそれで問題が発生します。
+	</p>
+	<ul>
+		<li>DB変更に非常に弱い</li>
+		<li>SQL特有のケアレスミスが多発</li>
+		<li>SQLの命名やフォーマット等の規約の不統一による可読性の劣化</li>
+		<li>大量のSQLファイルの管理コスト</li>
+	</ul>
+	<p>
+		実装数の割合は、複雑(非定型)なSQLに比べて簡単(定型的)なSQLの方が圧倒的に多く、上記のような問題が発生します。これらは
+		2Way-SQL のおかげで大分解消はされますが、完全ではありません。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2Way-SQL</a></div>
+
+	<h2 id="conditionbean">ConditionBeanでバランスを得る</h2>
+	<p>
+		そこでDBFluteは、簡単(定型的)なSQLに関しては完全タイプセーフな "ConditionBean" で安全かつ速い実装を提供し、
+		その分、現場のディベロッパーには複雑(非定型)なSQLに集中してもらいたいという考えを持っています。
+	</p>
+	<p>
+		理想的にはどちらか片方の方法で全てのSQLを実現できるのが良いに決まっています。
+		しかし、それはシビアな開発期間、シビアなパフォーマンス要件など様々な要因を考えると不可能であり、
+		バランスを重視したDBアクセスI/Fが(少なくとも今の時代の)現場に一番フィットすると判断しました。
+	</p>
+	<p>
+		<em class="keyword">およそ、8 割を ConditionBean で、2 割を 外だしSQL(OutsideSql) で！</em>
+	</p>
+	<h2 id="anyway">とにかく二つの方法を覚えればよい</h2>
+	<p>
+		もちろん、いくらバランスと言ってもやり方が三つも四つも存在すると、わかりやすさが半減しディベロッパーの学習コストが高くなって効率が良くありません。
+		また、都度都度プロジェクトでどの方法をどう使っていくかの実装ポリシー策定も必要になってしまいます。
+		これは他のO/Rマッパでありがちな問題でした。ディベロッパーがどれをどうやって実装すれば良いのか迷うのです。
+		DBFluteでは、とにかく二つだけ <em class="keyword">ConditionBean</em> と <em class="keyword">外だしSQL(OutsideSql)</em>
+		を覚えてDBアクセスします。どのプロジェクトであろうとポリシーは同じです。
+	</p>
+	<p>
+		また、ConditionBean は完全タイプセーフであるがゆえに(*1)逆に実現できることが限られ、外だしSQLとの棲み分けはハッキリしています。
+		<em class="keyword">ConditionBeanのスコープ</em>
+		といったようなドキュメントも用意され、ディベロッパーは一定の判断の流れで実装していくことができます。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/conditionbean/cbscope.html">ConditionBeanのスコープ</a></div>
+	<p>
+		*1: 部分的なSQLをアプリケーションプログラム上で文字列として設定することはできないため、プログラム上での
+		"自由で危険な埋め込みSQL" が抑制されています。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="goodtwo">酸素と水、どっちが大事？</h2>
+		<p>
+			DBFluteには ConditionBean という強烈な個性があることから、外だしSQLに対する扱いが誤解されてしまうこともありますが、"どっちの方が大事？"
+			という概念は存在しません。バランスが大事であって、そのバランスを支える二つの要素が "ConditionBean" と "外だしSQL" なのです。
+		</p>
+		<p>
+			酸素と水、どっちが大事でしょうか？
+			その答えを出すことに意味はないでしょう。命の長らえ方が違うだけで、どちらもなくてはならないものです。DBFluteでは、開発現場における
+			"外だしSQL" と "ConditionBean" の存在価値をこのように捉えています。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

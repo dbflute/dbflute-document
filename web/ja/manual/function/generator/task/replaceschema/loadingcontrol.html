@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,データ登録,LoadData" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>データ登録制御 (loadingControlMap.dataprop) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>データ登録制御 (loadingControl)</h1>
+	${indexlist}
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		ReplaceSchemaのデータ登録の処理を制御(微調整)するプロパティがあります。データファイルと同じディレクトリに
+		<em class="keyword">loadingControlMap.dataprop</em> という名前のテキストファイルを配置して、
+		それぞれのプロパティを定義します。<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<p>
+		例えば、以下のような制御ができます。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>loggingInsertType</dt><dd>登録データのロギング調整 (ALL, PART, NONE)</dd>
+		<dt>isSuppressBatchUpdate</dt><dd>バッチ更新の抑制</dd>
+		<dt>isSuppressColumnDefCheck</dt><dd>カラム定義のDB上存在チェックの抑制</dd>
+		<dt>dateAdjustmentMap</dt><dd>日付データの調整</dd>
+	</dl>
+
+	<h2 id="howto">使い方</h2>
+	<p>
+		データファイルと同じディレクトリに <em class="keyword">loadingControlMap.dataprop</em> という名前のテキストファイルを配置して、
+		それぞれのプロパティを定義します。
+	</p>
+<pre><span class="codetitle">e.g. データ登録の制御のプロパティ設定 @loadingControlMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># ALL, NONE, PART</span>
+    ; loggingInsertType = <span class="literal">PART</span>
+
+    <span class="comment"># true or false</span>
+    ; isSuppressBatchUpdate = <span class="literal">false</span>
+
+    <span class="comment"># true or false</span>
+    ; isCheckColumnDefExistence = <span class="literal">true</span>
+
+    <span class="comment"># dateAdjustmentMap = <span class="keyword">map:</span>{
+    #     ; df:originDate = 2013/03/09
+    #     ; $$ALL$$ = map:{
+    #         ; $$ALL$$ = addDay($distance)
+    #     }
+    #     ; MEMBER = map:{ BIRTHDATE = addDay(0) }
+    # }</span>
+    ; dateAdjustmentMap = <span class="keyword">map:</span>{
+        ; df:originDate = 2008/01/01
+        ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{
+            ; <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(<span class="attribute">$distance</span>)</span>
+            ; FORMALIZED_DATETIME = <span class="literal">addDay(0)</span>
+            ; LOGIN_DATETIME = <span class="literal">addDay(0)</span>
+        }
+        ; MEMBER = <span class="keyword">map:</span>{ BIRTHDATE = <span class="literal">addDay(0)</span> }
+        ; MEMBER_ADDRESS = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(0)</span> }
+        ; WHITE_XLS_MAN = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(0)</span> }
+    }
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>loadingControlMap.dataprop (UTF-8)</dd>
+		<dt>プロパティ</dt>
+		<dd>個別個別のプロパティ</dd>
+	</dl>
+
+	<h2 id="logginginserttype">loggingInsertType</h2>
+	<p>
+		登録データのログ出力のタイプを指定します。
+	</p>
+	<dl class="keymainlist">
+		<dt>ALL</dt><dd>全てのデータを出力する</dd>
+		<dt>NONE</dt><dd>全てのデータを出力しない</dd>
+		<dt>PART</dt><dd>一部のデータを出力する (最初の 10 件)</dd>
+	</dl>
+	<p>
+		大量のデータを登録する場合は、ReplaceSchema
+		が少しでも早く終わるようにするために、ログ出力されるデータを少なくするか、全くなくすかを検討すると良いでしょう。
+	</p>
+	<p>
+		ただし、エラー発生したときは、エラー発生箇所の特定にログは欠かせません。
+		エラーが発生したときに登録されたデータのログを見たい場合は、
+		このプロパティを(一時的に)元に戻してから再度実行してログを確認することをお奨めします。
+	</p>
+	<p>
+		デフォルトの値は、replaceSchemaDefinitionMap.dfprop の isLoggingInsertSql
+		の値に依存します。そのプロパティのデフォルト(セットアップデフォルトも含む)は true
+		なので、DBFluteをセットアップしてから何も変更していなければ ALL と同じ挙動になっています。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#islogginginsertsql">dfprop - isLoggingInsertSql</a></div>
+
+	<h2 id="issuppressbatchupdate">isSuppressBatchUpdate</h2>
+	<p>
+		バッチ更新をせず都度登録をするか否かを指定します。
+	</p>
+	<p>
+		データ登録エラーが発生したときにエラー発生レコードを特定するために、利用するとよいでしょう。
+		ただし、エクセルデータであれば、このプロパティを利用しなくても自動リトライ処理によってエラー発生レコードを特定しやすいはずです。
+	</p>
+	<div class="relatedpage"><a href="#nonbatchretry">バッチ更新なしの自動リトライ</a></div>
+	<p>
+		デフォルトの値は、replaceSchemaDefinitionMap.dfprop の isSuppressBatchUpdate
+		の値に依存します。そのプロパティのデフォルト(セットアップデフォルトも含む)は false
+		なので、DBFluteをセットアップしてから何も変更していなければバッチ更新されます。
+	</p>
+
+	<h2 id="issuppresscolumndefcheck">isSuppressColumnDefCheck</h2>
+	<p>
+		データファイルのカラム定義の、DB上存在チェックを抑制するか否かを指定します。<span class="frm">@since 1.0.4A</span>
+	</p>
+	<p>
+		デフォルトでは、エクセルデータやTSVデータなどのカラム定義で、DB上に存在しないカラムがある場合はエラーとなります<span class="frm">(@since 1.0.4A)</span>。
+		そのチェックを抑制して、不要なカラムを紛れ込ませたい場合に利用します。
+	</p>
+
+	<h2 id="isrtrimcellvalue">isRTrimCellValue</h2>
+	<p>
+		データを右トリムするか否かを指定します。<span class="frm">@since 1.0.5F</span>
+	</p>
+	<p>
+		1.0.5F以降において、デフォルトではエクセルデータはそのまま登録されます。右トリムしたいときは、明示的にこの設定をすることで右トリムできます。
+	</p>
+
+	<h2 id="dateadjustmentmap">dateAdjustmentMap</h2>
+	<p>
+		エクセルやTSV上の日付データに対する相対的な日付調整を指定します。<span class="frm">@since 1.0.4A</span>
+	</p>
+	<p>
+		例えば、とあるカラムの日付データを一律 7 日進めてDBに登録する、というようなことができます。
+		また、全てのカラムの日付データと一律調整というようなこともできます。どのカラムをどのように調整するか、細かく設定できます。
+	</p>
+	<div class="detailpage"><a href="./dateadjustment.html">相対的な日付調整 (DateAdjustment)</a></div>
+<pre><span class="codetitle">e.g. 会員の生年月日に 7 日を足して登録する @loadingControlMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; dateAdjustmentMap = <span class="keyword">map:</span>{
+        ; MEMBER = <span class="keyword">map:</span>{ BIRTHDATE = <span class="literal">addDay(7)</span> }
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 全てのテーブルの全ての日付カラムに 7 日を足して登録する @loadingControlMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; dateAdjustmentMap = <span class="keyword">map:</span>{
+        ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(7)</span> }
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 基準日(originDate)を2008年1月1日にして、全てのカラム移動 @loadingControlMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; dateAdjustmentMap = <span class="keyword">map:</span>{
+        ; df:originDate = <span class="literal">2008/01/01</span>
+        ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(<span class="attribute">$distance</span>)</span> }
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

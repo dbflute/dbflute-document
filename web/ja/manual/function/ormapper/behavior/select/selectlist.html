@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,selectList,リスト検索,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectList(cb) (リスト検索) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectList(cb)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">ConditionBeanをもとにリスト検索</em> をします。
+	</p>
+	<p>
+		会話上では、<em class="keyword">せれくとりすと</em>
+		と表現します。文脈上、抽象的で伝わりにくい場合は <em class="keyword">Behaviorのせれくとりすと(メソッド)</em>
+		や <em class="keyword">ConditionBeanのせれくとりすと</em>
+		などと言うとわかりやすいでしょう。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		Behaviorの <em class="keyword">selectList()</em>
+		を呼び出し、ConditionBeanを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. selectList()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selL <span class="comment">// .selL と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "cbLambda" が選択状態に</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectList</span>(cbLambda);
+--
+
+<span class="comment">// cbLambdaの部分で、_ll (補完テンプレートが有効なら)</span>
+<span class="attribute">memberBhv</span>.selectList(<span class="subpoint">_ll</span>);
+--
+
+<span class="comment">// Lambda引数名はcbにして...</span>
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+})
+--
+
+<span class="comment">// セミコロン ';' を打って ctrl+2, L で戻り値補完</span>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+});
+_fo <span class="comment">// _fo とまで打って ctrl+space (補完テンプレートが有効なら)</span>
+--
+
+<span class="comment">// ListResultBeanは、java.util.Listの実装クラスなので、そのままループできる</span>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+});
+<span class="localvar">memberList</span>.forEach(<span class="localvar">member</span> -&gt; { <span class="comment">// Lambda引数名は、Entityっぽい感じに</span>
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.get<span class="abbreviation">...</span>
+});
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+<pre><span class="codetitle">e.g. selectList()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selL <span class="comment">// .selL と打って enter</span>
+--
+<span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectList(cb)</span>;
+--
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+fore <span class="comment">// fore とまで打って ctrl + space そして enter</span>
+--
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="keyword">for</span> (Member member : memberList) {
+    <span class="comment">// ListResultBeanは、java.util.Listの実装クラス</span>
+}
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルの ConditionBean となります。<span class="frm">(1.1.xよりコールバック)</span>
+	</p>
+	<p>
+		ConditionBeanが必ず存在することが前提であるため、nullを指定した場合は例外発生します。
+		検索条件がない検索をする場合でも、必ずConditionBeanのインスタンスが必要です。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		ListResultBean(java.util.Listの実装クラス) 型となります。
+	</p>
+	<dl class="keymainlist">
+		<dt>tableDbName</dt><dd>検索の基点となったテーブル名</dd>
+		<dt>allRecordCount</dt><dd>検索結果の件数 (List.size()と全く同じ値)</dd>
+		<dt>orderByClause</dt><dd>ConditionBeanで指定した order-by 情報</dd>
+	</dl>
+	<div class="relatedpage"><a href="../resultbean/list/index.html">ListResultBean</a></div>
+	<p>
+		検索結果が一件もない場合でも、nullは戻らず、空のリストが戻ります。
+	</p>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		オーバーライドして拡張することもできますが、通常は必要ありません。selectList()
+		をオーバーライドした場合は、純粋にアプリで明示的に呼び出したリスト検索だけの拡張となり、他の Behavior
+		のメソッドから内部的に呼び出されているリスト検索も含めて一緒に拡張したい場合は、doSelectList()
+		をオーバーライドすることで実現できます(詳しくはソースを読んで下さい)。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

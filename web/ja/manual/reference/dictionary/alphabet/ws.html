@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 S | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 S</h1>
+	<p>
+		"S" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="sandbox" class="dicword">SandBox (サンドボックス)</h2>
+	<p>
+		DBFluteにおいては、主にSeasarプロジェクトの中のSandBoxプロジェクトを示します。
+	</p>
+	<div class="relatedpage"><a href="http://www.seasar.org/sandbox.html">外部サイト - SeasarのSandBoxプロジェクト</a></div>
+
+	<h2 id="scalarvalue" class="dicword">ScalarValue (スカラ値)</h2>
+	<p>
+		単一のプリミティブな値のことを示します。
+		DBFluteでは、検索結果の形式の表現などで多く利用されます。
+		例えば、Entityで受け取る検索に対して、ある一つのカラムの値だけを検索をスカラ検索と言い、その検索結果をスカラ値と表現します。
+		その他でも、幾つかの値がまとまった一つのオブジェクトに対して、単一の値であることを示すのにも利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/behavior/select/scalarselect.html">Behavior - scalarSelect(cb)</a></div>
+
+	<h2 id="schemahtml" class="dicword">SchemaHTML</h2>
+	<p>
+		Docタスクで自動生成されるスキーマ定義(テーブル一覧や区分値一覧)のHTMLです。
+		関連するテーブルに対してリンクが作られるので、一覧形式であってもリレーションを辿り易い構造になっていて、
+		特に開発中のディベロッパーにとってとても有益な情報となります。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/doc/schemahtml.html">Docタスク - SchemaHTML</a></div>
+	<div class="relatedword"><a href="./wd.html#doctask">Doc Task (Docタスク)</a></div>
+
+	<h2 id="schemaxml" class="dicword">SchemaXML</h2>
+	<p>
+		JDBCタスクで出力されるスキーマ定義(テーブル構造)のXMLです。
+		DBFluteが内部的に利用するファイルで、Generateタスクなどその他タスクが参照します。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/jdbc/index.html">JDBCタスク</a></div>
+
+	<h2 id="senna" class="dicword">Senna</h2>
+	<p>
+		オープンソースの組み込み型の全文検索エンジンです。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/mysql/index.html#fulltextsearch">MySQL - ConditionBeanで全文検索</a></div>
+	<div class="relatedpage"><a href="../../dbway/postgresql/index.html#fulltextsearch">PostgreSQL - ConditionBeanで全文検索</a></div>
+	<div class="relatedword"><a href="./wf.html#fulltextsearch">FullTextSearch (全文検索)</a></div>
+	<div class="relatedword"><a href="./wt.html#tritonn">Tritonn</a></div>
+
+	<h2 id="sequence" class="dicword">Sequence (シーケンス)</h2>
+	<p>
+		DBMSにおける連番生成を行うシーケンスオブジェクトのことを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html#sequence">現場フィット - 自動採番 - シーケンス</a></div>
+
+	<h2 id="sourcedirectory" class="dicword">SourceDirectory (ソースディレクトリ)</h2>
+	<p>
+		コンパイル対象となるプログラムのファイルが配置されるディレクトリです。
+		通常、DBFluteで自動生成されるクラスは、このソースディレクトリ配下に出力することが想定されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+
+	<h2 id="specify" class="dicword">Specify</h2>
+	<p>
+		ConditionBeanにおいて、主にselect句に関する指定を行う機能のこと。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/conditionbean/specify/index.html">ConditionBean - Specify</a></div>
+	<div class="relatedword"><a href="./wc.html#conditionbean">ConditionBean</a></div>
+
+	<h2 id="specifycolumn" class="dicword">SpecifyColumn</h2>
+	<p>
+		ConditionBeanにおいて、(select句での)取得カラムを指定する機能のこと。
+		何も指定しないときは、選択されているテーブルの全てのカラムが対象となるが、
+		この機能を使って指定した場合は、明示的に指定されたものだけが取得カラムとなる。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/conditionbean/specify/specifycolumn.html">ConditionBean - SpecifyColumn</a></div>
+	<div class="relatedword"><a href="#specify">Specify</a></div>
+	<div class="relatedword"><a href="./wc.html#conditionbean">ConditionBean</a></div>
+
+	<h2 id="suffixsearch" class="dicword">SuffixSearch (後方一致)</h2>
+	<p>
+		DBFluteでは、LikeSearch条件の方向の一つで、例えば、"A で終わる" という条件における一致の方向のこと、もしくは、
+		また、その条件を設定する機能のことを示します。
+		基本的には、(Bツリー)インデックスが利用できないため、パフォーマンスに対する意識を強くする必要があります。
+	</p>
+	<div class="relatedword"><a href="./wl.html#likesearchmatchdirection">LikeSearchMatchDirection (LikeSearch条件の一致の方向)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

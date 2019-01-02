@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,変更履歴,ChangeLog" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/lasub.css";</style>
+	<title>LastaFlute の ChangeLog | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute の ChangeLog</h1>
+	<div class="relatedpage"><a href="./index.html">LastaFluteのアップグレード</a></div>
+	${indexlist}
+
+      <div class="release">
+        <h2>LastaFlute-1.1.0</h2>
+        <p class="releas5date">2018/10/11</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>fix typo: createIntOutLogger() to createInOutLogger()</li>
+            <li>avoid Java11 setAccessible(true) headache of File field in bean class</li>
+            <li>JsonResponse, switchMappingOption() for e.g. SwaggerAction</li>
+            <li>ActionAdjustmentProvider, customizeActionUrlMapping()</li>
+            <li>ActionAdjustmentProvider, customizeActionUrlReverse()</li>
+            <li>SessionSharedStorage, getSessionId(), regenerateSessionId()</li>
+            <li>SessionSharedStorage, suppressesHttpSession()</li>
+            <li>update Lasta Di to 0.7.8</li>
+            <li>update Hibernate Validator to 6.0.13.Final</li>
+            <li>[Lasta Di] setAccessible(true)で落ちた時にどの項目で落ちたかわかるように</li>
+            <li>[Lasta Doc.jar] キャメルケースとスネークケースを変換したときの微調整</li>
+            <li>[Lasta Doc.jar] swagger editorで発生するエラーを無くした</li>
+            <li>[Lasta Doc.jar] swagger ui-3 に対応</li>
+            <li>[UTFlute] update Lasta Doc.jar to 0.3.4</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.9</h2>
+        <p class="releas5date">2018/08/14</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>JsonResponse.asEmptyBody()をAssistantDirector経由で{}に変更できるように</li>
+            <li>レスポンス書き込み処理をAssistantDirector経由でhookできるように</li>
+            <li>LazyTransactionの繰り返し利用をできるように</li>
+            <li>upgrade Lasta Di to 0.7.7</li>
+            <li>upgrade MailFlute to 0.6.0</li>
+            <li>upgrade Hibernate Validator to 6.0.12.Final</li>
+            <li>upgrade Gson to 2.8.5</li>
+            <li>[Lasta Di] upgrade Javassist to 3.23.1-GA</li>
+            <li>[MailFlute] upgrade JavaMail to 1.6.1</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.8</h2>
+        <p class="releas5date">2018/05/04</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>StreamResponseで、日本語ファイル名のための encodeFileName() を追加 (なので互換性はキープ)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.7</h2>
+        <p class="releas5date">2018/04/08</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>LaRequestUtil.getOptionalRequest()でExternalContext自体が無ければemptyに(もともと例外)</li>
+            <li>ContainerUtil.hasExternalContext()を追加</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.6</h2>
+        <p class="releas5date">2018/04/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>upgrade Hibernate Validator to 6.0.9.Final</li>
+            <li>upgrade MailFlute to 0.5.9</li>
+            <li>ThreadCacheContext@removeObject()をgeneric対応</li>
+            <li>IN/OUTログで、Actionごとに除外指定できるように</li>
+            <li>RequestLoggingFilterを拡張しやすいように</li>
+            <li>[MailFlute] 添付ファイルで大きいサイズ対応</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>RequestManagerのsave()のpropertyが問答無用でglobalだった</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.5</h2>
+        <p class="releas5date">2018/03/03</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>upgrade Lasta Di to 0.7.6</li>
+            <li>upgrade Hibernate Validator to 6.0.7.Final</li>
+            <li>CsrfManagerが持っている値を公開するメソッド追加</li>
+            <li>[Lasta Di] upgrade Javassist to 3.20.0-GA</li>
+            <li>[Lasta Di] Di xmlの中で発生したNoSuch系のErrorで、該当コンポーネントをログに出すように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>Windowsサーバーの時に例外メッセージが文字化けしないように</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.4</h2>
+        <p class="releas5date">2017/12/31</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>LoginManagerのEntityインターフェース依存を外した(外し忘れがあった)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.3</h2>
+        <p class="releas5date">2017/12/20</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>upgrade MailFlute Di to 0.5.8</li>
+            <li>upgrade Hibernate Validator to 6.0.7.Final</li>
+            <li>Formのマッピングで、Eclipse Collections の MutableList に対応</li>
+            <li>Formのマッピングで、Eclipse Collections の ImmutableList をindex付きプロパティで対応</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>HotDeployで、ActionからJobを実行したときに、最後ContextClassLoaderがnullにならないように</li>
+            <li>[MailFlute] メールのパラメーターの中に/*xxx*/が含まれていた時にエラーにならないように</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.2</h2>
+        <p class="releas5date">2017/11/21</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>upgrade MailFlute Di to 0.5.7</li>
+            <li>upgrade Hibernate Validator to 6.0.5.Final</li>
+            <li>make requestParameterMapFilter in FormMappingOption</li>
+            <li>ログアウトしたら、セッションをinvalidateするようにした</li>
+            <li>URLマッピングで型変換エラーになるケースで別の一致するメソッドがあればそっちに</li>
+            <li>MailFluteのpushUlterior()に対応</li>
+            <li>HibernateValidatorで、propertyに&lt;list element&gt;が出ないように修正</li>
+            <li>Gsonの拡張をもっとしやすいようにした e.g. LaYourScalarTypeAdapterFactory</li>
+            <li>[MailFlute] RemoteApiでメール飛ばすための拡張ポイント</li>
+            <li>[MailFlute] アプリの仕組み向けのパラメーターを設定するpushUlterior()を作成</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.1</h2>
+        <p class="releas5date">2017/10/29</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>upgrade Gson to 2.8.2</li>
+            <li>List&lt;@Required String&gt; って書けるように</li>
+            <li>LastaRemoteApiのSEND/RECEIVEログとの連携</li>
+            <li>IN/OUTログの例外情報が出ないケースに対応</li>
+            <li>IN/OUTログのフォーマット微調整</li>
+            <li>IN/OUTログにRemoteApiの呼び出し回数を表示 (デバッグログ/エラーログも同じ)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>LastaFlute-1.0.0</h2>
+        <p class="releas5date">2017/09/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>upgrade MailFlute to 0.5.6</li>
+            <li>upgrade Hibernate Validator to 6.0.2.Final</li>
+            <li>ApiFailureHook, ふぇいくらパターン、ふぇいはいパターンの組み込み</li>
+            <li>improve parent properties encoding as UTF-8</li>
+            <li>[MailFlute] upgrade JavaMail to 1.6.0</li>
+          </ul>
+        </div>
+      </div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

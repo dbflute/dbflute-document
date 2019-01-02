@@ -1,0 +1,531 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Actionの実装デザイン | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Actionの実装デザイン</h1>
+	<p>
+		LastaFluteからの提案です。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<div class="relatedpage"><a href="./logicdesign.html">Logicの実装デザイン</a></div>
+	${indexlist}
+
+	<h2 id="overview">いきなりまとめ</h2>
+	<h3 id="proposal">実装デザインの提案</h3>
+	<p>
+		本気でDDDをやるフェーズまで達していない段階、かつ、プロジェクトで独自にアーキテクチャを定義していない場合の、LastaFlute
+		からのデフォルト実装デザインの提案です。
+	</p>
+	<dl class="textlist">
+		<dt><em class="bigmark">Action</em> <span class="frm">(バウンダリ、かつ、ファサード: Transactionあり)</span></dt>
+		<dd><em class="keyword">フローコントロール、そして、再利用しない検索や更新など(ちょこっとロジック)を書く</em></dd>
+		<dd>WEB依存 "する" 処理の再利用や、ちょこっと役割分担は、<em class="bigmark">(Action)Assist</em></dd>
+		<dd>WEB依存 "しない" 処理の再利用は、<em class="mark">(Business)Logic</em></dd>
+		<dt><em class="bigmark">Logic</em> <span class="frm">(ビジネスロジック)</span></dt>
+		<dd><em class="keyword">WEB依存しない再利用するものを書く</em> <span class="frm">(二箇所以上で呼ばれて初めて Logic に)</span></dd>
+		<dd>ただし、検索の再利用はできるだけ ArrangeQuery にて <span class="frm">(Logicでのまるごと再利用は限定的に)</span></dd>
+		<dd>Logicの名前は、"モノ+Logic" はダメ、できるだけ <em class="mark">"モノ+業務+Logic"</em></dd>
+	</dl>
+	<p class="imgbox">
+		<a href="../../../../data/model/lastaflute/lastaflute-actiondesign-view.png" title="LastaFlute ActionDesign"><img src="../../../../data/model/lastaflute/lastaflute-actiondesign-view.png" alt="LastaFlute ActionDesign" width="550" height="340" /></a>
+	</p>
+	<h3 id="logichere">Logic についてはこちら</h3>
+	<p>
+		Logicは、また別途まとめています。
+	</p>
+	<div class="detailpage"><a href="./logicdesign.html">Logicの実装デザイン</a></div>
+	<h3 id="beanhere">Bean についてはこちら</h3>
+	<p>
+		入れ物クラスの Bean (Form や JsonResult など) についてもまとめています。
+	</p>
+	<div class="detailpage"><a href="./beandesign.html">Beanの実装デザイン</a></div>
+
+	<h2 id="actionrole">Actionの役割</h2>
+	<h3 id="boundaryfacade">バウンダリ、かつ、ファサード</h3>
+	<p>
+		Action には、<em class="keyword">すでにTransactionがかかっています</em>。
+		単なるバウンダリ(境界)としての役割だけでなく、<em class="keyword">ビジネスロジックのファサード(玄関)</em> としての役割を持つことができます。
+	</p>
+	<p>
+		厳密なアーキテクチャではその役割を分離することが多いですが、LastaFlute ではシンプルさを追求するために、一つにしています。
+		スタートアップの開発では、その二つを分離することのメリットを享受する前に変更がたくさん入り、逆に分離によるデメリットの方が足かせになりやすいと考えます。
+	</p>
+	<div class="inucolumn">
+		<h3 id="ifnotx">もし、ActionでTransactionがなければ</h3>
+		<p>
+			例えば、とある Action では、A という処理と B という処理と C という処理を行う必要があるとします。
+			もし、ActionにTransactionがかかっていなければ、通常は A, B, C を呼び出す流れのロジックは Action には書けません。
+			A と B で insert や update をしたとき、C で例外が発生しても A と B をロールバックできないからです。
+		</p>
+		<p>
+			ゆえに、Transactionを発行させるビジネスロジックのファサードのようなレイヤ<span class="frm">(様々な呼ばれ方をします)</span>を用意して、Actionはそこに委譲することが多いです。
+			ですが、そこで迷うのが、じゃあそのレイヤはどこまで依存していいのか？Formを引数で渡してもいいのか？何かしらのDTOに詰め替えをして渡す？
+			しっかり決め事をしないとどんどん実装はバラバラになります。 
+		</p>
+		<p>
+			LastaFluteでは、スタートアップではそのデザインの必要性があまりないだろうと考え、Action でそれをまかなえるようにしています。
+			少なくとも、わざわざ Form の値を DTO に詰め替えて、すぐ隣のクラスに渡すというようなことはスタートアップではあまり意味がないと考えています。
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h3 id="byconvention">規約ベースなので Action は自然分離</h3>
+		<p>
+			LastaFlute の Action は規約ベースであり、ある意味不自由です。少なくとも、ネストしたURLの Execute
+			メソッドを定義することはできません。SeaAction に、/sea/land/piari/ を受け付けるメソッドは作れません。
+			ゆえに、Action クラスに定義できるメソッドは限界があり、自然と分離されていきます。規約ベースでないフレームワークの Action
+			で、/sea/ 配下の URL のメソッドが大量に一つの SeaAction に実装されて見通しが非常に悪いというようなアンチパターンを見かけますが、
+			LastaFluteでは比較的それは発生しづらいことです。 
+		</p>
+		<p>
+			なので、<em class="keyword">Action クラスで "ある程度" ベタっと書くことを許容</em>
+			して、逆にそのメリットを享受する方がよいだろうと考えています。
+			インクリメンタル開発では、既存のソースコードを読む時間が非常に長いです。あちこち飛ぶのはできるだけ少なくしたいものです。
+		</p>
+	</div>
+
+	<h2 id="actionimpl">Actionに何を実装するか？</h2>
+	<h3 id="flowcontrol">フローコントロール <span class="frm">(ファサード)</span></h3>
+	<p>
+		先ほど出てきた "A やって B やって C やって"
+		という、そのリクエストにおけるTransactionに含む必要のある流れの呼び出しを司ります。
+	</p>
+	<p>
+		仮に、C で例外が発生しても、A と B がしっかりとロールバックされるように。
+	</p>
+	<h3 id="nonrecyledb">再利用しない検索や更新など <span class="frm">(ちょこっとロジック)</span></h3>
+	<p>
+		ActionでDBアクセスしてはいけないというポリシーは LastaFlute
+		には存在しません。その画面でしか使わない ConditionBean による検索や更新など、Action で入れてもOKです。
+	</p>
+	<h3 id="actionlikethis">つまりこんな感じです</h3>
+	<p>
+		シンプルな処理ですが...
+	</p>
+<pre><span class="codetitle">e.g. SeaLandAction in harbor @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandAction <span class="keyword">extends</span> HarborBaseAction {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Resource
+    <span class="keyword">private</span> <span class="point">PurchaseBhv</span> <span class="attribute">purchaseBhv</span>;
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======</span>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+        validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+        });
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = selectPurchaseList(<span class="localvar">form</span>);
+        List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = mappingToBeans(<span class="localvar">purchaseList</span>);
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>).renderWith(<span class="localvar">data</span> -&gt; {
+            <span class="localvar">data</span>.<span class="subpoint">register</span>(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        });
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                              Select
+    //                                                                              ======</span>
+    <span class="keyword">private</span> ListResultBean&lt;Purchase&gt; selectPurchaseList(SeaLandForm <span class="localvar">form</span>) {
+        <span class="keyword">return</span> <span class="attribute">purchaseBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.setupSelect_Member();
+            <span class="localvar">cb</span>.setupSelect_Product();
+            <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+            <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+                <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+                <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                    <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+                });
+            });
+            <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+                <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+            });
+            <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+        });
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Mapping
+    //                                                                             =======</span>
+    <span class="keyword">private</span> List&lt;SeaLandRowBean&gt; mappingToBeans(ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span>) {
+        <span class="keyword">return</span> <span class="localvar">purchaseList</span>.mappingList(<span class="localvar">purchase</span> -&gt; {
+            SeaLandRowBean <span class="localvar">bean</span> = <span class="keyword">new</span> SeaLandRowBean();
+            <span class="localvar">bean</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+            <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+                <span class="localvar">bean</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+            });
+            <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+                <span class="localvar">bean</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+                <span class="localvar">bean</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+            });
+            <span class="localvar">bean</span>.purchaseDate = toStringDate(<span class="localvar">purchase</span>.getPurchaseDatetime()).get();
+            <span class="localvar">bean</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+            <span class="keyword">return</span> <span class="localvar">bean</span>;
+        });
+    }
+}
+</code></pre>
+	<h3 id="whererecycle">検索の再利用は部品単位で</h3>
+	<p>
+		もし、検索の中で再利用したいものがあれば、<em class="keyword">ArrangeQuery</em>
+		を使いましょう。これは、DBFluteのポリシーでもあります。検索の丸ごと再利用は多くの場合失敗に終わります。
+	</p>
+	<div class="detailpage"><a href="http://dbflute.seasar.org/ja/manual/function/genbafit/implfit/whererecycle/">where句の再利用</a></div>
+<pre><span class="codetitle">e.g. 特別過ぎる優待会員を検索 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">arrangeTooPreferentialMember()</span>; 
+cb.query().addOrderBy_...();
+<span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectList(cb);
+</code></pre>
+<pre><span class="codetitle">e.g. ある特別な商品を購入したことのある会員名称が "S" で始まる正式会員という条件を設定するメソッド @Java</span><code>
+<span class="keyword">public class</span> MemberCQ <span class="keyword">extends</span> BsMemberCQ {
+
+    <span class="abbreviation">...</span>
+
+    <span class="comment">/**</span>
+    <span class="comment"> * 特別過ぎる優待会員</span>
+    <span class="comment"> */</span>
+    <span class="keyword">public void</span> arrangeTooPreferentialMember() {
+        setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+        setMemberStatusCode_Equal_Formalized();
+        existsPurchaseList(purCB -&gt; {
+            purCB.query().setProductId_Equal(<span class="attribute">SPECIAL_PRODUCT_ID</span>);
+        });
+    }
+}
+</code></pre>
+
+	<h2 id="actionassist">ActionをアシストするAssist</h2>
+	<h3 id="easywebclass">WEB依存でちょこっとまとめたい</h3>
+	<p>
+		Assistクラスは、単なるActionのアシストです。
+	</p>
+<pre><span class="codetitle">e.g. Assist class @Java</span><code>
+<span class="keyword">public class</span> SeaAssist {
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		<em class="keyword">WEBや画面に依存してるので、(Logicではなく) Action の中で記述するべきものだけど、ちょこっとまとまったクラスにしたい</em>
+		というときに使います。
+	</p>
+	<ul>
+		<li>Actionの中のprivateメソッドがでかくなってきたので、ちょっと外に出したい</li>
+		<li>WEB依存した処理を、A画面とB画面でちょっと再利用したい</li>
+	</ul>
+	<p>
+		そういうときに作ります。
+	</p>
+	<h3 id="assistpackage">Assistクラスのパッケージ</h3>
+	<p>
+		再利用しないなら、その Assist を使う Action クラスの隣でいいかと思います。
+	</p>
+<pre><span class="codetitle">e.g. package of no-recycled assit class @Directory</span><code>
+app
+ |-web
+ |  |-sea
+ |  |  |-SeaAction.java <span class="comment">// uses SeaAssist</span>
+ |  |  |-<span class="point">SeaAssist.java</span>
+ |  |  |-SeaForm.java
+</code></pre>
+	<p>
+		再利用するのであれば web.base パッケージに、任意のパッケージを作って再利用すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. package of recycled assit class @Directory</span><code>
+app
+ |-web
+ |  |-base
+ |  |  |-maihama
+ |  |  |  |-<span class="point">ResortAssist.java</span>
+ |  |-sea
+ |  |  |-SeaAction.java <span class="comment">// uses ResortAssist</span>
+ |  |  |-SeaForm.java
+ |  |-land
+ |  |  |-LandAction.java <span class="comment">// uses ResortAssist</span>
+ |  |  |-LandForm.java
+</code></pre>
+	<h3 id="assistknowweb">AssistクラスはWEBに依存してOK</h3>
+	<p>
+		RequestManager や SessionManager や CookieManager などガッツリ使ってOKです。
+		どちらかというと、そういったWEBに絡んだ処理を再利用するためのものと言えるでしょう。
+	</p>
+	<p>
+		ただ、あまり ActionResponse の処理を Assist に入れると、Action
+		で何をやっているのかわかりづらくなるので、そこはあくまで Action の役割と捉えて、そのための手続き的な処理を Assist
+		でやるのが良いでしょう。 
+	</p>
+	<h3 id="assistknowfront">Assistクラスは画面に依存してOK!?</h3>
+	<p>
+		画面に依存していいいかどうかは、再利用するのかどうか次第です。
+	</p>
+	<p>
+		再利用しない Assist であれば、べったり呼び出し元の Action に依存させてOKです。
+		つまり、FormクラスやBodyクラスも参照しちゃってOKです。パッケージ的にも不自然ではありません。
+		この場合の Assist の役割は、単に Action で書くのがちょっと量が多いので外に出すという感じですね。
+	</p>
+	<p>
+		再利用する Assist であれば、もちろんとある固定の画面に依存することはできませんが、
+		例えば Form や Body 自体を再利用しているとかであれば<span class="frm">(その場合、Form や Body も base パッケージに)</span>、
+		その Form や Body を Assist から参照しても良いでしょう。
+	</p>
+	<h3 id="assistcandi">Assistクラスも普通にDIできる</h3>
+	<p>
+		Actionクラスの中で、普通に DI できます。
+	</p>
+	<p>
+		また Assistクラスの中で、様々なコンポーネントをDIすることもできます。
+	</p>
+	<h3 id="suppressweblogic">WEBに依存したロジックを作らないためにも</h3>
+	<p>
+		どうしても、WEBに依存したまとまった処理を再利用したいと考えることがあります。
+	</p>
+	<p>
+		一方で、Action はバウンダリ、かつ、ファサード、Logicには再利用するものだけを記述する、という方式を追求すると、
+		それなりに Action には処理が入り込む可能性があります。
+	</p>
+	<p>
+		そうしたとき、ちょっと気軽にWEB依存したままのクラスを作ってしまえばいいなと、Assistがないアーキテクチャで開発していたときに思っていました。
+		でも、アーキテクチャにそういう概念がないと、なかなか誰も新しいクラスを作ろうとはしません。
+		そのしわ寄せが Logic に行くのです。
+	</p>
+	<h3 id="suppressweblogic">チグハグなスーパークラスを作らないためにも</h3>
+	<p>
+		というか、これはチグハグなスーパークラスにさせないためのものでもあります。
+		LogicをWEB依存させないようにすると、しわ寄せがスーパークラスに来ます。
+	</p>
+	<div class="relatedpage"><a href="#nomorecaossuper">this - No more, ごちゃごちゃスーパークラス</a></div>
+	<p>
+		先の通り、スーパークラスは概念を形づけるためのものです。
+		ある程度の便利にするためのメソッドが入り込むのは仕方ないとしても、特定の業務的なものは入れるものところではありません。
+	</p>
+	<p>
+		それなら、ActionAssist を使って、再利用しましょう。
+	</p>
+	<h3 id="jobassist">Jobには、JobAssistが</h3>
+	<p>
+		Actionではなく、LastaJob の Job クラスでも、同じように Assist
+		クラスが利用できます。考え方としては基本的に同じです。
+	</p>
+	<div class="relatedpage"><a href="../architecture/jobscheduling.html#jobassist">ストレートなジョブ - JobAssistも使える</a></div>
+
+	<div class="inucolumn">
+		<h2 id="nomorecaossuper">No more, ごちゃごちゃスーパークラス</h2>
+		<p>
+			BaseAction にどんどん業務メソッドが追加されていくという現象があります。
+		</p>
+<pre><span class="codetitle">e.g. No way, many business methods in super class @Java</span><code>
+<span class="keyword">public abstract class</span> MaihamaBaseAction <span class="keyword">extends</span> <span class="abbreviation">...</span> {
+
+    <span class="comment">// ★どかどか業務メソッドが追加されていく。。。</span>
+}
+</code></pre>
+		<p>
+			<em class="keyword">スーパークラスの役割は、その概念を形づけること</em>
+		</p>
+		<p>
+			ある程度、便利メソッドの入り口になる役割として使ってしまうこともありますが、<em class="keyword">それは特定の業務に(できるだけ)依存せず、Actionとしての役割を支援するもの</em>
+			に限ります。あくまで、フレームワークとしての役割を担う場所がスーパークラスです。
+		</p>
+		<p>
+			ですが、スーパークラスというもの、特に Action のスーパークラスは目の前にあり、手軽に全体に影響させることのできるものです。
+			ついついサクッとメソッドを追加してしまいがちです。
+		</p>
+		<p>
+			WEB依存のLogicを作らないとなると、WEB依存の処理を再利用したいとなると、確かにどこに？という感じになるかもしれません。
+			そこで、ActionAssist です。
+		</p>
+		<div class="detailpage"><a href="#actionassist">this - ActionをアシストするActionAssist</a></div>
+		<p>
+			それでも、"スーパークラスにあってもいいかなぁ" と思うような処理があったとします。
+			メソッド追加する前にひとつ質問 <em class="keyword">そのメソッドを利用する Action って特定できますか？</em>
+			できるのであれば、やっぱりAssistクラスでしょう。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="nomorecaosref">No more, あっちらこっちら参照</h2>
+		<p>
+			インクリメンタルでよく発生する問題は、"A画面を直したら気付いたらB画面が動かなくなっている"
+			というような間接デグレです。スタートアップではある程度そのリスクは覚悟する必要はありますが、安易に起きるのもつらいものです。
+		</p>
+		<p>
+			そのよくある二つの典型的なパターン、まず一つ目...
+		</p>
+		<p>
+			<em class="keyword">再利用できるレイヤに(本来)再利用できないメソッドが定義されている</em> というパターン。
+			例えば、Logic に実質的潜在的にA画面に依存したメソッドがあると、Logicは再利用メソッドを置く領域なので、B画面がついつい使ってしまうかもしれません。
+			でも、A画面のディベロッパーは知らずにA画面の都合で修正してしまうでしょう。A画面のActionで書くべき、もしくは、もっと細かい部品単位で再利用するようにすべきでしょう。
+			これは Logic に何を書くべきか？をさんざんこのページで議論してきましたのでここでは話はおしまい。
+		</p>
+		<p>
+			ということで、二つ目がポイントです。
+		</p>
+		<p>
+			<em class="keyword">A画面専用のクラスっぽい風貌なのに、実はB画面からも使われている</em>
+			というパターン。
+		</p>
+		<p>
+			例えば、SeaAction に対する SeaForm クラスがあったとして、パッケージも sea の下、なのに、land
+			パッケージの LandAction で SeaForm が使われているようなケース。
+		</p>
+<pre><span class="codetitle">e.g. stileto reference @Directory</span><code>
+app
+ |-web
+ |  |-sea
+ |  |  |-SeaAction.java
+ |  |  |-<span class="subpoint">SeaForm.java</span>
+ |  |-land
+ |  |  |-LandAction.java <span class="comment">// uses SeaForm</span>
+</code></pre>
+		<p>
+			ディベロッパーとしては、直したらIDEの機能を使うなりしてクラスの参照を辿って影響範囲を特定すべきところですが、スタートアップの現場ではなかなかそれを徹底させることは現実的には難しいもので、
+			いかにも共通っぽいクラスであればまだディベロッパーは気をつける意識が強くなりますが、A画面専用っぽい見た目をしていたらなかなか見逃してしまいます。
+		</p>
+		<p>
+			もうその場合は、そういう <em class="keyword">不意打ちのような再利用</em> をした方が良くないと言えるでしょう。
+		</p>
+		<p>
+			ひとつ提案です。以下のようなポリシーでクラス作りをしてみてはいかがでしょう？
+		</p>
+		<ul>
+			<li><em class="smallmark">app.web.[業務固有のパッケージ]</em> から、他の業務固有のパッケージのクラスは参照しない</li>
+			<li>WEB依存のものを再利用するなら <em class="mark">app.web.base.[再利用業務パッケージ]</em> に置く</li>
+			<li><em class="smallmark">app.web.[業務固有のパッケージ]</em> の同じパッケージ(サブ含む)なら参照してもOK</li>
+			<li>もちろん、ビジネスロジックとして再利用できるなら Logic にする</li>
+		</ul>
+<pre><span class="codetitle">e.g. use base for recycle @Directory</span><code>
+app
+ |-web
+ |  |-<span class="point">base</span>
+ |  |  |-<span class="subpoint">sea</span> <span class="comment">// rename if better name exists</span>
+ |  |  |  |-<span class="subpoint">SeaForm</span>
+ |  |  |-MaihamaBaseAction
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-sea
+ |  |  |-SeaAction <span class="comment">// uses base.sea.SeaForm</span>
+ |  |-land
+ |  |  |-LandAction <span class="comment">// uses base.sea.SeaForm</span>
+ |  |-piari
+ |  |  |-dstore
+ |  |  |  |-PiariDstoreAction <span class="comment">// uses PiariForm</span>
+ |  |  |-PiariDetailAction <span class="comment">// uses PiariForm</span>
+ |  |  |-PiariEditAction <span class="comment">// uses PiariForm</span>
+ |  |  |-<span class="subpoint">PiariForm</span> <span class="comment">// cane be recycled in same package</span>
+</code></pre>
+		<p>
+			なかなか厳密にやるのは難しいのですが、できるだけ...
+		</p>
+		<p>
+			<em class="keyword">再利用されないクラスと再利用されるクラスを明確にわけることが大切だと考えます。</em>
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="nomorecaosname">No more, しっちゃかめっちゃかクラス名</h2>
+		<p>
+			LastaFluteは、わざとクラス名が不自由になっています。
+			単純に自由のメリットと不自由のメリットとのトレードオフで、後者を最大限享受するという思想を持っています。
+		</p>
+		<p>
+			例えば、ある画面ではパラメーターの受け取りが Model になっているのに、ある画面では Dto になっていたり。
+			JSONを戻すクラスが Bean だと思いきや、あっちでは Model になっていたり、同じLogicでもDIするものとnewするものがあったり...
+			<span class="frm">(バラけているだけならまだしも、入れ替わったりすることがあると可読性を著しく低下させます)</span>
+		</p>
+		<p>
+			スタートアップでは、命名のポリシーを決める時間も無ければ浸透させることもなかなか困難であることが多いです。
+			"フレームワークとしてこうである、こうじゃないと動かない" というのを提供することで、何もポリシー決めのない開発でも
+			"ある程度" 統一性のあるコードになるようにしています。
+		</p>
+		<h3 id="classsuffix">クラス名の規約は？</h3>
+		<p>
+			こうじゃないともう動かないという強いものです。
+		</p>
+		<dl class="shoshortkeymainlist">
+			<dt>...Action</dt><dd>リクエストを受け付けるクラス</dd>
+			<dt>...Form</dt><dd>GETやPOSTのパラメーターを受け取るクラス <span class="frm">(ActionForm)</span></dd>
+			<dt>...Body</dt><dd>リクエストされるJSONを受け取るクラス <span class="frm">(JsonBody)</span></dd>
+			<dt>...Assist</dt><dd>web依存ありでActionの実装を助けるクラス <span class="frm">(ActionAssist)</span></dd>
+			<dt>...Logic</dt><dd>web依存せず業務単位で切り出されるクラス <span class="frm">(BusinessLogic)</span></dd>
+			<dt>...Bhv</dt><dd>DBFluteのBehaviorクラス <span class="frm">(自動生成なので規約というか決まり)</span></dd>
+		</dl>
+		<h3 id="classsuffix">クラス名の慣習は？</h3>
+		<p>
+			規約ではないですが、特にポリシーがなければ LastaFlute のデフォルト慣習としてお奨めしているものです。
+			スタートアップでは慣習を決めて浸透させること自体が大変なので、"フレームワークの思想の通りでお願いします"
+			と一言言って終わりにできるようにと。LastaFlute の Example もこのようになっています。
+		</p>
+		<div class="relatedpage"><a href="./beandesign.html#rolesuffix">Beanの実装デザイン - 役割のわかるクラス名Suffix</a></div>
+		<dl class="shoshortkeymainlist">
+			<dt>...Bean</dt><dd>Thymeleafに渡すデータのクラス、その他の用途でも使うかも <span class="frm">(HtmlBean)</span></dd>
+			<dt>...Result</dt><dd>レスポンスで戻すJSONを表現するクラス <span class="frm">(JsonResult)</span></dd>
+			<dt>...Part</dt><dd>BodyやResultなどの入れ物クラスの一部データをまとめたインナークラス</dd>
+			<dt>...Param</dt><dd>Logicなどで項目が多い場合にまとめる引数クラス <span class="frm">(RemoteApiの送信データでも利用)</span></dd>
+			<dt>...Return</dt><dd>Logicなどで項目が多い場合にまとめる戻り値クラス <span class="frm">(RemoteApiの受信データでも利用)</span></dd>
+		</dl>
+		<p>
+			これでもまだ網羅できてなくて迷う場面もあるかと思いますが、これらデフォルトの慣習をベースに名前を付けていけば、そこまで大外れしないでしょう。
+			そういう意味でも、ある程度のベースをフレームワークが提供することに意義があると考えています。
+		</p>
+		<h4>(Json)Result, とてもよかった</h4>
+		<p>
+			(Json)Resultは、実際に実践してみてとても良かったです。"受け取るもの" と "戻すもの" がすぐに判別できるというのは、想像以上にコードを読み解く上でのストレスを無くすものだなと感じました。
+			ちょっとライブラリのクラスなどとかぶりそうな名前ですが、基本 Action のそばにしかいないので、紛れることもほとんどありません。
+			<span class="frm">(別に 100% ユニークな名前じゃなくてもいいのです)</span>
+		</p>
+		<h4>Part も意外によかった</h4>
+		<p>
+			また、Partも、実際に実践してみて想像以上に良かったです。JSONでのやり取りが多くなると、再利用もしない小さな入れ物クラスが増えます。
+			それらをつどつど独立した .java ファイルにするのはわりと手間だし、バラバラになるとJSONの全体像もわかりづらくなるので、インナークラスで表現するのがこれまたLastaFluteの慣習です。
+			そのとき、インナークラスの名前もどうする？という風になりますが、一部のデータということで Part
+			にすることで、クラス検索のときのノイズ対策にもなりますし、一番外側の重要なクラスなのかそうではないのかの判断に付き可読性も上がりました。
+			ということで、FormでもBodyでもBeanでもResultでもParamでも、一部のデータをまとめるインナークラスは Part にしています。
+		</p>
+		<div class="relatedpage"><a href="./beandesign.html">Beanの実装デザイン</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

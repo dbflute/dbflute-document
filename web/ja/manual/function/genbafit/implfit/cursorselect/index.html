@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,カーソル検索,CursorSelect,CursorSearch,大量データ,大量件数,大量レコード,メモリ不足,メモリ節約,OutOfMemory" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>カーソル検索 (CursorSelect) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>カーソル検索</h1>
+	${indexlist}
+
+	<h2 id="about">カーソル検索とは？</h2>
+	<p>
+		そもそもカーソル検索とは？について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/programming/dbaccess/cursorselect.html">カーソル検索</a></div>
+
+	<h2 id="solution">安全性を確保したカーソル検索</h2>
+	<p>
+		カーソル検索のよくある悩みは、どうしても安全性を失ってしまうやり方になってしまうことですが、
+		DBFluteでは、安全性を確保した状態でカーソル検索ができるような工夫がされております。
+	</p>
+	<h3 id="conditionbean">ConditionBean</h3>
+	<p>
+		ConditionBeanでは、EntityRowHandler を利用したコールバックを指定することで実装できます。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/behavior/select/selectcursor.html">Behavior - selectCursor(cb)</a></div>
+<pre><span class="codetitle">e.g. ConditionBeanでカーソル検索 {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+
+<span class="attribute">memberBhv</span>.selectCursor(cb, <span class="keyword">new</span> EntityRowHandler&lt;Member&gt;() {
+    <span class="keyword">public void</span> handle(Member entity) { <span class="comment">// called per one record</span>
+        <span class="abbreviation">...</span> = entity.getMemberId();
+        <span class="abbreviation">...</span> = entity.getMemberName();
+        <span class="abbreviation">...</span> = entity.getMemberStatus();
+    }
+});
+</code></pre>
+	<h3 id="outsidesql">外だしSQL</h3>
+	<p>
+		外だしSQLでは、Sql2Entityで TypeSafeCursor を自動生成することで実装できます。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/select/selectcursor.html">OutsideSql - カーソル検索</a></div>
+<pre><span class="codetitle">e.g. 外だしSQLでカーソル検索 @Java</span><code>
+memberBhv.outsideSql().cursorHandling()
+.selectCursor(pmb, <span class="keyword">new</span> <span class="point">PurchaseSummaryMemberCursorHandler</span>() {
+    <span class="keyword">protected</span> Object fetchCursor(<span class="point">PurchaseSummaryMemberCursor</span> cursor) <span class="keyword">thr</span><span class="abbreviation">...</span> {
+        <span class="keyword">while</span> (cursor.next()) { <span class="comment">// on memory per one record</span>
+            <span class="comment">// type safe access</span>
+            Integer memberId = cursor.getMemberId();
+            String memberName = cursor.getMemberName();
+            Date birthdate = cursor.getBirthdate();
+            Timestamp formalizedDatetime = cursor.getFormalizedDatetime();
+            Long purchaseSummary = cursor.getPurchaseSummary();
+
+            <span class="abbreviation">...</span>
+        }
+        <span class="keyword">return null</span>; <span class="comment">// basically null</span>
+    }
+});
+</code></pre>
+
+	<h2 id="cursortransaction">トランザクションには注意</h2>
+	<p>
+		大量データを検索して別のテーブルに登録処理(insert)をするような処理の場合で、
+		カーソル検索のループの中でのコミット処理をカーソル検索と同じトランザクションでコミットしてしまうと、
+		カーソル検索自体が(ループが終わる前に)終わってしまいます。当然のことながら、そのカーソルの接続が切断されるからです。
+		そのような場合は、必ず <em class="keyword">カーソル検索と登録処理のトランザクションは別々</em> にします。
+	</p>
+<pre><span class="codetitle">e.g. カーソル内で登録処理のトランザクション {Spring, Lasta Di} @Java</span><code>
+<span class="keyword">public void</span> migrateMember() {
+    MemberCB cb = <span class="keyword">new</span> MemberCB();
+    <span class="abbreviation">...</span>
+    <span class="attribute">memberBhv</span>.selectCursor(cb, <span class="keyword">new</span> EntityRowHandler&lt;Member&gt;() {
+        <span class="keyword">public void</span> handle(Member entity) {
+            registerAnotherMember(entity); <span class="comment">// 一件ごとにコミット</span>
+        }
+    });
+}
+
+<span class="point">@Transactional(TxType.REQUIRES_NEW)</span>
+<span class="keyword">public void</span> registerAnotherMember(Member entity) { <span class="comment">// 新しいトランザクション</span>
+    <span class="abbreviation">...</span> <span class="comment">// 別のテーブルに登録</span>
+}
+</code></pre>
+
+	<div class="inucolumn">
+		<h2 id="resulttype">データの受け取り方の違い</h2>
+		<p>
+			大きくは、この二つDBアクセス方法に対応するカーソル検索、ということで理解しておけば問題ありませんが、厳密な理解をするための説明をすると、
+			データの受け取り方の違いによるそれぞれの特徴があり、実は四つの種類に分けることができます。
+		</p>
+		<h3 id="supportedtwo">サポートしている二つのやり方</h3>
+		<p>
+			ConditionBeanのカーソル検索は、通常の検索と同じように <em class="keyword">Entity のオブジェクトグラフ</em>
+			の形式でデータを受け取ります。一方で、外だしSQLのカーソル検索は、(厳密には)Entity
+			ではなく、<em class="keyword">フラットな ResultSet のタイプセーフなラッパークラス</em>
+			(Sql2Entityで自動生成され、取得するカラムの指定がタイプセーフになる)でデータを受け取ります。
+		</p>
+		<dl class="valuemainlist">
+			<dt>ConditionBean</dt><dd>Entityのオブジェクトグラフの形式</dd>
+			<dt>外だしSQL</dt><dd>フラットな ResultSet のタイプセーフラッパー</dd>
+		</dl>
+		<p>
+			この二つを比較すると、実装上の安全性は ConditionBean、但し、<em class="keyword">Entity へのマッピングコスト</em>
+			の分、外だしSQLの方が若干速い、という特徴になります。(ConditionBeanの場合は、ループの中で一レコードずつ Entity
+			へのマッピング処理を行う)
+		</p>
+		<p>
+			どちらを利用するかは、当然そもそも発行するSQLがどちらで実現できるのか、に寄りますが、どちらでも実現できるという場合は、
+			単純にメモリのオーバーフローさえ回避できれば良いのであれば ConditionBean、一ミリ秒でも速く処理したい(<em class="keyword">Entity
+			へのマッピングコスト</em>の分を稼ぐ)のであれば外だしSQL、という位置付けになります。
+		</p>
+		<h3 id="unsupportedtwo">サポートしていないもう二つのやり方</h3>
+		<p>
+			実は、データの受け取り方を逆転させた、もう二つのやり方が概念的には存在していて、DBFluteではサポートしていません。
+		</p>
+		<ul>
+			<li>ConditionBeanで、ResultSet のラッパークラス</li>
+			<li>外だしSQLで、(Customize)Entity</li>
+		</ul>
+		<p>
+			これらは本来(DBFluteで)実現しようとと思えばできるのですが、無意味なのでサポートしていません。
+			ConditionBeanは、(安全に)Entityのオブジェクトグラフの形式で受け取るために最適化されたものであり、
+			フラットで受け取ることに向いていません。また、外だしSQLで Entity で受け取るのは、
+			同じくタイプセーフなラッパークラスがあれば十分であり、かつ、大量データのために検索なのでスピード重視で判断しています。
+		</p>
+		<h3 id="bestspeed">外だしSQLのカーソル検索は最速</h3>
+		<p>
+			外だしSQLのカーソル検索は、マッピングをしない(それでも、タイプセーフ)という点から、論理的には通常の外だしSQLよりも速い検索となります。
+			同じ論理で当然ConditionBeanによる検索よりも速いため、実はDBFluteの中で最速の検索は、外だしSQLのカーソル検索であると言えるかもしれません。
+			もちろん、カーソル検索してもアプリで独自のDTOなどにマッピングするのであれば結局同じことですが、そうではなく、
+			直接コールバックの中で処理が完結してしまうような場合は、メモリの考慮に関わらず(パフォーマンス的に)カーソル検索は最適であると考えられます。
+			但し、マッピングコストは大量件数でなければ目立ったコストにはならないので、普段はあまりこのことを意識しても意味がないでしょう。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="oneloopdestroy">厳密には 1 ループで破棄しないことも</h2>
+		<p>
+			DBFluteのデフォルトのResultSetタイプは TYPE_FORWARD_ONLY
+			なので、基本的には 1 ループごとにメモリが解放される(解放対象になる)ことが想定されますが、
+			JDBCの設定とJDBCドライバの実装次第でそういう挙動にならないことも頭に入れておくことをお奨めします。
+		</p>
+		<div class="detailpage"><a href="../../../../topic/programming/dbaccess/cursorselect.html#oneloopdestroy">DBアクセス - カーソル検索 - 厳密には 1 ループで破棄しないことも</a></div>
+	</div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、テストケースの中で実際にカーソル検索を利用しています。
+		(他の多くのExampleでも同様に利用されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

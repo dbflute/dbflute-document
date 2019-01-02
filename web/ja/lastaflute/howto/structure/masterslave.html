@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Seasar(S2Container),SelectableDataSource,SelectableDataSourceProxy,冗長化,DB切り替え" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteでMaster/SlaveDB | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteでMaster/SlaveDB</h1>
+	${indexlist}
+
+	<h2 id="overview">master/slave対応の概要</h2>
+	<p>
+		同じ Schema に対して、MasterDB と SlaveDB と二つ以上のDBを用意する、Master/SlaveDB
+		構成のときの LastaFlute でのデフォルトのやり方が存在します。
+	</p>
+	<h3 id="masterslaveprecondition">master/slaveの目的</h3>
+	<p>
+		そもそもの Master/SlaveDB の目的として、以下のことを想定しています。
+	</p>
+	<ul>
+		<li>A. MasterDB に障害が発生したら SlaveDB が代わってサービス継続</li>
+		<li>B. 検索の一部をslaveにして、DBサーバーの負荷分散 ☆ポイント！</li>
+	</ul>
+	<p>
+		A だけであればアプリは意識しないのであまり関係ありませんが、B を(アプリで)やるのであれば、意識する必要があります。
+	</p>
+	<h3 id="masterslaveflow">master/slave対応の流れ</h3>
+	<p>
+		LastaFluteでの master/slave 対応は、以下のような流れです。
+	</p>
+	<ul>
+		<li>SelectableDataSourceProxy を想定した Di xml 構造を構築する</li>
+		<li>SlaveDBAccessor で SlaveDB に検索する</li>
+	</ul>
+	<h3 id="keypointclass">キーポイント: SelectableDataSourceProxy</h3>
+	<p>
+		SelectableDataSourceProxy がキーポイントとなります。
+		DBFluteが使う DataSource を、この Proxy に差し替え、動的に master と slave の DataSource
+		を差し替えられるようにします。 
+	</p>
+	<p>
+		このクラス自体は、もともと master/slave のための機能ではなく、冗長化複数DBのための機能です。
+		master/slaveも冗長化複数DBの一つのパターンとして捉えています。
+	</p>
+	<p>
+		ただ、実際にコンポーネント登録するクラスは、SelectableDataSourceProxy を継承して、
+		master/slave に最適化させた <em class="mark">MasterBasisSelectableDataSource</em> です。
+	</p>
+<pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @Dixml</span><code>
+javax.sql.DataSource
+ ^
+ |-SelectableDataSourceProxy <span class="comment">// 冗長化複数DBのためのクラス</span>
+    ^
+    |-MasterBasisSelectableDataSource <span class="comment">// master/slaveのためのクラス</span>
+</code></pre>
+
+	<h2 id="howto">Master/SlaveDBの設定方法</h2>
+	<h3 id="dixmlstructure">Di xml構造</h3>
+	<p>
+		こういう、Di xml構成を作ります。
+	</p>
+<pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @Dixml</span><code>
+app.xml <span class="comment">// 手作り: アプリの Di xml のルート</span>
+ |
+ |-dbflute.xml <span class="comment">// DBFlute自動生成: includes jta.xml, jdbc.xml, tx_aop.xml</span>
+ |  |
+ |  |-rdb.xml <span class="comment">// Lasta Di組込み: includes jta.xml, jdbc.xml, tx_aop.xml</span>
+ |  |  |
+ |  |  |-jta.xml <span class="comment">// Lasta Di組込み: TransactionManager, UserTransactionなど</span>
+ |  |  |-<span class="subpoint">(jdbc.xml)</span> <span class="comment">// LastaFlute組込み: jdbc+.xmlに上書きされる</span>
+ |  |  |-tx_aop.xml <span class="comment">// Lasta Di組込み: まあ、気にしなくていい</span>
+ |  |  |
+ |  |  |-<span class="point">jdbc+.xml</span> <span class="comment">// ☆手作り: SelectableDataSourceProxy(dataSource)を定義</span>
+ |  |  |  |
+ |  |  |  |-<span class="point">plugin/selectable_datasource.xml</span> <span class="comment">// LastaFlute組込み: SelectableDataSourceHolderの定義</span>
+ |  |  |  |
+ |  |  |  |-<span class="point">jdbc-master.xml</span> <span class="comment">// ☆手作り: master用のjdbc.xml</span>
+ |  |  |  |  |
+ |  |  |  |  |-jta.xml <span class="comment">// ConnectionPoolなどがTransactionManagerを使うため</span>
+ |  |  |  |  |-lastaflute_assist.xml <span class="comment">// [app]_config.propertiesを使うため</span>
+ |  |  |  |
+ |  |  |  |-<span class="point">jdbc-slave.xml</span> <span class="comment">// ☆手作り: slave用のjdbc.xml</span>
+ |  |  |  |  |
+ |  |  |  |  |-jta.xml <span class="comment">// masterと同じ</span>
+ |  |  |  |  |-lastaflute_assist.xml <span class="comment">// masterと同じ</span>
+<span class="abbreviation">...</span> 
+</code></pre>
+	<h3 id="dixmljdbcplus">jdbc+.xml</h3>
+	<p>
+		アプリで、jdbc+.xml を作成します。<span class="frm">("+" を付けると、LastaFlute組込みの jdbc.xml が完全上書きされます)</span>
+	</p>
+	<p>
+		ここで SelectableDataSourceProxy をコンポーネント定義することで、
+		DBFlute が利用する DataSource がProxy化され、masterに接続するのかslaveに接続するのか切り分けられます。
+		また、SlaveDBAccessor も定義することで、アプリで SlaveDB に狙ってアクセスできます。
+	</p>
+	<div class="relatedpage"><a href="../../lastadi/dixmlexp.html">Di xml の Expression</a></div>
+<pre><span class="codetitle">e.g. jdbc+.xml for master/slave  @Dixml</span><code>
+&lt;components&gt;
+    &lt;include path=<span class="literal">"plugin/selectable_datasource.xml"</span>/&gt;
+    &lt;include path=<span class="literal">"jdbc-master.xml"</span>/&gt;
+    &lt;include path=<span class="literal">"jdbc-slave.xml"</span>/&gt;
+    &lt;component name=<span class="literal">"dataSource"</span> class=<span class="literal">"org.lastaflute.db.replication.slavedb.MasterBasisSelectableDataSource"</span>/&gt;
+    &lt;component name=<span class="literal">"slaveDBAccessor"</span> class=<span class="literal">"org.lastaflute.db.replication.slavedb.SlaveDBAccessorImpl"</span>/&gt;
+&lt;/components&gt;
+</code></pre>
+	<p>
+		ただ、SelectableDataSourceProxyは、別に Master/SlaveDB
+		専用のクラスではなく、デフォルトのDBを定めていませんので、実際に登録する具象クラスは、MasterBasisSelectableDataSource
+		にすると良いでしょう。そうすると、DataSourceのキーを何も指定してないときに、MasterDB をアクセスするようになります。
+		<span class="frm">(SelectableDataSourceProxyだと、何も指定されていなければ例外)</span>
+	</p>
+	<p>
+		SelectableDataSourceProxy が、SelectableDataSourceHolder を利用するので、LastaFlute組込みの
+		plugin/selectable_datasource.xml を include します。
+	</p>
+	<p>
+		SelectableDataSourceProxy のコンポーネント名は、DBFluteがDataSourceをDIするときに使う名前にします。
+		複数DB構成とかにしていなければ、多くの場合デフォルトの "dataSource" でOKです。
+		<span class="frm">(厳密には、DBFluteも型でDIしたりするので、あまり名前は関係ないかもですが、しっかり合わせておきましょう)</span>
+	</p>
+	<h3 id="dixmljdbcmaster">jdbc-master.xml</h3>
+	<p>
+		アプリで、jdbc-master.xml を作成します。
+	</p>
+	<p>
+		内容は、LastaFlute組込みの jdbc.xml を参考にして、master用に書き換えたものにします。
+	</p>
+	<p>
+		ただ、DataSourceコンポーネントに関しては<span class="frm">(xaDataSourceの方ではありません)</span>、コンポーネント名を masterDataSource
+		に変更します。仕組みの中では、そのコンポーネント名で特定します。
+	</p>
+	<p>
+		また、provider.config().getXxx() 部分も、master用のプロパティを定義して FreeGen でメソッドを自動生成しましょう。
+		<span class="frm">(デフォルトの接続設定をmasterにするとかであれば、そのままでも)</span>
+	</p>
+	<h3 id="dixmljdbcslave">jdbc-slave.xml</h3>
+	<p>
+		アプリで、jdbc-slave.xml を作成します。
+	</p>
+	<p>
+		内容は、LastaFlute組込みの jdbc.xml を参考にして、slave用に書き換えたものにします。
+	</p>
+	<p>
+		ただ、DataSourceコンポーネントに関しては<span class="frm">(xaDataSourceの方ではありません)</span>、コンポーネント名を slaveDataSource
+		に変更します。仕組みの中では、そのコンポーネント名で特定します。
+	</p>
+	<p>
+		また、provider.config().getXxx() 部分も、slave用のプロパティを定義して FreeGen でメソッドを自動生成しましょう。
+	</p>
+	<p>
+		もし、SlaveDB が複数になるケースでは、ファイル名やコンポーネント名の "slave" 部分を slaveSea や slaveLand
+		などにして、SlaveDBの数だけ追加します。ただし、そのケースでは SlaveDBAccessor はそのままでは利用できません。
+		<span class="frm">(SlaveDBAccessor は、slaveが一つであることを前提に実装されています)</span>
+	</p>
+	<h3 id="whenupgradelasta">LastaFluteをアップグレードするとき</h3>
+	<p>
+		アプリで、LastaFlute組込みの定義(jdbc.xml)やクラスを意識することになるので、めったには変わりませんが、LastaFlute
+		のアップグレードをするときには必ずmaster/slave周りを意識して動作確認をしてください。<span class="frm">(万が一、構造や名前が変わったりしたときのために)</span>
+	</p>
+
+	<h2 id="appimpl">アプリでの実装方法</h2>
+	<h3 id="betaway">ひとまず、ベタなやり方</h3>
+	<p>
+		アプリでの、非常に単純で <em class="keyword">ベタな実装方法</em> は以下のようになります。
+	</p>
+<pre><span class="codetitle">e.g. SelectableDataSourceHolder を直接使ったベタな実装方法 @Java</span><code>
+@Resource
+<span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
+@Resource
+<span class="keyword">private</span> SelectableDataSourceHolder <span class="attribute">selectableDataSourceHolder</span>; <span class="comment">// injected</span>
+
+<span class="keyword">public void</span> fooAndBar() {
+    <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(<span class="literal">"master"</span>);
+    <span class="attribute">memberBhv</span>.update(member); <span class="comment">// master の会員を更新</span>
+
+    <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(<span class="literal">"slave"</span>);
+    <span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.select(cb -&gt; <span class="abbreviation">...</span>); <span class="comment">// slave の会員を検索</span>
+}
+</code></pre>
+	<p>
+		SelectableDataSourceHolder は、LastaFlute に組み込まれている plugin/selectable_datasource.xml にて定義されています。
+		デフォルトでは何の DataSource とも関連付いていないため、DBアクセスする前は必ず何かしらの DB を指定する必要があります。
+	</p>
+	<p>
+		ただ、通常このような利用はあり得ず、仕組みをわかりやすく理解するための Example です。
+	</p>
+	<h3 id="accessorway">SlaveDBAccessorを使ったやり方</h3>
+	<p>
+		現実的には、DBアクセスのたびに指定するのはあり得ない感じなので、LastaFluteで提供されている SlaveDBAccessor
+		を使うと良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. SlaveDBAccessorを使ってSlaveDBを狙ってアクセス @Java</span><code>
+@Resource
+<span class="keyword">private</span> SlaveDBAccessor <span class="attribute">slaveDBAccessor</span>;
+
+<span class="keyword">public void</span> sea() {
+    <span class="comment">// 必ず slave に対して検索</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessFixedly(() -&gt; {
+        <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb -&gt; <span class="abbreviation">...</span>);
+    });
+
+    <span class="comment">// 引数の判定次第で slave に対して検索</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessIfNeeds(() -&gt; {
+        <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb -&gt; <span class="abbreviation">...</span>);
+    }, isSlaveDB()); <span class="comment">// 何かしらアプリケーション的な判定</span>
+
+    <span class="comment">// 引数の数値次第で半々に slave に対して検索</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessRandomFifty(() -&gt; {
+        <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb -&gt; <span class="abbreviation">...</span>);
+    }, getDeterminationNumber()); <span class="comment">// ランダム判定のためのlong</span>
+}
+</code></pre>
+	<p>
+		万が一、SlaveDBのメソッド内で更新処理をしてしまったとしても、更新処理は自動的に master にアクセスします。
+		SlaveDBAccessorには、そういった安全対策が施されています。
+	</p>
+	<h3 id="originalway">独自に振り分けるやり方</h3>
+	<p>
+		現実的には、DBアクセスのたびに指定するのはあり得ない感じなので、Interceptor
+		などの共通処理で切り替えます。デフォルトのDBの設定と切り替えのロジックを実装します。
+	</p>
+	<p>
+		例えば、通常は MasterDB の方にDBアクセスし、SlaveDB
+		を示すアノテーションがメソッドに定義されていたら、そのメソッド内だけ SlaveDB
+		にDBアクセスするというやり方が考えられます。
+	</p>
+<pre><span class="codetitle">e.g. 独自に振り分けるアプリのInterceptorの実装 @Java</span><code>
+@Resource
+<span class="keyword">private</span> SelectableDataSourceHolder <span class="attribute">selectableDataSourceHolder</span>; <span class="comment">// injected</span>
+
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    String current = <span class="attribute">selectableDataSourceHolder</span>.getSelectableDataSourceName();
+    <span class="keyword">try</span> {
+        String selectableName = deriveSelectableDataSourceKey();
+        <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(selectableName);
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">finally</span> {
+        <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(current);
+    }
+}
+
+<span class="keyword">protected</span> String deriveSelectableDataSourceKey(MethodInvocation invocation) {
+    <span class="keyword">if</span> (hasSlaveAnnotation(invocation)) {
+        <span class="keyword">return</span> <span class="literal">"slave"</span>;
+    } <span class="keyword">else</span> {
+        <span class="keyword">return</span> <span class="literal">"master"</span>; <span class="comment">// MasterDB as default</span>
+    }
+}
+
+<span class="keyword">protected</span> <span class="keyword">boolean</span> hasSlaveAnnotation(MethodInvocation invocation) {
+    <span class="comment">// メソッドに SlaveDB を示すアノテーションが付いていたら true</span>
+    <span class="comment">// (そのアノテーションは自作)</span>
+    <span class="keyword">return</span> <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 独自に振り分けたときのアプリの実装 (Logic) @Java</span><code>
+@Resource
+<span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
+@Resource
+<span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+<span class="point">@SlaveDB</span>
+<span class="keyword">public</span> void selectHeavy() { <span class="comment">// このメソッド内のDBアクセスは全て SlaveDB へ</span>
+    MemberCB cb = <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectList(cb);
+    PurchaseCB cb = <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span> = <span class="attribute">purchaseBhv</span>.selectList(cb);
+}
+</code></pre>
+	<p>
+		この Interceptor は、DBアクセスをする可能性のあるプロセスの入り口となるコンポーネント、
+		および、DBアクセス先を切り替える可能性のあるコンポーネントに関連付けます。例えば、Page, Action, Service, Logicクラスなどです。
+		バリデーションやバリデーションエラーなどの処理の中でDBアクセスをする場合は、それらメソッドにも関連付ける必要があります。
+	</p>
+	<p>
+		一方で、SlaveDBに更新処理を実行しないように注意する必要があります。ここでの例で言えば、SlaveDB
+		アノテーションが付与されているメソッド内で insert() や upadte() を呼び出してはいけません。
+		SlaveDBAccessorの中でやっているような、"すべり止め" 処理も入れると良いでしょう。
+	</p>
+
+	<h2 id="attentionplease">ちょこちょこ注意点</h2>
+	<h3 id="twotransaction">Transactionは独立</h3>
+	<p>
+		Master と Slave のようなレプリケーション構成の場合は、そもそも更新処理を Master
+		に集中させないといけないためあまり気にする必要はありませんが、TransactionはそれぞれのDBごとに独立したものになります。
+		そのことだけはしっかり理解しておいた方が良いでしょう。
+	</p>
+	<h3 id="lazyslave">SlaveDBは遅延の可能性</h3>
+	<p>
+		master/slaveをどのように実現しているか次第ですが、RDBのmaster/slave機能の都合上、どうしてもmasterの更新からslaveへの反映までに遅延が発生する可能性があります。
+		それを許容できない検索なのに slave を使ってしまうと、思わぬ事故を引き起こしてしまうかもしれませんので注意しましょう。
+	</p>
+	<h3 id="localenv">ローカル開発環境では、どうする？</h3>
+	<p>
+		ローカル開発環境で、master/slave構成がすんなり構築できるのであれば特に問題はありませんが、そうでない場合はちょっと注意が必要です。
+	</p>
+	<p>
+		その場合、masterもslaveも同じDBを参照すれば、つじつまが合ってテストはおおよそできますが、UnitTest
+		などで、masterとslaveに対するTransactionが同時に発行されるときはちょっと困ります。
+	</p>
+	<p>
+		例えば、UnitTestの中でmasterに対して更新した結果が、slaveに対する検索で参照ができません。
+		同じDBでも、Tranasction が(同時に)別になっているので、masterに対する更新が Commit
+		されるまで、slaveの方の Tranasction ではその更新結果を検索できないのです。
+		そこに依存しているロジックがあると、UnitTestがまともにできないという可能性もあります。
+	</p>
+	<p>
+		しょっちゅう出てくる問題ではないと思うので、問題が出てくるまでお茶を濁すか、ローカルだけは SlaveDBAccessorNothing
+		を使うようにするとか、工夫が必要でしょう。<span class="frm">(ローカルで簡単にmaster/slaveができちゃえば一番世話ないですが)</span>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,スキーマ差分,DB差分,DB変更,データの差分,権限の差分" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>手作り差分チェック (CraftDiff) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>手作り差分チェック (CraftDiff)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		HistoryHTMLやSchemaSyncCheck, AlterCheckなどの差分ロジックにおいて、独自の差分チェックを手作りすることができます。
+		<span class="frm">@since 1.0.0</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/doc/historyhtml.html">HistoryHTML</a></div>
+	<div class="relatedpage"><a href="../../../generator/task/doc/schemasynccheck.html">SchemaSyncCheck</a></div>
+	<div class="relatedpage"><a href="../../../generator/task/replaceschema/altercheck.html">AlterCheck</a></div>
+	<p>
+		DBFluteの差分ロジックは、テーブルやカラム、プロシージャ(オプションにて)などを対象にしますが、トリガーや権限などはチェック対象ではありません。
+		そういったDBFluteのチェック対象外の要素を自由に追加することができます。また、マスタテーブルなどのデータもチェックできます。
+	</p>
+	<p>
+		"差分チェック対象を検索するSQL" を書いて所定の位置に配置しておくと、差分チェック時に実行され、
+		双方のスキーマの結果が比べられます。内部的には、検索結果がTSVファイルに出力され、そのTSVファイル同士が比較されます。
+	</p>
+
+	<h2 id="howto">手作りのやり方</h2>
+	<h3 id="preparesql">SQLファイルの用意</h3>
+	<p>
+		craft-diff で始まり .sql で終わるファイルを、[DBFluteクライアント]/schema/craftdiff 配下に作成します。
+		まずは、単に craft-schema.sql という名前のファイルでOKです。多くなってきたら分割していきます。
+	</p>
+<pre><span class="codetitle">e.g. craft-schema.sqlの配置 @Directory</span><code>
+[DBFluteClient]
+ |-dfprop
+ |-<span class="abbreviation">...</span>
+ |-schema
+ |  |-craftdiff
+ |     |-<span class="point">craft-schema.sql</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		そのSQLファイルの中で、差分チェック対象を検索するSQLを以下のルールに従って書きます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>SQLの種類</dt><dd>select文であること (結果セットを戻すSQL)</dd>
+		<dt>ユニークキー</dt><dd>select句の最初のカラムはユニークな値のものを</dd>
+		<dt>差分対象データ</dt><dd>select句の二番目以降に差分対象のカラムを</dd>
+		<dt>ソート順</dt><dd>指定なしでもいいが、ユニークキーがお奨め</dd>
+		<dt>おまじない</dt><dd>SQLの前に #df:assertEquals([差分タイトル名])# を</dd>
+	</dl>
+<pre><span class="codetitle">e.g. 会員ステータスのデータの差分をチェックするSQL @classificationDefinitionMap.dfprop</span><code>
+<span class="comment">-- #df:assertEquals(MemberStatus)#</span>
+<span class="keyword">select</span> MEMBER_STATUS_CODE <span class="keyword">as</span> KEY, MEMBER_STATUS_NAME, DISPLAY_ORDER
+  <span class="keyword">from</span> MEMBER_STATUS
+ <span class="keyword">order by</span> KEY
+;
+</code></pre>
+	<p>
+		上記の例では、会員ステータスという区分値系のテーブルの変更を監視するようにしています。
+		会員ステータスが追加されたり削除されたり、もしくはステータス名や表示順が変わったら差分として検知されます。
+		ただ、DESCRIPTIONカラムは含まれていないので、説明の内容が変わっても検知はされません。
+		あまり重要でないものを含めると差分ノイズになるので、バランス良くカラムを列挙しましょう。
+	</p>
+	<p>
+		また、タイトル名には、そのSQLで検索されるデータを業務的に表現する適切な名前をつけましょう。
+	</p>
+	<h3 id="andtask">あとは普通にタスク実行</h3>
+	<p>
+		あとは、普通に JDBC や Doc や AlterCheck などのタスクを実行すれば、対象のSQLが実行されて差分がチェックされます。
+		<span class="frm">(設定したばかりの一番最初は、前のデータを保持していないので差分は発生しません)</span>
+	</p>
+
+	<h2 id="watchdiff">差分の確認</h2>
+	<h3 id="dispdiff">差分結果の表示</h3>
+	<p>
+		検知された差分は、HistoryHTMLなどの差分HTMLの中で、通常の差分と同じように表示されます。
+	</p>
+	<p class="imgbox">CraftDiffの例
+		<a href="../../../../../data/model/doc-CraftDiff-example.png" title="CraftDiff Example"><img src="../../../../../data/model/doc-CraftDiff-example.png" alt="CraftDiff Example" width="550" height="220" /></a>
+	</p>
+	<p>
+		この例では、HistoryHTML的な解釈をすると、会員ステータスに新しく "DIF" というステータスが追加されたということに加え、"FML"
+		ステータスの情報に変更(表示順の変更)が入ったということがわかります。SchemaSyncCheck
+		であれば、スキーマ間にこういった食い違いがある、ということになります。
+	</p>
+	<p>
+		select句の一つ目のカラムが追加や変更を判別するキーとなり、二つ目以降のカラムは変更時の差分チェックの対象データとなります。
+		チェック対象データのカラムが複数の場合は、単にパイプラインで連結された文字列として比較されるため、表示としてはどのカラムが変更になったのかはぱっと見でわからないこともあるかもしれませんが、
+		"何かしらの差分があるということがわかりさえすれば"
+		というポリシーでの割り切りです。
+	</p>
+	<h3 id="linediff">改行含みorラージデータの差分</h3>
+	<p>
+		チェック対象データに改行が含まれている場合、もしくは、100文字以上のデータは、プロシージャの差分チェックのときと同じような感じで、ハッシュ値として比較され表示されます。
+		以下のようなフォーマットで差分が表示されます。<span class="frm">(差分HTML上で見比べづらいので、変わったことだけを知らせる)</span>
+	</p>
+	<dl class="valuemainlist">
+		<dt>Value</dt><dd>[行数]:[文字数]:[ハッシュ値]</dd>
+	</dl>
+	<p>
+		これもまた、"何かが変わった" ということさえわかれば、あとはエクセルデータを見るなりDBを覗くなりいくらでも確認する方法があるという割り切りです。
+		また、この後の説明で述べますが、DBFluteが出力するTSVファイルで確認もすることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/doc/historyhtml.html#procedure">HistoryHTML - ストアドプロシージャの違い</a></div>
+	<h3 id="detaildiff">細かい差分の確認</h3>
+	<p>
+		改行が含まれるデータの表示はハッシュ値で割り切っていますが、細かく差分を見たい場合は、
+		DBFluteが差分チェックを実現するために出力しているTSVファイルを比べると良いでしょう。
+	</p>
+	<p>
+		差分チェックが行われると、(HistoryHTMLの場合) DBFluteクライアントの schema/craftdiff 配下に、craft-meta-[title-name]-[next-or-previous].tsv
+		という形式でTSVファイルが出力されます。このTSVファイルには、差分チェックのSQLで検索された全てのデータが入っています。
+		DBFluteはこのTSVファイルを読み込んで差分をチェックしているのです。
+	</p>
+<pre><span class="codetitle">e.g. craft-schema.sqlの配置 @Directory</span><code>
+[DBFluteClient]
+ |-dfprop
+ |-<span class="abbreviation">...</span>
+ |-schema
+ |  |-craftdiff
+ |     |-<span class="point">craft-meta-MemberStatus-next.tsv</span>
+ |     |-<span class="point">craft-meta-MemberStatus-previous.tsv</span>
+ |     |-craft-schema.sql
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		TSVの出力先は、機能によって変わります。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>HistoryHTML</dt><dd>DBFluteクライアントの schema/craftdiff</dd>
+		<dt>AlterCheck</dt><dd>DBFluteクライアントの playsql/migration/schema/craftdiff</dd>
+		<dt>SchemaSyncCheck</dt><dd>DBFluteクライアントの output/doc/craftdiff</dd>
+	</dl>
+	<p>
+		ちなみに、差分チェックのSQLの仕様でソート順が任意なのにユニークキーを推奨としているのは、このファイルを参照するときに見やすくなるからです。
+		(差分チェックではキー同士でマッピングするためソート順は関係ないですが)
+	</p>
+	<p>
+		ただし、HistoryHTMLの場合は直近のTSVファイルしか残っていないため、過去の細かい差分を確認するときは、
+		バージョン管理システムからこのTSVファイルを探すことになります。
+	</p>
+	<p>
+		また、こうやって細かく差分が確認できるため、ストアドプロシージャの差分も CraftDiff
+		でやってしまうという選択肢もあります。(DBFluteのプロシージャ差分の機能をOFFにして)
+	</p>
+	<h3 id="commonlogic">差分ロジックは共通</h3>
+	<p>
+		これらの差分チェックは、HistoryHTML, SchemaSyncCheck, AlterCheck
+		などの差分ロジック全てに反映されます。SQLを書いて配置するだけで共通の差分ロジックとなります。
+	</p>
+
+	<h2 id="immediatelyafter">SQLの追加や変更した直後</h2>
+	<p>
+		HistoryHTMLのとき、差分チェックのSQLを追加した直後のDB変更では何も検知されません。
+		一つの前のDBの状態における検索結果データがないため、比較ができないからです。
+		その次のDB変更から差分チェックされるようになります。
+	</p>
+	<p>
+		また、同じくHistoryHTMLにおいて、途中でSQLを変更した場合、例えば、差分チェック対象のカラムを追加した場合、
+		それは差分として検知されてしまいます。気になる場合は、schema配下のdiffmapを直接修正して、差分を削除することもできます。
+	</p>
+
+	<h2 id="checkenv">環境タイプごとの差分チェック</h2>
+	<p>
+		DBFluteの環境タイプによって、差分チェックをするかしないかを調整できます。
+		ReplaceSchemaのときと同じような感じでファイルの先頭に checkEnv([env-type])
+		を指定することで、その環境タイプだけで実行されるSQLファイルとなります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/environmenttype.html#envvar">環境タイプごとの dfprop - 環境タイプの設定(環境変数)</a></div>
+<pre><span class="codetitle">e.g. diffworldという環境タイプのときのみ差分をチェックするSQL @craft-schema.sql</span><code>
+<span class="comment">-- #df:checkEnv(diffworld)#</span>
+
+<span class="comment">-- #df:assertEquals(MemberStatus)#</span>
+<span class="keyword">select</span> MEMBER_STATUS_CODE <span class="keyword">as</span> KEY, MEMBER_STATUS_NAME, DISPLAY_ORDER
+  <span class="keyword">from</span> MEMBER_STATUS
+ <span class="keyword">order by</span> KEY
+;
+
+<span class="comment">-- #df:assertEquals(<span class="abbreviation">...</span>)#</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+;
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="tablecls">テーブル区分値の差分</h2>
+	<p>
+		テーブル区分値の差分は、テーブルの分だけSQLを書けばチェックできますが、テーブル数が多い場合は大変です。
+		テーブル名に規則性があれば、一括でチェックすることができます<span class="frm">(@since 1.0.1)</span>。
+	</p>
+	<p>
+		assertEquals ではなく、<em class="keyword">assertTableEquals([title-name], [table-name-hint])</em>
+		という形式でコメント上のメソッドを書くことで、一括チェックができます。このとき、便宜上SQLはダミーのものを書きます(無視されます)。
+	</p>
+<pre><span class="codetitle">e.g. CLS_で始まるテーブルを一括チェック @craft-schema.sql</span><code>
+<span class="comment">-- #df:assertTableEquals(TableCls, prefix:CLS_)#</span>
+<span class="keyword">select</span> 'dummy'
+;
+</code></pre>
+	<p>
+		チェック対象に含みたくないカラムは、第三引数で except:[colum-name]/[column-name]/...
+		という形式でカラムを指定します(スラッシュ区切りで複数指定可)。
+	</p>
+<pre><span class="codetitle">e.g. DESCRIPTIONカラムをチェック対象外に @craft-schema.sql</span><code>
+<span class="comment">-- #df:assertTableEquals(TableCls, prefix:CLS_, except:DESCRIPTION)#</span>
+<span class="keyword">select</span> 'dummy'
+;
+</code></pre>
+
+	<h2 id="schemameta">様々なスキーマの差分</h2>
+	<h3 id="privilege">権限の差分チェック</h3>
+	<p>
+		システムのテーブル(Oracleならデータディクショナリ)を検索することができれば、スキーマ内の "権限"
+		も差分チェックすることができます。
+	</p>
+<pre><span class="codetitle">e.g. 権限を差分チェックするSQL (Oracle) @craft-schema.sql</span><code>
+<span class="comment">-- #df:assertEquals(Dic_SystemPrivilege)#</span>
+<span class="keyword">select</span> USERNAME || '.' || PRIVILEGE <span class="keyword">as</span> KEY, ADMIN_OPTION
+  <span class="keyword">from</span> USER_SYS_PRIVS
+ <span class="keyword">order by</span> KEY
+;
+
+<span class="comment">-- #df:assertEquals(Dic_TablePrivilege)#</span>
+<span class="keyword">select</span> OWNER || '.' || TABLE_NAME || '.' || PRIVILEGE <span class="keyword">as</span> KEY, GRANTABLE, HIERARCHY
+  <span class="keyword">from</span> USER_TAB_PRIVS
+ <span class="keyword">order by</span> KEY
+;
+</code></pre>
+	<h3 id="privilege">VIEWのSQLの差分チェック</h3>
+	<p>
+		VIEWは、デフォルトで自動生成対象なので select 句の構成に変更があれば普通のテーブルとして差分チェックされます。
+		ただ、where句だけの変更とか、SQLの中身が変わっただけの変更は検知されません。それを CraftDiff
+		で検知できるようにすることもできます。
+	</p>
+	<p>
+		改行が含まれていること必至なので、差分結果はハッシュ値ですが、とにかく変わったということがわかれば、
+		あとは、ReplaceSchemaのDDLを比べるとか、バージョン管理システムの差分を調べるとか、何かしらのアプローチで違いを把握することはできるはずです。
+	</p>
+<pre><span class="codetitle">e.g. VIEWのSQLを差分チェックするSQL (Oracle) @craft-schema.sql</span><code>
+<span class="comment">-- #df:assertEquals(Dic_ViewSql)#</span>
+<span class="keyword">select</span> VIEW_NAME <span class="keyword">as</span> KEY, TEXT_LENGTH, TEXT
+  <span class="keyword">from</span> USER_VIEWS
+ <span class="keyword">order by</span> KEY;
+;
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

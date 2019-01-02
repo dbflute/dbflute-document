@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,空文字,EmptyString,null" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>空文字の取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>空文字の取扱い</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		空文字と null の区別の問題は、非常にややこしい問題です。"値が無いこと" を何で表現するか？
+		"(確かに存在する)空っぽの値" というのを業務的に取り扱うか(取り扱う必要があるか)？
+		業務的な意味合いでの話に加えて、実装上の利便性が絡んできます。
+		それも、プログラミング言語上での話、SQL上での話、DBMSごとの仕様の違いなど、それぞれ特徴があり、一律の答えを求めるのが難しくなっています。
+		様々な議論がありますが、こういった状況から、DBFluteとして
+		"明確な答えが(まだ)存在していない状態、もしくは、明確な答えが出しづらい状態にあるため、ポリシーがプロジェクトによって様々である"
+		という風に解釈をしています。
+	</p>
+	<p>
+		とはいえ、DBFluteとしては避けて通れない部分ではあるので、"デフォルトのポリシー"
+		を打ち出し、プロジェクトにそぐわない場合はアプリケーションにて(プロパティなので)調整してもらう、
+		というスタンスをとっています。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/dbdesign/emptystring.html">DB設計 - 空文字について</a></div>
+
+	<h2 id="default">デフォルトのポリシー</h2>
+	<h3 id="supposition">デフォルトの想定</h3>
+	<p>
+		まずは、DBFluteはある状況が(良いかどうかは別にして)比較的多い状況であると想定しています。
+	</p>
+	<dl class="textlist">
+		<dt>空文字に業務的な意味があることが少ない</dt>
+		<dd>
+			例えば、会員名称に空文字が入ったり、会員ステータスコードに空文字が入ったりすることは、業務上考えにくいものです。
+			"値はあるけど、空っぽである" ということに業務的な意味が付与されることは(少なくとも全体からみて)多くはないと考えています。
+		</dd>
+		<dt>"値がないこと" を示すのには null が利用される</dt>
+		<dd>
+			もちろん、概念的な話は置いて、実装上の null
+			の取扱いに注意が必要な場面があるのは事実ですが、"プログラミング言語上、SQL上、DBMSごとの仕様の違い"
+			など、それぞれの事情の影響から、null で表現されることが多いと考えています。
+			(もちろん、自分たちの組織ではそうではない(組織統一)、と人によってこのように考えない場合もありますが、
+			これまでのDBFluteの(組織はそれぞれバラバラな)利用者たちの反応などを総合的に解釈して、というところです)
+		</dd>
+	</dl>
+	<h3 id="spec">デフォルトの仕様</h3>
+	<p>
+		これらを踏まえて、DBFluteでは以下のようなデフォルトの仕様があります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>検索データ</dt>
+		<dd>DBに格納されているそのままを検索</dd>
+		<dt>登録・更新データ</dt>
+		<dd>設定された値そのままを登録・更新</dd>
+		<dt>検索条件の値</dt>
+		<dd>空文字は null と同じ扱い(条件設定が無効になる)</dd>
+	</dl>
+	<p>
+		"検索データ" および "登録・更新データ" の "業務データそのもの"
+		に関しては、<em class="keyword">アプリ上で取り扱ったそのままの値が保たれることを重視</em>
+		しているため、フィルタなどは掛けていません。(これは空文字の話に限りません)
+	</p>
+	<p>
+		一方で、検索条件の値(条件値)に関しては、<em class="keyword">利便性を重視</em>
+		しているため、フィルタを掛けて、空文字も null と同じように、"その設定された条件は無効な条件である"
+		と判定します。ConditionBeanの Query による条件設定や、ParameterBeanでのIFコメントでの null
+		チェックなどが該当します。プログラミング言語上では、少なくとも業務データ以外のデータに関しては、空文字は null
+		と同じく "値がないこと" として取り扱うことも多く、隣接するフレームワークなど仕組みや実装の仕方次第で、
+		"値がないこと" を示すのに空文字が来るのか null が来るのか様々です。
+		そして、さらにそもそも空文字で等値条件を利用することが業務的に少ないという状況から、検索条件の値はデフォルトではフィルタされるようにしています。
+	</p>
+	<p>
+		もちろん、あくまである特定の状況を想定したデフォルトの挙動であり、全てのカラムがそうではない場合もあるし、
+		そもそもポリシーが違うという場合もあります。そういうときのために、空文字を活かせるようにするオプションがあります(後述)。
+		(また、逆に空文字を完全に排除するオプションもあります)
+	</p>
+	<div class="relatedpage"><a href="#equal">this - 空文字による等値条件</a></div>
+	<div class="relatedpage"><a href="#entity">this - Entityで空文字を null に変換</a></div>
+	<h3 id="deprecated">少なくともお奨めでないこと</h3>
+	<p>
+		少なくとも、以下のことが、明確になっていない、もしくは、DBスキーマ全体で統一されていない、という状況はお奨めできません。
+		必ず、(アプリ実装が始まる前の)DB設計の時点で明確にしておくことが大事です。
+		DBFluteのオプションの利用は、<em class="keyword">統一的なポリシーが存在することが前提</em> です。
+	</p>
+	<ul>
+		<li>DB上で業務的に空文字をどう扱うか？</li>
+		<li>空文字に意味を持たせる(空文字が業務的にありえる)カラムは何か？</li>
+		<li>"値がないこと" を(DBスキーマ全体で)何で表現するのか(null or empty)？</li>
+	</ul>
+
+	<h2 id="equal">空文字による条件</h2>
+	<h3 id="conditionbean">ConditionBean</h3>
+	<p>
+		まず、"null もしくは 空文字" という条件にしたい場合は、IsNullOrEmpty で実現できます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/query/isnullorempty.html">query() - IsNullOrEmpty</a></div>
+	<p>
+		単独で空文字の等値を行いたい場合、ConditionBean の enableEmptyStringQuery()
+		を呼び出すことで、その ConditionBean においてのみ空文字条件が許可されます。
+	</p>
+	<p>
+		(Java6版の1.0.x系だと...) allowEmptyStringQuery() になります<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/sidebar/emptystringquery.html">ConditionBean - AllowEmptyStringQuery</a></div>
+	<p>
+		また、プロジェクト全体で一律の設定として空文字条件を許可したい、というような場合は DBFluteConfig
+		を利用します<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#emptystringqueryallowed">DBFluteConfig - emptyStringQueryAllowed</a></div>
+	<p>
+		カラム限定で空文字条件を実現したい場合は、ConditionQuery
+		のExクラスに、空文字による等値条件を設定するメソッドを(手動で)作成します。
+		<em class="keyword">明示的で可読性が良いため、空文字利用対象のカラムが限定できる場合はこのやり方が推奨されます</em>。
+		(そこまで言うほど、DBFluteでは空文字が取扱いを間違えるとカオスを生み出す原因になると想定しています)
+	</p>
+	<p>
+		例えば、空文字等値条件を行うメソッドを作成するとしたら、そのメソッド内では doSet[column-name]_Equal(value)
+		を呼び出し、引数には固定で空文字を指定します。メソッド名は任意ですが、習慣的に set[column-name]_Equal_EmptyString()
+		をお奨めします。また、非等値条件も同じ要領で作成します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionQueryで空文字による等値条件メソッドを定義 {MEMBER} @Java</span><code>
+<span class="keyword">public class</span> MemberCQ <span class="keyword">extends</span> BsMemberCQ {
+    <span class="abbreviation">...</span>
+
+    <span class="keyword">public void</span> setMemberName_Equal_EmptyString() {
+        doSetMemberName_Equal(<span class="literal">""</span>);
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 空文字による等値条件メソッドを利用 {MEMBER} @Java</span><code>
+MemberCB cb = new MemberCB();
+cb.query().setMemberName_Equal_EmptyString();
+<span class="abbreviation">...</span>
+</code></pre>
+	<h4>自動生成で一括作成</h4>
+	<p>
+		ConditionQueryの空文字による等値条件メソッドを一括で自動生成することもできます。DBスキーマ全体で、"値がないこと"
+		を空文字で取り扱ってる(例えば、全てのカラムがNotNull制約の)場合や、
+	</p>
+	<p>
+		littleAdjustmentMap.dfprop の isMakeConditionQueryEqualEmptyString を true
+		に設定すると、全ての文字列のカラムに対して空文字による等値条件メソッド、および、非等値条件メソッドが自動生成されます。
+		DBスキーマ全体のポリシーとして、"値がないこと" を空文字で表現する(例えば、全カラムがNotNull制約の)場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#ismakeconditionqueryequalemptystring">dfprop - isMakeConditionQueryEqualEmptyString</a></div>
+	<p>
+		さらに、そのプロパティを利用した状態で、IncludeQuery
+		を利用して、空文字による等値条件の自動生成対象カラムを指定することができます。
+		DB設計の時点で、空文字に業務的な意味が存在するカラムに対して等値条件をすることがわかってる場合に有効です。
+		無駄な(大量の)メソッドは、ディベロッパーにとって紛らわしいのと、コンパイル速度の劣化に繋がります。
+	</p>
+	<div class="relatedpage"><a href="../../dbflutefit/includequery/index.html">現場フィット - IncludeQuery</a></div>
+	<h3 id="parameterbean">ParameterBean</h3>
+	<p>
+		get メソッドでフィルタが掛かっているため、ParameterBeanのExクラスにて、isEmptyStringParameterAllowed()
+		メソッドをオーバーライドして、true を戻すことでフィルタが無効になります<span class="frm">(@since 0.9.7.8)</span>。
+		ただし、(DBFluteアップグレード時の)万が一の仕様変更のために、必ず単体テストを書くようにして下さい。
+	</p>
+<pre><span class="codetitle">e.g. ParameterBeanで空文字をそのまま扱うようにする @Java</span><code>
+<span class="keyword">public class</span> SimpleMemberPmb <span class="keyword">extends</span> BsSimpleMemberPmb {
+    <span class="abbreviation">...</span>
+
+    @Override
+    <span class="keyword">protected boolean</span> isEmptyStringParameterAllowed() {
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+}
+</code></pre>
+	<p>
+		ただしこの場合、IF コメントでよく利用される "FOO != null" という条件は、空文字が指定された場合に true
+		になりません(通常は、null に変換されるので true になる)。空文字の場合にも true
+		になるようにしたい場合は、空文字を意識した条件に変更する必要があります。
+	</p>
+	<p>
+		その他様々なパターンでの利用がある場合は、Exクラスで自由にメソッドを拡張して実現できます。
+		ただし、ここでも同じですが、(DBFluteアップグレード時の)万が一の仕様変更のために、必ず単体テストを書くようにして下さい。
+	</p>
+	<p>
+		また、プロジェクト全体で一律の設定として空文字条件を許可したい、というような場合は DBFluteConfig
+		を利用します<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#emptystringparameterallowed">DBFluteConfig - emptyStringParameterAllowed</a></div>
+
+	<h2 id="entity">Entityで空文字を null に変換</h2>
+	<p>
+		もし、DBスキーマ上の全てのカラムにおいて、空文字を業務的に取り扱わない仕様で、もし空文字を設定されたら null
+		として処理したい、ということが <em class="keyword">確定している</em> 場合、littleAdjustmentMap.dfprop の
+		isEntityConvertEmptyStringToNull を利用することで、Entityの中の空文字を null に変換することができます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#isentityconvertemptystringtonull">dfprop - isEntityConvertEmptyStringToNull</a></div>
+	<p>
+		これにより、"検索データ" および "登録・更新データ" の "業務データそのもの"
+		においても、空文字を null として取り扱うことができ、実装や仕組み上の "まぎれ" も防ぐことができます。
+	</p>
+	<p>
+		但し、Entityを経由しないスカラ検索(スカラ値としてデータを受け取る検索)においては、変換処理は掛からないため、
+		DB上のカラムの値が空文字だった場合は、そのまま空文字が取得されます。
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-sqlite-example では、実際に空文字による等値条件を利用したExampleがあります。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+	<p>
+		また、dbflute-guice-example では、実際に "Entityで空文字を null に変換" を利用したExampleがあります。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

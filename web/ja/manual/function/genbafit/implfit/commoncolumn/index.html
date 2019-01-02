@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,共通カラム,CommonColumn,更新日時,更新ユーザ,自動設定" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>共通カラム | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>共通カラム</h1>
+	${indexlist}
+
+	<h2 id="about">共通カラムとは？</h2>
+	<p>
+		例えば、以下のような <em class="keyword">共通カラム</em> のことを示します。
+	</p>
+	<dl class="keymainlist">
+		<dt>登録日時</dt><dd>REGISTER_DATETIME</dd>
+		<dt>登録ユーザ</dt><dd>REGISTER_USER</dd>
+		<dt>登録プロセス</dt><dd>REGISTER_PROCESS</dd>
+		<dt>更新日時</dt><dd>UPDATE_DATETIME</dd>
+		<dt>更新ユーザ</dt><dd>UPDATE_USER</dd>
+		<dt>更新プロセス</dt><dd>UPDATE_PROCESS</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../../topic/programming/dbaccess/commoncolumn.html">DBアクセス - 共通カラム</a></div>
+	<div class="relatedpage"><a href="../../../../topic/dbdesign/commoncolumn.html">DB設計 - 共通カラム</a></div>
+	<h3 id="gap">業務カラムとのギャップ</h3>
+	<p>
+		共通カラムは、レコードのメタ情報と言えます。それゆえ、業務カラムとはその扱いにギャップがあります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>業務カラム</dt><dd>開発時も重要、すっごいテストされる</dd>
+		<dt>共通カラム</dt><dd>開発時はあまり重要ではないが、運用時の "ここぞっ" ってときに大活躍</dd>
+	</dl>
+	<p>
+		共通カラムは、開発時にあまり着目されません。ゆえに、テストの精度が業務カラムに比べれば低くなりがちです。
+		極端な話、共通カラムの値がバグっていても、システムは正常に稼働する可能性があります。
+		<span class="frm">(逆に言うと、正常に稼働しないのであれば、共通カラムが業務的な意味を持ってしまっていると言えます)</span>
+	</p>
+	<p>
+		で、いざ運用に入り、レコードのライフサイクルをとっさに見たいと思って共通カラムの値を覗いたとき、それが微妙に間違ってるとわかったときのその寂しさは計り知れないものでしょう。
+		できれば、開発時にあまりコストはかけずに、共通カラムの確実性を高めたいものです。
+	</p>
+	<div class="inucolumn">
+		<h3 id="border">業務とメタ情報の国境は？</h3>
+		<p>
+			例えば、会員登録日時という業務情報があるとして、これを、共通カラムの登録日時でまかなっているケースをよく見かけます。
+		</p>
+		<p>
+			これは、レコードのインスタンスが生まれた物理的なタイミングと、会員と呼ばれるインスタンスが生まれた業務的なタイミングが、
+			ほぼ同時なためだと考えられます。
+			ただ、例えば会員のレコードは仮登録しておいて、実際に会員が了承を得て論理的な会員としてシステムに登録されるのはその三日後みたいなケースが発生した場合、
+			登録日時と会員登録日時は別物になります。
+		</p>
+		<p>
+			ちょっと無理矢理な例えではありますが、これと似たようなことが様々ケースであり得ると思うのです。一緒にしていると、どこかで矛盾を発生させてしまう可能性があります。
+			"Lazy登録会員のときだけ登録日時から三日足して比較しなければならない"
+			なんてクエリを書かなければならない状況は想像もしたくありません。
+		</p>
+		<p>
+			更新日時でソートするとか、分割をするほど大事な日時ではないとか、ある程度は仕方ないところですが、
+			重要度の高い日時に関しては、ほぼ登録日時と同じ値を入れるにしても明示的にカラムを用意しておくと柔軟性が高まるでしょう。
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h3 id="process">意外に大事なプロセス情報</h3>
+		<p>
+			日時とユーザーは、とてもわかりやすく、どこの現場でもわりと共通カラムとして名を連ねるレギュラー陣だと思います。
+			ですが、プロセス (登録した画面やシステム) を記録するケースは少ないかもしれません。
+		</p>
+		<p>
+			だがしかし、"だれがいつ？" がわかっても、どの画面から？ってのがわからないとつらい状況もあります。
+			"すべての操作ログを残している" と言ったとしても、共通カラム情報が必要なときって、その膨大なログをじっくり読み解く時間がないケースが多いです。
+			<em class="keyword">とっさに見たい！</em>
+			<span class="frm">(共通カラムの存在意義って、とっさに見れるってのがわりと大きいと考えます)</span>
+		</p>
+		<p>
+			かといって、REGISTER_PROCESS など仰々しくまたカラムを追加すると、共通カラムだけでどんどんカラムが増えていくよーと確かにちょっといやな感じです。
+			<span class="frm">(必要は必要ですけど)</span>
+		</p>
+		<p>
+			これはちょっと好みに依存しますが、共通カラムはメイン業務としてはあまり利用されないものであるという特性を活かし、
+			ユーザー情報やプロセス情報をごちゃまぜに一つのカラムに入れるやり方をしている現場もあります。
+			例えば、"登録トレース" といったようなカラムに、ユーザー情報とプロセス情報をカンマ区切りで入れ込んでしまいます。
+			本来、DB設計としてはやってはいけないことですが、共通カラムはあまり検索とかで利用されるようなものではなく、
+			運用時の調査などで人が目で見る情報なので、実害がないというところです。
+			実害があるということは、やはり業務上の役割を兼務してしまっているということで...。
+			<span class="frm">(ただ、やっぱり日付だけは独立させますが)</span>
+		</p>
+		<p>
+			正解はありませんが、この辺は、運用の経験がないとその大切があまりわからないもので、
+			開発時の視点だけで決めてしまうと、あとの人が困ってしまうので地味に大切だと思っています。
+			特に、とっさに見たい！という要件は、現場を見てるとよく感じるものです。
+		</p>
+	</div>
+
+	<h2 id="concept">共通カラムの概念図</h2>
+	<p class="imgbox">図 : 共通カラムの概念図
+		<a href="../../../../../data/model//genba/genba-implfit-CommonColumn-view.png" title="共通カラムの概念図"><img src="../../../../../data/model/genba/genba-implfit-CommonColumn-view.png" alt="共通カラムの概念図" width="550" height="300" /></a>
+	</p>
+
+	<h2 id="solution">共通カラムの自動設定</h2>
+	<p>
+		共通カラムはほとんどの場合一定の規則によって値が設定されるため、登録時(insert)や更新時(update)に共通カラムへの設定処理を都度都度行うのではなく、
+		仕組みとして自動で設定するようにすることで、ディベロッパーの実装が手間を省くとともに、共通カラムに関するバグ(設定する値を間違えるなど)を抑制することができます。
+	</p>
+	<p>
+		DBFluteでは、共通カラムに設定する値を(主に)スレッドローカルに登録し、登録・更新処理の直前で Entity
+		に対して共通カラムの値を自動設定します。スレッドローカルへの値の格納は、主にリクエスト処理が開始された直後に行います。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#threadlocal">ThreadLocal (スレッドローカル)</a></div>
+<pre><span class="codetitle">e.g. DBFluteにおける共通カラムの自動設定を利用した更新処理 {MEMBER} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberName(<span class="literal">"Stojkovic"</span>);
+
+<span class="comment">// you don't need to set these columns</span>
+<span class="comment">//member.setUpdateDatetime(...);</span>
+<span class="comment">//member.setUpdateUser(...);</span>
+
+member.update(member); <span class="comment">// common columns are auto set-up here</span>
+</code></pre>
+	<p>
+		自動設定されるようにするための環境構築のポイントは主に二つあります。
+	</p>
+	<ul>
+		<li>DBFluteプロパティ <em class="keyword">commonColumnMap.dfprop</em> の設定</li>
+		<li>スレッドローカル <em class="keyword">AccessContext</em> への値の登録</li>
+	</ul>
+
+	<h2 id="setting">自動設定の定義(dfprop)</h2>
+	<p>
+		<em class="keyword">commonColumnMap.dfprop</em> にて、以下の設定を行います。
+	</p>
+	<ul>
+		<li>何のカラムが共通カラムなのか？</li>
+		<li>登録処理(insert)の前に共通カラムに何を設定するのか？</li>
+		<li>更新処理(update)の前に共通カラムに何を設定するのか？</li>
+	</ul>
+	<div class="detailpage"><a href="../../../../reference/dfprop/commoncolumn/index.html">commonColumnMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. 共通カラムの規則性を設定 @commonColumnMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">commonColumnMap</span> = <span class="keyword">map:</span>{
+        ; REGISTER_DATETIME=<span class="dbtype">TIMESTAMP</span> ; REGISTER_USER=<span class="dbtype">VARCHAR</span> ; REGISTER_PROCESS=<span class="dbtype">VARCHAR</span>
+        ; UPDATE_DATETIME=<span class="dbtype">TIMESTAMP</span>   ; UPDATE_USER=<span class="dbtype">VARCHAR</span>   ; UPDATE_PROCESS=<span class="dbtype">VARCHAR</span>
+    }
+    ; <span class="attribute">beforeInsertMap</span> = <span class="keyword">map:</span>{
+        ; REGISTER_DATETIME = <span class="attribute">$$AccessContext$$</span>.getAccessTimestampOnThread()
+        ; REGISTER_USER     = <span class="attribute">$$AccessContext$$</span>.getAccessUserOnThread()
+        ; REGISTER_PROCESS  = <span class="attribute">$$AccessContext$$</span>.getAccessProcessOnThread()
+        ; UPDATE_DATETIME   = entity.getRegisterDatetime()
+        ; UPDATE_USER       = entity.getRegisterUser()
+        ; UPDATE_PROCESS    = entity.getRegisterProcess()
+    }
+    ; <span class="attribute">beforeUpdateMap</span> = <span class="keyword">map:</span>{
+        ; UPDATE_DATETIME   = <span class="attribute">$$AccessContext$$</span>.getAccessTimestampOnThread()
+        ; UPDATE_USER       = <span class="attribute">$$AccessContext$$</span>.getAccessUserOnThread()
+        ; UPDATE_PROCESS    = <span class="attribute">$$AccessContext$$</span>.getAccessProcessOnThread()
+    }
+}
+</code></pre>
+
+	<h2 id="accesscontext">アプリで共通カラムの値を登録</h2>
+	<p>
+		スレッドローカルへの値の格納では、DBFluteが提供する共通カラムの自動設定のためのスレッドローカルクラス <em class="keyword">AccessContext</em>
+		を利用します(DBFluteランタイムのクラス)。このクラスの利用は必須ではありませんが、特別な利用が無い限りはこのクラスで十分要件を満たせるでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/accesscontext.html">DBFluteランタイム - AccessContext</a></div>
+	<h3 id="interceptor">Interceptor にて値の登録</h3>
+	<p>
+		例えば、WEBアプリであれば、Pageクラス(に相当するクラス)に対する Interceptor
+		の中で一律の処理を行うようにすると良いでしょう。(専用のInterceptorを作成)
+	</p>
+<pre><span class="codetitle">e.g. 共通カラムの自動設定のために、InterceptorでAccessContextに値を登録 @Java</span><code>
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    if (AccessContext.isExistAccessContextOnThread()) {
+        <span class="comment">// 既に設定されていたら何もしないで次へ</span>
+        <span class="comment">// (二度呼び出しされたときのために念のため)</span>
+        <span class="keyword">return</span> invocation.proceed();
+    }
+    <span class="comment">// [アクセス日時]</span>
+    <span class="comment">// 例えば、アプリで日時を取得する統一したインターフェースからの日時を利用。</span>
+    Timestamp accessTimestamp = currentTimestamp();
+
+    <span class="comment">// [アクセスユーザ]</span>
+    <span class="comment">// 例えば、セッション上のログインユーザを利用。</span>
+    <span class="comment">// ログインしていない場合のことも考慮すること。</span>
+    String accessUser = getSession().getLoginUser();
+
+    <span class="comment">// [アクセスプロセス]</span>
+    <span class="comment">// 例えば、Pageクラスの名前をそのまま利用。</span>
+    <span class="comment">// アプリケーションでプロセスを判別できる適切な名前を設定すること。</span>
+    <span class="comment">// DBのカラムサイズに注意(サイズオーバーしないように)</span>
+    String accessProcess = getTargetClass(invocation).getName();
+
+    AccessContext context = <span class="keyword">new</span> AccessContext();
+    context.setAccessTimestamp(accessTimestamp);
+    context.setAccessUser(accessUser);
+    context.setAccessProcess(accessProcess);
+    AccessContext.setAccessContextOnThread(context);
+
+    <span class="keyword">try</span> {
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">finally</span> {
+        <span class="comment">// 最後はしっかりクリアすること (必須)</span>
+        AccessContext.clearAccessContextOnThread();
+    }
+}
+</code></pre>
+	<h3 id="servletfilter">ServletFilterにて</h3>
+	<p>
+		Interceptorの仕組みを利用しない場合は、ServletFilter
+		でも構いません。また、いずれにせよ、ServletFilter内で登録・更新処理を行う場合は、ServletFilterでの設定が必要です。
+	</p>
+	<h3 id="batchapp">バッチアプリにて</h3>
+	<p>
+		バッチアプリがある場合は、バッチの起動の仕組みに則って、この設定処理を行って下さい。
+		(バッチのクラスに Interceptor が仕掛けられるならそれで良いでしょう)
+	</p>
+	<h3 id="accessvaluemap">項目が足りない場合</h3>
+	<p>
+		用意されているプロパティで項目が足りない場合、もしくは、意味的にしっくりくるプロパティがない場合は、独自のスレッドローカルクラスを用意しても良いですが、
+		AccessContext の key-value 形式で汎用的に利用できる accessValueMap を利用することもできます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/commoncolumn/index.html#accessvaluemap">dfprop - accessValueMap の利用</a></div>
+
+	<h2 id="notice">ディベロッパーへの通知</h2>
+	<p>
+		設定だけでなく、さらに重要なのは、<em class="keyword">設定したことをディベロッパーへ通知</em> することです。
+		DBFluteの経験のあるディベロッパーであれば、設定(dfprop)を見て通知なしで理解するするかもしれませんが、
+		そうでない場合は、一生懸命共通カラムの設定を都度都度行ってしまうかもしれません。
+	</p>
+
+	<h2 id="disable">一時的な自動設定の無効化</h2>
+	<p>
+		例えば、<em class="keyword">システム移行のプログラムなどにおいて、共通カラムの値を保ったまま登録処理を行う</em>
+		ような場合があります(移行では多くの場合そうであることが想定されます)。
+		そのときは、この共通カラムの自動設定を利用してはいけません。
+	</p>
+	<p>
+		プログラム上で一時的に自動設定の無効化することができます。varyingInsert() や varyingUpdate()
+		などのオプション付きのメソッドを利用し、InsertOption もしくは UpdateOption にて disableCommonColumnAutoSetup()
+		を指定することで、その登録・更新処理では共通カラムの自動設定は行われなくなります。<span class="frm">@since 0.9.7.8</span>
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/behavior/update/varyinginsert.html">Behavior - varyingInsert(entity, option)</a></div>
+	<p>
+		また、全く同じことを Entity の disableCommonColumnAutoSetup() でも実現できます。
+		こちらは Entity 単位で無効化を指定することができます。(通常は、varyingInsert()
+		や varyingUpdate() のオプションによる無効化の方が推奨されます)
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/entity/index.html#commoncolumn">Entity - CommonColumn</a></div>
+
+	<h2 id="schemahtml">SchemaHTMLでの表示</h2>
+	<p>
+		Docタスクで自動生成される SchemaHTML
+		では、共通カラムは他のカラムとは見た目ちょっと違った表現が施され、区別が付きやすいようになっています。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/doc/schemahtml.html#tablecolumn">SchemaHTML - テーブル一覧・カラム情報</a></div>
+
+	<h2 id="internal">自動設定の内部的な仕組み</h2>
+	<p>
+		自動設定処理は、Behaviorの中で CommonColumnAutoSetupper を呼び出して行われます。CommonColumnAutoSetupper
+		はDBFluteランタイム上のインターフェースで、実装クラスは ImplementedCommonColumnAutoSetupper という allcommon
+		配下の(業務依存の)自動生成クラスです。
+	</p>
+	<p>
+		共通カラムを持っているテーブルの Entity は、EntityDefinedCommonColumn インターフェースを実装します。
+		このインターフェースを経由して(リフレクションを使わずに)値を設定しています。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/index.html">DBFluteランタイム - allcommon</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、テストケースの初期化と共に AccessContext
+		を設定して、テスト内での登録・更新処理で自動設定されるようになっています。
+		(他のほとんどのExampleでも同様に利用されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+	<p>
+		また、dbflute-ymir-example や dbflute-sastruts-example
+		では、実際にWEBアプリケーションと合わせた場合の共通カラムの自動設定を利用しています。
+		(Pageクラスに Interceptor を仕掛けています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#friends">DBFlute Example - 他のフレームワーク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

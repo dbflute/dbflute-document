@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Startup as Multi-Project | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Startup as Multi-Project</h1>
+	${indexlist}
+
+	<h2 id="overview">スタートアップの概要</h2>
+	<p>
+		Exampleを元にして、新しいプチBlankプロジェクトを作ります。
+	</p>
+	<p>
+		ここでは、複数のWebアプリケーションが存在するサービスを想定します。
+	</p>
+	<p>
+		将来においても、絶対に一つしか作らないというような場合は、
+		こちらではなく、シングルプロジェクト構成の方のスタートアップをオススメします。<span class="frm">(あとで構成変更するのは大変なので)</span>
+	</p>
+	<div class="relatedpage"><a href="./single.html">Startup as Single Project</a></div>
+
+	<h2 id="howto">スタートアップの手順</h2>
+	<p>
+		流れは以下のような感じです。
+	</p>
+	<ol>
+		<li>Exampleプロジェクトを準備</li>
+		<li>ドメインとサービス名を決める</li>
+		<li>プチBlankプロジェクトを作成する</li>
+		<li>とりあえず動かしてみましょう</li>
+		<li>#change_it_first で検索</li>
+		<li>DB設計、そして自動生成</li>
+		<li>#change_it で検索</li>
+	</ol>
+
+	<h2 id="prepareexample">1. Exampleプロジェクトを準備</h2>
+	<p>
+		マルチプロジェクトのExampleである、maihama を clone します。
+	</p>
+	<dl class="lolongvaluemainlist">
+		<dt>プロジェクト</dt><dd>maihama</dd>
+		<dt>Gitリポジトリ</dt><dd><a href="https://github.com/lastaflute/lastaflute-example-maihama">https://github.com/lastaflute/lastaflute-example-maihama.git</a></dd>
+	</dl>
+
+	<h2 id="domainservice">2. ドメインとサービス名を決める</h2>
+	<p>
+		新しく作るサービスの、ドメインとサービス名、そして、最初の一つ目のアプリ名を決めます。
+	</p>
+	<p>
+		例えば、LastaFluteのExampleプロジェクトであれば、このようになっています。
+	</p>
+	<dl class="valuemainlist">
+		<dt>ドメイン</dt><dd>docksidestage.org</dd>
+		<dt>サービス名</dt><dd>maihama</dd>
+		<dt>アプリ名</dt><dd>dockside, hangar</dd>
+	</dl>
+	<p>
+		あとで直すのは大変なので、慎重に決めてください。
+	</p>
+	<p>
+		ただ、開発を始める時点では、ドメインもサービス名もまだ決まってないこともあるでしょう。
+		そのときは、いわゆるコードネーム、内部向けのプロジェクト名を付けるほかないでしょう。
+	</p>
+
+	<h2 id="newblankproject">3. プチBlankプロジェクトを作成する</h2>
+	<h3 id="domainservice">ドメイン、サービス、アプリ名を書き換え</h3>
+	<p>
+		以下のどちらか、アプリで採用するスタイルに該当する方を選びます。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>dockside</dt><dd>サーバーサイドでHTMLを戻す "HTMLスタイル"</dd>
+		<dt>hangar</dt><dd>サーバーサイドはJSONを戻す "JSON APIスタイル"</dd>
+	</dl>
+	<p>
+		そして、該当するアプリプロジェクトの StartupTest.java
+		にて、ドメインとサービス名と "最初の一つ目のアプリ名"
+		の値を書き換えます。(ここでは、まずは一つ目のアプリの環境だけ作ります)
+	</p>
+	<h3 id="execstartup">StartupTestを実行</h3>
+	<p>
+		そして、そのクラスのJUnitのテストを実行します。すると、Exampleプロジェクトと同じ階層のディレクトリに、
+		指定されたドメインとサービス名の新しいプチBlankプロジェクトが作成されます。
+	</p>
+	<h3 id="newworkspace">開発用workspaceでセットアップ</h3>
+	<p>
+		それを、開発用のworkspaceに移動して、Eclipseなどで import して、コンパイルしましょう。
+	</p>
+	<p>
+		Eclipseで新しい workspace であれば、もろもろの workspace の設定をしておきましょう。
+		Java Editor Templates も、この時点で設定しておきましょう。
+	</p>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html#setupenv">開発環境の構築 | LastaFluteの実装チュートリアル</a></div>
+	<h3 id="forexample">説明のために、例えば...</h3>
+	<p>
+		この後の説明では、新しいドメインは dancingdb.org, サービス名は showdance, 最初の一つ目のアプリ名を overthewaves と仮定します。
+	</p>
+	<dl class="valuemainlist">
+		<dt>たとえばドメイン</dt><dd>dancingdb.org</dd>
+		<dt>たとえばサービス名</dt><dd>showdance</dd>
+		<dt>たとえばアプリ名</dt><dd>overthewaves</dd>
+	</dl>
+
+	<h2 id="anywayboot">4. とりあえず動かしてみましょう</h2>
+	<h3 id="otherdb">データベースはMySQL？</h3>
+	<p>
+		もし、別のデータベースであれば、動かすのはいったん飛ばして、次のステップに進みましょう。
+		MySQLの環境がすでにあるのであれば、いったんMySQLで動く環境を作ってから変更するとよいでしょう。
+		<span class="frm">(修正すべきファイルは何か？など、後のステップで登場します)</span>
+	</p>
+	<h3 id="firstreplaceschema">まずは ReplaceSchema</h3>
+	<p>
+		まずは ReplaceSchema, テーブルはExampleのままですが、新しいスキーマ名で作成されます。
+	</p>
+	<h3 id="firstboot">そして、Bootクラスでmain()実行</h3>
+	<p>
+		そして、OverthewavesBootというクラスの main() を実行すると、Jettyが起動します。
+		起動ログの最後に表示される url をブラウザからアクセスしてみましょう。ひとまず、何かしら画面が表示されればOKです。
+	</p>
+
+	<h2 id="changeitfirst">5. #change_it_first で検索</h2>
+	<p>
+		プロジェクト全体を、<em class="keyword">#change_it_first</em> で grep
+		します。
+	</p>
+	<p>
+		これは、プロジェクト環境を作ったときに真っ先に直すべき箇所に記載されています。
+		その部分のソースコードをよく読み、自分のプロジェクトではどうするかしっかり考えて直しましょう。
+	</p>
+	<p>
+		直したときは、#change_it_first コメントを #changed とかに修正しておくとよいでしょう。
+		あとで何を直して何を保留したのかがわからなくなってしまうので。
+	</p>
+	<p>
+		ここでは、代表的なものを紹介します。
+	</p>
+	<h3 id="security">セキュリティ設定</h3>
+	<p>
+		パスワードやCookieなどの暗号化のための秘密鍵を設定します。
+	</p>
+	<p>
+		ShowdanceFwAssistantDirectorクラスにて、InvertibleCryptographerを構築している箇所が <em class="keyword">二箇所</em> あります。
+		それぞれに、アルゴリズムと秘密鍵を設定します。秘密鍵をどこから持ってくるか、どう定義するかはご自由に。
+	</p>
+	<p>
+		アルゴリズム次第で、秘密鍵の形式が違います。正常に Cipher を起動できるか CipherSetupTest
+		というテストクラスでデフォルトで用意されていますので、こちらで確認するとよいでしょう。
+	</p>
+	<h3 id="typeinfo">アプリ種別情報</h3>
+	<p>
+		OverthewavesBaseActionクラスにて、APP_TYPE と USER_TYPE を定義します。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>APP_TYPE</dt><dd>アプリの種別、mythicaなら MYC など三文字(推奨)のコード</dd>
+		<dt>USER_TYPE</dt><dd>ログインユーザの種別、会員(member)なら M など一文字(推奨)のコード</dd>
+	</dl>
+	<p>
+		これらは、共通カラムやログなどで利用されます。
+		間違っていてもアプリの動作に影響はほとんどありませんが、運用時のトレース情報として重宝します。
+		また、これらの値をアプリで独自に利用してもよいでしょう。
+	</p>
+	<h3 id="bootinfo">Boot情報</h3>
+	<p>
+		OverthewavesBootクラスにて、アプリのポート番号やコンテキストパスを調整します。
+	</p>
+	<p>
+		もちろん、デフォルトのままでよければ、そのままでOKです。
+	</p>
+
+	<h2 id="dbandgenerate">6. DB設計、そして自動生成</h2>
+	<h3 id="changedbms">もし、DBを MySQL から別のDBMSに変更するなら</h3>
+	<p>
+		以下の設定ファイルを修正します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>basicInfoMap.dfprop</dt><dd>databaseプロパティ</dd>
+		<dt>databaseInfoMap.dfprop</dt><dd>JDBC接続情報</dd>
+		<dt>maihama_env.properties</dt><dd>JDBC接続情報</dd>
+		<dt>pom.xml</dt><dd>dependenciesのJDBCドライバ</dd>
+		<dt>.erm (ERMaster-bなら)</dt><dd>ERFluteの対象データベース</dd>
+		<dt>littleAdjustmentMap.dfprop</dt><dd>cursorSelectFetchSizeプロパティ <span class="frm">(DBMSに合わせる or 無効化)</span></dd>
+		<dt>replaceSchemaMap.dfprop</dt><dd>additionalUserMapプロパティ <span class="frm">(DBMSに合わせる or 無効化)</span></dd>
+		<dt>replace-schema-00-system.sql</dt><dd>create database の DDL <span class="frm">(DBMSに合わせる or ファイル削除)</span></dd>
+	</dl>
+	<h3 id="firstdbdesign">最初のDB設計</h3>
+	<p>
+		DB設計します。
+	</p>
+	<p>
+		とはいっても、全部いっきにやるのではなく、開発の第一歩が踏める程度の最低限のシンプルなものだけにしましょう。
+		暫定のテーブルでもOKです。あとで直して再自動生成してしまえばいいだけなので。
+	</p>
+	<h3 id="firstgenerate">最初の自動生成</h3>
+	<p>
+		できたら、DBFluteで自動生成をして、アプリに適用させます。
+		コンパイルエラーになるところは適宜アプリにフィットさせていきましょう。さあ、ここから開発の始まりです。
+	</p>
+
+	<h2 id="fitting">7. アプリにフィットさせていく</h2>
+	<h3 id="anywayfit">ひたすらフィット</h3>
+	<p>
+		ここからは、動かしながら気付いた点をひたすらアプリにフィットさせていきます。
+	</p>
+	<h3 id="changeit">#change_it で検索</h3>
+	<p>
+		今度は、#change_it で検索してみます。
+	</p>
+	<p>
+		自動生成でコンパイルエラーになった時点で、すでに直しているところもあるかもしれませんが、
+		すぐに修正しなくてもいいけど、いつかはちゃんとアプリにフィットさせないといけない場所に記載されています。
+	</p>
+	<p>
+		こちらも、#change_it_first のときと同様に、直したら #changed とかに修正しておくとよいでしょう。
+		直したけど、まだ後で調整が必要(かも)というときは、(Eclipseなら _to => ctrl+space で補完して)todoコメントを入れましょう。
+	</p>
+	<h3 id="bonvoyage">Bon voyage</h3>
+	<p>
+		ExampleのデフォルトのままでOKか、現場フィットが必要かどうか、わからないところはたくさんあります。
+		Trial & Error をしながらフィットさせていってください。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="userblog">ユーザーの方のブログをご紹介</h2>
+		<p>
+			実際に業務で LastaFlute を利用されていた方が素敵なブログを書いてくださっているのでご紹介します。
+			ありがとうございます！<span class="frm">(リンクの承諾も頂いています)</span> 
+		</p>
+		<ul>
+			<li><a href="http://oza-note.xyz/make-a-lastaflute-project">LastaFluteプロジェクトの始め方  | おざノート</a></li>
+		</ul>
+		<p>
+			スタートアップ以外の話題も書いてくださっています。
+		</p>
+		<div class="relatedpage"><a href="../action/lathymeleaf.html#userblog">LastaFlute の Thymeleaf - ユーザーの方のブログをご紹介</a></div>
+		<div class="relatedpage"><a href="../architecture/logincontrol.html#userblog">組み込みログイン制御 - ユーザーの方のブログをご紹介</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

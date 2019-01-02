@@ -1,0 +1,863 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ディベロッパー,Developer,チュートリアル,Tutorial,使い方,ドキュメント" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>DBFlute on Java8 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute on Java8</h1>
+	${indexlist}
+
+	<h2 id="policy">ポリシー、七か条</h2>
+	<p>
+		<em class="keyword">DB変更に強いO/Rマッパー</em>、というテーマは崩さずに...
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>バージョン</dt><dd>DBFlute-1.1からは、Java8以上のバージョン限定のものに</dd>
+		<dt>Java8</dt><dd>Java8の特性を最大限活かし、将来にわたって活躍できるものに</dd>
+		<dt>それまでとの互換</dt><dd>もちろん互換は崩すが、あまりにかけ離れたものにはしない</dd>
+		<dt>ConditionBean</dt><dd>Lambdaコールバック方式で構築、LikeSearchOptionなども同様</dd>
+		<dt>Entity</dt><dd>わりとそのまんま</dd>
+		<dt>Behavior</dt><dd>わりとそのまんま、LoadReferrerはいい感じに</dd>
+		<dt>プログラム型</dt><dd>日付に関しては、Java8のTimeAPIを利用</dd>
+	</dl>
+	<p>
+		<span class="frm">※一部機能は 1.0.x 系でも取り込まれていますが、このページは 1.1 を中心としたお話です。</span>
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20140530/java8">外部サイト - jfluteの日記 - DBFluteのJava8版というか1.1ではこうなる</a></div>
+
+	<h2 id="select">とにかく検索は？</h2>
+	<h3 id="selectentitycb">ConditionBean で一件検索 <span class="frm">*selectEntity(cb)</span></h3>
+<pre><span class="codetitle">e.g. 会員ID "1" 番で会員を一件検索 (関連テーブルの会員ステータスも一緒に取得) @Java8</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル : なし</span>
+<span class="comment">// 絞り込み条件 : 会員IDが "1" 番である => 絶対に存在する</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+memberBhv.<span class="point">selectEntity</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">alwaysPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    String memberAccount = <span class="localvar">member</span>.getMemberAccount();
+    LocalDate birthdate = <span class="localvar">member</span>.getBirthdate(); <span class="comment">// *Java TimeAPI</span>
+    LocalDateTime formalizedDatetime = <span class="localvar">member</span>.getFormalizedDatetime();
+}); <span class="comment">// なければ例外 (エラーメッセージでSQLが表示される)</span>
+
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル : なし</span>
+<span class="comment">// 絞り込み条件 : 会員IDが "1" 番である => 存在しないかもしれない</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectEntity</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">ifPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="abbreviation">...</span>
+}).<span class="point">orElse</span>(() <span class="keyword">-&gt;</span> {
+    <span class="comment">// 存在しないときの処理をここで</span>
+});
+</code></pre>
+	<ul class="codeoutro">
+		<li>seleceEntity() の引数が、ConditionBeanを受け取るLambdaコールバック</li>
+		<li>ConditionBeanの変数名は、相変わらず cb が習慣！</li>
+		<li>selectEntity() の戻り値が OptionalEntity になっていて null は戻らない</li>
+		<li>絶対に存在することが前提なら、alwaysPresent() <span class="frm">※selectEntityWithDeletedCheck()と同じ</span></li>
+		<li>存在しないかもしれないなら、ifPresent() に続いて orElse() <span class="frm">※ifPresent()だけでもOK</span></li>
+		<li>Entityの変数名は、Member なら member、MemberWithdrawal なら withdrawal という感じで</li>
+		<li>alwaysPresent() と orElse() (ifPresent()の戻り値) はDBFlute独自のメソッド</li>
+	</ul>
+	<h3 id="selectlistcb">ConditionBean でリスト検索 <span class="frm">*selectList(cb)</span></h3>
+<pre><span class="codetitle">e.g. 色々な絞り込み条件で会員をリスト検索 (関連テーブルもいろいろと) @Java8</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル:</span>
+<span class="comment">//  o 会員ステータス => 絶対に存在する</span>
+<span class="comment">//  o 会員退会情報 => 存在しないかもしれない</span>
+<span class="comment">//  o 会員サービスと、その親テーブルのサービスランク => 絶対に存在する</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称が "S" で始まる</span>
+<span class="comment">//  o 会員ステータスが "正式会員" である (区分値メソッド)</span>
+<span class="comment">//  o 支払い済みで200円以上の購入をしたことがある会員 (one-to-many)</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 生年月日の降順 (でも null は後ろにね)</span>
+<span class="comment">//  o 会員IDの昇順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberStatus();
+    <span class="localvar">cb</span>.setupSelect_MemberServiceAsOne().withServiceRank();
+
+    <span class="comment">// LikeSearchOptionだって、Lambdaコールバック</span>
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().setMemberStatusCode_Equal_Formalized();
+
+    <span class="localvar">cb</span>.query().existsPurchase(<span class="localvar">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.query().setPurchasePrice_GreaterEqual(<span class="literal">200</span>);
+        <span class="localvar">purchaseCB</span>.query().setPaymentCompleteFlg_Equal_True();
+    });
+
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc().withNullsLast();
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+}); <span class="comment">// そのまま回すだけなら、ここから forEach() や stream() しちゃってもOK</span>
+
+memberList.<span class="point">forEach</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> { <span class="comment">// でもまあ、とりあえず変数に受け取ってから回してみる</span>
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="abbreviation">...</span>
+
+    <span class="comment">// 関連テーブルの Entity も OptionalEntity (カージナリティを見てメソッド選ぶべし)</span>
+    <span class="localvar">member</span>.getMemberStatus().<span class="point">alwaysPresent</span>(<span class="localvar">status</span> <span class="keyword">-&gt;</span> {
+        String statusName = <span class="localvar">status</span>.getMemberStatusName();
+        <span class="abbreviation">...</span>
+    });
+    <span class="localvar">member</span>.getMemberWithdrawalAsOne().<span class="point">ifPresent</span>(<span class="localvar">withdrawal</span> <span class="keyword">-&gt;</span> {
+        LocalDateTime withdrawalDatetime = <span class="localvar">withdrawal</span>.getWithdrawalDatetime();
+        <span class="abbreviation">...</span>
+    });
+});
+</code></pre>
+	<ul class="codeoutro">
+		<li>seleceList() の引数が、ConditionBeanを受け取るLambdaコールバック</li>
+		<li>ConditionBeanの変数名は、相変わらず cb が習慣！</li>
+		<li>LikeSearchOptionも、Lambdaコールバック (その他Optionも同様)</li>
+		<li>forEach()はJava8のListの標準メソッドなので、DBFlute関係ない</li>
+		<li>関連テーブルも OptionalEntity になっていて、nullは戻さない</li>
+	</ul>
+	<div class="inucolumn">
+		<h3 id="optionalparade">テーブル、つまり Entity は Optional 祭り ☆</h3>
+		<p>
+			selectEntity() の戻り値、そして、setupSelectしたときの関連テーブルをEntityでgetするとき、もろもろとにかく Entity は OptionalEntity
+			になっています。
+		</p>
+		<p>
+			一発処理でOKスタイルを軸に、色々なスタイルに当てはめていくとよいでしょう。
+		</p>
+		<dl class="keymainlist">
+			<dt>一発処理でOKスタイル</dt><dd>その場で利用しておしまいなケース</dd>
+			<dt>なんども登場スタイル</dt><dd>そのあと何度も利用するようなケース</dd>
+			<dt>みんなで勢ぞろいスタイル</dt><dd>入りみだれて利用するようなケース</dd>
+			<dt>トラディショナルスタイル</dt><dd>いざとなったら or 迷って手が止まるくらいだったら</dd>
+			<dt>スタイル入りみだれスタイル</dt><dd>その名の通り</dd>
+		</dl>
+		<div class="relatedpage"><a href="./../manual/function/ormapper/behavior/select/selectentity.html#java8">selectEntity(cb) - Java8 なら OptionalEntity</a></div>
+		<div class="relatedpage"><a href="./../manual/function/ormapper/conditionbean/setupselect/index.html#java8">SetupSelect - Java8 ならリレーションも Optional</a></div>
+		<p>
+			ただ、カラムは Optional ではありません。少なくとも Optional という概念が導入されたばかりの Java
+			の世界では、周りのプログラムと合わない部分が多く発生して、デメリットの方が上回ってしまうと判断しました。
+			NotNull制約の変更との兼ね合いも考えて、
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h3 id="optionalmessage">Optionalの例外メッセージをどうにかしたかった ☆</h3>
+		<p>
+			Entity の Optional はJava8標準ではなく、DBFlute独自の OptionalEntity というクラスです。
+			もちろん、できれば標準のものを使いたかったのですが、大きなきっかけは例外メッセージです。
+		</p>
+		<p>
+			データベースの検索結果は、絞り込み条件や業務状況が変われば、"存在する/しない"
+			が変わります。あらかじめ "存在するからそのまま、nullがありえるからOptional" というような static
+			な作りはできません。 
+		</p>
+		<p>
+			なので、絶対に存在するケースでも Optional のままで受け取ることがあります。そのときは、ノーチェックで alwaysPresent() か get()
+			するでしょう。とはいえ、データベースに絶対はありません。そう、DBの世界で "絶対に存在する"
+			というのは、業務的に存在するという意味であり、業務上の例外(すれ違い)や、データバグなどがありえるのです。開発中でも本番でも。そのときに単なる
+			NoSuchElementException ではつらいなと。
+			<span class="frm">(ifPresent()で素通りして全然違う例外が出てもつらいし、orElseThrow()で毎度毎度チェックロジックを書くのもつらい...し、なかなかやってもらえないでしょう)</span>
+		</p>
+		<p>
+			ということで、selectEntity() の OptionalEntity では、EntityAlreadyDeletedException で発行した SQL
+			がエラーメッセージに載るようにしています。
+			その他の場面でも、いい感じの例外が出るようにして、不意の状況が発生したときにでもできるだけデバッグがしやすいようにしています。
+		</p>
+		<p>
+			一方で、標準の Optional とほぼ同じメソッドを用意しているので、全く同じように使えます。
+			さらに、Entityを取り扱うのに適したメソッドをちょっとだけ追加しています。alwaysPresent()がまさしくそうですね。
+		</p>
+	</div>
+	<h3 id="selectothers">その他のConditionBeanによる検索</h3>
+	<p>
+		同じような感じで Lambda になるだけで、そんなに変わりません。
+	</p>
+	<dl class="keymainlist">
+		<dt>selectCount(cb)</dt><dd>本当に、Lambdaになっただけ</dd>
+		<dt>selectPage(cb)</dt><dd>PagingResutlBeanのメソッドが改善された</dd>
+		<dt>selectCursor(cb)</dt><dd>Lambdaになっただけだけど、おかげで引数二つともコールバックに</dd>
+		<dt>scalarSelect(cb)</dt><dd>戻り値が OptionalObject に</dd>
+	</dl>
+	<p>
+		<span class="frm">※他の項目の Example で "ついでに" 登場しますので、そちらを参考に</span>
+	</p>
+	<h3 id="derivedreferrer">さくっと (Specify)DerivedReferrer</h3>
+	<p>
+		導出カラム用の ExEntity の プロパティ (Getter/Setter) を作らなくても取得できます。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称に "vi" が含まれる会員をページング検索 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル</span>
+<span class="comment">//  o 最終ログイン日時</span>
+<span class="comment">//  o 支払済みである購入の平均購入価格</span>
+<span class="comment">// 絞り込み条件</span>
+<span class="comment">//  o 購入に対する支払で、一回で3000円以上もの金額を支払ったことがある会員</span>
+<span class="comment">// ソート条件</span>
+<span class="comment">//  o 最終ログイン日時の降順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+String <span class="localvar">keyOfLatestLoginDatetime</span> = <span class="literal">"$LATEST_LOGIN_DATETIME"</span>; <span class="comment">// "$" がポイント</span>
+String <span class="localvar">keyOfPurchasePriceAverage</span> = <span class="literal">"$PURCHASE_PRICE_AVERAGE"</span>;
+
+<span class="comment">// ページング検索は、完全に "ついでに" というかんじ</span>
+PagingResultBean&lt;Member&gt; page = <span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.specify().<span class="point">derivedMemberLoginList()</span>.max(<span class="localvar">loginCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">loginCB</span>.specify().columnLoginDatetime()
+    }, <span class="localvar">keyOfLatestLoginDatetime</span>);
+    <span class="localvar">cb</span>.specify().<span class="point">derivedPurchase()</span>.avg(<span class="localvar">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.specify().columnPurchasePrice();
+        <span class="localvar">purchaseCB</span>.query().setPaymentCompleteFlg_Equal_True();
+    }, <span class="localvar">keyOfPurchasePriceAverage</span>);
+    <span class="localvar">cb</span>.query().existsPurchase(<span class="localvar">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.query().existsPurchasePaymentList(<span class="localvar">paymentCB</span> <span class="keyword">-&gt;</span> {
+            <span class="localvar">paymentCB</span>.query().setPaymentAmount_GreaterEqual(<span class="literal">3000</span>);
+        });
+    });
+    <span class="localvar">cb</span>.query().addSpecifiedDerivedOrderBy_Desc(<span class="localvar">keyOfLatestLoginDatetime</span>);
+}
+
+page.<span class="attribute">forEach</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+
+    <span class="comment">// derived()メソッドで、Mapっぽく取れる</span>
+    <span class="comment">// 型は、以下のようなルールで決まる</span>
+    <span class="comment">//  o count()      : Integer</span>
+    <span class="comment">//  o max(), min() : 対象カラムのプロパティ型と同じ</span>
+    <span class="comment">//  o sum(), avg() : BigDecimal</span>
+    LocalDateTime latestLoginDt = <span class="localvar">member</span>.<span class="point">derived</span>(<span class="localvar">keyOfLatestLoginDatetime</span>);
+    BigDecimal averagePrice = <span class="localvar">member</span>.<span class="point">derived</span>(<span class="localvar">keyOfPurchasePriceAverage</span>);
+    <span class="abbreviation">...</span>
+}
+<span class="keyword">int</span> allRecordCount = page.getAllRecordCount();
+<span class="keyword">int</span> allPageCount = page.getAllPageCount();
+<span class="keyword">if</span> (page.existsPreviousPage()) {
+    <span class="abbreviation">...</span>
+}
+<span class="keyword">if</span> (page.existsNextPage()) {
+    <span class="abbreviation">...</span>
+}
+List&lt;Integer&gt; numberList = page.buildRangeNumberList(<span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.rangeSize(<span class="literal">5</span>));
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もちろん、ExEntityにプロパティを定義する今までのやり方も使えます。
+	</p>
+	<p>
+		特に、どちらでないとよくないということはありません。
+		ただ、アプリの共通クラスである Entity に各画面のディベロッパーが気軽にメソッドを追加できないケースもあるので、Entityの修正なしで気軽に DerivedReferrer
+		できるインターフェースが必要であるということでサポートしました。
+	</p>
+	<h3 id="optionlambda">なんとか Option がもろもろ Lambda</h3>
+	<p>
+		LikeSearchOption や FromToOption, ColumnConversionOption に ManualOrderBean などのもろもろの Option
+		が、Lambdaコールバックになっています。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称に "vi" が含まれる会員をカーソル検索 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル</span>
+<span class="comment">//  o 現在の会員住所情報(業務的one-to-one)</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称に "vi" が含まれる</span>
+<span class="comment">//  o 二十歳になってから正式会員になった会員</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 2005年10月1日から3日にまでに正式会員になった人を先に並べる</span>
+<span class="comment">//  o 会員サービスのサービスポイント数の降順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+LocalDate fromDate = LocalDate.of(<span class="literal">2005</span>, <span class="literal">10</span>, <span class="literal">1</span>);
+LocalDate toDate = LocalDate.of(<span class="literal">2005</span>, <span class="literal">10</span>, <span class="literal">3</span>);
+
+<span class="comment">// カーソル検索は、完全に "ついでに" というかんじ</span>
+memberBhv.selectCursor(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberAddressAsValid(currentDate);
+
+    <span class="comment">// LikeSearchOption だって</span>
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"vi"</span>, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likeContain());
+
+    <span class="localvar">cb</span>.columnQuery(<span class="localvar">colCB</span> <span class="keyword">-&gt;</span> <span class="localvar">colCB</span>.specify().columnFormalizedDatetime())
+        .greaterThan(<span class="localvar">colCB</span> <span class="keyword">-&gt;</span> <span class="localvar">colCB</span>.specify().columnBirthdate()) 
+        .convert(<span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.addYear(<span class="literal">20</span>)); <span class="comment">// ColumnConversionOption だって</span>
+
+    <span class="comment">// ManualOrderBean だって</span>
+    <span class="localvar">cb</span>.query().addOrderBy_FormalizedDatetime_Asc().withManualOrder(<span class="localvar">mob</span> <span class="keyword">-&gt;</span> {
+        <span class="comment">// FromToOption だって、みーんな Lambda</span>
+        <span class="localvar">mob</span>.when_FromTo(fromDate, toDate, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.compareAsDate());
+    });
+    <span class="localvar">cb</span>.query().queryMemberServiceAsOne().addOrderBy_ServicePointCount_Desc();
+}, <span class="localvar">member</span> <span class="keyword">-&gt;</span> { <span class="comment">// 第二引数でCursorHandler</span>
+    <span class="comment">// 検索された Entity が一件ずつ落ちてくる</span>
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="localvar">member</span>.getMemberAddressAsOne().map(<span class="abbreviation">...</span>);
+    <span class="abbreviation">...</span>
+});
+</code></pre>
+	<p>
+		また、PrefixSearch や DateFromTo などの、固定オプションのファサード的なメソッドはデフォルトで出力されなくなりました。
+		Lambdaの導入で Option の指定がしやすくなったことにより、LikeSearch や FromTo に統一することにしました。
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20141001/cblambda">外部サイト - jfluteの日記 - DBFlute-1.1でLambdaでCB</a></div>
+	<h3 id="loadreferrer">子テーブルの検索 (LoadReferrer) <span class="frm">*load(loader)</span></h3>
+	<p>
+		1.0.x系でもサポートされた Loader 方式全開で実装しましょう。
+	</p>
+<pre><span class="codetitle">e.g. 会員をリスト検索して、子テーブルもいろいろと @Java8</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル:</span>
+<span class="comment">//  o 会員ステータス (その子テーブルである会員ログインも取得される予定)</span>
+<span class="comment">//  o <span class="point">購入と商品</span> (購入日時の降順で) (one-to-many, one-to-many-to-one)</span>
+<span class="comment">//  o <span class="point">購入支払</span> (支払日時の降順で) (one-to-many-to-many)</span>
+<span class="comment">//  o <span class="point">会員ステータス経由の会員ログイン</span> (ログイン日時の降順で) (many-to-one-to-many)</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称が "S" で始まる</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 会員IDの昇順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+ListResultBean&lt;Member&gt; memberList = memberBhv.selectList(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberStatus() <span class="comment">// 後で pullout されるので必要</span>
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, op -> op.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+});
+memberBhv.load(memberList, <span class="localvar">loader</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">loader</span>.<span class="point">loadPurchase</span>(<span class="localvar">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.setupSelect_Product();
+        <span class="localvar">purchaseCB</span>.query().addOrderBy_PurchaseDatetime_desc();
+    }).<span class="point">withNestedReferrer</span>(<span class="localvar">purchaseLoader</span> <span class="keyword">-&gt;</span> { <span class="comment">// "loader" と名前がかぶらないように</span>
+        <span class="localvar">purchaseLoader</span>.loadPurcasePaymentList(<span class="localvar">paymentCB</span> <span class="keyword">-&gt;</span> {
+            <span class="localvar">paymentCB</span>.query().addOrderBy_PaymentDatetime_desc();
+        }
+    }
+    <span class="localvar">loader</span>.<span class="point">pulloutMemberStatus()</span>.loadMemberLoginList(<span class="localvar">loginCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">loginCB</span>.query().addOrderBy_LoginDatetime_Desc();
+    });
+}
+
+memberList.forEach(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="localvar">member</span>.getPurchaseList().forEach(<span class="localvar">purchase</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> <span class="keyword">-&gt;</span> {
+            String productName = <span class="localvar">product</span>.getProductName();
+            <span class="abbreviation">...</span>
+        });
+        <span class="localvar">purchase</span>.getPurchasePaymentList().forEach(<span class="localvar">payment</span> <span class="keyword">-&gt;</span> {
+            BigDecimal paymentAmount = <span class="localvar">payment</span>.getPaymentAmount();
+            LocalDateTime paymentDatetime = <span class="localvar">payment</span>.getPaymentDatetime();
+            <span class="abbreviation">...</span>
+        });
+    });
+    <span class="localvar">member</span>.getMemberStatus().alwaysPresent(<span class="localvar">status</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">status</span>.getMemberLoginList().forEach(<span class="localvar">login</span> <span class="keyword">-&gt;</span> {
+            LocalDateTime loginDatetime = <span class="localvar">login</span>.getLoginDatetime();
+            <span class="abbreviation">...</span>
+        });
+    });
+});
+</code></pre>
+
+	<h2 id="update">そういえば更新とかは？</h2>
+	<p>
+		ほとんど変わりません。今まで通り、Entity を new して、set/set してください。
+	</p>
+	<h3 id="queryupdate">queryUpdate()は？</h3>
+	<p>
+		ただ、queryUpdate() や queryDelete() などの ConditionBean を受け取るメソッドは、検索と同様にLambdaコールバックになっています。
+	</p>
+	<h3 id="varyingupdate">varyingUpdate()は？</h3>
+	<p>
+		また、varyingUpdate() などの Option を受け取るメソッドも、Optionオブジェクトの指定がLambdaコールバックになっています。
+	</p>
+	<h3 id="batchspecify">batchUpdate() の SpecifyColumn が...</h3>
+	<p>
+		あと、batchUpdate()の明示的カラム指定オーバーロードメソッドは、デフォルトで出力されなくなっています。
+		既に1.0.x系でも batchUpdate() は Setter 呼び出しされたカラムが更新されるようになっています。
+		それにより、オーバーロードのメソッドはあまり意味を持たなくなりましたので、シンプル化しました。
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20141001/cblambda">外部サイト - jfluteの日記 - DBFlute-1.1でLambdaでCB</a></div>
+
+	<h2 id="outsidesql">外だしSQLのメソッドが変更</h2>
+	<h3 id="outsidesqlflat">用途ごとにチェーンではなくフラットに</h3>
+	<p>
+		外だしSQLのメソッドが用途ごとにチェーンをやめて、フラットに変更されています。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>outsideSql().selectList()</dt><dd><em class="bigmark">outsideSql().selectList()</em> <span class="frm">(変わらず)</span></dd>
+		<dt>outsideSql().entityHan...().selectEntity()</dt><dd><em class="bigmark">outsideSql().selectEntity()</em></dd>
+		<dt>outsideSql().manualPaging().selectPage()</dt><dd><em class="bigmark">outsideSql().selectPage()</em></dd>
+		<dt>outsideSql().autoPaging().selectPage()</dt><dd><em class="bigmark">outsideSql().selectPage()</em></dd>
+		<dt>outsideSql().cursorHan...().selectCursor()</dt><dd><em class="bigmark">outsideSql().selectCursor()</em></dd>
+	</dl>
+	<p>
+		というように、フラットになっています。
+	</p>
+	<p>
+		manualPagingとautoPagingの区別は、Sql2EntityのときにDBFluteが自動判別します。
+		ParameterBean自身が、その区別の情報を持っているのでプログラム上は意識する必要はありません。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/generator/task/sql2entity/pmbclassoption.html#pagingoption">ParameterBeanのクラスオプション - ページング検索のオプション</a></div>
+	<h3 id="outsidesqltraditional">フリースタイルはtraditionalに</h3>
+	<p>
+		引数にSQLのパスや戻り値の型を渡す "フリースタイル形式" のやり方は、非推奨になりました。
+		基本的に、TypedParameterBeanを使っていきましょうというポリシーです。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/outsidesql/concept.html#freestyle">フリースタイル形式のメソッド</a></div>
+<pre><span class="codetitle">e.g. フリースタイル形式の自由度考慮のメソッドによる呼び出し @Java</span><code>
+String path = MemberBhv.<span class="attribute">PATH_selectSimpleMember</span>; <span class="comment">// BehaviorQueryPath</span>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb(); <span class="comment">// ParameterBean</span>
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+Class&lt;SimpleMember&gt; entityType = SimpleMember.<span class="keyword">class</span>
+
+<span class="comment">// 【1.1.x: Java8版】</span>
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// 何を呼び出すか？ 何の Entity 型で受け取るか？ は SimpleMemberPmb が解決</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().<span class="subpoint">traditionalStyle()</span>.selectList(<span class="point">path</span>, <span class="point">pmb</span>, <span class="point">entityType</span>);
+
+<span class="comment">// 【1.0.x: Java6版】</span>
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// 何を呼び出すか？ 何の Entity 型で受け取るか？ は SimpleMemberPmb が解決</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().selectList(<span class="point">path</span>, <span class="point">pmb</span>, <span class="point">entityType</span>);
+</code></pre>
+
+	<h2 id="localdate">日付が LocalDate に！</h2>
+	<p>
+		マッピングされる日付が、Java8 の TimeAPI になります。
+	</p>
+	<h3 id="mappingdate">日付のマッピング</h3>
+	<dl class="keymainlist">
+		<dt>DATE</dt><dd>LocalDate <span class="frm">※いままでは、java.util.Date</span></dd>
+		<dt>DATETIME</dt><dd>LocalDateTime <span class="frm">※いままでは、java.sql.Timestamp</span></dd>
+		<dt>TIME</dt><dd>LocalTime <span class="frm">※いままでは、java.sql.Time</span></dd>
+	</dl>
+	<h3 id="handydate">HandyDateは？</h3>
+	<p>
+		TimeAPI はとても便利に作られています。これにて HandyDate
+		はお役御免となりそうですが、それでも HandyDate
+		特有の便利メソッドもありますので、いままで通り使えます。LocalDate
+		との相互変換のメソッドも用意されていますので、時に使ってみるといいでしょう。
+	</p>
+	<h3 id="timezone">TimeZoneは？</h3>
+	<p>
+		LocalDateは、西暦表現の文字列をオブジェクトにしたようなものです。取り扱いに日付変換が欠かせません。
+		DBFluteの中で、日付変換のときに使うTimeZoneを個別個別、もしくは、一括で設定できるようにしています。
+	</p>
+
+	<h2 id="completion">さあ、補完してみよう！</h2>
+	<p>
+		今までと、補完の仕方が変わるので、ちょっと指のことを考えてあげましょう。
+	</p>
+	<h3 id="defaulteclipse">デフォルトの Eclipse なら</h3>
+	<p>
+		まずは、デフォルトの Eclipse (執筆時点で4.4.1) の補完で書くなら...
+	</p>
+	<p>
+		ひとことで言うと... <em class="keyword">"Lambda" 部分を消して矢印！</em>
+	</p>
+<pre><span class="codetitle">e.g. 色々な絞り込み条件で会員をリスト検索 (関連テーブルもいろいろと) @Java8</span><code>
+<span class="comment">// まず、ConditionBeanをnewするじゃなくて、基点テーブルのBehaviorを選ぶのがコツ</span>
+<span class="comment">// まず、sel まで打って、大文字を狙って...キャメルケースコード補完</span>
+<span class="attribute">memberBhv</span>.selL <span class="comment">// selL -> ctrl+space</span>
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="subpoint">cbLambda</span>) <span class="comment">// cbLambda が選択状態に</span>
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="subpoint">cb</span>) <span class="comment">// cbLambda の "Lambda" を消して...</span>
+--
+<span class="attribute">memberBhv</span>.selectList(cb<span class="subpoint"> -&gt; {</span>) <span class="comment">// " -> {" と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.selectList(cb -&gt; {
+    <span class="comment">// カーソルはここ</span>
+}) <span class="comment">// セミコロンないんだけど後でね</span>
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// ここはいつも通りの補完 cb.q => cb.query() => cb.query().setMNLS という流れ</span>
+    cb.q
+})
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// この時点で、"memberName" が選択状態に、tabで "opLambda" を行き来できる</span>
+    cb.query().setLikeSearch_LikeSearch(<span class="subpoint">memberName</span>, opLambda);
+})
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// まあ、第一引数は "S" と打って tab 押して "opLambda" を選択状態に</span>
+    cb.query().setLikeSearch_LikeSearch("S", <span class="subpoint">opLambda</span>);
+})
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// opLambda の "Lambda" を消して...</span>
+    cb.query().setLikeSearch_LikeSearch("S", <span class="subpoint">op</span>);
+})
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// " -> op." と打って likePrefix() を選択 (enterすれば一番右にカーソルが飛ぶ)</span>
+    cb.query().setLikeSearch_LikeSearch("S", op <span class="subpoint">-&gt; op.likePrefix()</span>);
+})
+--
+<span class="comment">// さて、書き終わったら...</span>
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    cb.query().setLikeSearch_LikeSearch("S", op -&gt; op.likePrefix());
+    cb.query().addOrderBy_Birthdate_Desc();
+})<span class="subpoint">;</span> <span class="comment">// セミコロン付けてから、ここでいつもの ctrl + 2 =&gt; L</span>
+--
+<span class="comment">// どーんっと変数を補完！"selectList" 変数が選択状態に</span>
+ListResultBean <span class="subpoint">selectList</span> = <span class="attribute">memberBhv</span>.selectList(cb -> {
+    cb.query().setLikeSearch_LikeSearch("S", op -&gt; op.likePrefix());
+    cb.query().addOrderBy_Birthdate_Desc();
+});
+--
+<span class="comment">// 変数名はご自由に。ここでは memberList とベタに打って enter</span>
+ListResultBean <span class="subpoint">memberList</span> = <span class="attribute">memberBhv</span>.selectList(cb -> {
+    cb.query().setLikeSearch_LikeSearch("S", op -&gt; op.likePrefix());
+    cb.query().addOrderBy_Birthdate_Desc();
+}); <span class="comment">// すると、カーソルはここに飛ぶ</span>
+--
+memberList.for <span class="comment">// memberList の for で ctrl+space</span>
+--
+memberList.forEach(<span class="subpoint">action</span>); <span class="comment">// action が選択状態に</span>
+--
+memberList.forEach(<span class="subpoint">member -&gt; {</span>); <span class="comment">// "member -&gt; {" と打って enter</span>
+--
+memberList.forEach(<span class="subpoint">member -&gt; {</span>
+    <span class="comment">// カーソルがここに</span>
+});
+</code></pre>
+	<p>
+		DBFluteの中でコールバックするときは、多くの場面で xxxLambda
+		というような引数名になっているので、Lambda部分を消して " -&gt; {" + enter もしくは " -&gt; xxx." と打っていけばOKです。
+	</p>
+	<p>
+		ですが、SubQuery の ConditionBean の名前や LoadReferrer の loader などのネストする可能性のあるものや、OptionalEntity
+		における Entity などテーブル名のムード出したいものでは、このやり方だとちょっと面倒です。普通にベタベタ書くしかないです。
+	</p>
+	<h3 id="jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</h3>
+	<p>
+		ということで、Eclipseで補完テンプレート (Java Editor Templates) を用意しています。
+	</p>
+	<dl class="keymainlist">
+		<dt>_arrow <span class="frm">(_a)</span></dt><dd>-&gt; <span class="frm">※単なる矢印</span></dd>
+		<dt>_li <span class="frm">(えるあい)</span></dt><dd>var -&gt; var.xxx <span class="frm">※Lambda Inline: LikeSearch などの一行スタイル</span></dd>
+		<dt>_ll <span class="frm">(えるえる)</span></dt><dd>var -&gt; {改行var.xxx改行} <span class="frm">※Lambda Linefeed: CB などの複数行スタイル</span></dd>
+		<dt>_foreach <span class="frm">(_fo)</span></dt><dd>var.forEach(newName -&gt; {改行}); <span class="frm">※var部分は近くの変数に置き換わる</span></dd>
+		<dt>_scolist <span class="frm">(_scol)</span></dt><dd>...am().collect(Collectors.toList());</dd>
+		<dt>_scomap <span class="frm">(_scom)</span></dt><dd>...am().collect(Collectors.toMap(bean -&gt; be...);</dd>
+	</dl>
+	<p>
+		やってみましょう。
+	</p>
+<pre><span class="codetitle">e.g. 色々な絞り込み条件で会員をリスト検索 (関連テーブルもいろいろと) @Java8</span><code>
+<span class="comment">// まず、ConditionBeanをnewするじゃなくて、基点テーブルのBehaviorを選ぶのがコツ</span>
+<span class="comment">// まず、sel まで打って、大文字を狙って...キャメルケースコード補完</span>
+<span class="attribute">memberBhv</span>.selL <span class="comment">// selL -> ctrl+space</span>
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="subpoint">cbLambda</span>) <span class="comment">// cbLambda が選択状態に</span>
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="point">_ll</span>) <span class="comment">// そのまま上書き _ll (えるえる) =&gt; ctrl+space</span>
+<span class="comment">// 補足: 他に_llで始める補完やクラスがなければ enter は不要</span>
+<span class="comment">// 補足: L (える) を薬指で二回、ちょちょんと押すとスムーズに</span>
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="subpoint">var -&gt; {</span> <span class="comment">// var が選択状態に</span>
+    var.object
+}) <span class="comment">// セミコロンないんだけど後でね</span>
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="subpoint">cb -&gt; {</span> <span class="comment">// そのまま cb と打って...</span>
+    <span class="subpoint">cb</span>.object <span class="comment">// こっちの変数も同時に cb になって...</span>
+})
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; { <span class="comment">// tab (たぶ！)</span>
+    cb.<span class="subpoint">object</span> <span class="comment">// (tabの後) すると object が選択状態に</span>
+})
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="comment">// ここはいつも通りの補完 cb.q => cb.query() => cb.query().setMNLS という流れ</span>
+    <span class="localvar">cb</span>.q
+});
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="comment">// この時点で、"memberName" が選択状態に、tabで "opLambda" を行き来できる</span>
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="subpoint">memberName</span>, opLambda);
+});
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="comment">// まあ、第一引数は "S" と打って tab 押して "opLambda" を選択状態に</span>
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="subpoint">opLambda</span>);
+});
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="comment">// そのまま上書き _li (えるあい) =&gt; ctrl+space</span>
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="point">_li</span>);
+})
+<span class="comment">// 補足: 他に_liで始める補完やクラスがなければ enter は不要</span>
+<span class="comment">// 補足: L (える) を薬指、I (あい) を中指で "ひっかけるように" 押すとスムーズに</span>
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// varが選択状態に</span>
+    cb.query().setLikeSearch_LikeSearch("S", <span class="subpoint">var -&gt; var.object</span>);
+})
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="comment">// そのまま op と入力すると、両方とも op に</span>
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="subpoint">op -&gt; op.object</span>);
+})
+--
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="comment">// tab 押すよ！すると、右側のobjectにカーソルが飛ぶから...</span>
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="subpoint">object</span>);
+})
+--
+<span class="attribute">memberBhv</span>.selectList(cb -> {
+    <span class="comment">// "li" と打って ctrl+space して likePrefix() を選択 (enterすれば一番右に)</span>
+    cb.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="subpoint">likePrefix()</span>);
+})
+--
+<span class="comment">// さて、書き終わったら...</span>
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc();
+}); <span class="comment">// セミコロン既にあるので、ここでいつもの ctrl + 2 =&gt; L</span>
+--
+<span class="comment">// どーんっと変数を補完！"selectList" 変数が選択状態に</span>
+ListResultBean <span class="subpoint">selectList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc();
+});
+--
+<span class="comment">// 変数名はご自由に。ここでは memberList とベタに打って enter</span>
+ListResultBean <span class="subpoint">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -> {
+    <span class="localvar">cb</span>.query().setLikeSearch_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc();
+}); <span class="comment">// すると、カーソルはここに飛ぶ</span>
+--
+<span class="point">_fo</span> <span class="comment">// memberList のすぐ下で _fo で ctrl+space</span>
+--
+memberList.forEach(<span class="subpoint">var</span> -&gt; { <span class="comment">// varが選択状態に</span>
+
+});
+--
+memberList.forEach(<span class="subpoint">member -&gt; {</span> <span class="comment">// member と打って enter</span>
+    <span class="comment">// すると、カーソルがここに</span>
+});
+</code></pre>
+	<p>
+		なんか、楽になった気がしませんね。。。
+	</p>
+	<p>
+		いや、実際に指を動かして比べると、だいぶ違います。少し Eclipse に振り回されてる感がありますが、意外に
+		cbLambda の Lambda 部分を消して " -&gt; {" と打つのがわりと面倒です。これは、使ってるキーボードによるかもしれませんが、"矢印"
+		はスムーズに案外打ちづらいのです。<span class="frm">(shift離してハイフン、shift押して大なり...)</span>
+	</p>
+	<p>
+		ちょっと修練は必要ですが、慣れると DBFlute に限らず Lambda
+		がスムーズに補完できるようになるので、もしよかったらぜひ活用してみてください。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>補完テンプレート</dt><dd><a href="http://dbflute.seasar.org/download/misc/settings/dbflute-eclipse-editor-templates.zip">dbflute-eclipse-editor-templates.zip</a></dd>
+	</dl>
+	<p>
+		ダウンロードして解凍したXMLファイルを、workspaceの設定 (メニューの Windows - Preferences) の Java - Editor - Templates
+		にて、(既存の設定を残しつつそのまま) importしてみてください。アンダースコア始まりの補完が使えるようになります。
+	</p>
+	<p>
+		<span class="frm">(本当は、Eclipseのバージョンが上がって、こういった補完でデフォルトでできるようになったらいいなと...)</span>
+	</p>
+	<div class="inucolumn">
+	<h3 id="triclipse">裏技あります</h3>
+		<p>
+			これは上級者向け、補完テンプレートを入れたら...
+		</p>
+		<p>
+			<em class="keyword">selectList(cbLambda) を補完後に、右押してctrl+space！</em>
+		</p>
+		<p>
+			<span class="frm">"右"って、cbLambdaの選択状態を解除して、cbLambdaの右側にカーソルを確定させているだけです。</span>
+		</p>
+	</div>
+	<div class="inucolumn">
+	<h3 id="escapeclipse">Eclipseのご乱心に注意</h3>
+		<p>
+			Lambdaの中の、補完がまだ 4.4.1 だととても不安定です。おかしいな!?と思ったら、いったん周りのコンパイルエラーを直しましょう。
+			特にセミコロンの有無とか括弧とか要注意です。<em class="keyword">セミコロンを付けたら補完されるようになった</em>
+			とかよくあります。また、Blockスタイルの Lambda ではなく、Inlineスタイルの Lambda (一行のLambda)
+			だと安定することもあるので、一行しかステートメントがないときは、Inlineスタイルで試してみましょう。
+		</p>
+		<p>
+			時間の問題と思われますが、ConditionBeanのコールバックだけは最初は Lambda を使わずにいつも通りの
+			<em class="keyword">new[スペース] + ctrl+space enter</em>
+			をして、昔ながらのコールバックの中でCBの実装をしてひと段落してから、ctrl+1でLambdaに変換するでもよいでしょう。
+		</p>
+		<p>
+			また、Eclipseの入力モード <span class="frm">(勝手にそう呼んでいますが、変数名やstatementが四角で囲われている状態)</span>
+			がどんどんネストしていって、enter押したときのカーソルの飛び先やセミコロンを入力したおきの扱いなどがわけわからないことになることがあります。
+		</p>
+		<p>
+			まずは、びっくりしないこと。そして、なんだか変な感じだなと思ったら、escボタンを押して入力モードを強制終了しちゃってもいいでしょう。
+			しかも、一回だけでなく、二、三回押すと確実にモードがおわりやすいので、escをパンパン！っと。<span class="frm">(いずせにせよ、反射神経を研ぎすませて...)</span>
+		</p>
+	</div>
+	<h3 id="intellij">IntelliJ IDEA なら</h3>
+	<p>
+		同じテンプレートが、IntelliJ IDEA でも使えます！
+	</p>
+	<p>
+		メニューの File - Import Setttings... で以下の jar ファイルを指定して <em class="keyword">Live Templates だけ選択して</em> import すれば利用できます。
+		<span class="frm">(Live Templates 以外を選択すると、ご自身の設定が上書きされる可能性があります)</span>
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>補完テンプレート</dt><dd><a href="http://dbflute.seasar.org/download/misc/settings/dbflute-intellij-live-templates.jar">dbflute-intellij-live-templates.jar</a></dd>
+	</dl>
+	<p>
+		裏技は使えませんが、アンスコで始まる系の補完はほとんどそのまま利用できます。_ll, _li
+		をぜひ活用していきましょう！Eclipseよりも使いやすくなっている部分もあります。
+	</p>
+	<p>
+		Deco, Hakiba, thank you for your migration from Eclipse.
+	</p>
+
+	<h2 id="naming">たかが変数名、されど変数名</h2>
+	<p>
+		Lambdaを使うとスッキリする分、型宣言がなくなるため、<em class="keyword">名前がより重要</em> になります。
+	</p>
+	<p>
+		また、Lambdaの引数の変数名で、外側の変数を上書きできないため、何かしらユニークな名前をつけてあげる必要があります。
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20140515/lambda">外部サイト - jfluteの日記 - Java8のラムダの心配なところ...</a></div>
+	<h3 id="recommendedrule">命名の推奨ルール</h3>
+	<p>
+		DBFluteとしては、以下のようなルールで名前を付けることを推奨しています。
+		みんなが同じようなルールで命名すれば、プログラムの可読性は圧倒的に高くなるはずです。
+	</p>
+	<dl class="keymainlist">
+		<dt>基点テーブルのCB</dt><dd>cb で OK</dd>
+		<dt>ExistsReferrer</dt><dd>[entity名]CB: <em class="keyword">独立した世界のCBなら、テーブルを識別しやすく</em></dd>
+		<dt>DerivedReferrer</dt><dd>[entity名]CB: 上に同じ</dd>
+		<dt>LoadReferrer</dt><dd>[entity名]CB: 上に同じ <span class="frm">※Loaderは [entity名]Loader</span></dd>
+		<dt>ScalarCondition</dt><dd>[entity名]CB: 上に同じ <span class="frm">※PartitionByは colCB</span></dd>
+		<dt>OrScopeQuery</dt><dd>orCB: <em class="keyword">一時的な役割を担うCBなら、役割prefixを</em></dd>
+		<dt>ColumnQuery</dt><dd>colCB: 上に同じ <span class="frm">※その他、カラムだけを指定するものはこれと同じ</span></dd>
+		<dt>UnionQuery</dt><dd>unionCB: 上に同じ</dd>
+		<dt>Option系</dt><dd>op: もうお約束で <span class="frm">※名前がバッティングするときは、アドリブで短い役割名を</span></dd>
+		<dt>alwaysPresent()など</dt><dd>[entity名]: Entity名のイメージ (わかれば短くしてもOK)</dd>
+		<dt>その他いろいろ</dt><dd>これらを踏まえて、応用していい感じの名前を</dd>
+	</dl>
+	<h3 id="ruledexample">推奨ルールでの実装Example</h3>
+<pre><span class="codetitle">e.g. 色々な絞り込み条件で会員をリスト検索 (関連テーブルもいろいろと) @Java8</span><code>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="point">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberStatus();
+    <span class="localvar">cb</span>.setupSelect_MemberServiceAsOne().withServiceRank();
+
+    <span class="localvar">cb</span>.specify().derivedMemberLogin().max(<span class="point">loginCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">loginCB</span>.specify().setLoginDatetime();
+        <span class="localvar">loginCB</span>.query().setMobileLoginFlg_Equal_False();
+    }, <span class="literal">"$latestLoginDatetime"</span>);
+
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, <span class="point">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().setMemberStatusCode_Equal_Formalized();
+
+    <span class="localvar">cb</span>.query().existsPurchase(<span class="point">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.query().setPurchasePrice_GreaterEqual(<span class="literal">200</span>);
+        <span class="localvar">purchaseCB</span>.query().setPaymentCompleteFlg_Equal_True();
+    });
+
+    <span class="localvar">cb</span>.orScopeQuery(<span class="point">orCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">orCB</span>.query().setBirthdate_IsNull(<span class="literal">200</span>);
+        <span class="localvar">orCB</span>.query().setMemberId_GreaterEqual(<span class="literal">3</span>);
+    });
+
+    <span class="localvar">cb</span>.columnQuery(<span class="localvar">colCB</span> <span class="keyword">-&gt;</span> <span class="localvar">colCB</span>.specify().columnFormalizedDatetime())
+        .greaterThan(<span class="localvar">colCB</span> <span class="keyword">-&gt;</span> <span class="localvar">colCB</span>.specify().columnBirthdate()) 
+        .convert(<span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.addDay(<span class="literal">7</span>));
+
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc().withNullsLast();
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+});
+
+<span class="attribute">memberBhv</span>.load(<span class="localvar">memberList</span>, <span class="point">memberLoader</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">memberLoader</span>.loadPurchase(<span class="point">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.query().setPurchasePrice_GreaterEqual(200);
+        <span class="localvar">purchaseCB</span>.query().addOrderBy_PurchaseDatetime_Desc();
+    }).withNestedReferrer(<span class="point">purchaseLoader</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseLoader</span>.loadPayment(<span class="point">paymentCB</span> <span class="keyword">-&gt;</span> {
+            <span class="localvar">paymentCB</span>.query().addOrderBy_PaymentDatetime_Desc();
+        });
+    });
+    <span class="localvar">memberLoader</span>.pulloutMemberStatus().loadMemberLogin(<span class="point">loingCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">loginCB</span>.query().addOrderBy_LoginDatetime_Desc();
+    });
+});
+
+<span class="localvar">memberList</span>.forEach(<span class="point">member</span> <span class="keyword">-&gt;</span> {
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="abbreviation">...</span>
+
+    <span class="localvar">member</span>.getMemberStatus().alwaysPresent(<span class="point">status</span> <span class="keyword">-&gt;</span> {
+        String statusName = <span class="localvar">status</span>.getMemberStatusName();
+        <span class="abbreviation">...</span>
+    });
+    <span class="localvar">member</span>.getMemberWithdrawalAsOne().ifPresent(<span class="point">withdrawal</span> <span class="keyword">-&gt;</span> {
+        LocalDateTime withdrawalDatetime = <span class="localvar">withdrawal</span>.getWithdrawalDatetime();
+        <span class="abbreviation">...</span>
+    });
+});
+</code></pre>
+
+	<h2 id="strictflute">1.1 からはより安心、安全を</h2>
+	<p>
+		勇気を出して変わったところがあります。
+	</p>
+	<h3 id="cbnullorempty">Strict: nullOrEmpty</h3>
+	<p>
+		CBでnullや空文字入れたら例外に！ <span class="frm">(オプションで戻せます)</span>
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20140813/strict11">外部サイト - jfluteの日記 - DBFlute-1.1になったらStrict</a></div>
+	<h3 id="cbnullorempty">Strict: SpecifyColumn</h3>
+	<p>
+		CBでSpecifyColumnしてないカラムをgetしたら例外に！ <span class="frm">(オプションで戻せます)</span>
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20141021/nonspecified">外部サイト - jfluteの日記 - DBFlute-1.1からはNonSpecifiedチェック</a></div>
+
+	<h2 id="migrationto11">1.0.x から 1.1 への移行</h2>
+	<p>
+		1.0.x から 1.1 へ移行するためのドキュメントが用意されています。
+	</p>
+	<div class="detailpage"><a href="../environment/upgrade/migration/migrate10xto11x.html">移行 1.0.x to 1.1</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,on,on句,結合条件,結合前の絞り込み" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>OnClause | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>OnClause</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		リレーションの結合における、on 句での絞り込み条件を設定します。
+	</p>
+	<p>
+		例えば、"会員ステータスの表示順が 2 であること" という条件があったとして、通常の Query では、この条件は where
+		句に展開されます。それを、where 句ではなく、結合(join)の on 句に展開されるようにできます。この場合、検索結果は大きく異なります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>where 句</dt><dd>表示順が 2 のステータスに関連付く会員のみ検索対象</dd>
+		<dt>on 句</dt><dd>表示順が 2 のステータスのみが会員と結合される(会員は全て検索対象)</dd>
+	</dl>
+	<p>
+		on 句での絞り込みは、言わば "結合時に結合先テーブルだけを絞り込む"
+		と捉えることができます。(実行計画の内部的な挙動と一致するかどうかは別にして)
+	</p>
+	<p>
+		これにより、DB構造上は {n : 1} 型リレーションでも、SQL上では(一時的な) {n : 0...1} 型リレーションになります。
+		例えば、SetupSelect をした場合、基点テーブルの Entity は on 句で絞り込まれた関連テーブルのデータを持っていません(null になる)。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wn.html#nonerelation">{n : 1} 型リレーション</a></div>
+	<p>
+		会話上では、<em class="keyword">おんくろーず</em> と表現します。
+	</p>
+	<h3 id="logicaldelete">論理削除との相性</h3>
+	<p>
+		主に、{n : 0...1} 型リレーションで関連テーブルに論理削除の概念がある場合に役に立ちます。OnClause
+		を使えば、結合前に論理削除されているレコードを除外することができます。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wn.html#nzeroonerelation">{n : 0...1} 型リレーション</a></div>
+	<h3 id="inlineview">InlineView でも実現可能</h3>
+	<p>
+		InlineView でも同じことが実現できます。
+	</p>
+	<div class="relatedpage"><a href="#oninline">OnClause と InlineView どちら？</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query().query[relation]() の後、<em class="keyword">on()</em>
+		を呼び出し、その後続けて、関連テーブルの Query (絞り込み条件)を実装します。
+	</p>
+<pre><span class="codetitle">e.g. OnClauseの実装手順 (Eclipseでコード補完) {MemberStatus} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().queryMemberStatus().on <span class="comment">// .on と打って enter</span>
+--
+cb.query().queryMemberStatus().<span class="point">on()</span>.setDisplayOrder_Equal(<span class="literal">2</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 会員ステータスの表示順が 2 のものだけを結合 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0
+      <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE
+     <span class="keyword">and</span> dfrel_0.DISPLAY_ORDER = <span class="literal">2</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="relationonly">リレーションに対してのみ利用</h3>
+	<p>
+		リレーションに対してのみ利用できます。基点テーブルの Query で呼び出した場合は例外です。
+	</p>
+	<h3 id="collabolation">他の機能との組み合わせ</h3>
+	<p>
+		他の機能との組み合わせは以下の通りです。
+	</p>
+	<ul>
+		<li>OrScopeQuery は利用可能</li>
+		<li>ColumnQuery は不可</li>
+		<li>ExistsReferrer, (Query)DerivedReferrer などのサブクエリは不可</li>
+	</ul>
+
+	<div class="inucolumn">
+		<h2 id="oninline">OnClause と InlineView どちら？</h2>
+		<p>
+			OnClause だけでなく、InlineView でも同じことを実現できます。さて、どちらを使えば良いのでしょうか？
+		</p>
+		<div class="relatedpage"><a href="./inlineview.html">InlineView</a></div>
+		<p>
+			他の機能との組み合わせで若干 InlineView の方が自由度が高いため、その制約に該当する場合は、InlineView
+			で良いでしょう。但し、そういうパターンよりも、"もうどっちでもいい"
+			というパターンの方が多いでしょう。そういう場合はやはりパフォーマンス勝負となります。
+		</p>
+		<p>
+			結局は、OrScopeQuery と UnionQuery の話と同様で、そのとき実行計画を調べて速い(と思われる)方を使うに尽きます。
+			大抵の場合はパフォーマンス上の違いは出ないでしょう。実際に、Exampleで100万件のデータを使って幾つかのパターンを試しましたが(PostgreSQL
+			8.4, Oracle 10g Xe)、全く差が見られません。それでも一応、DBFluteでは、基本を OnClause
+			に置くことをお奨めしています。万が一のインラインビューでフルスキャンが発生するリスクを考えてのことです。
+			また、実装がバラバラになるのも良くないというのもあるので、とにかく OnClause
+			を基本として、パフォーマンス的な改善が見込めるようであれば InlineView というスタンスが落としどころでしょうか。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

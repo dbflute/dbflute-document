@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteのパッケージ構成 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteのパッケージ構成</h1>
+	<p>
+		LastaFluteのパッケージや重要なクラス、リソースについて。
+	</p>
+	<div class="relatedpage"><a href="./index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">とりあえずこんな感じです</h2>
+	<p>
+		架空のプロジェクトである、マルチプロジェクト構成のMaihamaプロジェクトの Dockside ドメイン (Webアプリ)
+		を想定して説明します。これらは、LastaFlute の Example 実装として公開されています。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama">lastaflute-example-maihama | Github</a></div>
+<pre><span class="codetitle">e.g. Maihamaプロジェクトのパッケージ構成 @Directory</span><code>
+lastaflute
+ |-src/main/java
+ |-src/main/resources
+ |  |-jdbc.xml              <span class="comment">// ConnectionPoolなどの定義: 情報はconfigから取得</span>
+ |  |-jta+transactionManager.xml <span class="comment">// RomanticTransactionのオーバーライド</span>
+ |  |-jta+userTransaction.xml    <span class="comment">// トランザクションフックのオーバーライド</span>
+ |  |-lastaflute_assist.xml <span class="comment">// AssistantDirector や Config など横断アシスト</span>
+ |  |-lastaflute_core.xml   <span class="comment">// coreのコンポーネントを定義する xml</span>
+ |  |-lastaflute_db.xml     <span class="comment">// DB周りのコンポーネントを定義する xml</span>
+ |  |-lastaflute_web.xml    <span class="comment">// Web周りのコンポーネントを定義する xml</span>
+ |  |-<span class="point">lastaflute.xml</span>        <span class="comment">// アプリが include する、いわゆる "入り口xml"</span>
+ |  |-lastafw_creator.xml       <span class="comment">// LastaFluteで拡張するcreator定義</span>
+ |  |-lastafw_customizer.xml    <span class="comment">// LastaFluteで拡張するcustomizer定義</span>
+ |  |-selectable_datasource.xml <span class="comment">// SelectableDataSourceの定義 (オプション)</span>
+ |-<span class="abbreviation">...</span>
+
+maihama-base <span class="comment">// ベースプロジェクト (親pomやドキュメントなど)</span>
+ |-etc
+ |-modeling
+ |-pom.xml
+ <span class="abbreviation">...</span> <span class="comment">// パッケージは存在しない</span>
+
+maihama-common <span class="comment">// commonプロジェクト (DBFluteも含む)</span>
+ |-src/main/java <span class="comment">// Maihamaプロジェクト共通クラスたち</span>
+ |  |-org.docksidestage <span class="comment">// アプリのドメインパッケージ</span>
+ |     |-<span class="spotlight"><span class="subpoint">app</span></span> <span class="comment">// アプリ間で共通のアプリクラスのパッケージ ☆ホット＆規約デプロイ</span>
+ |     |  |-logic <span class="comment">// アプリ間で再利用するLogicを配置するパッケージ</span>
+ |     |  |  |-.gitkeep <span class="comment">// Maihamaでは何もない</span>
+ |     |  |-web <span class="comment">// アプリをまたぐ共有のweb部品だが、commonではActionは作らないこと</span>
+ |     |    |-base
+ |     |      |-login
+ |     |      |  |-MaihamaLoginAssist <span class="comment">// Maihama固有のログインAssist</span>
+ |     |      |-paging
+ |     |      |  |-PagingNavi <span class="comment">// ページングナビゲーションのためのクラス</span>
+ |     |      |-<span class="point">MaihamaBaseAction</span> <span class="comment">// Maihama全体のActionのスーパークラス</span>
+ |     |
+ |     |-<span class="subpoint">bizfw</span> <span class="comment">// 業務的なフレームワークを作るパッケージ (Di xmlに登録)</span>
+ |     |  |-.gitkeep <span class="comment">// 作ったら、app.xml or bizfw.xml (自分で作成) に登録</span>
+ |     |
+ |     |-<span class="subpoint">dbflute</span> <span class="comment">// DBFluteのパッケージ (DBFluteなので説明は割愛)</span>
+ |     |  |-allcommon
+ |     |  |-<span class="abbreviation">...</span>
+ |     |
+ |     |-<span class="subpoint">mylasta</span> <span class="comment">// Maihama固有のLastaFlute対応クラスのパッケージ</span>
+ |        |-action <span class="comment">// Actionに関するパッケージ</span>
+ |        |  |-MaihamaLabels   <span class="comment">// maihama_label 対応のクラス (自動生成)</span>
+ |        |  |-MaihamaMessages <span class="comment">// maihama_message 対応のクラス (自動生成)</span>
+ |        |  |-MaihamaUserBean <span class="comment">// ログインしているユーザー情報のBean</span>
+ |        |-direction <span class="comment">// LastaFluteをMaihama風にするパッケージ</span>
+ |           |-sponsor <span class="comment">// AssistantDirectorで設定する処理を切り出したクラスなど</span>
+ |           |  |-MaihamaActionAdjustmentProvider <span class="comment">// Action微調整</span>
+ |           |  |-MaihamaApiFailureHook <span class="comment">// APIリクエストの例外発生時の共通Hook</span>
+ |           |  |-MaihamaCookieResourceProvider <span class="comment">// クッキーのリソース</span>
+ |           |  |-MaihamaCurtainBeforeListener <span class="comment">// アプリ起動直前リスナー</span>
+ |           |  |-MaihamaListedClassificationProvider <span class="comment">// リスト表示される区分値</span>
+ |           |  |-MaihamaMailDeliveryDepartmentCreator <span class="comment">// メール配信部署の作成</span>
+ |           |  |-MaihamaSecurityResourceProvider <span class="comment">// 暗号化リソースなど</span>
+ |           |  |-MaihamaTimeResourceProvider <span class="comment">// 現在日時リソース</span>
+ |           |  |-MaihamaUserLocaleProcessProvider <span class="comment">// ユーザーロケール処理</span>
+ |           |  |-MaihamaUserTimeZoneProcessProvider <span class="comment">// ユーザータイムゾーン処理</span>
+ |           |
+ |           |-MaihamaConfig <span class="comment">// maihama_config 対応クラス(自動生成)</span>
+ |           |-MaihamaEnv    <span class="comment">// maihama_env 対応クラス(自動生成)</span>
+ |           |-<span class="spotlight"><span class="point">MaihamaFwAssistantDirector</span></span> <span class="comment">// ☆Lastaの現場フィットを司る</span>
+ |
+ |-src/main/resources  <span class="comment">// dbflute.xml や properties など</span>
+ |  |-dbflute.xml         <span class="comment">// DBFluteの xml (自動生成)</span>
+ |  |-lasta_di.properties <span class="comment">// Lasta Diの微調整properties (SmartDeploy設定など)</span>
+ |  |-maihama_config.properties  <span class="comment">// Maihamaプロジェクト共通の通常コンフィグ</span>
+ |  |-maihama_env.properties     <span class="comment">// Maihamaプロジェクト共通の環境依存コンフィグ</span>
+ |  |-maihama_env_integration.properties <span class="comment">// 環境依存コンフィグの結合用</span>
+ |  |-maihama_env_production.properties  <span class="comment">// 環境依存コンフィグの本番用</span>
+ |  |-maihama_label.properties   <span class="comment">// Maihamaプロジェクト共通のラベルリソース</span>
+ |  |-maihama_message.properties <span class="comment">// Maihamaプロジェクト共通のメッセージリソース</span>
+ |
+ |-src/allpackage/resources <span class="comment">// mavenでpackageするときの共通リソース</span>
+ |  |-.gitkeep <span class="comment">// Maihamaではまだ何もない</span>
+ |
+ |-src/integration/resources <span class="comment">// 結合環境のリソース</span>
+ |  |-maihama_env.properties <span class="comment">// 結合環境の環境依存コンフィグ</span>
+ |    <span class="comment">// ※ここに、Di xml や "envではないproperties" は置かないこと</span>
+ |
+ |-src/production/resources  <span class="comment">// 本番環境のリソース</span>
+ |  |-maihama_env.properties <span class="comment">// 本番環境の環境依存コンフィグ</span>
+ |    <span class="comment">// ※ここに、Di xml や "envではないproperties" は置かないこと</span>
+ |
+ |-<span class="abbreviation">...</span>
+
+maihama-dockside <span class="comment">// アプリプロジェクト (Webアプリ)</span>
+ |-src/main/java <span class="comment">// Docksideのクラスたち</span>
+ |  |-org.docksidestage
+ |     |-<span class="spotlight"><span class="subpoint">app</span></span> <span class="comment">// Actionなど、アプリクラスのパッケージ ☆ホット＆規約デプロイ</span>
+ |     |  |-logic <span class="comment">// 画面間で再利用するLogicを配置するパッケージ</span>
+ |     |  |  |-.gitkeep <span class="comment">// Docksideでは何もない</span>
+ |     |  |-<span class="subpoint">web</span>   <span class="comment">// Web関連のクラスを配置するパッケージ (Actionクラスなど)</span>
+ |     |     |-base   <span class="comment">// Actionなどのスーパークラスを配置するパッケージ</span>
+ |     |     |  |-login
+ |     |     |  |  |-DocksideLoginAssist <span class="comment">// Docksideに合わせたLoginAssist</span>
+ |     |     |  |-<span class="point">DocksideBaseAction</span> <span class="comment">// 全てのActionが継承するスーパークラス</span>
+ |     |     |  |-DocksideHeaderBean <span class="comment">// ヘッダー表示のデータを格納するBean</span>
+ |     |     |-signin <span class="comment">// ログイン画面 (Action, Form, WebBeanなど)</span>
+ |     |     |  |-SigninAction <span class="comment">// ログイン画面のAction</span>
+ |     |     |  |-SigninForm   <span class="comment">// ログイン画面のActionForm</span>
+ |     |     |-mypage <span class="comment">// マイページ画面 (Action, Form, WebBeanなど)</span>
+ |     |     |  |-MypageAction <span class="comment">// マイページ画面のAction</span>
+ |     |     |  |-<span class="abbreviation">...</span>
+ |     |     |-<span class="abbreviation">...</span>
+ |     |
+ |     |-<span class="subpoint">mylasta</span> <span class="comment">// Dockside固有のLastaFlute対応クラスのパッケージ</span>
+ |        |-action      <span class="comment">// Action関連の自動生成クラスや継承クラス、アノテーションなど</span>
+ |        |  |-DocksideHtmlPath <span class="comment">// HTMLテンプレートのパス定義クラス (自動生成)</span>
+ |        |  |-DocksideLabels   <span class="comment">// dockside_label 対応クラス (自動生成)</span>
+ |        |-direction   <span class="comment">// LastaFluteをMaihamaプロジェクト風にするところ☆</span>
+ |        |  |-DocksideConfig <span class="comment">// dockside_config 対応クラス(自動生成)</span>
+ |        |  |-DocksideEnv    <span class="comment">// dockside_emv 対応クラス(自動生成)</span>
+ |        |  |-<span class="spotlight"><span class="point">DocksideFwAssistantDirector</span></span> <span class="comment">// Lastaの現場フィットを司る</span>
+ |        |
+ |        |-mail     <span class="comment">// MailFluteのテンプレートから自動生成されたクラスのパッケージ</span>
+ |        |-template <span class="comment">// 汎用テンプレートから自動生成されたクラスのパッケージ</span>
+ |
+ |-src/main/resources  <span class="comment">// app.xml, dockside_env.properties など</span>
+ |  |-app.xml   <span class="comment">// Lasta Diが読み込む最初のxml</span>
+ |  |-dockside_config.properties  <span class="comment">// Docksideアプリの通常コンフィグ</span>
+ |  |-dockside_env.properties     <span class="comment">// Docksideアプリの環境依存コンフィグ</span>
+ |  |-dockside_env_integration.properties <span class="comment">// 環境依存コンフィグの結合用</span>
+ |  |-dockside_env_production.properties  <span class="comment">// 環境依存コンフィグの本番用</span>
+ |  |-dockside_label.properties   <span class="comment">// Docksideアプリのラベルリソース</span>
+ |  |-dockside_message.properties <span class="comment">// Docksideアプリのメッセージリソース</span>
+ |  |-<span class="subpoint">lastaflute_director.xml</span> <span class="comment">// Dockside固有の AssistantDirector や config</span>
+ |  |-logback.xml <span class="comment">// Logbackの設定 (ローカル環境用なのでDEBUG)</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="hierarchy">Di xml の階層構造</h3>
+	<p>
+		Lasta Di のページを参考に。
+	</p>
+	<div class="detailpage"><a href="../../lastadi/index.html#hierarchy">Di xml Hierarchy</a></div>
+	<p>
+		アプリで作成する Di xml と、その周辺の xml はこのような感じ。
+	</p>
+<pre><span class="codetitle">e.g. Di xml Hierarchy, embedded color: red for Lasta Di, blue for LastaFlute @app.xml</span><code>
+...Reading <span class="subpoint">lasta_di.xml</span>
+...Reading   <span class="subpoint">redefiner.xml</span>
+...Reading   <span class="abbreviation">...</span>
+...Reading <span class="spotlight">app.xml</span> <span class="comment">// *アプリで作成 (固定の名前)</span>
+...Reading   <span class="subpoint">convention.xml</span>
+...Reading     <span class="subpoint">embedded_convention.xml</span>
+...Reading   <span class="spotlight">dbflute.xml</span> <span class="comment">// *アプリで作成 (自動生成、ひとつのスキーマでひとつ)</span>
+...Reading     <span class="subpoint">rdb.xml</span>
+...Reading       <span class="subpoint">jta.xml</span>
+...Reading         <span class="attribute">jta+userTransaction.xml</span>
+...Reading         <span class="attribute">jta+transactionManager.xml</span>
+...Reading       <span class="attribute">jdbc.xml</span>
+...Reading         <span class="subpoint">jta.xml</span> (recycle)
+...Reading         <span class="attribute">lastaflute_assist.xml</span>
+...Reading           <span class="spotlight">lastaflute_director.xml</span> <span class="comment">// *アプリで作成 (固定の名前)</span>
+...Reading       <span class="subpoint">tx_aop.xml</span>
+...Reading         <span class="subpoint">jta.xml</span> (recycle)
+...Reading   <span class="attribute">lastaflute.xml</span>
+...Reading     <span class="attribute">lastaflute_core.xml</span>
+...Reading     <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="projstructure">Maihamaプロジェクトのプロジェクト構成</h3>
+	<p>
+		そもそものプロジェクト構成は、別ページにて紹介しています。
+	</p>
+	<div class="detailpage"><a href="./projstructure.html">LastaFluteのプロジェクト構成</a></div>
+
+	<h2 id="feature">おおまかな特徴</h2>
+	<p>
+		おおまかな特徴は以下の通り。
+	</p>
+	<dl class="textlist">
+		<dt>階層重視</dt>
+		<dd>
+			フレームワーク、プロジェクト共通、ドメイン共通、それぞれの画面、というように領域を明確に分け、スーパークラスもその階層ごとに存在しています。
+			たまに空っぽに近いスーパークラスもいますが、いずれ必要になる可能性があるため最初から存在します。
+		</dd>
+		<dt>設定ファイルも共通化</dt>
+		<dd>
+			propertiesなども、継承できるようにして共通のものはcommonで管理できるようにしています。
+			<div class="relatedpage"><a href="../architecture/objsafeprop.html#objectiveprop">継承できる Properties</a></div>
+		</dd>
+		<dt>xmlでコンフィグ管理しない</dt>
+		<dd>
+			環境ごとに切り替えるのは .properties ファイルだけで、xmlを切り替えるようなことはしない。
+			<div class="relatedpage"><a href="../architecture/objsafeprop.html#antidiswitch">これはやめたい！DI設定ファイルの環境ごと切り替え</a></div>
+		</dd>
+		<dt>LastaFluteの現場フィットをAssistantDirectorに集中</dt>
+		<dd>
+			xmlをコピーして拡張するというようなことがないように、LastaFlute側であらかじめ拡張ポイントを用意しています。
+			アプリは AssistantDirector だけを拡張して、LastaFluteを現場の要件にフィットさせます。
+			<div class="relatedpage"><a href="#genbafit">this - 現場フィットを一元管理</a></div>
+		</dd>
+		<dt>ホットデプロイ対象とそうでないものをパッケージ分け</dt>
+		<dd>
+			HotDeployトラブル (LinkageError や、不思議な ClassCastException など)
+			を避け、HotDeployのメリットを最大限享受するため、ホットデプロイ対象のクラスとそうでないクラスを明確にパッケージ分けしています。
+			<div class="relatedpage"><a href="#hotdeploy">this - ホットデプロイ対象を明確に</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="genbafit">現場フィットを一元管理</h2>
+	<p>
+		LastaFluteをアプリに適用させるための設定や調整 (つまり現場フィット) などは、AssistantDirector経由で行います。
+		決して、xmlをコピー拡張したりはしません。
+	</p>
+	<div class="detailpage"><a href="../architecture/assistantdirector.html">AssistantDirector</a></div>
+<pre><span class="codetitle">e.g. AssistantDirector で現場フィット @Directory</span><code>
+<span class="keyword">public abstract class</span> MaihamaFwAssistantDirector <span class="keyword">extends</span> CachedFwAssistantDirector {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Resource
+    <span class="keyword">protected</span> MaihamaConfig <span class="attribute">maihamaConfig</span>;
+
+    <span class="comment">// ===================================================================================
+    //                                                                              Assist
+    //                                                                              ======</span>
+    @Override
+    <span class="keyword">protected void</span> prepareAssistDirection(FwAssistDirection <span class="localvar">direction</span>) {
+        <span class="localvar">direction</span>.directConfig(<span class="localvar">nameList</span> -&gt; setupAppConfig(<span class="localvar">nameList</span>), <span class="literal">"maihama_config.properties"</span>, <span class="literal">"maihama_env.properties"</span>);
+    }
+
+    <span class="keyword">protected abstract void</span> setupAppConfig(List&lt;String&gt; <span class="localvar">nameList</span>);
+
+    <span class="comment">// ===================================================================================
+    //                                                                               Core
+    //                                                                              ======</span>
+    @Override
+    <span class="keyword">protected void</span> prepareCoreDirection(FwCoreDirection <span class="localvar">direction</span>) {
+        <span class="comment">// this configuration is on maihama_env.properties because this is true only when development</span>
+        <span class="localvar">direction</span>.directDevelopmentHere(<span class="attribute">maihamaConfig</span>.isDevelopmentHere());
+
+        <span class="comment">// titles of the application for logging are from configurations</span>
+        <span class="localvar">direction</span>.directLoggingTitle(<span class="attribute">maihamaConfig</span>.getDomainTitle(), <span class="attribute">maihamaConfig</span>.getEnvironmentTitle());
+
+        <span class="abbreviation">...</span>
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="apppackage">appはホット＆規約デプロイ</h2>
+	<p>
+		appパッケージ配下は、ホットデプロイであり、かつ、規約デプロイです。
+	</p>
+	<p>
+		Action や Form などは、修正したら再起動せずにアプリに反映されます。
+		また、Di xmlに登録することなく、クラス名の規約に従っていれば自動で Lasta Di のコンポーネントとして登録されます。
+	</p>
+	<dl class="keymainlist">
+		<dt>Action</dt><dd>app.webパッケージ配下の任意の場所に、XxxAction</dd>
+		<dt>Form</dt><dd>app.webパッケージ配下の任意の場所に、XxxForm</dd>
+	</dl>
+	<p>
+		TODO jflute
+	</p>
+
+	<h2 id="hotdeploy">ホットデプロイ対象を明確に</h2>
+	<h3 id="explicitsplit">明確なパッケージ分け</h3>
+	<p>
+		HotDeployトラブル (LinkageError や、不思議な ClassCastException など)
+		を避け、HotDeployのメリットを最大限享受するため、ホットデプロイ対象のクラスとそうでないクラスを明確にパッケージ分けしています。
+	</p>
+	<p>
+		ごちゃませにするとHotDeployトラブルがおきやすく、最初から分けていた方が世話ないという思想です。
+		<span class="frm">(ディベロッパーは、appの外からappの中のクラスを参照してはいけないと覚えるだけ)</span>
+	</p>
+<pre><span class="codetitle">e.g. ホットデプロイ対象を明確に @Directory</span><code>
+maihama-common
+/src/main/java
+ |
+ |-org.docksidestage
+ |  |-app       <span class="comment">// ルートパッケージ (ホットデプロイ、Actionクラスなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-dbflute   <span class="comment">// DBFluteのパッケージ (フレームワークなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-mylasta   <span class="comment">// Maihamaの現場フィットパッケージ</span>
+ |  |  |-<span class="abbreviation">...</span>
+
+maihama-dockside
+/src/main/java
+ |
+ |-org.dbflute.maihama
+ |  |-app       <span class="comment">// ルートパッケージ (ホットデプロイ、Actionクラスなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-mylasta   <span class="comment">// Docksideの現場フィットパッケージ</span>
+ |  |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		DBFluteのクラスも外に出します。DBFluteはそもそも HotDeploy に対応していません。バッチを叩いてまで HotDeploy
+		である必要はないと考えるからです。厳密には、Exクラスへの追加もありますが、頻度は少ないため割り切っています。
+	</p>
+	<h3 id="noreverse">逆参照はダメ</h3>
+	<p>
+		mylasta や dbflute などのホットデプロイ対象ではないパッケージから、appのクラスを参照してはいけません。
+		ホットデプロイが効かなくなってしまいます。また、それを意識することで、参照方向を規約的に統一することができます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

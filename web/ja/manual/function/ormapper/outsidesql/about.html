@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,外だしSQLとは？,About OutsideSql,What is OutsideSql" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>外だしSQL(OutsideSql)とは？ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>外だしSQL(OutsideSql)について</h1>
+	<p>
+		外だしSQLとはそもそもどういったものか？わりと事務的なページです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">外だしSQL (OutsideSql)</a></div>
+	${indexlist}
+
+	<h2 id="about">外だしSQL(OutsideSql)とは？</h2>
+	<p>
+		<em class="keyword">外部テキストファイルに記載されたSQL文をアプリケーションから実行</em> する機能のことを言います。
+	</p>
+	<h3 id="feature">二つの特徴</h3>
+	<p>
+		特徴はこの二つ。
+	</p>
+	<dl class="textlist">
+		<dt>2Way-SQL</dt><dd>アプリからでもツールからでも動作するSQLとして管理できるので、すぐに実行して確認できる</dd>
+		<dt>SQL変更に強い</dt><dd>必要なクラスは自動生成され、SQL変更の影響もコンパイルエラーとして検知できる</dd>
+	</dl>
+	<h3 id="gendriven">自動生成ドリブン</h3>
+	<p>
+		一般に、外だしにされたSQLを呼び出す際に必要な手続きは三つ。これらを自動生成することでタイプセーフな実装ができるようにし、最大限呼び出し手続きでのミスが発生しないようにしています。
+	</p>
+	<dl class="textlist">
+		<dt>どのSQLを実行するか？ <span class="frm">(BehaviorQueryPath)</span></dt><dd>SQLファイルを指定するパス定義を自動生成 (タイプセーフ呼び出し)</dd>
+		<dt>SQLにどんな値を渡すか？ <span class="frm">(ParameterBean)</span></dt><dd>SQLに渡すパラメータを格納するクラスを自動生成 (タイプセーフ設定)</dd>
+		<dt>検索結果をどう受け取るか？ <span class="frm">(CustomizeEntity)</span></dt><dd>SQL(select文)の結果セットに対応するクラスを自動生成 (タイプセーフ受け取り)</dd>
+	</dl>
+
+	<h2 id="twowaysql">2Way-SQL</h2>
+	<h3 id="canexecuteplain">素のままでも実行できる</h3>
+	<p>
+		外だしSQLはアプリケーションでもSQLツールでもどちらでも実行可能です。
+	</p>
+	<p>
+		昔はよく見かけた "画面から実行しないとそのSQLが本当に文法的に正しいかわからない"
+		という状態は基本的に発生しません。アプリを起動させる前にSQLツールなどで実行して気軽に確認ができます。
+	</p>
+	<p>
+		それをどうやって実現しているのか？ポイントが二つ。
+	</p>
+	<dl class="keymainlist">
+		<dt>バインド指定しつつテスト値</dt><dd>バインド変数指定でテスト値を含めることができる</dd>
+		<dt>動的制御をSQLコメントで</dt><dd>分岐やループなどのSQLの動的制御をSQLコメント形式で書ける</dd>
+	</dl>
+	<p>
+		この "アプリケーション・SQLツールの両方で実行可能なSQL" のことを <em class="keyword">2Way-SQL</em> と呼びます。
+	</p>
+<pre><span class="codetitle">e.g. 2Way-SQLでの実装 (アプリケーション・SQLツールの両方で実行可能) @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> mb.MEMBER_ID
+     , mb.MEMBER_NAME
+     , (<span class="keyword">select</span> sum(pur.PURCHASE_PRICE)
+          <span class="keyword">from</span> PURCHASE pur
+         <span class="keyword">where</span> pur.MEMBER_ID = mb.MEMBER_ID
+           <span class="keyword">and</span> pur.PAYMENT_COMPLETE_FLG = <span class="literal">0</span>
+       ) <span class="keyword">as</span> UNPAID_PRICE_SUMMARY
+     , stat.MEMBER_STATUS_NAME
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> MEMBER mb
+    <span class="comment">/*IF pmb.isPaging()*/</span>
+    <span class="keyword">left outer join</span> MEMBER_STATUS stat
+      <span class="keyword">on</span> mb.MEMBER_STATUS_CODE = stat.MEMBER_STATUS_CODE
+    <span class="comment">/*END*/</span>
+ <span class="comment">/*BEGIN*/</span>
+ <span class="keyword">where</span>
+   <span class="comment">/*IF pmb.memberId != null*/</span>
+       mb.MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="comment">/*END*/</span>
+   <span class="comment">/*IF pmb.memberStatusCode != null*/</span>
+   <span class="keyword">and</span> mb.MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCode*/</span><span class="literal">'FML'</span>
+   <span class="comment">/*END*/</span>
+   <span class="comment">/*IF pmb.unpaidMemberOnly*/</span>
+   <span class="keyword">and exists</span> (<span class="keyword">select</span> pur.PURCHASE_ID
+                 <span class="keyword">from</span> PURCHASE pur
+                <span class="keyword">where</span> pur.MEMBER_ID = mb.MEMBER_ID
+                  <span class="keyword">and</span> pur.PAYMENT_COMPLETE_FLG = <span class="literal">0</span>
+       )
+   <span class="comment">/*END*/</span>
+ <span class="comment">/*END*/</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> UNPAID_PRICE_SUMMARY <span class="keyword">desc</span>, mb.MEMBER_ID <span class="keyword">asc</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<h3 id="generateentity">SQLのメタデータからEntityを自動生成</h3>
+	<p>
+		この 2Way-SQL を利用することで、さらなる恩恵を得ることができます。アプリ用のSQLをSQLツールで実行できるということは、DBFluteというツールでも実行できます。
+	</p>
+	<p>
+		DBFluteでは、2Way-SQL の特性を活かし、実行することで得られるSQL自体のメタデータから、SQLの select 句のカラム構成に対応する
+		<em class="keyword">受け取り用の Entity クラス "CustomizeEntity" を自動生成</em> します。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/index.html">DBFluteタスク - Sql2Entityタスク</a></div>
+<pre><span class="codetitle">e.g. Sql2Entityで自動生成したクラスを生成 @Java</span><code>
+<span class="comment">// 自動生成されたSQLへの引数クラス (ParameterBean) を使ってバインド変数の値をセット</span>
+<span class="point">UnpaidSummaryMemberPmb</span> pmb = <span class="keyword">new</span> UnpaidSummaryMemberPmb();
+pmb.<span class="subpoint">setMemberName_PrefixSearch</span>(<span class="literal">"S"</span>);
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectUnpaidSummaryMember.sql)</span>
+List&lt;UnpaidSummaryMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().selectList(pmb);
+
+<span class="comment">// 自動生成された受け取りクラス (CustomizeEntity) を使って検索データを扱う</span>
+<span class="keyword">for</span> (<span class="point">UnpaidSummaryMember</span> member : memberList) {
+    Integer memberId = member.<span class="subpoint">getMemberId()</span>;
+    String memberName = member.<span class="subpoint">getMemberName()</span>;
+    String statusName = member.<span class="subpoint">getMemberStatusName()</span>;
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+</code></pre>
+
+	<h2 id="pmcomment">パラメータコメント</h2>
+	<p>
+		2Way-SQLを実現するための動的制御のためのSQLコメントを、パラメータコメントと呼びます。
+	</p>
+	<p>
+		パラメータコメントの中で、アプリケーションから指定される動的なパラメータを参照したり判定したりして、<em class="keyword">SQL上で分岐指定(IF文)・バインド変数指定</em> などができます。
+	</p>
+	<div class="detailpage"><a href="./pmcomment.html">パラメータコメント</a></div>
+<pre><span class="codetitle">e.g. 会員IDが指定されていれば、その会員IDで等値条件(テスト値：3)</span><code>
+<span class="comment">/*IF pmb.memberId != null*/</span>
+MEMBER_ID = <span class="comment">/*pmb.memberId*/</span>3
+<span class="comment">/*END*/</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 複雑な制御を入れたパラメータコメントの利用 (ループなど) @OutsideSql</span><code>
+<span class="comment">/*BEGIN*/</span>
+<span class="keyword">where</span>
+  <span class="comment">/*FOR pmb.memberNameList*/</span>
+  <span class="comment">/*NEXT 'and '*/</span>member.MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*#current*/</span><span class="literal">'S%'</span>
+  <span class="comment">/*END*/</span>
+  <span class="comment">/*IF pmb.memberStatusCode != null*/</span>
+  <span class="keyword">and</span> member.MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCode*/</span><span class="literal">'FML'</span>
+  <span class="comment">/*END*/</span>
+<span class="comment">/*END*/</span>
+</code></pre>
+
+	<h2 id="role">実装上の役割</h2>
+	<p>
+		実装上の役割としては、ConditionBeanでは実現できない複雑(非定型)なSQLを対象とします。
+		<em class="keyword">FK制約を付与できない(RDBとしては特殊な)関連での結合</em> や
+		<em class="keyword">group by 結果の取得</em>、<em class="keyword">集計関数以外のSQL関数の利用</em>
+		といった内容が含まれるSQLを記述することを想定しています。
+	</p>
+	<div class="relatedpage"><a href="../../../../introduction/dbaccessif.html">バランス重視のDBアクセスI/F</a></div>
+	<div class="relatedpage"><a href="../conditionbean/cbscope.html">ConditionBeanのスコープ</a></div>
+
+	<div class="inucolumn">
+		<h2 id="flexibility">自由度の高さを重視</h2>
+		<p>
+			バランス重視のDBアクセスI/Fの観点から、徹底して堅い ConditionBean
+			に対してバランスを得るために、DBFluteの外だしSQLは "自由度の高さ"
+			を重視しています。
+		</p>
+		<div class="relatedpage"><a href="../../../../introduction/dbaccessif.html">バランス重視のDBアクセスI/F</a></div>
+		<p>
+			DBFluteの外だしSQLは、SQLファイルと呼び出し構造が分離されています。
+			いざとなればSQLファイルの呼び出しは文字列で自由に選べます。
+			但し、通常はそういうことはせず、BehaviorQueryPath で安全な呼び出しを行います。
+			こういったラップ式にすることで、外だしSQLの機能の中で安全性と自由度のバランスを得ています。
+		</p>
+		<div class="relatedpage"><a href="./howto.html">外だしSQLの使い方</a></div>
+		<p>
+			例えば、一つのSQLファイルで一件検索もできればリスト検索もできます。呼び出し側でそのSQLファイルに対してアプローチしたい検索方法を自由に選べます。
+			実際にページング検索では、その特徴を活かして、一つのSQLで総件数取得とページング実データ取得の両方を実現しています。
+			また、SQLファイルの取扱いを開発規模次第でプロジェクト独自のものにしたい可能性もあります。
+			その場合は、BehaviorQueryPath の枠組みを外して利用します。
+			"いざとなったら何でもできる" のこの安心感が保たれることが、外だしSQLには求められているのです。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

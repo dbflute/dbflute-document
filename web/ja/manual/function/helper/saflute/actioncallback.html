@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFlute の ActionCallback | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFlute の ActionCallback</h1>
+	<p>
+		SAFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">ActionCallbackのきっかけ</h2>
+	<h3 id="interceptorheadache">Interceptorの悩み</h3>
+	<p>
+		Interceptorによる横断処理には以下の二つの問題があると考えました。
+	</p>
+	<dl class="keymainlist">
+		<dt>バリデーションよりも後</dt><dd>バリデーションエラーになると実行されない</dd>
+		<dt>Interceptorだらけ</dt><dd>StackTraceの汚れ、追いかけづらく、親近感が湧かない</dd>
+	</dl>
+	<h3 id="actionimpl">前後処理をAction自身に書く</h3>
+	<p>
+		ServletFilterでは、まだどのActionが実行されるかわからないので業務的な処理が書きづらく、そもそも扱いやすさでは
+		Interceptor とあまり変わりがありません。
+	</p>
+	<p>
+		そこで、"Strutsを通過した後、バリデーションよりも前"
+		のタイミングにて、Action自身に前後処理を書けるようにしています。
+		それを ActionCallback と呼んでいます。
+	</p>
+	<p>
+		それにより、すぐ近くにあって追いかけやすく親近感も湧き、Interceptorチェーンによる StackTrace
+		も汚れもなく、そして、Actionクラスにてオーバーライドすることで簡単に挙動も変更することもできます。
+	</p>
+
+	<h2 id="godhand">godHandBefore(), godHandFinally()</h2>
+	<p>
+		SAFluteでは、全てのActionで共通のスーパークラスを継承することを推奨しています。
+		そのスーパークラスにて、godHandBefore(), godHandFinally()を実装すると、リクエスト時に前後処理として呼び出されます。
+	</p>
+	<dl class="keymainlist">
+		<dt>godHandBefore()</dt><dd>バリデーションよりも前のタイミング</dd>
+		<dt>godHandFinally()</dt><dd>正常終了でもバリデーションエラーでも最後に必ず呼ばれる</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Actionのスーパークラスにて、共通の前後処理を実装 @Java</span><code>
+@Override
+<span class="keyword">public</span> String godHandBefore(BrActionExecuteMeta executeMeta) {
+    <span class="keyword">final</span> String path = <span class="keyword">super</span>.godHandBefore(executeMeta);
+    <span class="keyword">if</span> (path != null) {
+        return path;
+    }
+    <span class="keyword">final</span> String sslRedirect = processSslRedirect(executeMeta);
+    <span class="keyword">if</span> (sslRedirect != null) {
+        return sslRedirect;
+    }
+    processTrackingCode();
+    processUserAgent();
+    <span class="keyword">return null</span>;
+}
+
+@Override
+<span class="keyword">public void</span> godHandFinally(BrActionExecuteMeta executeMeta) {
+    <span class="keyword">if</span> (executeMeta.isForwardToJsp()) { <span class="comment">// JSPへフォワードするなら</span>
+        <span class="keyword">if</span> (userWebBean == <span class="keyword">null</span>) { <span class="comment">// basically true, however just in case</span>
+            <span class="keyword">final</span> MemberUserBean userBean = getUserBean();
+            userWebBean = <span class="keyword">new</span> MemberUserWebBean();
+            userWebBean.initialize(userBean, convertCoinLogic);
+        }
+    }
+    <span class="keyword">super</span>.godHandFinally(executeMeta);
+}
+</code></pre>
+
+	<h2 id="subcallback">callbackBefore(), callbackFinally()</h2>
+	<p>
+		godHandXxx()は、スーパークラス用のメソッドとして用意しています<span class="frm">(別にサブクラスでもオーバーライドできてしまいますが、やらないように)</span>。
+		サブクラス、つまり、末端の具象クラスのためのメソッドとして、callbackBefore(), callbackFinally() を用意しています。
+	</p>
+	<dl class="keymainlist">
+		<dt>callbackBefore()</dt><dd>godHandBefore()と仕様は同じ</dd>
+		<dt>callbackFinally()</dt><dd>godHandFinally()と仕様は同じ</dd>
+	</dl>
+	<p>
+		わざわざ分けているのは、画面開発者がオーバーライドするときに super
+		呼び忘れるトラブル<span class="frm">(何も動かなくなる事件)</span>が起きないようにするためで、super
+		を呼び忘れても問題のないサブクラス専用のメソッドを提供しています。
+	</p>
+	<p>
+		わざと、サブクラス用の方が覚えやすいまともな名前にしています。
+		godHandなんてメソッド、通常のコード補完で見ることほぼないでしょうし、見つけてもきもちわるくてオーバーライドしようとは思わないでしょう。
+		<span class="frm">(一方で、インパクトがありすぎてすぐに覚えちゃうという話もあるようですが...)</span>
+	</p>
+	<h3 id="callbackdisp">画面描画処理は callbackFinally() にて</h3>
+	<p>
+		サブクラスでの callback は、画面内リクエスト共通処理という扱いになります。
+		用途としては、例えば、画面描画のためのデータ準備処理を callbackFinally() で実装すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. Actionのサブクラスにて、画面描画処理をcallbackFinally()で実装 @Java</span><code>
+@Override
+<span class="keyword">public void</span> callbackFinally(BrActionExecuteMeta executeMeta) {
+    <span class="keyword">if</span> (executeMeta.isForwardToJsp()) { <span class="comment">// JSPへフォワードするなら</span>
+        <span class="abbreviation">...</span> <span class="comment">// そのJSPを描画するための準備処理</span>
+    }
+    <span class="keyword">super</span>.godHandFinally(executeMeta);
+}
+</code></pre>
+	<p>
+		こうすると、バリデーションエラーのときでも実行されます。@Execute の input
+		属性には、JSPをそのまま指定してOKです。
+		<span class="frm">(描画用の@Executeメソッドを用意してフォワードするやり方は、その入り口は外からは本来不要ですし、Interceptor
+		もまた動いてしまいますし、何かとスパゲッティになりがちなので推奨されません)</span>
+	</p>
+<pre><span class="codetitle">e.g. 画面描画処理は callbackFinally() でやるので、inputは普通にJSPを指定 @Java</span><code>
+<span class="comment">// input属性には、JSPを指定するのが流儀</span>
+@Execute(validate = <span class="literal">"doValidate"</span>, input = <span class="point">path_Member_MemberEditJsp</span>)
+<span class="keyword">public void</span> submit() {
+    <span class="abbreviation">...</span>;
+}
+</code></pre>
+
+	<h2 id="nandemocallback">認証チェックや業務例外ハンドリングなどなど</h2>
+	<p>
+		もろもろ ActionCallback で処理を行っています。<span class="frm">(Interceptorを "あまり" 使わないがSAFluteの流儀)</span>
+	</p>
+	<p>
+		SAFluteのフレームワーク<span class="frm">(TypicalBaseAction)</span>にて、既に以下の処理が ActionCallback に組み込まれています。
+	</p>
+	<ul>
+		<li>DBFluteの共通カラム自動設定のための AccessContext の初期化</li>
+		<li>DBFluteのSQL呼び出しActionのSQLコメントへの埋め込み CallbackContext の初期化</li>
+		<li>DBFluteのリクエスト内SQL発行階数のカウント CallbackContext の初期化とロギング処理</li>
+		<li>ログインチェック、自動ログインも含む</li>
+		<li>業務例外のハンドリング</li>
+		<li>Responseに no cache を付与</li>
+	</ul>
+	<div class="relatedpage"><a href="./loginhandling.html">SAFluteのログイン周り (Login Handling)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

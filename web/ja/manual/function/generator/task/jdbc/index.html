@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,JDBC,メタデータ,メタ情報,スキーマ情報" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>JDBCタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>JDBCタスク</h1>
+	${indexlist}
+
+	<h2 id="about">JDBCタスクとは？</h2>
+	<p>
+		スキーマのメタデータを取得するDBFluteタスクです。
+	</p>
+	<p>
+		DBFluteの自動生成機能(GenerateタスクやDocタスク、Sql2Entityタスク)を利用する前に、必ずこのタスクが実行されている必要があります。
+	</p>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>実装開始直前 (開発用DBスキーマの作成後)</li>
+		<li>DB変更の発生</li>
+		<li>DBFluteアップグレード直後</li>
+		<li>本番運用後のDB変更</li>
+	</ul>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">jdbc.(bat|sh)</em> をコマンドから実行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップが終わった時点から利用できます。
+		但し、スキーマが存在していないと無意味ですので、実行前にReplaceSchemaタスクなどでスキーマが作成されていることが前提です。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		JDBCタスクを実行すると処理が始まります。
+	</p>
+	<ul class="flowlist">
+		<li><a href="#metadata">1. スキーマのメタデータ取得</a></li>
+		<li><a href="#schemaxml">2. メタデータのXMLファイルを出力</a></li>
+	</ul>
+	<h3 id="metadata">1. スキーマのメタデータ取得</h3>
+	<p>
+		databaseInfoMap.dfprop に定義されているスキーマに接続して、メタデータを取得します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+	<h3 id="schemaxml">2. メタデータのXMLファイルを出力</h3>
+	<p>
+		取得したメタデータをDBFluteクライアント配下の <em class="keyword">schema/project-schema-[client-project].xml</em>
+		ファイルに出力します。このXMLファイルを <em class="keyword">SchemaXML</em>
+		と言います。通常、このファイルを直接編集したり、閲覧したりする必要はなく、他のDBFluteタスクが内部的に参照します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dictionary/alphabet/ws.html#schemaxml">SchemaXML</a></div>
+	<h3>補足</h3>
+	<p>
+		接続したスキーマにテーブルが一件もない場合は、エラーになって処理が中断します。実行前にReplaceSchemaタスクなどでスキーマを作成して下さい。
+	</p>
+
+	<h2 id="variousoption">様々なオプション</h2>
+	<p>
+		DBFluteプロパティを利用することで、様々なオプションが利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop">DBFluteプロパティ</a></div>
+
+	<h2 id="logging">JDBCタスクのログ</h2>
+	<p>
+		JDBCタスクの処理自体をトレースするログが出力されます。
+	</p>
+	<div class="detailpage"><a href="./logging.html">JDBCタスクのログ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

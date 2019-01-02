@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,allowEmptyStringQuery,空文字" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>EmptyStringQuery | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>EmptyStringQuery</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">状況依存</em> のスポット対応の機能です。普段は意識する必要はありません。
+	</p>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		ConditionBeanの絞り込み条件では、空文字を設定した場合にそれは無効な値として扱われます(無効な条件)。
+	</p>
+	<div class="relatedpage"><a href="../howto.html#basicspec">ConditionBeanの使い方 - 基本仕様</a></div>
+	<p>
+		ただし、空文字をどうしても有効な条件値として扱いたい場合に、ConditionBean
+		の設定で実現できます<span class="frm">(@since 0.9.7.8)</span>。ただし、この機能はその ConditionBean の全ての Query
+		呼び出しで有効になります。一つの ConditionBean で空文字の扱い方が違う場合の利用はお奨めされません。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+	<p>
+		もし、空文字での条件を "null もしくは空文字" という形式で利用したい場合は、この機能を使うまでもなく IsNullOrEmpty
+		で実現できます。
+	</p>
+	<div class="relatedpage"><a href="../query/isnullorempty.html">query() - IsNullOrEmpty</a></div>
+	<h3 id="twoedgedsword">諸刃の剣</h3>
+	<p>
+		TwoEdgedSword 認定のされた機能です。しっかり精度高く利用しないと、逆にカオスを生み出します。
+		空文字が "値がないこと" を示すのか "空文字という業務的な値" を示すのか、その場その場でありえる可能性を深く検討してからの利用が推奨されます。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<h3 id="dbfluteconfig">一律の設定</h3>
+	<p>
+		この機能を利用せず一律の設定で無効な値を例外にしたい場合は、DBFluteConfig を利用します。
+	</p>
+	<div class="relatedpage"><a href="../../runtime/allcommon/dbfluteconfig.html#emptystringqueryallowed">DBFluteConfig - emptyStringQueryAllowed</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		絞り込み条件などを設定する前に、ConditionBean の allowEmptyStringQuery() を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanに絞り込み条件が設定されているかどうか (Eclipseでコード補完) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.allEmS <span class="comment">// .allEmS と打って enter</span>
+--
+cb.<span class="point">allowEmptyStringQuery()</span>
+cb.query().setMemberAccount_Equal(<span class="keyword">""</span>); <span class="comment">// 空文字等値になる</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<p>
+		メソッドを呼び出した後の Query 呼び出しのみ設定が有効になります。
+	</p>
+	<h3 id="splitby">LikeSearch の SplitBy</h3>
+	<p>
+		LikeSearch の SplitBy において、例えば、区切り文字が "|" として "FOO||BAZ"
+		というような条件値を設定した場合は、二つ目の要素の空文字の条件は作成されません。
+		つまり、このメソッドを使う使わないに関わらず同じ挙動(無視される)となります。
+		(一つでも空白文字が存在すれば、それは空白文字という条件値として扱われ、条件が作成されます)
+	</p>
+	<h3 id="unionsubquery">Union や SubQuery では</h3>
+	<p>
+		Union や SubQuery などの ConditionBean にも設定は継承されます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

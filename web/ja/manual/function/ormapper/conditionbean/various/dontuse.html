@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,利用してはいけない,使ってはいけない" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CB - TableInfo | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CB - TableInfo</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		ConditionBeanには、フレームワーク内部の都合で public や protected
+		になっているメソッドが幾つかありますが、アプリでは利用してはいけないメソッドがあります。
+	</p>
+	<p>
+		"知ってしまったら使ってしまいそう" と思われる方は、このページは読まずに、すぐにDBFlute内の適当なページに飛んで下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/programming/completion/camelcase.html">DBFlute内の適当なページ</a></div>
+
+	<h2 id="dontuse">利用してはいけないメソッド</h2>
+	<dl class="textlist">
+		<dt>getSqlClause()</dt>
+		<dd>
+			ConditionBean内部でSQL文組み立てるクラスを取得するメソッドですが、アプリでは使ってはいけません。
+			アプリ用のメソッドから内部で呼び出されています。
+		</dd>
+		<dt>getSqlComponentOfOrderByClause()</dt>
+		<dd>
+			ConditionBean内部でOrderByを組み立てるクラスを取得するメソッドです。アプリでは使ってはいけません。
+			アプリ用のOrderBy系のメソッドから内部で呼び出されています。
+		</dd>
+		<dt>...FetchNarrowing()</dt>
+		<dd>
+			ignoreFetchNarrowing() や restoreIgnoredFetchNarrowing() は、 
+			FetchNarrowing (ページングの絞り込み処理)を内部的に調整するメソッドです。アプリには関係ありません。
+		</dd>
+		<dt>その他 x で始まるメソッド</dt>
+		<dd>
+			xregisterFreeParameter() や xregisterUnionQuerySynchronizer() など、"x"
+			で始まるメソッドは public、protected に関わらずアプリでは呼び出してはいけないメソッドです。
+		</dd>
+		<dt>その他、色々なメソッド</dt>
+		<dd>
+			特に protected メソッドでは、アプリで利用されることを想定していないメソッドがたくさんあります。
+			ExConditionBean にて拡張実装をするときは、惑わされないようにしましょう。
+			但し、ソースコードをしっかり読んだ上で、かつ、アップグレード時の変更も許容し(テストをしっかり書く)、
+			特殊な実装をするという場合はその限りではありません。
+		</dd>
+	</dl>
+	<p>
+		また、全般的に get, is, has で始まるメソッドの多くはアプリでは不要です。
+		呼び出しても内部情報が取得されるだけで動作には支障のないことが多いですが、不要なものを呼び出して良いことはありません。
+	</p>
+	<p>
+		これらは、基本的に利用していはいけませんが、ソースコードをしっかり読んだ上で、かつ、アップグレード時の変更も許容し(テストをしっかり書く)、
+		特殊な実装をするという場合はその限りではありません。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

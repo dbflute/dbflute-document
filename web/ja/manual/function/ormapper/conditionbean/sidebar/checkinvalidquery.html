@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,checkInvalidQuery,無効な条件のチェック,nullチェック,引数チェック,全件検索チェック" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CheckInvalidQuery | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CheckInvalidQuery</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="11xchanged">1.1.x (Java8版) より変わっています</h3>
+	<p>
+		1.1.x (Java8版) より、デフォルトでCheckInvalidQueryが有効になっています。nullや空文字の条件値は例外です。
+		また、メソッド名も少し変わっています。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>cb.ignoreNullOrEmptyQuery()</dt><dd>nullと空文字を無視する (例外にしない)</dd>
+		<dt>cb.checkNullOrEmptyQuery()</dt><dd>nullと空文字を例外にする (挙動をデフォルトに戻す)</dd>
+	</dl>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		ConditionBeanの絞り込み条件にて、無効な条件値(nullなど)を設定した場合に例外にします。
+	</p>
+	<p>
+		通常、Query の絞り込み条件の設定では、無効な条件値は "設定されなかったのと同じ"
+		という扱いになり、例外にはならず無視されます。(ConditionBean の基本仕様)
+	</p>
+	<div class="relatedpage"><a href="../howto.html#basicspec">ConditionBeanの使い方 - 基本仕様</a></div>
+	<p>
+		無効な条件値を例外として扱いたい場合に、この機能を使うことで実現できます。"その ConditionBean
+		で利用する条件値で無効なものは業務的に存在しない(やってこない)"
+		ということが大前提で、例えば "このテーブルは件数が膨大なので間違っても全件検索したくない"
+		というような場合に有効です。(すぐにわかる原因とはいえ、例えば 1000
+		万件レコードのテーブルに無条件の検索をしてしまうと、処理がすぐに戻ってこないのでややこしいものです)
+	</p>
+	<p>
+		ただ、基本的には ConditionBean に設定する前にしっかり null
+		チェック(無効値チェック)していれば全く問題ありませんし、本来そうするべきと考えられます。
+		<em class="keyword">チェックは早い段階であればあるほどデバッグがしやすく</em>、
+		また、値の安全性が確保されるためチェック以降のロジックがシンプルに実装できるようになります。ましてや、ConditionBean
+		以外のロジックも存在するのであれば、ConditionBean だけをチェックしても仕方ありません。
+		そういうことから、<em class="keyword">この機能を外部からのデータのチェックロジックの代わりにするのは推奨されません</em>。
+	</p>
+	<p>
+		既に無効な条件値であることが明示的にチェックされているのであれば、この機能を使う必要は基本的にありません。
+		敢えて使うとなれば、<em class="keyword">チェックロジックが間違っているときのための保険のためのチェック</em>
+		としての利用が想定されています。
+	</p>
+	<p>
+		こういったことから、<em class="keyword">対象テーブルの件数が膨大で、かつ、外部から来る条件値とその条件値のチェックロジック自体が不安に思えるような場合</em>
+		において、"より堅く実装する" という意味合いでこの機能を利用すると良いでしょう。
+	</p>
+	<h3 id="bhvcheck">Behavior自体にもチェックが</h3>
+	<p>
+		例えば selectEntity() や queryDelete() のような、そもそも "条件なし実行"
+		が(デフォルトでは)許されていない Behavior メソッドを利用する場合は、このチェック機能を使う意義は薄れます。
+		その場合、別途条件が付与されていても検索対象となる件数が多いというような場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../behavior/select/selectentity.html">Behavior - selectEntity(cb)</a></div>
+	<div class="relatedpage"><a href="../../behavior/update/querydelete.html">Behavior - queryDelete(cb)</a></div>
+	<h3 id="dbfluteconfig">一律の設定</h3>
+	<p>
+		この機能を利用せず一律の設定で無効な値を例外にしたい場合は、DBFluteConfig を利用します。
+	</p>
+	<div class="relatedpage"><a href="../../runtime/allcommon/dbfluteconfig.html#invalidquerychecked">DBFluteConfig - invalidQueryChecked</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		絞り込み条件などを設定する前に、ConditionBean の checkInvalidQuery() を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanに絞り込み条件が設定されているかどうか (Eclipseでコード補完) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.chIQ <span class="comment">// .chIQ と打って enter</span>
+--
+cb.<span class="point">checkInvalidQuery()</span>
+cb.query().setMemberId_Equal(<span class="keyword">null</span>); <span class="comment">// 例外になる</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<p>
+		メソッドを呼び出した後の Query 呼び出しのみ設定が有効になります。
+	</p>
+	<h3 id="multiplevalue">複数の条件値を登録する条件</h3>
+	<p>
+		例えば、FromTo, DateFromTo や LikeSearch の SplitBy などの "一つのカラムに対して複数の条件値を登録する条件"
+		の場合は、<em class="keyword">全ての値が無効な場合にのみ無効と判断</em>
+		され例外となります。<span class="frm">@since 0.9.7.9</span>
+	</p>
+	<div class="relatedpage"><a href="../query/fromto.html">FromTo</a></div>
+	<div class="relatedpage"><a href="../query/datefromto.html">DateFromTo</a></div>
+	<div class="relatedpage"><a href="../query/likesearch.html#split">LikeSearch - SplitBy</a></div>
+	<p>
+		なお、サブクエリ自体は、ここで言う "一つのカラムに対して複数の条件値を登録する条件"
+		には該当しません。例えば、InScopeRelation
+		などは解釈次第でそのように受け取れますが、サブクエリの条件はあくまで
+		"一つのカラムに対して別のクエリ(サブクエリ)を登録する条件"
+		という扱いになります。(もちろん、サブクエリ内の一つ一つのそれぞれの条件には該当します)
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

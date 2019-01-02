@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteRuntime,DBFluteランタイム,DBFluteフレームワーク,allcommon" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFluteランタイム | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteランタイム</h1>
+	${indexlist}
+
+	<h2 id="about">DBFluteランタイムとは？</h2>
+	<h3>DBFluteのフレームワーク</h3>
+	<p>
+		DBFluteランタイムは、DBFluteで自動生成されたクラスを処理する共通ライブラリ(JARファイル形式)です。DBFluteのフレームワークとも言えます。
+	</p>
+	<h3>アプリ実行時やコンパイルで必要</h3>
+	<p>
+		DBFluteを利用する場合は、アプリケーションのクラスパスにDBFluteランタイムが設定されている必要があります。自動生成されたクラスのコンパイルでも必要です。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/runtime.html">セットアップ - DBFluteランタイムの準備</a></div>
+
+	<h2 id="appuse">アプリで意識するクラス</h2>
+	<p>
+		アプリケーションで意識する(可能性のある)主なクラスは以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt><a href="./entity.html">Entity</a></dt>
+		<dd>全てのEntityが実装するEntityインターフェース</dd>
+		<dt><a href="./behaviorselector.html">BehaviorSelector</a></dt>
+		<dd>Behaviorのインスタンスを様々な形で提供するセレクタ</dd>
+		<dt><a href="./callbackcontext.html">CallbackContext</a></dt>
+		<dd>コールバックを利用したカスタマイズを提供するクラス</dd>
+		<dt><a href="./accesscontext.html">AccessContext</a></dt>
+		<dd>共通カラムの自動設定で利用するクラス</dd>
+		<dt>QLog</dt>
+		<dd>クエリログ(表示用SQLの実行ログ)を出力するクラス</dd>
+		<dt>XLog</dt>
+		<dd>実行ステータスログを出力するクラス</dd>
+		<dt><a href="./dbmeta.html">DBMeta</a></dt>
+		<dd>テーブル対応のメタデータのインターフェース</dd>
+		<dt><a href="../behavior/resultbean/list/index.html">ListResultBean</a></dt>
+		<dd>DBFluteにおけるリスト検索などで戻されるリスト型の結果オブジェクト</dd>
+		<dt><a href="../behavior/resultbean/paging/index.html">PagingResultBean</a></dt>
+		<dd>DBFluteにおけるページング検索で戻されるリスト型の結果オブジェクト</dd>
+		<dt><a href="../behavior/select/selectcursor.html">EntityRowHandler</a></dt>
+		<dd>ConditionBean のカーソル検索で利用されるコールバックインターフェース</dd>
+		<dt><a href="../../generator/task/sql2entity/procedurepmb.html">ProcedurePmb</a></dt>
+		<dd>プロシージャ対応の ParameterBean が実装するインターフェース</dd>
+		<dt><a href="./likesearchoption.html">LikeSearchOption</a></dt>
+		<dd>曖昧検索のオプションを指定するクラス。</dd>
+	</dl>
+
+	<h2 id="allcommon">allcommon</h2>
+	<p>
+		DBFluteランタイムと自動生成されるクラス(Entityなど)の架け橋となる
+		<em class="keyword">Generateタスクで自動生成される業務依存の共通クラス</em> があります。
+	</p>
+	<div class="detailpage"><a href="./allcommon/index.html">allcommon</a></div>
+
+	<h2 id="repogitry">SVNリポジトリ</h2>
+	<p>
+		<a href="https://www.seasar.org/svn/dbflute/trunk/dbflute-runtime">https://www.seasar.org/svn/dbflute/trunk/dbflute-runtime</a>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

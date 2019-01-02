@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,EMecha,イーメカ,NewClient,DBFluteクライアント,新規作成,DBFluteモジュール,ダウンロード,Download" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DBFluteクライアントの新規作成 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteクライアントの新規作成</h1>
+	${indexlist}
+	<p>
+		こちら、Java6,7 の DBFlute 向けのページです。Java8 の場合は、別のツールを利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="procedure">作成手順</h2>
+	<p>
+		ウィザード画面からDBFluteクライアント</a>を作成します(DBFluteモジュールのダウンロードも含む)。
+	</p>
+	<ol>
+		<li><em class="keyword">Package Explorer</em> 上でEclipseプロジェクトを選択して右クリック</li>
+		<li><em class="keyword">New - Other...</em> そして <em class="keyword">DBFlute Wizards - DBFlute New Client</em> を選択</li>
+		<li>基本的な情報(DBの種類やパッケージ、DB接続情報など)を入力</li>
+		<li><em class="keyword">Latest Version</em> ボタンを押して最新バージョンを指定</li>
+		<li><em class="keyword">Download DBFlute</em> ボタンを押してDBFluteモジュールをダウンロード</li>
+		<li>Finish! (DBFluteモジュールとDBFluteクライアントが作成される)</li>
+	</ol>
+	<div class="relatedpage"><a href="../../../generator/client/index.html">DBFluteクライアント</a></div>
+	<h3 id="packageexplorer">必ず Package Explorer から実行</h3>
+	<p>
+		表示された画面で "Eclipse Project" の値が空っぽの場合は、<em class="keyword">Package Explorer 上でEclipseプロジェクトを選択</em>
+		した状態でしっかり右クリックしているかどうか、もう一度確認して下さい。(例えば、Navigatorでの実行はサポートされていません)
+	</p>
+
+	<h2 id="input">入力項目</h2>
+	<p>
+		ここでのデータベース接続情報は、DBFluteがクラスの自動生成処理をする際に必要な接続情報です。
+		アプリケーション実行時の接続情報とは完全に独立しているため、全く同じである必要はありません。
+	</p>
+	<p>
+		データベース接続情報の設定値はDBMSによって変わります。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dbway/index.html">DBMSごとの取扱い</a></div>
+	<p>
+		以下、(*)の付いた項目は必須です。
+	</p>
+	<h3 id="eclipseproject">Eclipse Project (*)</h3>
+	<p>
+		対象のEclipseプロジェクト名。自動判別なので入力の必要なし。
+	</p>
+	<h3 id="clientproject">Client Project (*)</h3>
+	<p>
+		DBFluteクライアントプロジェクト名。利用するDBを識別できる名前(データベース名やスキーマ名など)が好ましい。
+	</p>
+	<h3 id="database">Database (*)</h3>
+	<p>
+		データベースの種類。リストから選択(MySQLやPostgreSQLなど)すると、選択したデータベースに合わせた情報が項目 Driver と Url
+		に自動設定されます。Driver は既に値が入力されていても上書きされます。Url は空っぽもしくは xxx
+		が残っている場合に限り上書きされます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/basicinfo/index.html#database">basicInfoMap.dfprop - database</a></div>
+	<h3 id="dicontainer">DI Container (*)</h3>
+	<p>
+		DIコンテナの種類。リストから選択(SeasarやSpringなど)。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/basicinfo/index.html#targetcontainer">basicInfoMap.dfprop - targetContainer</a></div>
+	<h3 id="packagebase">Package Base (*)</h3>
+	<p>
+		自動生成するクラスの基底パッケージ。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/basicinfo/index.html#packagebase">basicInfoMap.dfprop - packageBase</a></div>
+	<h3 id="driver">Driver (*)</h3>
+	<p>
+		DBFluteが利用するJDBCドライバのFQCN。
+	</p>
+	<p>
+		項目 Database をリストから選択することで <em class="keyword">自動で値が設定される</em>
+		ので、独自のJDBCドライバを利用したい場合のみ変更して下さい。
+	</p>
+	<h3 id="url">Url (*)</h3>
+	<p>
+		自動生成対象データベースの接続URL。
+	</p>
+	<p>
+		項目 "Database" をリストから選択することで自動でテンプレートが設定され、xxx
+		部分やその他アプリケーション環境と違う部分(ポート番号など)を変更して下さい。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html#url">databaseInfoMap.dfprop - url</a></div>
+	<h3 id="schema">Schema (*)</h3>
+	<p>
+		自動生成対象のスキーマ名。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html#schema">databaseInfoMap.dfprop - schema</a></div>
+	<h3 id="user">User (*)</h3>
+	<p>
+		接続ユーザ。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html#user">databaseInfoMap.dfprop - user</a></div>
+	<h3 id="password">Password (*)</h3>
+	<p>
+		接続ユーザのパスワード。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html#password">databaseInfoMap.dfprop - password</a></div>
+	<h3 id="version">DBFlute Version (*)</h3>
+	<p>
+		利用するDBFluteのバージョン。
+	</p>
+	<p>
+		<em class="keyword">Latest Version ボタンを押す</em>
+		ことで、インターネット経由で最新バージョンが自動設定されます。SNAPSHOT(RCも含む)を利用する場合は
+		"Latest Snapshot Version" ボタンを押して下さい。
+	</p>
+
+	<h2 id="button">ボタン項目</h2>
+	<h3 id="latestversion">Latest Version ボタン</h3>
+	<p>
+		このボタンを押すと、その場でインターネット経由で <em class="keyword">最新バージョン</em> が項目
+		"DBFlute Version" に自動設定されます。既に項目に値が設定されている場合は上書きされます。
+		インターネットが繋がっていない環境の場合は利用できません(押してはいけません)。
+	</p>
+	<h3 id="snapshotversion">Latest Snapshot Version ボタン</h3>
+	<p>
+		このボタンを押すと、その場でインターネット経由で <em class="keyword">最新SNAPSHOT(RCも含む)のバージョン</em>
+		が項目 "DBFlute Version" に自動設定されます。既に項目に値が設定されている場合は上書きされます。
+		インターネットが繋がっていない環境の場合は利用できません(押してはいけません)。
+	</p>
+	<h3 id="download">Download ボタン</h3>
+	<p>
+		このボタンを押すと、その場で項目 "DBFlute Version"
+		に指定されたDBFluteモジュールをダウンロードします。ダウンロード先はプロジェクト直下の "./mydbflute/dbflute-x.x.x"
+		です。その場でのダウンロード処理なので、DBFluteクライアントの作成をキャンセルしてもダウンロードされたファイルは残ります。
+		インターネットが繋がっていない環境の場合は利用できません(押してはいけません)。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

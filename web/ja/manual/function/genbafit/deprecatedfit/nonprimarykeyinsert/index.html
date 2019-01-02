@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,PKがない,主キーがない,PKなし,主キーなし" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>PKのないinsert | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>PKのないinsert</h1>
+	${indexlist}
+
+	<h2 id="about">PKのないinsertとは？</h2>
+	<p>
+		主キー(PK制約)の存在しないテーブルにおける insert 処理のことで、DBFluteでは PK
+		のないテーブルでは、Behavior に insert, update
+		などの更新系メソッドが生成されません。その場合、更新処理は外だしSQLで実装することになります。
+	</p>
+	<p>
+		DBFluteでは、基本的にはテーブルには必ずPK制約を付けることが推奨されています。
+		もし、PKの役割をするカラムは存在していてPK制約がないだけの場合は additionalPrimaryKey をご利用下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/additionalprimarykey/index.html">additionalPrimaryKeyMap.dfprop</a></div>
+	<div class="relatedpage"><a href="../../../../topic/dbdesign/pkconstraint.html">DB設計 - PK制約</a></div>
+	<p>
+		どうしてもPKに相当するカラムが存在しない場合は、insert
+		のみ Behavior で実行(PKのないinsert)ができるようなオプションがあります。
+	</p>
+
+	<h2 id="solution">PKのないinsertのオプション</h2>
+	<p>
+		littleAdjustmentMap.dfprop の isAvailableNonPrimaryKeyWritable
+		を有効にすることで、PKのないテーブルでも Behavior に insert() が生成されます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#isavailablenonprimarykeywritable">dfprop - isAvailableNonPrimaryKeyWritable</a></div>
+	<p>
+		ただし、デフォルト制約には対応していません。(全てのカラムが insert 文に列挙されます)
+	</p>
+	<p>
+		dbflute-multipledb-seasar-example にて、Example があります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

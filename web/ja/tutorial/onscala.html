@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ディベロッパー,Developer,チュートリアル,Tutorial,使い方,ドキュメント" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>DBFlute on Scala | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute on Scala</h1>
+	<p>
+		TODO jflute まだまだ作り途中です
+	</p>
+	${indexlist}
+
+	<h2 id="policy">ポリシー、十か条</h2>
+	<p>
+		<em class="keyword">DB変更に強いO/Rマッパー</em>、というテーマは崩さずに...
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>1.0.x系、1.1系</dt><dd>1.0.xはパイロット版、Java8 (1.1) になってからが本気</dd>
+		<dt>メインターゲット</dt><dd>JavaやC#でDBFluteに親しんでいた人</dd>
+		<dt>サブターゲット</dt><dd>Scalaやりながらもデータモデルを大切にする人</dd>
+		<dt>Javaとの互換</dt><dd>もちろん互換は崩すが、あまりにかけ離れたものにはしない。<span class="frm">※1.1仕様が前提</span></dd>
+		<dt>Scalaっぽさ</dt><dd>できる限り追従するが、DBFluteらしさを損ねてまではやらない</dd>
+		<dt>Immutable</dt><dd>アプリに直接戻すものはImmutable, Callback限定スコープでMutable</dd>
+		<dt>DBFluteの環境</dt><dd>自動生成エンジンとランタイムはJavaと共有、自動生成クラスがScala</dd>
+		<dt>ConditionBean</dt><dd>Callbackなどは改善して、他はわりとJavaのまま <span class="frm">★要検討</span></dd>
+		<dt>Entity</dt><dd>検索用(Immutable)、更新用(Mutable)。NullableカラムはOption型</dd>
+		<dt>Behavior</dt><dd>GoogleGuice管理。シングルトンからも取得できるように</dd>
+		<dt>プログラム型</dt><dd>ScalaのIntやLongを利用、日付はJodaTime</dd>
+	</dl>
+	<p>
+		というポリシーのもと、リーン・スタートアップ、インクリメンタル開発で進めていきます。
+	</p>
+
+	<h2 id="select">とにかく検索は？</h2>
+	<h3 id="selectentitycb">ConditionBean で一件検索 <span class="frm">*selectEntity(cb)</span></h3>
+<pre><span class="codetitle">e.g. 会員ID "1" 番で会員を一件検索 (関連テーブルの会員ステータスも一緒に取得) @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル : 会員ステータス</span>
+<span class="comment">// 絞り込み条件 : 会員IDが "1" 番である</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+<span class="keyword">val</span> member = DBFlutist.memberBhv.<span class="point">selectEntity</span> { cb <span class="keyword">=&gt;</span>
+  cb.setupSelect_MemberStatus
+  cb.query.setMemberId_Equal(<span class="literal">1</span>)
+}
+member.<span class="attribute">foreach</span> { mb <span class="keyword">=&gt;</span>          <span class="comment">// 会員: Option[Member] (Immutable)</span>
+  <span class="abbreviation">...</span> = mb.memberId             <span class="comment">// *会員ID       : Int</span>
+  <span class="abbreviation">...</span> = mb.memberName           <span class="comment">// *会員名称      : String</span>
+  <span class="abbreviation">...</span> = mb.memberAccount        <span class="comment">// *会員アカウント : String</span>
+  <span class="abbreviation">...</span> = mb.birthdate            <span class="comment">// 生年月日       : Option[LocalDate]</span>
+  <span class="abbreviation">...</span> = mb.formalizedDatetime   <span class="comment">// 正式会員日時    : Option[LocalDateTime]</span>
+  <span class="keyword">if</span> (mb.isMemberStatusCode_Formalized) { <span class="comment">// 会員ステータスの区分値判定</span>
+    <span class="abbreviation">...</span>
+  }
+  <span class="abbreviation">...</span> = mb.memberStatus.map(_.memberStatusName) <span class="comment">// 会員ステータス: Option</span>
+  <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="selectlistcb">ConditionBean でリスト検索 <span class="frm">*selectList(cb)</span></h3>
+<pre><span class="codetitle">e.g. 色々な絞り込み条件で会員をリスト検索 (関連テーブルもいろいろと) @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル:</span>
+<span class="comment">//  o 会員ステータス</span>
+<span class="comment">//  o 会員サービスと、その親テーブルのサービスランク</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称が "S" で始まる</span>
+<span class="comment">//  o 会員ステータスが "正式会員" である (区分値メソッド)</span>
+<span class="comment">//  o 支払い済みで200円以上の購入をしたことがある会員 (one-to-many)</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 生年月日の降順 (でも null は後ろにね)</span>
+<span class="comment">//  o 会員IDの昇順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+<span class="keyword">val</span> memberList = DBFlutist.memberBhv.<span class="point">selectList</span> { cb <span class="keyword">=&gt;</span>
+  cb.setupSelect_MemberStatus
+  cb.setupSelect_MemberServiceAsOne.withServiceRank
+
+  cb.query.setMemberName_PrefixSearch(<span class="literal">"S"</span>)
+  cb.query.setMemberStatusCode_Equal_Formalized
+
+  cb.query.existsPurchaseList { purchaseCB <span class="keyword">=&gt;</span>
+    purchaseCB.query.setPurchasePrice_GreaterEqual(<span class="literal">200</span>)
+    purchaseCB.query.setPaymentCompleteFlg_Equal_True
+  }
+
+  cb.query.addOrderBy_Birthdate_Desc.withNullsLast
+  cb.query.addOrderBy_MemberId_Asc
+}
+memberList.<span class="attribute">foreach</span> { mb <span class="keyword">=&gt;</span>
+  <span class="abbreviation">...</span> = mb.memberName
+  <span class="abbreviation">...</span> = mb.memberStatus.map(_.memberStatusName)
+  <span class="abbreviation">...</span> = mb.memberServiceAsOne.map(_.serviceRank.map(_.serviceRankName))
+}
+</code></pre>
+
+	<h3 id="selectpagingcb">ConditionBean でページング検索 <span class="frm">*selectPage(cb)</span></h3>
+<pre><span class="codetitle">e.g. 会員名称に "vi" が含まれる会員をページング検索 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル</span>
+<span class="comment">//  o 最終ログイン日時</span>
+<span class="comment">//  o 支払済みである購入の平均購入価格</span>
+<span class="comment">// 絞り込み条件</span>
+<span class="comment">//  o 購入に対する支払で、一回で3000円以上もの金額を支払ったことがある会員</span>
+<span class="comment">// ソート条件 : 最終ログイン日時の降順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+<span class="keyword">val</span> page = DBFlutist.memberBhv.<span class="point">selectPage</span> { cb <span class="keyword">=&gt;</span>
+  cb.specify.derivedMemberLoginList.max { subCB <span class="keyword">=&gt;</span>
+    subCB.specify.columnLoginDatetime
+  }(Member.ALIAS_lastestLoginDatetime)
+
+  cb.specify.derivedPurchaseList.avg { purchaseCB <span class="keyword">=&gt;</span>
+    purchaseCB.specify.columnPurchasePrice
+    purchaseCB.query.setPaymentCompleteFlg_Equal_True
+  }(Member.ALIAS_purchasePriceAverage)
+
+  cb.query.existsPurchaseList { purchaseCB <span class="keyword">=&gt;</span>
+    purchaseCB.query.existsPurchasePaymentList { paymentCB <span class="keyword">=&gt;</span>
+      paymentCB.query.setPaymentAmount_GreaterEqual(<span class="literal">3000</span>)
+    }
+  }
+
+  cb.query.addSpecifiedDerivedOrderBy_Desc(Member.ALIAS_lastestLoginDatetime)
+}
+page.<span class="attribute">foreach</span> { mb <span class="keyword">=&gt;</span>
+  <span class="abbreviation">...</span> = mb.memberName
+  <span class="abbreviation">...</span> = mb.lastestLoginDatetime
+  <span class="abbreviation">...</span> = mb.averagePurchasePrice
+}
+<span class="keyword">val</span> allRecordCount = page.allRecordCount
+<span class="keyword">val</span> allPageCount = page.allPageCount
+<span class="keyword">if</span> (page.hasPreviousPage) {
+  <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="selectcursorcb">ConditionBean でカーソル検索 <span class="frm">*selectCursor(cb)(handler)</span></h3>
+<pre><span class="codetitle">e.g. 会員名称に "vi" が含まれる会員をカーソル検索 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル</span>
+<span class="comment">//  o 現在の会員住所情報(業務的one-to-one)</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称に "vi" が含まれる</span>
+<span class="comment">//  o 二十歳になってから正式会員になった会員</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 会員ステータスの表示順</span>
+<span class="comment">//  o 会員サービスのサービスポイント数の降順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">selectCursor</span> { cb <span class="keyword">=&gt;</span>
+  cb.setupSelect_MemberAddressAsValid(currentDate)
+
+  cb.query.setMemberName_LikeSearch(<span class="literal">"vi"</span>)(_.likeContain)
+  cb.columnQuery(_.specify.columnFormalizedDatetime)
+    .greaterThan(_.specify.columnBirthdate).convert(_.addYear(<span class="literal">20</span>))
+
+  cb.query.queryMemberStatus.addOrderBy_DisplayOrder_Asc
+  cb.query.queryMemberServiceAsOne.addOrderBy_ServicePointCount_Desc
+} { mb <span class="keyword">=&gt;</span>
+  <span class="abbreviation">...</span> = mb.memberName
+  <span class="abbreviation">...</span> = mb.memberAddressAsOne.map(_.address)
+}
+</code></pre>
+	<h3 id="loadreferrer">子テーブルの検索 (LoadReferrer) <span class="frm">*selectXxx(cb)(loader)</span></h3>
+<pre><span class="codetitle">e.g. 会員をリスト検索して、子テーブルもいろいろと @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル:</span>
+<span class="comment">//  o 会員ステータス (その子テーブルである会員ログインも取得される予定)</span>
+<span class="comment">//  o <span class="point">購入と商品</span> (購入日時の降順で) (one-to-many, one-to-many-to-one)</span>
+<span class="comment">//  o <span class="point">購入支払</span> (支払日時の降順で) (one-to-many-to-many)</span>
+<span class="comment">//  o <span class="point">会員ステータス経由の会員ログイン</span> (ログイン日時の降順で) (many-to-one-to-many)</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称が "S" で始まる</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 会員IDの昇順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+<span class="keyword">val</span> memberList = DBFlutist.memberBhv.<span class="point">selectList</span> { cb <span class="keyword">=&gt;</span>
+  cb.setupSelect_MemberStatus <span class="comment">// 後で pullout されるので必要</span>
+  cb.query.setMemberName_PrefixSearch(<span class="literal">"S"</span>)
+  cb.query.addOrderBy_MemberId_Asc
+} { <span class="point">loader</span> <span class="keyword">=&gt;</span>
+  loader.<span class="point">loadPurchaseList</span> { purchaseCB <span class="keyword">=&gt;</span>
+    purchaseCB.setupSelect_Product
+    purchaseCB.query.addOrderBy_PurchaseDatetime_desc
+  }.<span class="point">withNestedReferrer</span> { loader <span class="keyword">=&gt;</span>
+    loader.loadPurcasePaymentList { paymentCB <span class="keyword">=&gt;</span>
+      paymentCB.query.addOrderBy_PaymentDatetime_desc
+    }
+  }
+  loader.<span class="point">pulloutMemberStatus</span>.loadMemberLoginList { loginCB <span class="keyword">=&gt;</span>
+    loginCB.query.addOrderBy_LoginDatetime_Desc
+  }
+}
+memberList.<span class="attribute">foreach</span> { mb <span class="keyword">=&gt;</span>
+  <span class="abbreviation">...</span> = mb.memberName
+  <span class="abbreviation">...</span> = mb.purchaseList.<span class="attribute">foreach</span> { pc <span class="keyword">=&gt;</span>
+    <span class="abbreviation">...</span> = pc.product
+    <span class="abbreviation">...</span> = pc.purchasePaymentList.<span class="attribute">foreach</span> { pay <span class="keyword">=&gt;</span>
+      <span class="abbreviation">...</span> = pay.paymentAmount
+      <span class="abbreviation">...</span> = pay.paymentDatetime
+    }
+  }
+}
+</code></pre>
+
+	<h2 id="update">そういえば更新とかは？</h2>
+	<p>
+		コンパニオンオブジェクトによる apply() での指定も検討しましたが、ダミー値運用を許容しないと登録カラムや更新カラムの限定化ができないため、
+		Callback限定スコープMutableで実現しました。また、その方が、区分値メソッドの恩恵も受けられるので。
+	</p>
+	<h3 id="insert">一件登録: insert()</h3>
+<pre><span class="codetitle">e.g. 会員を一件登録 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// Xavi (シャビ) という名の仮会員を登録</span>
+<span class="comment">//  o PKは自動採番</span>
+<span class="comment">//  o 共通カラムはdfpropの通りに自動設定</span>
+<span class="comment">//  o バージョン番号は初期値で自動設定</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">insert</span> { mb <span class="keyword">=&gt;</span>
+  mb.memberName = <span class="literal">"Xavi"</span>
+  mb.memberAccount = <span class="literal">"Passer"</span>
+  mb.birthdate = Option(<span class="abbreviation">...</span>)
+  mb.formalizedDatetime = None
+  mb.memberStatusCode_Provisional
+}
+<span class="comment">// ※設定されたカラムだけinsert文に列挙される</span>
+<span class="comment">// (未設定カラムは null もしくはデフォルト値で登録される)</span>
+</code></pre>
+	<h3 id="update">排他制御あり一件更新: update()</h3>
+<pre><span class="codetitle">e.g. 会員を排他制御ありで一件更新 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 会員ID "7" 番の会員を、会員名称を Xavi (シャビ) にして正式会員に更新</span>
+<span class="comment">//  o 共通カラムはdfpropの通りに自動設定</span>
+<span class="comment">//  o バージョン番号で排他制御 (楽観的並行性制御)</span>
+<span class="comment">//  o バージョン番号は自動インクリメント</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">update</span> { mb <span class="keyword">=&gt;</span>
+  mb.memberId = <span class="literal">7</span>
+  mb.memberName = <span class="literal">"Xavi"</span>
+  mb.memberStatusCode_Formalized
+  mb.versionNo = <span class="abbreviation">...</span> <span class="comment">// 編集画面表示時に検索されたバージョン番号</span>
+}
+<span class="comment">// ※設定されたカラムだけupdate文のset句に列挙される (未設定カラムは何も更新されない)</span>
+</code></pre>
+	<h3 id="updatenonstrict">排他制御なし一件更新: updateNonstrict()</h3>
+<pre><span class="codetitle">e.g. 会員を排他制御なしで一件更新 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 会員ID "7" 番の会員を、会員名称を Xavi (シャビ) にして正式会員に更新</span>
+<span class="comment">//  o 共通カラムはdfpropの通りに自動設定</span>
+<span class="comment">//  o バージョン番号は自動インクリメント</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">updateNonstrict</span> { mb <span class="keyword">=&gt;</span>
+  mb.memberId = <span class="literal">7</span>
+  mb.memberName = <span class="literal">"Xavi"</span>
+  mb.memberStatusCode_Formalized
+}
+<span class="comment">// ※設定されたカラムだけupdate文のset句に列挙される (未設定カラムは何も更新されない)</span>
+</code></pre>
+	<h3 id="update">排他制御あり一件削除: delete()</h3>
+<pre><span class="codetitle">e.g. 会員を排他制御ありで一件削除 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 会員ID "7" 番の会員を削除</span>
+<span class="comment">//  o バージョン番号で排他制御 (楽観的並行性制御)</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">delete</span> { mb <span class="keyword">=&gt;</span>
+  mb.memberId = <span class="literal">7</span>
+  mb.versionNo = <span class="abbreviation">...</span> <span class="comment">// 編集画面表示時に検索されたバージョン番号</span>
+}
+</code></pre>
+	<p>
+		※deleteNonstrict() は、排他制御はされないこと以外は同じ
+	</p>
+	<p>
+		※deleteNonstrictIgnoreDeleted() は、1.1以降はサポートされない
+	</p>
+	<p>
+		<span class="frm">★要検討：PKとバージョン番号だけなので、Tupleとか使って指定する方がいいかな？(どうせ検索Entityは突っ込めないので...)</span>
+	</p>
+	<h3 id="batchinsert">バッチ登録: batchInsert()</h3>
+<pre><span class="codetitle">e.g. 会員をバッチ登録 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// いろいろな会員を一括で登録</span>
+<span class="comment">//  o 共通カラムはdfpropの通りに自動設定</span>
+<span class="comment">//  o バージョン番号で排他制御 (楽観的並行性制御)</span>
+<span class="comment">//  o バージョン番号は自動インクリメント</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">batchUpdate</span> { batch <span class="keyword">=&gt;</span>
+  batch.add { mb <span class="keyword">=&gt;</span>
+    mb.memberName = <span class="literal">"Xavi"</span>
+    mb.memberStatusCode_Formalized
+    <span class="abbreviation">...</span>
+  }
+  batch.add { mb <span class="keyword">=&gt;</span>
+    mb.memberName = <span class="literal">"Iniesta"</span>
+    mb.memberStatusCode_Provisinal
+    <span class="abbreviation">...</span>
+  }
+  batch.add { mb <span class="keyword">=&gt;</span>
+    mb.memberName = <span class="literal">"Akagi"</span>
+    mb.memberStatusCode_Withdrawal
+    <span class="abbreviation">...</span>
+  }
+}
+<span class="comment">// ※設定されたカラムの最小公倍数のカラムセットがinsert文のset句に列挙される</span>
+<span class="comment">// (すべてのレコードで未設定カラムは null もしくはデフォルト値で登録される)</span>
+</code></pre>
+	<h3 id="batchupdate">排他制御ありバッチ更新: batchUpdate()</h3>
+<pre><span class="codetitle">e.g. 会員を排他制御ありでバッチ更新 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// いろいろな会員を一括で更新</span>
+<span class="comment">//  o 共通カラムはdfpropの通りに自動設定</span>
+<span class="comment">//  o バージョン番号で排他制御 (楽観的並行性制御)</span>
+<span class="comment">//  o バージョン番号は自動インクリメント</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">batchUpdate</span> { batch <span class="keyword">=&gt;</span>
+  batch.add { mb <span class="keyword">=&gt;</span>
+    mb.memberId = <span class="literal">1</span>
+    mb.memberStatusCode_Formalized
+    mb.versionNo = <span class="abbreviation">...</span> <span class="comment">// 編集画面表示時に検索されたバージョン番号</span>
+  }
+  batch.add { mb <span class="keyword">=&gt;</span>
+    mb.memberId = <span class="literal">3</span>
+    mb.memberStatusCode_Provisinal
+    mb.versionNo = <span class="abbreviation">...</span> <span class="comment">// 編集画面表示時に検索されたバージョン番号</span>
+  }
+  batch.add { mb <span class="keyword">=&gt;</span>
+    mb.memberId = <span class="literal">7</span>
+    mb.memberStatusCode_Withdrawal
+    mb.versionNo = <span class="abbreviation">...</span> <span class="comment">// 編集画面表示時に検索されたバージョン番号</span>
+  }
+}
+<span class="comment">// ※設定されたカラムだけupdate文のset句に列挙される (未設定カラムは何も更新されない)</span>
+<span class="comment">// ※全てのレコードにおいて、設定されたカラムセットが同じである必要がある</span>
+</code></pre>
+	<p>
+		※batchUpdateNonstrict() は、排他制御はされないこと以外は同じ
+	</p>
+	<h3 id="queryupdate">ConditionBeanで更新: queryUpdate(entity, cb)</h3>
+<pre><span class="codetitle">e.g. 会員をConditionBeanの条件で一気に更新 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// すべての仮会員を、正式会員にして、名前もシャビに更新してしまう</span>
+<span class="comment">//  o 共通カラムはdfpropの通りに自動設定</span>
+<span class="comment">//  o 排他制御はされない、バージョン番号は自動インクリメント</span>
+<span class="comment">//  o 全レコード更新は許されない</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">queryUpdate</span> { mb <span class="keyword">=&gt;</span>
+  mb.memberName = <span class="literal">"Xavi"</span>
+  mb.memberStatusCode_Formalized
+} { cb <span class="keyword">=&gt;</span>
+  cb.query.setMemberStatusCode_Provisional
+}
+<span class="comment">// ※設定されたカラムだけupdate文のset句に列挙される (未設定カラムは何も更新されない)</span>
+</code></pre>
+	<h3 id="querydelete">ConditionBeanで削除: queryDelete(cb)</h3>
+<pre><span class="codetitle">e.g. 会員をConditionBeanの条件で一気に削除 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// すべての仮会員を、削除する</span>
+<span class="comment">//  o 排他制御はされない</span>
+<span class="comment">//  o 全レコード削除は許されない</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.memberBhv.<span class="point">queryDelete</span> { cb <span class="keyword">=&gt;</span>
+  cb.query.setMemberStatusCode_Provisional
+}
+</code></pre>
+	<h3 id="varyingupdate">オプション付き一件更新: update(entity)(option)</h3>
+<pre><span class="codetitle">e.g. 購入をoption付きで一件更新 @Scala</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 購入ID "7" 番の購入の購入数をインクリメント</span>
+<span class="comment">//  o option でインクリメントするカラムを指定</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+DBFlutist.purchaseBhv.<span class="point">update</span> { pur <span class="keyword">=&gt;</span>
+  pur.purchaseId = <span class="literal">23</span>
+  pur.versionNo = <span class="abbreviation">...</span>
+} { option <span class="keyword">=&gt;</span>
+  option.self(_.specify.columnPurchaseCount).plus(1)
+}
+<span class="comment">// ※購入数(PurchaseCount)は、"PURCHASE_COUNT = PURCHASE_COUNT + 1" される</span>
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

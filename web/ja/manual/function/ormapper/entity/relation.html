@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Entity,エンティティ,リレーション,関連テーブル" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Entity間のリレーション | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Entity間のリレーション</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		Entityには、スキーマ上のテーブル間のリレーションが、関連テーブルへのプロパティ(メソッド)として反映されます。
+		そのプロパティを利用して、ConditionBeanなどで検索された関連テーブルのデータを取得することができます。
+	</p>
+	<p>
+		リレーションを持つのは、DomainEntity のみです。CustomizeEntity は、SQLのフラットな構造に対応する
+		Entity のため、リレーションを持ちません。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Entity</a></div>
+
+	<h2 id="type">リレーションのタイプ</h2>
+	<p>
+		リレーションのタイプ(種類)と、それぞれの特徴です。これらは、Entity
+		だけでなく、ConditionBean や Behavior など他のクラスにも通じる話です。また、ExampleDB
+		の構造を把握しておくと一層理解がしやすくなるでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../reference/example/maihamadb.html">MaihamaDB</a></div>
+	<h3 id="manytoone">many-to-one (親テーブル)</h3>
+	<dl class="textlist">
+		<dt>例えば、会員を基点とした場合は？</dt>
+		<dd>会員ステータスが該当</dd>
+		<dt>many-to-one であることの判定基準</dt>
+		<dd>
+			FK制約(or AdditionalForeignKey)で参照していること
+		</dd>
+		<dt>プロパティ名の特徴</dt>
+		<dd>
+			テーブル名がそのままキャメルケースとなったもの(例えば、memberStatus)。
+			但し、同じ関連テーブルへのリレーションが複数存在する場合は、プロパティ名の最後に "By[FKカラム名]" が付与される。
+		</dd>
+		<dt>逆方向のリレーション</dt>
+		<dd>
+			同時に、関連テーブル側には、基点テーブルへの one-to-many のリレーションが存在する
+		</dd>
+	</dl>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wp.html#parenttable">Parent Table (親テーブル)</a></div>
+	<h3 id="onetoone">one-to-one</h3>
+	<dl class="textlist">
+		<dt>例えば、会員を基点とした場合は？</dt>
+		<dd>会員セキュリティ情報、会員退会情報が該当</dd>
+		<dt>one-to-one であることの判定基準</dt>
+		<dd>
+			基点テーブルを参照しているFKカラムに、PK制約(or AdditionalPrimaryKey)、もしくは、UQ制約(or
+			AdditionalUniqueKey)が定義されていること
+		</dd>
+		<dt>プロパティ名の特徴</dt>
+		<dd>
+			many-to-one のプロパティ名の法則に加えて、プロパティ名の最後に "AsOne"
+			が付与される(例えば、memberSecurityAsOne)。但し、逆方向のone-to-oneのリレーションのプロパティには付与されない。
+		</dd>
+		<dt>逆方向のリレーション</dt>
+		<dd>
+			関連テーブル側には、many-to-one と同じ仕様の基点テーブルへのリレーションが存在する。
+		</dd>
+		<dt>その他特徴</dt>
+		<dd>
+			FKの方向的には、one-to-many と同じ構造だが、実装上では
+			many-to-one と(ほぼ)同じように扱うことができるため、DBFlute
+			ではあまり子テーブルとは言わず、どちらかというと親テーブルという言葉にこのone-to-oneが含まれることが多い。
+		</dd>
+	</dl>
+	<h3 id="bizonetoone">業務的one-to-one</h3>
+	<dl class="textlist">
+		<dt>例えば、会員を基点とした場合は？</dt>
+		<dd>会員住所情報が該当</dd>
+		<dt>業務的one-to-one であることの判定基準</dt>
+		<dd>
+			AdditionalForeignKeyで fixedCondition が利用されていること
+		</dd>
+		<dt>プロパティ名の特徴</dt>
+		<dd>
+			many-to-one のプロパティ名の法則に加えて、AdditionalForeignKeyの fixedSuffix
+			がプロパティ名の最後にが付与される(例えば、memberAddressAsValid)。
+		</dd>
+		<dt>逆方向のリレーション</dt>
+		<dd>
+			そもそも、one-to-manyとしてのリレーションが存在しているため(そちらで代替できるため)、
+			この業務的one-to-oneに対応する逆方向のリレーションは存在しない。
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../genbafit/implfit/bizonetoone/index.html">現場フィット - 業務的one-to-one</a></div>
+	<h3 id="onetomany">one-to-many (子テーブル)</h3>
+	<dl class="textlist">
+		<dt>例えば、会員を基点とした場合は？</dt>
+		<dd>購入、会員ログイン情報が該当</dd>
+		<dt>one-to-many であることの判定基準</dt>
+		<dd>
+			基点テーブルをFK制約(or AdditionalForeignKey)で参照していること。
+		</dd>
+		<dt>プロパティ名の特徴</dt>
+		<dd>
+			many-to-one のプロパティ名の法則に加えて、プロパティ名の最後に "List"
+			が付与される(例えば、purchaseList)。
+		</dd>
+		<dt>逆方向のリレーション</dt>
+		<dd>
+			同時に、関連テーブル側には、基点テーブルへの many-to-one のリレーションが存在する
+		</dd>
+	</dl>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wc.html#childtable">Child Table (子テーブル)</a></div>
+
+	<h2 id="fktouq">ユニーク制約を参照するFK制約</h2>
+	<p>
+		DBFluteでは、リレーションのDB上の実装は "主キー制約を参照するFK制約"
+		が推奨されています。ユニーク制約を参照するFK制約のリレーションは、DBFluteでは基本的にサポートされません。
+	</p>
+	<p>
+		そのリレーションに関するJDBCのメタデータは取得されません(但し、DBMSによっては取得できる場合もあり得る：JDBCドライバの実装次第)。
+		additionalForeignKeyMap.dfprop にて手動で設定することで、Entity上のリレーションとして扱うことができますが、
+		完全なサポートは保証されません。SetupSelect, ExistsReferrer, LoadReferrer
+		などの基本機能は利用できますが<span class="frm">(@since 0.9.7.6)</span>、より複雑な機能においてはその限りではありません。
+	</p>
+	<div class="relatedpage"><a href="../conditionbean/setupselect/index.html">SetupSelect(Relation)</a></div>
+	<div class="relatedpage"><a href="../behavior/select/loadreferrer.html">LoadReferrer</a></div>
+	<div class="relatedpage"><a href="../../../reference/dfprop/additionalforeignkey/index.html">additionalForeignKeyMap.dfprop</a></div>
+	<p>
+		それでも、"影響の少ない修正で対応できる範囲でサポートする"
+		というスタンスになっていますので、もし、これに関する制限で困った場合は、フィードバックして相談されると良いでしょう。 
+	</p>
+	<div class="relatedpage"><a href="../../../topic/office/feedback.html">フィードバック</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

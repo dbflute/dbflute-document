@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,例外ハンドリング,ExceptionHandling,DBFluteの例外" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>例外ハンドリング | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>例外ハンドリング</h1>
+	${indexlist}
+
+	<h2 id="handling">業務的に扱うべき例外</h2>
+	<p>
+		業務的に扱うべき例外は、排他制御に関する例外です。
+	</p>
+	<p>
+		それ以外の例外は、基本的にはデバッグ用の例外(システムエラー扱い)となります。
+		時に特別な理由で(ピンポイントで)業務的な分岐のために利用する例外を除いては、例外の種類を意識することなく、
+		例外メッセージとスタックトレースをシステム管理用のログに出力して、いざ問題が発生したときの有効な手がかりとすると良いでしょう。
+	</p>
+	<h3 id="exclusive">排他制御の例外</h3>
+	<p>
+		排他制御の業務的なスコープ次第で変わりますが、基本的には以下の二つを想定しています。
+	</p>
+	<ul>
+		<li>org.seasar.dbflute.exception.EntityAlreadyUpdatedException</li>
+		<li>org.seasar.dbflute.exception.EntityAlreadyDeletedException</li>
+	</ul>
+	<h3 id="updated">EntityAlreadyUpdatedException</h3>
+	<p>
+		Behaviorの(排他制御ありの) update()、delete() などにおいて、すれ違い(処理直前に別の人が更新した場合など)が起きたときに発生する例外です。
+		(主に画面アプリからのリクエスト時に)この例外が発生したときは、すれ違いが起きたことを業務的に通知する必要があります。
+		アプリケーションで利用しているフレームワークの仕組みを利用して、統一的なハンドリングをすることが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="../../implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+	<p>
+		逆に、業務的にしっかりとハンドリングされるのであれば、この例外のメッセージは(本番環境の)ログとして残す必要性はあまりないと考えられます。
+	</p>
+	<h3 id="deleted">EntityAlreadyDeletedException</h3>
+	<p>
+		一件検索を行う selectEntity() や、update()、delete() などにおいて、対象レコードが存在しなかったときに発生する例外です。
+		この例外は、開発環境と本番環境で意味が異なります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>開発環境</dt><dd>検索条件のバグ or データバグ</dd>
+		<dt>本番環境</dt><dd>業務的なすれ違い <span class="frm">(処理直前に別の人が削除した場合など)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../../implfit/exclusivecontrol/index.html#deletedcheck">現場フィット - 排他制御 - 検索時の排他制御</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/behavior/select/selectentity.html">Behavior - selectEntity(CB)</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/select/selectentity.html">外だしSQL - selectEntity()</a></div>
+	<p>
+		この例外を実際に業務的なすれ違いとして扱うかどうかは、
+		アプリで考慮する排他制御のスコープ、業務的に(かつ、仕組み的に)あり得るのか否か、などに左右されます。
+		もし、業務的なすれ違いとして扱うときは、EntityAlreadyUpdatedException と同様の考慮をする必要があります。
+	</p>
+
+	<h2 id="appdata">例外メッセージのアプリデータ</h2>
+	<p>
+		DBFluteが発生させる例外メッセージ(主にSQLの例外)には、デバッグ作業の効率化のために、アプリデータを含むことがあります。
+		例えば、登録処理で一意制約違反が発生したときには、EntityAlreadyExistsException
+		の例外メッセージに、insert 文の(カラムデータが埋め込まれた)表示用SQLが含まれます。
+	</p>
+	<p>
+		これがあることによって、ディベロッパーは例外が発生したときに、より迅速にその原因を探ることができるようになります。
+		開発時はもちろんのこと、<em class="keyword">再現環境の構築がしづらく状況が掴みにくい本番環境</em>
+		における不具合の対応においてこそ重宝します。
+		もし、(本番環境で)何のデータで発生した登録エラーなのかどうかがわからなかったら、問題に直面している人は途方に暮れるでしょう。
+	</p>
+	<p>
+		但し、以下の項目を <em class="keyword">両方とも</em> 満たすようなシステム状況においては、ちょっと注意が必要です。
+	</p>
+	<dl class="textlist">
+		<dt>機密性の高い情報が暗号化されていない</dt>
+		<dd>機密性の高い情報(例えば、個人情報など)が、DB上に暗号化されずに格納されている。</dd>
+		<dt>ログ出力先のセキュリティ管理の信用度が低い</dt>
+		<dd>ログ出力先(例えば、ログファイル)の、インフラ的なセキュリティ管理の信用度が低く、機密性の高い情報を暗号化せずに出力することが認められていない。</dd>
+	</dl>
+	<p>
+		この両方を満たすような状況、そもそもこのような状況自体が推奨されません。
+		機密性が高いのであれば、DB上でも暗号化されていた方が安全でしょう。
+		また、ログファイルもサーバ上で(閲覧する際の手順も含めて)厳密に権限管理されるべきでしょう。
+		ただ、どうしても上記のような状況になってしまった場合のために、幾つかの対策が考えられます。
+	</p>
+	<h3 id="cipher">A. 本番環境のログを暗号化して出力</h3>
+	<p>
+		例外メッセージにアプリデータを含めているのでは DBFlute だけとは限りません。<em class="keyword">アプリ自体が例外メッセージにアプリデータを含めている可能性</em>
+		は十分にあります。なので、本番環境のログ自体を暗号化して出力するようにすることが一番です。
+	</p>
+	<p>
+		例えば、Log4j の独自の Appender を作成して、暗号化してからログに出力するような仕組みを本番環境にだけ設定します。
+		ログを閲覧する人は、複合化のプログラムを経由する必要がありますが、そのプログラムを利用できない人(閲覧の許可がない人)の閲覧を抑制することができます。
+		もちろん、暗号キーは厳密に管理する必要があります。
+	</p>
+	<h3 id="suppress">B. (せめて)DBFluteの例外メッセージを抑制</h3>
+	<p>
+		"A" もどうしてもできないという状況の場合(ほとんど想定されません)、もしくは、暗号化した情報ですらログに出力するのが認められていない場合、
+		アプリ実装自体が例外に含めているアプリデータに関してはここで議論しようがないので省略させて頂きますが、せめて、DBFlute
+		の例外メッセージを調整すると言った場合に、以下の方法で実現できます。
+	</p>
+	<ol>
+		<li>littleAdjustmentMap.dfprop にて InvokeAssistant を独自のものに</li>
+		<li>独自の InvokeAssistant で 独自の SQLExceptionHandler を利用するように</li>
+		<li>独自の SQLExceptionHandler でオーバーライドを利用して例外メッセージ内容を調整(抑制)</li>
+	</ol>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#extendedimplementedinvokerassistantclass">dfprop - extendedImplementedInvokerAssistantClass</a></div>
+	<p>
+		当然のことですが、<em class="keyword">先程述べた例外メッセージの利便性が失われる</em>
+		ことがトレードオフであることを必ず意識してください。
+		抑制していることをディベロッパーなど運用後に不具合を対応する人にしっかり通知しておくことも大事でしょう。
+	</p>
+	<p>
+		また、幾つかの例外では、ConditionBean の getDisplaySql() と、Entity の toString()
+		を利用しています。基本的には、明らかなアプリの実装バグの時、もしくは、(排他制御における)すれ違いが発生した時の例外のため、
+		前者であればそもそもアプリが全く動かない(本番に適用できない)、後者であれば例外メッセージはログには出力しない(する必要がない)、
+		ということで意識する必要性はほとんどないものですが、厳密さを求める場合は、以下のメソッドをExクラスにてオーバーライドして、
+		出力される項目が(本番環境だけ)絞り込まれるようにすることで抑制します。
+	</p>
+	<dl class="valuemainlist">
+		<dt>ConditionBean</dt><dd>getDisplaySql()</dd>
+		<dt>Entity</dt><dd>buildColumnString() <span class="frm">※toString()が内部で呼び出している</span></dd>
+	</dl>
+	<p>
+		機密性の高い情報を保持しているテーブルは多くはないと考えられるため、このやり方でピンポイントに抑制すると良いでしょう。
+		また、アプリでこれらメソッドを利用して例外メッセージを構築している場合にも同時に有効です。
+	</p>
+	<h4>(再帰可能な)自動の単体テストをしっかり書く</h4>
+	<p>
+		かなりDBFluteの内部に手を加えることになるため、アップグレード時などに期待する動きをチェックできる(再帰可能な)自動の単体テストをしっかり書くことが大前提です。
+		大抵の変更はコンパイルエラーですぐに検知するができますが、I/Fは変わらずに内部の動きだけが変わる可能性も(ここまで深い領域であれば)なきにしもあらずです。
+	</p>
+	<h4>さらに厳密なことを考えると</h4>
+	<p>
+		以下のことを忘れずに。
+	</p>
+	<ul>
+		<li>(アプリが)埋め込み変数コメントなどでSQL自体にアプリデータを埋め込んでる可能性</li>
+		<li>JDBCドライバの例外メッセージにアプリデータが含まれている可能性(JDBCドライバ次第)</li>
+	</ul>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-ymir-example では、Ymir の仕組みに従って、DBFluteの(主に排他制御の)例外がハンドリングされるようになっています。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#friends">DBFlute Example - 他のフレームワーク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

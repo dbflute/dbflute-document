@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>PagingSelectAndQuerySplit | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>PagingSelectAndQuerySplit</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		アーキテクト向けの機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wa.html#architect">Architect (アーキテクト)</a></div>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		ページング検索の実データ取得の検索において、select句のデータ取得とレコードの絞り込み処理を二つのSQLに分割します。
+		<span class="frm">(@since 1.0.5G)</span>
+	</p>
+	<p>
+		分割された一つ目のSQLは、where句はそのままで基点テーブルのPKだけをselect句に並べてPKのリストを検索します。
+		そして、分割された二つ目のSQLは、そのPKのリストだけを InScope でwhere句に並べ、本来欲しかったselect句のデータを取得します。
+	</p>
+<pre><span class="codetitle">e.g. ページング検索のConditionBean @DisplaySql</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberServiceAsOne().withServiceRank();
+cb.specify().derivedPurchaseList().max(subCB -&gt; {
+    subCB.specify().columnPurchasePrice();
+}, Member.ALIAS_highestPurchasePrice);
+cb.orScopeQuery(orCB -&gt; {
+    orCB.query().setMemberStatusCode_Equal_Formalized();
+    orCB.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+});
+cb.query().queryMemberStatus().addOrderBy_DisplayOrder_Asc();
+cb.query().addOrderBy_MemberId_Asc();
+<span class="point">cb.enablePagingSelectAndQuerySplit()</span>;
+cb.paging(<span class="literal">5</span>, <span class="literal">1</span>);
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. そして、分割されたSQL @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+<span class="keyword">select</span> <span class="point">dfloc.MEMBER_ID</span> as MEMBER_ID
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_SERVICE dfrel_22 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">left outer join</span> SERVICE_RANK dfrel_22_1 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">inner join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> (dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+     <span class="keyword">or</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+       ) 
+ <span class="keyword">order by</span> dfrel_0.DISPLAY_ORDER asc, dfloc.MEMBER_ID asc 
+ <span class="keyword">limit</span> <span class="literal">0</span>, <span class="literal">5</span>
+<span class="abbreviation">...</span>
+<span class="keyword">select</span> dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as MEMBER_NAME, <span class="abbreviation">...</span>
+     , dfrel_22.MEMBER_SERVICE_ID as MEMBER_SERVICE_ID_22, <span class="abbreviation">...</span>
+     , dfrel_22_1.SERVICE_RANK_CODE as SERVICE_RANK_CODE_22_1, <span class="abbreviation">...</span>
+     , (<span class="keyword">select</span> max(sub1loc.PURCHASE_PRICE)
+          <span class="keyword">from</span> PURCHASE sub1loc 
+         <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+       ) as HIGHEST_PURCHASE_PRICE
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_SERVICE dfrel_22 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">left outer join</span> SERVICE_RANK dfrel_22_1 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">inner join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> dfloc.MEMBER_ID <span class="keyword">in</span> <span class="point">(1, 4, 5, 7, 8)</span> 
+ <span class="keyword">order by</span> dfrel_0.DISPLAY_ORDER <span class="keyword">asc</span>, dfloc.MEMBER_ID <span class="keyword">asc</span>
+</code></pre>
+
+	<p>
+		あまり、使いたくない機能です。ですが、ごくごく稀に、select句に膨大なサブクエリや関連テーブルのデータ取得が存在しているページング検索をすると、
+		(DBMSによっては)select句部分の評価が大量に発生してパフォーマンスが劣化することがあります。
+		<span class="frm">(limitでレコードを絞っていても、その絞り込み処理が実行される前に全体の件数の分のselect句評価が実行されることがある)</span>
+	</p>
+	<p>
+		ディベロッパー向けに思えますが、アーキテクトへの相談無しに利用してはいけません。そういう意味で、"アーキテクト向けの機能" と謳っています。
+	</p>
+	<h3 id="twoedgedsword">諸刃の剣</h3>
+	<p>
+		TwoEdgedSword 認定のされた機能です。自分を斬りつけて痛い思いをする可能性のある機能です。
+		仕組み上、論理的な割り切りもあります。例えば、分割した片方のSQLでは不要な結合もあるかもしれませんが、安全性を考慮して何も調整されません。
+	</p>
+	<p>
+		最初から、非推奨メソッドです。使うときは明示的に警告を抑制してください。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		enablePagingSelectAndQuerySplit() を呼び出して、ページング検索します。seleclPage()
+		だけでなく、fetchFirst() などのlimitによる絞り込みがあれば selectList() でも利用できます。
+	</p>
+<pre><span class="codetitle">e.g. SelectAndQuerySplitの実装 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+<span class="abbreviation">...</span> <span class="comment">// もろもろの条件などを設定</span>
+cb.<span class="point">enablePagingSelectAndQuerySplit()</span>
+cb.paging(3, 1);
+
+<span class="abbreviation">...</span> = <span class="literal">memberBhv</span>.selectPage(cb); <span class="comment">// 指定されたカラムの条件値は埋め込まれる</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>引数の指定</dt>
+		<dd>
+			なし
+		</dd>
+	</dl>
+	<h3 id="compoundpk">複合主キーの場合は利用できない</h3>
+	<p>
+		基点テーブルが複合主キーの場合は利用できません。分割されずに普通にページング検索されます。
+	</p>
+	<h3 id="derivedorderby">SpecifiedDerivedOrderByでも利用できる <span class="frm">@since 1.0.5J</span></h3>
+	<p>
+		OrderByで SpecifiedDerivedOrderBy を使っている場合でも利用できます<span class="frm">(@since 1.0.5J)</span>。
+		PKのみのselect文の方でも、SpecifiedDerivedOrderBy で指定されている DerivedReferrer は展開されます。
+	</p>
+	<h3 id="notcountlater">PagingCountLaterではなくなる</h3>
+	<p>
+		ページング検索の処理の順序が "カウント検索が先"
+		になります。分割すると、DBMS独自のページング機構が効かなくなる可能性があるためです。
+		<span class="frm">(具体的にはMySQLの found_rows() 関数)</span>
+	</p>
+	<h3 id="timing">呼び出しタイミング</h3>
+	<p>
+		実行時に評価されるので、いつ設定しても構いません。(習慣的に、条件設定後で、実行する直前)
+	</p>
+	<h3 id="deprecated">非推奨メソッド</h3>
+	<p>
+		deprecated になっています。将来的に削除されるわけではありませんが、"安易に使ってくれるな" ということを示します。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

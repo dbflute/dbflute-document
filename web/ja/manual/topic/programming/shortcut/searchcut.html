@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,ショートカット,Eclipse,IDE" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>検索ショートカット | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>検索ショートカット</h1>
+	${indexlist}
+
+	<h2 id="about">検索ショートカットとは？</h2>
+	<p>
+		クラスの検索やHTMLファイルの検索など、IDE上で取り扱っているリソースを検索するショートカットです。
+		単なる名前による検索から階層や呼び出し元などプログラミングのエッセンスを使った検索ができます。
+	</p>
+
+	<h2 id="program">プログラム周り</h2>
+	<dl>
+		<dt>クラスの検索</dt>
+		<dd><em class="keyword">ctrl + shift + T</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd>
+			キャメルケースコード補完と同じ要領で Eclipse
+			上で参照できるクラスを探し、そのファイルを開くことができる。
+		</dd>
+		<dd>
+			アスタリスク "*" で前方一致や後方一致、部分一致なども利用できる。
+			JARファイルの中のクラスは、(jadがあれば)逆コンパイルしたソースが表示される。
+		</dd>
+		<dt>呼び出し元の検索</dt>
+		<dd><em class="keyword">ctrl + shift + G</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd>
+			選択したクラスやメソッドの呼び出し元を探すことができる。
+		</dd>
+		<dt>階層構造の検索</dt>
+		<dd><em class="keyword">ctrl + T</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd>
+			選択したクラスやメソッドの階層を探すことができる。
+			主に、選択したクラスのサブクラスを探すのに便利。
+		</dd>
+	</dl>
+
+	<h2 id="resource">リソース周り</h2>
+	<dl>
+		<dt>リソース(ファイル)の検索</dt>
+		<dd><em class="keyword">ctrl + shift + R</em></dd>
+		<dd>
+			キャメルケースコード補完と同じ要領で Eclipse
+			上に存在しているファイルを探し、そのファイルを開くことができる。
+			<span class="frm">(Mac では ctrl は command)</span>
+		</dd>
+		<dd>
+			クラスファイルも検索できるので、Eclipse上で 
+			java として管理しているクラスであれば、クラスの検索(ctrl + shift +
+			T)の代わりにもなる。(検索ノイズが減る)
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

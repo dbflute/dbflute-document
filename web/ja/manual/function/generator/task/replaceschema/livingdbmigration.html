@@ -1,0 +1,77 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,LivingDBMigration,LivingMigration,LivingDB,alter,本番環境,本番サーバ,リリース後のDB変更,alter文の自動生成" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>運用後DB変更 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>運用後DB変更</h1>
+	${indexlist}
+
+	<h2 id="livingdbmigration">LivingDBMigration</h2>
+	<h3 id="longpreface">長いまえおき</h3>
+	<p>
+		運用後DB変更は、生きているDB(LivingDB)に対してDB変更(DBMigration)をするということで、運用前の開発時点とはうってかわって神経質になることが多くなります。
+		当然、たっぷりと価値の高い業務データが既にDBに登録されているため、DBを一から作り直して反映させるというようなことはできません。
+		一番最初の本番スキーマ作成を除いて、DBFlute の ReplaceSchema を本番環境に適用させることはありません。
+	</p>
+	<p>
+		本番環境には差分DDL(alter文など)を適用する必要があります。差分DDLはERDツールから自動生成するか、手動で作成する必要があります。
+		一方で、新しいメンバーの開発環境や、新しいテスト環境などの構築のために、フルDDLも必要となります。そもそも開発環境では
+		ReplaceSchema を大いに活用して運用後も(運用後こそ)テストデータ管理を徹底していきたいものです。
+	</p>
+	<p>
+		ただ、差分DDLはこれはこれでしっかりと検証をしなくてはなりません。手動作成のものはもちろん、ツールから自動生成した場合でもぶっつけ本番は避けたいものです。
+		結合テスト環境などでの適用も考えられますが、結合テスト環境自体を ReplaceSchema
+		管理にする場合もありますし、そもそももっと前のタイミングで検証したいものです。
+	</p>
+	<p>
+		と考えていくと、やはり煩わしい作業なしではなかなかフルDDLと差分DDLの整合性を保つことはできません。
+		気をつけていればほとんどの場合は大丈夫とはいえ、運用後の開発というのは一つ一つの期間が短くリスクも高い、
+		そのわりには長く繰り返し続いていくもので、できれば安全度を高めて精神的負担も少なくしたいところです。
+	</p>
+	<h3 id="solution">DBFluteのアプローチ</h3>
+	<p>
+		DBFluteでは、<em class="keyword">生きているDBに対するDB変更(LivingDBMigration)</em>
+		を支援する機能にアプローチしています。この領域は環境依存が強く多種多様なため、仕組みで完全なレールを敷くことはなかなかできませんが、
+		少しでも運用後の業務の安全性とスピードを確保することができればと。
+	</p>
+	<dl class="textlist">
+		<dt><a href="./altercheck.html">AlterCheck</a></dt><dd>差分DDL(AlterDDL)とフルDDL(NewDDL)との整合性チェック</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

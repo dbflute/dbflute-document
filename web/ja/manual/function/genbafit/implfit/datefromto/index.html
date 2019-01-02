@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,日付範囲,日付検索,DateFromTo,ミリ秒操作,java.util.Calendar" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>日付範囲の条件指定を定型化(安全に) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>日付範囲の条件指定を定型化(安全に)</h1>
+	${indexlist}
+
+	<h2 id="about">日付範囲の条件の定番</h2>
+	<h3 id="failure">よくある失敗</h3>
+	<p>
+		ここでいう日付範囲の条件指定とは、例えば、"10月下旬(2010/10/20から10月一杯)の購入一覧を検索"
+		というような業務があった場合、ユーザの入力値は以下のような形が想定されます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>購入日時開始(from)</dt><dd>2010/10/20</dd>
+		<dt>購入日時終了(to)</dt><dd>2010/10/31</dd>
+	</dl>
+	<p>
+		実際には、色々なユーザインターフェースが存在し、手入力もあれば、カレンダーオブジェクトで選ばせたりと様々ですが、着目して頂きたいのは "購入日時終了(to)"
+		の値、10月一杯と言った場合の "何日まで" を人が入力すると、大抵はハロウィンの日が指定されると考えられます。
+	</p>
+	<p>
+		これをそのまま単純に処理してSQLに置き換えた、よくあるバグは以下の通りです。
+	</p>
+<pre><span class="codetitle">e.g. 人が入力した値でそのまま FromTo の処理をするとちょっとやばいことが... {PURCHASE} @Java</span><code>
+ <span class="keyword">where</span> PURCHASE_DATETIME &gt;= <span class="literal">'2010-10-20 00:00:00.000'</span>
+   <span class="keyword">and</span> PURCHASE_DATETIME &lt;= <span class="literal">'2010-10-31 00:00:00.000'</span>
+</code></pre>
+	<p>
+		このSQLは、致命的なミスがあります。31日になった瞬間のデータはヒットしますが、31日になってから
+		1 秒(もしくは 1 ミリ秒)でも経過したデータはヒットしません。
+	</p>
+	<dl class="keymainlist">
+		<dt>2010/10/31 00:00:00</dt><dd>ヒットする</dd>
+		<dt>2010/10/31 12:34:56</dt><dd>ヒットしない</dd>
+	</dl>
+	<p>
+		2010-10-31 をプログラム上でそのまま Date 型にパースすると、"2010/10/31 00:00:00"
+		になってしまうからです。人が思っている "31日まで" の "まで" がプログラム上で表現されていないからです。
+	</p>
+	<p>
+		時分秒を指定できるユーザインターフェースだとしても、時分秒を省略した場合においては、人は "指定された日付まで"
+		と解釈するのが自然と考えられます。かといって、データと入力条件の精度を同一にして時分秒を必須にさせるユーザインターフェースは、現実的ではありません。
+		<em class="keyword">(保持データの日付精度と検索条件の日付精度は別物です。
+		また、時分秒が業務的にあまり重要でなくても、いざというときのトレーサビリティのために時分秒をデータに保持しておくこともあるでしょう)</em>
+	</p>
+	<p>
+		この問題のややこしいのは、大抵のデータはうまくヒットするため(2010/10/31 00:00:00もヒットするし)、
+		テストで極大値・極小値がしっかり検証されていない場合に発覚時期が遅れるということです。
+		リリース後にユーザからの通知で判明するという最悪なシナリオは考えたくないものです。
+		小さな修正ですが、こういうのは一つのアプリで何箇所も存在する可能性があります。
+		別のところもチェックしてみると全く同じバグが潜んでいて、小さいとは言えリリース後の修正なので、
+		ある程度の規模のテストをし直してから再リリース...いや、考えたくないものです。
+	</p>
+	<p class="imgbox">図 : 日付範囲検索のよくある図
+		<a href="../../../../../data/model/genba/genba-implfit-DateFromTo-target.png" title="日付範囲検索のよくある図"><img src="../../../../../data/model/genba/genba-implfit-DateFromTo-target.png" alt="日付範囲検索のよくある図" width="520" height="300" /></a>
+	</p>
+	<h3 id="programway">プログラムでの制御方法</h3>
+	<p>
+		では、プログラム側でしっかり制御をすれば良いという話なのですが、大きくやり方が二つあります。
+	</p>
+	<dl class="textlist">
+		<dt>A. "まで" の日付を一日進めて(時分秒切り捨てて) LessThan</dt>
+		<dd>10/31 を 11/01 にして <em class="keyword">DATETIME &lt; '2010-11-01'</em> に</dd>
+		<dt>B. "まで" の日付の時分秒を埋めて LessEqual</dt>
+		<dd>10/31 を 10/31 23:59:59.999 にして <em class="keyword">DATETIME &lt;= '2010-10-31 23:59:59.999'</em> に</dd>
+	</dl>
+	<p>
+		"B" は、ミリ秒付きの日付型を使っている場合に限りますが、うまく動作するかどうかは DBMS
+		のミリ秒の精度に依存します。そのような細かいことを意識するよりも、"A" の方が単純で不安がありません。
+	</p>
+	<p>
+		ただ、ディベロッパーに何も言わないと、この二つのやり方がバラバラに点在してしまう可能性があります。
+		それでもちゃんと動くなら良いですが、アプリ実装の管理上は良いことではありません。
+	</p>
+	<p>
+		また、"A" にしても "B" にしても、日付操作が必要になります。言語によりますが、特に Java
+		の日付操作APIは少々煩雑で間違いやすいものです。"A"
+		で統一するように通知しても、プログラム上の日付操作でバグが出るようであれば落ち着きません。
+		やはり最終的には、そういった日付操作を考慮した FromTo
+		のユーティリティを作って提供するのが一番という話になるでしょう。
+		(それが既にあるのであれば特に問題はないでしょう)
+	</p>
+
+	<h2 id="solution">FromTo の compareAsDate()</h2>
+	<p>
+		DBFluteでは、ConditionBean において日付範囲の条件指定を定番化する FromTo
+		という絞り込み条件のメソッドを用意しています。オプションで compareAsDate()
+		を指定すると、先の A の制御を想定した日付(yyyy/MM/dd)だけを考慮した範囲条件になります。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/query/fromto.html">ConditionBean - FromTo</a></div>
+	<p>
+		実際にはたいした処理をしているわけではありませんが、たいした処理でないからこそアプリでの標準化が置き去りにされてしまうものです。
+		このような定番業務に対して、明示的な概念(名前)、そして明示的な機能を提供することで、少しでも着目されて細かいバグが減っていけばと考えます。
+	</p>
+	<h3 id="outsidesql">外だしSQLでは</h3>
+	<p>
+		外だしSQLでも、ParameterBean にて DateFromTo を利用できます。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/pmbpropoption.html#datefromto">ParameterBean - DateFromTo条件のオプション</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

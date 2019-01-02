@@ -1,0 +1,615 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Oracle,プロシージャ,ストアド,ファンクション,PL/SQL,ARRAY,STRUCT,OBJECT,TABLE,VARRAY,PL/SQL表,CallableStatement,JDBC" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Oracleの配列・構造体パラメータ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Oracleの配列・構造体パラメータ</h1>
+	${indexlist}
+
+	<h2 id="overview">配列や構造体のパラメータ</h2>
+	<p>
+		複雑な構造や実現難度の高さから機能制限がありながらも、限定的にサポートされているプロシージャのパラメータの型として、<em class="keyword">TABLE型(PL/SQL表)</em>
+		や <em class="keyword">OBJECT型</em> があります<span class="frm">(@since 0.9.7.6)</span>。
+		(VARRAY型は、DBFluteでの扱いとしてはTABLE型と変わりはないので、TABLE型の説明に集約されます)
+	</p>
+	<p>
+		Oracleのプロシージャの特殊な型に関する補足ををこのページにまとめています。"DBMSごとの取扱い" の
+		Oracle のページからの続き的な内容です。
+	</p>
+	<div class="relatedpage"><a href="./index.html#procedure">DBMSごとの取扱い - Oracle - プロシージャ</a></div>
+	<h3 id="introentitygen">OBJECT型対応Entityの自動生成</h3>
+	<p>
+		<em class="keyword">OBJECT型に対応する Entity (CustomizeEntity) がSql2Entityタスクにて自動生成されます</em>。
+		ParameterBean では対応する Entity 型プロパティが定義されますので、INパラメータ、OUTパラメータ共に、その Entity
+		経由でデータのやり取りができます。
+	</p>
+	<p>
+		OBJECT型の属性の構成を変更(属性の名前変更や削除など)すれば、Sql2Entityタスクの再実行で影響範囲をコンパイルエラーとして特定できます。
+	</p>
+	<h3 id="introoraclegen">Oracle依存処理の自動生成</h3>
+	<p>
+		通常、TABLE型やOBJECT型のパラメータをJDBC経由で扱うとき、OracleパッケージのJDBCドライバのクラスを利用しなければなりません(oracle.sql.STRUCTなど)。
+		DBFluteでは、<em class="keyword">Oracle依存の処理自体が自動生成されます</em>。(Oracle、かつ、オプションで有効にした場合)
+	</p>
+	<h3 id="introarraystruct">TABLE型、OBJECT型のコラボ</h3>
+	<p>
+		TABLE型の要素としてOBJECT型を、もしくは、OBJECT型の属性としてTABLE型を、どちらも利用できます。
+		プロパティの型なども自動解決されます。また、階層レベルも基本的に無限階層で利用できます(ただし、状況により制限あり)。
+	</p>
+
+	<h2 id="presetting">事前の設定(dfpropなど)</h2>
+	<p>
+		これらを利用するためには、Oracle のJDBCドライバのクラスにコンパイルレベルで依存しなければなりません。
+		DBFluteはデフォルトでは、DBMS依存のJDBCドライバのクラスにコンパイルレベル依存しないようになっていますので、
+		オプションで依存するように設定します。(具体的には、oracle.sql.ARRAY や oracle.sql.StructDescriptor などに依存します)
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/littleadjustment/index.html#isavailabledatabasenativejdbc">dfprop - isAvailableDatabaseNativeJDBC</a></div>
+	<p>
+		また、実現に Oracle の物理コネクションが必要(具体的には、oracle.sql.STRUCT
+		の生成時などに必要)となるため、物理コネクションを取得するためのコールバック処理を DBFluteConfig にて設定します。DBFlute
+		自身はデータベースコネクションの管理はしておらず、アプリ(DIコンテナ)から渡されたデータソース(DataSource)から取得できる論理的なコネクションを利用しています。
+		そのため、論理コネクションから物理コネクションを発掘するための処理をアプリから貰わなければなりません。(但し、S2Container の DBCP や Commons DBCP
+		を利用している場合は、デフォルトでその発掘作業が登録されていますので設定は不要です)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#physicalconnectiondigger">DBFluteConfig - physicalConnectionDigger</a></div>
+
+	<h2 id="table">TABLE型(PL/SQL表) <span class="frm">(別名：ARRAY型)</span></h2>
+	<p>
+		要素型が、データ型マッピングでサポートされている型(一部除く)、および、(サポートされている範囲の)TABLE型、OBJECT型の場合に限り利用することができます。
+		プロパティは List 型となります(ELEMENTの型はデータ型マッピングの通り)。
+	</p>
+	<div class="relatedpage"><a href="./index.html#datatype">Oracle - データ型マッピング</a></div>
+	<p>
+		VARRAY型も含めて配列の形をとる型を総称の意味合いも含めて、ARRAY型と呼ぶことがあります。
+		JDBCドライバでは、実際に Types.ARRAY に対応しており、また、DBFluteの内部での実装でも
+		Array という表現で扱っています。
+	</p>
+<pre><span class="codetitle">e.g. TABLE型の引数を持ったプロシージャの作成 (ReplaceSchemaで実行) @SQL</span><code>
+<span class="keyword">create type</span> VARCHAR2_TABLE <span class="keyword">is table of</span> <span class="dbtype">VARCHAR2(100)</span>;
+
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_TABLE_MANUAL_PARAMETER(
+  v_in_varchar_array <span class="attribute">in</span> VARCHAR2_TABLE
+  , v_out_varchar_array <span class="attribute">out</span> VARCHAR2_TABLE
+) <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  v_out_varchar_array := v_in_varchar_array;
+<span class="keyword">end</span> SP_TABLE_MANUAL_PARAMETER;
+/
+<span class="comment">-- #df:end#</span>
+</code></pre>
+<pre><span class="codetitle">e.g. TABLE型の引数を持ったプロシージャの呼び出し (IN, OUT) @Java</span><code>
+SpTableManualParameterPmb pmb = <span class="keyword">new</span> SpTableManualParameterPmb();
+pmb.<span class="point">setVInVarcharArray</span>(Arrays.asList(<span class="literal">"foo"</span>, <span class="literal">"bar"</span>));
+vendorCheckBhv.outsideSql().call(pmb);
+List&lt;String&gt; outList = pmb.<span class="point">getVOutVarcharArray()</span>;
+</code></pre>
+	<h3 id="tableaschema">TABLE型の定義スキーマ</h3>
+	<p>
+		メインスキーマ、追加スキーマのいずれかで定義されているTABLE型のみ利用可能です。
+		それ意外のスキーマに定義されているTABLE型を利用する場合は、そのスキーマを追加スキーマとして扱う必要があります。
+		<span class="frm">(追加スキーマのプロシージャやTABLE型に対する、ユーザ権限の付与忘れにご注意ください)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<h3 id="tableunsupported">TABLE型のサポートされない利用</h3>
+	<dl class="textlist">
+		<dt>TABLE型やVARRAY型のシノニム</dt>
+		<dd>
+			TABLE型やVARRAY型を参照するシノニムを型とするパラメータはサポートされません。
+			<span class="frm">※実現コストが高いため、実装を見送っています</span>
+		</dd>
+		<dt>TABLE型やVARRAY型のネスト</dt>
+		<dd>
+			要素型が(ARRAY型である)TABLE型やVARRAY型、つまり、List&lt;List&lt;String&gt;&gt;
+			となるような形はサポートされません。
+			<span class="frm">※oracle.sql.ARRAY型での取扱い方がわかっていません</span>
+		</dd>
+		<dt>CLOB (BLOBも含む)</dt>
+		<dd>
+			CLOB や BLOB などの型はサポートされません。
+			<span class="frm">※oracle.sql.ARRAY型での取扱い方がわかっていません</span>
+		</dd>
+		<dt>DBMS_SQL.NUMBER_TABLEなど</dt>
+		<dd>
+			DBMS_SQLのようなパッケージ内に定義された型を利用することはできません。
+			<span class="frm">※oracle.sql.ArrayDescriptor型での取扱い方がわかっていません</span>
+		</dd>
+		<dt>サポートされないOBJECT型の要素</dt>
+		<dd>
+			サポートされないOBJECT型は、同じくARRAY型の要素としても利用することはできません。
+			<div class="relatedpage"><a href="#objectunsupported">this - OBJECT型のサポートされない利用</a></div>
+		</dd>
+		<dt>ARRAYの要素型の認識ができない場合</dt>
+		<dd>
+			ARRAYの要素型の認識ができない場合、要素型が Object 型にマッピングされ動作はサポートされません。
+			<span class="frm">(ただ、ARRAYの要素型の認識されないケースはそもそも少ないと想定されています)</span>
+			<div class="detailpage"><a href="#elementtype">this - ARRAYの要素型の認識</a></div>
+		</dd>
+		<dd>
+			ただし、Object 型のプロパティが定義されていても、そのプロパティだけを利用しなければ(null のみの利用であれば)動作する可能性はあります。
+			また、スカラ値の要素の配列の場合も、型のつじつまが合えば動く可能性はあります。
+		</dd>
+	</dl>
+	<h4>その他、細かい制限の可能性</h4>
+	<p>
+		その他、細かい点(把握しき仕切れていないもの)で制限がありますので、必ずアプリ環境での動作確認をしてから利用するようにして下さい。
+	</p>
+	<h3 id="elementtype">ARRAYの要素型の認識</h3>
+	<p>
+		ARRAYの要素型がメタデータから判明しない場合は、List&lt;Object&gt;
+		にマッピングされ動作はサポートされません。ARRAYの要素型が認識される条件を満たしている必要があります。
+	</p>
+	<h4>ALL_COLL_TYPES が利用できる場合</h4>
+	<p>
+		ALL_COLL_TYPES が利用できる(Oracleの)バージョン、ALL_COLL_TYPES が利用できるユーザ環境においては、
+		全てのARRAYの要素型が認識されます。
+	</p>
+	<h4>ALL_ARGUMENTS, ALL_TYPES の場合</h4>
+	<p>
+		ALL_COLL_TYPES が利用できない場合は、代わりに ALL_ARGUMENTS と ALL_TYPES
+		を利用します。この場合、以下のような "ある一定の条件" を満たした場合のみ要素型が認識されます。
+	</p>
+	<ul>
+		<li>プロシージャパラメータ自体の型で利用</li>
+		<li>ARRAY型パラメータの要素型として利用(ネスト)</li>
+	</ul>
+	<p>
+		つまり、<em class="keyword">OBJECT型の属性の型でしか利用されていないARRAY型</em>
+		は、その要素型が認識できず Object 型になってしまいます。
+		その場合、実質的に動作はサポートされません。対応する型の話に限らず、OBJECT型の Entity の自動生成対象の条件にも影響がでますので注意です。
+	</p>
+
+	<h2 id="object">OBJECT型 <span class="frm">(別名：STRUCT型)</span></h2>
+	<p>
+		プロシージャのパラメータとして定義されているOBJECT型(ARRAY型の要素での利用も含む)、
+		および、そのOBJECT型の属性としてネストされているOBJECT型は、対応する CustomizeEntity
+		が自動生成され、ParameterBean のプロパティ型として利用することができます。
+		プロパティの型は自動生成された CustomizeEntity となります(ARRAY型の要素の場合は、Entity要素のList型)。
+	</p>
+	<p>
+		STRUCT型と呼ぶことがあります。JDBCドライバでは、実際に Types.STRUCT に対応しており、また、DBFluteの内部での実装でも
+		Struct という表現で扱っています。
+	</p>
+<pre><span class="codetitle">e.g. OBJECT型の引数を持ったプロシージャの作成 (ReplaceSchemaで実行) @SQL</span><code>
+<span class="keyword">create type</span> FOO_BEAN <span class="keyword">as</span> <span class="dbtype">object</span> (
+  FOO_ID        NUMBER(8),
+  FOO_NAME      VARCHAR2(20),
+  FOO_DECIMAL   NUMBER(5, 3),
+  FOO_DATE      DATE,
+  FOO_TIMESTAMP TIMESTAMP(3),
+  FOO_CLOB      CLOB <span class="comment">-- CLOB is unsupported</span>
+);
+
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_STRUCT_BASIC_PARAMETER(
+  v_in_foo_bean <span class="attribute">in</span> FOO_BEAN
+  , v_out_foo_bean <span class="attribute">out</span> FOO_BEAN
+) <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  v_out_foo_bean := v_in_foo_bean;
+<span class="keyword">end</span> SP_STRUCT_BASIC_PARAMETER;
+/
+<span class="comment">-- #df:end#</span>
+</code></pre>
+<pre><span class="codetitle">e.g. OBJECT型の引数を持ったプロシージャの呼び出し @Java</span><code>
+<span class="comment">// ## Arrange ##</span>
+SpStructBasicParameterPmb pmb = <span class="keyword">new</span> SpStructBasicParameterPmb();
+FooBean fooBean = <span class="keyword">new</span> <span class="point">FooBean</span>(); <span class="comment">// this class is auto-generated</span>
+fooBean.setFooId(1);
+fooBean.setFooName("foo");
+fooBean.setFooDecimal(<span class="keyword">new</span> BigDecimal("3.4"));
+fooBean.setFooDate(DfTypeUtil.toDate("2010-11-20 12:34:56"));
+fooBean.setFooTimestamp(DfTypeUtil.toTimestamp("2010-11-21 02:13:45.852"));
+<span class="comment">// CLOB is unsupported</span>
+<span class="comment">//fooBean.setFooClob("fooooo");</span>
+pmb.<span class="point">setVInFooBean</span>(fooBean);
+assertNull(pmb.getVOutFooBean());
+
+<span class="comment">// ## Act ##</span>
+vendorCheckBhv.outsideSql().call(pmb);
+
+<span class="comment">// ## Assert ##</span>
+assertEquals(fooBean.toString(), pmb.getVInFooBean().toString());
+FooBean outBean = pmb.<span class="point">getVOutFooBean()</span>;
+assertEquals(fooBean.getFooId(), outBean.getFooId());
+assertEquals(fooBean.getFooName(), outBean.getFooName());
+assertEquals(fooBean.getFooDecimal(), outBean.getFooDecimal());
+assertEquals(fooBean.getFooDate(), outBean.getFooDate());
+assertEquals(fooBean.getFooTimestamp(), outBean.getFooTimestamp());
+assertEquals(fooBean.getFooClob(), outBean.getFooClob());
+</code></pre>
+	<h3 id="objectgenerated">自動生成対象となるOBJECT型</h3>
+	<p>
+		OBJECT型に対応した CustomizeEntity が自動生成される条件は
+		<em class="keyword">プロシージャパラメータから辿れる</em>
+		ことです。例えば、以下のような状況が当てはまります。
+	</p>
+	<ul>
+		<li>プロシージャパラメータ自体の型で利用 <span class="frm">e.g. SP_FOO(v_in_foo_bean in FOO_BEAN) as ...</span></li>
+		<li>ARRAY型パラメータの要素型として利用 <span class="frm">e.g. List&lt;FooBean&gt;</span></li>
+		<li>OBJECT型パラメータの属性の型として利用(ネスト構造) <span class="frm">e.g. fooBean.getBarBean()</span></li>
+	</ul>
+	<p>
+		つまり、パラメータとして定義されているARRAY型、もしくは、OBJECT型から(複数階層も含めて)参照して辿れるOBJECT型が自動生成対象となります。
+		上記以外の使い方をしているOBJECT型であったとしても、<em class="keyword">複数箇所で利用しているうちのどれか一つが上記に当てはまれば自動生成されます</em>。
+	</p>
+	<p>
+		ただし例外として、OBJECT型をARRAY型の要素型(List&lt;FooBean&gt;)として利用している場合で、そのARRAYの要素型が認識できない状況においては、そのOBJECT型の
+		Entity は自動生成されません。
+	</p>
+	<h3 id="objectschema">OBJECT型の定義スキーマ</h3>
+	<p>
+		メインスキーマ、追加スキーマのいずれかで定義されているOBJECT型のみ利用可能です。
+		それ意外のスキーマに定義されているOBJECT型を利用する場合は、そのスキーマを追加スキーマとして扱う必要があります。
+		<span class="frm">(追加スキーマのプロシージャやTABLE型に対する、ユーザ権限の付与忘れにご注意ください)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<h3 id="objectunsupported">OBJECT型のサポートされない利用</h3>
+	<dl class="textlist">
+		<dt>OBJECT型のシノニム</dt>
+		<dd>
+			OBJECT型を参照するシノニムを型とするパラメータはサポートされません。
+			<span class="frm">※実現コストが高いため、実装を見送っています</span>
+		</dd>
+		<dt>CLOB (BLOBも含む)</dt>
+		<dd>
+			CLOB や BLOB などの型はサポートされません。定義自体はできますが、実際に値を入れて実行すると例外になります。
+			(テーブル上のカラムにおいてはサポートされています)
+			<span class="frm">※oracle.sql.STRUCT型での取扱い方がわかっていません</span>
+		</dd>
+		<dt>サポートされないARRAY型の属性</dt>
+		<dd>
+			サポートされないARRAY型は、同じくOBJECT型の属性としても利用することはできません。
+			<div class="relatedpage"><a href="#tableunsupported">this - TABLE型のサポートされない利用</a></div>
+		</dd>
+		<dt>ARRAYの要素型の認識ができない場合</dt>
+		<dd>
+			ARRAYの要素型での利用のときに、ARRAYの要素型の認識ができない場合、Object 型にマッピングされ動作はサポートされません。
+			<span class="frm">(ただ、ARRAYの要素型の認識されないケースはそもそも少ないと想定されています)</span>
+			<div class="relatedpage"><a href="#elementtype">this - ARRAYの要素型の認識</a></div>
+		</dd>
+		<dd>
+			ただし、Object 型のプロパティが定義されていても、そのプロパティだけを利用しなければ(null のみの利用であれば)動作する可能性はあります。
+			また、スカラ値の要素の配列の場合も、型のつじつまが合えば動く可能性はあります。
+		</dd>
+	</dl>
+	<h4>その他、細かい制限の可能性</h4>
+	<p>
+		その他、(把握仕切れていないものも含め)細かい点で制限がありますので、必ずアプリ環境での動作確認をしてから利用するようにして下さい。
+		また、<em class="keyword">dbflute-oracle-example に様々なパターンのExample</em>
+		がありますので、参考にして下さい。内部的な仕組みを確認する場合は、DBFluteランタイムの
+		<em class="keyword">OracleArrayType</em>, <em class="keyword">OracleStructType</em> がポイントとなります。
+	</p>
+	<div class="inucolumn">
+		<h3 id="">さらに広い世界</h3>
+		<p>
+			プロシージャコールのページで "フィードバックの重要性"
+			というコラムを書いていますが、このARRAY型やSTRUCT型はそれ以上に未到達の多い領域です。
+			事前に十分アプリでの適合を検証してから利用するようにお願いします。
+		</p>
+		<div class="detailpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html#feedback">プロシージャコール - フィードバックの重要性</a></div>
+	</div>
+	<h3 id="examplecode">Exampleコード</h3>
+	<p>
+		以下のコード例は、実際の Example の抜粋です。
+	</p>
+<pre><span class="codetitle">e.g. 複雑なネスト構造を持った型を引数に持ったプロシージャの作成 (ReplaceSchemaで実行) @SQL</span><code>
+<span class="keyword">create type</span> FOO_BEAN <span class="keyword">as</span> <span class="dbtype">object</span> (
+  FOO_ID        <span class="dbtype">NUMBER(8)</span>,
+  FOO_NAME      <span class="dbtype">VARCHAR2(20)</span>,
+  FOO_DECIMAL   <span class="dbtype">NUMBER(5, 3)</span>,
+  FOO_DATE      <span class="dbtype">DATE</span>,
+  FOO_TIMESTAMP <span class="dbtype">TIMESTAMP(3)</span>,
+  FOO_CLOB      <span class="dbtype">CLOB</span>
+);
+
+<span class="keyword">create type</span> BAR_BEAN <span class="keyword">as</span> <span class="dbtype">object</span> (
+  BAR_ID        <span class="dbtype">NUMBER(8)</span>,
+  BAR_NAME      <span class="dbtype">VARCHAR2(20)</span>,
+  BAR_DECIMAL   <span class="dbtype">NUMBER(5, 3)</span>,
+  BAR_DATE      <span class="dbtype">DATE</span>,
+  BAR_TIMESTAMP <span class="dbtype">TIMESTAMP(3)</span>,
+  BAR_CLOB      <span class="dbtype">CLOB</span>
+);
+
+<span class="keyword">create type</span> CORGE_BEAN <span class="keyword">as</span> <span class="dbtype">object</span> (
+  CORGE_ID        <span class="dbtype">NUMBER(8)</span>,
+  CORGE_NAME      <span class="dbtype">VARCHAR2(20)</span>,
+  CORGE_DECIMAL   <span class="dbtype">NUMBER(5, 3)</span>,
+  CORGE_DATE      <span class="dbtype">DATE</span>,
+  CORGE_TIMESTAMP <span class="dbtype">TIMESTAMP(3)</span>,
+  CORGE_CLOB      <span class="dbtype">CLOB</span>
+);
+
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_STRUCT_BASIC_PARAMETER(
+  v_in_foo_bean <span class="attribute">in</span> <span class="dbtype">FOO_BEAN</span>
+  , v_out_foo_bean <span class="attribute">out</span> <span class="dbtype">FOO_BEAN</span>
+) <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  v_out_foo_bean := v_in_foo_bean;
+<span class="keyword">end</span> SP_STRUCT_BASIC_PARAMETER;
+/
+<span class="comment">-- #df:end#</span>
+
+<span class="keyword">create type</span> FOO_TABLE <span class="keyword">is table of</span> FOO_BEAN;
+
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_STRUCT_LIST_PARAMETER(
+  v_in_foo_list <span class="attribute">in</span> <span class="dbtype">FOO_TABLE</span>
+  , v_out_foo_list <span class="attribute">out</span> <span class="dbtype">FOO_TABLE</span>
+) <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  v_out_foo_list := v_in_foo_list;
+<span class="keyword">end</span> SP_STRUCT_LIST_PARAMETER;
+/
+<span class="comment">-- #df:end#</span>
+
+<span class="keyword">create type</span> BAR_TABLE <span class="keyword">is table of</span> <span class="dbtype">BAR_BEAN</span>;
+<span class="keyword">create type</span> BAZ_TABLE <span class="keyword">is table of</span> <span class="dbtype">BAR_TABLE</span>;
+<span class="keyword">create type</span> QUX_TABLE <span class="keyword">is table of</span> <span class="dbtype">NUMBER(12)</span>;
+<span class="keyword">create type</span> QUUX_TABLE <span class="keyword">is table of</span> <span class="dbtype">NUMBER(12)</span>;
+<span class="keyword">create type</span> CORGE_TABLE <span class="keyword">is table of</span> <span class="dbtype">CORGE_BEAN</span>;
+
+<span class="keyword">create type</span> NESTED_BAZ_BEAN <span class="keyword">as</span> <span class="dbtype">object</span> (
+  BAZ_ID   <span class="dbtype">NUMBER(8)</span>,
+  BAZ_NAME <span class="dbtype">VARCHAR2(20)</span>,
+  BAZ_DATE <span class="dbtype">DATE</span>,
+  BAZ_LIST <span class="dbtype">BAZ_TABLE</span>
+  <span class="comment">-- could not define self reference</span>
+  <span class="comment">--,BAZ_SELF    NESTED_BAZ_BEAN</span>
+);
+
+<span class="keyword">create type</span> NESTED_BAR_BEAN <span class="keyword">as</span> <span class="dbtype">object</span> (
+  BAR_ID    <span class="dbtype">NUMBER(8)</span>,
+  BAR_NAME  <span class="dbtype">VARCHAR2(20)</span>,
+  BAR_DATE  <span class="dbtype">DATE</span>,
+  BAR_LIST  <span class="dbtype">BAR_TABLE</span>,
+  BAZ_BEAN1 <span class="dbtype">NESTED_BAZ_BEAN</span>,
+  BAZ_BEAN2 <span class="dbtype">NESTED_BAZ_BEAN</span>,
+  QUX_LIST  <span class="dbtype">QUX_TABLE</span>,
+  QUUX_LIST <span class="dbtype">QUUX_TABLE</span>
+);
+
+<span class="keyword">create type</span> NESTED_FOO_BEAN as object (
+  FOO_ID   <span class="dbtype">NUMBER(8)</span>,
+  FOO_NAME <span class="dbtype">VARCHAR2(20)</span>,
+  FOO_DATE <span class="dbtype">DATE</span>,
+  BAR_BEAN <span class="dbtype">NESTED_BAR_BEAN</span>,
+  QUX_LIST <span class="dbtype">QUX_TABLE</span>,
+  QUUX_LIST <span class="dbtype">QUUX_TABLE</span>,
+  CORGE_LIST <span class="dbtype">CORGE_TABLE</span>
+);
+
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_STRUCT_NESTED_PARAMETER(
+  v_in_foo_bean <span class="attribute">in</span> <span class="dbtype">NESTED_FOO_BEAN</span>
+  , v_out_foo_bean <span class="attribute">out</span> <span class="dbtype">NESTED_FOO_BEAN</span>
+) <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  v_out_foo_bean := v_in_foo_bean;
+<span class="keyword">end</span> SP_STRUCT_NESTED_PARAMETER;
+/
+<span class="comment">-- #df:end#</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 複雑なネスト構造を持った型を引数に持ったプロシージャの呼び出し (IN, OUT) @Java</span><code>
+<span class="comment">// = = = = = = = = = = = = = = = = = = = = = =</span>
+<span class="comment">// NESTED_FOO_BEAN (STRUCT)</span>
+<span class="comment">//  |-FOO_ID</span>
+<span class="comment">//  |-FOO_NAME</span>
+<span class="comment">//  |-FOO_DATE</span>
+<span class="comment">//  |-BAR_BEAN : NESTED_BAR_BEAN</span>
+<span class="comment">//  |  |-BAR_ID</span>
+<span class="comment">//  |  |-BAR_NAME</span>
+<span class="comment">//  |  |-BAR_DATE</span>
+<span class="comment">//  |  |-BAR_LIST : BAR_TABLE&lt;BAR_BEAN&gt;</span>
+<span class="comment">//  |  |-BAZ_BEAN1 : NESTED_BAZ_BEAN</span>
+<span class="comment">//  |  |  |-BAZ_ID</span>
+<span class="comment">//  |  |  |-BAZ_NAME</span>
+<span class="comment">//  |  |  |-BAZ_DATE</span>
+<span class="comment">//  |  |  |-BAZ_LIST : BAZ_TABLE&lt;BAR_TABLE&lt;BAR_BEAN&gt;&gt;</span>
+<span class="comment">//  |  |-BAZ_BEAN2 : NESTED_BAZ_BEAN</span>
+<span class="comment">//  |  |-QUX_LIST : QUX_TABLE&lt;NUMBER(12)&gt;</span>
+<span class="comment">//  |  |-QUUX_LIST : QUUX_TABLE&lt;NUMBER(12)&gt;</span>
+<span class="comment">//  |-QUX_LIST : QUX_TABLE&lt;NUMBER(12)&gt;</span>
+<span class="comment">//  |-QUUX_LIST : QUUX_TABLE&lt;NUMBER(12)&gt;</span>
+<span class="comment">//  |-CORGE_LIST : CORGE_TABLE&lt;CORGE_BEAN&gt;</span>
+<span class="comment">// = = = = = = = = = =/</span>
+<span class="comment">// ## Arrange ##</span>
+SpStructNestedParameterPmb pmb = <span class="keyword">new</span> SpStructNestedParameterPmb();
+{
+    <span class="comment">// struct in struct as IN parameter</span>
+    NestedFooBean fooBean = <span class="keyword">new</span> NestedFooBean();
+    fooBean.setFooId(<span class="literal">1</span>);
+    fooBean.setFooName(<span class="literal">"foo"</span>);
+    fooBean.setFooDate(DfTypeUtil.toDate(<span class="literal">"2010-11-20 12:34:56"</span>));
+    {
+        <span class="comment">// in struct in struct</span>
+        NestedBarBean barBean = <span class="keyword">new</span> NestedBarBean();
+        barBean.setBarId(<span class="literal">2</span>);
+        barBean.setBarName(<span class="literal">"bar"</span>);
+        barBean.setBarDate(DfTypeUtil.toDate(<span class="literal">"2010-11-21 09:51:23"</span>));
+
+        <span class="comment">// array&lt;struct&gt; in struct in struct</span>
+        List&lt;BarBean&gt; barList = DfCollectionUtil.newArrayList();
+        {
+            BarBean elementBean = <span class="keyword">new</span> BarBean();
+            elementBean.setBarId(<span class="literal">71</span>);
+            elementBean.setBarName(<span class="literal">"bar1"</span>);
+            barList.add(elementBean);
+        }
+        {
+            BarBean elementBean = <span class="keyword">new</span> BarBean();
+            elementBean.setBarId(<span class="literal">72</span>);
+            elementBean.setBarName(<span class="literal">"bar2"</span>);
+            barList.add(elementBean);
+        }
+        barBean.setBarList(barList);
+
+        <span class="comment">// struct in struct in struct</span>
+        NestedBazBean bazBean1 = <span class="keyword">new</span> NestedBazBean();
+        bazBean1.setBazId(<span class="literal">4321</span>);
+        bazBean1.setBazName(<span class="literal">"baz1"</span>);
+        bazBean1.setBazDate(DfTypeUtil.toDate(<span class="literal">"2010-11-22 19:21:33"</span>));
+        <span class="comment">// array&lt;array&gt; *unsupported
+        //List&lt;List&lt;BarBean&gt;&gt; bazList = DfCollectionUtil.newArrayList();
+        //bazList.add(barList);
+        //bazBean1.setBazList(bazList);</span>
+        barBean.setBazBean1(bazBean1);
+
+        <span class="comment">// struct in struct in struct (no value)</span>
+        barBean.setBazBean1(bazBean1);
+
+        <span class="comment">// array in struct in struct</span>
+        List&lt;BigDecimal&gt; quxList = DfCollectionUtil.newArrayList();
+        quxList.add(<span class="keyword">new</span> BigDecimal(<span class="literal">1</span>));
+        quxList.add(<span class="keyword">new</span> BigDecimal(<span class="literal">2</span>));
+        barBean.setQuxList(quxList);
+
+        <span class="comment">// array in struct in struct (no value)</span>
+        <span class="comment">//barBean(quuxList);</span>
+
+        fooBean.setBarBean(barBean);
+    }
+
+    <span class="comment">// array in struct as IN parameter</span>
+    List&lt;BigDecimal&gt; quuxList = DfCollectionUtil.newArrayList();
+    quuxList.add(<span class="keyword">new</span> BigDecimal(<span class="literal">3</span>));
+    quuxList.add(<span class="keyword">new</span> BigDecimal(<span class="literal">4</span>));
+    quuxList.add(<span class="keyword">new</span> BigDecimal(<span class="literal">5</span>));
+    fooBean.setQuxList(quxList);
+
+    <span class="comment">// array in struct as IN parameter (no value)</span>
+    <span class="comment">//fooBean.setQuuxList(quuxList);</span>
+
+    <span class="comment">// array&lt;struct&gt; in struct as IN parameter</span>
+    List&lt;CorgeBean&gt; corgeList = DfCollectionUtil.newArrayList();
+    CorgeBean corgeBean = <span class="keyword">new</span> CorgeBean();
+    corgeBean.setCorgeId(<span class="literal">123</span>);
+    corgeBean.setCorgeName(<span class="literal">"corge"</span>);
+    corgeList.add(corgeBean);
+    fooBean.setCorgeList(corgeList);
+
+    pmb.setVInFooBean(fooBean);
+}
+assertNull(pmb.getVOutFooBean());
+
+<span class="comment">// ## Act ##</span>
+<span class="attribute">vendorCheckBhv</span>.outsideSql().call(pmb);
+
+<span class="comment">// ## Assert ##</span>
+NestedFooBean inBean = pmb.getVInFooBean();
+NestedFooBean outBean = pmb.getVOutFooBean();
+assertEquals(inBean.getFooId(), outBean.getFooId());
+assertEquals(inBean.getFooName(), outBean.getFooName());
+assertEquals(inBean.getFooDate(), outBean.getFooDate());
+
+{
+    <span class="comment">// struct in struct as OUT parameter</span>
+    NestedBarBean barBean = outBean.getBarBean();
+    log(<span class="literal">"fooBean.barBean = "</span> + barBean);
+    assertEquals(inBean.getBarBean().getBarId(), barBean.getBarId());
+    assertEquals(inBean.getBarBean().getBarName(), barBean.getBarName());
+    assertEquals(inBean.getBarBean().getBarDate(), barBean.getBarDate());
+    {
+        <span class="comment">// array&lt;struct&gt; in struct in struct</span>
+        List&lt;BarBean&gt; barList = barBean.getBarList();
+        log("fooBean.barBean.barList = " + barList);
+        assertEquals(<span class="literal">2</span>, barList.size());
+        log(<span class="literal">"fooBean.barBean.barList(0)="</span> + barList.get(<span class="literal">0</span>));
+        log(<span class="literal">"fooBean.barBean.barList(1)="</span> + barList.get(<span class="literal">1</span>));
+        assertEquals(<span class="literal">"71"</span>, barList.get(<span class="literal">0</span>).getBarId().toString());
+        assertEquals(<span class="literal">"bar1"</span>, barList.get(<span class="literal">0</span>).getBarName());
+        assertEquals(<span class="literal">"72"</span>, barList.get(<span class="literal">1</span>).getBarId().toString());
+        assertEquals(<span class="literal">"bar2"</span>, barList.get(<span class="literal">1</span>).getBarName());
+    }
+    {
+        <span class="comment">// struct in struct in struct</span>
+        NestedBazBean bazBean1 = barBean.getBazBean1();
+        log("fooBean.barBean.bazBean1 = " + bazBean1);
+        assertNotNull(bazBean1);
+        NestedBazBean inBazBean1 = inBean.getBarBean().getBazBean1();
+        assertEquals(inBazBean1.getBazId(), bazBean1.getBazId());
+        assertEquals(inBazBean1.getBazName(), bazBean1.getBazName());
+        assertEquals(inBazBean1.getBazDate(), bazBean1.getBazDate());
+    }
+    {
+        <span class="comment">// struct in struct in struct (no value)</span>
+        NestedBazBean bazBean2 = barBean.getBazBean2();
+        log(<span class="literal">"fooBean.barBean.bazBean2 = "</span> + bazBean2);
+        assertNull(bazBean2);
+    }
+    {
+        <span class="comment">// array in struct in struct</span>
+        List&lt;BigDecimal&gt; quxList = barBean.getQuxList();
+        log(<span class="literal">"fooBean.barBean.quxList = "</span> + quxList);
+        assertFalse(quxList.isEmpty());
+        assertEquals(inBean.getBarBean().getQuxList().size(), quxList.size());
+    }
+    {
+        <span class="comment">// array in struct in struct (no value)</span>
+        List&lt;BigDecimal&gt; quuxList = barBean.getQuuxList();
+        log(<span class="literal">"fooBean.barBean.quuxList = "</span> + quuxList);
+        assertTrue(quuxList.isEmpty());
+    }
+
+    <span class="comment">// array in struct as OUT parameter</span>
+    List&lt;BigDecimal&gt; quxList = outBean.getQuxList();
+    log(<span class="literal">"fooBean.quxList = "</span> + quxList);
+    assertFalse(quxList.isEmpty());
+    assertEquals(inBean.getQuxList().size(), quxList.size());
+
+    <span class="comment">// array in struct as OUT parameter (no value)</span>
+    List&lt;Object&gt; quuxList = outBean.getQuuxList();
+    log(<span class="literal">"fooBean.quuxList = "</span> + quuxList);
+    assertTrue(quuxList.isEmpty());
+
+    <span class="comment">// array&lt;struct&gt; in struct as OUT parameter</span>
+    List&lt;CorgeBean&gt; corgeList = outBean.getCorgeList();
+    log(<span class="literal">"fooBean.corgeList = "</span> + corgeList);
+    assertFalse(corgeList.isEmpty());
+    assertEquals(1, corgeList.size());
+    assertEquals(<span class="literal">"123"</span>, corgeList.get(<span class="literal">0</span>).getCorgeId().toString());
+    assertEquals(<span class="literal">"corge"</span>, corgeList.get(<span class="literal">0</span>).getCorgeName());
+    assertNull(corgeList.get(<span class="literal">0</span>).getCorgeDate());
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

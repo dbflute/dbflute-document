@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,map,map型プロパティ,mapprop,DBFluteプロパティ,DBFluteProperty" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>map型プロパティ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>map型プロパティ</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		map型プロパティとは、"DBFluteプロパティ(dfprop)" や "ReplaceSchemaのDataプロパティ(dataprop)"
+		など <em class="keyword">ほとんどのプロパティで利用されている記述形式</em> です。単なる
+		key-value形式 ではなく、<em class="keyword">map型やlist型のネストした要素を簡単に記述できる</em>
+		ことが主な特徴です。
+	</p>
+
+	<h2 id="spec">記述仕様</h2>
+	<h3>map型の基本</h3>
+	<p>
+		<em class="keyword">map:</em> で始まり、<em class="keyword">{ ... }</em>
+		で囲われた中が key-value形式の記述となります。key と value
+		の関連付け記号が <em class="keyword">=</em> (イコール)、要素のデリミタが
+		<em class="keyword">;</em> (セミコロン)となります。
+	</p>
+<pre><span class="codetitle">e.g. map型の基本形式 @mapprop</span><code>
+<span class="keyword">map:</span>{ [KEY] = [VALUE] ; [KEY] = [VALUE] ; ... }
+</code></pre>
+	<h3>コメント</h3>
+	<p>
+		"#" よりも右側の改行まではコメントになります。
+	</p>
+<pre><span class="codetitle">e.g. map型の基本形式 @mapprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># comment here</span>
+    [KEY] = [VALUE]
+    ; [KEY] = [VALUE] <span class="comment"># comment here too</span>
+</code></pre>
+	<h3>定義値のトリム</h3>
+	<p>
+		定義値(KEYもVALUEも)は全てトリムされます。
+	</p>
+<pre><span class="codetitle">e.g. map型の基本形式 @mapprop</span><code>
+<span class="keyword">map:</span>{AAA= BBB   ; CCC =    DDD  }
+<span class="comment"># {AAA=BBB;CCC=DDD} と同じ</span>
+</code></pre>
+	<h3>定義値の中の空白や改行</h3>
+	<p>
+		定義値の中の空白は保持されます。但し、<em class="keyword">改行は保持されません</em> のでご注意下さい。
+	</p>
+<pre><span class="codetitle">e.g. map型の基本形式 @mapprop</span><code>
+<span class="keyword">map:</span>{AAA= BB
+B   ; CCC =    DD D  }
+<span class="comment"># {AAA=BBB;CCC=DD D} と同じ</span>
+<span class="comment"># 値の中の改行は保持されない</span>
+<span class="comment"># 値の中の空白は保持される</span>
+</code></pre>
+	<h3>map型のネスト</h3>
+	<p>
+		map型プロパティをネストして記述することが可能です。
+	</p>
+<pre><span class="codetitle">e.g. map型にmap型をネスト @mapprop</span><code>
+<span class="keyword">map:</span>{ [KEY] = <span class="keyword">map:</span>{ [KEY] = [VALUE] ; ... } ; [KEY] = [VALUE] ; ... }
+</code></pre>
+	<h3>list型のネスト</h3>
+	<p>
+		list型プロパティをネストして記述することが可能です。
+	</p>
+<pre><span class="codetitle">e.g. map型にlist型をネスト @mapprop</span><code>
+<span class="keyword">map:</span>{ [KEY] = <span class="keyword">list:</span>{ [ELEMENT] ; [ELEMENT] ; ... } ; [KEY] = [VALUE] ; ... }
+</code></pre>
+	<h3>空要素</h3>
+	<p>
+		空要素(空文字もしくは空白のみ)は、存在しない要素として扱われます。
+	</p>
+<pre><span class="codetitle">e.g. 空要素 @mapprop</span><code>
+<span class="keyword">map:</span>{ ; [KEY] = [VALUE] ; [KEY] = [VALUE] ; ; [KEY] = [VALUE] }
+<span class="comment"># 要素数は三つ</span>
+</code></pre>
+	<p>
+		追加したときやコピーしたときなど、"デリミタが足りなくなってしまう"
+		というようなケアレスミスを無くすために、この空要素は良く利用されます。例えば、"先頭の要素の前にもデリミタを付ける"
+		ことが多いです(DBFluteプロパティはほとんどそうなっています)。
+	</p>
+<pre><span class="codetitle">e.g. 先頭の要素の前にもデリミタを付ける(空要素の有効利用) @mapprop</span><code>
+<span class="keyword">map:</span>{
+    ; database = <span class="literal">h2</span>
+    ; targetLanguage = <span class="literal">java</span>
+    ; targetContainer = <span class="literal">seasar</span>
+    ...
+}
+</code></pre>
+	<h3>空行</h3>
+	<p>
+		定義値は全てトリムされるので、同時に空行もなかったことになります。
+	</p>
+<pre><span class="codetitle">e.g. 空行 @mapprop</span><code>
+<span class="keyword">map:</span>{
+
+[KEY] = [VALUE]
+; [KEY] = [VALUE]
+
+}
+<span class="comment"># 要素数は二つ</span>
+</code></pre>
+	<h3>制御文字のエスケープ</h3>
+	<p>
+		制御文字 "{ } ; =" を、バックスラッシュでエスケープすることができます。<span class="frm">@since 1.0.4B</span>
+	</p>
+<pre><span class="codetitle">e.g. "ba;r" というvalue値を定義 @mapprop</span><code>
+<span class="keyword">map:</span>{
+    foo = ba\;r
+}
+</code></pre>
+	<p>
+		エスケープ文字 "バックスラッシュ" 自体は、そのまま値として利用できます。
+		つまり、エスケープ文字をエスケープする必要はありません。(制御文字の直前のバックスラッシュは必ずエスケープ文字として認識されます)
+	</p>
+<pre><span class="codetitle">e.g. "ba\r" というvalue値を定義 @mapprop</span><code>
+<span class="keyword">map:</span>{
+    foo = ba\r
+}
+</code></pre>
+<pre><span class="codetitle">e.g. "ba\}r" というvalue値を定義 @mapprop</span><code>
+<span class="keyword">map:</span>{
+    foo = ba\\}r
+}
+</code></pre>
+	<p>
+		ただし、この仕様だと完璧なエスケープができません。例えば、制御文字としての括弧閉じ "}"
+		の直前に、値としてのバックスラッシュを定義してしまった場合、そのバックスラッシュはエスケープ文字と判定されてしまって、
+		括弧閉じが制御文字ではなく単なる値になってしまいます。その場合は、文字の間に空白を一つ空けて定義することで回避できます。
+	</p>
+<pre><span class="codetitle">e.g. "qux\" というvalue値を定義 @mapprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># qux\} -&gt; qux\ }</span>
+    foo = <span class="keyword">map:</span>{ bar = qux\ }
+}
+</code></pre>
+	<div class="inucolumn">
+		<h4>互換性と利便性のためのエスケープ仕様</h4>
+		<p>
+			通常は、エスケープ文字はエスケープ文字を重ねてエスケープさせるものです。
+			ですが、ここでは単品のエスケープ文字は単なる値として定義できるようにしています。
+			それがゆえに、完璧なエスケープにはならないケースがあります。
+		</p>
+		<p>
+			完璧なエスケープの仕様にすると、互換性を失ってしまう可能性があります。
+			バックスラッシュを値として普通に使っている場合です。それが大きな理由の一つ。
+			もう一つは、めったにありえない状況を想定して、バックスラッシュを簡易に記述するやり方を捨てるのは、
+			費用対効果があまりないと考えたからです。
+		</p>
+		<p>
+			制御文字の前で空白を一つあければいいだけですし、Exampleでは空白を空けているパターンがほとんどですし、
+			HistoryHTMLのdiffmapは空白をあけて生成していますので、実質的な問題にはならないと思われます。
+			それゆえ、このような仕様となっています。
+		</p>
+		<p>
+			ちなみに、HistoryHTMLのdiffmapでは、エスケープされたものが出力されます。
+			差分データの値に制御文字が含まれていても特に問題なく動作します。<span class="frm">@since 1.0.4B</span>
+		</p>
+		<div class="relatedpage"><a href="../../function/generator/task/doc/historyhtml.html">HistoryHTML</a></div>
+	</div>
+	<div class="inucolumn">
+		<h4>1.0.4Bより前では</h4>
+		<p>
+			残念ながらできません。
+			なので定義値に "=" や ";" などを含めることは基本的にできません。
+		</p>
+		<p>
+			ただし、一部DBFluteプロパティでは工夫して指定できるようにしている箇所もあります。
+			例えば、databaseInfoMap.dfprop では、接続URLの接続プロパティのデリミタとして ";"
+			を指定できるようにしています。
+		</p>
+		<p>
+			また、mapのvalue値では、"="は指定できます。e.g. map:{ foo = bar=qux }
+		</p>
+	</div>
+
+	<h2 id="library">読み込みライブラリ</h2>
+	<p>
+		このmap型プロパティ(ファイル)の読み込みライブラリが、DBFluteランタイム
+		にあります。通常、利用することはあまりないかと思いますが、どうしても必要なときは利用することができます。
+	</p>
+	<div class="relatedpage"><a href="../../function/ormapper/runtime/index.html">DBFluteランタイム</a></div>
+	<dl class="valuemainlist">
+		<dt>クラス名</dt><dd>DfPropFile <span class="frm">@since 0.9.7.1</span></dd>
+		<dt>(旧)クラス名</dt><dd>DfPropFileReader <span class="frm">@until 0.9.7.0</span></dd>
+	</dl>
+	<p>
+		但し、このクラスは内部クラスとして予告なく変更される可能性があるのでご注意下さい。
+	</p>
+
+	<div class="inucolumn">
+		<h3>さらに内部的な話(通常、不要な話)</h3>
+		<p>
+			読み込みライブラリの先には、パーサーライブラリがあります。このパーサーライブラリは、既に読み込まれた文字列を解析するだけのもので、
+			厳密には、map型プロパティの仕様とそのパーサーライブラリの仕様は完全に一致はしません。例えば、"定義値の中の改行を保持しない"
+			という仕様は、読み込みライブラリの仕様であって、パーサーライブラリの仕様ではありません。また、"#"
+			をコメントとする仕様は、読み込みライブラリの仕様であって、パーサーライブラリの仕様ではありません。
+			もし、内部の世界にまで入り込むのであれば、この辺をご注意下さい。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

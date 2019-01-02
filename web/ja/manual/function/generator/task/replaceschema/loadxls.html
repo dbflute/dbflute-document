@@ -1,0 +1,356 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,LoadData,エクセル,エクセルデータ,Excel,ExcelData,Xls,XlsData" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>データ登録(エクセル) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>データ登録(エクセル)</h1>
+	${indexlist}
+
+	<h2 id="xls">エクセルデータの登録</h2>
+	<p>
+		エクセルで管理されたデータを登録します。"エクセル2003" 形式を想定しています(".xlsx"
+		は未サポート)。データの編集がしやすいため、最もお奨めするデータファイル形式です。
+	</p>
+	<div class="relatedpage"><a href="./loaddata.html">ReplaceSchema - データ登録</a></div>
+	<h3 id="xlsfiledir">エクセルファイルの配置</h3>
+	<p>
+		"[DBFluteクライアント]/playsql/data" 配下の "common/xls" ディレクトリ、および、"[dataLoadingType]/xls"
+		配下のエクセルファイルが登録されます。
+	</p>
+	<div class="relatedpage"><a href="./loaddata.html#dataloadingtype">dataLoadingTypeによる切り替え</a></div>
+<pre><span class="codetitle">e.g. エクセルファイルの配置(dataLoadingTypeはデフォルトの "ut") @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+       |-common
+       |  |-<span class="point">xls</span>
+       |     |-...
+       |-ut
+       |  |-<span class="point">xls</span>
+       |     |-...
+</code></pre>
+	<p>
+		"common" は、どんな "dataLoadingType" であっても登録されます。よって、"common"
+		配下にはどの環境においても変わらない共通のマスタデータなどを配置すると良いでしょう。
+	</p>
+	<p>
+		TSVやCSVよりも後にデータ登録されます。もし、TSVやCSVよりも先にデータ登録されて欲しいエクセルデータがある場合は xls
+		配下ではなく、<em class="keyword">firstxls</em> 配下に配置することで、他のデータ形式よりも先のタイミングでデータ登録されます。
+		<span class="frm">@since 0.9.8.3</span>
+	</p>
+	<h3 id="xlsfilename">エクセルファイルのファイル名</h3>
+	<p>
+		エクセルのファイル名は "[任意の名前].xls" という形式で配置します。
+	</p>
+<pre><span class="codetitle">e.g. エクセルファイルの配置: 会員系テーブルのエクセルファイル @playsql</span><code>
+playsql
+ |-data
+    |-common
+    |  |-xls
+    |     |-<span class="point">10-master.xls</span>
+    |-ut
+    |  |-xls
+    |     |-<span class="point">20-member.xls</span>
+    |     |-<span class="point">30-product.xls</span>
+</code></pre>
+	<h3 id="xlsdataspec">エクセルファイルのデータ仕様</h3>
+	<dl class="textlist">
+		<dt>テーブル名</dt><dd>シート名(左のシートから順番に登録される)</dd>
+		<dt>カラム定義</dt><dd>データシートの一行目</dd>
+		<dt>データ定義</dt><dd>データシートの二行目以降</dd>
+		<dt>データ形式の補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>日付は "yyyy/MM/dd HH:mm:ss.SSS" 形式("-" 区切り可、ミリ秒・時分秒省略可)</li>
+				<li>Time型は "HH:mm:ss" 形式</li>
+				<li>両端のダブルクォーテーションは、データとして扱わない(除去される)</li>
+				<li>1.0.5Fより前では、データはトリムされて登録される {<a href="#nottrimcolumnmap">オプションあり</a>}</li>
+				<li>空文字(トリムされて空文字も含む)のセルは "null" として扱われる {<a href="#emptystringcolumnmap">オプションあり</a>}</li>
+				<li>Boolean型のカラムは、"1"・"t"・"true"をtrue、"0"・"f"・"false"をfalseとして扱う</li>
+				<li>バイナリデータはバイナリファイルへのパスを指定する {<a href="./loaddata.html#binary">バイナリデータの登録</a>}</li>
+				<li>日付カラムで $sysdate.addDay(7) という風に書いて <a href="#relativedate">現在日時の相対値</a> の指定も可 <span class="frm">@since 1.0.1</span></li>
+			</ul>
+		</dd>
+		<dt>その他補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>NotNull制約のないカラムは省略可能</li>
+				<li>デフォルト制約のあるカラムは省略可能</li>
+				<li>デフォルト設定(<a href="./loaddata.html#defaultvaluemap">defaultValueMap.dataprop</a>)のあるカラムは省略可能</li>
+				<li>存在しないカラムが定義されている場合は登録エラー <span class="frm">@since 1.0.4A</span> {<a href="./loadingcontrol.html#issuppresscolumndefcheck">オプションあり</a>}</li>
+				<li>エクセルシート名には文字数制限がある {<a href="#tablenamemap">オプションあり</a>}</li>
+				<li>"#" で始まるシートはスキップ(シートのコメントアウト) {<a href="#skipsheet">オプションあり</a>}</li>
+				<li>登録データは一レコードずつログに出力される {<a href="./loaddata.html#islogginginsertsql">オプションあり</a>}</li>
+				<li>登録処理にはバッチ更新が利用される {<a href="./loaddata.html#issuppressbatchupdate">オプションあり</a>}</li>
+				<li>一つのシートでのレコード数制限はエクセルの仕様に準ずる</li>
+				<li>データ行の途中に空行がある場合はエラー <span class="frm">@since 0.9.9.4A</span></li>
+				<li>データ行の最後の空行は無視される <span class="frm">@since 0.9.9.4A</span></li>
+			</ul>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. エクセルファイルの中身: 会員系テーブルのエクセルファイル @xls</span><code>
+|MEMBER_ID|MEMBER_NAME|BIRTHDATE |
+|        1|Stojkovic  |1965/03/03|
+|        2|Savicevic  |          |
+|        3|...        |...       |
+- - - - - - - - - - - - - - - - - -
+<span class="literal">MEMBER</span> / MEMBER_LOGIN / MEMBER_SECURITY <span class="comment">&lt;-- Sheet</span>
+</code></pre>
+	<h3 id="xlscelltypechar">全てのセルの形式を "文字列" に</h3>
+	<p>
+		シートを新規作成するときには、データをセルに定義する前に全てのセルの形式を "文字列"
+		にすることを強くお奨めします。時折、セルの形式の不正で登録に失敗することがあるためです。
+	</p>
+	<p>
+		逆に言うと、予期せぬエラーが発生した場合は、新たにシートを作成してセルの形式を調整することで解決することもあります。
+	</p>
+	<h3 id="xlsdatatemplate">エクセルデータのテンプレートを活用</h3>
+	<p>
+		カラム名の列挙を手動で行うのは大変です。様々なツールに支援機能がありますが、DBFluteでも支援に利用できる機能があります。
+		Docタスクにて、エクセルデータのテンプレートを出力する機能がありますので、そちらを利用してカラム名の列挙をコピーで済むようにすると良いでしょう。
+		(また、既にDB上に存在するデータをエクセルデータにしたい場合にも活用できます)
+	</p>
+	<div class="detailpage"><a href="../doc/loaddatareverse.html">Docタスク - LoadDataReverse</a></div>
+	<h3 id="xlsfilegrain">エクセルファイルの粒度は？</h3>
+	<p>
+		一つのシートに一つのテーブルデータを管理することで、一つのエクセルファイルで複数のテーブルデータが管理できます。
+		ただ、シートが多くなり過ぎると管理がしづらくなりますので、適度にファイルを分割して管理すると良いでしょう。
+		(例えば、業務上のカテゴリで分割：会員系、購入系、商品系など)
+	</p>
+	<h3 id="xlsdataresult">エクセルデータの登録結果 (XlsDataResult)</h3>
+	<p>
+		ReplaceSchema実行後に、エクセルデータの登録結果のファイルが出力されます<span class="frm">(@since 1.0.1)</span>。
+		エクセルファイルと同じディレクトリに <em class="keyword">xls-data-result.dfmark</em> という名前で出力されます。
+	</p>
+	<p>
+		このファイルを開くと、<em class="keyword">どのエクセルファイルにどのテーブルのデータが定義されているか</em>、どのテーブルが何レコード定義されているかを確認することができます。
+	</p>
+<pre><span class="codetitle">e.g. 20-member.xlsと30-product.xlsのテーブルデータの内訳 @xls-data-result.dfmark</span><code>
+
+* * * * * * * * * *
+*                 *
+* Xls Data Result *
+*                 *
+* * * * * * * * * *
+data-directory: playsql/data/ut/xls
+
+[20-member.xls]
+  MEMBER (20)
+  MEMBER_ADDRESS (20)
+  MEMBER_LOGIN (56)
+  MEMBER_SECURITY (20)
+  MEMBER_SERVICE (20)
+  MEMBER_WITHDRAWAL (4)
+
+[30-product.xls]
+  PRODUCT (20)
+  PURCHASE (60)
+</code></pre>
+
+	<h2 id="relativedate">日付を相対値で登録 (RelativeDate)</h2>
+	<h3 id="cellrelative">セル上にて相対値の指定</h3>
+	<p>
+		セルに書かれた固定の日付ではなく、ReplaceSchemaが実行時の現在日時から計算された相対的な日付(RelativeDate)の値を登録することができます。
+		<span class="frm">@since 1.0.1</span>
+	</p>
+	<p>
+		エクセルのセルに <em class="keyword">$sysdate</em> と書くと現在日時が登録され、<em class="keyword">$sysdate.addDay(7)</em>
+		と書くと現在日時から7日後が登録されます。<em class="keyword">$sysdate.addDay(7).moveToDayTerminal()</em>
+		と書くと現在日時から7日後の最初の瞬間(時分秒が00:00:00)が登録されます。このような形で、様々な日付操作ができます。
+	</p>
+	<dl class="keymainlist">
+		<dt>addDay(int)</dt><dd>日を進める (マイナス値なら戻る)</dd>
+		<dt>addMonth(int)</dt><dd>月を進める (マイナス値なら戻る)</dd>
+		<dt>addYear(int)</dt><dd>年を進める (マイナス値なら戻る)</dd>
+		<dt>add...(int)</dt><dd>...</dd>
+		<dt>moveToDayJust()</dt><dd>その日の最初の瞬間 (時分秒が00:00:00)</dd>
+		<dt>moveToDayTerminal()</dt><dd>その日の最後の瞬間 (時分秒が23:59:59)</dd>
+		<dt>moveToMonthJust()</dt><dd>その月の最初の瞬間 (1日の時分秒が00:00:00)</dd>
+		<dt>moveToMonthTerminal()</dt><dd>その月の最後の瞬間 (28, 29, 30, 31日の時分秒が23:59:59)</dd>
+		<dt>moveTo...()</dt><dd>...</dd>
+	</dl>
+	<p>
+		ここで利用できるメソッドは、DBFluteランタイムの HandyDate のメソッドです。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/helper/handydate.html">DBFluteランタイム - HandyDate</a></div>
+	<p>
+		当然のことですが、DBには調整後のデータが登録されます。
+		つまり、LoadDataReverseなどでデータを抽出した場合は、調整後のデータが出力されるため、調整前の情報は残っていません。
+	</p>
+	<div class="relatedpage"><a href="../doc/loaddatareverse.html">LoadDataReverse</a></div>
+	<h3 id="dateadjustment">datapropにて相対値の指定 (DateAdjustment)</h3>
+	<p>
+		また、セルに書かれた固定日付に対して、相対的な調整を入れることもできます。
+		その場合は、loadingControlMap.dataprop にてテーブル名やカラム名を指定して相対値を指定します。
+		統一的な設定ができ、エクセル上に特殊な構文が入り込まないため、(要件が満たせるならば)こちらの方が使いやすいでしょう。
+	</p>
+	<div class="detailpage"><a href="./loadingcontrol.html#dateadjustmentmap">データ登録制御 (loadingControlMap.dataprop) - dateAdjustmentMap</a></div>
+
+	<h2 id="convertvaluemap">値のコンバート設定(dataprop)</h2>
+	<p>
+		定義されている値をそのまま登録するのではなく、指定された値に変換して登録することが可能です。
+		<span class="frm">@since 0.9.9.0A</span>
+	</p>
+	<div class="detailpage"><a href="./loaddata.html#convertvaluemap">データ登録 - 値のコンバート設定(dataprop)</a></div>
+
+	<h2 id="tablenamemap">エクセルシート名制限回避の設定(dataprop)</h2>
+	<p>
+		エクセルのシート名には文字数制限があります。もし、テーブル名がその制限を超えている場合は、別名をシート名に定義して、
+		その別名から実際のテーブル名にマッピングすることが可能です。
+	</p>
+	<p>
+		エクセルファイルと同じディレクトリに "<em class="keyword">tableNameMap.dataprop</em>" という名前のテキストファイルを配置して、
+		別名と実際のテーブル名のマッピングを定義します。すると、insert処理するときに別名から引いてきた実際のテーブル名で処理するようになります。
+	</p>
+<pre><span class="codetitle">e.g. 長ーーーいテーブル名を別名定義 @tableNameMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    MY_ALIAS_NAME = SUPER_MIRACLE_LONG_LONG_NAME_TABLE
+    ; [alias-name] = [table-name]
+    ; ...
+}
+</code></pre>
+	<p>
+		エクセルのシート名は、先頭にドル記号 "$" を付けたエリアス名 "$[alias-name]" という形式で記述しておきます。
+	</p>
+<pre><span class="codetitle">e.g. エクセルのシート名に別名を指定 @xls</span><code>
+|MEMBER_ID|MEMBER_NAME|BIRTHDATE |
+|        1|Stojkovic  |1965/03/03|
+|        2|Savicevic  |          |
+|        3|...        |...       |
+- - - - - - - - - - - - - - - - - -
+<span class="literal">$MY_ALIAS_NAME</span> / MEMBER_LOGIN / MEMBER_SECURITY <span class="comment">&lt;= Sheet</span>
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>tableNameMap.dataprop (UTF-8)</dd>
+		<dt>プロパティ</dt>
+		<dd>別名とテーブル名の定義</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>別名は大文字小文字区別なし</li>
+				<li>エクセルデータの登録のみで有効</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="nottrimcolumnmap">トリムしないカラムの指定(dataprop)</h2>
+	<p>
+		エクセルデータ登録において、セルのデータはトリムされて扱われます。もし、"あるカラムだけはトリムされないようにしたい"
+		というような場合に、指定されたカラムのデータだけはトリムせずに扱えるようにすることができます。
+	</p>
+	<p>
+		エクセルファイルと同じディレクトリに "notTrimColumnMap.dataprop" という名前のテキストファイルを配置して、
+		どのテーブルのどのカラムが対象なのかを指定します。
+	</p>
+<pre><span class="codetitle">e.g. 会員の会員名称と会員アカウントはトリムしない @notTrimColumnMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    MEMBER = <span class="keyword">list:</span>{ MEMBER_NAME ; MEMBER_ACCOUNT }
+    ; [table-name] = <span class="keyword">list:</span>{[column-name-list]}
+    ; ...
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>notTrimColumnMap.dataprop (UTF-8)</dd>
+		<dt>プロパティ</dt>
+		<dd>テーブル名とカラム名の指定</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル名やカラム名は大文字小文字区別なし</li>
+				<li>エクセルデータの登録のみで有効</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="emptystringcolumnmap">空文字を許すカラムの指定(dataprop)</h2>
+	<p>
+		エクセルデータ登録において、空っぽのセルは "null" として扱われます。もし、"あるカラムだけは空文字として扱いたい"
+		というような場合に、空っぽのセルを空文字として扱えるようにすることができます。
+	</p>
+	<p>
+		エクセルファイルと同じディレクトリに "emptyStringColumnMap.dataprop" という名前のテキストファイルを配置して、
+		どのテーブルのどのカラムが対象なのかを指定します。
+	</p>
+<pre><span class="codetitle">e.g. 会員の会員名称と会員アカウントを空文字を許す @emptyStringColumnMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    MEMBER = <span class="keyword">list:</span>{ MEMBER_NAME ; MEMBER_ACCOUNT }
+    ; [table-name] = <span class="keyword">list:</span>{[column-name-list]}
+    ; ...
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>emptyStringColumnMap.dataprop (UTF-8)</dd>
+		<dt>プロパティ</dt>
+		<dd>テーブル名とカラム名の指定</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル名やカラム名は大文字小文字区別なし</li>
+				<li>エクセルデータの登録のみで有効</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="skipsheet">エクセルデータのシートのスキップ</h2>
+	<p>
+		エクセルデータの登録において、コメントアウト("#"
+		で始まるもの)されていないシートをスキップしたい場合に、スキップ対象のシート名を
+		"replaceSchemaDefinitionMap.dfprop" の "skipSheet" にて、正規表現で指定することが可能です。
+	</p>
+<pre><span class="codetitle">e.g. シート名が "P" で始まるシートをスキップ @replaceSchemaDefinitionMap.dfprop</span><code>
+skipSheet = P.+
+</code></pre>
+	<dl class="textlist">
+		<dt>設定ファイル</dt>
+		<dd>replaceSchemaDefinitionMap.dfprop</dd>
+		<dt>プロパティ</dt>
+		<dd>skipSheet (正規表現)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>エクセルデータの登録のみで有効</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#skipsheet">dfprop - skipSheet</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

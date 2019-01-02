@@ -1,0 +1,301 @@
+@charset "UTF-8";
+
+/* ---------------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------- css reset { */
+/* ---------------------------------------------------------------------------------------- */
+/* YUI Font CSS */
+@import "./fonts.css";
+
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0px;
+	padding: 0;
+	border: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+/* ------------------------------------------------------------------------------- reset } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- base layout { */
+/* ---------------------------------------------------------------------------------------- */
+body {
+	width: 880px;
+}
+#container {
+	margin-left: 40px;
+	padding-right: 40px;
+}
+#header {
+	height: 210px;
+}
+#leftpart {
+	width: 600px;
+	float: left;
+}
+#rightpart {
+}
+#middle {
+	clear: both;
+	margin: 0 99px;
+}
+#footer {
+	height: 50px;
+}
+/* -------------------------------------------------------------------------- base layout } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------- base font & color { */
+/* ---------------------------------------------------------------------------------------- */
+body {
+	font-family: Verdana, "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", Meiryo, "メイリオ", "MS P Gothic", "ＭＳ Ｐゴシック", sans-serif;
+	background: #fff url("../image/parts/backside-left.png") repeat-y top left;
+}
+#container {
+	background: #fff url("../image/parts/backside-right.png") repeat-y top right;
+}
+#upper {
+	background: #fcffff url("../image/parts/background.png") repeat-x 0 0;
+	/* RGB:252,255,255 */
+	border-bottom: solid 1px #eee;
+}
+#header {
+	background: #fff url("../image/parts/header-back.png") repeat-x 0 0;
+	/* RGB:170,209,240*/
+	border-bottom: solid 1px #eee;
+}
+
+/* --------------------------------------------------------------------- base font & color } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------- header { */
+/* ---------------------------------------------------------------------------------------- */
+#header h1 {
+	display: none;
+}
+#header div.logo {
+	margin: -145px 0 0 30px;
+}
+#header div.navi-upper {
+	padding: 10px 10px 0 0;
+	text-align: right;
+	font-size: 77%;/*10px*/
+	color: #666;
+}
+#header div.navi-upper a {
+	color: #444;
+	margin: 0 1em;
+	letter-spacing: 0.2em;
+}
+#header div.header-lower {
+	margin: 40px 0 0 20px;
+	padding: 18px 0 0 365px;
+	height: 90px;
+	background: transparent url("../image/parts/top/header-score.png") no-repeat 0 0;
+	font-size: 100%;
+}
+#header div.header-lower p {
+	display: none;
+}
+#header div.clear {
+}
+
+/* ------------------------------------------------------------------------------- header } */
+
+/* ---------------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------- leftpart { */
+/* ---------------------------------------------------------------------------------------- */
+#leftpart {
+	background: transparent url("../image/parts/top/frame-flute.png") no-repeat 100px bottom;
+	margin-bottom: 50px;
+}
+#leftpart h2 {
+	position: relative;
+	z-index: 10;
+	margin: -1em 0 8px 100px;
+	padding: 3px 10px;
+	border-top: dashed 1px #fff;
+	border-left: dashed 1px #eee;
+	border-right: solid 1px #ccc;
+	border-bottom: solid 1px #ccc;
+	font-size: 182%;/* 24px */
+	letter-spacing: 0.5em;
+	line-height: 1;
+	background: transparent url("../image/parts/background-slant.png") repeat 0 0;
+}
+#leftpart ul {
+	margin: 12px 0 0 155px;
+	padding: 0 30px 60px 0;
+	border-bottom: solid 1px #fcfbf9;
+	border-right: solid 1px #fcfbf9;
+	min-height: 95px;
+}
+#leftpart ul li {
+	list-style-type: none;
+	line-height: 1.5em;
+	font-size: 93%;
+}
+#leftpart ul li span.date {
+	font-size: 85%;
+	padding-right: 15px;
+	margin-right: 15px;
+	border-right: dashed 1px #999;
+}
+#leftpart div.inunews {
+	padding-top: 8px;
+	color: green;
+	font-size: 85%;/*11px*/
+}
+/* ----------------------------------------------------------------------------- leftpart } */
+
+
+/* ---------------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------- rightpart { */
+/* ---------------------------------------------------------------------------------------- */
+#rightpart a.readme img {
+	margin-top: 130px;
+	margin-left: -30px;
+	border-left: solid 1px #999;
+	border-right: solid 1px #999;
+}
+/* ---------------------------------------------------------------------------- rightpart } */
+
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------- middle { */
+/* ---------------------------------------------------------------------------------------- */
+#middle {
+	margin-bottom: 50px;
+	background: transparent url("../image/parts/top/middle-background.png") repeat 0 0;
+	border-top: solid 1px #eee;
+	border-bottom: solid 1px #eee;
+	border-right: solid 1px #fff;
+	border-left: solid 1px #fff;
+}
+#middle div.navi-main {
+	background: transparent url("../image/parts/top/main-naviscore.png") no-repeat left bottom;
+	height: 80px;
+	position: relative;
+}
+#middle ul li {
+	list-style-type: none;
+	position: absolute;
+}
+#middle li.hd-introduction {
+	top: 30px;
+	left: 30px;
+}
+#middle li.hd-tutorial {
+	top: 38px;
+	left: 135px;
+}
+#middle li.hd-architect {
+	top: -16px;
+	left: 50px;
+}
+#middle li.hd-developer {
+	top: 12px;
+	left: 65px;
+}
+#middle li.hd-environment {
+	top: 30px;
+	left: 310px;
+}
+#middle li.hd-install {
+	top: -8px;
+	left: 85px;
+}
+#middle li.hd-upgrade {
+	top: 18px;
+	left: 100px;
+}
+#middle li.hd-manual {
+	top: 38px;
+	left: 510px;
+}
+#middle ul a:hover {
+	line-height: 50px;
+}
+#middle li.hd-introduction a:hover {
+	line-height: 70px;
+}
+
+#middle div.navi-description {
+	background: transparent url("../image/parts/top/main-dicscore.png") no-repeat left top;
+	height: 90px;
+}
+#middle div.navi-description h3 {
+	margin: 5px 0 10px;
+	text-align: center;
+	font-size: 85%;
+}
+#middle div.navi-description div {
+	float: left;
+}
+#middle div.navi-description div.introduction {
+	width: 120px;
+}
+#middle div.navi-description div.tutorial {
+	width: 180px;
+}
+#middle div.navi-description div.environment {
+	width: 180px;
+}
+#middle div.navi-description div.manual {
+	width: 120px;
+}
+#middle div.navi-description p {
+	padding: 0 7px;
+	font-size: 77%;
+	line-height: 1.4em;
+}
+#middle div.clear {
+	clear: left;
+}
+/* ------------------------------------------------------------------------------- middle } */
+
+
+/* ---------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------- footer { */
+/* ---------------------------------------------------------------------------------------- */
+#footer {
+	padding-top: 20px;
+	font-size: 85%;
+}
+#footer div {
+	color: #666;
+	text-align: center;
+	width: 300px;
+	margin: 0 auto;
+	padding-bottom: 10px;
+	border-bottom: solid 1px #999;
+}
+#footer div a {
+	margin: 0 10px;
+}
+#footer ul.footer-navi {
+	margin: 10px 0;
+	text-align: center;
+}
+#footer ul.footer-navi ul {
+	display: inline;
+}
+#footer li {
+	display: inline;
+	list-style-type: none;
+	margin: 5px;
+}
+#footer a{
+	text-decoration: none;
+	color: #666;
+}
+#footer a:hover{
+	text-decoration: underline;
+}
+/* ------------------------------------------------------------------------------- footer } */

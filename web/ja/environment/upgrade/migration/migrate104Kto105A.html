@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 1.0.4K to 1.0.5A | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 1.0.4K to 1.0.5A</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3 id="outsidesqlcursor">外だしSQLのカーソルで、CustomizeEntityも生成されるように</h3>
+	<p>
+		外だしSQLでタイプセーフカーソル +cursor+ を自動生成オプションを付けたとき、自動生成されるクラスの挙動が以下のようになります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>いままで</dt><dd>タイプセーフカーソルだけ自動生成</dd>
+		<dt>これから</dt><dd>タイプセーフカーソルに加えて普通のCustomizeEntityも生成</dd>
+	</dl>
+	<p>
+		カーソル検索とページング検索と一つの外だしSQLで利用できるようになります。
+		要らないときもありますが、そのときは単に使わなければOKです。
+	</p>
+	<p>
+		地味にですが、普通の検索からカーソル検索に移行したときの、古いCustomizeEntityがDBFluteアップグレード時にコンパイルエラーになる問題が発生しなくなります。
+	</p>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<h3 id="entityinsert">Insert で ModifiedProperties</h3>
+	<p>
+		一件登録の insert() メソッドで、insert文に列挙されるカラムのルールが変わります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>いままで</dt><dd>Entityに値が存在するカラムだけ列挙</dd>
+	</dl>
+	<p>
+		これからは、以下のようになります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>自分でnewしたEntity</dt><dd>EntityのSetterが呼ばれたカラムだけ列挙 <span class="frm">※通常はこちら</span></dd>
+		<dt>事前検索されたEntity</dt><dd>全てのカラムを列挙 <span class="frm">※copy insertするような場合 (レアケース)</span></dd>
+	</dl>
+	<p>
+		update() のルールと同じく ModifiedProperties が利用されます。統一的な仕様を重視しました。
+		ただ、copy insert のケースが更新時にはない特別なケースのため、事前検索されたEntityのときだけは全カラム列挙です。
+	</p>
+	<p>
+		DB変更でデフォルト制約付きのNotNullカラムが新規追加された場合でも、どちらのケースでも修正無しで対応できます。
+		Setterで呼ばれてないカラムは、デフォルト制約が有効です。
+		<span class="frm">(事前検索されている場合は、そもそも別レコードのそのカラムの値で登録される)</span>
+	</p>
+	<h4>互換性は？</h4>
+	<p>
+		以前のバージョンとの互換性で気にするポイントは、Entityにnullを明示的にセットしたカラムに対して、デフォルト制約が利かなくなっていることです。
+		<span class="frm">(かなりレアケースではあると考えています)</span>
+	</p>
+	<p>
+		こちらの挙動を元に戻すには、以下のプロパティを littleAdjustmentMap.dfprop に以下を定義します。
+	</p>
+<pre><span class="codetitle">e.g. insert()の挙動を今まで通りにする @littleAdjustmentMap.dfprop</span><code>
+
+    ; isCompatibleInsertColumnNotNullOnly = true
+</code></pre>
+	<h3 id="batchinsert">BatchInsert で ModifiedProperties</h3>
+	<p>
+		バッチ登録の batchInsert() メソッドで、insert文に列挙されるカラムのルールが変わります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>いままで</dt><dd>全てのカラム <span class="frm">(デフォルト制約を全く利用できなかった)</span></dd>
+	</dl>
+	<p>
+		これからは、以下のようになります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>自分でnewしたEntity</dt><dd>EntityのSetterが呼ばれたカラムの最小公倍数を列挙 <span class="frm">※通常はこちら</span></dd>
+		<dt>事前検索されたEntity</dt><dd>全てのカラムを列挙 <span class="frm">※copy insertするような場合 (レアケース)</span></dd>
+	</dl>
+	<p>
+		update() のルールと同じく ModifiedProperties が利用されます。統一的な仕様を重視しました。
+		ただ、一件登録と同様に、copy insert のケースが更新時にはない特別なケースのため、事前検索されたEntityのときだけは全カラム列挙です。
+	</p>
+	<p>
+		また、DB変更でデフォルト制約付きのNotNullカラムが新規追加された場合に、修正無しで対応できるようになりました。
+		(全てのEntity)Setterで呼ばれてないカラムは、デフォルト制約が有効です。
+		<span class="frm">(事前検索されている場合は、そもそも別レコードのそのカラムの値で登録される)</span>
+	</p>
+	<h4>互換性は？</h4>
+	<p>
+		以前のバージョンとの互換性で気にするポイントは、通常利用ではないと考えます。
+		NotNullでないカラムのデフォルト制約が利かずにnullが登録されていたのが、デフォルト制約が利くようになったということはあり得ますが、
+		その状況はかなりレアケースと言えるでしょう。
+	</p>
+	<p>
+		とはいえ、こちらの挙動を元に戻すには、以下のプロパティを littleAdjustmentMap.dfprop に以下を定義します。
+	</p>
+<pre><span class="codetitle">e.g. batchInsert()の挙動を今まで通りにする @littleAdjustmentMap.dfprop</span><code>
+
+    ; isCompatibleBatchInsertDefaultEveryColumn = true
+</code></pre>
+	<h3 id="batchupdate">BatchUpdate で ModifiedProperties</h3>
+	<p>
+		バッチ登録の batchUpdate() メソッドで、update文に列挙されるカラムのルールが変わります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>いままで</dt><dd>全てのカラム <span class="frm">(パフォーマンス劣化の温床)</span></dd>
+		<dt>これから</dt><dd>EntityのSetterが呼ばれたカラムを列挙 <span class="frm">(全てのEntityで一致の必要あり)</span></dd>
+	</dl>
+	<p>
+		update() のルールと同じく ModifiedProperties が利用されます。統一的な仕様を重視しました。
+		また、無駄な更新カラムが減るため、パフォーマンス向上が見込まれます。
+	</p>
+	<p>
+		ただし、リスト内の全てのEntityでSetter呼び出しのセットが一致していることが前提です。一致していない場合は例外が発生します。
+		これは、不意の null 更新を防ぐためです。nullで更新したいなら、明示的にnullをセットします。
+	</p>
+	<p>
+		一部 Entity の、とあるカラムの既存の値をキープしたいという場合は、そもそも事前検索が必要となりますが、そのためだけに事前検索をするくらいなら、バッチ更新は利用しない方が良いでしょう。
+		<span class="frm">(そもそもパフォーマンス考慮のために存在するメソッドであるため、事前検索を避ける方が良いかと)</span>
+	</p>
+	<p>
+		ちなみに、第二引数のSpecifyQueryを使った BatchUpdate の場合に変更はありません。SpecifyQueryを使って明示的にカラムを指定したら、ModifiedPropertiesは関係なくなります。
+	</p>
+	<h4>互換性は？</h4>
+	<p>
+		以前のバージョンとの互換性で気にするポイントは、Entity間でのSetter呼び出しのセットが一致していないケースです。
+		その状況はかなりレアケースと言えると考えていますが、とはいえ、こちらの挙動を元に戻すには、以下のプロパティを littleAdjustmentMap.dfprop に以下を定義します。
+	</p>
+<pre><span class="codetitle">e.g. batchUpdate()の挙動を今まで通りにする @littleAdjustmentMap.dfprop</span><code>
+
+    ; isCompatibleBatchUpdateDefaultEveryColumn = true
+</code></pre>
+	<p>
+		また、以前と同じ挙動でなくても、Entity間でのSetter呼び出しのセットがバラバラであること許容して、最小公倍数のカラムで更新することもできます。
+		もともと全カラム更新だったので、事前検索したEntityに対してセットしていることが想定され、不意のnull更新をしてしまうことはないと考えられるので、
+		互換性の心配があるのであれば、こちらのプロパティを設定するだけでも良いのではないと思われます。ただし、新たに new した Entity
+		でバッチ更新する場合は、不意のnull更新に注意が必要です。
+	</p>
+<pre><span class="codetitle">e.g. batchUpdate()の挙動を最小公倍数にする @littleAdjustmentMap.dfprop</span><code>
+
+    ; isBatchUpdateColumnModifiedPropertiesFragmentedAllowed = true
+</code></pre>
+	<h3 id="columnsummary">更新系、列挙されるカラムのまとめ</h3>
+	<p>
+		まとめていますので、ぜひご覧を。
+	</p>
+	<div class="detailpage"><a href="../../../manual/function/ormapper/behavior/update/insert.html#columnsummary">insert() - 更新系、列挙されるカラムのまとめ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

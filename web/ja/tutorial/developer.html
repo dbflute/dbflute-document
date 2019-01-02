@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ディベロッパー,Developer,チュートリアル,Tutorial,使い方,ドキュメント" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>ディベロッパーのためのチュートリアル | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ディベロッパーのためのチュートリアル</h1>
+	<p>
+		ディベロッパーに必要な情報のまとめページです。<span class="frm">(ここでは既に自動生成が終わってること前提です)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="style">ディベロッパーの実装スタイル</h2>
+	<h3 id="twoweapon">二つのやり方</h3>
+	<dl class="valuemainlist">
+		<dt>よくあるSQL</dt><dd><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> <span class="frm">*タイプセーフ＆目的指向</span></dd>
+		<dt>ちょいムズSQL</dt><dd><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL(OutsideSql)</a> <span class="frm">*2Way-SQL</span></dd>
+	</dl>
+	<h3 id="threeclass">三つのクラス</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/ormapper/entity/index.html">Entity</a></dt>
+		<dd>データ(レコード)を格納</dd>
+		<dt><a href="../manual/function/ormapper/behavior/index.html">Behavior</a></dt>
+		<dd>DBアクセスの入り口 <span class="frm">(DIコンポーネント)</span></dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a></dt>
+		<dd>検索条件の組み立て</dd>
+	</dl>
+	<h3 id="twotask">二つの支援タスク</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></dt>
+		<dd>初めての環境構築時やDB変更時に実行 (DB環境構築の自動化)</dd>
+		<dt><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entity</a></dt>
+		<dd>外だしSQL(OutsideSql)を書いたら実行 (Entityの自動生成)</dd>
+	</dl>
+	<div class="relatedpage"><a href="../manual/function/generator/task/index.html">DBFluteタスク</a></div>
+
+	<h3 id="hitome">ひとめシリーズ</h3>
+	<dl class="keymainlist">
+		<dt><a href="./hitomeflute.html">ひとめでDBFlute</a></dt>
+		<dd>DBFluteタスクやConditionBean, 外だしSQLなどのリファレンス</dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/hitomecb.html">ひとめでConditionBean</a></dt>
+		<dd>ひたすらConditionBeanのExample実装だらけ</dd>
+	</dl>
+
+	<h3 id="onjava8">Java8 とか Scala です</h3>
+	<dl class="keymainlist">
+		<dt><a href="./onjava8.html">DBFlute on Java8</a></dt>
+		<dd>Java8版 (DBFlute-1.1.x) の話が満載</dd>
+		<dt><a href="./onscala.html">DBFlute on Scala</a></dt>
+		<dd>まだパイロット実装...ですが、動きます</dd>
+	</dl>
+
+	<h2 id="tenclause">ディベロッパーの十か条</h2>
+	<p>
+		DBFluteを使った開発における十か条です。
+		<span class="frm">(もし、この十か条が機能しないのであれば、DBFluteの設定や前提条件などが足りてない可能性がありますので、アーキテクトに相談すると良いでしょう)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/ormapper/conditionbean/index.html">検索 (select)</a></dt>
+		<dd>集計系以外のほとんどの検索は ConditionBean で実装する<span class="frm">(できる)</span></dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBeanで迷ったら</a></dt>
+		<dd>ConditionBeanトップページ<span class="frm">(ブックマークすべし)</span>から目的ドリブンで探す</dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/howto.html#completion">ConditionBeanの手つき</a></dt>
+		<dd>コード補完やショートカットを利用して文字をあまり打たずに書く</dd>
+		<dt><a href="../manual/function/genbafit/implfit/commoncolumn/index.html">共通カラム</a></dt>
+		<dd>自動で値が設定されるので、自分で設定する必要なし</dd>
+		<dt><a href="../manual/function/genbafit/implfit/classification/index.html">区分値</a></dt>
+		<dd>自動生成される区分値の設定・判定メソッドを利用する</dd>
+		<dt><a href="../manual/function/genbafit/implfit/bizonetoone/index.html">業務的one-to-one</a></dt>
+		<dd>自動生成される固定条件が解決されたメソッドを利用する</dd>
+		<dt><a href="../manual/function/genbafit/implfit/exclusivecontrol/index.html">排他制御</a></dt>
+		<dd>更新処理に組み込まれているので、それを利用する</dd>
+		<dt><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL</a></dt>
+		<dd>SQLに対応するEntity(結果受け取りDTO)は自動生成する</dd>
+		<dt><a href="../manual/function/generator/task/replaceschema/index.html">DB環境構築</a></dt>
+		<dd>バッチ一発叩くだけで、テーブル作成してテストデータ登録する</dd>
+		<dt><a href="../manual/function/generator/task/doc/schemahtml.html">テーブル定義</a></dt>
+		<dd>自動生成されるテーブル定義HTML<span class="frm">(ブックマークすべし)</span>で、DB定義を見る</dd>
+		<dt><a href="./architect.html#entityset">EntityとDTOとの詰め替え</a></dt>
+		<dd>リフレクション<span class="frm">(Beanなんとかなど)</span>は使わず、地道にget/setすべし</dd>
+	</dl>
+
+	<h2 id="faq">ディベロッパーのFAQ</h2>
+	<p>
+		ConditionBeanの機能を探したいときはどうする？
+	</p>
+	<div class="detailpage"><a href="./devfaq.html">ディベロッパーのFAQ</a></div>
+
+	<h2 id="supplement">補足資料</h2>
+	<dl class="textlist">
+		<dt><a href="./architect.html">アーキテクトのためのチュートリアル</a></dt>
+		<dd>アーキテクトとして DBFlute に関わるなら...そもそも、DBFluteの環境構築がこれからなら...</dd>
+		<dt><a href="../manual/reference/example/index.html">DBFlute Example</a></dt>
+		<dd>基本的なことを覚えるのにも応用的なことを覚えるのにも最適なのは Example 実装です。</dd>
+		<dt><a href="../manual/reference/example/maihamadb.html">MaihamaDB</a></dt>
+		<dd>
+			DBFluteの(いたる所の)説明において <em class="keyword">MaihamaDB</em> (Exampleのスキーマ) が利用されます。
+			基本構造を把握しておくと、ドキュメント上のサンプルコードの理解が早くなるでしょう。
+		</dd>
+		<dt><a href="http://d.hatena.ne.jp/jflute/">jfluteの日記 (はてなダイアリー)</a></dt>
+		<dd>
+			作者のブログ <em class="keyword">jfluteの日記</em> にDBFluteの情報が更新されます。
+			実装上の細かいネタもあるので、時々チェックしてみると理解が深まるかもしれません。
+		</dd>
+		<dt><a href="../manual/topic/office/feedback.html">わからなければ聞いてみる!?</a></dt>
+		<dd>
+			わからなければ jflute に気軽に聞いてみましょう！それが DBFlute へのフィードバックにもなります。
+			DBFluteユーザが集う、メーリングリストもあります。気軽に投稿してくださいね。
+			<div class="relatedpage"><a href="http://groups.google.co.jp/group/dbflute">DBFluteユーザの集い (Google Group)</a></div>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

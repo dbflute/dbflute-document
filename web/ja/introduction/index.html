@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,紹介,Introduction,入門,初めて,初心者,DBFluteとは,DB変更に強い,自動生成,バランス重視,全体最適,Torque,S2Dao" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>DBFluteの紹介 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteの紹介</h1>
+	<p>
+		DBFlute初めての方が真っ先に読むページです。
+	</p>
+	${indexlist}
+
+	<h2 id="about">DBFluteとは？</h2>
+	<h3 id="theme"><em class="keyword">DB変更に強い</em> をテーマにした開発支援ツール</h3>
+	<ul>
+		<li><em class="keyword">リーン・スタートアップ＆インクリメンタル開発</em></li>
+		<li><em class="keyword">設計しながら実装する開発 (納期の短い開発)</em></li>
+	</ul>
+	<p>
+		ビジネス要求の変化が激しいシステム開発が増えてきました。DB変更は日常の風景。そんな現場でDB変更に対しアプリケーションが
+		<em class="keyword">できるだけスピーディーに</em> 対応できるようにするために、DBFlute は大きく二つの機能を備えています。
+	</p>
+	<dl class="keymainlist">
+		<dt>O/Rマッパー</dt><dd>自動生成ドリブンでDB変更の影響範囲をスピーディーに検知</dd>
+		<dt>DB管理支援ツール</dt><dd>DB環境構築自動化や履歴管理など、DB変更の運用上の悩みを解決</dd>
+	</dl>
+	<p>
+		両方の機能を利用することで最大の効果を得られますが、開発運用支援ツールの機能だけを利用することも可能であり、様々なアーキテクチャと組み合わせて利用することもできます。
+	</p>
+	<div class="inucolumn">
+		<h3 id="debugcost">予期せぬコストはデバッグ作業から生まれる</h3>
+		<p>
+			DB変更の対応作業のコスト(工数)は、見積もりしづらくマネジメント的にはやっかいなものです。
+			また、DB変更前はとても綺麗に作られていたプログラムが、何度も変化を受け入れていくことで様々なギャップを生み出します。
+		</p>
+		<p>
+			DB変更への耐性が弱いと、予期せぬコストをもろに食らうことになるのです。
+		</p>
+	</div>
+	<h3 id="wholeview">ざっくり全体的な開発ポリシー</h3>
+	<dl class="textlist">
+		<dt><em class="keyword">DB変更のしやすさを強く意識</em></dt>
+		<dd><em class="smallmark">SQLをフレームワークで徹底管理して変更に敏感に</em></dd>
+		<dd><em class="smallmark">ドキュメント自動生成など実装以外のサポート充実</em></dd>
+		<dt><em class="keyword">RDBをRDBとして扱うことを意識</em></dt>
+		<dd><em class="smallmark">RDBを隠蔽しない、高機能になり過ぎない</em></dd>
+		<dd><em class="smallmark">ただ、SQLの手続きはできるだけ間違いのないように</em></dd>
+		<dt><em class="keyword">デバッグコストを減らすことを意識</em></dt>
+		<dd><em class="smallmark">タイプセーフへのこだわり</em></dd>
+		<dd><em class="smallmark">ログや例外メッセージの充実</em></dd>
+		<dd><em class="smallmark">現場フィットレイヤの機能を充実</em></dd>
+	</dl>
+	<p>
+		<span class="frm">※いわゆる "カッコよさ" にはこだわらないので、そういうフレームワークを求めている方には不向きです。</span>
+	</p>
+
+	<h2 id="ormapper">O/RマッパーとしてのDBFlute</h2>
+	<p>
+		Java と C# (.NET) において利用できます。
+	</p>
+	<div class="relatedpage"><a href="../environment/supported.html">DBFluteのサポート情報</a></div>
+	<h3 id="generate">自動生成ドリブンでDB変更に強い</h3>
+	<p>
+		データベースのメタデータ(テーブル構造やFK制約など)からEntityなどのDBアクセスするためのクラスが自動生成され、それにより <em class="keyword">タイプセーフな実装</em>
+		が可能となり、開発途中や運用後のDB変更の影響範囲の多くをコンパイル時に検知できるようになります。
+	</p>
+	<div class="detailpage"><a href="./gendriven.html">自動生成ドリブン</a></div>
+	<h3 id="balance">バランス重視のDBアクセスI/F</h3>
+	<p>
+		DB変更の多いシステム開発では、全てのDBアクセスをSQLで書くというのは予測できないコストを膨張させる要因となります。
+		かといって、全てをタイプセーフに書けるのか？というとそれは不可能です。
+		どちらか一方というのではなく、その適材適所のバランスを重視しています。それがDB変更に強く現場フィットするやり方であると考えます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>よくあるSQL</dt><dd><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> <span class="frm">*タイプセーフ＆目的ドリブン</span></dd>
+		<dt>ちょいムズSQL</dt><dd><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL(OutsideSql)</a> <span class="frm">*2Way-SQL</span></dd>
+	</dl>
+	<div class="detailpage"><a href="./dbaccessif.html">バランス重視のDBアクセスI/F</a></div>
+	<h3 id="genbafit">全体最適のための現場フィット機能</h3>
+	<p>
+		開発現場とO/Rマッパーの間には必ず隙間が存在します。大抵はその隙間を埋めるのは各ディベロッパーで、開発規模が大きければ大きいほどその無駄な作業がどんどん横展開されていくものです。
+	</p>
+	<p>
+		DBFluteでは現場フィットな機能を使って開発を全体最適し、それら各ディベロッパーの無駄な負荷を軽減します。他のO/Rマッパーよりはアーキテクトの仕事量とスキルが求められるかもしれませんが、その分を各ディベロッパーに
+		<em class="keyword">業務仕様の把握と実現そしてテストに集中</em> してもらうことで、システム全体の品質の向上を望むことが可能です。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/index.html">現場フィット</a></div>
+	<h3 id="performance">実行時のパフォーマンス考慮</h3>
+	<p>
+		いくら開発時のパフォーマンスが良くても、実行時(ランタイム)のパフォーマンスが良くなければ、それは採用できないO/Rマッパーです。
+		O/Rマッパーは、DBアクセス実装の道具というだけでなく、アプリケーションの一部品として組み込まれるものだからです。
+	</p>
+	<p>
+		DBFluteでは、<em class="keyword">実行時のパフォーマンスに関しても細心の注意を払い</em>、よく言われる
+		"O/Rマッパーはパフォーマンスが心配" と言われる懸念を払拭します。
+	</p>
+	<div class="detailpage"><a href="./performance.html">パフォーマンス考慮</a></div>
+
+	<h2 id="dbmanage">DB管理支援ツールとしてのDBFlute</h2>
+	<p>
+		どのプログラム言語とでも合わせて利用できます。
+	</p>
+	<h3 id="letschange">DB変更をスムーズに</h3>
+	<p>
+		プログラムだけがDB変更に強くても意味がありません。
+	</p>
+	<p>
+		よくある "DB変更が発生すると開発運用で困ること" に対する様々な機能を備えます。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>ローカルDB環境への横展開</dt>
+		<dd>
+			<em class="keyword"><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></em> でバッチ一発ローカルDBを最新状態に
+		</dd>
+		<dt>テストデータの修正が大変</dt>
+		<dd>
+			<em class="keyword"><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></em> でテストデータの一元管理
+		</dd>
+		<dt>不整合なテストデータが増えてくる</dt>
+		<dd>
+			<em class="keyword"><a href="../manual/function/generator/task/replaceschema/takefinally.html">TakeFinally</a></em> でテストデータの整合性チェック
+		</dd>
+		<dt>テーブル定義書がだんだん古くなる</dt>
+		<dd>
+			テーブル定義ドキュメント <em class="keyword">(<a href="../manual/function/generator/task/doc/schemahtml.html">SchemaHTML</a>)</em> の自動生成
+		</dd>
+		<dt>DB変更内容が通知されない</dt>
+		<dd>
+			DB変更履歴 <em class="keyword">(<a href="../manual/function/generator/task/doc/historyhtml.html">HistoryHTML</a>)</em> の自動生成
+		</dd>
+		<dt>広がるローカル環境と本番環境のズレ</dt>
+		<dd>
+			<em class="keyword"><a href="../manual/function/generator/task/replaceschema/altercheck.html">AlterCheck</a></em>
+			と <em class="keyword"><a href="../manual/function/generator/task/doc/schemasynccheck.html">SchemaSyncCheck</a></em> で妥当性のチェック
+		</dd>
+	</dl>
+	<h3 id="altodbflute">Alto DBFluteスタイル</h3>
+	<p>
+		これら、アプリの外側で開発の <em class="keyword">ベース</em> を支える機能を <em class="keyword">Alto DBFlute</em>
+		という名前で提案しています。
+	</p>
+	<div class="detailpage"><a href="./altodbflute.html">Alto DBFlute</a></div>
+
+	<h2 id="jflutelum">jfluteのコラムに注目</h2>
+	<p>
+		ドキュメントではわりとフォーマルな表現が求められますが、その問題背景や細かいニュアンスなどを伝えるために、時々ドキュメントに作者である jflute が語る "jflute's Column"
+		というのを載せています。<span class="frm">(ちなみに、時々ある緑色の補足的なコメントも jflute のニュアンス表現です)</span>
+	</p>
+	<div class="inucolumn">
+		<h3 id="genbaoriented">現場指向のテーマフレームワーク</h3>
+		<p>
+			ある時、Apache Torqueを使ったプロジェクトに参加しました。テーブルのメタ情報からクラスを自動生成する <em class="keyword">DB変更に強いという仕組み</em>
+			に感動しました。一方で、複雑なSQLを発行したいときに困窮しました。その後、S2Daoを知り、<em class="keyword">2Way-SQL</em>
+			の素晴らしさに感動しました。一方で、DB変更があった場合に対処するのが大変そうだという感想を抱きました。
+			その時、この二つの特徴を組み合わせれば <em class="keyword">現場にフィット</em> するのではないかと思い、DBFluteの歴史が始まりました。
+		</p>
+		<p>
+			DBFluteは公開前の半年、公開後の8年半のおよそ丸9年(2006年から2015年にかけて)、
+			実際の開発現場で利用されつつ作者自身もその現場に入り、利用者の声をダイレクトに受け止め現場への対応を積み重ねてきました。
+			それゆえ、DBFluteはフレームワークの要件定義を現場から行っています。どういった機能が求められててどういった仕様が良いのか、
+			トップダウンではなくボトムアップで設計されており、現場にフィットするための多くの機能を備えます。
+			(DBFluteの成長を支えて下さったプロジェクトの方々には、心から感謝します)
+		</p>
+		<p>
+			DBFluteは、<em class="keyword">現場指向</em> をテーマに開発しています。
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h3 id="history">DB変更がない現場だと？</h3>
+		<p>
+			それでは、DB変更が全くない現場だと役に立たないのか？
+		</p>
+		<p>
+			実際には、そういう現場でも活躍します。スピードと品質が求められることには変わりはないからです。
+			タイプセーフで目的指向な ConditionBean によるスピーディーな実装、ケアレスミスを防ぐ安全性。
+			<em class="keyword">安全はスピード</em> と言えるでしょう。DB変更への耐性を付けるために用意された安全性を重視した機能インターフェースが、開発スピードと高品質の実装を生み出すのです。
+		</p>
+		<p>
+			ただ、DBFluteでなければならない理由はそれほど大きくはなく、他にも選択肢があると考えます。
+		</p>
+	</div>
+
+	<h2 id="welcome">DBFluteの世界へようこそ</h2>
+	<p>
+		あらためて、DBFluteの世界へようこそ！
+	</p>
+	<p>
+		概念的な説明だけでは、理解が漠然としているでしょう。ぜひとも具体的な機能を見ながらDBFluteを知って頂けたらと思います。
+		チュートリアルを用意しております。これらのページを入り口にDBFluteの理解をぜひ深めていって下さい。
+	</p>
+	<ul>
+		<li><a href="../tutorial/architect.html">アーキテクトのためのチュートリアル</a></li>
+		<li><a href="../tutorial/developer.html">ディベロッパーのためのチュートリアル</a></li>
+	</ul>
+	<p>
+		では、いってらっしゃいませ！
+	</p>
+	<p class="imgbox">図 : DBFluteのインフラマップ
+		<a href="../../data/model/environment/dbflute-infrastructure-map.png" title="DBFluteのインフラマップ"><img src="../../data/model/environment/dbflute-infrastructure-map.png" alt="DBFluteのインフラマップ" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="thanksframework">Thanks, Frameworks!</h2>
+	<p>
+		DBFluteの開発に欠かせなかったフレームワークです。
+	</p>
+	<ul>
+		<li><a href="http://db.apache.org/torque/">Apache Torque</a></li>
+		<li><a href="http://s2dao.seasar.org/">S2Dao</a></li>
+	</ul>
+	<p>
+		DBFluteは、Torque の自動生成の仕組みをベースに作られています。また、2Way-SQL の実現には S2Dao
+		のロジックを参考にさせてもらっています。
+	</p>
+	<p>
+		これらのフレームワークがなければ、今の DBFlute は存在していないでしょう。
+	</p>
+
+	<h2 id="thanksfriends">Thanks, Friends!</h2>
+	<p>
+		DBFluteを利用していることを公表して頂いているライブラリやサービスです。
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt><a href="https://github.com/codelibs/fess">Fess</a></dt>
+		<dd>is very powerful and easily deployable Enterprise Search Server.</dd>
+		<dt><a href="https://github.com/codelibs/s2robot">S2Robot</a></dt>
+		<dd>is a crawler library for crawling a web site and a file system.</dd>
+	</dl>
+	<p>
+		and other many business projects, comming soon...
+	</p>
+	<div class="inucolumn">
+		<h3 id="actualuse">DBFluteの実績サイト</h3>
+		<p>
+			DBFluteは既に多くの現場で利用されています。ただ、そこはオープンソースプロダクトのつらいところで、jflute自身が関わった現場でゆうに 20
+			は超え、見聞きしたものを含めれば 30, 40 を超える実績を知りながらも、それは公表はできません。jfluteの耳に入ってくるものは一部、本当はもっとあるでしょうが...。
+		</p>
+		<p>
+			その中で、幾つかのサイトが DBFlute
+			を使っていることを公表してもOKしてくれています。それを紹介したブログ記事がありますので、ぜひご覧になってください。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20130307/1362585484">外部サイト - DBFluteの実績サイト</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

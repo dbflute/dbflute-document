@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,scalarSelect,スカラ検索,スカラ値検索,最大値,最小値,合計値,平均値,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectScalar(cb) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectScalar(cb)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">ConditionBeanをもとにスカラ検索</em> をします。
+	</p>
+	<p>
+		例えば、"一番若い会員の生年月日"、"全体の購入価格の平均" など、あるカラムの導出値を ConditionBean
+		の絞り込み条件をもとに取得することができます。
+	</p>
+	<p>
+		スカラ値の取得ではなく、スカラ値を使ってSQL内で絞り込み条件をする、というような場合は、ScalarCondition
+		という別の機能になります。<span class="frm">(取得ではなく単なる絞り込み条件なので)</span>
+	</p>
+	<div class="relatedpage"><a href="../../conditionbean/query/scalarcondition.html">ConditionBean - ScalarCondition</a></div>
+	<p>
+		会話上では、<em class="keyword">せれくとすから</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		Behaviorの <em class="keyword">selectScalar()</em>
+		を呼び出し、受け取るスカラ値のプログラム型を引数に指定します。続けて、関数メソッドを呼び出し、ConditionBean で絞り込みを指定するコールバックを引数に指定します。
+	</p>
+<pre><span class="codetitle">e.g. scalarSelect()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selSca <span class="comment">// .selSca と打って enter</span>
+--
+
+<span class="attribute">memberBhv</span>.<span class="point">selectScalar(resultType)</span>;
+--
+
+<span class="comment">// 引数に受け取るスカラ値のプログラム型を指定し、</span>
+<span class="comment">// max() や min()、sum() などの関数メソッドを選んで enter</span>
+<span class="comment">//  =&gt; max(), min(), sum(), avg()</span>
+<span class="attribute">memberBhv</span>.selectScalar(LocalDate.<span class="keyword">class</span>).ma
+--
+
+<span class="comment">// メソッドが補完されて、引数の "cbLambda" が選択状態に</span>
+<span class="attribute">memberBhv</span>.scalarSelect(LocalDate.<span class="keyword">class</span>).<span class="point">max</span>(cbLambda)
+--
+
+<span class="comment">// cbLambdaの部分で、_ll (補完テンプレートが有効なら)</span>
+<span class="attribute">memberBhv</span>.selectScalar(LocalDate.<span class="keyword">class</span>).max(<span class="subpoint">_ll</span>)
+--
+
+<span class="comment">// Lambda引数名はcbにして...</span>
+<span class="comment">// ScalarQuery のConditionBeanで導出カラムと絞り込み条件を指定</span>
+<span class="attribute">memberBhv</span>.selectScalar(LocalDate.<span class="keyword">class</span>).max(<span class="localvar">cb</span> -&gt; {
+    cb.specify().<span class="point">columnBirthdate()</span>; <span class="comment">// 生年月日の最大値</span>
+    cb.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 正式会員に限る</span>
+})
+--
+
+<span class="attribute">memberBhv</span>.selectScalar(LocalDate.<span class="keyword">class</span>).max(<span class="localvar">cb</span> -&gt; {
+    cb.specify().columnBirthdate();
+    cb.query().setMemberStatusCode_Equal_Formalized();
+}); <span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+--
+
+<span class="comment">// どん！</span>
+<span class="comment">// (もしくは、ifPresent()やalwaysPresent()を使って、チェーンで戻り値を扱うでもOK)</span>
+OptionalScalar&lt;LocalDate&gt; <span class="point">maxDate</span> = <span class="attribute">memberBhv</span>.selectScalar(LocalDate.<span class="keyword">class</span>).max(<span class="localvar">cb</span> -&gt; {
+    cb.specify().columnBirthdate();
+    cb.query().setMemberStatusCode_Equal_Formalized();
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員における、生年月日の最大値を取得 @DisplaySql</span><code>
+<span class="keyword">select</span> max(dfloc.BIRTHDATE) <span class="keyword">as</span> dfscalar
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+	<p>
+		Behaviorの <em class="keyword">scalarSelect()</em>
+		を呼び出し、受け取るスカラ値のプログラム型を引数に指定します。続けて、関数メソッドを呼び出し、ConditionBean で絞り込みを指定するコールバックを引数に指定します。
+	</p>
+	<p>
+		※DBFlute-1.1より、<em class="keyword">selectScalar()</em> という名前になっています。
+	</p>
+<pre><span class="codetitle">e.g. scalarSelect()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.sc <span class="comment">// .sc と打って enter</span>
+--
+
+<span class="attribute">memberBhv</span>.<span class="point">scalarSelect(resultType)</span>;
+--
+
+<span class="comment">// 引数に受け取るスカラ値のプログラム型を指定し、</span>
+<span class="comment">// max() や min()、sum() などの関数メソッドを選んで enter</span>
+<span class="comment">//  =&gt; max(), min(), sum(), avg()</span>
+<span class="attribute">memberBhv</span>.scalarSelect(Date.<span class="keyword">class</span>).ma
+--
+
+<span class="comment">// メソッドが補完されて、引数の "scalarQuery" が選択状態に</span>
+<span class="attribute">memberBhv</span>.scalarSelect(Date.<span class="keyword">class</span>).<span class="point">max</span>(scalarQuery)
+--
+
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+<span class="attribute">memberBhv</span>.scalarSelect(Date.<span class="keyword">class</span>).max(<span class="point">new </span>)
+--
+
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+<span class="attribute">memberBhv</span>.scalarSelect(Date.<span class="keyword">class</span>).max(<span class="keyword">new</span> ScalarQuery&lt;MemberCB&gt;() {
+    
+    <span class="keyword">public void</span> query(MemberCB cb) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+--
+
+<span class="comment">// ctrl (or command) + D で不要な空行やTODOコメントを消して</span>
+<span class="comment">// ScalarQuery のConditionBeanで導出カラムと絞り込み条件を指定</span>
+<span class="attribute">memberBhv</span>.scalarSelect(Date.<span class="keyword">class</span>).max(<span class="keyword">new</span> ScalarQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate()</span>; <span class="comment">// 生年月日の最大値</span>
+        cb.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 正式会員に限る</span>
+    }
+}); <span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+--
+
+LocalDate <span class="point">max</span> = <span class="attribute">memberBhv</span>.scalarSelect(LocalDate.<span class="keyword">class</span>).max(<span class="keyword">new</span> ScalarQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB cb) {
+        cb.specify().columnBirthdate(); <span class="comment">// 生年月日の最大値</span>
+        cb.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 正式会員に限る</span>
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員における、生年月日の最大値を取得 @DisplaySql</span><code>
+<span class="keyword">select</span> max(dfloc.BIRTHDATE) <span class="keyword">as</span> dfscalar
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+</code></pre>
+	<h3 id="derived">子テーブルの導出カラム</h3>
+	<p>
+		導出カラムとして、子テーブルの導出カラムを指定することもできます。
+		ScalarSelect の中で (Specify)DerivedReferrer を利用します。<span class="frm">(@since 0.9.7.7)</span>
+	</p>
+<pre><span class="codetitle">e.g. それぞれの会員の平均購入価格の会員全体での最大 @Java</span><code>
+OptionalScalar&lt;Integer&gt; <span class="subpoint">maxAvg</span> = <span class="attribute">memberBhv</span>.scalarSelect(Integer.<span class="keyword">class</span>).max(<span class="localvar">cb</span> -&gt; {
+    cb.specify().<span class="point">derivedPurchaseList()</span>.avg(<span class="localvar">purchaseCB</span> -&gt; {
+        purchaseCB.specify().<span class="subpoint">columnPurchasePrice()</span>;
+    }, <span class="keyword">null</span>);
+    cb.query().set<span class="abbreviation">...</span>
+});
+</code></pre>
+<pre><span class="codetitle">e.g. それぞれの会員の平均購入価格の会員全体での最大 @DisplaySql</span><code>
+<span class="keyword">select</span> max((<span class="keyword">select</span> avg(sub1loc.PURCHASE_PRICE)
+              <span class="keyword">from</span> PURCHASE sub1loc 
+             <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+       )) <span class="keyword">as</span> dfscalar
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="funcfilter">導出値をSQL関数でフィルタ</h3>
+	<p>
+		導出値をSQL関数でフィルタすることができます。関数メソッドのオーバーロードの第二引数である ScalarSelectOption
+		にて、そのフィルタ処理を指定することができます。<span class="frm">@since 0.9.8.4</span>
+	</p>
+<pre><span class="codetitle">e.g. 集計対象レコードが一件も存在しなかった場合に null ではなく 0 を戻す @Java</span><code>
+Integer maxValue = <span class="attribute">memberBhv</span>.scalarSelect(Integer.<span class="keyword">class</span>).max(<span class="localvar">cb</span> -&gt; {
+    cb.specify().columnMemberId();
+}, op -&gt; op.<span class="point">coalesce</span>(<span class="literal">0</span>));
+</code></pre>
+	<p>
+		もろもろの仕様は DerivedReferrer における DerivedReferrerOption と基本的に同じです。 
+	</p>
+	<div class="detailpage"><a href="../../conditionbean/specify/derivedreferrer.html#funcfilter">導出値をSQL関数でフィルタ</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		スカラ値のプログラム型、および、サブクエリは必須です。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		OptionalScalar型です。
+	</p>
+	<p>
+		検索結果が一件もない場合は、(DBMSの関数の仕様に従って) Optional が empty になることがあります。
+		coalesce()関数などを使うことで、nullがなくなるようにすることもできます。
+	</p>
+	<h3 id="specifycolumn">導出カラムの指定</h3>
+	<p>
+		ScalarQuery 内での導出カラムは、必ず一つだけ指定します。
+		また、基点テーブルのカラム、もしくは、子テーブルの導出カラムのどちらかに限ります。
+		(カラム指定がない、もしくは、二つ以上のカラムが指定された場合は例外)
+	</p>
+	<h3 id="usablefunc">利用できる関数</h3>
+	<p>
+		利用できる関数は以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>max()</dt><dd>最大値。計算対象データが無い場合は null となる。</dd>
+		<dt>min()</dt><dd>最小値。計算対象データが無い場合は null となる。</dd>
+		<dt>sum()</dt>
+		<dd>
+			合計値。数値のみ。計算対象データが無い場合は null となる。
+			受け取るプロパティの型がカラムに対応する型だと、(合計値なので)オーバーフローする可能性もあるので、業務的な可能性を踏まえてサイズの大きい型(Long
+			や BigDecimal など)を利用すると良い。
+		</dd>
+		<dt>avg()</dt>
+		<dd>
+			平均値。数値のみ。計算対象データが無い場合は null となる。値が小数点になる可能性があるので、受け取るプロパティの型を小数点を扱える型(BigDecimal
+			など)にすると良い。
+		</dd>
+		<dt>count()</dt>
+		<dd>
+			レコード数。数値のみ。計算対象データが無い場合は 0 となる。selectCount(cb) と同じである。
+		</dd>
+		<dt>countDistinct()</dt>
+		<dd>
+			種類数。数値のみ。計算対象データが無い場合は 0 となる。
+		</dd>
+	</dl>
+	<h3 id="queryonly">ConditionBeanは絞り込み条件のみ</h3>
+	<p>
+		ScalarQuery の ConditionBean は、絞り込み条件だけの指定に利用するものです。
+		SetupSelect や OrderBy など絞り込み条件とは関係のない機能は呼び出してはいけません。
+	</p>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		selectList() と同じような要領となります。
+	</p>
+	<div class="detailpage"><a href="./selectlist.html#override">selectList(cb) - オーバーライド</a></div>
+
+	<h2 id="unioncolumn">UnionQuery での select 句のカラム</h2>
+	<p>
+		PKが存在するテーブルの場合で、引数の ConditionBean で UnionQuery
+		を利用すると、UnionQuery に対応する select 句は PK カラムと導出カラムのみ列挙されます。
+		つまり、CLOB や TEXT 型のカラムが含まれるテーブルで、union の distinct 処理でそれらカラムがサポートされない DBMS
+		でも問題なく UnionQuery を利用することができます<span class="frm">(@since 0.9.7.7)</span>。
+	</p>
+	<p>
+		旧バージョン、および、PKなしテーブル(ビューも含む)では、バージョンに関わらず回避はできません。ビューにおいては、AdditionalPrimaryKey
+		で疑似の PK を設定すると良いでしょう。 
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

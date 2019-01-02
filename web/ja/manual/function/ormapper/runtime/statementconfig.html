@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteRuntime,DBFluteランタイム,StatementConfig,JDBCパラメータ,ResultSetパラメータ,ResultSetType,queryTimeout,時間制限,タイムアウト" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>StatementConfig | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>StatementConfig</h1>
+	${indexlist}
+
+	<h2 id="about">StatementConfigとは？</h2>
+	<p>
+		JDBCパラメータを設定するクラスです。
+	</p>
+	<div class="relatedpage"><a href="../conditionbean/query/fromto.html">ConditionBean - FromTo</a></div>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/parameterbean.html#datefromto">ParameterBean - DateFromTo</a></div>
+
+	<h2 id="settingpoint">設定ポイント</h2>
+	<p>
+		DBFluteConfig にて、全ての検索に適用するデフォルトの挙動を設定することができます。
+		明示的に設定された項目のみデフォルトとして適用されます。
+	</p>
+	<div class="relatedpage"><a href="./allcommon/dbfluteconfig.html#defaultstatementconfig">defaultStatementConfig</a></div>
+	<p>
+		また、ConditionBean や外だしSQLなどで、デフォルトの挙動を上書きすることができます。
+		同じく、明示的に設定された項目のみ上書きをします。
+	</p>
+	<div class="relatedpage"><a href="../conditionbean/sidebar/statementconfig.html">ConditionBean - StatementConfig</a></div>
+	<div class="relatedpage"><a href="../outsidesql/option/statementconfig.html">外だしSQL - StatementConfig</a></div>
+
+	<h2 id="mainmethod">主なメソッド</h2>
+	<p>
+		それぞれの項目のJDBCとしての仕様は、JDBCのドキュメントを参考にして下さい。
+		また、具体的な挙動は、DBMS (JDBCドライバ)に依存しますのでご注意下さい。
+	</p>
+	<h3 id="resultsettype">ResultSetタイプ</h3>
+	<p>
+		どれか一つを設定します。何も設定しない場合は、デフォルトの挙動(DBFlute内部で必要に応じて自動調整)となります。
+	</p>
+	<dl class="textlist">
+		<dt>typeForwardOnly()</dt>
+		<dd>
+			ResultSet に TYPE_FORWARD_ONLY
+			を設定します。DBFluteにおけるほとんどの検索におけるデフォルトです。
+		</dd>
+		<dt>typeScrollInsensitive()</dt>
+		<dd>
+			ResultSet に TYPE_SCROLL_INSENSITIVE
+			を設定します。カーソルのポインタシフトが利用できるようになります。
+			DBFluteでは、ポインタシフトが必要になる場面(外だしSQLの AutoPaging など)で内部的に自動で利用されます。DBMS
+			によっては、フェッチし終わったレコードもメモリ上に保持する可能性がありますので、大量データを扱うカーソル検索などでこれを利用するとカーソル検索の意味が無くなります。
+		</dd>
+		<dt>typeScrollSensitive()</dt>
+		<dd>
+			ResultSet に TYPE_SCROLL_SENSITIVE を設定します。TYPE_SCROLL_INSENSITIVE
+			と比べて、ResultSet にデータベース上の最新の状態が自動的に反映される、という特徴を持ちます。DBFlute
+			では、内部的な調整でこのタイプを利用することはありません。
+		</dd>
+	</dl>
+	<h3 id="statementprameter">Statementパラメータ</h3>
+	<p>
+		それぞれ独立した項目として設定します。何も設定しない場合は、デフォルトの挙動(Statementに対して、何も設定しないのと同じ)となります。
+	</p>
+	<dl class="textlist">
+		<dt>queryTimeout(int)</dt>
+		<dd>
+			PreparedStatement.setQueryTimeout()
+			(SQLの実行時間の制限)を設定します。指定されたミリ秒を超えるとSQLは中断し例外になります。StatementConfig
+			の中で最も活躍すると想定されるメソッドです。
+		</dd>
+		<dt>fetchSize(int)</dt>
+		<dd>
+			PreparedStatement.setFetchSize() (JDBC内部での一度の通信で取得するレコード数)を設定します。
+		</dd>
+		<dt>maxRows(int)</dt>
+		<dd>
+			PreparedStatement.setMaxRows() (フェッチする最大レコード数)を設定します。
+		</dd>
+	</dl>
+
+	<h2 id="classspec">クラス仕様</h2>
+	<ul>
+		<li>Serializableである</li>
+		<li>スレッドセーフではない (読み取りのみであればスレッドセーフ)</li>
+		<li>同じスレッド内での(別項目への)再利用はできる</li>
+	</ul>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

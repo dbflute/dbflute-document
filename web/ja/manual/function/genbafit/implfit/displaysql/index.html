@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,表示用SQL,DisplaySql,SQLのログ,ログのSQL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>表示用SQL | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>表示用SQL</h1>
+	${indexlist}
+
+	<h2 id="about">表示用SQLとは？</h2>
+	<p>
+		DBFluteで発行されるSQLは、基本的にバインド変数が利用されます。
+		一部、バインド変数を使わずに条件値を埋め込む機能もありますが、本当にいざそれが必要になる場面でのみの利用を前提としています。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/bindvariable.html">DBアクセス - バインド変数</a></div>
+	<h3 id="executedsql">実行SQLそのままだと...(表示用SQLでない場合)</h3>
+	<p>
+		バインド変数を使ったSQLは、SQL文に条件値が埋め込まれず、変数部分が "?"
+		などの変数表記になっています。よって、実行されたSQLをそのままログに表示しても、人にはわかりづらいSQLになってしまいます。
+		別途、条件値をリスト形式などで表示することもできますが、バインド変数と条件値を頭の中で順番に当てはめなければなりません。
+	</p>
+<pre><span class="codetitle">e.g. 実行時のSQLをそのまま表示すると...何がなにやら @ExecutedSql</span><code>
+<span class="keyword">update</span> MEMBER
+   <span class="keyword">set</span> MEMBER_STATUS_CODE = ?
+     , FORMALIZED_DATETIME = ?
+     , UPDATE_DATETIME = ?
+     , UPDATE_USER = ?
+     , UPDATE_PROCESS = ?
+     , VERSION_NO = VERSION_NO + <span class="literal">1</span>
+ <span class="keyword">where</span> MEMBER_ID <span class="keyword">in</span> (
+<span class="keyword">select</span> dfloc.MEMBER_ID 
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> dfloc.MEMBER_STATUS_CODE = ?
+   <span class="keyword">and exists</span> (<span class="keyword">select</span> sub1loc.MEMBER_ID
+                 <span class="keyword">from</span> PURCHASE sub1loc 
+                <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+                  <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = ?
+       )
+)
+</code></pre>
+	<h3 id="displaysql">表示用SQLの場合</h3>
+	<p>
+		DBFluteでは、バインド変数表記を条件値で埋め込んだSQLを別途生成し、デバッグログとして出力します。
+		これを人が見てわかりやすいSQLということで、<em class="keyword">表示SQL (DisplaySql)</em> と呼びます。
+	</p>
+	<div class="relatedpage"><a href="../debuglog/index.html">現場フィット - デバッグログ</a></div>
+<pre><span class="codetitle">e.g. DBFluteは表示用SQLでデバッグログに出力 @DisplaySql</span><code>
+<span class="keyword">update</span> MEMBER
+   <span class="keyword">set</span> MEMBER_STATUS_CODE = <span class="literal">'PRV'</span>
+     , FORMALIZED_DATETIME = <span class="keyword">null</span>
+     , UPDATE_DATETIME = <span class="literal">'2010-11-16 15:54:48.624'</span>
+     , UPDATE_USER = <span class="literal">'testUser'</span>
+     , UPDATE_PROCESS = <span class="literal">'WxBhvQueryUpdateTest[main]'</span>
+     , VERSION_NO = VERSION_NO + <span class="literal">1</span>
+ <span class="keyword">where</span> MEMBER_ID <span class="keyword">in</span> (
+<span class="keyword">select</span> dfloc.MEMBER_ID 
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+   <span class="keyword">and exists</span> (<span class="keyword">select</span> sub1loc.MEMBER_ID
+                 <span class="keyword">from</span> PURCHASE sub1loc 
+                <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+                  <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">0</span>
+       )
+)
+</code></pre>
+	<p>
+		表示SQLのメリットは、単に見やすいという話に留まりません。
+		そのままコピーしてSQLツールなどで実行でき、込み入った問題が発生した時などに動作確認を行うことができます。
+	</p>
+	<h3 id="displaysql">厳密には実行SQLとは別のSQL</h3>
+	<p>
+		厳密には、実行SQLとは別のSQLです。実行SQLはバインド変数を利用しています。表示用SQLは条件値を埋め込んでいます。
+		その違いが顕著に現れるのは日付型の条件値の場合です。表示用SQLで、"2010-11-16 15:54:48.624"
+		と表示されていても、この日付フォーマットで検索をしているわけではありません。
+		日付オブジェクトのまま条件をDBに渡していますので、フォーマットは無関係です。人が見やすいようにたまたまこの形でフォーマットして表示されているだけです。
+	</p>
+	<p>
+		この違いにより、稀に表示SQLをコピーしてSQLツールで実行しても実行できない場合があります。日付リテラルの文法(フォーマットの解析仕様)が DBMS
+		によって違うからです。できる限り合わせるようにしていますが(例えば、Oracleでは対応する日付リテラルが利用されます)、対応できていない DBMS
+		がある場合に日付フォーマット(日付リテラル)を調整することができます。
+	</p>
+	<div class="detailpage"><a href="#dateformat">日付型フォーマットの調整</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#dateliteral">Oracle - 日付リテラル</a></div>
+	<h3 id="s2daoorigin">S2Daoから継承</h3>
+	<p>
+		この機能は S2Dao を参考に、DBFluteで多少の独自改良を加えたものです。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/friends/s2dao.html">S2Dao</a></div>
+
+	<h2 id="todisplaysql">ConditionBean から表示用SQLを取得</h2>
+	<p>
+		条件を設定済みの ConditionBean から表示用SQLを取得することができます。
+		通常は利用することはほとんどありませんが、ConditionBean
+		の実装を外だしSQLに切り替えるような場合に、外だしSQLの土台SQLとして(途中まで実装した) ConditionBean
+		の表示用SQLを使うという場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/various/todisplaysql.html">ConditionBean - ToDisplaySql</a></div>
+
+	<h2 id="dateformat">日付型フォーマットの調整</h2>
+	<p>
+		表示用SQLにおける日付型フォーマットを変更することができます。DBFluteConfig
+		の logDateFormat、logTimestampFormat を利用することで変更できます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#logdateformat">DBFluteConfig - logDateFormat</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#logtimestampformat">DBFluteConfig - logTimestampFormat</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

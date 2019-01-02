@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBMeta,DBメタ,メタデータ,テーブル情報,カラム情報" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DBMeta | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBMeta</h1>
+	${indexlist}
+
+	<h2 id="about">DBMetaとは？</h2>
+	<p>
+		EntityごとのDBのメタデータを保持するオブジェクトです。<em class="keyword">でーびーめた</em> と呼びます。
+	</p>
+	<p>
+		Entityと同様に
+		<em class="keyword">テーブル対応のDBMeta</em> と <em class="keyword">SQL対応のDBMeta</em>
+		と分けることができます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>テーブル対応のDBMeta</dt><dd>DomainDBMeta</dd>
+		<dt>SQL対応のDBMeta</dt><dd>CustomizeDBMeta</dd>
+	</dl>
+	<h3 id="abbreviation">省略表記</h3>
+	<p>
+		<em class="keyword">Dbm</em> (でーびーえむ)と略して表現されることがあります。主にクラス名などで利用されます。
+	</p>
+	<h3 id="autogenerate">自動生成される</h3>
+	<p>
+		Entityと同様に(同様のタイミングで)自動生成されます。但し、DBMetaのアプリ独自の拡張は許されていないため、ジェネレーションギャップにはなっていません。
+	</p>
+	<h3 id="classname">DBMetaのクラス名</h3>
+	<p>
+		<em class="keyword">[Entityの名前] + Dbm</em> という形式です。例えば、MEMBER なら MemberDbm。
+	</p>
+	<h3 id="internaluse">基本的にはDBFlute内部用</h3>
+	<p>
+		基本的にはDBFlute内部用のクラスですが、幾つかのDBFluteの機能、または、アプリでメタ情報が必要になったときに利用します。
+		テーブル情報やカラム情報などの基本的なメタ情報以外のマイナーなメソッドに関しては、互換性が保たれない可能性があるのでご注意下さい。
+	</p>
+
+	<h2 id="howto">DBMetaの利用</h2>
+	<p>
+		DBMetaは、全てシングルトンパターンで実装されています。
+	</p>
+<pre><span class="codetitle">e.g. 会員のDBMetaインスタンスを取得 @Java</span><code>
+MemberDbm dbm = MemberDbm.<span class="point">getInstance()</span>;
+</code></pre>
+	
+	<h2 id="tableinfo">テーブル情報</h2>
+	<dl class="textlist">
+		<dt>getTableDbName()</dt>
+		<dd>DB上で扱われている(そのままの)テーブル名</dd>
+		<dt>getTablePropertyName()</dt>
+		<dd>プログラム側で利用されるテーブルのプロパティ名</dd>
+		<dt>getTableSqlName()</dt>
+		<dd>
+			SQLを発行するために最適化されているテーブル名。状況によってスキーマ名が付与されたり、クォートされたりする。主に
+			Behavior や ConditionBean で自動で組み立てられるSQLで利用される。
+		</dd>
+		<dt>getTableAlias()</dt>
+		<dd>テーブルの(主にローカル言語による)別名。オプションで利用できるようになる。</dd>
+		<dt>getTableComment()</dt>
+		<dd>テーブルのコメント。オプションで利用できるようになる。</dd>
+	</dl>
+	<h2 id="columninfo">カラム情報</h2>
+<p>TODO jflute now writing</p>
+	<h2 id="structure">DBMetaの構造</h2>
+
+<p>TODO jflute now writing</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

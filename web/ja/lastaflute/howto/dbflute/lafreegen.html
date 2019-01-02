@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>なんでも自動生成 (FreeGen) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>なんでも自動生成 (FreeGen)</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="freegen">FreeGenとは？</h2>
+	<p>
+		DBFluteの自動生成機能を間借りして、色々なものを自動生成しようという企みです。
+	</p>
+	<p>
+		通常の FreeGen は、freeGenMap.dfprop で定義された情報と指定されたVelocityテンプレートを元に自動生成しますが、
+		LastaFluteではそれらが規約ベースですでに組み込まれているので記述する設定は非常に少ないです。
+		lastafluteMap.dfprop にて自動生成する対象を取捨選択するだけとなります。
+	</p>
+
+	<h2 id="howto">FreeGenの叩き方</h2>
+	<p>
+		manageタスク (DBFluteクライアントの manage.bat|sh) の 12 (freegen) を叩きます。
+	</p>
+<pre><span class="codetitle">e.g. execute FreeGen @Command</span><code>
+<span class="abbreviation">...</span>$ sh <span class="point">manage.sh</span>
+
+<span class="comment">// メニューが表示されるので、12 (freegen) を入力してEnter</span>
+<span class="comment">// Windowsなら manage.bat, Eclipseからでも直接叩ける (ctrl+shift+Rから叩こう)</span>
+</code></pre>
+
+	<h2 id="gentiming">FreeGenをいつ叩く？</h2>
+	<h3 id="filechange">リソースファイルの作成と修正</h3>
+	<p>
+		以下のファイルを修正したら FreeGen を叩きましょう。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>[app]_env.properties</dt><dd>[App]Env、Configから継承される</dd>
+		<dt>[app]_config.properties</dt><dd>[App]Config、DIできる <span class="frm">(lastaflute_director.xmlに定義される)</span></dd>
+		<dt>[app]_label.properties</dt><dd>[App]Labels、Messagesから継承される</dd>
+		<dt>[app]_message.properties</dt><dd>[App]Messages、ActionMessagesとして利用</dd>
+		<dt>HTMLテンプレート (.html, .jsp)</dt><dd>ThymeleafやJSPなどのパス定義 <span class="frm">(これだけは中身は関係ない)</span></dd>
+		<dt>メールテンプレート (.dfmail)</dt><dd>MailFlute の Postcard <span class="frm">(mylasta.mail に出力)</span></dd>
+		<dt>汎用テンプレート (.dfpm)</dt><dd>汎用テンプレートのクラス <span class="frm">(mylasta.template に出力)</span></dd>
+	</dl>
+	<h3 id="lastadoc">LastaDocの更新</h3>
+	<p>
+		さらに、Actionクラスの内容を反映させたドキュメント、LastaDoc を更新したいときです。
+	</p>
+	<div class="relatedpage"><a href="./lastadoc.html">LastaDoc</a></div>
+	<p>
+		厳密に最新化を図るなら、Actionクラスが変われば FreeGen
+		を叩く、ということになりますが、ちょっと現実的ではないので、ある程度は自然の追従に任せて、正確な最新情報が欲しいときに明示的に叩くとよいでしょう。
+	</p>
+
+	<h2 id="rebootafter">FreeGenの後は再起動</h2>
+	<p>
+		FreeGenで生成されるクラスは、基本的にホットデプロイ (HotDeploy) 対象ではありません。
+		<em class="keyword">自動生成したら再起動</em> という覚え方をしておきましょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

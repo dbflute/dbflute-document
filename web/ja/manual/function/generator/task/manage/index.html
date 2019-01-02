@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Manage,manage,一括実行,DB変更,リフレッシュ,Refresh,F5,再自動生成" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Manageタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Manageタスク</h1>
+	${indexlist}
+
+	<h2 id="about">Manageタスクとは？</h2>
+	<p>
+		DBFluteの管理で利用できる様々なタスクを実行できるタスクです。<span class="frm">@since 0.9.8.5</span>
+	</p>
+
+	<h2 id="command">実行コマンド</h2>
+	<h3 id="subtaskarg">サブタスクを引数に指定</h3>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">manage.(bat|sh)</em>
+		をコマンドから実行します。その際、どのサブタスクを実行するかを第一引数で必ず指定します。(第二引数の有無は、それぞれのタスクに依存します)
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+<pre><span class="codetitle">e.g. Renewalタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">renewal</span>
+</code></pre>
+	<h3 id="subtasknumber">番号選択でサブタスクを指定も</h3>
+	<p>
+		第一引数を省略して実行して、番号選択でサブタスクを実行することもできます<span class="frm">(@since 0.9.9.8)</span>。
+	</p>
+	<p>
+		第一引数を省略して実行すると、番号に関連付いたサブタスクの一覧が表示されるので、番号を入力して Enter
+		を押すと対応するサブタスクが実行されます。
+	</p>
+<pre><span class="codetitle">e.g. 番号選択でサブタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh
+
+ 1 : renewal (ReplaceSchema, JDBC, Doc, Generate, OutsideSqlTest, Sql2Entity)
+ 2 : regenerate (JDBC, Doc, Generate, Sql2Entity)
+
+ 4 : load-data-reverse
+ 5 : schema-sync-check
+
+ 7 : save-previous
+ 8 : alter-check
+ 9 : take-assert
+
+ 11 : refresh
+ 12 : freegen
+
+(input on your console)
+What is your favorite task? (number):
+</code></pre>
+	<p>
+		スクリプトの中から固定的に呼び出すとかでなければ、このやり方で呼び出す方が手軽です。
+	</p>
+	<p>
+		第二引数が必須のサブタスクを指定した場合は、番号選択の後に第二引数の入力待ちになります。
+		例えば、refreshタスクであれば、refresh対象のプロジェクト名の入力待ちになります。
+	</p>
+	<p>
+		キャンセルしたい場合は、適当な文字を入力して Enter すれば終了します。
+	</p>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップが終わった時点から利用できます。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="renewal">Renewalタスク</h2>
+	<p>
+		DB変更が発生した際に実行するDBFluteタスクをひとまとめにしたタスクです。ReplaceSchema から始まり、再自動生成に加えて
+		OutsideSqlTest で外だしSQLのDB変更の影響範囲などもチェックします。
+	</p>
+	<div class="detailpage"><a href="../dbchange.html">DB変更が発生したら</a></div>
+	<p>
+		ReplaceSchema, JDBC, Doc, Generate, OutsideSqlTest, Sql2Entity とまとめて実行します。
+	</p>
+<pre><span class="codetitle">e.g. Renewalタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">renewal</span>
+</code></pre>
+	<p>
+		途中でどれかのタスクが中断した場合は、Renewalタスク自体が中断となります。
+	</p>
+	<p>
+		第二引数による指定は特にありません。
+	</p>
+
+	<h2 id="regenerate">Regenerateタスク</h2>
+	<p>
+		スキーマは変更せず単に再自動生成だけを行うタスクです。
+		DBFluteの(自動生成に関する)設定を変更したり、DBFluteをアップグレードしたりする場合に実行します。
+	</p>
+	<p>
+		JDBC, Doc, Generate, Sql2Entity とまとめて実行します。
+	</p>
+<pre><span class="codetitle">e.g. Regenerateタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">regenerate</span>
+</code></pre>
+	<p>
+		途中でどれかのタスクが中断した場合は、Regenerateタスク自体が中断となります。
+	</p>
+	<p>
+		第二引数による指定は特にありません。
+	</p>
+
+	<h2 id="refresh">Refreshタスク</h2>
+	<p>
+		Eclipse上のプロジェクトをリフレッシュ(F5)するだけのタスクです。
+		例えば、Mavenなどの外部ツールで Eclipse 管理のリソースを修正したような場合に、
+		スクリプトなどでこのタスクと連携させておくと自動的に Eclipse が認識するようになります。
+	</p>
+<pre><span class="codetitle">e.g. Refreshタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">refresh</span>
+</code></pre>
+	<p>
+		利用するためには refreshDefinitionMap.dfprop が定義されている必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/refreshdefinition/index.html">refreshDefinitionMap.dfprop</a></div>
+	<p>
+		第二引数を特に何も指定しなかった場合は、refreshDefinitionMap.dfprop
+		で指定されているプロジェクトがリフレッシュされます。
+		第二引数でプロジェクト名を指定した場合は、その指定されたプロジェクトだけがリフレッシュされます。スラッシュ区切りで複数のプロジェクトも指定できます。
+	</p>
+<pre><span class="codetitle">e.g. Refreshタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">refresh</span> <span class="literal">foo-prj/bar-prj</span>
+</code></pre>
+
+	<h2 id="takeassert">TakeAssertタスク</h2>
+	<p>
+		ReplaceSchema の 最終チェック(TakeFinally)でのデータ整合性チェックのSQLだけを実行するタスクです。
+		<span class="frm">@since 0.9.9.1A</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/replaceschema/takefinally.html">ReplaceSchema - 最終チェック</a></div>
+<pre><span class="codetitle">e.g. TakeAssertタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">take-assert</span>
+</code></pre>
+	<p>
+		TakeFinally で実行対象のSQLの中のうち、データ整合性チェックのSQLだけが実行されます。
+		結合環境のデータや本番環境のデータなどの不整合なデータをチェックしたいような場合に有効です。
+	</p>
+	<p>
+		このタスクでDBに対して更新がかかることはありません。仮に update文にassertコメント
+		が付与したとしてもトランザクションはロールバックされますし、assertコメントが付与されているものは、JDBCドライバの select
+		専用のメソッド経由で実行されるため、DBMSによってはエラーで防ぐことができます。
+	</p>
+	<p>
+		アサート処理の仕様は、TakeFinallyと同じです。不整合なデータが見つかった場合は、DBFluteクライアント/log
+		配下に take-assert.log という名前で例外メッセージが出力されます。このファイルは実行のたびに上書きされます。
+		このタスクの細かい実行ログは、通常のタスクと同じくコンソールと dbflute.log に出力されます。
+	</p>
+
+	<h2 id="freegen">FreeGenタスク</h2>
+	<p>
+		DBのメタデータに限らず、アプリ側で自由なリソースから自由にソースを自動生成するタスクです。
+		<span class="frm">@since 0.9.9.7B</span>
+	</p>
+<pre><span class="codetitle">e.g. FreeGenタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">freegen</span>
+</code></pre>
+	<p>
+		例えば、メッセージリソースなどの .properties ファイルを読み込んで、キー値の定数定義クラスやメッセージ文字列を構築するクラスを作ることができます。
+		また、エクセルの定義書を読み込んで、それに対応するクラスを生成するなど、様々なリソースを想定した仕組みとなっています。
+	</p>
+	<div class="detailpage"><a href="../freegen/index.html">FreeGenタスク</a></div>
+
+	<h2 id="loaddatareverse">LoadDataReverseタスク</h2>
+	<p>
+		LoadDataReverse を実行するタスクです。
+		<span class="frm">@since 0.9.9.7B</span>
+	</p>
+	<div class="detailpage"><a href="../doc/loaddatareverse.html">LoadDataReverse</a></div>
+<pre><span class="codetitle">e.g. LoadDataReverseタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">load-data-reverse</span>
+</code></pre>
+
+	<h2 id="schemasynccheck">SchemaSyncCheckタスク</h2>
+	<p>
+		SchemaSyncCheck を実行するタスクです。
+		<span class="frm">@since 0.9.9.7B</span>
+	</p>
+	<div class="detailpage"><a href="../doc/schemasynccheck.html">SchemaSyncCheck</a></div>
+<pre><span class="codetitle">e.g. SchemaSyncCheckタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">schema-sync-check</span>
+</code></pre>
+
+	<h2 id="altercheck">AlterCheckタスク</h2>
+	<p>
+		AlterCheck を実行するタスクです。
+		<span class="frm">@since 0.9.9.7B</span>
+	</p>
+	<div class="detailpage"><a href="../replaceschema/altercheck.html">AlterCheck</a></div>
+<pre><span class="codetitle">e.g. AlterCheckタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">alter-check</span>
+</code></pre>
+
+	<h2 id="saveprevious">SavePreviousタスク</h2>
+	<p>
+		AlterCheckで利用する SavePrevious を実行するタスクです。
+		<span class="frm">@since 0.9.9.7B</span>
+	</p>
+	<div class="detailpage"><a href="../replaceschema/altercheck.html">AlterCheck</a></div>
+<pre><span class="codetitle">e.g. SavePreviousタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">save-previous</span>
+</code></pre>
+
+	<h2 id="upgrade">Upgradeタスク</h2>
+	<p>
+		DBFluteのアップグレードを行うタスクです。<span class="frm">@since 1.0.5K</span>
+	</p>
+	<div class="detailpage"><a href="./upgrade.html">Upgradeタスク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

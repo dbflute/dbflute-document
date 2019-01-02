@@ -1,0 +1,664 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/lasub.css";</style>
+	<title>開拓の例外ハンドリング (Exception Handling) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>開拓の例外ハンドリング (Exception Handling)</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="unneededcatch">基本、自分でcatchする必要なし</h3>
+	<p>
+		システム例外も、クライアント例外も、業務例外 (アプリ例外) も、フレームワークが catch して処理 (Handling)
+		をするので、基本的にActionなどで自分でcatchする必要はありません。
+		<span class="frm">(アプリ内で特別に処理が必要なときだけcatch)</span>
+	</p>
+	<h3 id="whocatch">したら、だれがcatchするの？</h3>
+	<p>
+		Actionクラスであれば RequestLoggingFilter, Jobクラスであれば LaJobRunner,
+		AsyncManagerの非同期スレッド内であれば AsyncManager が catch します。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>Actionクラス (システム例外)</dt><dd>RequestLoggingFilter <span class="frm">(HTTPステータス: 500)</span></dd>
+		<dt>Actionクラス (クライアント例外)</dt><dd>RequestLoggingFilter <span class="frm">(HTTPステータス: 400 or 404)</span></dd>
+		<dt>Actionクラス (業務例外)</dt><dd>ApplicationExceptionResolver <span class="frm">(HTTPステータス: 400 or ...)</span></dd>
+		<dt>Jobクラス</dt><dd>LaJobRunner</dd>
+		<dt>非同期スレッド</dt><dd>AsyncManager <span class="frm">(AsyncManagerの非同期スレッドなら)</span></dd>
+	</dl>
+
+	<h2 id="syshandling">システム例外ハンドリング</h2>
+	<h3 id="aboutsys">そもそもシステム例外とは？</h3>
+	<p>
+		システムを継続することができないような状況、システムエラーでthrowする例外です。
+	</p>
+	<p>
+		NullPointerException とか、バグやデータ不備など、発生したら何かしらディベロッパーが対応をしないといけない状況のものです。
+		エラーログに出力され、場合によっては緊急通知メールが送られるようなものです。
+	</p>
+	<h3 id="whothrowsys">だれがthrowする？</h3>
+	<p>
+		みんなです。
+	</p>
+	<p>
+		DBに接続できない、SQLが間違っている、NullPointerやっちゃった、フレームワークがバグっている、メモリが足らない、などなど、幾らでも。
+		普通に例外を投げたら基本的にシステム例外です。
+	</p>
+	<h3 id="howtothrowsys">どうやってthrowする？</h3>
+	<p>
+		アプリで throw するときは、"クライアント例外や業務例外ではない例外"
+		を投げればすべてシステム例外になります。LastaFlute に LaSystemException
+		という例外クラスがありますが、これは LastaFlute 内で明示的に throw
+		しているシステム例外を示すスーパークラスというだけなので、これを継承する必要はありません。
+	</p>
+	<div class="relatedpage"><a href="#makemyexception">this - アプリでマイ例外クラス作る？</a></div>
+	<h3 id="whocatchsys">だれがcatchする？</h3>
+	<p>
+		Actionクラスであれば、<em class="mark">RequestLoggingFilter</em> が catch
+		します。ServletFilterなので、(ほぼすっぽり)フレームワークを囲ってcatchします。そこでエラーログ (ERRORレベルのログ)
+		が出力されます<span class="frm">(なので、throwしたシステム例外を自分でログ出す必要はありません)</span>。
+		HTTPステータスは500で、web.xml にて定義されたHTML(or JSON)が戻ります。
+	</p>
+	<div class="relatedpage"><a href="./friendlylogging.html#finalexceptionlog">最後の砦として例外メッセージを必ずログに</a></div>
+	<p>
+		Jobクラスであれば、<em class="mark">LaJobRunner</em> が catch
+		します。同様に、エラーログが出力されます。
+		ちなみに、Job内で発生した例外は、例外の種類に関わらずすべてシステム例外として処理されます<span class="frm">(ユーザーがいない世界なので業務例外のリカバリを自分でやらないといけないため)</span>。
+	</p>
+	<div class="relatedpage"><a href="./jobscheduling.html#exceptionlogging">ストレートなジョブ (LastaJob) - 例外ログ</a></div>
+	<p>
+		AsyncManagerを使った非同期スレッドであれば、<em class="mark">AsyncManager</em> (のサブクラス) 自身が catch
+		します。同様に、エラーログが出力され、すべてシステム例外になります。
+		<span class="frm">(自分で起動したスレッド、つまり管理外スレッドだと、エラーログには出力されません。基本、AsyncManagerを使いましょう)</span>
+	</p>
+	<div class="relatedpage"><a href="./asynchronous.html#errorlog">非同期でエラーが発生したら？</a></div>
+	<h3 id="whereiserrorlog">エラーログは、どこに出力される？</h3>
+	<p>
+		エラーログは、logback.xml の設定次第ですが、<em class="mark">error_[app].log</em> に出力されます。
+	</p>
+	<h3 id="syshttpstatus">システム例外のHTTPステータスは？</h3>
+	<p>
+		500 になります。RequestLoggingFilterにて、そのように制御されます。
+	</p>
+	<h3 id="sysresponse">システム例外のレスポンスは？</h3>
+	<p>
+		web.xml に定義されている、500 に対応するリソースがレスポンスになります。
+		500.html だったらエラー画面、500.json であればエラー用のJSONが戻ります。
+	</p>
+	<p>
+		通常、システムエラーのときは、ユーザー(人)に対して詳しい情報を教える必要はありません。
+		とういかセキュリティ上、教えてはいけません。JSON APIであっても、BtoC
+		なら誰でも叩けますし、内部向けでもサーバーのエラーログに出力されていればクライアント(プログラム)に教える必要はないでしょう。
+		なので、固定のレスポンスで問題ないと想定されます<span class="frm">(例外の種類ごとにレスポンスを変更する必要はない)</span>。
+	</p>
+	<h3 id="realerroronly">本当にエラーのものだけエラーログに</h3>
+	<p>
+		エラーログでいちばん大切なこと。
+	</p>
+	<p>
+		対応しなくても良いような例外 (業務例外などシステム的には正常な例外) がエラーログに出力されると...
+		<em class="keyword">エラーログが発生して "ざわっ" となって緊急対応しようとすると実は重要ではない例外だった "はぁ" の繰り返し</em>
+		が発生し、だんだんエラーログを見なくなります。つまり "ざわざわ"
+		が減ります。すると、本当に重要なエラーを見過ごしてしまう可能性があるのです。
+		最悪のケース、エラーログは大量に吐かれているけど誰も見ず垂れ流しの状態で運用しているなんてことも<span class="frm">(考えたくもない状況)</span>。
+	</p>
+	<p>
+		ゆえに、エラーログに出力されるものは、出たからにはディベロッパーが何かしら対応をして、<em class="keyword">適切に</em>
+		出ないように処置をする、というブランドをキープするのがポイントです。
+	</p>
+	<p>
+		ですが、システム例外なのか業務例外なのか、なかなか微妙で曖昧なものもあります。
+		なので、業務例外の方のログ出力の仕組みも合わせることで、エラーログのブランドを守ります。
+	</p>
+	<div class="relatedpage"><a href="../structure/applogging.html">LastaFluteのアプリログ</a></div>
+
+	<h2 id="clihandling">クライアント例外ハンドリング</h2>
+	<h3 id="aboutcli">そもそもクライアント例外とは？</h3>
+	<p>
+		(サーバー)システムの不具合ではなく、リクエストを投げたクライアントの不備によって処理が継続できないときに発生させる例外です。
+	</p>
+	<p>
+		ここで言うクライアントとは、ユーザー(人)ではなく、基本的にプログラムを指しています。例えば、JSON API
+		のときに、パースできないJSONのリクエストや、必須の項目が入ってないリクエストなどが来たとき。
+		サーバーサイドHTMLでも、ユーザー(人)が入力しない制御用の項目などがおかしい値になっているリクエストなどが来たときは同じです。
+	</p>
+	<p>
+		サーバーサイドのリカバリは不要ですが、クライアントサイドのリカバリ(バグ修正など)が必要な状況です。
+		"いたずら" であれば、人の心をリカバリする必要があります。ゆえに、クライアント例外は、クライアントにとっては基本的にはシステム例外と言えます。
+		リクエストの投げ方が良くないということで、呼び出しプログラムではそのように翻訳されることが期待されます。
+		<span class="frm">(ただ、ユーザーの挙動などで間接的な発生しているケースでは、業務例外と言える場面もあるかもしれません。その辺はクライアントサイドでうまく制御する必要があるでしょう)</span>
+	</p>
+	<p>
+		ちなみに、クライアント例外なのにサーバーサイドの修正が必要になったら、例外ハンドリング自体がバグっているので、サーバーでの対応が必要です。
+		<span class="frm">(例外ハンドリング自体がバグってない前提で概念の話をしないとややこしくなります)</span>
+	</p>
+	<p>
+		Actionクラスだけの概念で、Jobとか非同期スレッドでは関係ありません。
+		厳密には、クライアントの不備でJobや非同期スレッドが落ちることもあるかもしれませんが、突き返す相手がいないので自分で制御します。
+	</p>
+	<h3 id="whothrowcli">だれがthrowする？</h3>
+	<p>
+		基本的に、フレームワークですが、アプリも明示的にthrowすることもあるでしょう。
+	</p>
+	<p>
+		LastaFluteでは、RequestClientErrorException を継承した例外クラスがthrowされるとクライアント例外になります。
+		リクエストを受け付けるフレームワーク内の部品で、throwすることがあります。代表的な例を以下に挙げます。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>RequestJsonParseFailureException</dt><dd>JSONリクエストのパースエラー <span class="frm">(400)</span></dd>
+		<dt>RequestPropertyMappingFailureException</dt><dd>リクエストパラメーターの型変換エラー <span class="frm">(400)</span></dd>
+		<dt>CrossSiteRequestForgeriesForbiddenEx...</dt><dd>CSRFエラー <span class="frm">(403)</span></dd>
+		<dt>Forced404NotFoundException</dt><dd>Pathパラメーターの型変換エラー <span class="frm">(404)</span></dd>
+	</dl>
+	<p>
+		<span class="frm">※Pathパラメーターの型変換エラーは、後で例外クラスを新しく作るかも...スーパークラスを直接投げちゃってるなぁ</span>
+	</p>
+	<h3 id="howtothrowcli">どうやってthrowする？</h3>
+	<h4>throw responseManager.new400()</h4>
+	<p>
+		アプリで throw するときは、ResponseManager の new400(), new404() などを使って例外を生成して throw すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. アプリで、とある条件のときに400を戻す @Java</span><code>
+<span class="keyword">if</span> (<span class="localvar">currentDate</span>.isAfter(<span class="localvar">endDate</span>)) {
+    <span class="keyword">throw</span> <span class="attribute">responseManager</span>.<span class="point">new400</span>(<span class="literal">"mystic is over: endDate="</span> + <span class="localvar">endDate</span>);
+}
+</code></pre>
+<pre><span class="codetitle">e.g. アプリで、検索したデータがなかったときに404を戻す @Java</span><code>
+Integer <span class="localvar">memberId</span> = <span class="abbreviation">...</span>;
+<span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> -> {
+    <span class="localvar">cb</span>.query().setMemberId_Equal(<span class="localvar">memberId</span>);
+}).orElseTranslatingThrow(<span class="localvar">cause</span> -&gt; {
+    <span class="keyword">throw</span> <span class="attribute">responseManager</span>.<span class="point">new404</span>(<span class="literal">"memberId="</span> + <span class="localvar">memberId</span>, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.cause(<span class="localvar">cause</span>));
+});
+</code></pre>
+	<p>
+		引数のメッセージは、ディベロッパー向けのデバッグメッセージです。
+		もしかしたらデバッグが必要になるかもしれないので、念のため原因追求のための情報を入れてログに出力しておます(後述)。
+		元の例外を引き継いでいる (orElseTranslatingThrow()を使っている) のも同じ理由です。
+	</p>
+	<p>
+		クライアント例外でマイ例外を作る必要はあまりないだろうということで例外クラスは固定です。
+	</p>
+	<div class="relatedpage"><a href="#makemyexception">this - アプリでマイ例外クラス作る？</a></div>
+	<h4>groups=ClientError.class</h4>
+	<p>
+		間接的に throw することもできます。FormやBodyの Validator Annotation で、groups に ClietError
+		を指定すると、引っかかったときにエラーメッセージを戻すのではなく、クライアントエラーになります。
+		ユーザー入力項目ではない必須項目 (制御用のシステム項目) などに使うと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../action/lavalidation.html#clienterror">システム項目は groups=ClientError.class</a></div>
+<pre><span class="codetitle">e.g. Required annotation in Form class @Java</span><code>
+<span class="keyword">public class</span> SeaLandForm {
+
+    @Required(<span class="point">groups=ClientError.class</span>)
+    <span class="keyword">public</span> Integer <span class="attribute">memberId</span>;
+
+    @Required
+    @Length(max = 10)
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+
+    <span class="abbreviation">...</span>
+
+    @Required(<span class="point">groups=ClientError.class</span>)
+    <span class="keyword">public</span> Long <span class="attribute">versionNo</span>;
+}
+</code></pre>
+	<h4>verifyOrClientError()</h4>
+	<p>
+		Actionクラスであれば、verifyOrClientError() が利用できます。
+		この状況はクライアントエラーだと思ったら、その判定を引数に指定して呼び出すと、デフォルトでは 404 になります<span class="frm">(後で変わるかもしれません...オーバーライドで変更や固定化できます)</span>。
+	</p>
+<pre><span class="codetitle">e.g. アプリで、判定次第でクライアントエラー @Java</span><code>
+verifyOrClientError(<span class="literal">"<span class="abbreviation">...</span>"</span>, <span class="localvar">currentDate</span>.isAfter(<span class="localvar">endDate</span>));
+</code></pre>
+	<h3 id="whocatchcli">だれがcatchする？</h3>
+	<p>
+		システム例外と同様に、Actionクラスであれば、<em class="mark">RequestLoggingFilter</em> が catch
+		します。
+	</p>
+	<h3 id="howhandlingcli">catchされた後は、どう処理される？</h3>
+	<p>
+		HTTPステータスは 400, 403, 404 で通知ログが出力され、レスポンスは色々なので後述。
+	</p>
+	<h3 id="whyclilog">あれっ、クライアント例外にログって必要？ <span class="frm">(通知ログ:INFO)</span></h3>
+	<p>
+		クライアントに状況を詳しく情報を戻すのは、セキュリティ的にも良くないですし、単純にプログラム的にも手間がかかるので、サーバーサイドで残しておくことで対処ができるようにしておく必要があるでしょう。
+		そもそも、サーバーの例外ハンドリング自体のバグで発生している可能性もあるので、特にインクリメンタル開発のサービス運用であれば、念のため情報は残しておきたいところです。
+	</p>
+	<p>
+		ただ、厳密には業務例外なのか？いたずらなのか？などなど曖昧なケースもあり得るので、LastaFluteではエラーログに出力するのではなく通知ログ(INFOレベル)で出力します。
+	</p>
+	<p>
+		通知ログは、logback.xml の設定次第ですが、<em class="mark">app_[app].log</em> に出力されます。
+	</p>
+	<div class="relatedpage"><a href="../structure/applogging.html">LastaFluteのアプリログ</a></div>
+	<h3 id="cliresponse">クライアント例外のレスポンスは？</h3>
+	<p>
+		基本的には、web.xml に定義されている、400 や 404 に対応するリソースがレスポンスになります。
+		400.html だったらエラー画面、400.json であればエラー用のJSONが戻ります。
+	</p>
+	<p>
+		サーバーサイドHTMLであれば、システム例外と同様、固定のレスポンスで問題ないと想定されます。クライアントに "どうダメだったのか？"
+		を教えてあげた方が良さそうに思えますが、公開されているシステムだと、セキュリティ上あまり詳しくは教えないほうが良いので、やはりサーバーのログを確認してもらうのが良いでしょう。
+	</p>
+	<p>
+		JSON APIのときも、固定的で良いとは考えられますが、業務例外の 400 と合わせた
+		JSON を戻すほうがクライアントは扱いやすいので、ApiFailureHook
+		でレスポンスを差し替えてあげると良いでしょう。
+		LastaFluteのExampleデフォルトでは、すでにそのように実装されています。
+	</p>
+	<div class="relatedpage"><a href="../action/apifailure.html#hookclientexception">忘れられないApiFailureHook - クライアント例外をHook</a></div>
+	<h3 id="cli400or404">400, 404の違いは？</h3>
+	<p>
+		ひとつは、URLは合っていてもパラメーターに不備あるようなものは 400 (Bad Request)
+		にして、URLが合っていないようなものは 404 (Not Found) にする、という考え方を基本としています。通常、URLが間違っていれば自然とアプリケーションサーバーの機能などで 404
+		になりますが、Pathパラメーターが絡むと、一度フレームワークの中で入っての判断になるので専用の制御で 404 を表現しています。
+	</p>
+	<p>
+		もうひとつは、ダメなリクエストだってことを教えてあげたほうが良いのか？教えずに "そんなリクエストを受け付けるActionはない"
+		と隠蔽したほうが良いのか？そこの違いです。URLは合っていてActionクラスまで動いていたとしても、400
+		を戻すと "そのパラメーターがDBに存在している" ということが判明してしまうと良くないです。
+	</p>
+	<p>
+		例えば、URLにユーザー名を入れて画面を表示するような場合、ユーザーが存在する場合とユーザーが存在しない場合で挙動が同じだと、そのユーザーの存在がバレてしまいます。
+		それはセキュリティ的に良くありません。そういう場合は、プログラムで明示的に 404 を戻すと良いでしょう。
+		その観点の応用で、LastaFluteでは明らかに "いたずら" (攻撃的なリクエスト) と言えるようなリクエストが来たときは 404
+		にしています。
+	</p>
+
+	<h2 id="bizhandling">業務例外ハンドリング <span class="frm">(アプリ例外)</span></h2>
+	<h3 id="aboutbiz">そもそも業務例外とは？</h3>
+	<p>
+		システムの挙動しては問題はなく、業務上の都合で処理を継続できないような "正常なレアケース"
+		で発生させる例外です。アプリケーション例外、アプリ例外、ビジネス例外とも呼ばれます。<span class="frm">(ここでは基本的に業務例外と呼びます)</span>
+	</p>
+	<p>
+		なかなか曖昧ではありますが、発生しても特にディベロッパーが何か対応をしないといけないわけではない状況ではなく、
+		ユーザーが自分でリカバリできる状況のものです。
+		例えば、すれ違い更新 (による排他制御例外) など、業務上仕方なく発生するようなもので、メッセージさえ戻せばユーザーがやり直したりすることができるもの。
+	</p>
+	<h3 id="abstractbiz">業務例外はなかなか曖昧です</h3>
+	<p>
+		例えば、サーバーサイドHTMLで一覧画面から詳細画面へ遷移するときに、リクエストのGETパラメーターの値を "いたずら"
+		で存在しない値 (-999999 とか) に変更されたりすると、DBに値が存在せず詳細画面が開けません。
+		ただ、"いたずら" じゃなくても "すれ違い" でそれが発生する可能性もあります。
+	</p>
+	<p>
+		"いたずら" だからクライアントエラーなのか？"すれ違い" だから業務例外なのか？
+		システム的に区別ができない以上は、対処としてどちらも問題のない方に寄せます。
+		"いたずら" をやった人に対して業務例外として戻しても、処理は中断されているわけなので、最低限の防御はできていると考えれます。
+		他にも、バグなのかすれ違いなのか？バグなのかいたずらなのか？区別が付かない状況がよくあります。
+		このときも同じような発想で、対処としてどちらも問題のない方に寄せます。
+		<span class="frm">(ゆえに業務例外も通知ログとして本番でも情報を残します: 後述)</span>
+	</p>
+	<p>
+		また、しっかりテストされて正常に動作していれば、その例外は業務例外といい切れるし、まだ開発中やそもそもバグっていれば単なるバグの例外とも言えます。
+		そもそも例外ハンドリング自体のバグがあるかもしれない。議論するときは、その辺を踏まえて話をしないと空中戦になりやすいです。
+	</p>
+	<h3 id="whothrowbiz">だれがthrowする？</h3>
+	<p>
+		基本的には、アプリケーションが独自のタイミングで投げるものです。
+	</p>
+	<p>
+		ただ、LastaFluteでは、業務的な機能をフレームワークとして組み込んでいるものがあるので、その機能の中で業務例外が投げられることがあります。
+		アプリがその機能のメソッドを明示的に呼び出すこともあります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>ログイン失敗例外</dt><dd>LoginFailureException <span class="frm">(loginAssist.login()など)</span></dd>
+		<dt>ログイン必須例外</dt><dd>LoginRequiredException <span class="frm">(フレームワーク内の処理にて発生)</span></dd>
+		<dt>不正な画面遷移例外</dt><dd>RequestIllegalTransitionEx... <span class="frm">(verifyOrIllegalTransition()など)</span></dd>
+		<dt>ダブルサブミット例外</dt><dd>DoubleSubmittedRequestEx... <span class="frm">(verifyToken()など)</span></dd>
+	</dl>
+	<p>
+		また、DBFluteがthrowする例外の中に、アプリとしては業務例外として扱った方が良いだろうという例外もあります。
+		LastaFluteでは、それらも組み込まれて業務例外として扱われます。
+	</p>
+	<div class="relatedpage"><a href="#selectentitynodata">this - 一件検索でデータ無かったとき</a></div>
+	<dl class="valuemainlist">
+		<dt>一件検索データなし例外</dt><dd>EntityAlreadyDeletedException <span class="frm">(selectEntity()など)</span></dd>
+		<dt>排他制御例外</dt><dd>EntityAlreadyUpdatedException <span class="frm">(update()など)</span></dd>
+		<dt>ユニーク制約違反</dt><dd>EntityAlreadyExistsException <span class="frm">(insert()など)</span></dd>
+	</dl>
+	<h3 id="howtothrowbiz">どうやってthrowする？</h3>
+	<p>
+		業務例外を作成して、普通に throw new すればOKです。LaApplicationException
+		を継承した例外は業務例外として認識されます。
+	</p>
+	<h4>MessagingApplicationException</h4>
+	<p>
+		必ずユーザー向けメッセージが必要な業務例外であれば、MessagingApplicationException
+		を継承すると良いでしょう。<span class="frm">(継承ではなくそのままnewでもOKです。マイ例外のポリシー次第で)</span>
+	</p>
+	<div class="relatedpage"><a href="#makemyexception">this - アプリでマイ例外クラス作る？</a></div>
+<pre><span class="codetitle">e.g. ユーザー向けメッセージを必要とする業務例外の定義 @Java</span><code>
+<span class="keyword">public class</span> SeaLandPiariException <span class="keyword">extends</span> MessagingApplicationException {
+
+    <span class="keyword">public</span> SeaLandPiariException(String <span class="localvar">debugMsg</span>, UserMessages <span class="localvar">messages</span>) {
+        <span class="keyword">super</span>(<span class="localvar">debugMsg</span>, <span class="localvar">messages</span>);
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		debugMsgはあくまでディベロッパー用のデバッグメッセージです。業務例外でもディベロッパー対応が必要かもなので、状況を表す値などを埋め込みましょう。
+		一方で、messages は、[app]_message.properties に定義された、ユーザー(人)向けのメッセージを指定しましょう。
+	</p>
+	<div class="detailpage"><a href="#howtousermessages">this - UserMessagesの使い方</a></div>
+	<h4>MessageResponseApplicationException</h4>
+	<p>
+		レスポンスも独自に差し替えたい場合は、MessageResponseApplicationException
+		の方を継承すると良いでしょう。newするときに自分で ActionResponse を指定できます。
+	</p>
+	<div class="relatedpage"><a href="#howhandlingbiz">this - catchされた後は、どう処理される？</a></div>
+	<h4>RequestIllegalTransitionException</h4>
+	<p>
+		単純に "不正な画面遷移ですよ" と固定のメッセージで突き返したいだけであれば、Actionクラスの verifyOrIllegalTransition()
+		で判定すると良いでしょう。<span class="frm">(主にサーバーサイドHTML向け)</span>
+	</p>
+	<h4>その他、フレームワークメソッド経由でthrow</h4>
+	<p>
+		他にも、ログイン認証の loginAssist.login(), 二度押し防止の verifyToken(), DBFluteの selectEntity()
+		など、フレームワークのメソッドを呼ぶことで発生させられる業務例外があります。
+	</p>
+	<h3 id="whocatchbiz">だれがcatchする？</h3>
+	<p>
+		Actionクラスであれば、<em class="mark">ApplicationExceptionResolver</em> が catch
+		します。
+	</p>
+	<p>
+		Jobクラスや非同期スレッドの場合は、リカバリーするユーザーがいないので、(アプリが実装する)その処理のトップの部分で自分で処理する必要があります。
+	</p>
+	<h3 id="howhandlingbiz">catchされた後は、どう処理される？</h3>
+	<p>
+		ひとまず通知ログ(INFO)が出力され、どういうレスポンスが戻るかは例外によって変わります。
+		<span class="frm">(厳密には、通知ログが出力されるかどうか自体も、例外によって変わります)</span>
+	</p>
+	<h4>HTMLレスポンスなら</h4>
+	<p>
+		HTTPステータスは 200 で、[app]_message.properties のキーに対応します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>LoginFailureException</dt><dd>ログイン画面へリダイレクト <span class="frm">(errors.login.failure)</span></dd>
+		<dt>LoginRequiredException</dt><dd>ログイン画面へリダイレクト <span class="frm">(メッセージなし)</span></dd>
+		<dt>RequestIllegalTransitionEx...</dt><dd>show_errors.html <span class="frm">(errors.app.illegal.transition)</span></dd>
+		<dt>DoubleSubmittedRequestEx...</dt><dd>verifyToken()で指定 <span class="frm">(errors.app.double.submit.request)</span></dd>
+		<dt>EntityAlreadyDeletedEx...</dt><dd>show_errors.html <span class="frm">(errors.app.db.already.deleted)</span></dd>
+		<dt>EntityAlreadyUpdatedEx...</dt><dd>show_errors.html <span class="frm">(errors.app.db.already.updated)</span></dd>
+		<dt>EntityAlreadyExistsEx...</dt><dd>show_errors.html <span class="frm">(errors.app.db.already.exists)</span></dd>
+		<dt>MessagingApplicationEx...継承</dt><dd>show_errors.html <span class="frm">(newのときに指定されたメッセージ)</span></dd>
+		<dt>MessageResponseAppli...継承</dt><dd>指定されたレスポンス <span class="frm">(newのときに指定されたメッセージ)</span></dd>
+		<dt>それ以外のLaAppicationEx...</dt><dd>show_errors.html <span class="frm">(例外に登録されていればそのメッセージ)</span></dd>
+	</dl>
+	<p>
+		アプリの独自例外も、メッセージを表示するだけなら MessagingApplicationException,
+		レスポンスも独自に変更したいのであれば MessageResponseApplicationException
+		を使うと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#howtothrowbiz">this - どうやってthrowする？</a></div>
+	<p>
+		それ以外の LaAppicationException で、例外の種類によって恒久的に独自に処理を変更したい場合は、
+		Actionクラスにて、handleApplicationException() をオーバーライドすると良いでしょう。
+		[App]BaseAction にてオーバーライド実装すれば共通的な処理となります。
+	</p>
+	<h4>JSONレスポンスなら</h4>
+	<p>
+		JSONで戻す場合は、リダイレクトしたり show_errors.html を戻してもしょうがないので、ApiFailureHook
+		で Hook して JSON を戻すようにします。HTTPステータスやJSONの形などは、そのアプリのポリシー次第です。
+		Failure統一パターンなのか、共通ヘッダーパターンなのか、それ以外なのか、よく検討しましょう。
+	</p>
+	<div class="detailpage"><a href="../impldesign/jsondesign.html#jsonerrorexp">B. エラー表現: Failure統一パターン？共通ヘッダーパターン？</a></div>
+	<h3 id="whybizlog">あれっ、業務例外にログって必要？ <span class="frm">(通知ログ:INFO)</span></h3>
+	<p>
+		通常は不要ですが、厳密にはクライアント例外なのか？いたずらなのか？などなど曖昧なケースもあり得るので、LastaFluteではエラーログに出力するのではなく通知ログ(INFOレベル)で出力します。
+		そもそも、サーバーの例外ハンドリング自体のバグで発生している可能性もあるので、特にインクリメンタル開発のサービス運用であれば、念のため情報は残しておきたいところです。
+	</p>
+	<p>
+		ただ、Login関連の例外など、明らかに不要と言えるものに関しては、通知ログは抑制されています。
+		アプリで throw する例外も、例外を new した後に withoutInfo() を呼べば、通知ログを抑制することができます。
+		また、ActionAdjustmentProvider にて、統一的に通知ログを出すか出さないかの判定を調整することもできます。
+	</p>
+	<div class="relatedpage"><a href="../action/adjustment.html#appexhandling">ActionやJSONの微調整 - 業務例外のハンドリングを調整</a></div>
+	<p>
+		通知ログは、logback.xml の設定次第ですが、<em class="mark">app_[app].log</em> に出力されます。
+	</p>
+	<div class="relatedpage"><a href="../structure/applogging.html">LastaFluteのアプリログ</a></div>
+
+	<h2 id="howtousermessages">UserMessagesの使い方</h2>
+	<h3 id="whatisproperty">まず、propertyの概念から</h3>
+	<p>
+		ユーザーメッセージには、<em class="keyword">どの項目に対するメッセージなのか？</em> という概念が必ず存在します。UserMessages
+		では、property という名前でその項目を表します。HTMLレスポンスであればHTML上の項目名、JSONレスポンスであればJSON上のキー名がそれに相当します。
+	</p>
+	<p>
+		特にどの項目に属するわけじゃないユーザーメッセージも存在します。業務例外のメッセージなんかはそうです。
+		イメージとしては、画面の上部に表示されるだけのメッセージを思い浮かべると良いでしょう。
+		その場合は、"グローバルなメッセージ" という扱いで、LastaFluteでは property が <em class="mark">_global</em>
+		という値で表現します。UserMessages.GLOBAL にて定数として定義されています。
+	</p>
+	<div class="relatedpage"><a href="../action/usermessages.html">ユーザーメッセージ (UserMessages)</a></div>
+	<h3 id="newmessages">[App]Messages を new して add...()</h3>
+	<p>
+		[App]Messages を new して、FreeGenで自動生成されたタイプセーフな add...() メソッドを使いましょう。
+	</p>
+<pre><span class="codetitle">e.g. ActionでUserMessagesを使った業務例外のthrow @Java</span><code>
+<span class="keyword">throw new</span> MessagingApplicationException(<span class="literal">"<span class="abbreviation">...</span>"</span>
+    , <span class="keyword">new</span> <span class="point">HarborMessages()</span>.addErrorsSignup<span class="abbreviation">...</span>(UserMessages.<span class="attribute">GLOBAL</span>, <span class="abbreviation">...</span>));
+</code></pre>
+	<p>
+		第一引数のプロパティですが、バリデーションエラーの場合、該当する項目のプロパティ名を指定しましょう。
+		業務例外であれば、ほとんどの場合GLOBAL固定で良いでしょう<span class="frm">(フロント側との取り決め次第ですが)</span>。
+	</p>
+	<p>
+		このやり方は、どのクラスでも利用できますが、あまりLogicクラスとかでユーザーメッセージを意識した業務例外を投げるのは役割的に微妙なので、
+		基本的に Action や Assist クラスでのやり方と言えるでしょう。
+	</p>
+	<p>
+		一方で、Assistクラスで業務例外を投げるよりも、Actionクラスで投げるほうがフローコントロールが分かりやすくなるので、
+		できるだけ戻り値や別の例外などでActionクラスに状況を伝えて、Actionクラスで投げてもらうほうが良いでしょう。
+		業務を止めるって大きな話なので、verify...()のメソッドも同様ですが、Actionクラスで表現したいものです。
+		<span class="frm">(実装の都合上難しい場合は、しょうがないです。努力目標で)</span>
+	</p>
+
+	<h2 id="makemyexception">アプリでマイ例外クラス作る？</h2>
+	<h3 id="howmanymyexcep">マイ例外、どのくらい作る？</h3>
+	<p>
+		これは悩ましいです。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>全部作る</dt><dd>大変な覚悟が必要</dd>
+		<dt>一部作る</dt><dd>基準は？って話になる <span class="frm">(区別が必要なものだけ作るとか、重要なものだけ作るとか!?)</span></dd>
+		<dt>作らない</dt><dd>まあ楽ではあるが... <span class="frm">(区別が必要な場合は作らざるを得ないので、これはあり得ない!?)</span></dd>
+	</dl>
+	<p>
+		システム例外と業務例外でポリシーを分けるというのもアリです。
+		システム例外で都度作っていたらそれこそ大変なので、業務例外だけ "全部作る" or "一部作る" というのも現実的かと思います。
+	</p>
+	<p>
+		また、アプリの例外であることがわかるように、[App]SystemException とか [App]AppException
+		とかを用意して、それを使うというのもアリです。
+	</p>
+	<p>
+		いずれにせよ、最初に決めましょう。
+	</p>
+	<h3 id="wheremyexcep">マイ例外、どこに作る？</h3>
+	<h4>再利用しない例外</h4>
+	<p>
+		その場限りの再利用しない例外 <span class="frm">(もしくは、他のパッケージからは使わない例外)</span> であれば、その throw
+		するクラスのパッケージに exception パッケージを作って、そこに入れると良いでしょう。 
+	</p>
+<pre><span class="codetitle">e.g. Action や Assist でthrowする例外の置き場所 @Directory</span><code>
+app.web
+ |-product
+ |  |-<span class="point">exception</span>
+ |  |  |-TooMiracleProductException.java
+ |  |  |-TooWonderfulProductException.java
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-ProductListAction.java
+ |  |-ProductListAssist.java
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もちろん自由ではあるのですが、例外クラスはあまりコード的に重要ではないので、Actionクラスと横並びに作るとどんどんファイルが探しづらくなるので、例外だけをまとめるのがオススメです。
+		<span class="frm">(LastaFluteでは、webの下はクラスの種別ではなく業務単位でパッケージを作るのが強い慣習ですが、ピンポイントで小さな世界で効果的に種別ごとにパッケージを作るのは問題ありません)</span>
+	</p>
+	<h4>再利用する例外</h4>
+	<p>
+		どのくらいの範囲で再利用したいかに寄ります。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>webパッケージ全体で再利用</dt><dd>app.web.base.exception</dd>
+		<dt>logicパッケージ全体で再利用</dt><dd>app.logic.exception</dd>
+		<dt>appパッケージ全体で再利用</dt><dd>app.exception</dd>
+		<dt>プロジェクト全体で再利用</dt><dd>bizfw.exception <span class="frm">(HotDeploy効かない領域)</span></dd>
+	</dl>
+	<p>
+		作ってるときは再利用できるのかどうかわからないケースが多いと思うので、まずは近いところ <span class="frm">(再利用しないケースの場所)</span>
+		に置いておくでも良いかとは思います。再利用するときに移動すればと。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="selectentitynodata">一件検索でデータ無かったとき</h2>
+		<h3 id="whynodata">データが見つからないってどういうこと？</h3>
+		<p>
+			データベースに検索してデータが見つからないってどういうことでしょうか？
+			HTMLレスポンスなら詳細画面で "すれ違い" やGETパラメーターの "いたずら" であり得ます。JSONレスポンスなら一件データ取得として (クライアント次第で様々でしょうが) 似たような感じであり得るかと思います。
+		</p>
+		<h3 id="nodataasbiz">基本的には業務例外として</h3>
+		<p>
+			いずれにせよ、システム例外(サーバーサイドの不具合)ではないので、単に普通の例外を投げれば良いというわけではないですし、メッセージも必要かもしれません。
+			ということで、<em class="keyword">基本的には業務例外として扱う</em> のが自然でしょう。
+		</p>
+		<h3 id="fixedmsgex">メッセージと例外は固定でOK</h3>
+		<p>
+			ただ、<em class="keyword">データの種別 (会員なのか商品なのか) によって、メッセージを変更する必要はあまりない</em> と考えらます。"すれ違い"
+			であれば排他制御を示す統一的なメッセージを戻せばユーザーはわかりますし、"いたずら"
+			であればそこまで気を使う必要はありません。<em class="keyword">例外クラスについても、つどつど違う例外を投げる必要はあまりない</em> と考えれます。
+			一回のリクエストで要求される一件データは多くのケースで単一種類であり、クライアントサイドもデータの種類を識別する必要はなく、逆に区別してしまうとクライアントサイドの統一的な処理の妨げになる可能性もあります。
+			なによりも、いちいち区別しているとサーバーサイドの実装が大変です<span class="frm">(不要なことはやらない)</span>。
+		</p>
+		<p>
+			JSON API で戻すJSONのイメージはこちら
+		</p>
+		<div class="detailpage"><a href="../impldesign/jsondesign.html#egfaiclibizexp">業務例外のJSON (of ふぇいくらパターン)</a></div>
+		<h3 id="lastanodata">LastaFluteなら組み込み</h3>
+		<p>
+			すでにこのページをしっかり読んでいれば、LastaFluteの思想がなんとなくわかるかと思います。EntityAlreadyDeletedException
+			が業務例外として組み込まれていますから、ここで書いた思想で仕組みが整備されており、Actionクラスの中でも DBFlute
+			で検索してデータが無かったときに発生する例外をそのままthrowすればOKです。
+		</p>
+		<p>
+			そして、"(統一の)メッセージ" や "Failure統一のJSON" を調整するなら...
+		</p>
+		<dl class="shortvaluemainlist">
+			<dt>(統一の)メッセージを調整</dt><dd>[app]_message.propertiesを修正</dd>
+			<dt>(Failure統一パターンの) failureType</dt><dd>[App]ApiFailureHookを修正</dd>
+		</dl>
+		<h3 id="likenodata">排他制御例外やユニーク制約違反も</h3>
+		<p>
+			排他制御例外 (EntityAlreadyUpdatedException) や、ユニーク制約違反 (EntityAlreadyExistsException)
+			もほぼ同じような話になり、LastaFluteとしてもその二つも加えて組み込んでいます。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="watchinfolog">通知ログの監視って？</h2>
+		<p>
+			エラーログを常日頃から監視しないのは論外なのでここでは話題にしませんが、通知ログもウォッチすることも大切だと考えています。
+		</p>
+		<p>
+			基本的に、通知ログの中で発生している例外は "正常なレアケース"
+			ばかりなので、あまり目くじらを立てる必要はありませんが...
+		</p>
+		<ul>
+			<li>なんだかんだ曖昧なケースもあり得る</li>
+			<li>そもそも例外ハンドリング自体がうまくいってるの？</li>
+		</ul>
+		<p>
+			...などの状況が想定されるため、通知ログも重要な関心事です。
+		</p>
+		<p>
+			また、あまりに "正常なレアケース" が多いと、そもそも業務的な問題もあるのではない？
+			そういったところの発見のきっかけにもなったりします。妙に "いたずら" が多いなぁというのもわかるかも。
+			"今日は、どんな通知ログ出てるかなぁ" と見る習慣があると良いでしょう。
+		</p>
+		<p>
+			業務例外だけを専用のログファイルに出力するというのもアリだと思いますし、
+			あまりログが出過ぎるようであれば、例外の内容によってログを出す出さないを区別するようにしても良いでしょう。
+			<span class="frm">(ああ、そういう機能を付けた方がいいのかも!?って書きながら思った...)</span>
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="exceptiondept">例外ハンドリングこそ負債になりやすい？</h2>
+		<p>
+			正常系はみな意識が高いのでわりと細かいところまで考慮しますが、異常系は適当になりがちです。その理由は...
+		</p>
+		<ul>
+			<li>正常系に比べれば異常系は意識が薄い</li>
+			<li>テストがしづらく確認が難しい</li>
+			<li>そもそもシステム例外と業務例外の区別が付かない人が多い</li>
+			<li>そもそも言語の例外の仕組みを理解してない人が多い</li>
+			<li>ケースバイケースが多い世界なので体系化しづらい</li>
+			<li>適当でも開発時は困らない <span class="frm">(困るのは運用に携わっている人)</span></li>
+		</ul>
+		<p>
+			いざ発生するときは、わりと緊急な事態です。でも適当な処理でわけわからなくなって対応に時間がかかる、なんてこともよくあります。
+			システム例外と業務例外の区別が付いておらず、エラーログが "ただの滝" みたいになっていることもよくあります。
+		</p>
+		<p>
+			多くの現場で、例外が適当に扱われているのを見てきました。
+			やはり、そのデメリットはもろに食らうんですね。運用を経験しないとわからない。
+			インクリメンタル開発だと、日常業務が緊急業務でどんどん割り食って先に進まない。
+		</p>
+		<p>
+			なので、LastaFluteでも気合を入れて例外ハンドリングの仕組みを構築し、できるだけ億劫にならずに例外ライフが送れるように努めています。
+			ドキュメントをがっつり書いているのも、例外をもっと知ってほしいから。
+		</p>
+		<p>
+			そして、やはりケースバイケースが多いし、まだまだ考慮しないといけないことあるかもしれませんので、この後もつどつど積極的に整備していこうと思っているレイヤです。
+			<span class="frm">(気軽に相談してください。現場にどんな要件があるのか知りたいですし)</span>
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

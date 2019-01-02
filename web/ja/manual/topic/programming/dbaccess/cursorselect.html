@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,DBアクセス,カーソル検索,CursorSelect,大量データ,大量件数,大量レコード,メモリ節約,メモリ不足,OutOfMemory" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBアクセス - カーソル検索 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>そもそもカーソル検索とは？</h1>
+	${indexlist}
+
+	<h2 id="about">カーソル検索とは？</h2>
+	<p>
+		多くのO/Rマッパは、検索結果を全てメモリ上に保持して、その SQL(Statement)
+		のDBとの接続は閉じます。検索結果は全て保持されているので、アプリケーションはそれ以降、DBとの関わりなしにデータを扱うことができます。
+		DBFluteも基本仕様はそのようになっています。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteでデータを一気にメモリ上に保持する検索(普通の検索) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="comment">// memberListには、検索されたデータが全て格納されている</span>
+<span class="comment">// (この時点で、データはアプリケーション上のメモリに存在する)</span>
+</code></pre>
+	<p>
+		一方、カーソル検索は、検索結果を全てメモリ上に保持せず、一レコードずつ業務的な処理をします。
+		処理し終わったレコードのデータはアプリケーション上のメモリから破棄しつつ、また次のレコードの処理を行います。
+		プリミティブなインターフェースである JDBC は、この方法で検索をします。(ResultSet や DataReaderなど)
+	</p>
+<pre><span class="codetitle">e.g. JDBCでデータを一レコードずつ取得(フェッチ) @Java</span><code>
+ResultSet rs = ps.executeQuery();
+<span class="keyword">while</span> (rs.next()) { <span class="comment">// 行がなくなるまでループ</span>
+    <span class="comment">// 一レコードだけメモリ上に保持</span>
+    String memberName = rs.getString("MEMBER_NAME");
+    <span class="abbreviation">...</span> <span class="comment">// 業務的な処理</span>
+    <span class="comment">// 一ループ終わったらループ内で取得データは破棄され、</span>
+    <span class="comment">// また、次のループで次のレコードを取得する。</span>
+}
+</code></pre>
+	<p>
+		この場合、(トランザクション内での検索の)データの取得は、必ずトランザクション内で処理する必要があります。トランザクションが終わると(コミット
+		or ロールバック)、このカーソルの接続が切断されます。
+	</p>
+	<h3 id="internalcursor">内部的にはみんなカーソル検索</h3>
+	<p>
+		実は、メモリ上に全て保持するやり方も、内部的にはカーソル検索をしています。
+		カーソル検索をして、全てのデータをメモリ上に保持し、全て取得し終わったらDBとの接続を切断しているのです。
+		基本的にO/Rマッパは、JDBC をラップして作られているためです。
+	</p>
+	<h3 id="onmemorymerideme">メモリ上に保持する検索のメリデメ</h3>
+	<h4>メリット</h4>
+	<p>
+		アプリケーションの実装として利用しやすいのは、メモリ上に一気に保持する検索です。
+		DBとの接続の切断を気にする必要はなく、トランザクションの外でもデータを利用することができます。
+	</p>
+	<h4>デメリット</h4>
+	<p>
+		唯一、困ることは、大量データ(大量件数のレコード)を検索する場合です。
+		検索した大量データを全てメモリに保持することになりますので、アプリケーションのメモリが圧迫されることになります。
+		圧迫されるだけならまだしも、実行環境のメモリ許容量を超えてメモリのオーバーフローエラー(OutOfMemoryError)が発生して、
+		アプリケーションが続行できなくなる可能性があります。主には、(夜間の)バッチ処理などで、この問題を抱えることが多いです。
+	</p>
+	<h3 id="nocursormapper">カーソル検索がないO/Rマッパだと</h3>
+	<p>
+		アプリケーションで利用できるメモリの量を増やしたり、データ構造を変えてそもそも扱う件数を減らしたり、
+		などの外部要素での回避ができれば良いですが、そうでない場合は、大半はO/Rマッパ経由で検索するけれども、
+		必要になったところだけでJDBCを直接利用して回避、ということになる可能性があります。
+		(もちろん要件次第では、アプリケーションでの大量データの扱い方の工夫次第で回避できるかもしれませんが...バッチループ方式を使うなど)
+	</p>
+	<div class="relatedpage"><a href="./batchloop.html">DBアクセス - バッチループ</a></div>
+
+	<h2 id="dbflutecursor">DBFluteのカーソル検索</h2>
+	<p>
+		DBFluteでは、(先述の通り)通常はメモリ上に保持する検索がメインですが、大量データを扱うようなときのためにカーソル検索を利用することもできます。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/cursorselect/index.html">現場フィット - カーソル検索</a></div>
+
+	<div class="inucolumn">
+		<h2 id="oneloopdestroy">厳密には 1 ループで破棄しないことも</h2>
+		<p>
+			JDBCでデータを 1 レコードずつ取得する際ですが、ResultSetタイプの設定次第では、
+			次のループでも前のレコードのデータをJDBC内部で保持し続けている可能性があります。
+		</p>
+<pre><span class="codetitle">e.g. JDBCでデータを一レコードずつ取得するけど @Java</span><code>
+ResultSet rs = ps.executeQuery();
+<span class="keyword">while</span> (rs.next()) { <span class="comment">// 行がなくなるまでループ</span>
+    <span class="comment">// 1 レコードだけメモリ上に保持</span>
+    String memberName = rs.getString(<span class="literal">"MEMBER_NAME"</span>);
+    <span class="abbreviation">...</span> <span class="comment">// 業務的な処理</span>
+    <span class="comment">// 1 ループ終わったらループ内で取得データは破棄されるのが基本だけど、</span>
+    <span class="comment">// 設定次第では、JDBC内部で持ち続けてる可能性も。</span>
+}
+</code></pre>
+		<p>
+			主なResultSetタイプは以下の通りです。
+		</p>
+		<ul>
+			<li>TYPE_FORWARD_ONLY</li>
+			<li>TYPE_SCROLL_INSENSITIVE</li>
+			<li>TYPE_SCROLL_SENSITIVE</li>
+		</ul>
+		<p>
+			カーソルのスクロール(データポインタを前に戻したり)ができるタイプ(TYPE_SCROLL_XXX)にしている場合は、
+			一度読み込んだデータを再度(DBから)読み込み直さないように次のループになっても保持している可能性があります。
+			但し、これはJDBCドライバの実装次第と考えられます。
+		</p>
+		<p>
+			よって、大量データを扱うためのカーソル検索で、このタイプがスクロール可能なものになっていると、
+			なんのためにカーソル検索をしているのかわかりません(結局、メモリのオーバーフローに)。<em class="keyword">DBFluteでは、
+			必要になるとき(大量データを取り扱わないページング検索でカーソルのポインタシフトを使う場合など)以外の全ての検索にてデフォルトを TYPE_FORWARD_ONLY
+			にしているので、(明示的に設定を変えない限りは)この問題が発生することはありません</em>。
+			(昔々、問題が発生してこの辺を調整したことがあります...)
+		</p>
+		<p>
+			さらには、問答無用でメモリ上に持ってしまうDBMSもあります。
+		</p>
+		<div class="detailpage"><a href="../../../reference/dbway/mysql/index.html#cursorselect">MySQLの取扱い - カーソル検索でのメモリ対策</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

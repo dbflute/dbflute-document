@@ -1,0 +1,546 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaStruts,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/lasub.css";</style>
+	<title>ログにこだわるLastaFlute (Friendly Logging) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ログにこだわるLastaFlute</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<div class="relatedpage"><a href="../structure/applogging.html">LastaFluteのアプリログ</a></div>
+	${indexlist}
+
+	<h2 id="manydebug">幾度となくログを見る</h2>
+	<p>
+		インクリメンタル開発では、じっくりと腰を据えた開発がなかなかできないため、何度も何度もデバッグします。
+		書いては動かして直しての繰り返しもしますし、デグレが発生する可能性もありますし、時には致命的なバグでなければ放置する判断もします。
+		とにかく判断のスピードを速める必要があります。
+	</p>
+	<p>
+		そのとき、ログが判断のスピードに重要な影響を与えます。サッと見て情報が得られること、知りたいことを探せること、そして何より "ぜひ見たい"
+		と思うようなログであること。何度も見ますから、やる気を損なわないためにもログは綺麗である必要があります。
+	</p>
+
+	<h2 id="requestscopelog">どの Request かわかりやすく</h2>
+	<p>
+		どこからどこまでが、どの Request のログなのか？
+		が理解しやすいように、以下のようにRequestごとに明確に分断されてログが出力されます。
+	</p>
+<pre><span class="codetitle">e.g. どこからどこまでが、どの Request のログなのか？ @Log</span><code>
+
+<span class="abbreviation">...</span> DEBUG (<span class="abbreviation">...</span>#before():268) - <span class="point">* * * * * * * * * * {BEGIN}</span>: /member/list/
+  requestClass=org.lastaflute.web.servlet.filter.hotdeploy.HotdeployHtt<span class="abbreviation">...</span>
+  ; url=http://localhost:8090/harbor/product/list/?productName=&product<span class="abbreviation">...</span>
+  ; method=GET ; protocol=HTTP/1.1 ; scheme=http ; secure=false ; remot<span class="abbreviation">...</span>
+  ; characterEncoding=UTF-8 ; contentLength=-1 ; contentType=null ; loc<span class="abbreviation">...</span>
+
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+
+  responseClass=org.eclipse.jetty.server.Response ; committed=true
+  ; httpStatus=500 ; contentType=text/html ; locale=ja_JP
+  [cookie] JSESSIONID=1iwgg3g3f5qz1b6m3q5n3picu
+  <span class="abbreviation">...</span>
+  [request] lastaflute.action.ACTION_RUMTIME=runtime:{/product/list/, pu<span class="abbreviation">...</span>
+  [request] lastaflute.dbflute.SQL_COUNT={total=2, selectCB=2, entityUpd<span class="abbreviation">...</span>
+  <span class="abbreviation">...</span>
+  [session] lastaflute.action.USER_BEAN={userId=1, sync=2015/12/23 20:46<span class="abbreviation">...</span>
+  [session] lastaflute.action.USER_LOCALE=ja
+<span class="point">* * * * * * * * * * {END}</span>: /product/list/ [00m00s247ms]
+
+
+<span class="abbreviation">...</span> DEBUG (<span class="abbreviation">...</span>#before():268) - * * * * * * * * * * {BEGIN}: /member/edit/3/
+  requestClass=org.lastaflute.web.servlet.filter.hotdeploy.HotdeployHtt<span class="abbreviation">...</span>
+  ; url=http://localhost:8090/harbor/product/list/?productName=&product<span class="abbreviation">...</span>
+  ; method=GET ; protocol=HTTP/1.1 ; scheme=http ; secure=false ; remot<span class="abbreviation">...</span>
+  ; characterEncoding=UTF-8 ; contentLength=-1 ; contentType=null ; loc<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		RequestLoggingFilter にて、このログ出力が行われています。
+	</p>
+
+	<h2 id="requestinfolog">RequestパラメーターやSessionの状態など</h2>
+	<p>
+		RequestパラメーターやRequest属性、Sessionの状態などが出力されます。
+	</p>
+	<dl class="keymainlist">
+		<dt>[header]</dt><dd>Requestヘッダー</dd>
+		<dt>[param]</dt><dd>Requestパラメーター</dd>
+		<dt>[request]</dt><dd>Request属性</dd>
+		<dt>[cookie]</dt><dd>Cookie</dd>
+		<dt>[session]</dt><dd>Session</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Requestパラメーターやセッションの状態など @Log</span><code>
+
+<span class="abbreviation">...</span>-DEBUG (<span class="abbreviation">...</span>#before():268) - * * * * * * * * * * {BEGIN}: /product/list/
+  requestClass=org.lastaflute.web.servlet.filter.hotdeploy.HotdeployHttpServletRequest ; sessionId=1jd3fpprgg97yx28iu7maf184
+  ; url=http://localhost:8090/harbor/product/list/?productName=&productStatus=&purchaseMemberName=
+  ; method=GET ; protocol=HTTP/1.1 ; scheme=http ; secure=false ; remoteAddr=127.0.0.1 ; remoteHost=127.0.0.1
+  ; characterEncoding=UTF-8 ; contentLength=-1 ; contentType=null ; locale=ja ; locales=ja,en_US,en,es,ko
+  [header] Accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+  [header] Accept-Encoding=gzip, deflate, sdch
+  [header] Accept-Language=ja,en-US;q=0.8,en;q=0.6,es;q=0.4,ko;q=0.2
+  <span class="abbreviation">...</span>
+  [param] productName=sea
+  [param] productStatus=
+  [param] purchaseMemberName=
+  <span class="abbreviation">...</span>
+  [cookie] JSESSIONID=1iwgg3g3f5qz1b6m3q5n3picu
+  <span class="abbreviation">...</span>
+  [session] lastaflute.action.USER_LOCALE=ja
+
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+
+  responseClass=org.eclipse.jetty.server.Response ; committed=true
+  ; httpStatus=500 ; contentType=text/html ; locale=ja_JP
+  [cookie] JSESSIONID=1iwgg3g3f5qz1b6m3q5n3picu
+  <span class="abbreviation">...</span>
+  [request] lastaflute.action.ACTION_RUMTIME=runtime:{/product/list/, public HtmlResponse ProductListAction@index(OptionalThing, ProductSearchForm), urlParam:{{0=opt:{null}}}, *IllegalStateException}
+  [request] lastaflute.dbflute.SQL_COUNT={total=2, selectCB=2, entityUpdate=0, queryUpdate=0, outsideSql=0, procedure=0}
+  <span class="abbreviation">...</span>
+  [session] lastaflute.action.USER_BEAN={userId=1, sync=2015/12/23 20:46:27}@74538453
+  [session] lastaflute.action.USER_LOCALE=ja
+* * * * * * * * * * {END}: /product/list/ [00m00s247ms]
+
+</code></pre>
+	<p>
+		RequestLoggingFilter にて、このログ出力が行われています。
+	</p>
+
+	<h2 id="finalexceptionlog">最後の砦として例外メッセージを必ずログに</h2>
+	<h3 id="throwthrow">アプリでは、基本的に catch せず throw</h3>
+	<p>
+		アプリ内でthrowされた例外は、最後の最後の ServletFilter <em class="smallmark">(RequestLoggingFilter)</em> で catch され、ERRORレベルで例外メッセージとスタックトレースが出力されるようになっています。
+	</p>
+	<p>
+		HTTPステータスコードは 500 として扱われ、500.html が表示されるような仕組み<span class="frm">(単にweb.xmlでそう設定しているだけ)</span>になっています。
+		その 500.html はアプリごとに適切なデザインに修正しましょう。
+	</p>
+	<p>
+		よって、例外が発生しても、アプリ内で自前で catch してエラーログを出す必要はありません。
+		エラーログが統一的でなかったり、ノイズが入ってしまったりするのもトラブルシューティングする人にとっては困るのです。
+		<span class="frm">(もちろん、例外が発生しても処理を続行したい場合や例外翻訳して再度throwするときは catch します)</span>
+	</p>
+<pre><span class="codetitle">e.g. Action内ではシステムエラーはthrowすればOK @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>, ProductSearchForm <span class="localvar">form</span>) {
+    <span class="comment">// *no need to catch and log about system error handling</span>
+    <span class="comment">//try {</span>
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {} , () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>);
+    });
+    PagingResultBean&lt;Product&gt; <span class="localvar">page</span> = selectProductPage(<span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>), <span class="localvar">form</span>);
+    List&lt;ProductSearchRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">page</span>.mappingList(<span class="localvar">product</span> -&gt; {
+        <span class="keyword">return</span> mappingToBean(<span class="localvar">product</span>);
+    });
+    <span class="abbreviation">...</span>
+    <span class="comment">} catch (SeaException e) {</span>
+    <span class="comment">    logger.error(..., e);</span>
+    <span class="comment">}</span>
+}
+</code></pre>
+	<h3 id="slimerror">本当のエラーだけエラーログに <span class="frm">(できるだけ)</span></h3>
+	<p>
+		ユーザーのミスオペや、ちょっとしたアドレスバーでのURL修正いたずらなどで、簡単に500エラーが発生しないような工夫をしています。
+		以下のエラーは、400 もしくは 404 として扱われます。もちろん、バグかもしれないので、開発中はエラー内容がDEBUGログでしっかり出力されます。
+	</p>
+	<ul>
+		<li>Pathパラメーターの型違いエラー <em class="smallmark">(404)</em> <span class="frm">e.g. /list/3 を期待するところ /list/a が飛んできた</span></li>
+		<li>Formのプロパティの型違いエラー <em class="smallmark">(400)</em> <span class="frm">e.g. Integer なのに "a" が飛んできた</span></li>
+		<li>Formの配列プロパティのindexパースエラー <em class="smallmark">(400)</em> <span class="frm">e.g. sea[a] が飛んできた</span></li>
+		<li>JSON BodyリクエストのJSONパースエラー <em class="smallmark">(400)</em></li>
+		<li>などなど</li>
+	</ul>
+	<p>
+		<em class="keyword">インクリメンタル開発では本番でのシステムエラーはなかなか完璧には予防できない</em> ため、その分エラーログは重要です。
+		エラーログにあまり重要ではないエラーが混じっていると本当に緊急性の高いエラーを見逃してしまいます。
+	</p>
+
+	<h2 id="requestexceptionlog">例外メッセージにRequestの状態も</h2>
+	<p>
+		通常、本番環境ではデバッグログは出力しません。ですが、インクリメンタル開発では、本番環境でも基本的な例外が発生する可能性を想定する必要があります。
+		そのとき、例えば NullPointerException だけでは原因を追求するのはとても厳しいです。その例外が発生したときの Request のもろもろの情報が欲しいものです。
+	</p>
+	<h3 id="requestsnapshot">Request状態のSNAPSHOT</h3>
+	<p>
+		ということで、例外メッセージに Request の状態が一緒に出力されます。
+	</p>
+<pre><span class="codetitle">e.g. Requestパラメーターやセッションの状態など @Log</span><code>
+
+ ERROR (<span class="abbreviation">...</span>#logError():895) - *ServletException occurred.
+/= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =: /product/list/
+  requestClass=org.lastaflute.web.servlet.filter.hotdeploy.HotdeployHttpServletRequest ; sessionId=1jd3fpprgg97yx28iu7maf184
+  ; url=http://localhost:8090/harbor/product/list/?productName=&productStatus=&purchaseMemberName=
+  ; method=GET ; protocol=HTTP/1.1 ; scheme=http ; secure=false ; remoteAddr=127.0.0.1 ; remoteHost=127.0.0.1
+  ; characterEncoding=UTF-8 ; contentLength=-1 ; contentType=null ; locale=ja ; locales=ja,en_US,en,es,ko
+  [header] Accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+  [header] Accept-Encoding=gzip, deflate, sdch
+  <span class="abbreviation">...</span>
+  [param] productName=sea
+  [param] productStatus=
+  [param] purchaseMemberName=
+  <span class="abbreviation">...</span>
+  [cookie] JSESSIONID=1jd3fpprgg97yx28iu7maf184
+  <span class="abbreviation">...</span>
+  [request] lastaflute.action.ACTION_RUMTIME=runtime:{/product/list/, public HtmlResponse ProductListAction@index(OptionalThing, ProductSearchForm), urlParam:{{0=opt:{null}}}, *IllegalStateException}
+  [request] lastaflute.dbflute.SQL_COUNT={total=2, selectCB=2, entityUpdate=0, queryUpdate=0, outsideSql=0, procedure=0}
+  <span class="abbreviation">...</span>
+  [session] lastaflute.action.USER_BEAN={userId=1, sync=2015/12/23 20:46:27}@74538453
+  [session] lastaflute.action.USER_LOCALE=ja
+  responseClass=org.eclipse.jetty.server.Response ; committed=true
+  ; httpStatus=500 ; contentType=text/html ; locale=ja_JP
+  [header] Accept-Ranges=bytes
+  <span class="abbreviation">...</span>
+= = = = = = = = = =/ [00m00s107ms] #6fc09463
+java.lang.IllegalStateException: test error
+    at org.docksidestage.app.web.product.ProductListAction.index(ProductListAction.java:56)
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		例外として終わった処理が、リクエストの時点から何秒くらいかかって落ちたのかもわかるようになっています。
+		DBのロックを長く持っていたとか、通信で時間がかかったとか、例外で落ちたリクエストが起因して別のリクエストに影響を与えたかどうかなどを推測しやすいように。
+	</p>
+	<p>
+		RequestLoggingFilter にて、このログ出力が行われています。
+	</p>
+
+	<h2 id="transactionlist">SQL例外のときはトランザクション一覧も</h2>
+	<p>
+		SQL例外が発生したときに、一緒に "その瞬間のトランザクション一覧"
+		が、warningログとして出力されます。これにより、DBのロック待ち例外とかのとき、どの処理が起因になっているのかの推測がしやすくなります。
+	</p>
+<pre><span class="codetitle">e.g. SQL例外のときのトランザクション一覧 @Log</span><code>
+2015-02-18 16:10:16,919 [1685538367@qtp-186276003-0]-WARN  (ExceptionTranslator#warnSQLFailureState():90) - Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+SQL Failure State, here!
+
+[Advice]
+This state is for the SQL failure exception: #1553847
+
+[ConnectionPool View]
+org.lastaflute.db.dbcp.HookedConnectionPool@7cfba6c5
+<span class="keyword">freePool=2, activePool=0, txActivePool=8</span>
+{00m03s243ms, <span class="point">1424243415266/1(21)</span>, web.mypage.MypageAction@index(), {userId=3}, <span class="subpoint">map:{MEMBER = list:{selectCount} ; PURCHASE = list:{selectCount}}</span>, /mypage/}
+{00m01s131ms, <span class="point">1424243415266/10(7)</span>, web.product.ProductListAction@index(), {userId=null}, <span class="subpoint">map:{PRODUCT = list:{selectList}}</span>, /product/list/}
+{00m00s239ms, <span class="point">1424243415266/2(34)</span>, web.signin.SigninAction@doLogin(), {userId=null}, <span class="subpoint">map:{MEMBER = list:{selectList}}</span>, /login/doLogin}
+{00m01s632ms, <span class="point">1424243415266/9(75)</span>, web.mypage.MypageAction@index(), {userId=22}, <span class="subpoint">map:{PURCHASE = list:{selectCount}}</span>, /mypage/}
+<span class="literal">/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - (SQL now: PURCHASE#selectCount [00m00s003ms])
+select count(*)
+  from PURCHASE dfloc
+-- org.docksidestage.app.web.login.LoginIndexAction#index(): (via LoginIndexAction$$Lambda$8/1635799099)
+- - - - - - - - - -/</span>
+{00m01s634ms, <span class="point">1424243415266/5(26)</span>, web.product.ProductListAction@index(), {userId=83}, <span class="subpoint">map:{MEMBER = list:{selectList}}</span>, /product/}
+{00m07s637ms, <span class="point">1424243415266/3(31)</span>, web.purchase.PurchaseAction@index(), {userId=9}, <span class="subpoint">map:{MEMBER = list:{selectList ; selectCount}}</span>, /purchase/}
+{00m01s632ms, <span class="point">1424243415266/8(41)</span>, web.profile.ProfileEditAction@index(), {userId=732}, <span class="subpoint">map:{MEMBER = list:{updateNonstrict}}</span>, /profile/edit/}
+<span class="literal">/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - (SQL now: MEMBER#updateNonstrict [00m00s016ms])
+update MEMBER set BIRTHDATE = null, UPDATE_DATETIME = '2015-02-24 11:06:36.205', UPDATE_USER = 'M:-1,DCK,LoginIndexAction', VERSION_NO = VERSION_NO + 1
+ where MEMBER_ID = 3
+-- org.docksidestage.app.web.signin.SigninAction#index(): (via LoginIndexAction$$Lambda$12/475753501)
+- - - - - - - - - -/</span>
+{00m01s633ms, <span class="point">1424243415266/6(3)</span>, web.login.LoginIndexAction@index(), {userId=null}, <span class="subpoint">map:{PRODUCT = list:{selectCount}}</span>, /login/}
+* * * * * * * * * */
+</code></pre>
+	<ul>
+		<li>それぞれのトランザクションが、開始されてからどのくらい経過しているのか？ <span class="frm"> e.g. 00m01s634ms</span></li>
+		<li>トランザクションを特定するユニークなコード <span class="frm"> e.g. 1424243415266/5</span></li>
+		<li>DBMS側のどのプロセスと紐づいているか？ <span class="frm">e.g. xxx/x(21) ※2015/02/26時点でMySQLのみ</span></li>
+		<li>どのActionから呼ばれたものなのか？ <span class="frm"> e.g. MypageIndexAction#index()</span></li>
+		<li>どのログインユーザーで実行されているものなのか？ <span class="frm"> e.g. {userId=83}</span></li>
+		<li>そのトランザクションがどのテーブルにどんな操作をしたか？ <span class="frm"> e.g. map:{MEMBER = ...}</span></li>
+		<li>その瞬間、どんなSQLが実行されていたのか？ (どのくらい時間がかかっているのか？)</li>
+	</ul>
+	<p>
+		...がわかります。ただ、Tomcatが複数台構成になっていると、その例外が発生したインスタンス内のトランザクションだけに限りますが、
+		それでも原因を追及する上での貴重な情報になるかと。また、Adviceの欄に、ハッシュ値が表示されていますが、これは対応するエラーログとリンクしていて、
+		このハッシュ値でエラーログを探すと、このWarningログのきっかけとなった例外メッセージが参照できます。
+	</p>
+	<p>
+		その瞬間実行されているSQLの表示用SQL (DisplaySql)
+		は、例外発生時に初めて生成されるので、正常時に文字列生成コストがかかるわけではありません<span class="frm">(その辺のパフォーマンス考慮、最大限しているつもり)</span>。
+		また、トランザクションが開始されていても、まだ一度もDBアクセスしていないトランザクションは表示されません<span class="frm">(ConnectionPoolに乗ってないため)</span>。
+	</p>
+
+	<h2 id="transactionmemories">例外メッセージにトランザクションの思い出も</h2>
+	<p>
+		本番環境でのシステム例外は、例外メッセージとスタックトレースだけで原因を突き止めるのはなかなか難しいこともあります。
+		一つ前二つ前の検索結果が影響して例外が発生していることもあり、その検索結果が知りたいものです。
+	</p>
+	<p>
+		そこで、例外メッセージ時に、<em class="mark">トランザクションの思い出</em> を載せ、<em class="keyword">落ちたトランザクションがどんな検索、更新をしてきたのか？</em>
+		がわかるようにしています。
+	</p>
+<pre><span class="codetitle">e.g. トランザクションの思い出、お見せします @Log</span><code>
+
+/= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =: /product/list/
+  requestClass=org.lastaflute.web.servlet.filter.hotdeploy.HotdeployHttpServletRequest ; sessionId=1jd3fpprgg97yx28iu7maf184
+  ; url=http://localhost:8090/harbor/product/list/?productName=&productStatus=&purchaseMemberName=
+  ; method=GET ; protocol=HTTP/1.1 ; scheme=http ; secure=false ; remoteAddr=127.0.0.1 ; remoteHost=127.0.0.1
+  ; characterEncoding=UTF-8 ; contentLength=-1 ; contentType=null ; locale=ja ; locales=ja,en_US,en,es,ko
+  [header] Accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+  [header] Accept-Encoding=gzip, deflate, sdch
+  <span class="abbreviation">...</span>
+  [param] productName=sea
+  [param] productStatus=
+  [param] purchaseMemberName=
+  <span class="abbreviation">...</span>
+  [cookie] JSESSIONID=1jd3fpprgg97yx28iu7maf184
+  <span class="abbreviation">...</span>
+  [request] lastaflute.action.ACTION_RUMTIME=runtime:{/product/list/, public HtmlResponse ProductListAction@index(OptionalThing, ProductSearchForm), urlParam:{{0=opt:{null}}}, *IllegalStateException}
+  [request] lastaflute.dbflute.SQL_COUNT={total=2, selectCB=2, entityUpdate=0, queryUpdate=0, outsideSql=0, procedure=0}
+  [request] <span class="point">lastaflute.dbflute.TRANSACTION_MEMORIES</span>=<span class="subpoint">wholeShow:
+   *RomanticTransaction@4dca5628
+   &lt;&lt; Transaction Current State &gt;&gt;
+   beginning time: 2015/12/23 20:46:29.444
+   table command: map:{PRODUCT = list:{selectList ; selectCount ; updateNonstrict} ; PURCHASE = list:{selectEntity} ; MEMBER_LOGIN = list:{insert}}
+   ending: rollback
+   &lt;&lt; Transaction Recent Result &gt;&gt;
+   1. (2015/12/23 20:46:29.479) [00m00s016ms] PRODUCT@selectList => List:{size=4, first={PRODUCT_ID=6}}
+   2. (2015/12/23 20:46:29.497) [00m00s001ms] PRODUCT@selectCount => Integer:{count=20}
+   3. (2015/12/23 20:46:29.511) [00m00s002ms] PRODUCT@updateNonstrict => Integer:{updated=1, key={PRODUCT_ID=9}}
+   4. (2015/12/23 20:46:29.520) [00m00s006ms] PURCHASE@selectEntity => Purchase:{PURCHASE_ID=3}
+   5. (2015/12/23 20:46:29.565) [00m00s003ms] MEMBER_LOGIN@insert => Integer:{inserted=1, key={MEMBER_LOGIN_ID=65}}</span>
+  [request] lastaflute.hotdeploy.CLASS_LOADER=org.lastaflute.di.core.smart.hot.HotdeployClassLoader@65ffb01f
+  <span class="abbreviation">...</span>
+  [session] lastaflute.action.USER_BEAN={userId=1, sync=2015/12/23 20:46:27}@74538453
+  [session] lastaflute.action.USER_LOCALE=ja
+  responseClass=org.eclipse.jetty.server.Response ; committed=true
+  ; httpStatus=500 ; contentType=text/html ; locale=ja_JP
+  [header] Accept-Ranges=bytes
+  <span class="abbreviation">...</span>
+= = = = = = = = = =/ [00m00s107ms] #6fc09463
+java.lang.IllegalStateException: test error
+    at org.docksidestage.app.web.product.ProductListAction.index(ProductListAction.java:56)
+    <span class="abbreviation">...</span>
+</code></pre>
+	<ul>
+		<li>そのトランザクションがどのテーブルにどんなアクセスをしたか？</li>
+		<li>そのトランザクションの直近30のアクセス履歴、検索結果の件数やPKの値なども少し</li>
+	</ul>
+	<p>
+		これらが本番でわかるのであれば、トラブルシューティングする人が少しでも助かるのではないかと。
+	</p>
+	<dl class="keymainlist">
+		<dt>beginning time</dt><dd>トランザクション開始時間</dd>
+		<dt>table command</dt><dd>アクセスしたテーブルとそのコマンド (順不同)</dd>
+		<dt>ending</dt><dd>commit したか rollback したか</dd>
+		<dt>Recent Result</dt><dd>直近30個のDBアクセス情報、テーブル名や結果の一部</dd>
+	</dl>
+
+	<h2 id="actionflowlog">ActionやJSPなどを一発で探せるように</h2>
+	<p>
+		インクリメンタル開発では、ドキュメントを充実させる時間があまりありません。
+		書いてもすぐに修正しなければならないため、メンテコストが高いのです。
+	</p>
+	<p>
+		この画面は何のActionが呼ばれているのか？どのJSPが評価されているのか？
+		画面を動かすことで、それらをすぐにデバッグログで探せるようにしています。それぞれのハッシュタグが含まれています。
+	</p>
+	<dl class="keymainlist">
+		<dt>#action</dt><dd>Action呼び出しログのハッシュタグ</dd>
+		<dt>#jsp</dt><dd>JSP遷移ログのハッシュタグ</dd>
+		<dt>#before</dt><dd>ActionCallbackのbeforeタイミングのハッシュタグ</dd>
+		<dt>#finally</dt><dd>ActionCallbackのfinallyタイミングのハッシュタグ</dd>
+		<dt>#flow</dt><dd>それらもろもろの流れのハッシュタグ</dd>
+	</dl>
+	<p>
+		Eclipseであれば、コンソールログで ctrl + F を押して、#action と入力すれば、Actionクラスの呼び出し部分に飛びます。
+		処理の多い Request で #flow で流れを追っていくのもよいでしょう。
+		 <span class="frm">(...残念なことに、#beforeは一箇所かぶっています)</span>
+	</p>
+<pre><span class="codetitle">e.g. ActionやJSPの呼び出しログのハッシュタグ @Log</span><code>
+
+<span class="abbreviation">...</span>-DEBUG (<span class="abbreviation">...</span>#before():268) - * * * * * * * * * * {BEGIN}: /member/list/
+  Request class=org.seasar.framework.container.hotdeploy.HotdeployHttpSer<span class="abbreviation">...</span>
+  , REQUEST_URI=/dockside/member/list/, SERVLET_PATH=/member/list/, Chara<span class="abbreviation">...</span>
+  , ContentType=application/x-www-form-urlencoded, Locale=ja, Locales=ja,<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>) - ...Saving user locale to session: ja
+<span class="abbreviation">...</span>) - #flow ...Calling back <span class="point">#before</span> for MemberListAction
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>) - #flow ...Beginning <span class="point">#action</span> MemberListAction.doSearch()
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>) - トランザクションを開始しました。tx=[FormatI<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>) - トランザクションをコミットしました。tx=[For<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>) - #flow ...Calling back <span class="point">#finally</span> for MemberListAction
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>) - #flow ...Forwarding to <span class="point">#jsp</span> /WEB-INF/view/member/member_list.jsp
+<span class="abbreviation">...</span>
+  [session] javax.servlet.jsp.jstl.fmt.request.charset=UTF-8
+  [session] member_memberListForm=org.dbflute.maihama.app.web.member.Memb<span class="abbreviation">...</span>
+  [session] org.apache.struts.action.LOCALE=ja
+  [session] org.dbflute.maihama.domainfw.action.DocksideUserBean={userId=<span class="abbreviation">...</span>
+* * * * * * * * * * {END}: /member/list/ [00m00s247ms]
+
+</code></pre>
+	<p>
+		GodHandableAction で、このログ出力が行われています。
+	</p>
+
+	<h2 id="calllersqllog">SQLに呼び出しActionを埋め込み</h2>
+	<p>
+		このSQLが、どの Action やどの Logic から呼ばれたものか？
+	</p>
+	<p>
+		そもそも DBFlute には、デバッグログでそういった情報が出力されます。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteのデバッグログの呼び出し階層 @Log</span><code>
+- /===========================================================================
+-                                                       MemberBhv.selectList()
+-                                                       =====================/
+- <span class="point">MemberListAction.doSearch():89 -> MemberListAction.selectMemberPage():159 -> ...</span>
+- <span class="keyword">select</span> dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as MEMBER_NAME, dfloc.MEMBER_ACCOUNT as MEMBER_ACCOUNT, dfloc.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE, dfloc.FORMALIZED_DATETIME as FORMALIZED_DATETIME, dfloc.BIRTHDATE as BIRTHDATE, dfloc.REGISTER_DATETIME as REGISTER_DATETIME, dfloc.REGISTER_USER as REGISTER_USER, dfloc.REGISTER_PROCESS as REGISTER_PROCESS, dfloc.UPDATE_DATETIME as UPDATE_DATETIME, dfloc.UPDATE_USER as UPDATE_USER, dfloc.UPDATE_PROCESS as UPDATE_PROCESS, dfloc.VERSION_NO as VERSION_NO, dfrel_0.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE_0, dfrel_0.MEMBER_STATUS_NAME as MEMBER_STATUS_NAME_0, dfrel_0.DISPLAY_ORDER as DISPLAY_ORDER_0
+-   <span class="keyword">from</span> MEMBER dfloc
+-     <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE
+-  <span class="keyword">where</span> dfloc.MEMBER_NAME like <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+-  <span class="keyword">order by</span> dfloc.MEMBER_ID <span class="keyword">asc</span>
+- ===========/ [00m00s016ms - Selected list: 6 first={1,Stojkovic,Pixy,FML,2007-12-01 02:01:10.0,1965-03-02 15:00:00.0,2008-01-23 13:38:25.989,replace-schema,replace-schema,2008-01-23 13:38:25.991,replace-schema,replace-schema,1}]
+</code></pre>
+	<p>
+		ですが、例えばデータベース側で遅いSQLやロック待ちのSQLを抽出したときに(MySQLのSlowQueryなど)、SQLにはデバッグログは含まれていませんので、SQLだけをみてもなかなかわかりません。
+	</p>
+	<p>
+		そこで、LastaFluteでは、SQL自体にSQLコメントとしてActionクラス名が自動で付与されるようになっています。
+		これで、データベース側でのSQL抽出でも、どこの画面から発行されたSQLなのかがすぐに判別できます。
+	</p>
+<pre><span class="codetitle">e.g. SQLコメントとしてActionクラス名が自動で付与される @Log</span><code>
+- /===========================================================================
+-                                                       MemberBhv.selectList()
+-                                                       =====================/
+- MemberListAction.doSearch():89 -> MemberListAction.selectMemberPage():159 -> ...
+- <span class="keyword">select</span> dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as MEMBER_NAME, dfloc.MEMBER_ACCOUNT as MEMBER_ACCOUNT, dfloc.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE, dfloc.FORMALIZED_DATETIME as FORMALIZED_DATETIME, dfloc.BIRTHDATE as BIRTHDATE, dfloc.REGISTER_DATETIME as REGISTER_DATETIME, dfloc.REGISTER_USER as REGISTER_USER, dfloc.REGISTER_PROCESS as REGISTER_PROCESS, dfloc.UPDATE_DATETIME as UPDATE_DATETIME, dfloc.UPDATE_USER as UPDATE_USER, dfloc.UPDATE_PROCESS as UPDATE_PROCESS, dfloc.VERSION_NO as VERSION_NO, dfrel_0.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE_0, dfrel_0.MEMBER_STATUS_NAME as MEMBER_STATUS_NAME_0, dfrel_0.DISPLAY_ORDER as DISPLAY_ORDER_0
+-   <span class="keyword">from</span> MEMBER dfloc
+-     <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE
+-  <span class="keyword">where</span> dfloc.MEMBER_NAME like <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+-  <span class="keyword">order by</span> dfloc.MEMBER_ID <span class="keyword">asc</span>
+- <span class="point">-- org.dbflute.maihama.app.web.member.MemberListAction#doSearch(): (M, DCK)</span>
+- ===========/ [00m00s016ms - Selected list: 6 first={1,Stojkovic,Pixy,FML,2007-12-01 02:01:10.0,1965-03-02 15:00:00.0,2008-01-23 13:38:25.989,replace-schema,replace-schema,2008-01-23 13:38:25.991,replace-schema,replace-schema,1}]
+</code></pre>
+	<p>
+		TypicalAction の ActionHook の before の中で SqlStringFilter が設定され、それによりDBFluteがSQLに画面情報を付与するようになります。
+		<span class="frm">(そこから追っていくと見つかります)</span>
+	</p>
+
+	<h2 id="sqlcountlog">RequestごとのSQLの発行回数</h2>
+	<p>
+		インクリメンタル開発では、最初の時点では開発スピード重視で、パフォーマンス考慮を置き去りにされることがよくあります。
+		実際に、最初はデータ件数も少なく問題にならないことも多く、わざとそれを狙って実装する場合もあります。
+		<span class="frm">(考慮できるにこしたことはありませんが、考慮実装に時間がかかる場合など)</span>
+	</p>
+	<p>
+		そして、だんだんつらくなってきます。
+		そろそろ直さないといけないという段階で何がボトルネックなのかを知るために、一つのRequest内で発行されたSQLの回数がデバッグログに出力されます。
+		Requestの最後のログで、Request属性として出力されます。
+	</p>
+<pre><span class="codetitle">e.g. SQLの発行回数がRequest属性として出力される @Log</span><code>
+
+<span class="abbreviation">...</span>-DEBUG (<span class="abbreviation">...</span>#before():268) - * * * * * * * * * * {BEGIN}: /member/list/
+  Request class=org.seasar.framework.container.hotdeploy.HotdeployHttpSer<span class="abbreviation">...</span>
+  , REQUEST_URI=/dockside/member/list/, SERVLET_PATH=/member/list/, Chara<span class="abbreviation">...</span>
+  , ContentType=application/x-www-form-urlencoded, Locale=ja, Locales=ja,<span class="abbreviation">...</span>
+
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+
+  Response class=org.mortbay.jetty.Response, ContentType=text/html; charset=utf-8, Committed=true
+  , toString()=HTTP/1.1 200  Content-Type: text/html; charset=utf-8 Expires: Thu, 01 Dec 1994 16:00:00 GMT Pragma: no-cache Cache-Contr...
+  <span class="abbreviation">...</span>
+  [request] <span class="point">saflute.dbflute.sql.count={total=1, selectCB=1, entityUpdate=0, queryUpdate=0, outsideSql=0, procedure=0}</span>
+  <span class="abbreviation">...</span>
+  [session] javax.servlet.jsp.jstl.fmt.request.charset=UTF-8
+  [session] member_memberListForm=org.dbflute.maihama.app.web.member.Memb<span class="abbreviation">...</span>
+  [session] org.apache.struts.action.LOCALE=ja
+  [session] org.dbflute.maihama.domainfw.action.DocksideUserBean={userId=<span class="abbreviation">...</span>
+* * * * * * * * * * {END}: /member/list/ [00m00s247ms]
+
+</code></pre>
+	<p>
+		TypicalAction の ActionHook の before の中で SqlStringFilter が設定され、それによりDBFluteがSQLの発行回数を数えるようになります。
+		実際にログを出力するところは、finally の中で行われています。<span class="frm">(そこから追っていくと見つかります)</span>
+	</p>
+	<p>
+		また、SQL発行回数がある一定のしきい値(デフォルトで30)を超えると、WARNレベルのログが出力されます。
+		エラーにはなりませんが、本番環境でもチェックされて検出しやすくなっています。
+	</p>
+<pre><span class="codetitle">e.g. あまりにひどい発行回数はWARNで警告 @Log</span><code>
+
+<span class="abbreviation">...</span>-WARN (<span class="abbreviation">...</span>) - *Too many SQL executions: <span class="point">{total=81, selectCB=3, entityUpdate=78, queryUpdate=0, outsideSql=0, procedure=0}</span> in MemberListAction.doSearch()
+
+</code></pre>
+	<p>
+		TypicalBaseAction の ActionCallback の finally の中で SqlStringFilter の結果を見て、このログ出力が行われています。
+	</p>
+
+	<h2 id="inoutlog">本番環境でのリクエストの全記録</h2>
+	<p>
+		こちらはオプションです。もし、リクエストの全記録を本番環境で残したいのであれば、InOutログというものを出力することができます。
+	</p>
+	<div class="detailpage"><a href="../action/logging/inoutlog.html">リクエストの全記録、InOutログ</a></div>
+<pre><span class="codetitle">e.g. in-out logging contents @inout_[app].log</span><code>
+<span class="comment">// これは、HtmlResponseのときのログ</span>
+2017-08-20 00:16:08,784 [qtp2068434592-11] INFO  (InOutLogger@log():50) - GET /signin/ SigninAction@index() (2017-08-20 00:16:06.834) [00m01s950ms] {Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:5...} responseBody:(...Forwarding to /signin/signin.html)
+2017-08-20 00:16:34,321 [qtp2068434592-15] INFO  (InOutLogger@log():50) - GET /member/list/ MemberListAction@index() (2017-08-20 00:16:33.946) [00m00s375ms] {Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:5...} responseBody:(...Forwarding to /member/member_list.html) sqlCount:{total=2, selectCB=2}
+2017-08-20 00:16:49,572 [qtp2068434592-11] INFO  (InOutLogger@log():50) - POST /member/edit/ MemberEditAction@update() (2017-08-20 00:16:49.491) [00m00s081ms] {Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:5...} *ValidationErrorException #5fd42ca requestParameter:{lastaflute.action.TRANSACTION_TOKEN=a30cdf490b0f7b831507d84730d8d288, birthdate=1965-03-03, versionNo=0, memberName=, memberStatus=FML, update=Update, memberAccount=Pixy, memberId=1, previousStatus=FML} responseBody:(...Forwarding to /member/member_edit.html)
+
+<span class="comment">// これは、JsonResponseのときのログ</span>
+2017-08-20 01:16:36,433 [qtp2068434592-17] INFO  (InOutLogger@log():50) - POST /wx/request/json/body/ WxRequestJsonBodyAction@index() (2017-08-20 01:16:36.312) [00m00s121ms] {Apache-HttpClient/4.5.2 (Java/1.8.0_131)}
+requestBody:
+{sea: "mystic"}
+
+responseBody:
+{
+  "body": {
+    "sea": "mystic",
+    "land": null,
+    "piari": null,
+    "bonvo": null,
+    "dstore": null
+  }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

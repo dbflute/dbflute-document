@@ -1,0 +1,439 @@
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p1
+
+
+　　第五.五回　渋谷 Java
+
+
+
+
+
+ 　「OracleのJDBCドライバに振り回されるDBFlute」
+
+　　　　　　　　　　　　　　　久保　雅彦
+　　　　　　　　　　　　　　　jflute
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p2
+
+自己紹介
+
+　フリーランス（オープンソースプログラマー）
+　DBFluteの作者
+
+
+　エンジニアの教育、現場フォロー
+　Java, DB設計, 仕組み作り
+
+　最近、社内フレームワーク作り
+　　SAFlute
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p3
+
+なんだかんだ利用者が多い(と思われる)
+
+
+
+
+
+
+
+　　　　O R A C L E
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p4
+
+DBFluteで一番多いデータベースのif文
+
+
+...それは isDatabaseOracle()
+
+
+
+
+if (isDatabaseOracle()) {
+　　はーい、Oracleさん、こんにちは
+}
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p5
+
+<<< ルーキーレベル >>>
+
+
+
+「すいません、
+
+　　DATE型のインデックスが効かないんですけど」
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p6
+
+そう、
+
+Oracle の DATE は、Date じゃない
+(2014/02/15 14:04:56)
+
+
+だから、Timestamp型にマッピングしているわけですが...
+
+(JDBCドライバーも、ojdbc6.jarからTimestamp型に)
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p7
+
+そう、
+
+Oracleの DATE は、
+sql.Date でも sql.Timestamp でもない
+
+
+だから、oracle.sql.DATE だ！
+
+...でないとインデックスが効かないみたい
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p7
+
+DBFluteでは、
+
+
+オプションで、
+oracle.sql.DATE でマッピングするクラスを自動生成して、
+初期化時に組み込んで利用できるように。
+
+
+　※jarの中に特定のDBMSのJDBCドライバーの
+　　クラスへの参照が入らないように、オプションで
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p8
+
+<<< 初段レベル >>>
+
+
+「すいません、
+
+　　in (...) が1000を超えるとエラーなんですけど」
+
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p9
+
+
+
+　Oracle の in (...) (DBFluteでは InScope と呼ぶ)
+
+　は、1000個まで
+
+
+
+
+　　-> 自動で split して or でつなげちゃえ！
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p10
+
+<<< 五段レベル >>>
+
+
+「すいません、
+
+　　シノニムだとPKもFKも取れないんですけど」
+
+
+　-> 更新もできず、関連のないEntityになっちゃう
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p11
+
+
+
+
+　　　　　　　　　な　ん　で？
+
+
+
+
+
+
+　　　　　　　　　　　　　　　　　　　...わかんない
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p12
+
+
+　Oracleだと、結構シノニムを使うプロジェクト多い
+
+
+　　additionalPrimaryKeyMap.dfprop
+　　additionalForeignKeyMap.dfprop
+　　　でちまちまは面倒すぎる
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p13
+
+
+　　　えーい、データディクショナリ読んじゃえ
+
+　ALL_SYNONYMS
+
+　|　SYNONYM名　|　TABLE名　|
+　|　せりーぬ　　|　でぃおん　|
+
+　　PKとFKを取る！ (FKの翻訳はとっても大変＞＜)
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p14
+
+六段
+
+
+「すいません、
+
+　　データリンクのシノニムだと、カラム情報すら取れません」
+
+
+　-> 完全に空っぽのEntityになっちゃう
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p15
+
+
+
+
+　　　で、で、デ　ー　タ　リ　ン　ク？
+
+
+
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p16
+
+
+　　　えーい、データリンク読んじゃえ
+
+　まず、
+　　select * from USER_DB_LINKS
+
+　そして、
+　　select * from ALL_SYNONYMS@[データリンク名]
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p17
+
+九段
+
+
+「すいません、
+
+　　STRUCT型のARRAY型が引数の
+　　ストアドプロシージャ呼びたいんだけど」
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p18
+
+
+
+
+　　な　に　そ　れ？
+
+
+
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p19
+
+
+
+
+　　デモ、デモ、デモ、デモ
+
+
+
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p20
+
+
+
+　　フレームワークの、
+
+　　　　顔だけでなく、
+
+
+　　「細かい気配り」まで評価の対象に
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p.last
+
+
+
+
+　　　　　　　　　　ご　清　聴
+
+　　　あ　り　が　と　う　ご　ざ　い　ま　し　た
+
+
+
+
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ p.omake
+
+　　　今年も、
+
+　　　年に一度の「DBFluteユーザーの集い」やります。
+　　　（秋頃、ここで）
+
+　　　また仙台でDBFluteしゃべってきます
+
+　　　またClubDBでDBFluteしゃべってきます
+
+　　　またいろいろ。。。
+
+
+_/_/_/_/_/_/_/_/_/_/
+
+
+【デモで使ったコード】
+
+-- #df:begin#
+create or replace procedure SP_SHIBUYA_JAVA_BASIC(
+  v_in_varchar in varchar2
+  , v_out_varchar out varchar2
+  , v_inout_varchar in out varchar2) as
+begin
+  dbms_output.put_line(v_in_varchar);
+  dbms_output.put_line(v_out_varchar);
+  dbms_output.put_line(v_inout_varchar);
+  v_out_varchar := v_inout_varchar;
+  v_inout_varchar := v_in_varchar;
+end SP_SHIBUYA_JAVA_BASIC;
+/
+-- #df:end#
+
+-- #df:begin#
+create or replace procedure SP_SHIBUYA_JAVA_CURSOR(cur_member out sys_refcursor)
+as
+begin
+  open cur_member for
+    select MEMBER_ID, MEMBER_NAME, BIRTHDATE, FORMALIZED_DATETIME, MEMBER_STATUS_CODE
+      from MEMBER;
+end SP_SHIBUYA_JAVA_CURSOR;
+/
+-- #df:end#
+
+
+create type CELINE_JAVA_BEAN as object (
+  FOO_ID        NUMBER(8),
+  FOO_NAME      VARCHAR2(20),
+  FOO_DECIMAL   NUMBER(5, 3),
+  FOO_DATE      DATE,
+  FOO_TIMESTAMP TIMESTAMP(3),
+  FOO_CLOB      CLOB
+);
+
+create type CELINE_JAVA_TABLE is table of CELINE_JAVA_BEAN;
+
+-- #df:begin#
+create or replace procedure SP_CELINE_STRUCT(
+  v_in_list in CELINE_JAVA_TABLE
+  , v_out_bean out CELINE_JAVA_TABLE
+) as
+begin
+  v_out_bean := v_in_list;
+end SP_CELINE_STRUCT;
+/
+-- #df:end#
+
+
+// STRUCT型引数のストアドプロシージャの実行
+public void test_demo() throws Exception {
+    SpCelineStructPmb pmb = new SpCelineStructPmb();
+    List<CelineJavaBean> vInList = new ArrayList<CelineJavaBean>();
+    {
+        CelineJavaBean bean = new CelineJavaBean();
+        bean.setFooDate(currentDate());
+        vInList.add(bean);
+    }
+    pmb.setVInList(vInList);
+
+    memberBhv.outsideSql().call(pmb);
+
+    List<CelineJavaBean> vOutBeanList = pmb.getVOutBean();
+    for (CelineJavaBean bean : vOutBeanList) {
+        log(bean.getFooDate());
+    }
+}

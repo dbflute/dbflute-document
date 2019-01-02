@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,PKの抽象化,主キーの抽象化,acceptPrimaryKey,addOrderBy_PK" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CB - PrimaryKeyAbstraction | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CB - PrimaryKeyAbstraction</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		ConditionBeanには、複合主キーのデメリットを最小限抑えるために、PKの抽象実装(PKの抽象化)ができるようなメソッドが用意されています。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/deprecatedfit/compoundprimarykey/index.html">複合主キーの対策</a></div>
+
+	<h2 id="equal">PKの等値条件</h2>
+	<p>
+		PKによる等値条件のメソッドです。
+	</p>
+<pre><span class="codetitle">e.g. PKを抽象的に扱って一件検索 @Java</span><code>
+FooCB cb = <span class="keyword">new</span> FooCB();
+cb.<span class="point">acceptPrimaryKey</span>(<span class="literal">"firstPK"</span>, <span class="literal">2</span>, <span class="literal">"thirdPK"</span>, <span class="literal">44</span>);
+
+<span class="comment">// ※以下と同義</span>
+<span class="comment">// cb.query().setFirstPk_equal("firstPK");</span>
+<span class="comment">// cb.query().setSecondPk_equal(2);</span>
+<span class="comment">// cb.query().setThirdPk_equal("thirdPK");</span>
+<span class="comment">// cb.query().setFourthPk_equal(44);</span>
+</code></pre>
+	<p>
+		メソッドの補完で複合PKの構成要素に対応する引数が並びますので、条件落ちは比較的抑えやすいでしょう。
+		また、構成要素に追加があった場合、このメソッド呼び出しはコンパイルエラーになるので、影響範囲を特定することができ、修正漏れを防げます。
+	</p>
+	<h3 id="abstractequal">抽象実装上でのPKの等値条件</h3>
+	<p>
+		似たようなメソッドで、acceptPrimaryKeyMap() というものもあります。
+		こちらは、インターフェースディスパッチが可能なもので、(テーブルを抽象化した)抽象実装上でもPKの等値条件が利用しやすいようになっています。
+	</p>
+	<div class="detailpage"><a href="./interfacedispatch.html#pkdispatch">InterfaceDispatch - PKを抽象的に扱うメソッド</a></div>
+
+	<h2 id="order">PKで並べる</h2>
+	<p>
+		PKによるソート条件のメソッドです。
+	</p>
+<pre><span class="codetitle">e.g. PKを抽象的に扱って一件検索 @Java</span><code>
+FooCB cb = <span class="keyword">new</span> FooCB();
+cb.<span class="point">addOrderBy_PK_Asc()</span>;
+
+<span class="comment">// ※以下と同義</span>
+<span class="comment">// cb.query().addOrderBy_FirstPk_Asc();</span>
+<span class="comment">// cb.query().addOrderBy_SecondPk_Asc();</span>
+<span class="comment">// cb.query().addOrderBy_ThirdPk_Asc();</span>
+<span class="comment">// cb.query().addOrderBy_FourthPk_Asc();</span>
+</code></pre>
+
+	<h2 id="other">他のクラスでのPK抽象化</h2>
+	<p>
+		Behavior や Entity でも同じくPKを抽象化するメソッドが用意されています。
+	</p>
+	<ul>
+		<li>Entity.hasPrimaryKeyValue()</li>
+		<li>Behavior.selectByPKValue(pk)</li>
+		<li>Behavior.selectByPKValueWithDeletedCheck(pk)</li>
+	</ul>
+	<div class="relatedpage"><a href="../../entity/index.html#pkabstraction">Entity - PKの抽象化</a></div>
+	<div class="relatedpage"><a href="../../behavior/select/selectbypkvalue.html">Behavior - selectByPKValue(pk)</a></div>
+	<div class="relatedpage"><a href="../../behavior/select/selectbypkvaluewithdeletedcheck.html">Behavior - selectByPKValueWithDeletedCheck(pk)</a></div>
+<!-- __content-end__ --></div></div>
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

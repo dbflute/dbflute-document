@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,UTFlute,JUnit,単体テスト,UnitTest" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>UTFluteのセットアップ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>UTFluteのセットアップ</h1>
+	<p>
+		DBFluteプロジェクトが提供するライブラリ UTFlute のセットアップのページ。
+	</p>
+	<div class="relatedpage"><a href="./index.html">UTFlute</a></div>
+	${indexlist}
+
+	<h2 id="junit">JUnit の jar は 3 でも 4 でも</h2>
+	<p>
+		UTFlute は、JUnit3 方式を採用しています。 
+	</p>
+	<p>
+		ですが、利用する Junit のバージョンは 3 でも 4 でもどちらでも構いません。
+		<span class="frm">(JUnit4 でも、JUnit3 の TestCase クラスが同梱されているので)</span>
+	</p>
+
+	<h2 id="mavenifdi">dependencyの設定 <span class="frm">(DI利用想定)</span></h2>
+	<p>
+		Maven の pom.xml に、利用するDIコンテナに対応する UTFlute を指定します。
+	</p>
+	<h3 id="11xdep">DBFlute-1.1.x対応のDependency</h3>
+<pre><span class="codetitle">e.g. LastaFluteを使っている場合の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;<span class="literal">org.dbflute.utflute</span>&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="point">utflute-lastaflute</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.7.4</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. Springを使っている場合の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;<span class="literal">org.dbflute.utflute</span>&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="point">utflute-spring</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.7.4</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. Guiceを使っている場合の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;<span class="literal">org.dbflute.utflute</span>&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="point">utflute-guice</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.7.4</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. Seasarを使っている場合の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;<span class="literal">org.dbflute.utflute</span>&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="point">utflute-seasar</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.7.4</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+	<p>
+		Maven の repository は、DBFlute Runtime と同じです。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/runtime.html#repository">DBFluteランタイムの準備 - repositoryの定義</a></div>
+	<h3 id="webdep">web対応のDependency</h3>
+	<p>
+		さらに、HttpServlet の Mock を利用したい場合は、Spring と Guice に関しては "-web" を付けます。
+		<span class="frm">(Seasarは、そもそも Servlet への依存を持っていて、"-web" なしでも Mock が利用できます)</span>
+	</p>
+<pre><span class="codetitle">e.g. Springと Web Mock の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.dbflute.utflute&lt;/groupId&gt;
+      &lt;artifactId&gt;utflute-spring<span class="point">-web</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.7.4</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. Guiceと Web Mock の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.dbflute.utflute&lt;/groupId&gt;
+      &lt;artifactId&gt;utflute-guice<span class="point">-web</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.7.4</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+	<p>
+		DIコンテナを使わず、UTFluteをPlainに使うのであれば、utflute-coreを指定します。
+	</p>
+	<div class="detailpage"><a href="#plainuse">this - Plainに使うなら</a></div>
+
+	<h2 id="implready">実装環境の準備 <span class="frm">(DI利用想定)</span></h2>
+	<h3 id="extends">スーパークラスの作成と継承</h3>
+	<p>
+		ContainerTestCase というクラスが用意されています。DIコンテナを利用するテストケースでは、このクラスを継承します。
+		こうすることで、テストケース起動時にDIコンテナが起動して、inject()が利用できるようになります。<span class="frm">(後述のDI設定が必要です)</span>
+	</p>
+	<p>
+		そのプロジェクト独自に、設定や挙動を変更するために、ContainerTestCaseを継承したプロジェクト独自のスーパークラスを用意することが推奨されます。
+		例えば、UnitContainerTestCase, Unit[プロジェクト名]ContainerTestCase というような名前が習慣です。
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスを作成、DI設定を変えたり @Java</span><code>
+<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> <span class="point">ContainerTestCase</span> {
+
+    @Override
+    <span class="keyword">protected</span> String prepareConfigFile() { <span class="comment">// これは Seasar の場合</span>
+        <span class="keyword">return</span> <span class="literal">"test_app.dicon"</span>; <span class="comment">// テスト用のdiconを読み込むように変更</span>
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. ContainerTestCaseを継承してDIを利用できるように @Java</span><code>
+<span class="keyword">public class</span> FooActionTest <span class="keyword">extends</span> <span class="point">UnitContainerTestCase</span> {
+
+    <span class="keyword">public void</span> test_index_basic() {
+        <span class="comment">// ## Arrange ##</span>
+        FooAction action = <span class="keyword">new</span> FooAction();
+        <span class="point">inject</span>(action); <span class="comment">// 起動したDIコンテナを利用してDIする</span>
+
+        <span class="comment">// ## Act ##</span>
+        action.index();
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
+		DIコンテナを利用しないテストケースでは、PlainTestCase というスーパークラスが用意されています。UTFluteの便利なメソッドが利用できるようになります。
+		<span class="frm">(ContainerTestCaseも、これを継承しています)</span>
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスを継承してテストケースを書く @Java</span><code>
+<span class="keyword">public class</span> FooActionTest <span class="keyword">extends</span> <span class="point">PlainTestCase</span> {
+
+    <span class="keyword">public void</span> test_index_basic() {
+        cannonball(<span class="abbreviation">...</span>); <span class="comment">// マルチスレッドのテストなど</span>
+    }
+}
+</code></pre>
+	<h3 id="dispring">SpringのDI設定</h3>
+	<p>
+		Springにおいては、デフォルトで beanRefContext.xml を読み込みますが、SpringBootなどの環境であれば、
+		<em class="keyword">provideDefaultApplicationContext()</em> をオーバーライドして、アプリの JavaConfig を読み込むと良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスでDI設定を変える (Spring) @Java</span><code>
+<span class="comment">/**
+ * The test case with container for unit test.
+ * @author jflute
+ */</span>
+<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> ContainerTestCase {
+
+    <span class="comment">// ===================================================================================
+    //                                                                            Settings
+    //                                                                            ========</span>
+    @Override
+    <span class="keyword">protected</span> ApplicationContext provideDefaultApplicationContext() {
+        List&lt;Class&lt;?&gt;&gt; configList = DfCollectionUtil.newArrayList();
+        configList.add(JdbcBeansJavaConfig.<span class="keyword">class</span>);
+        configList.add(DBFluteBeansJavaConfig.<span class="keyword">class</span>);
+        readyConfigs(configList);
+        return new AnnotationConfigApplicationContext(configList.toArray(<span class="keyword">new</span> Class&lt;?&gt;[] {}));
+    }
+
+    <span class="comment">/**
+     * Ready configurations of your unit test. &lt;br&gt;
+     * You can add your own configurations. &lt;br&gt;
+     * (several configurations are already registered as default)
+     * @param configList The list of java configuration type for Spring Framework. (NotNull, Mutable)
+     */</span>
+    <span class="keyword">protected void</span> readyConfigs(List&lt;Class&lt;?&gt;&gt; configList) { // you can override
+    }
+}
+</code></pre>
+	<p>
+		UTFluteは、DIコンテナ起動時はデータベースとトランザクションを利用することが前提です。
+		読み込んだ XML にて、javax.sql.DataSource と (Springの) PlatformTransactionManager
+		がDIできる必要があります。
+	</p>
+	<p>
+		dbflute-example-on-springboot が参考になります。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-on-springboot">dbflute-example-on-springboot | Github</a></div>
+	<h3 id="diguice">GuiceのDI設定</h3>
+	<p>
+		Guiceにおいては、デフォルトでは何も読み込みません。
+	</p>
+	<p>
+		prepareModuleList() メソッドをオーバーライドして、UTFlute に Module をプッシュします。
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスでDI設定を指定する (Guice) @Java</span><code>
+<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> <span class="point">ContainerTestCase</span> {
+
+    @Override
+    <span class="keyword">protected</span> List&lt;Module&gt; prepareModuleList() {
+        DataSource dataSource = createDataSource();
+        List&lt;Module&gt; moduleList = <span class="keyword">new</span> ArrayList&lt;Module&gt;();
+        moduleList.add(<span class="keyword">new</span> DBFluteModule(dataSource));
+        moduleList.add(createTransactionModule(dataSource));
+        return moduleList;
+    }
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		UTFluteは、DIコンテナ起動時はデータベースとトランザクションを利用することが前提です。
+		読み込んだ Module にて、javax.sql.DataSource と TransactionManager
+		がDIできる必要があります。
+	</p>
+	<p>
+		dbflute-guice-example が参考になります。
+	</p>
+	<div class="detailpage"><a href="../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+	<h3 id="diseasar">SeasarのDI設定</h3>
+	<p>
+		UTFluteは、DIコンテナを起動してテストケースを実行することをメインにしたツールですので、DIコンテナを起動する必要があります。
+	</p>
+	<p>
+		Seasarにおいては、デフォルトで <em class="keyword">app.dicon</em> を読み込みます。
+	</p>
+	<p>
+		もし、テスト用の dicon を利用したい場合は、prepareConfigFile()
+		メソッドをオーバーライドして、UTFluteが読み込むDIファイルを差し替えることができます。
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスでDI設定を変える (Seasar) @Java</span><code>
+<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> <span class="point">ContainerTestCase</span> {
+
+    @Override
+    <span class="keyword">protected</span> String prepareConfigFile() {
+        <span class="keyword">return</span> <span class="literal">"test_app.dicon"</span>; <span class="comment">// テスト用のdiconを読み込むように変更</span>
+    }
+}
+</code></pre>
+	<p>
+		UTFluteは、DIコンテナ起動時はデータベースとトランザクションを利用することが前提です。
+		読み込んだ dicon ファイルにて、javax.sql.DataSource と javax.transaction.TransactionManager がDIできる必要があります。
+		つまり、jdbc.diconが読み込まれていればOKです。
+	</p>
+	<p>
+		dbflute-seasar-example が参考になります。
+	</p>
+	<div class="detailpage"><a href="../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+
+	<h2 id="plainuse">Plainに使うなら <span class="frm">(DIコンテナ利用なし)</span></h2>
+	<p>
+		DIコンテナは使わないプロジェクトで、UTFluteを単なるテスト支援ツールとして利用するのであれば、utflute-coreを指定します。
+	</p>
+<pre><span class="codetitle">e.g. plainな使い方をするときの UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.dbflute.utflute&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="point">utflute-core</span>&lt;/artifactId&gt;
+      &lt;version&gt;0.7.4&lt;/version&gt;
+    &lt;/dependency&gt;
+</code></pre>
+	<p>
+		そして、PlainTestCase を継承してテストケースを作成します。
+	</p>
+	<p>
+		DIコンテナやトランザクション処理に依存していない、markHere() や cannonball(), projectA(),
+		policeStoryOf...() などの機能が利用できます。
+	</p>
+<pre><span class="codetitle">e.g. PlainTestCaseを継承して、plainな機能を使う @Java</span><code>
+<span class="keyword">public class</span> FooTest <span class="keyword">extends</span> <span class="point">PlainTestCase</span> {
+
+    <span class="keyword">public void</span> test_demo() { <span class="comment">// メソッド名が test で始まること</span>
+        markHere(<span class="literal">"called"</span>);
+        assertMarked(<span class="literal">"called"</span>);
+        
+        cannonball(<span class="abbreviation">...</span>);
+        policeStoryOf<span class="abbreviation">...</span>(<span class="abbreviation">...</span>);
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
+		そもそも、DIコンテナ利用の ContainerTestCase は、この PlainTestCase
+		を継承しています。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

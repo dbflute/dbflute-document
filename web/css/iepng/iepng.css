@@ -1,0 +1,1 @@
+@charset "UTF-8";/*#container, #mainbar, #header, #content, #footer, #header div.navi-main, #sidebar ul a, #sidebar ul ul a, #sidebar ul a:hover, #sidebar ul ul a:hover, #sidebar ul ul li.upper-space,#sidebar div.logo img {	behavior: url("/css/iepng/iepngfix.htc");}*/div, img, a, li, span {	behavior: url("/css/iepng/iepngfix.htc");}

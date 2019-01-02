@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>JSON API, Failure統一クライアントメッセージ | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>JSON API, Failure統一クライアントメッセージ</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<p>
+		jfluteもまだまだ研究中のテーマなので、何か要因が見つかれば随時更新していきます。
+	</p>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		JSONデザインとして、以下を採用したときのパターンを <em class="mark">ふぇいくらパターン</em>
+		と呼んでいます。
+	</p>
+	<ul>
+		<li><a href="./jsondesign.html#jsonerrorexp">B. エラー表現: Failure統一パターン</a></li>
+		<li><a href="./jsondesign.html#messagemanage">E. メッセージ管理: クライアントメッセージ管理</a></li>
+	</ul>
+	<div class="relatedpage"><a href="./jsondesign.html">JSON APIのJSONデザイン</a></div>
+	<p>
+		よく見かけるやり方でありながら、よく考えてデザインしてクライアントと共有しないと、"へんてこりん"
+		になりがちで、LastaFluteでも少し実装に工夫が必要なので、ここで特集して紹介します。
+	</p>
+	<p>
+		もし、このパターンを採用しているのであれば、具体的な "JSONや形" や "LastaFluteでの実装" の参考にと。
+		もちろん、必ずしもこのページの通りではなくても良いです。思想の共有になればと。
+	</p>
+	<p>
+		基本的には、"特定クライアント向けAPI" を想定しています。
+	</p>
+
+	<h2 id="jsonstyle">戻す JSON のかたち</h2>
+	<p>
+		以下のような JSON を戻します。<span class="frm">(名前や構造などは、必ずしも一致しなくてもOKです)</span>
+	</p>
+<pre><span class="codetitle">e.g. "ふぇいくらパターン" で、バリデーションエラーのとき @Json</span><code>
+{
+    <span class="comment">// Failureの原因</span>
+    <span class="localvar">"cause"</span> : <span class="literal">(VALIDATION_ERROR or BUSINESS_ERROR
+            or CLIENT_ERROR or SERVER_ERROR)</span>
+
+    <span class="comment">// エラーの詳細</span>
+    , <span class="localvar">"errors"</span> : [{
+         , <span class="localvar">"field"</span> : <span class="literal">(受け取ったJSON項目名、階層表示あり e.g. product_name)</span>
+         , <span class="localvar">"code"</span> : <span class="literal">(エラーチェックの種別を示すコード e.g. REQUIRED, MAX など)</span>
+         , <span class="localvar">"data"</span> : <span class="literal">(チェックに関連するデータ、長さチェックの最大長など
+                  e.g. min : "20", max : "50")</span>
+    }, {
+        <span class="abbreviation">...</span>
+    }]
+}
+</code></pre>
+	<p>
+		そして、それを受け取るクライアントサイドでの実装イメージです。
+	</p>
+<pre><span class="codetitle">e.g. Failure統一パターンでのクライアントサイドのJSONパースの共通部品での実装イメージ @Java?</span><code>
+<span class="keyword">if</span> (HTTP Status: <span class="literal">200</span>) { <span class="comment">// success</span>
+    XxxJsonResult <span class="localvar">result</span> = parseJsonAsSuccess(<span class="localvar">response</span>);
+    <span class="comment">// do process per action</span>
+    <span class="abbreviation">...</span>
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">400</span>) { <span class="comment">// e.g. validation error, application exception, client exception</span>
+    FailureResult <span class="localvar">result</span> = parseJsonAsFailure(<span class="localvar">response</span>);
+    <span class="comment">// show result.errors or do process per result.cause</span>
+    <span class="abbreviation">...</span>
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">404</span>) { <span class="comment">// e.g. real not found, invalid parameter</span>
+    showNotFoundError();
+} <span class="keyword">else</span> { <span class="comment">// basically 500 or other client errors</span>
+    showSystemError();
+}
+</code></pre>
+
+	<h2 id="vlerror">バリデーションエラーのJSON</h2>
+	<ul>
+		<li>field は、ユニークとは限らない (一つの項目で二つエラーになり得るため)</li>
+		<li>field は、階層構造を表現 (受け取ったJSONの階層構造をドット区切りで表現)</li>
+		<li>code は、チェック処理の種別ごとで、基本的にValidatorアノテーションごと</li>
+		<li>data は、チェック処理で使った定義値など (メッセージに埋め込まれることを想定)</li>
+	</ul>
+<pre><span class="codetitle">e.g. "ふぇいくらパターン" で、バリデーションエラーのとき @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"VALIDATION_ERROR"</span>
+    , <span class="localvar">"errors"</span> : [{
+         , <span class="localvar">"field"</span> : <span class="literal">"product_name"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"REQUIRED"</span>
+         , <span class="localvar">"data"</span> : {}
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"product_count"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"MAX"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">max</span> : <span class="literal">"100"</span> } <span class="comment">// 数値の最大値</span>
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"member.email"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"LENGTH"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">min</span> : <span class="literal">"20"</span>, <span class="localvar">max</span> : <span class="literal">"50"</span> } <span class="comment">// 文字列の最大長</span>
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"member.email"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"EMAIL"</span>
+         , <span class="localvar">"data"</span> : {}
+    }]
+}
+</code></pre>
+
+	<h2 id="bizerror">ビジネスエラーのJSON <span class="frm">(業務例外)</span></h2>
+	<p>
+		ここで言うビジネスエラーとは、業務例外によって処理が中断された状態を表します。
+	</p>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html#bizhandling">業務例外ハンドリング</a></div>
+	<ul>
+		<li>field は、_global 固定 (特定の項目がないため) (LastaFluteのデフォルト)</li>
+		<li>code は、業務例外の種別を特定</li>
+		<li>data は、基本的に使うことはないが、必要なこともあるかもしれないので</li>
+	</ul>
+<pre><span class="codetitle">e.g. "ふぁいくらパターン" で、業務例外のとき @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"BUSINESS_ERROR"</span>
+    , <span class="localvar">"errors"</span> : [{
+         , <span class="localvar">"field"</span> : <span class="literal">"_global"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"ALREADY_DELETED"</span>
+         , <span class="localvar">"data"</span> : {}
+    }]
+}
+</code></pre>
+	<p>
+		cause が直接 ALREADY_DELETED
+		になるやり方もあり得ますが、フラット構造になってしまってクライアントサイドが分岐をしづらいかもしれませんし、data
+		をどうやって渡すかを工夫しないといけないでしょう。
+	</p>
+	<p>
+		field の _global は、実質クライアントは見ないかもしれません。BUSINESS_ERROR
+		だったら、特定の項目に対するメッセージじゃないって割り切った判断をするかもしれませんので。
+		万が一、項目特化の業務例外があったときのためのものです。
+	</p>
+	<p>
+		ちなみに業務例外の粒度ですが、これは "ふぇいくらパターン" に限らず、例外ハンドリングの "一件検索でデータ無かったとき"
+		のページを参考に。
+	</p>
+	<div class="detailpage"><a href="../architecture/exceptionhandling.html#selectentitynodata">開拓の例外ハンドリング - 一件検索でデータ無かったとき</a></div>
+
+	<h2 id="clienterror">クライアントエラーのJSON <span class="frm">(クライアント例外)</span></h2>
+	<p>
+		ここで言うクライアントエラーとは、クライアント例外によって処理が中断された状態を表します。
+	</p>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html#clihandling">クライアント例外ハンドリング</a></div>
+	<p>
+		基本的には、クライアントエラーはクライアントにとっての不具合なので、発生したらサーバーサイドのログを見て状況を把握してクライアントプログラムを修正します。
+		<span class="frm">(HTTPステータスが 400, 403, 404 の違いで若干状況は把握できますが、あまりデバッグとしてはそこまで重要ではないでしょう)</span>
+	</p>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html#clihandling">クライアント例外ハンドリング</a></div>
+	<p>
+		ゆえに、クライアント例外は、多くのケースでメッセージを必要としないので errors は空っぽです。
+		<span class="frm">(ただ、必要であればビジネスエラーのときと同じようにerrorsに何か入れても良いでしょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. クライアント例外のとき @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"CLIENT_ERROR"</span>
+    , <span class="localvar">"errors"</span> : []
+}
+</code></pre>
+
+	<h2 id="servererror">サーバーエラーのJSON <span class="frm">(システム例外)</span></h2>
+	<p>
+		ここで言うサーバーエラーとは、システム例外によって処理が中断された状態を表します。
+	</p>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html#syshandling">システム例外ハンドリング</a></div>
+	<p>
+		基本的に、サーバーエラーはクライアントとしてはどうにもならないので、単に判断ができるだけで問題ないでしょう。
+		HTTPステータスが500になるので、なので実質的にJSON自体は不要であると考えられますが、念のため同じ形で戻せるようにしても良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. サーバーエラーのとき @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"SERVER_ERROR"</span>
+    , <span class="localvar">"errors"</span> : []
+}
+</code></pre>
+
+	<h2 id="lasta">LastaFluteでの実装</h2>
+	<h3 id="faiexample">Failure統一パターンは、Exampleと同じ</h3>
+	<p>
+		このページで紹介したパターンを、そのまま Example で実装しています。Maihamaプロジェクトの Hangar アプリがそれになります。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/tree/master/maihama-hangar">maihama-hangar | Github</a></div>
+	<p>
+		全く同じ構造なのであれば、コピーして名前の微調整だけで動く可能性もあります。"Hangar" の部分はアプリの名前に適切に変えていきましょう。
+		ただ、(念のため、当然のことですが)しっかり理解をしてテストもしましょう。
+	</p>
+	<h3 id="laerrors">errorsの実装をどうしよう？</h3>
+	<p>
+		errors.code や errors.data をどうやって定義して取得するか？ここが実装のポイントとなります。 
+	</p>
+	<p>
+		というのは、Hibernate Validator からは、REQUIRED や MAX などの種別情報は取得できず、[app]_message.properties
+		のメッセージしか取得できないからです。<span class="frm">(constraints.Required.message ではなく、"is required" しか取得できない)</span>
+	</p>
+	<p>
+		なので、[app]_message.properties にて、自然言語のメッセージをやめて、種別情報とチェック関連の値を定義し、
+		ApiFailureHookにて、この "メッセージ" (errors.code, errors.data) をパースして、JSON Result
+		に設定するロジックを実装しましょう。
+	</p>
+	<h3 id="lamessages">[app]_message.propertiesの整備</h3>
+	<p>
+		Exampleはこちら:
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-hangar/src/main/resources/showbase_message.properties">showbase_message.properties | Github</a></div>
+	<h4>バリデーションエラーのメッセージ</h4>
+	<p>
+		バリデーションメッセージを、このように修正します。
+	</p>
+<pre><span class="codetitle">e.g. "ふぁいくらパターン" のために [app]_message.properties のバリデーションメッセージを修正 @Properties</span><code>
+<span class="comment"># (key of message) = (errors.code, errors.data)</span>
+<span class="abbreviation">...</span>
+constraints.Max.message = <span class="literal">MAX | max:{value}</span>
+constraints.Min.message = <span class="literal">MIN | min:{value}</span>
+<span class="abbreviation">...</span>
+constraints.Length.message = <span class="literal">LENGTH | min:{min}, max:{max}</span>
+<span class="abbreviation">...</span>
+constraints.Required.message = <span class="literal">REQUIRED</span>
+constraints.TypeAny.message = <span class="literal">TYPE_ANY | type:"{propertyType}"</span>
+constraints.TypeInteger.message = <span class="literal">TYPE_NUMBER</span> <span class="comment">// これ新しく追加</span>
+constraints.TypeLong.message = <span class="literal">TYPE_NUMBER</span> <span class="comment">// これ新しく追加</span>
+constraints.TypeLocalDate.message = <span class="literal">TYPE_DATE</span> <span class="comment">// これ新しく追加</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		データ型変換エラーで、Integer や LocalDate など Java に依存した値を戻しても良くないので、
+		必要に応じて、TypeInteger, TypeLocalDate などのメッセージを追加すると良いでしょう。
+		<span class="frm">(TypeAnyは、データ型変換エラーのデフォルトのメッセージという扱い)</span>
+	</p>
+	<p>
+		バリデーションエラーの種別 (Required, Max など) と、errros.code
+		は必ずしも同じ値でしなくても良いですが、基本的には合わせておいたほうが間違いは少ないでしょう。
+		ただ、Integer か Long や LocalDate をクライアントに意識させる必要もないので、TYPE_NUMBER や TYPE_DATE
+		という風に少し翻訳しています。
+	</p>
+	<h4>業務例外のメッセージ</h4>
+	<p>
+		そして、業務例外 (BUSINESS_ERROR) の方です。プロパティの追加もあります。
+	</p>
+<pre><span class="codetitle">e.g. "ふぁいくらパターン" のために [app]_message.properties の業務例外メッセージを修正 @Properties</span><code>
+<span class="abbreviation">...</span>
+<span class="comment"># ----------------------------------------------------------</span>
+<span class="comment">#                                      Application Exception</span>
+<span class="comment">#                                      ---------------------</span>
+<span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
+<span class="comment"># six framework-embedded messages (don't change key names)</span>
+<span class="comment"># - - - - - - - - - -/</span>
+errors.login.failure=<span class="literal">LOGIN_FAILURE</span>
+errors.app.illegal.transition=<span class="literal">ILLEGAL_TRANSITION</span>
+errors.app.db.already.deleted=<span class="literal">ALREADY_DELETED</span>
+errors.app.db.already.updated=<span class="literal">ALREADY_UPDATED</span>
+errors.app.db.already.exists=<span class="literal">ALREADY_EXISTS</span>
+errors.app.double.submit.request=<span class="literal">DOUBLE_SUBMIT</span>
+
+
+<span class="comment"># _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment"># you can define your messages here:</span>
+<span class="comment"># e.g.</span>
+<span class="comment">#  errors.xxx = ...</span>
+<span class="comment">#  info.xxx = ...</span>
+<span class="comment"># _/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment"># ========================================================================================</span>
+<span class="comment">#                                                                                  General</span>
+<span class="comment">#                                                                                  =======</span>
+<span class="comment"># ----------------------------------------------------------</span>
+<span class="comment">#                                      Application Validator</span>
+<span class="comment">#                                      ---------------------</span>
+<span class="comment"># e.g. </span>
+<span class="comment">#  org.docksidestage.validator.constraints.SeaLand.message = SEA_LAND</span>
+
+<span class="comment"># ----------------------------------------------------------</span>
+<span class="comment">#                                      Application Exceptionv
+<span class="comment">#                                      ---------------------</span>
+<span class="comment"># framework does not have own message so define here, used in your ApiFailureHook</span>
+<span class="subpoint">errors.login.required</span>=<span class="literal">LOGIN_REQUIRED</span>
+
+<span class="comment"># for no-message application exception, basically should not be used</span>
+<span class="subpoint">errors.unknown.business.error</span>=<span class="literal">UNKNOWN_BUSINESS_ERROR</span>
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h4>FreeGenを叩きましょう</h4>
+	<p>
+		この後、ApiFailureHookで追加されたプロパティなどを利用するので、FreeGenを叩きましょう。
+	</p>
+	<h3 id="lafailurehook">ApiFailureHookの実装</h3>
+	<h4>もう、Exampleをがっつり読んでください</h4>
+	<p>
+		Exampleはこちら:
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-hangar/src/main/java/org/docksidestage/mylasta/direction/sponsor/HangarApiFailureHook.java">HangarApiFailureHook.java | Github</a></div>
+	<div class="relatedpage"><a href="../action/apifailure.html">忘れられないApiFailureHook</a></div>
+	<h3 id="lacommonorapp">commonか？appか？</h4>
+	<p>
+		Exampleは、マルチプロジェクトの中の一つのアプリプロジェクトだけが "ふぁいくらパターン"
+		なので、すべてのプロパティを怒涛の @Override でオーバーライドしています。もし、すべてのアプリプロジェクトで "ふぁいくらパターン"
+		なのであれば、これら修正は common でも良いでしょう。
+	</p>
+	<h3 id="filtervalues">[App]BaseActionでfilterも実装</h3>
+	<p>
+		細かいですが、[App]BaseAction にて filterApplicationExceptionMessageValues()
+		をオーバーライドし、業務例外のメッセージの values を JSON として展開する必要があります。
+		<span class="frm">(業務例外で values を使うときだけの処理ではありますが)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-hangar/src/main/java/org/docksidestage/app/web/base/HangarBaseAction.java#L64">HangarBaseAction.java | Github</a></div>
+	<h3 id="lacliimpl">クライアントエラーの実装は？ <span class="frm">(クライアント例外)</span></h3>
+	<h4>ApiFailureHookにて</h4>
+	<p>
+		causeだけを CLIENT_ERROR にして、errorsの実装は実質的にビジネスエラー(業務例外)と同じで良いでしょう。メッセージがあればが設定されるし、なければ空っぽになるだけなので。
+	</p>
+	<h4>web.xmlにて最後の砦JSON</h4>
+	<p>
+		もし、アプリケーションサーバー (e.g Tomcat) レベルの 404 なども JSON
+		でしっかり戻すのであれば、web.xml にて定義されている 400.html, 404.html などを <em class="mark">400.json, 404.json</em>
+		に変更して、アプリが戻すクライアント例外のJSONと一致する固定のJSONを定義しておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/tree/master/maihama-hangar/src/main/webapp/error">src/main/webapp/error | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-hangar/src/main/webapp/WEB-INF/web.xml">webapp/WEB-INF/web.xml | Github</a></div>
+	<p>
+		ただし、そのアプリが純粋な JSON API ではなく、サーバーサイドHTMLも混じっているのであれば、この技は使えないです。
+		とはいえ、その場合だとなおさら、あまりクライアントがクライアントエラーを詳細にハンドリングする必要もないので、特に問題はないと想定されます。
+	</p>
+	<h3 id="laserverimpl">サーバーエラーの実装は？ <span class="frm">(システム例外)</span></h3>
+	<h4>ApiFailureHookにて</h4>
+	<p>
+		errors に何か設定することはないので、ApiFailureHook
+		では何もせず<span class="frm">(OptionalThing.empty()を戻す)</span>、web.xml
+		の設定に任せるで良いでしょう。
+	</p>
+	<h4>web.xmlにて最後の砦JSON</h4>
+	<p>
+		web.xmlにて定義されている 500.html を <em class="mark">500.json</em> に変更して、アプリが戻すJSONと一致する固定のJSONを定義しておくと良いでしょう。
+	</p>
+	<p>
+		こちらも同様に、そのアプリが純粋な JSON API
+		ではなく、サーバーサイドHTMLも混じっているのであれば、この技は使えないですが、そもそもクライアントは、<em class="keyword">HTTPステータスが 500
+		だったら中身も見ずにシステムエラーの処理をするだけ</em> という振舞いが想定されるので、特に問題はないと想定されます。
+	</p>
+
+	<h2 id="faihy">ふぁいはいパターンだと？ <span class="frm">(ハイブリッド)</span></h2>
+	<p>
+		メッセージをハイブリッド方式にした場合は、こんな感じでしょうか。クライアントメッセージ方式のやり方に、単に自然言語のユーザーメッセージを載せるための message を追加しています。
+	</p>
+<pre><span class="codetitle">e.g. "ふぇいはいパターン" で、バリデーションエラーのとき @Json</span><code>
+{
+    <span class="comment">// Failureの原因</span>
+    <span class="localvar">"cause"</span> : <span class="literal">(VALIDATION_ERROR or BUSINESS_ERROR
+            or CLIENT_ERROR or SERVER_ERROR)</span>
+
+    <span class="comment">// エラーの詳細</span>
+    , <span class="localvar">"errors"</span> : [{
+         , <span class="localvar">"field"</span> : <span class="literal">(受け取ったJSON項目名、階層表示あり e.g. product_name)</span>
+         , <span class="localvar">"code"</span> : <span class="literal">(エラーチェックの種別を示すコード e.g. REQUIRED, MAX など)</span>
+         , <span class="localvar">"data"</span> : <span class="literal">(チェックに関連するデータ、長さチェックの最大長など
+                  e.g. min : "20", max : "50")</span>
+         , <span class="point">"message"</span> : <span class="literal">(自然言語のユーザーメッセージ、利用したければどうぞ)</span>
+    }, {
+        <span class="abbreviation">...</span>
+    }]
+}
+</code></pre>
+	<p>
+		Maihama プロジェクトの Showbase アプリにて、Example があります。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/java/org/docksidestage/mylasta/direction/sponsor/ShowbaseApiFailureHook.java">ShowbaseApiFailureHook.java | Github</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

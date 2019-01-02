@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,DBFluteの設定,環境タイプごとのDBFluteプロパティ,environmentType,環境変数,dataLoadingType" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>環境タイプごとの dfprop (DBFlute Environment Type) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>環境タイプごとの dfprop</h1>
+	${indexlist}
+
+	<h2 id="overview">環境タイプによってプロパティ切り替え</h2>
+	<p>
+		例えば、開発環境、結合テスト環境など、環境ごとにDBFluteプロパティの内容を変えて Generate や ReplaceSchema
+		なりを実行したい場合に、<em class="keyword">環境変数でDBFluteの環境タイプ</em>
+		を指定することでDBFluteプロパティを切り替えることができます。
+	</p>
+	<p>
+		また、DBFluteの環境タイプは、同時に ReplaceSchema のデータ登録の切り替えでも利用されます。
+	</p>
+	<div class="relatedpage"><a href="#dataloading">this - ReplaceSchemaでのデータ登録</a></div>
+
+	<h2 id="envvar">環境タイプの設定(環境変数)</h2>
+	<p>
+		DBFluteタスク実行時に有効になるように、環境変数 DBFLUTE_ENVIRONMENT_TYPE
+		を設定します。例えば、結合テスト環境であれば "it" など、開発プロジェクトにおいてわかりやすい任意の値を設定します。 
+	</p>
+	<dl class="valuemainlist">
+		<dt>環境変数</dt><dd>DBFLUTE_ENVIRONMENT_TYPE</dd>
+	</dl>
+<pre><span class="codetitle">e.g. DBFluteの環境タイプ(DBFluteEnvironmentType)を "it" に設定 @sh</span><code>
+<span class="keyword">export</span> DBFLUTE_ENVIRONMENT_TYPE=<span class="literal">it</span>
+</code></pre>
+
+	<h2 id="envprop">環境タイプごとにプロパティを配置</h2>
+	<p>
+		指定された環境タイプ用のDBFluteプロパティは、dfprop ディレクトリ配下に DBFLUTE_ENVIRONMENT_TYPE
+		に設定した値と同じ名前のディレクトリ(環境タイプごとのディレクトリ)を作成し、その配下に切り替えたいDBFluteプロパティだけを配置します。 
+	</p>
+<pre><span class="codetitle">e.g. DBFluteの環境タイプ(DBFluteEnvironmentType)を "it" に設定 @dfprop</span><code>
+dfprop
+ |-it
+ |  |-databaseInfoMap.dfprop            <span class="comment">// 環境タイプ "it" のときに有効</span>
+ |  |-replaceSchemaDefinitionMap.dfprop <span class="comment">// 環境タイプ "it" のときに有効</span>
+ |
+ |-basicInfoMap.dfprop                  <span class="comment">// 共通("it" 配下に同じファイルが存在しないため)</span>
+ |-commonColumnMap.dfprop               <span class="comment">// 共通("it" 配下に同じファイルが存在しないため)</span>
+ |-databaseInfoMap.dfprop               <span class="comment">// 環境タイプが何も設定されなかったときに有効</span>
+ |-replaceSchemaDefinitionMap.dfprop    <span class="comment">// 環境タイプが何も設定されなかったときに有効</span>
+ |-...Map.dfprop
+</code></pre>
+	<p>
+		切り替えは、基本は <em class="keyword">ファイル単位での完全な上書き</em> となります(同じ名前のファイルを配置した場合)。
+		設定次第でマージ(追加・上書き)も利用可能です。
+	</p>
+	<div class="relatedpage"><a href="#propmerge">this - プロパティのマージ</a></div>
+	<p>
+		環境タイプごとのディレクトリ配下に配置されていないDBFluteプロパティは、dfprop
+		ディレクトリ直下のものが有効になります。
+	</p>
+
+	<h2 id="propmerge">プロパティのマージ</h2>
+	<p>
+		ファイル単位での切り替えではなく、メインのDBFluteプロパティを継承し、
+		差分定義だけしておいて個々のプロパティ単位での追加・上書きをすることも可能です。(map型プロパティに限ります)
+	</p>
+	<p>
+		環境タイプのディレクトリ配下のDBFluteプロパティのファイル名を <em class="keyword">[name]+.dfprop</em>
+		とすると、完全切り替えではなく、"+"
+		側に存在するプロパティでメインに存在しないものは追加、存在するものは上書き、というようになります。 
+	</p>
+<pre><span class="codetitle">e.g. DBFluteプロパティの環境タイプによるマージ @dfprop</span><code>
+dfprop
+ |-it
+ |  |-<span class="point">databaseInfoMap+</span>.dfprop            <span class="comment">// "+" を付けてるのでマージ(追加・上書き)</span>
+ |  |-<span class="point">replaceSchemaDefinitionMap+</span>.dfprop <span class="comment">// "+" を付けてるのでマージ(追加・上書き)</span>
+ |  |-allClassCopyright.dfprop           <span class="comment">// map型プロパティじゃないので "+" は利用不可</span>
+ |
+ |-basicInfoMap.dfprop
+ |-commonColumnMap.dfprop
+ |-databaseInfoMap.dfprop               <span class="comment">// it の時も基本プロパティとして評価される</span>
+ |-replaceSchemaDefinitionMap.dfprop    <span class="comment">// it の時も基本プロパティとして評価される</span>
+ |-...Map.dfprop
+</code></pre>
+	<h3 id="mergespec">マージの仕様</h3>
+	<p>
+		map型プロパティの中の <em class="keyword">最初のレベルのプロパティ単位</em> でのマージとなります。
+		例えば、databaseInfoMap.dfprop で言うと、user や password、variousMap などの単位で判定されます。"+"
+		側で variousMap が指定されている場合は、variousMap の中身を丸ごと差し替えます。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteプロパティのマージの単位 @databaseInfoMap+.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># schema = foo       # コメントアウト(定義なし)なのでメインのものが有効</span>
+    ; user = foo         <span class="comment"># user は上書き</span>
+    ; password = foo     <span class="comment"># password は上書き</span>
+    ; variousMap = <span class="keyword">map:</span>{ <span class="comment"># variousMap を丸ごと上書き</span>
+        ; objectTypeTargetList = list:{}
+        ; tableExceptList = list:{} <span class="comment"># このレベルでの細かい上書きはできない</span>
+    }
+}
+</code></pre>
+	<h3 id="neighbor">お隣の+dfprop</h3>
+	<p>
+		"+" のないものと付いてるものが、同じ階層のディレクトリに存在していてもマージ処理はされます。
+	</p>
+<pre><span class="codetitle">e.g. 同じ階層のディレクトリのプロパティのマージ @dfprop</span><code>
+dfprop
+ |-it
+ |  |-databaseInfoMap.dfprop             <span class="comment">// 基本となるプロパティ(マージされる側)</span>
+ |  |-<span class="point">databaseInfoMap+</span>.dfprop            <span class="comment">// 隣の dfprop をマージ(追加・上書き)</span>
+ |  |-<span class="point">outsideSqlDefinitionMap</span>.dfprop     <span class="comment">// it の時評価されるが特にマージされない</span>
+ |
+ |-basicInfoMap.dfprop              <span class="comment">// 常にマージされる側</span>
+ |-<span class="point">basicInfoMap+</span>.dfprop             <span class="comment">// 常にマージ(追加・上書き)する</span>
+ |-databaseInfoMap.dfprop           <span class="comment">// it の時は評価されない</span>
+ |-<span class="point">outsideSqlDefinitionMap+</span>.dfprop  <span class="comment">// 生涯評価されない(同・上位レベルにプロパティがないので)</span>
+</code></pre>
+	<p>
+		なので、厳密に言うと、環境タイプを利用しない場合の構成でもこのマージ機能は利用可能です。
+		その必要性はほぼありませんが、もし、プロパティをツールなどで自動生成するような仕組みを作った場合に、
+		DBFluteプロパティのジェネレーションギャップとして利用することはあるかもしれません。
+	</p>
+	<p>
+		また、環境タイプのディレクトリ配下の "+" のないdfpropでmapが空っぽのときは、完全な上書きになります<span class="frm">(@since 1.0.4F)</span>。
+		ただし、古いバージョンでは、空っぽだとファイルが存在しないのと同様に扱われます<span class="frm">(@until 1.0.4D)</span>。
+	</p>
+
+	<h2 id="envway">環境タイプの設定タイミング</h2>
+	<p>
+		DBFluteタスクの実行時にこの環境変数が有効になるように設定し、設定の仕方は任意でそのとき都合良いやり方で構いません。
+	</p>
+	<h3 id="envcommand">環境ごとのコマンドファイル</h3>
+	<p>
+		例えば、"replace-schema-ut.bat|sh" と "replace-schema-it.bat|sh" というように
+		<em class="keyword">環境ごとにコマンドファイルを用意</em>
+		して、それぞれのコマンドの中で環境変数を定義する。
+		宣言した環境変数が別のDBFluteタスク実行時に有効にならないように、
+		環境変数のスコープに注意して下さい(スコープを限定するコマンドを利用したり、タスク実行後に削除されるようにしたりなど)。
+	</p>
+<pre><span class="codetitle">e.g. コマンドファイルに環境変数を定義 {type=it} @replace-schema-it.bat</span><code>
+<span class="abbreviation">...</span>
+<span class="keyword">setlocal</span>
+%~d0
+<span class="keyword">cd</span> %~p0
+<span class="keyword">call</span> _project.bat
+
+<span class="keyword">set</span> DBFLUTE_ENVIRONMENT_TYPE=<span class="literal">it</span>
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. コマンドファイルに環境変数を定義 {type=it} @replace-schema-it.sh</span><code>
+<span class="comment">#!/bin/sh</span>
+
+<span class="keyword">cd</span> `dirname $0`
+. _project.sh
+
+<span class="keyword">export</span> DBFLUTE_ENVIRONMENT_TYPE=<span class="literal">it</span>
+<span class="abbreviation">...</span>
+<span class="keyword">unset</span> DBFLUTE_ENVIRONMENT_TYPE
+</code></pre>
+	<h3 id="envsystem">システム(ユーザ)の環境変数</h3>
+	<p>
+		ナイトリーテストのサーバや結合テストのサーバなど、サーバの "システム(ユーザ)環境変数"
+		として設定して、それらサーバでの実行時にだけDBFluteプロパティが切り替わるようにする。
+	</p>
+
+	<h2 id="relativeenv">相対パス含み環境タイプ</h2>
+	<p>
+		環境タイプに ../../foo というような相対パス含みの値を指定すると、環境タイプの dfprop の置き場を変更することができます。
+		ただし、repsEnvType に影響してしまうので、その場合は repsEnvType は明示的に設定しておいた方が良いでしょう<span class="frm">(他にも影響があればつどつど明示的に設定していくと良いでしょう)</span>。
+		また、環境タイプを明示的に指定するところでちょっと煩雑な指定になってはしまいます<span class="frm">(checkEnvなど)</span>。
+	</p>
+	<p>
+		相対パス含みの必要性があるかというとめったにないと思われますが、"アプリごとのBehavior" で利用できます。
+	</p>
+	<div class="relatedpage"><a href="#bhvap">this - アプリごとのBehaviorの利用</a></div>
+
+	<h2 id="envtarget">環境タイプのターゲット</h2>
+	<h3 id="dataloading">ReplaceSchemaでのデータ登録</h3>
+	<p>
+		主には、ReplaceSchemaタスクの repsEnvType を切り替えるために利用することが多いでしょう。DBFLUTE_ENVIRONMENT_TYPE
+		が指定されている場合は、repsEnvType のデフォルト値がその環境タイプの値になります。例えば、DBFLUTE_ENVIRONMENT_TYPE で test
+		という値を設定すると、データ登録対象のディレクトリが ut ではなく test になります。(common は常に対象となります)
+	</p>
+	<p>
+		Generate系のタスクにおいて環境ごとにプロパティを切り替える必要性はあまり多くないと考えられますが、
+		ナイトリーサーバで自動生成処理を行うなど自動生成する環境ごとにDBの接続先が変わるような場合はこの環境タイプを利用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../function/generator/task/replaceschema/loaddata.html#repsenvtype">ReplaceSchema - データ登録(repsEnvType)</a></div>
+	<h3 id="bhvap">アプリごとのBehaviorの利用</h3>
+	<p>
+		アプリごとのBehavior、ApplicationBehavior の自動生成の環境を作る際に、この切り替え機能を使うと便利です。ApplicationBehavior のExampleでは実際に利用しています。
+	</p>
+	<div class="relatedpage"><a href="../../function/genbafit/projectfit/applicationbehavior/index.html">現場フィット - アプリごとのBehavior</a></div>
+	<p>
+		また、この環境タイプを "相対パス含み で指定すると、特殊な環境タイプの名前になってはしまいますが環境タイプの dfprop
+		の場所で変更することができます。アプリごとのBehaviorならぬ、アプリごとのdfpropにすることができます<span class="frm">(単に置き場所がそれぞれのアプリに配置するというだけですが)</span>。ただしその場合、repsEnvType
+		に影響してしまうので repsEnvType は明示的に設定しておいた方が良いでしょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

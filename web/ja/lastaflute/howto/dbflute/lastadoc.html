@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Actionのドキュメント自動生成 (LastaDoc) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Actionのドキュメント自動生成 (LastaDoc)</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="lastadoc">LastaDoc</h2>
+	<p>
+		<em class="keyword">クラスを作ればドキュメントができる、クラスを修正すればドキュメントが変わる。</em>
+	</p>
+	<p>
+		UTFluteとFreeGenを合わせて使うことで、URLとActionのマッピング表、そして、Executeメソッド の詳細が HTML
+		のドキュメントとして自動生成されます。
+	</p>
+	<h3 id="howtogen">LastaDocの作り方</h3>
+	<dl class="keymainlist">
+		<dt>1. <em class="bigmark">test_document()</em></dt><dd>[App]LastaDocTest の test_document() を実行 <span class="frm">(JUnit)</span></dd>
+		<dt>2. <em class="bigmark">FreeGen</em> を叩く！</dt><dd>manage.bat|sh にて 12 (freegen) を選択して実行</dd>
+	</dl>
+	<p>
+		すると、<em class="mark">output/lasta</em> 配下に <em class="mark">lastadoc-[app].html</em>
+		が生成されます。
+	</p>
+	<h3 id="actionmapping">URLとActionのマッピング表</h3>
+	<p>
+		URLに対して、どのActionのExecuteメソッドが対応しているかの一覧。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/doc/lastadoc/lastadoc-dockside.html" title="URLとActionのマッピング表"><img src="../../../../data/snapshot/lastaflute/lastaflute-lastadoc-actionmapping-snapshot.png" alt="URLとActionのマッピング表" width="550" height="260" /></a>
+	</p>
+	<h3 id="htmlexecute">Executeメソッドの詳細 <span class="frm">(HTMLスタイル)</span></h3>
+	<p>
+		JavaDoc や Formのプロパティ <span class="frm">(プロパティのコメントやValidatorアノテーション含む)</span>
+		を表示。 
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/lastaflute/lastaflute-LastaDoc-html-execute-snapshot.png" title="HTMLスタイルのExecuteメソッド詳細"><img src="../../../../data/snapshot/lastaflute/lastaflute-lastadoc-html-execute-snapshot.png" alt="HTMLスタイルのExecuteメソッド詳細" width="550" height="220" /></a>
+	</p>
+	<h3 id="jsonexecute">Executeメソッドの詳細 <span class="frm">(JSONスタイル)</span></h3>
+	<p>
+		JavaDoc や Body <span class="frm">(RequestBodyで受け取るJSON)</span>
+		のプロパティ、戻りのJSONのプロパティなど。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/lastaflute/lastaflute-lastadoc-json-execute-snapshot.png" title="JSONスタイルのExecuteメソッド詳細"><img src="../../../../data/snapshot/lastaflute/lastaflute-lastadoc-json-execute-snapshot.png" alt="JSONスタイルのExecuteメソッド詳細" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="point">ポイント</h2>
+	<p>
+		<em class="keyword">そのままフロントエンジニアとのコミュニケーションで使えるドキュメント(を目指す)</em>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

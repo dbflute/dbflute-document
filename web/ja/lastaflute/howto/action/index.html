@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFlute の Action | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute の Action</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="urlmapping">URL Mapping</h2>
+	<p>
+		<em class="keyword">Actionを見れば、URLがおおよそわかる。</em>
+	</p>
+	<h3 id="bigconvention">Mapping Convention <span class="frm">(Big convention)</span></h2>
+	<dl class="valuemainlist">
+		<dt>Request URL</dt><dd><em class="mark">Action</em> class + <em class="mark">Execute</em> method</dd>
+	</dl>
+	<h3 id="mapping">Mapping Example</h2>
+	<dl class="lolongkeymainlist">
+		<dt><em class="bigmark">ProfilePassword</em>Action#<em class="mark">change</em>()</dt>
+		<dd><em class="keyword">/profile/password/change/</em></dd>
+		<dt><em class="bigmark">Product</em>Action#<em class="mark">list</em>()</dt>
+		<dd><em class="keyword">/product/list/</em></dd>
+		<dt><em class="bigmark">ProductList</em>Action#index()</dt>
+		<dd><em class="keyword">/product/list/</em></dd>
+		<dt><em class="bigmark">Mypage</em>Action#index()</dt>
+		<dd><em class="keyword">/mypage/</em></dd>
+		<dt><em class="bigmark">Root</em>Action#index()</dt>
+		<dd><em class="keyword">/ <span class="frm">※Special Action means URL '/'</span></em></dd>
+	</dl>
+	<h3 id="customizeactionmapping">Customize Mapping</h3>
+	<p>
+		You can also customize it...
+	</p>
+	<div class="relatedpage"><a href="./adjustment.html#actionmapping">Actionの調整 - Actionマッピングの調整</a></div>
+
+	<h2 id="actionpackage">Action Package</h2>
+	<p>
+		<em class="keyword">Actionの名前で、置き場所がおおよそわかる。</em>
+	</p>
+	<h3 id="pkgconvention">Package Convention</h3>
+	<dl class="valuemainlist">
+		<dt>Application Package</dt><dd>[your domain].app <span class="frm">e.g. org.docksidestage.app</span></dd>
+		<dt>Web Package</dt><dd>[Application Root].web <span class="frm">e.g. org.docksidestage.app.web</span></dd>
+		<dt>Action's Package</dt><dd>*you can use Action's prefix package</dd>
+	</dl>
+	<h3 id="pkgexample">Package Example</h3>
+	<p>
+		You can choose several pattern like this: e.g. ProfilePasswordAction
+	</p>
+	<ul>
+		<li>[Application Root].web.ProfilePasswordAction#change()</li>
+		<li>[Application Root].web.<em class="smallmark">profile</em>.<em class="mark">Profile</em>PasswordAction#change() <span class="frm">*recommended</span></li>
+		<li>[Application Root].web.<em class="smallmark">profile.password</em>.<em class="mark">ProfilePassword</em>Action#change()</li>
+	</ul>
+<pre><span class="codetitle">e.g. Action Class Package Location @Directory</span><code>
+org.docksidestage
+ |-<span class="point">app</span> <span class="comment">// Application Package</span>
+ |  |-logic
+ |  |-<span class="point">web</span> <span class="comment">// Web Package</span>
+ |     |-product
+ |     |  |-<span class="subpoint">ProductListAction</span>
+ |     |  |-ProductPurchaseAction
+ |     |-profile
+ |     |  |-<span class="subpoint">ProfilePasswordAction</span>
+ |     |  |-ProfileWithdrawalAction
+ |     |-mypage
+ |     |  |-<span class="subpoint">MypageAction</span>
+ |     |-RootAction
+ |-dbflute
+ |  |-allcommon
+ |  |-bsbhv
+ |  |-<span class="abbreviation">...</span>
+ |-mylasta
+ |  |-action
+ |  |-direction
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="actionclass">Action Class</h2>
+	<p>
+		<em class="keyword">INとOUTは、引数と戻り値で。</em>
+	</p>
+	<h3 id="actiondef">Action Defintion</h3>
+	<dl class="valuemainlist">
+		<dt>Super Class</dt><dd>extends [App]BaseAction</dd>
+		<dt>Behavior DI</dt><dd>instance variable with @Resource</dd>
+		<dt>Execute Method</dt><dd>public method with @Execute</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Action Class Definition @Java</span><code>
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> DocksideBaseAction { <span class="comment">// Super Class</span>
+
+    @Resource
+    <span class="keyword">private</span> ProductBhv <span class="attribute">productBhv</span>; <span class="comment">// Behavior DI</span>
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() { <span class="comment">// Execute Method</span>
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<h3 id="pathparam">Path Parameter</h3>
+	<p>
+		e.g. ProductListAction#index()
+	</p>
+<pre><span class="codetitle">e.g. accept Path parameter as required argument @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="point">int pageNumber</span>) { <span class="comment">// /product/list/3</span>
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. accept Path parameter as optional argument @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="point">OptionalThing&lt;Integer&gt; pageNumber</span>) {
+        pageNumber.ifPresent(() -&gt; { <span class="comment">// /product/list/3</span>
+            <span class="abbreviation">...</span>
+        }).orElse(() -&gt; { <span class="comment">// /product/list/</span>
+            <span class="abbreviation">...</span>
+        });
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. accept Path parameter with more URL @Java</span><code>
+    <span class="comment">// /product/list/mystic/piari/oneman/</span> <span class="comment">(sea=mystic, land=oneman)</span>
+    @Execute(<span class="subpoint">urlPattern</span> = <span class="literal">"{}/piari/{}"</span>)
+    <span class="keyword">public</span> HtmlResponse index(<span class="subpoint">String sea, String land</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<p>
+		e.g. ProductListAction#search()
+	</p>
+<pre><span class="codetitle">e.g. switch path variable and method name in URL @Java</span><code>
+    <span class="comment">// /product/list/mystic/search/</span> <span class="comment">(sea=mystic)</span>
+    @Execute(<span class="subpoint">urlPattern</span> = <span class="literal">"{}/@word"</span>)
+    <span class="keyword">public</span> HtmlResponse search(String <span class="localvar">sea</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<p>
+		e.g. ProductListAction#searchShow()
+	</p>
+<pre><span class="codetitle">e.g. switch path variable and method name in URL @Java</span><code>
+    <span class="comment">// /product/list/mystic/search/oneman/show/</span> <span class="comment">(sea=mystic, land=oneman)</span>
+    @Execute(<span class="subpoint">urlPattern</span> = <span class="literal">"{}/@word/{}/@word"</span>)
+    <span class="keyword">public</span> HtmlResponse searchShow(String <span class="localvar">sea</span>, String <span class="localvar">land</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<h3 id="actionform">Action Form <span class="frm">(for POST, GET parameter)</span></h3>
+<pre><span class="codetitle">e.g. accept POST parameter by action form @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse signin(<span class="point">ProductSearchForm form</span>) { <span class="comment">// POST (or also GET)</span>
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. both Path parameter and GET parameter @Java</span><code>
+    <span class="comment">// e.g. /<span class="abbreviation">...</span>/list/3?favoriteCode=sea&nextName=land</span>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="subpoint">int pageNumber</span>, <span class="subpoint">ProductSearchForm form</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<p>
+		You can use Validator Annotation for basic validation. e.g. Required, Max...
+		(then you should call the validate() method in execute method of action)
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html">見通しのValidation</a></div>
+<pre><span class="codetitle">e.g. validator annotation in form @Java</span><code>
+<span class="keyword">public class</span> ProductEditForm {
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+}
+</code></pre>
+	<p>
+		And you can basic native type for bean properties. e.g. Integer, LocalDate, CDef...
+	</p>
+<pre><span class="codetitle">e.g. native type for properties in form @Java</span><code>
+<span class="keyword">public class</span> ProductSearchForm {
+
+    <span class="keyword">public</span> <span class="subpoint">Integer</span> <span class="attribute">productId</span>;
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+    <span class="keyword">public</span> <span class="subpoint">CDef.ProductStatus</span> <span class="attribute">productStatus</span>;
+}
+</code></pre>
+	<h3 id="jsonbody">JSON Body <span class="frm">(for JSON in request body)</span></h3>
+<pre><span class="codetitle">e.g. accept JSON in request body by JSON body @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductBean&gt; index(<span class="point">ProductSearchBody body</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<p>
+		It can be treated as action form, e.g. can use validation, native type properties
+	</p>
+<pre><span class="codetitle">e.g. body for product search @Java</span><code>
+<span class="keyword">public class</span> ProductSearchBody {
+
+    <span class="keyword">public</span> <span class="subpoint">Integer</span> <span class="attribute">productId</span>;
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+    @Required
+    <span class="keyword">public</span> <span class="subpoint">CDef.ProductStatus</span> <span class="attribute">productStatus</span>;
+}
+</code></pre>
+	<h3 id="actionresponse">Action Response</h3>
+	<dl class="valuemainlist">
+		<dt>HtmlResponse</dt><dd>asHtml(path_...) or redirect(...class)</dd>
+		<dt>JsonResponse</dt><dd>asJson(bean)</dd>
+		<dt>StreamResponse</dt><dd>asStream(ins)</dd>
+	</dl>
+<pre><span class="codetitle">e.g. HtmlResponse @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="point">asHtml</span>(<span class="attribute">path_MyPage_MyPageJsp</span>);
+    }
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse doUpdate() {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="point">redirect</span>(MypageAction.<span class="keyword">class</span>);
+    }
+</code></pre>
+	<div class="relatedpage"><a href="./lajsonapi.html">素早さのJSON API</a></div>
+<pre><span class="codetitle">e.g. JsonResponse @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductResult&gt; product() {
+        ProductResult <span class="localvar">result</span> = <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="point">asJson</span>(<span class="localvar">result</span>);
+    }
+</code></pre>
+	<h3 id="validation">Form/Body Validation</h3>
+	<p>
+		You can use Hibernate Validator's annotations in form or body.
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html">見通しのValidation</a></div>
+<pre><span class="codetitle">e.g. validator annotation in form @Java</span><code>
+<span class="keyword">public class</span> ProductEditForm {
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+}
+</code></pre>
+	<p>
+		And you should call in your action.
+	</p>
+<pre><span class="codetitle">e.g. validation as HTML response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+                        , ProductSearchForm <span class="localvar">form</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. validation as JSON response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		Specify more validation manually at second argument.
+	</p>
+<pre><span class="codetitle">e.g. more validation @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {
+        <span class="keyword">if</span> (<span class="localvar">body</span>.productName == <span class="keyword">null</span>) {
+            <span class="localvar">messages</span>.addConstraintsRequiredMessage(<span class="literal">"productName"</span>);
+        }
+    });
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="token">DoubleSubmit Token</h3>
+	<p>
+		You can call saveToken() and verifyToken() in action.
+	</p>
+<pre><span class="codetitle">e.g. double submit token @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index() {
+    <span class="point">saveToken()</span>;
+    <span class="abbreviation">...</span>
+}
+@Execute
+<span class="keyword">public</span> HtmlResponse update() {
+    <span class="point">verifyToken</span>(() -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		And keep the token in HTML as hidden field like this:
+	</p>
+<pre><span class="codetitle">e.g. saved token in Thymeleaf template @Html</span><code>
+&lt;form th:action=<span class="literal">"@{/member/edit/}"</span> action=<span class="literal">"#"</span> method=<span class="literal">"post"</span>&gt;
+    &lt;input type=<span class="literal">"hidden"</span> <span class="point">la:token</span>=<span class="literal">"true"</span>/&gt;
+    <span class="abbreviation">...</span>
+&lt;/form&gt;
+</code></pre>
+	<dl>
+		<dt></dt><dd><input type="hidden" la:token="true"/></dd>
+	</dl>
+	<h3 id="fileupload">File Upload</h3>
+	<p>
+		You can define MultipartFormFile property in your form class.
+	</p>
+<pre><span class="codetitle">e.g. MultipartFormFile in Form class @Java</span><code>
+@Required
+<span class="keyword">public</span> MultipartFormFile <span class="attribute">file</span>;
+</code></pre>
+	<p>
+		But first you need to set commons-fileupload in your dependencies
+		and set MultipartRequestHandler at assistant director. <span class="frm">(because LastaFlute does not have upload engine)</span>
+	</p>
+	<div class="relatedpage"><a href="../architecture/assistantdirector.html">気づかうAssistantDirector</a></div>
+	<h3 id="httpmethod">HTTP Method Restriction</h3>
+	<p>
+		You can restrict mapping by method name that has HTTP method.
+	</p>
+<pre><span class="codetitle">e.g. GET request only @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse <span class="point">get$index</span>(ProductSearchForm <span class="lovalvar">form</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. POST request only @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse <span class="point">post$index</span>(ProductSearchForm <span class="lovalvar">form</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+
+	<h2 id="actiontx">Action Transaction</h2>
+	<p>
+		Action's @Execute method is already in transaction.
+	</p>
+	<div class="detailpage"><a href="./actiontx.html">Action の Transaction</a></div>
+	<dl class="shortkeymainlist">
+		<dt>Success</dt><dd>Automatically Committed</dd>
+		<dt>Exception</dt><dd>Automatically Rolled-back</dd>
+	</dl>
+
+	<h2 id="examplecode">Example Code</h2>
+	<h3 id="htmlresponse">HTML response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as HTML response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+                        , ProductSearchForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    PagingResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    List&lt;ProductRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">page</span>.mappingList(<span class="localvar">product</span> -&gt; {
+        <span class="keyword">return</span> mappingToBean(<span class="localvar">product</span>);
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>).renderWith(<span class="localvar">data</span> -&gt; {
+        <span class="localvar">data</span>.register(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        registerPagingNavi(<span class="localvar">data</span>, <span class="localvar">page</span>, <span class="localvar">form</span>);
+    });
+}
+</code></pre>
+	<h3 id="jsonresponse">JSON response style</h3>
+	<div class="relatedpage"><a href="./lajsonapi.html">素早さのJSON API</a></div>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as JSON response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    validate(<span class="localvar">body</span>, <span class="localvar">messages</span> -&gt; {});
+    ListResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    SearchPagingBean&lt;ProductRowBean&gt; <span class="localvar">bean</span> = createPagingBean(page);
+    <span class="keyword">return</span> asJson(<span class="localvar">bean</span>);
+}
+</code></pre>
+
+	<h2 id="otherlinks">Other Links</h2>
+	<dl class="shortvaluemainlist">
+		<dt>もっとバリデーション知りたい</dt>
+		<dd><a href="./lavalidation.html">見通しのValidation</a></dd>
+		<dt>トランザクションのこと知りたい</dt>
+		<dd><a href="./actiontx.html">Action の Transaction</a></dd>
+		<dt>JSON APIサーバー作りたい</dt>
+		<dd><a href="./lajsonapi.html">素早さのJSON API</a></dd>
+		<dt>なんだかんだ JSP を使いたい</dt>
+		<dd><a href="./lajsp.html">LastaFlute の JSP</a></dd>
+		<dt>いやいや Thymeleaf を使いたい</dt>
+		<dd><a href="./lathymeleaf.html">LastaFlute の Thymeleaf</a></dd>
+		<dt>ログイン認証したい</dt>
+		<dd><a href="../architecture/logincontrol.html">組み込みログイン制御 (Login Control)</a></dd>
+		<dt>Action定義を一括でUnitTest</dt>
+		<dd><a href="./actiondeftest.html">Action定義のテスト (DefTest)</a></dd>
+		<dt>Action周りいろいろと微調整したい</dt>
+		<dd><a href="./adjustment.html">ActionやJSONの微調整</a></dd>
+		<dt>Actionで共通の前後処理を入れたい</dt>
+		<dd><a href="..//architecture/actionhook.html">気軽な前後処理 ActionHook</a></dd>
+		<dt>Actionをどう実装したらいいの？</dt>
+		<dd><a href="../impldesign/actiondesign.html">Actionの実装デザイン</a></dd>
+		<dt>どんなJSONにしたらいいの？</dt>
+		<dd><a href="../impldesign/jsondesign.html">JSON APIのJSONデザイン</a></dd>
+		<dt>Master/SlaveDBに対応したい</dt>
+		<dd><a href="../structure/masterslave.html">LastaFluteのMaster/SlaveDB</a></dd>
+	</dl>
+
+	<h2 id="howtoimpl">☆ Actionの作り方 ☆ <span class="frm">(実際に作ってみよう)</span></h2>
+	<p>
+		実際に作りながら、細かく実装の流れを理解していくための、Actionの作り方ページがあります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>サーバーサイドHTML</dt><dd><a href="./makeashtml.html">Actionの作り方 (HTMLスタイル)</a></dd>
+		<dt>JSON APIサーバー</dt><dd><a href="./makeasjson.html">Actionの作り方 (JSONスタイル)</a></dd>
+	</dl>
+	<p>
+		サーバーサイドHTMLは、JSP や Thymeleaf など、サーバー側でHTML文字列を作って、それをブラウザに戻して表示します。
+		JSON APIサーバーは、画面を表示するためのデータをJSON形式でクライアント (e.g. JavaScript, Swift, ...)
+		に戻し、あとは画面描画はクライアントにお任せをします。
+	</p>
+	<p>
+		もちろん、サーバーサイドHTMLの方でも、Ajax通信でJSONを戻すことはありえるので、実際には一つのアプリで混ざることも多いでしょう。
+	</p>
+	<p>
+		Exampleだと、マルチプロジェクトの maihama が、docksideプロジェクトがサーバーサイドHTML、hangarプロジェクトがJSON APIサーバーとなっています。
+		<span class="frm">(シングルプロジェクトのharborは両方)</span>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

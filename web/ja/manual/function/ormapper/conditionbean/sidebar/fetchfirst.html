@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,fetchFirst,先頭の,先頭から,最初の,最初から" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>FetchFirst | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>FetchFirst</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		先頭から n 件のデータのみを取得(フェッチ)します。(通常の絞り込み条件とは別に絞り込む)
+	</p>
+	<p>
+		例えば、"若い会員トップ３" というような検索をする場合、OrderBy で生年月日を降順にして、FetchFirst
+		で 3 を設定します。n 件の絞り込みの実現方法は Paging と同じです。(要は Paging での 1 ページ目の検索とも言える)
+	</p>
+	<div class="relatedpage"><a href="./paging.html">ConditionBean - Paging</a></div>
+	<p>
+		会話上では、<em class="keyword">ふぇっちふぁーすと</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		まずは通常通り、ConditionBean の設定をし、実行する前に fetchFirst()
+		を呼び出して、先頭から何件取得するかを引数(fetchSize)で設定します。
+	</p>
+<pre><span class="codetitle">e.g. 先頭の 3 件を取得 (Eclipseでコード補完) @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().addOrderBy_Birthdate_Desc();
+cb.feF <span class="comment">// .feF と打って enter</span>
+--
+cb.<span class="point">fetchFirst</span>(<span class="literal">3</span>); <span class="comment">// fetchSize を設定</span>
+</code></pre>
+	<p>
+		FetchFirst が設定されると、検索結果として戻ってくるリストの件数は、必ず指定された件数以下となります。
+		fetchSize が 1 の場合は、必ず一件検索となります(Behavior の一件検索が利用可能に)。
+	</p>
+	<div class="relatedpage"><a href="../../behavior/select/selectentity.html">Behavior - selectEntity(cb)</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="notzerominus">引数の fetchSize は正の値</h3>
+	<p>
+		引数の fetchSize には必ず正の値を入れます。(0 や マイナス値は例外)
+	</p>
+	<h3 id="severalcall">複数回呼び出しは上書き</h3>
+	<p>
+		複数回、FetchFirst を呼び出した場合は、最後に設定された値が有効(上書き)になります。
+	</p>
+	<h3 id="paginginit">Paging 設定を上書き</h3>
+	<p>
+		Paging が設定がされている状態で、FetchFirst を呼び出すと、ページングの設定は無効になります。
+	</p>
+	<div class="relatedpage"><a href="./paging.html">ConditionBean - Paging</a></div>
+	<p>
+		FetchFirst は、1 ページ目の n 件を取得するページング検索になる、とも言え、実際に、FetchFirst を設定するだけでも、Behavior
+		の selectPage(cb) を利用することができる(但し、ページング目的の場合は明示的に Paging を利用することが推奨される)。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

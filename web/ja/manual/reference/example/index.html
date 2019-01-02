@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Example,JUnit,SVN,Subversion,リポジトリ" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>DBFlute Example | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute Example</h1>
+	${indexlist}
+
+	<h2 id="about">DBFlute Exampleとは？</h2>
+	<p>
+		DBFluteの環境周りおよび実装周りの理解を一層深めてもらうための、実装にDBFluteを利用したプロジェクトです。Github
+		からcloneすることが可能で、実際にDBFluteのタスクの実行や、Example実装(JUnitのテストケース)を実行することができます。
+	</p>
+	<p>
+		(ほとんどの)Exampleは、スキーマ構造として MaihamaDB を利用しています。
+	</p>
+	<div class="relatedpage"><a href="./maihamadb.html">MaihamaDB</a></div>
+
+	<h2 id="java8howto">Java8 の HowTo</h2>
+	<p>
+		DBFluteを知る上で、まずお手軽な HowTo プロジェクトがあります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>HowToプロジェクト</dt>
+		<dd><a href="https://github.com/dbflute/dbflute-howto">dbflute-howto</a></dd>
+	</dl>
+	<p>
+		組み込みデータベースでクラス自動生成済みなので、clone したら JUnit
+		ですぐさま試せます。真っ先に、HowToSelectTest クラスを見ると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-howto/blob/f23cf1823f60f170d01490cb92320b1cc9bd53d4/src/test/java/org/docksidestage/howto/HowToSelectTest.java">HowToSelectTest.java | Github</a></div>
+
+	<h2 id="dicontainer">DIコンテナとの連携Example</h2>
+	<p>
+		DIコンテナとの連携を知るための Example プロジェクトがあります。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>Spring Framework <span class="frm">(SpringBoot)</span></dt>
+		<dd><a href="https://github.com/dbflute-example/dbflute-example-on-springboot">dbflute-example-on-springboot</a></dd>
+		<dt>Google Guice <span class="frm">(Play2 Framework)</span></dt>
+		<dd><a href="https://github.com/dbflute-example/dbflute-example-on-play2java">dbflute-example-on-play2java</a></dd>
+		<dt>Lasta Di <span class="frm">(LastaFlute)</span></dt>
+		<dd><a href="https://github.com/lastaflute/lastaflute-example-harbor">lastaflute-example-harbor</a></dd>
+	</dl>
+
+	<h2 id="withweb">Webフレームワークとの連携Example</h2>
+	<p>
+		Webフレームワークとの連携を知るための Example プロジェクトがあります。
+		<span class="frm">(実質、DIコンテナとの連携Exampleとほぼ同じとなります)</span>
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>Spring MVC <span class="frm">(SpringBoot)</span></dt>
+		<dd><a href="https://github.com/dbflute-example/dbflute-example-on-springboot">dbflute-example-on-springboot</a></dd>
+		<dt>Play2 Framework <span class="frm">(Java)</span></dt>
+		<dd><a href="https://github.com/dbflute-example/dbflute-example-on-play2java">dbflute-example-on-play2java</a></dd>
+		<dt>LastaFlute</dt>
+		<dd><a href="https://github.com/lastaflute/lastaflute-example-harbor">lastaflute-example-harbor</a></dd>
+	</dl>
+
+	<h2 id="database">DMBSとの連携Example</h2>
+	<p>
+		DBMSとの連携を知るための Example プロジェクトがあります。
+		<span class="frm">(ただし、これらのほとんどはテストプロジェクトなので、あまり Example として見やすく作られているわけではありません)</span>
+	</p>
+	<dl class="valuemainlist">
+		<dt>MySQL</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-mysql">dbflute-test-dbms-mysql</a></dd>
+		<dt>PostgreSQL</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-postgresql">dbflute-test-dbms-postgresql</a></dd>
+		<dt>Oracle</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-oracle">dbflute-test-dbms-oracle</a></dd>
+		<dt>DB2</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-db2">dbflute-test-dbms-db2</a></dd>
+		<dt>SQLServer</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-sqlserver">dbflute-test-dbms-sqlserver</a></dd>
+		<dt>H2 Database</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-active-dockside">dbflute-test-active-dockside</a></dd>
+		<dt>Derby</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-derby">dbflute-test-dbms-derby</a></dd>
+		<dt>SQLite</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-sqlite">dbflute-test-dbms-sqlite</a></dd>
+	</dl>
+
+	<h2 id="nonrdb">NonRDBとの連携Example</h2>
+	<p>
+		Redis(KVSFlute), Solr(SolrFlute), Elasticsearch(ESFlute), RemoteApi(RemoFlute) と連携した Example プロジェクトがあります。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>non-RDB <span class="frm">(色々ごちゃまぜ)</span></dt>
+		<dd><a href="https://github.com/dbflute-example/dbflute-example-with-non-rdb">dbflute-example-with-non-rdb</a></dd>
+	</dl>
+
+	<h2 id="multipj">マルチプロジェクトのExample</h2>
+	<p>
+		マルチプロジェクト構成の Example プロジェクトがあります。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>maihama <span class="frm">(LastaFlute)</span></dt>
+		<dd><a href="https://github.com/lastaflute/lastaflute-example-maihama">lastaflute-example-maihama</a></dd>
+	</dl>
+
+	<h2 id="testpj">番外: テストプロジェクト</h2>
+	<p>
+		Exampleではなく、DBFlute自体のテストプロジェクトもあります。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>ベーシックテスト <span class="frm">(H2)</span></dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-active-dockside">dbflute-test-active-dockside</a></dd>
+		<dt>dfpropあれこれテスト <span class="frm">(H2)</span></dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-active-hangar">dbflute-test-active-hangar</a></dd>
+		<dt>MySQLでのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-mysql">dbflute-test-dbms-mysql</a></dd>
+		<dt>PostgreSQLでのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-postgresql">dbflute-test-dbms-postgresql</a></dd>
+		<dt>Oracleでのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-oracle">dbflute-test-dbms-oracle</a></dd>
+		<dt>DB2でのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-db2">dbflute-test-dbms-db2</a></dd>
+		<dt>SQLServerでのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-sqlserver">dbflute-test-dbms-sqlserver</a></dd>
+		<dt>Derbyでのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-derby">dbflute-test-dbms-derby</a></dd>
+		<dt>SQLiteでのテスト</dt>
+		<dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-sqlite">dbflute-test-dbms-sqlite</a></dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

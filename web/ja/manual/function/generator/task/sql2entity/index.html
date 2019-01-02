@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Sql2Entity,外だしSQL,OutsideSql,CustomizeEntity,SQL対応のEntity,プロシージャ,Procedure,ストアド,Stored" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Sql2Entityタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Sql2Entityタスク</h1>
+	${indexlist}
+
+	<h2 id="about">Sql2Entityタスクとは？</h2>
+	<p>
+		外だしSQLの情報を元に、主に Entity などのSQL対応のクラスを自動生成するDBFluteタスクです。
+	</p>
+	<p>
+		Sql2Entityタスクを利用することで、以下のような開発が可能になります。
+	</p>
+	<ol>
+		<li>SQLファイルにSQLを実装する。</li>
+		<li>SQL対応のEntity(その他必要なもの)を自動生成する。</li>
+		<li>SQLを実行する。</li>
+	</ol>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/howto.html">外だしSQLの使い方</a></div>
+	<p>
+		<em class="keyword">外だしSQL</em> の実行には、以下の３つの要素が必要ですが、Sql2Entityでこれらを自動生成できます。
+	</p>
+	<ul>
+		<li>結果を受け取るクラス (<a href="./customizeentity.html">CustomizeEntity</a>, <a href="./typesafecursor.html">TypeSafeCursor</a>)</li>
+		<li>検索条件などの条件値を格納したクラス (<a href="./parameterbean.html">ParameterBean</a>)</li>
+		<li>どのSQL(ファイル)を実行するのかの情報 (<a href="./behaviorquerypath.html">BehaviorQueryPath</a>)</li>
+	</ul>
+	<p>
+		また、ストアドプロシージャに対応する ParameterBean (ProcedurePmb) も自動生成できます。
+	</p>
+	<div class="relatedpage"><a href="./procedurepmb.html">ProcedurePmb</a></div>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>外だしSQLの実装中 (ディベロッパー)</li>
+		<li>DB変更の発生 (アーキテクト)</li>
+		<li>DBFluteアップグレード直後 (アーキテクト)</li>
+	</ul>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">sql2entity.(bat|sh)</em> をコマンドから実行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップが終わった時点から利用できます。
+		但し、外だしSQLの情報を <em class="keyword">Behaviorクラス</em> に保持するため、実行前にGenerateタスクが必ず(一度は)実行されていることが前提です。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		Sql2Entityタスクを実行すると処理が始まります。
+	</p>
+	<ul class="flowlist">
+		<li><a href="#refsql">1. 外だしSQLを参照</a></li>
+		<li><a href="#execsql">2. 外だしSQLを(2Way-SQLとして)実行</a></li>
+		<li><a href="#procedure">3. プロシージャのメタデータを取得 (オプション)</a></li>
+		<li><a href="#deleteold">4. 古いクラスを削除</a></li>
+		<li><a href="#generate">5. クラスを自動生成</a></li>
+		<li><a href="#bqptobhv">6. BehaviorQueryPathをBehaviorに反映</a></li>
+		<li><a href="#refresh">7. Eclipseプロジェクトをリフレッシュ (オプション)</a></li>
+	</ul>
+	<h3 id="refsql">1. 外だしSQLを参照</h3>
+	<p>
+		読み込み対象のディレクトリ配下に存在する、拡張子が .sql のSQLを読み込みます。
+	</p>
+	<h4>読み込み対象のディレクトリ</h4>
+	<p>
+		読み込み対象のディレクトリのルールは以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>A. outsideSqlDefinitionMap.dfprop の sqlDirectory</dt>
+		<dd>
+			このプロパティが設定されている場合は(デフォルトでは設定されていない)、指定されたディレクトリ配下のSQLを読み込みます。
+			<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#sqldirectory">dfprop - sqlDirectory</a></div>
+		</dd>
+		<dt>B. basicInfoMap.dfprop の generateOutputDirectory</dt>
+		<dd>
+			"A" が設定されていなければ、このプロパティで指定されたディレクトリ配下のSQLを読み込みます。
+			このプロパティはデフォルト値を持つので、必ずプロパティ値が存在します。
+			<div class="relatedpage"><a href="../../../../reference/dfprop/basicinfo/index.html#generateoutputdirectory">dfprop - generateOutputDirectory</a></div>
+		</dd>
+		<dt>C. "A" と "B" どちらにおいても resources を参照</dt>
+		<dd>
+			"A" と "B" どちらにおいても、パスの中に "src/main/java"
+			という文字が含まれている場合は、その部分を "src/main/resources" に置換したパスのSQLも追加的に読み込みます。
+		</dd>
+		<dt>D. ApplicationOutsideSql で指定されたプロジェクトを参照</dt>
+		<dd>
+			"A", "B", "C" のルールに加えて、DBFluteプロパティで <em class="keyword">アプリごとの外だしSQL</em>
+			を指定している場合は、指定されたプロジェクトに "A", "B", "C" を適用させた場所のSQLを読み込みます。
+			<div class="relatedpage"><a href="../../../genbafit/projectfit/applicationoutsidesql/index.html">現場フィット - アプリごとの外だしSQL</a></div>
+		</dd>
+	</dl>
+	<p>
+		セットアップデフォルトでは "B" と "C" が適用され、<em class="keyword">src/main/java</em> と
+		<em class="keyword">src/main/resources</em> が読み込み対象となります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/index.html#setupdefault">DBFluteプロパティ - セットアップデフォルト</a></div>
+	<h4>読み込み対象のパッケージ</h4>
+	<p>
+		デフォルトでは、読み込み対象のディレクトリ配下の <em class="keyword">全て</em>
+		のSQLが対象ですが、outsideSqlDefinitionMap.dfprop の sqlPackage
+		を設定することで、とあるパッケージ配下のSQLのみを対象にすることができます。
+	</p>
+	<p>
+		主に、複数DB対応で、一つのプロジェクト上に複数DBFluteクライアントを配置する際に、別のDB用のSQLを読み込まないようにするために利用されます。
+		逆にそれ以外の場面での利用はあまり想定されていません。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#sqlpackage">dfprop - sqlPackage</a></div>
+	<h4>Sql2Entityマークの解析</h4>
+	<p>
+		この処理において、<em class="keyword">Sql2Entityマーク</em> が解析されます。
+	</p>
+	<div class="relatedpage"><a href="#sql2entitymark">this - Sql2Entityマーク</a></div>
+	<h3 id="execsql">2. 外だしSQLを(2Way-SQLとして)実行</h3>
+	<p>
+		<em class="keyword">CustomizeEntityマーク</em> (TypeSafeCursorマークを含む)が指定されているSQL(select文)を 
+		<em class="keyword">そのまま実行</em> します。よって、実行されるSQLは <em class="keyword">2Way-SQL</em>
+		形式となっていなければなりません。SQLエラーはタスクが中断されます。また、全てトランザクション内の実行で必ずロールバックされます。
+	<p>
+	<div class="relatedpage"><a href="./customizeentity.html#customizeentitymark">CustomizeEntityマーク</a></div>
+	<div class="relatedpage"><a href="./typesafecursor.html#typesafecursormark">TypeSafeCursorマーク</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/about.html#twowaysql">外だしSQL - 2Way-SQL</a></div>
+	<p>
+		SQLに不具合がある場合は、<em class="keyword">タスクの実行ログで原因を確認して修正してから</em> 再度実行して下さい。
+	</p>
+	<div class="detailpage"><a href="../index.html#log">タスクの実行ログ</a></div>
+	<p>
+		SQLを実行することにより、SQLのselect句の構造(メタデータ)が判明します。具体的には ResultSet.getMetaData()
+		で取得できる ResultSetMetaData の情報を利用しています。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dictionary/alphabet/wr.html#resultset">ResultSet</a></div>
+	<h3 id="procedure">3. プロシージャのメタデータを取得 (オプション)</h3>
+	<p>
+		outsideSqlDefinitionMap.dfprop にて ProcedurePmb
+		(プロシージャ対応のParameterBean)の自動生成が有効になっている場合は、プロシージャのメタデータを取得します。このメタデータを元に後に
+		ProcedurePmb を自動生成します。
+	</p>
+	<div class="relatedpage"><a href="./procedurepmb.html#autogenerate">ProcedurePmbの自動生成</a></div>
+	<p>
+		対象となるプロシージャは、デフォルトでは該当スキーマと AdditionalSchema
+		に存在する全てのプロシージャですが、outsideSqlDefinitionMap.dfprop
+		で細かく指定することができます。
+	</p>
+	<div class="relatedpage"><a href="./procedurepmb.html#target">ProcedurePmb - 自動生成対象を指定</a></div>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<h3 id="deleteold">4. 古いクラスを削除</h3>
+	<p>
+		どこの外だしSQLにも定義されていない既存の <span class="existscloset">CustomizeEntity (TypeSafeCursor含む)および ParameterBean
+		(ProcedurePmb含む)は、(ファイルシステム上から)削除されます</span>。
+	</p>
+	<div class="relatedpage"><a href="./customizeentity.html#deleteold">CustomizeEntity - 古いクラスは削除される</a></div>
+	<div class="relatedpage"><a href="./typesafecursor.html#deleteold">TypeSafeCursor - 古いクラスは削除される</a></div>
+	<div class="relatedpage"><a href="./parameterbean.html#deleteold">ParameterBean - 古いクラスは削除される</a></div>
+	<div class="relatedpage"><a href="./procedurepmb.html#deleteold">ProcedurePmb - 古いクラスは削除される</a></div>
+	<h3 id="generate">5. クラスを自動生成</h3>
+	<p>
+		取得したメタデータから CustomizeEntity (TypeSafeCursor含む)および ParameterBean
+		(ProcedurePmb含む)を自動生成します。
+	</p>
+	<p>
+		<span class="existscloset" title="exists a closet option">出力先およびパッケージ構造(の仕様)は Generateタスク と同じです</span>。
+		ただ、DBFluteプロパティで <em class="keyword">アプリごとの外だしSQL</em>
+		を指定している場合は、それぞれ対応する外だしSQLの存在するプロジェクト配下を基点にクラスが出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/applicationoutsidesql/index.html">現場フィット - アプリごとの外だしSQL</a></div>
+	<dl class="keymainlist">
+		<dt>CustomizeEntity</dt><dd>SQL対応のEntity <span class="frm">(bsentity|exentity.customize)</span></dd>
+		<dt>DBMeta</dt><dd>EntityのDBMeta <span class="frm">(bsentity.customize.dbmeta)</span></dd>
+		<dt>TypeSafeCursor</dt><dd>カーソルクラス <span class="frm">(bsbhv|exbhv.cursor</span>)</dd>
+		<dt>ParameterBean</dt><dd>パラメータオブジェクト <span class="frm">(bsbhv|exbhv.pmbean)</span></dd>
+		<dt>ProcedurePmb</dt><dd>プロシージャ対応のクラス <span class="frm">(bsbhv|exbhv.pmbean)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../generate/index.html#generate">Generateタスク - クラスを自動生成</a></div>
+	<div class="relatedpage"><a href="./customizeentity.html#autogenerate">CustomizeEntityの自動生成</a></div>
+	<div class="relatedpage"><a href="./typesafecursor.html#autogenerate">TypeSafeCursorの自動生成</a></div>
+	<div class="relatedpage"><a href="./parameterbean.html#autogenerate">ParameterBeanの自動生成</a></div>
+	<div class="relatedpage"><a href="./procedurepmb.html#autogenerate">ProcedurePmbの自動生成</a></div>
+	<h3 id="bqptobhv">6. BehaviorQueryPathをBehaviorに反映</h3>
+	<p>
+		<span class="existscloset" title="exists a closet option">BehaviorQueryPathをBehaviorに反映</span>します。既にBehaviorクラスが存在することが前提です。
+	</p>
+	<div class="relatedpage"><a href="./behaviorquerypath.html">BehaviorQueryPath</a></div>
+	<h3 id="refresh">7. Eclipseプロジェクトをリフレッシュ (オプション)</h3>
+	<p>
+		Generateタスクと同じく、Eclipseプロジェクトをリフレッシュ(更新)します。
+	</p>
+	<div class="relatedpage"><a href="../generate/index.html#refresh">Generateタスク - Eclipseプロジェクトをリフレッシュ</a></div>
+
+	<h2 id="sql2entitymark">Sql2Entityマーク</h2>
+	<p>
+		CustomizeEntityを生成するか否か、ParameterBeanを生成するか否かなどを示すSQL上のマークの総称を "Sql2Entityマーク"
+		と呼びます。全てのマークはSQLの行コメントとして記述されるため、2Way-SQLを保ったままそのSQLにSql2Entityの情報を付与することができます。
+	</p>
+	<p>
+		Sql2Entityマークには主に以下のようなものがあります：
+	</p>
+	<dl class="textlist">
+		<dt>CustomizeEntityマーク</dt>
+		<dd>CustomizeEntityを生成するか否か・クラス名を表現</dd>
+		<dt>TypeSafeCursorマーク</dt>
+		<dd>TypeSafeCursorを生成するか否か・クラス名を表現</dd>
+		<dt>ParameterBeanマーク</dt>
+		<dd>ParameterBeanを生成するか否か・クラス名・プロパティ構造を表現</dd>
+	</dl>
+	<div class="relatedpage"><a href="./customizeentity.html#customizeentitymark">CustomizeEntityマーク</a></div>
+	<div class="relatedpage"><a href="./typesafecursor.html#typesafecursormark">TypeSafeCursorマーク</a></div>
+	<div class="relatedpage"><a href="./parameterbean.html#parameterbeanmark">ParameterBeanマーク</a></div>
+
+	<h2 id="variousoption">様々なオプション</h2>
+	<p>
+		DBFluteプロパティを利用することで、様々なオプションが利用可能です。
+	</p>
+	<dl class="textlist">
+		<dt>sqlFileEncoding</dt>
+		<dd>外だしSQLのエンコーディング</dd>
+		<dt>sqlDirectory</dt>
+		<dd>外だしSQLの配置ディレクトリ</dd>
+		<dt>sqlPackage</dt>
+		<dd>外だしSQLの配置パッケージ</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html">outsideSqlDefinitionMap.dfprop</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

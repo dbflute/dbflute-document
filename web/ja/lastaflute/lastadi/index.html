@@ -1,0 +1,390 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,リーンスタートアップ" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>Lasta Di (DIコンテナ) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Lasta Di</h1>
+	<p>
+		Japanese page here.
+	</p>
+	<div class="relatedpage"><a href="../../lastaflute/lastadi/index.html">English Page of Lasta Di</a></div>
+	${indexlist}
+
+	<h2 id="about">Lasta Di とは？</h2>
+	<p>
+		simple DI container for LastaFlute, forked from Seasar as Java8
+	</p>
+
+	<h2 id="github">GitHub Page</h2>
+	<p>
+		is there:
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lasta-di">Lasta Di | GitHub</a></div>
+
+	<h2 id="twocomp">Two components</h2>
+	<dl class="shortkeymainlist">
+		<dt>Quick component</dt><dd><em class="smallmark">convention</em> registration, <em class="smallmark">hot reloading</em> (prototype)</dd>
+		<dt>Rich component</dt><dd>flexible manual registration (singleton)</dd>
+	</dl>
+	<h3 id="inject">How to inject</h3>
+	<p>
+		Both components can be injected by <em class="mark">@Resource</em> annotation.
+	</p>
+<pre><span class="codetitle">e.g. injection definition @Java</span><code>
+<span class="subpoint">@Resource</span>
+<span class="keyword">private</span> AbcLogic <span class="attribute">abcLogic</span>;
+</code></pre>
+	<h3 id="quickcomp">Quick component</h3>
+	<p>
+		<em class="keyword">Application's business logics</em>, are <em class="smallmark">prototype</em> e.g. Action class, Logic class...
+	</p>
+	<p>
+		Convention provides auto regsitration:
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt>Package</dt><dd>[your domain].<em class="smallmark">app</em> (e.g. com.example.app)</dd>
+		<dt>Class Name</dt><dd>e.g. app.web.AbcAction, auto regsitered as Action to Lasta Di</dd>
+	</dl>
+	<p>
+		Class name suffixes is e.g. following: 
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt>Action</dt><dd>...app.web.AbcAction</dd>
+		<dt>Form</dt><dd>...app.web.AbcForm</dd>
+		<dt>Assist</dt><dd>...app.web.AbcAssist (or ...app.assist.AbcAssist)</dd>
+		<dt>Logic</dt><dd>...app.logic.AbcLogic</dd>
+		<dt>(Others)</dt><dd>AbcValidator, AbcConverter, AbcHelper, AbcService</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Quick components @Directory</span><code>
+com.example
+ |-<span class="point">app</span> <span class="comment">// application package</span>
+ |  |-logic
+ |  |  |-AbcLogic
+ |  |-web <span class="comment">// web package</span>
+ |     |-AbcAction
+ |     |-AbcForm
+ |-bizfw
+ |-dbflute
+ |-mylasta
+</code></pre>
+	<p>
+		And these components can be <em class="keyword">hot-reloaded</em> so you don't need to reboot in local development.
+		So you can get quick trial-and-error programming with Lasta Di.
+	</p>
+	<div class="relatedpage"><a href="#prop">this - lasta_di.properties</a></div>
+	<h3 id="richcomp">Rich component</h3>
+	<p>
+		<em class="keyword">Application's common classes</em>, are <em class="smallmark">singleton</em> e.g. Manager class
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt>Package</dt><dd>[your domain].<em class="smallmark">bizfw</em> (e.g. com.example.bizfw) <span class="frm">*actually free but recommended</span></dd>
+		<dt>Class Name</dt><dd>e.g. bizfw.AbcManager, basically you can set free name</dd>
+	</dl>
+	<p>
+		You can register by your Di xml <em class="smallmark">app.xml</em> flexibly.
+	</p>
+<pre><span class="codetitle">e.g. Rich components @Directory</span><code>
+|-src/main/java
+|  |-com.example
+|    |-app
+|    |-<span class="point">bizfw</span> <span class="comment">*recommended package for rich components</span>
+|    |  |-AbcManager
+|    |-dbflute
+|    |-mylasta
+|-src/main/resources
+   |-<span class="point">app.xml</span> <span class="comment">*your Di xml, you can regsiter here</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Di xml @app.xml</span><code>
+&lt;components&gt;
+    &lt;include path="convention.xml"/>
+    <span class="point">&lt;component name="abcManager"&gt;...bizfw.AbcManager&lt;/component&gt;</span>
+&lt;/components&gt;
+</code></pre>
+	<div class="relatedpage"><a href="#dixml">this - Di xml</a></div>
+
+	<h2 id="lightening">Lightening Boot</h2>
+	<p>
+		<em class="keyword">Simple logic</em> in Lasta Di, speed is prior. 
+	</p>
+	<p>
+		And following features:
+	</p>
+	<dl class="keymainlist">
+		<dt>Small dependencies</dt><dd>Javassit, JTA, Slf4j <span class="frm">(only three)</span></dd>
+		<dt>Lazy Loading</dt><dd>Minimum initialization in <span class="frm">(in hot, warm)</span></dd>
+	</dl>
+
+	<h2 id="connectionpool">ConnectionPool (DBCP)</h2>
+	<h3 id="dbcpimpl">Implementation</h3>
+	<p>
+		Lasta Di has the original connection pool, which can handle transactions.
+	</p>
+	<dl class="keymainlist">
+		<dt>ConnectionPool</dt><dd>interface of connection pool, checkOut(), checkInTx()</dd>
+		<dt>SimpleConnectionPool</dt><dd>simple implementation of connection pool</dd>
+		<dt>PooledDataSource</dt><dd>data source using connection pool</dd>
+	</dl>
+	<p>
+		if you use Lasta Di with LastaFlute, you can use the extended implementation classes which have more rich functions.
+		(e.g. HookedConnectionPool, HookedPooledDataSource)
+	</p>
+
+	<h2 id="transaction">Transaction</h2>
+	<h3 id="tximpl">Implementation</h3>
+	<p>
+		Lasta Di has the original JTA implementation, which is related to connection pool.
+	</p>
+	<dl class="keymainlist">
+		<dt>LaTransactionManager</dt><dd>simple implementation of TransactionManager interface</dd>
+		<dt>LaUserTransaction</dt><dd>simple implementation of UserTransaction interface</dd>
+		<dt>LaTransaction</dt><dd>simple implementation of Transaction interface</dd>
+	</dl>
+	<p>
+		if you use Lasta Di with LastaFlute, you can use the extended implementation classes which have more rich functions.
+		(e.g. HookedTransactionManager, HookedUserTransaction, RomanticTransaction)
+	</p>
+	<h3 id="txanno">javax.transaction.Transactional</h3>
+	<p>
+		javax.transaction.Transactional is supported.
+		You can use it as default in several Quick component (e.g. Logic, Service).
+	</p>
+	<p>
+		However if you use Lasta Di with LastaFlute, you can use the TransactionStage interface provided by LastaFlute which is programatic transaction.
+		So the annotation may be small use.
+	</p>
+	<p>
+		Attention, the annotation process is implemented by interceptor (AOP) so you can use it at public method.
+		While, Lasta Di can support "this" call of AOP so you can use the annotation in the same class.
+	</p>
+
+	<h2 id="prop">lasta_di.properties</h2>
+	<p>
+		Application settigs for Lasta Di.
+	</p>
+<pre><span class="codetitle">e.g. lasta_di.properties is here @Directory</span><code>
+|-src/main/java
+|  |-com.example<span class="abbreviation">...</span>
+|-src/main/resources
+   |-app.xml
+   |-<span class="point">lasta_di.properties</span>
+</code></pre>
+	<dl class="textlist">
+		<dt>smart.deploy.mode.location <span class="frm">(optional: cool as default)</span></dt>
+		<dd>e.g. abc_env.properties: lasta_di.smart.deploy.mode</dd>
+		<dd>
+			Settings for smart deploy mode (hot, warm, cool). e.g. hot provides you quick programming in development.
+			While, cool should be set in production.
+		</dd>
+		<dt>smart.package1 <span class="frm">(basically required)</span></dt>
+		<dd>e.g. com.example.app</dd>
+		<dd>
+			Settings for application package treated as smark deploy.
+		</dd>
+		<dd>
+			You can set smart.package2, and 3...
+		</dd>
+	</dl>
+
+	<h2 id="dixml">Di xml</h2>
+	<h3 id="dixmlview">Di xml Overview</h3>
+	<p>
+		You can register your components in <em class="smallmark">app.xml</em>.
+	</p>
+<pre><span class="codetitle">e.g. app.xml is here @Directory</span><code>
+|-src/main/java
+|  |-com.example<span class="abbreviation">...</span>
+|-src/main/resources
+   |-<span class="point">app.xml</span>
+   |-lasta_di.properties
+</code></pre>
+	<p>
+		You can get rich components by setting comopnent tags with your classes.
+	</p>
+<pre><span class="codetitle">e.g. settings for rich components @app.xml</span><code>
+&lt;components&gt;
+    <span class="comment">&lt;!-- settings for rich components --&gt;</span>
+    <span class="point">&lt;component name="abcManager"&gt;<span class="abbreviation">...</span>bizfw.AbcManager&lt;/component&gt;</span>
+    <span class="subpoint">&lt;component name="stuManager"&gt;<span class="abbreviation">...</span>bizfw.StuManager&lt;/component&gt;</span>
+    <span class="subpoint">&lt;component name="xyzManager"&gt;<span class="abbreviation">...</span>bizfw.XyzManager&lt;/component&gt;</span>
+&lt;/components&gt;
+</code></pre>
+	<p>
+		You can get quick components by including convention.xml.
+	</p>
+<pre><span class="codetitle">e.g. settings for rich components @app.xml</span><code>
+&lt;components&gt;
+    <span class="point">&lt;include path="convention.xml"/&gt;</span> <span class="comment">&lt;!-- needs for quick components --&gt;</span>
+
+    <span class="comment">&lt;!-- settings for rich components --&gt;</span>
+    &lt;component name="abcManager"&gt;<span class="abbreviation">...</span>bizfw.AbcManager&lt;/component&gt;
+&lt;/components&gt;
+</code></pre>
+	<p>
+		You can get library components provided from frameworks, e.g. LastaFlute, DBFlute, by including their xml.
+	</p>
+<pre><span class="codetitle">e.g. Di xml @app.xml</span><code>
+&lt;components&gt;
+    &lt;include path="convention.xml"/&gt;
+    <span class="point">&lt;include path="dbflute.xml"/&gt;</span>
+    <span class="subpoint">&lt;include path="lastaflute.xml"/&gt;</span>
+
+    &lt;component name="abcManager"&gt;...bizfw.AbcManager&lt;/component&gt;
+&lt;/components&gt;
+</code></pre>
+	<h3 id="hierarchy">Di xml Hierarchy</h3>
+	<p>
+		Embedded xml in Lasta Di are colored:
+	</p>
+<pre><span class="codetitle">e.g. Di xml Hierarchy, embedded is colored @app.xml</span><code>
+...Reading <span class="subpoint">lasta_di.xml</span>
+...Reading   <span class="subpoint">redefiner.xml</span>
+...Reading   <span class="subpoint">smartdeploy.xml</span>
+...Reading     <span class="subpoint">smart/hotdeploy.xml</span>
+...Reading       <span class="subpoint">convention.xml</span>
+...Reading         <span class="subpoint">embedded_convention.xml</span>
+...Reading       <span class="subpoint">creator.xml</span>
+...Reading         <span class="subpoint">convention.xml</span> (recycle)
+...Reading         <span class="subpoint">customizer.xml</span>
+...Reading           <span class="subpoint">lastafw_customizer.xml</span>
+...Reading           <span class="subpoint">embedded_customizer.xml</span>
+...Reading             <span class="subpoint">tx_customizer.xml</span>
+...Reading         <span class="subpoint">lastafw_creator.xml</span>
+...Reading           <span class="subpoint">convention.xml</span> (recycle)
+...Reading           <span class="subpoint">customizer.xml</span> (recycle)
+...Reading         <span class="subpoint">embedded_creator.xml</span>
+...Reading           <span class="subpoint">convention.xml</span> (recycle)
+...Reading           <span class="subpoint">customizer.xml</span> (recycle)
+...Reading       <span class="subpoint">customizer.xml</span> (recycle)
+...Reading app.xml
+...Reading   <span class="subpoint">convention.xml</span>
+...Reading     <span class="subpoint">embedded_convention.xml</span>
+...Reading   dbflute.xml
+...Reading     <span class="subpoint">rdb.xml</span>
+...Reading       <span class="subpoint">jta.xml</span>
+...Reading         jta+userTransaction.xml
+...Reading         jta+transactionManager.xml
+...Reading       jdbc.xml
+...Reading         <span class="subpoint">jta.xml</span> (recycle)
+...Reading         lastaflute_assist.xml
+...Reading           lastaflute_director.xml
+...Reading       <span class="subpoint">tx_aop.xml</span>
+...Reading         <span class="subpoint">jta.xml</span> (recycle)
+...Reading   lastaflute.xml
+...Reading     lastaflute_core.xml
+...Reading       lastaflute_assist.xml (recycle)
+...Reading     lastaflute_db.xml
+...Reading       jta.xml (recycle)
+...Reading     lastaflute_web.xml
+...Reading       lastaflute_core.xml (recycle)
+...Reading       lastaflute_db.xml (recycle)
+...Reading       convention.xml (recycle)
+</code></pre>
+	<h3 id="dixmlexp">Di xml Expression</h3>
+	<p>
+		Using JavaScript engine 'Nashorn' as expression parser.
+	</p>
+	<div class="detailpage"><a href="./dixmlexp.html">Di xml Expression</a></div>
+	<h3 id="redefiner">Redefiner</h3>
+	<p>
+		Yon can customize embedded Di xml.
+	</p>
+	<dl class="textlist">
+		<dt>Switch Di xml Wholly</dt>
+		<dd>e.g. sea+.xml: switch Di xml wholly</dd>
+		<dd>Copy the original Di xml to the redefined Di xml and fix it.</dd>
+		<dt>Switch Component</dt>
+		<dd>e.g. sea+mystic.xml: switch the embedded 'mystic' to the defined 'mystic'</dd>
+		<dd>No need to define 'namespace' and 'include' in the redefined Di xml.</dd>
+		<dd>This is the most useful.</dd>
+		<dt>Remove Component</dt>
+		<dd>e.g. sea+mystic.xml: nothing defined means removing embedded 'mystic'</dd>
+		<dt>Add Component</dt>
+		<dd>e.g. sea++.xml: the defined components are added to embedded Di xml as low priority</dd>
+		<dd>e.g. ++sea.xml: the defined components are added to embedded Di xml as high priority</dd>
+	</dl>
+<pre><span class="codetitle">e.g. switch component 'userTransaction' fixedly @Directory</span><code>
+|-src/main/resources
+|  |-app.xml
+|  |-<span class="subpoint">jta+userTransaction.xml</span> <span class="comment">// userTransaction is switched fixedly</span>
+
+<span class="comment">// lasta-di.jar contains jta.xml, which has component 'userTransaction'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. switch component 'mystic' in unit test @Directory</span><code>
+|-src/main/resources
+|  |-app.xml
+|  |-<span class="subpoint">sea.xml</span> <span class="comment">// in production</span>
+|
+|-src/test/resources
+   |-<span class="point">sea+mystic.xml</span> <span class="comment">// mystic is switched in unit test</span>
+</code></pre>
+
+	<h2 id="major">Major Classes</h2>
+	<dl class="keymainlist">
+		<dt>SingletonLaContainer</dt><dd>has your components</dd>
+		<dt>ConnectionPool</dt><dd>manages database connections</dd>
+	</dl>
+
+	<h2 id="maven">Maven Repository</h2>
+	<p>
+		See github page.
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lasta-di">Lasta Di | GitHub</a></div>
+	<p>
+		If you use LastaFlute, you don't need Lasta Di dependency because LastaFlute depends it.
+	</p>
+
+	<h2 id="codereading">Code Reading Hint</h2>
+	<h3 id="bootworld">Lasta Di Boot World</h3>
+	<p class="imgbox">
+		<a href="../../../data/model/lastaflute/lastadi/lastadi-bootworld-map.png" title="Lasta Di Boot World"><img src="../../../data/model/lastaflute/lastadi/lastadi-bootworld-map.png" alt="Lasta Di Boot World" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="thanks">Thanks, Frameworks</h2>
+	<p>
+		Lasta Di is forked from Seasar, and inherits it, thankful wonderful functions.
+	</p>
+	<p>
+		And also forked from S2ClassBuilder (called Redefiner in Lasta Di), provides flexible Di xml.
+	</p>
+	<p>
+		Thanks.
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

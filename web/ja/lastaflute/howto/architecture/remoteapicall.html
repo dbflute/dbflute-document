@@ -1,0 +1,789 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>定まったリモートAPI呼び出し (RemoteApi Call) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>定まったリモートAPI呼び出し (RemoteApi Call)</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="heavyrequirement">リモートAPI呼び出しの複雑な要件</h3>
+	<p>
+		外部のWebサービスの利用や、マイクロサービスアーキテクチャ寄りの構成が多くなってきていることで、自分のシステムから別のシステムのAPIを気軽に呼べることが大切になってきています。
+	</p>
+	<p>
+		しかも、単なる呼べればいいだけではなく、様々なインターフェース形式に対応できる柔軟性や、通信周りにまつわるエラーのハンドリングなど、非機能的な要件も重要です。
+		単に HTTP Client をベタッと利用してやり取りをすれば良いというものでもありません。
+	</p>
+	<h3 id="providesremoteapi">定型的なライブラリの提供</h3>
+	<p>
+		そこで、LastaFlute ではリモートAPI呼び出しの定型的なライブラリ <em class="mark">Lasta RemoteApi</em>
+		を提供しています。こちらを利用してリモートAPIと付き合うと良いでしょう。<span class="frm">(この後、RemoteApiと書くと、このライブラリを指すことが多いです。リモートAPIは相手のサーバーのことを指すことが多いです)</span>
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lasta-remoteapi">lasta-remoteapi | Github</a></div>
+
+	<h2 id="architecture">RemoteApiのアーキテクチャ</h2>
+	<h3 id="basicconcept">アーキテクチャの基本コンセプト</h3>
+	<p>
+		ざっくりこのようになっています。
+	</p>
+	<dl class="keymainlist">
+		<dt>HTTP Client</dt><dd>apache の HTTP Client を利用 <span class="frm">(基本的にディベロッパーは意識しない)</span></dd>
+		<dt>アプリの実装クラス</dt><dd>Behaviorという名前のファサードクラスを用意 <span class="frm">(DBFluteライク)</span></dd>
+		<dt>HTTP Methodの決定</dt><dd>Behaviorでの呼び出しメソッドで決定 <span class="frm">e.g. doRequestGet(), doRequestPost()</span></dd>
+		<dt>データの形式の決定</dt><dd>Sender / Receiver を指定して決定 <span class="frm">e.g. JsonSender, XmlReceiver</span></dd>
+		<dt>リモートAPIルールの設定</dt><dd>データ変換の仕方や、接続にまつわるオプションなどのルールを設定</dd>
+		<dt>デフォルト＆メソッドごと</dt><dd>ルールをBehaviorごとにデフォルト設定、個別のメソッドごとに変更可能</dd>
+	</dl>
+<pre><span class="codetitle">e.g. set h2 to database settings @databaseInfoMap.dfprop</span><code>
+ +---------------------+       +----------------+       +-------------+
+ | LastaRemoteBehavior |  -->  | LastaRemoteApi |  -->  | HTTP Client |
+ +---------------------+       +----------------+       +-------------+
+        A        |                  | use
+        |        |                  V
+        |        |             +--------------------+
+        |        +--setup----> | LastaRemoteApiRule |&lt;&gt;-----+
+        |        |             +--------------------+       |
+     extends     |                                          |
+        |        |                                          |
+        |        |                                          |
+        |        |                                          |
+        |        |                                        +-----------------------------+
+        |        |    +-----------------------new-------> | LaJsonSender/LaJsonReceiver |
+        |        |    |                                   +-----------------------------+
+        |        |    |
+ +-------------------------+      +----------------+
+ |    RemoteHarborBhv      |      | remote_api.xml |
+ |    (your component)     |----<>| (your DI xml)  |
+ +-------------------------+      +----------------+
+                                          A
+                                          | include
+                                     +---------+
+                                     | app.xml |
+                                     +---------+
+</code></pre>
+	<p>
+		上記のモデルで言うと、アプリの実装クラスは RemoteHarborBhv となります。Harborという別のシステムに対してアクセスをする Behavior
+		というニュアンスになります。基本的に、一つの相手先のサーバーに付き、一つのBehaviorが想定されます。<span class="frm">(ただ、厳密に同じでなくてもOKではあります)</span>
+	</p>
+	<p>
+		POST のときに JSON で送信するのか？そもそも受け取り形式は JSON か？などのデータ形式を、Sender, Receiver
+		という概念で表現しています。例えば、JSONで送信するのであれば JsonSender を指定します。
+	</p>
+	<p>
+		Sender や Receiver などのリモートAPIごとのルールを、Behavior (リモートAPIサーバー)
+		ごとにデフォルト設定をし、個々のメソッドで少し違う場合はオーバーライドできます。
+		デフォルトを一切設定せずに、すべて個々のメソッドで設定することもできますが、多くの場合 "このリモートAPIはすべてJSONで渡してJSONでもらう"
+		もしくは、"だいたいJSONで渡して、時々GETパラメーター" というようにデータ形式が "ほぼ" 統一されていることが多いので、デフォルトと個別の二段で設定できるようにしています。
+	</p>
+	<h3 id="basiccode">コンセプトの基本実装</h3>
+	<p>
+		Behaviorクラスは、このようになっています。
+	</p>
+<pre><span class="codetitle">e.g. RemoteApi behavior for harbor @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> RemoteHarborBhv <span class="keyword">extends</span> LastaRemoteBehavior {
+
+    <span class="comment">// ===================================================================================
+    //                                                                         Constructor
+    //                                                                         ===========</span>
+    <span class="keyword">public</span> RemoteHarborBhv(RequestManager <span class="localvar">requestManager</span>) {
+        <span class="keyword">super</span>(<span class="localvar">requestManager</span>);
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                          Initialize
+    //                                                                          ==========</span>
+    @Override
+    <span class="keyword">protected void</span> yourDefaultRule(FlutyRemoteApiRule <span class="localvar">rule</span>) {
+        <span class="localvar">rule</span>.sendQueryBy(<span class="keyword">new</span> LaQuerySender(<span class="keyword">new</span> FlVacantRemoteMappingPolicy()));
+
+        JsonMappingOption <span class="localvar">jsonMappingOption</span> = <span class="keyword">new</span> JsonMappingOption();
+        <span class="localvar">rule</span>.sendBodyBy(<span class="keyword">new</span> LaJsonSender(<span class="attribute">requestManager</span>, <span class="localvar">jsonMappingOption</span>));
+        <span class="localvar">rule</span>.receiveBodyBy(<span class="keyword">new</span> LaJsonReceiver(<span class="attribute">requestManager</span>, <span class="localvar">jsonMappingOption</span>));
+
+        <span class="localvar">rule</span>.handleFailureResponseAs(FaicliUnifiedFailureResult.<span class="keyword">class</span>);
+    }
+
+    @Override
+    <span class="keyword">protected</span> String getUrlBase() {
+        <span class="keyword">return</span> <span class="literal">"http://localhost:8090/harbor"</span>;
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======</span>
+    <span class="keyword">public</span> RemoteMypageReturn requestMypage(RemoteMypageParam <span class="localvar">param</span>) {
+        <span class="keyword">return</span> doRequestGet(RemoteMypageReturn.<span class="keyword">class</span>, <span class="literal">"/lido/mypage"</span>, noMoreUrl(), query(<span class="localvar">param</span>), <span class="localvar">rule</span> -&gt; {});
+    }
+
+    <span class="keyword">public</span> RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt; requestProductList(RemoteProductSearchParam <span class="localvar">param</span>) {
+        <span class="keyword">return</span> doRequestPost(<span class="keyword">new</span> ParameterizedRef&lt;RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt;&gt;() {
+        }.getType(), <span class="literal">"/lido/product/list"</span>, moreUrl(<span class="literal">1</span>), <span class="localvar">param</span>, <span class="localvar">rule</span> -&gt; {});
+    }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>sendQueryBy(): QueryのSenderを指定。ここでは、個別のメソッドで指定</li>
+		<li>sendBodyBy(): BodyのSenderを指定。ここでは、このBehaviorデフォルトとしてJSON送信</li>
+		<li>receiveBodyBy(): Receiverを指定。ここでは、このBehaviorデフォルトとしてJSON受信</li>
+		<li>handleFailureResponseAs(): エラー時のレスポンスを受け取る型を指定。発生した例外から取得できる</li>
+	</ul>
+	<p>
+		yourDefaultRule() で、Behaviorのデフォルトルールを設定しています。ここでは、Sender と Receiver ともに JSON (LaJsonSender, LaJsonReceiver)
+		を指定しています。一方で、Queryパラメーターに関する Sender は指定していないので、GETでリクエストを送るときはメソッドのルールとして LaQuerySender
+		を指定する必要があります。
+	</p>
+	<p>
+		それぞれの "requestメソッド" (requestXxx()) では、doRequestGet() や doRequestPost() などの HTTP Method
+		ごとのprotectedメソッドを呼び出して、具体的な呼び出し情報などを引数で指定しています。
+		requestメソッドの名前や引数は任意で、業務的に適した名前を付けましょう。
+	</p>
+
+	<h2 id="prepare">まずは、RemoteApiの環境準備</h2>
+	<h3 id="dependsremoteapi">lasta-remoteapiの依存ライブラリ定義</h3>
+	<p>
+		pom.xml に lasta-remoteapi を定義します。
+	</p>
+<pre><span class="codetitle">e.g. Lasta RemoteApi dependency @pom.xml</span><code>
+&lt;lasta.remoteapi.version&gt;<span class="literal">0.4.1</span>&lt;/lasta.remoteapi.version&gt;
+
+<span class="abbreviation">...</span>
+
+&lt;dependency&gt;
+    &lt;groupId&gt;<span class="literal">org.lastaflute.remoteapi</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="literal">lasta-remoteapi</span>&lt;/artifactId&gt;
+    &lt;version&gt;<span class="literal">${lasta.remoteapi.version}</span>&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+	<p>
+		最新版の確認はアップグレードのページにて。
+	</p>
+	<div class="relatedpage"><a href="../upgrade/index.html">LastaFluteのアップグレード</a></div>
+	<h3 id="includesremoteapi">Behavior を定義する DI xml を定義</h3>
+	<p>
+		app.xml で remote_api.xml を include します。ただし、remote_api.xml は手動で作成します。
+		まず最初の段階では何もコンポーネントのない状態で作成します。
+	</p>
+<pre><span class="codetitle">e.g. include RemoteApi Di xml @app.xml</span><code>
+&lt;components>
+	&lt;include path="convention.xml"/&gt;
+	&lt;include path="dbflute.xml"/&gt;
+	&lt;include path="lastaflute.xml"/&gt;
+	<span class="point">&lt;include path="remote_api.xml"/&gt;</span>
+&lt;/components>
+</code></pre>
+
+	<h2 id="howtobehavior">Behaviorの実装の仕方</h2>
+	<h3 id="implpackageclass">Behaviorのパッケージをクラス名</h3>
+	<p>
+		定型的な慣習があります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>パッケージ</dt><dd>[サービスのパッケージ].remote.[相手先のサービス名].[相手先のアプリ名]</dd>
+		<dt>クラス名</dt><dd>Remote[相手先のサービス名][相手先のアプリ名]Bhv</dd>
+	</dl>
+<pre><span class="codetitle">e.g. RemoteApi's behavior package, to harbor, maihama-dockside @Package</span><code>
+org.docksidestage
+ |-app
+ |-dbflute
+ |-mylasta
+ |-remote
+ |  |-harbor            <span class="comment">// サービス名 (シングルプロジェクト)</span>
+ |  |  |-<span class="point">RemoteHarborBhv.java</span>
+ |  |
+ |  |-maihama           <span class="comment">// サービス名 (マルチプロジェクト)</span>
+ |  |  |-dockside       <span class="comment">// アプリ名 (マルチプロジェクト)</span>
+ |  |  |  |-<span class="point">RemoteMaihamaDocksideBhv.java</span>
+</code></pre>
+	<h3 id="implbhvdef">Behaviorクラスの定義</h3>
+	<p>
+		LastaRemoteBehavior を継承して、コンストラクタで RequestManager を受け付けます。
+	</p>
+	<p>
+		そして、以下の二つのメソッドを定義します。
+	</p>
+	<ul>
+		<li>yourDefaultRule() を実装</li>
+		<li>getBaseUrl() を実装</li>
+	</ul>
+<pre><span class="codetitle">e.g. RemoteApi behavior for harbor @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> RemoteHarborBhv <span class="keyword">extends</span> LastaRemoteBehavior {
+
+    <span class="comment">// ===================================================================================
+    //                                                                         Constructor
+    //                                                                         ===========</span>
+    <span class="keyword">public</span> RemoteHarborBhv(RequestManager <span class="localvar">requestManager</span>) {
+        <span class="keyword">super</span>(<span class="localvar">requestManager</span>);
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                          Initialize
+    //                                                                          ==========</span>
+    @Override
+    <span class="keyword">protected void</span> yourDefaultRule(FlutyRemoteApiRule <span class="localvar">rule</span>) {
+        <span class="localvar">rule</span>.sendQueryBy(<span class="keyword">new</span> LaQuerySender(<span class="keyword">new</span> FlVacantRemoteMappingPolicy()));
+
+        JsonMappingOption <span class="localvar">jsonMappingOption</span> = <span class="keyword">new</span> JsonMappingOption();
+        <span class="localvar">rule</span>.sendBodyBy(<span class="keyword">new</span> LaJsonSender(<span class="attribute">requestManager</span>, <span class="localvar">jsonMappingOption</span>));
+        <span class="localvar">rule</span>.receiveBodyBy(<span class="keyword">new</span> LaJsonReceiver(<span class="attribute">requestManager</span>, <span class="localvar">jsonMappingOption</span>));
+
+        <span class="localvar">rule</span>.handleFailureResponseAs(FaicliUnifiedFailureResult.<span class="keyword">class</span>);
+    }
+
+    @Override
+    <span class="keyword">protected</span> String getUrlBase() {
+        <span class="keyword">return</span> <span class="literal">"http://localhost:8090/harbor"</span>;
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======</span>
+    <span class="keyword">public</span> RemoteMypageProductReturn requestMypage(RemoteMypageParam <span class="localvar">param</span>) {
+        <span class="keyword">return</span> doRequestGet(RemoteMypageProductReturn.<span class="keyword">class</span>, <span class="literal">"/lido/mypage"</span>, noMoreUrl(), query(<span class="localvar">param</span>), <span class="localvar">rule</span> -&gt; {});
+    }
+
+    <span class="keyword">public</span> RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt; requestProductList(RemoteProductSearchParam <span class="localvar">param</span>) {
+        <span class="keyword">return</span> doRequestPost(<span class="keyword">new</span> ParameterizedRef&lt;RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt;&gt;() {
+        }.getType(), <span class="literal">"/lido/product/list"</span>, moreUrl(<span class="literal">1</span>), <span class="localvar">param</span>, <span class="localvar">rule</span> -&gt; {});
+    }
+}
+</code></pre>
+	<h3 id="implbhvdefaultrule">yourDefaultRule()の実装</h3>
+	<p>
+		ここで、Sender, Receiver, FailureResponseなどを設定します。
+		Behavior内でのすべてのrequestメソッドで有効になるので、統一的なルール、もしくは、多くのrequestメソッドで必要となるルールを設定しましょう。
+	</p>
+<pre><span class="codetitle">e.g. RemoteApi yourDefaultRule() @Java</span><code>
+    @Override
+    <span class="keyword">protected void</span> yourDefaultRule(FlutyRemoteApiRule <span class="localvar">rule</span>) {
+        <span class="localvar">rule</span>.sendQueryBy(<span class="keyword">new</span> LaQuerySender(<span class="keyword">new</span> FlVacantRemoteMappingPolicy()));
+
+        JsonMappingOption <span class="localvar">jsonMappingOption</span> = <span class="keyword">new</span> JsonMappingOption();
+        <span class="localvar">rule</span>.sendBodyBy(<span class="keyword">new</span> LaJsonSender(<span class="attribute">requestManager</span>, <span class="localvar">jsonMappingOption</span>));
+        <span class="localvar">rule</span>.receiveBodyBy(<span class="keyword">new</span> LaJsonReceiver(<span class="attribute">requestManager</span>, <span class="localvar">jsonMappingOption</span>));
+
+        <span class="localvar">rule</span>.handleFailureResponseAs(FaicliUnifiedFailureResult.<span class="keyword">class</span>);
+    }
+</code></pre>
+	<p>
+		(だいたい)必須のルールは以下の三つ。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>sendQueryBy()</dt><dd>GET/DELETEリクエストを使うなら必須</dd>
+		<dt>sendBodyBy()</dt><dd>POST/DELETEリクエストを使うなら必須</dd>
+		<dt>receiveBodyBy()</dt><dd>どんなリクエストでも必須</dd>
+	</dl>
+	<p>
+		デフォルトで指定しなかった場合は、メソッドのルールで設定する必要があります。
+	</p>
+	<p>
+		handleFailureResponseAs()は、RemoteApiから戻ってくる(かもしれない)エラーのレスポンスを受け取るクラスを指定します。
+		RemoteApiHttpClientErrorException などから取得できます。
+		必須ではありませんが、エラー情報を使って何かハンドリングをする場合は必要です。<span class="frm">(大抵、必要だと想定されます)</span>
+	</p>
+	<h3 id="implbhvbaseurl">getBaseUrl()の実装</h3>
+	<p>
+		その Behavior の request で共通部分の基底URLを return
+		します。Behaviorの粒度が1サーバー1Behaviorであれば、コンテキストパスまでを指定します。
+		<span class="frm">(e.g. http://localhost:8090/harbor)</span> 
+	</p>
+	<p>
+		実際には、ローカル開発用URLと検証環境用URLと本番用URLと、テスト環境都合でデプロイ環境ごとにURLは変わる可能性があるので、[app]_env.properties
+		に定義して、configから取得して環境切り替えできるようにするのが現実的でしょう。<span class="frm">(本番でもlocalhostなんてことはあまりないかと)</span>
+	</p>
+<pre><span class="codetitle">e.g. RemoteApi harbor URL from configuration @Java</span><code>
+    @Resource
+    <span class="keyword">private</span> FortressConfig <span class="attirubte">config</span>;
+
+    @Override
+    <span class="keyword">protected</span> String getUrlBase() {
+        <span class="keyword">return</span> <span class="attirubte">config</span>.getRemoteApiBaseUrlHarbor();
+    }
+</code></pre>
+	<h3 id="implbhvrequestmethod">requestメソッドの実装</h3>
+	<p>
+		たっぷりこの後、独立セクションでお送りいたします。
+	</p>
+
+	<h2 id="howtorequest">requestメソッドの実装の仕方</h2>
+	<h3 id="requestmethodname">requestメソッドのメソッド名</h3>
+	<p>
+		厳密には任意ですが、request[業務名]() という名前が慣習です。
+		通信してるっぽい名前を付けて、プログラム上で意識させたいためです。<span class="frm">(パフォーマンス上、重要ポイントであることを示したい)</span>
+	</p>
+<pre><span class="codetitle">e.g. request methods @Java</span><code>
+<span class="keyword">public</span> RemoteMypageReturn <span class="point">requestMypage(RemoteMypageParam <span class="localvar">param</span>)</span> {
+    <span class="abbreviation">...</span>
+}
+
+<span class="keyword">public</span> RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt; <span class="comment">// 都合改行</span>
+        <span class="point">requestProductList</span>(RemoteProductSearchParam <span class="localvar">param</span>) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		アプリプロジェクトで、requestではない別の名前を付けて統一するのは特に問題ありません。フレームワークにおける概念名が
+		request というだけであって、find...(), update...() など付けてもいいでしょう。
+		<span class="frm">(その代わり、しっかりプロジェクトで統一性をキープしましょう)</span> 
+	</p>
+	<h3 id="requestparamreturn">requestメソッドの引数と戻り値</h3>
+	<p>
+		"Paramクラス" と "Returnクラス" を用意してデータのやり取りをします。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>Paramクラス</dt><dd>クエリーパラメータ、リクエストボディ(RequestBody)のデータ</dd>
+		<dt>Returnクラス</dt><dd>レスポンスボディ(ResponseBody)のデータ <span class="frm">(ときに Header なども含む)</span></dd>
+	</dl>
+	<p>
+		JSON や XML など、様々な形式のデータを受け渡しするクラスです。
+	</p>
+	<p>
+		引数のParamクラスや戻り値のReturnクラスの名前は任意です。デフォルトの慣習として、意味を持たない Param や Return
+		を使っていますが、リクエストやレスポンスの形式は千差万別なので、アプリのポリシーに合わせます。
+		<span class="frm">(特にポリシーとか決めてないのであれば、みんなでブレまくるよりかは Param, Return で良いでしょう)</span>
+	</p>
+	<p>
+		利用されるBehaviorの近くに業務ごとにパッケージ配下に作成すると良いでしょう。<span class="frm">(厳密には任意)</span>
+	</p>
+<pre><span class="codetitle">e.g. param and return classes location @Package</span><code>
+org.docksidestage
+ |-app
+ |-dbflute
+ |-mylasta
+ |-remote
+ |  |-harbor            <span class="comment">// サービス名 (シングルプロジェクト)</span>
+ |  |  |-base           <span class="comment">// 抽象クラスや共通のクラスを置く場所</span>
+ |  |  |  |-RemoteSearchPagingReturn.java
+ |  |  |
+ |  |  |-<span class="point">mypage</span>
+ |  |  |  |-<span class="subpoint">RemoteMypageParam.java</span>
+ |  |  |  |-<span class="subpoint">RemoteMypageReturn.java</span>
+ |  |  |
+ |  |  |-<span class="point">product</span>
+ |  |  |  |-<span class="subpoint">RemoteProductRowReturn.java</span>
+ |  |  |  |-<span class="subpoint">RemoteProductSearchParam.java</span>
+ |  |  |
+ |  |  |-RemoteHarborBhv.java
+</code></pre>
+	<p>
+		requestメソッドで、引数と戻り値に定義します。Paramクラス以外の引数が入っても構いません。
+		オプションなどを呼び出し側からもらいたい場合などは、第二引数以降で受け取ると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. param and return definition @Java</span><code>
+<span class="keyword">public</span> <span class="point">RemoteMypageReturn</span> requestMypage(RemoteMypageParam <span class="localvar">param</span>) {
+    <span class="abbreviation">...</span>
+}
+
+<span class="keyword">public</span> <span class="point">RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt;</span> <span class="comment">// 都合改行</span>
+        requestProductList(<span class="point">RemoteProductSearchParam</span> <span class="localvar">param</span>) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		中の実装は、Actionクラスで使う、Form や Body, Result などと形式はほぼ同じです。
+		Validatorアノテーションも利用できるので、@Required などは積極的に付けていきましょう。
+		少しAPIならではの機能が付け足されています。
+	</p>
+	<div class="relatedpage"><a href="../action/lavalidation.html#responsevalidation">番外. レスポンスデータのバリデーション</a></div>
+	<h3 id="calldorequest">doRequest...()の呼び出し</h3>
+	<p>
+		HTTP Methodごとにメソッドが分かれています。
+	</p>
+	<dl class="keymainlist">
+		<dt>doRequestGet()</dt><dd>GETで送信、クエリーパラメーターのデータを引数で指定</dd>
+		<dt>doRequestPost()</dt><dd>POSTで送信、リクエストボディのデータを引数で指定</dd>
+		<dt>doRequestPut()</dt><dd>PUTで送信、あとは doRequestPost()と同じ</dd>
+		<dt>doRequestDelete()</dt><dd>DELETEで送信、あとは doRequestGet()と同じ</dd>
+	</dl>
+<pre><span class="codetitle">e.g. call doRequestGet(), doRequestPost() @Java</span><code>
+<span class="keyword">public</span> RemoteMypageReturn requestMypage(RemoteMypageParam <span class="localvar">param</span>) {
+    <span class="keyword">return</span> <span class="point">doRequestGet</span>(RemoteMypageReturn.<span class="keyword">class</span>, <span class="literal">"/lido/mypage"</span>, noMoreUrl(), query(<span class="localvar">param</span>), <span class="localvar">rule</span> -&gt; {});
+}
+
+<span class="keyword">public</span> RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt; requestProductList(<span class="point">RemoteProductSearchParam</span> <span class="localvar">param</span>) {
+    <span class="keyword">return</span> <span class="point">doRequestPost</span>(<span class="keyword">new</span> ParameterizedRef&lt;RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt;&gt;() {
+    }.getType(), <span class="literal">"/lido/product/list"</span>, moreUrl(<span class="literal">1</span>), <span class="localvar">param</span>, <span class="localvar">rule</span> -&gt; {});
+}
+</code></pre>
+	<p>
+		指定する引数はこのようになっています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>Returnクラスの型</dt><dd>Class型とParameterizedType型を指定 <span class="frm">(戻りのないAPIなら、"void.class" を指定)</span></dd>
+		<dt>アプリ部分のURL</dt><dd>getBaseUrl()の続きの固定のURLを指定 <span class="frm">e.g. /product/list</span></dd>
+		<dt>追加の動的URL</dt><dd>Pathパラメーター部分のURLを指定、moreUrl()を使うと良い</dd>
+		<dt>クエリーパラメーター</dt><dd><span class="frm">(GET/DELETEのみ)</span> ParamクラスをOptionalThingで指定 <span class="frm">e.g. query(), noQuery()</span></dd>
+		<dt>リクエストボディ</dt><dd><span class="frm">(POST/PUTのみ)</span> Paramクラスを指定 (必須)</dd>
+		<dt>メソッドごとのルール</dt><dd>yourDefaultRule()のルールを上書きしたいときに利用</dd>
+	</dl>
+	<h3 id="parameterizedtype">ネストしたGenericsはParameterizedType</h3>
+	<p>
+		ネストしたGenericsのParamクラスを指定するときは、ParameterizedRefクラスを利用して、指定された型の
+		ParameterizedType を導出します。これは、Javaの文法上どうしてもこういった書き方が必要になります。
+	</p>
+<pre><span class="codetitle">e.g. how to derive ParameterizedType of RemoteSearchPagingReturn @Java</span><code>
+<span class="keyword">new</span> ParameterizedRef<span class="point">&lt;RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt;&gt;</span>() {
+}.getType()
+</code></pre>
+	<ul class="codeoutro">
+		<li>最後、getType()を忘れずに</li>
+	</ul>
+	<h3 id="optionalqueryparam">クエリーパラメーターはOptionalThing</h3>
+	<p>
+		クエリーパラメーターは、GET/DELETEでも必須ではないので、OptionalThing型で指定します。
+		<span class="frm">(OptionalThingは、DBFluteが提供する Optional の拡張クラスです。でも継承関係はありません)</span>
+	</p>
+	<p>
+		業務的に必ず存在するの場合は、requestメソッドの引数はそのままParamクラスで、<em class="mark">query(param)</em> メソッドで指定すると良いでしょう。
+	</p>
+	<p>
+		業務的に必ず存在しないのであれば、<em class="mark">noQuery()</em> メソッドで固定的に指定しましょう<span class="frm">(nullは不可)</span>。
+	</p>
+	<p>
+		業務的に存在するかしないか動的に変わる場合は、requestメソッドの引数自体を OptionalThing で受けるようにして、呼び出し側でクエリーパラメーターの有無を制御すると良いでしょう。
+	</p>
+	<p>
+		<span class="frm">※この辺は、コントリビュートを頂いたときの互換性キープの都合もあり、こうなっています。</span>
+	</p>
+
+	<h2 id="translatekeyname">FormやJSONのキー名の翻訳</h2>
+	<p>
+		TODO jflute キャメルケースの一括変換 (JsonMappingOption) や、ピンポイントでの名前の変更 (SerializedName) など
+	</p>
+
+	<h2 id="errorhandling">リモートAPIのエラーハンドリング</h2>
+	<h3 id="exceptionmapping">エラーと例外クラスの対応</h3>
+	<p>
+		エラーと例外クラスの対応はこちらの通り。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>クライアントエラー</dt><dd>RemoteApiHttpClientErrorException *A</dd>
+		<dt>サーバーエラー</dt><dd>RemoteApiHttpServerErrorException</dd>
+		<dt>正常時のレスポンス解析エラー</dt><dd>RemoteApiResponseParseFailureException</dd>
+		<dt>エラー時のレスポンス解析エラー</dt><dd>RemoteApiResponseParseFailureException *B</dd>
+		<dt>リクエストのバリデーションエラー</dt><dd>RemoteApiRequestValidationErrorException</dd>
+		<dt>レスポンスのバリデーションエラー</dt><dd>RemoteApiResponseValidationErrorException</dd>
+		<dt>I/Oエラー</dt><dd>RemoteApiIOException</dd>
+	</dl>
+	<p>
+		*A: 一番、アプリが意識する例外となります。catchして制御することも多いでしょう。
+	</p>
+	<p>
+		*B: 自動的にthrowされる例外ではなく、RemoteApiHttpClientErrorException や
+		RemoteApiHttpServerErrorException の getFailureResponse() の戻り値である OptionalThing
+		に内包される例外となります。alwaysPresent() や orElseTranslatingThrow() などでお目にかかります。
+		<span class="frm">(エラー時のレスポンスは、brokenなことがよくあると想定されるので、元のクライアントエラーやサーバーエラーをキープするために、即時throw例外にしていません)</span>
+	</p>
+	<p>
+		そもそも、クライアントエラーやサーバーエラーとはなんぞや？という場合はこちらのページを。
+	</p>
+	<div class="detailpage"><a href="./exceptionhandling.html">開拓の例外ハンドリング</a></div>
+	<h3 id="errorresponse">エラーレスポンスの受け取り</h3>
+	<p>
+		ルールの設定で、rule.handleFailureResponseAs([受け取りのクラス])
+		を指定していれば、クライアントエラーやサーバーエラーのときのレスポンスデータを指定したクラスで受け取ることができます。
+		<span class="frm">(あまりサーバーエラーのレスポンスを意識して受け取ることはないと思うので、主にはクライアントエラーのときでしょう)</span>
+	</p>
+	<p>
+		yourDefaultRule() で、handleFailureResponseAs() で指定して...
+	</p>
+<pre><span class="codetitle">e.g. set failure response type in yourDefaultRule() @Java</span><code>
+@Override
+<span class="keyword">protected void</span> yourDefaultRule(FlutyRemoteApiRule <span class="localvar">rule</span>) {
+    <span class="abbreviation">...</span>
+    <span class="localvar">rule</span>.<span class="point">handleFailureResponseAs</span>(<span class="subpoint">FaicliUnifiedFailureResult</span>.<span class="keyword">class</span>);
+}
+</code></pre>
+	<p>
+		例外をキャッチして、getFailureResponse()で受け取ります。
+	</p>
+<pre><span class="codetitle">e.g. translate 400 and login failure response to LoginFailureException @Java</span><code>
+<span class="keyword">try</span> {
+    <span class="abbreviation">...</span> <span class="comment">// calling remote API</span>
+} <span class="keyword">catch</span> (RemoteApiHttpClientErrorException <span class="localvar">e</span>) { <span class="comment">// クライアントエラー</span>
+    <span class="keyword">if</span> (<span class="localvar">e</span>.getHttpStatus() == <span class="literal">400</span>) { <span class="comment">// 大抵は、HTTP Statusを指定してから</span>
+        <span class="localvar">e</span>.<span class="point">getFailureResponse()</span>.alwaysPresent(<span class="localvar">response</span> -&gt; { <span class="comment">// 解析エラーなら例外</span>
+            <span class="subpoint">FaicliUnifiedFailureResult</span> <span class="localvar">result</span> = (FaicliUnifiedFailureResult)<span class="localvar">response</span>;
+            <span class="abbreviation">...</span> <span class="comment">// エラーレスポンスのデータを使って業務的な処理</span>
+        }
+    }
+    <span class="keyword">throw</span> <span class="localvar">e</span>; <span class="comment">// 別のエラーのときのthrowを忘れずに</span>
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>エラーレスポンス自体の解析エラーのときは、getFailureResponse() の戻りが empty になる</li>
+		<li>なので、もし解析エラーをシステム例外にしたくなければ、orElseTranslatingThrow()などで制御</li>
+		<li>フレームワーク組み込みの例外クラスなので、どうしてもObject型からのダウンキャストは必要</li>
+		<li>実際は、failureResponseを取り扱う共通クラスなどを用意したほうが良い</li>
+	</ul>
+	<p>
+		主に、ユーザー入力項目のバリデーションエラーなどで、よく利用されるでしょう。
+	</p>
+	<h3 id="translateexception">例外の翻訳をするのは？</h3>
+	<p>
+		主にクライアントエラーのときは、内容次第で例外を翻訳したいことがあるでしょう。
+		例えば、とあるクライアントエラーを、呼び出し側で都合の良い業務例外に翻訳するなど。
+	</p>
+	<p>
+		RemoteApiHttpClientErrorExceptionから HTTP Status とエラーレスポンスが取得できるので、単純な try/catch
+		で処理しましょう。
+	</p>
+	<p>
+		HTTP Statusだけで例外翻訳するなら...
+	</p>
+<pre><span class="codetitle">e.g. translate 401 response to LoginRequiredException @Java</span><code>
+<span class="keyword">try</span> {
+    <span class="abbreviation">...</span> <span class="comment">// calling remote API</span>
+} <span class="keyword">catch</span> (RemoteApiHttpClientErrorException <span class="localvar">e</span>) { <span class="comment">// クライアントエラー</span>
+    <span class="keyword">if</span> (<span class="localvar">e</span>.getHttpStatus() == <span class="literal">401</span>) {
+        <span class="keyword">throw new</span> LoginRequiredException(<span class="literal">"...your message"</span>, <span class="localvar">e</span>);
+    }
+    <span class="keyword">throw</span> <span class="localvar">e</span>; <span class="comment">// 別のエラーのときのthrowを忘れずに</span>
+}
+</code></pre>
+	<p>
+		HTTP Statusに加えてエラーレスポンスの中身も見て例外翻訳するなら... <span class="frm">(ふぁいくらパターンなど)</span>
+	</p>
+	<div class="relatedpage"><a href="../impldesign/jsonfaicli.html">JSON API, Failure統一クライアントメッセージ</a></div>
+<pre><span class="codetitle">e.g. translate 400 and login required response to LoginRequiredException in your action @Java</span><code>
+<span class="keyword">try</span> {
+    <span class="abbreviation">...</span> <span class="comment">// calling remote API</span>
+} <span class="keyword">catch</span> (RemoteApiHttpClientErrorException <span class="localvar">e</span>) { <span class="comment">// クライアントエラー</span>
+    <span class="keyword">if</span> (<span class="localvar">e</span>.getHttpStatus() == <span class="literal">400</span>) {
+        <span class="localvar">e</span>.getFailureResponse().alwaysPresent(<span class="localvar">response</span> -&gt; {
+            <span class="keyword">if</span> (<span class="attribute">errorResponseAgent</span>.isBusinessErrorLoginFailure(<span class="localvar">response</span>)) {
+                <span class="keyword">throw new</span> LoginRequiredException(<span class="literal">"...your message"</span>, <span class="localvar">e</span>);
+            }
+        });
+    }
+    <span class="keyword">throw</span> <span class="localvar">e</span>; <span class="comment">// 別のエラーのときのthrowを忘れずに</span>
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>rule.handleFailureResponseAs() で、エラーレスポンスの受け取りクラスを指定していることが前提</li>
+		<li>alwaysPresent()で、エラーレスポンス自体のパースエラーのときはシステム例外としてthrowしている</li>
+		<li>errorResponseAgentはただのExampleだが、どうせ他でも使うことが多いので判定は共通化した方が良い</li>
+	</ul>
+	<h3 id="commontranslation">統一的な例外の翻訳は？</h3>
+	<p>
+		同じような例外の翻訳を複数の Action でやるのは大変なので、RemoteApi
+		からthrowされる例外が、すでにアプリに適した翻訳された例外になっていたほうがいいかもしれません。
+	</p>
+	<p>
+		rule.translateClientError() で統一的に翻訳できます。
+	</p>
+<pre><span class="codetitle">e.g. translate 400 and login required response to LoginRequiredException in your rule @Java</span><code>
+@Override
+<span class="keyword">protected void</span> yourDefaultRule(FlutyRemoteApiRule <span class="localvar">rule</span>) {
+    <span class="abbreviation">...</span>
+    <span class="localvar">rule</span>.<span class="point">translateClientError</span>(<span class="localvar">resource</span> -&gt; {
+        RemoteApiHttpClientErrorException <span class="localvar">clientError</span> = <span class="localvar">resource</span>.getClientError();
+        <span class="keyword">if</span> (<span class="localvar">clientError</span>.getHttpStatus() == <span class="literal">400</span>) { <span class="comment">// controlled client error</span>
+            RemoteUnifiedFailureResult <span class="localvar">result</span> = (RemoteUnifiedFailureResult) <span class="localvar">clientError</span>.getFailureResponse().get();
+            <span class="keyword">if</span> (RemoteUnifiedFailureType.<span class="attribute">LOGIN_REQUIRED</span>.equals(<span class="localvar">result</span>.<span class="attribute">cause</span>)) {
+                <span class="keyword">return new</span> LoginRequiredException(<span class="literal">"...your message"</span>, <span class="localvar">e</span>);
+            }
+        }
+        <span class="keyword">return null</span>; <span class="comment">// no translation</span>
+    });
+}
+</code></pre>
+	<p>
+		ユーザー入力項目バリデーションをリモートAPI側で行う場合は、呼び出し側のバリデーションエラーに翻訳する必要があります。
+		よくあるパターンなので、resource.asHtmlValidationError(messages) という専用のメソッドが用意されています。
+	</p>
+	<p>
+		TODO jflute クライアントメッセージ方式とサーバーメッセージ方式の両方の asHtmlValidationError() の Example コード
+	</p>
+	<h3 id="nocatcherror">catchせず、そのままthrowしっぱなしだと？</h3>
+	<p>
+		どの例外でも、catchせず、そのままthrowしっぱなしにするとシステム例外として扱われます。
+	</p>
+	<p>
+		クライアントエラー (ここでは業務例外も含む) も、こちらでcatchして何か処理をしないということは、こちらの不備ということでリカバリ不能なのでシステム例外となります。
+		<span class="frm">(システム例外として翻訳されるというニュアンス)</span>
+	</p>
+	<p>
+		RemoteApiの例外に対して、何かしら業務的な処理をするのであれば、呼び出し側で try/catch
+		をするか、rule.translateClientError() で統一的な翻訳をするか、何かしらの対処をしましょう。
+	</p>
+
+	<h2 id="howtounittest">UnitTestのやり方</h2>
+	<h3 id="mockhttpclient">MockHttpClientがあります</h3>
+	<p>
+		MockHttpClientクラスを使ってテストをすると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. RemoteApi behavior for harbor @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> RemoteHarborBhvTest <span class="keyword">extends</span> UnitFortressTestCase {
+
+    @Resource
+    <span class="keyword">private</span> RequestManager <span class="attribute">requestManager</span>;
+
+    <span class="keyword">public void</span> test_requestProductList_basic() {
+        <span class="comment">// ## Arrange ##</span>
+        RemoteProductSearchParam <span class="localvar">param</span> = <span class="keyword">new</span> RemoteProductSearchParam();
+        <span class="localvar">param</span>.<span class="attribute">productName</span> = <span class="literal">"S"</span>;
+        String <span class="localvar">json</span> = <span class="literal">"{pageSize=4, currentPageNumber=1, allRecordCount=20, allPageCount=5, rows=[]}"</span>;
+        MockHttpClient <span class="localvar">client</span> = MockHttpClient.create(<span class="localvar">resopnse</span> -&gt; {
+            <span class="localvar">resopnse</span>.peekRequest(<span class="localvar">request</span> -&gt; {
+                assertContainsAll(<span class="localvar">request</span>.getBody().get(), <span class="literal">"productName"</span>, <span class="localvar">param</span>.<span class="attribute">productName</span>);
+            });
+            <span class="localvar">resopnse</span>.asJsonDirectly(<span class="localvar">json</span>, <span class="localvar">request</span> -&gt; <span class="keyword">true</span>);
+        });
+        registerMock(<span class="localvar">client</span>);
+        RemoteHarborBhv <span class="localvar">bhv</span> = <span class="keyword">new</span> RemoteHarborBhv(<span class="attribute">requestManager</span>);
+        inject(<span class="localvar">bhv</span>);
+
+        <span class="comment">// ## Act ##</span>
+        RemoteSearchPagingReturn&lt;RemoteProductRowReturn&gt; <span class="localvar">ret</span> = <span class="localvar">bhv</span>.requestProductList(<span class="localvar">param</span>);
+
+        <span class="comment">// ## Assert ##</span>
+        assertEquals(<span class="literal">4</span>, <span class="localvar">ret</span>.<span class="attribute">pageSize</span>);
+        assertEquals(<span class="literal">5</span>, <span class="localvar">ret</span>.<span class="attribute">allPageCount</span>);
+        assertEquals(<span class="literal">20</span>, <span class="localvar">ret</span>.<span class="attribute">allRecordCount</span>);
+        assertEquals(<span class="literal">5</span>, <span class="localvar">ret</span>.<span class="attribute">allPageCount</span>);
+        assertEquals(<span class="literal">0</span>, <span class="localvar">ret</span>.<span class="attribute">rows</span>.size());
+    }
+
+    <span class="keyword">public void</span> test_validationError_basic() {
+        <span class="comment">// ## Arrange ##</span>
+        RemoteProductSearchParam <span class="localvar">param</span> = <span class="keyword">new</span> RemoteProductSearchParam();
+        String <span class="localvar">json</span> = <span class="literal">"{cause=VALIDATION_ERROR, errors : [{field=productName, code=LENGTH, data={min:0,max:10}}]}"</span>;
+        MockHttpClient <span class="localvar">client</span> = MockHttpClient.create(<span class="localvar">resopnse</span> -&gt; {
+            <span class="localvar">resopnse</span>.asJsonDirectly(<span class="localvar">json</span>, <span class="localvar">request</span> -&gt; <span class="keyword">true</span>).httpStatus(<span class="literal">400</span>);
+        });
+        registerMock(<span class="localvar">client</span>);
+        RemoteHarborBhv <span class="localvar">bhv</span> = <span class="keyword">new</span> RemoteHarborBhv(<span class="attribute">requestManager</span>);
+        inject(<span class="localvar">bhv</span>);
+
+        <span class="comment">// ## Act ##</span>
+        assertException(RemoteApiHttpClientErrorException.<span class="keyword">class</span>, () -&gt; <span class="localvar">bhv</span>.requestProductList(<span class="localvar">param</span>)).handle(<span class="localvar">cause</span> -&gt; {
+            <span class="comment">// ## Assert ##</span>
+            FaicliUnifiedFailureResult <span class="localvar">result</span> = (FaicliUnifiedFailureResult) <span class="localvar">cause</span>.getFailureResponse().get();
+            log(<span class="localvar">result</span>);
+            assertEquals(FaicliUnifiedFailureType.<span class="attribute">VALIDATION_ERROR</span>, <span class="localvar">result</span>.<span class="attribute">cause</span>);
+            assertHasOnlyOneElement(<span class="localvar">result</span>.<span class="attribute">errors</span>);
+            FaicliFailureErrorPart <span class="localvar">errorPart</span> = <span class="localvar">result</span>.<span class="attribute">errors</span>.get(<span class="literal">0</span>);
+            assertEquals(<span class="literal">"productName"</span>, <span class="localvar">errorPart</span>.<span class="attribute">field</span>);
+            assertEquals(<span class="literal">"LENGTH"</span>, <span class="localvar">errorPart</span>.<span class="attribute">code</span>);
+            assertEquals(<span class="literal">0</span>, toInteger(<span class="localvar">errorPart</span>.<span class="attribute">data</span>.get(<span class="literal">"min"</span>))); <span class="comment">// because it may be decimal type</span>
+            assertEquals(<span class="literal">10</span>, toInteger(<span class="localvar">errorPart</span>.<span class="attribute">data</span>.get(<span class="literal">"max"</span>))); <span class="comment">// me too</span>
+        });
+    }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>peekRequest()で、想定通りのリクエストを送っているかのアサートもすると良いでしょう</li>
+		<li>ここでは、一つのRemoteApiしか呼ばないので、asJson()のリクエストのマッチングは固定でtrue</li>
+	</ul>
+	<p>
+		実際には、JSONはハードコードではなく、ファイル取得の方が良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. asJson() by path to classpath resource @Java</span><code>
+    <span class="localvar">resopnse</span>.asJson(<span class="literal">"/mock/harbor/sea.json"</span>, <span class="localvar">request</span> -&gt; <span class="keyword">true</span>));
+</code></pre>
+	<p>
+		また、期待値である JSON は、リモートAPI側のインターフェース仕様に従ったものから抽出して定義しましょう。
+		ここを自分たちサーバー本位で決めてしまうと意味のないテストになってしまいます。
+		<span class="frm">(リモートAPI側のドキュメントやコードから機械的に抽出できるとHappyでしょう)</span>
+	</p>
+	<h3 id="testactionuses">RemoteApiを使うActionのUnitTest</h3>
+	<p>
+		RemoteApi を呼び出している Action の UnitTest を書くときも、同じように MockHttpClient
+		を使うと良いでしょう。<span class="frm">(Logicでも同じ話です)</span>
+		TODO jflute たぶん、peekRequest()はあまり使わない。複数のRemoteApiを呼ぶときは、asJson()の第二引数で RemoteApi を識別すべし
+	</p>
+	<p>
+		複数のRemoteApiを呼ぶときは、asJson()の第二引数で RemoteApi を識別しましょう。
+	</p>
+<pre><span class="codetitle">e.g. asJson() for specified request @Java</span><code>
+    <span class="localvar">resopnse</span>.asJson(<span class="localvar">path</span>, <span class="localvar">request</span> -&gt; <span class="localvar">request</span>.getUrl().contains(<span class="literal">"/harbor/"</span>));
+</code></pre>
+	<p>
+		ActionのUnitTestのときは peekRequest() はあまり使わない想定です。想定通りのリクエストを投げることができているかどうかは、Behavior
+		の UnitTest に任せる方が良いでしょう。
+	</p>
+
+	<h2 id="autogenerate">RemoteApiGen, 自動生成</h2>
+	<p>
+		自動生成できます。
+	</p>
+	<h3 id="genarchitecture">RemoteApiGenのアーキテクチャ</h3>
+	<p class="imgbox">
+		<a href="../../../../data/model/lastaflute/remoteapi/lastaflute-remoteapigen-architecture-map.png" title="LastaFlute RemoteApiGen Architecture"><img src="../../../../data/model/lastaflute/remoteapi/lastaflute-remoteapigen-architecture-map.png" alt="LastaFlute RemoteApiGen Architecture" width="550" height="380" /></a>
+	</p>
+	<h3 id="gensetup">RemoteApiGenのセットアップ</h3>
+	<p>
+		RemoteApiGenの設定ファイルやExampleは、もろもろ dbflute-example-with-non-rdb リポジトリに入っています。
+		こちらを参考に環境構築をしていきましょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-non-rdb">dbflute-example-with-non-rdb | Github</a></div>
+
+	<h2 id="exampleproject">Exampleプロジェクト</h2>
+	<p>
+		lastaflute-test-fortressプロジェクト <span class="frm">(テスト用のプロジェクト)</span>
+		に、RemoteHarborBhv という RemoteApi の Example コードもあります。 
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress">lastaflute-test-fortress | Github</a></div>
+
+	<h2 id="greatthanks">Great Thanks</h2>
+	<p>
+		Lasta RemoteApiは、"U-NEXTさん" より、コントリビュート頂きました。
+	</p>
+	<div class="detailpage"><a href="http://video.unext.jp/">U-NEXT＜ユーネクスト＞</a></div>
+	<p>
+		ありがとうございます！
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

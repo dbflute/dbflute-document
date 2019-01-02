@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,sequenceDefinitionMap.dfprop,シーケンス,Sequence,テーブルとの関連付け" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>sequenceMap (sequenceDefinitionMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>sequenceMap</h1>
+	<p>
+		Java6版までは、sequenceDefinitionMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">sequenceMapとは？</h2>
+	<p>
+		テーブルとシーケンスを関連付ける設定をするDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の sequenceMap.dfprop <span class="frm">(sequenceDefinitionMap.dfprop)</span> という名前のテキストファイルです。主に Generateタスク にて参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<p>
+		この設定をすることで、該当のテーブルのBehaviorに(関連付いた)シーケンスに対するメソッドが自動生成され、insert
+		実行時には自動でそのメソッドが呼び出され、PKの登録値となります。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html#sequence">現場フィット - 自動採番 - シーケンス</a></div>
+	<div class="relatedpage"><a href="../../../function/ormapper/behavior/update/insert.html">Behavior - insert()</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、テーブルとシーケンスの関連を定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		PostgreSQLの serial 型や bigserial
+		型でPKを定義している場合、テーブルとシーケンスの関係はメタデータ情報から解決するため、設定は不要です。
+		(但し、シーケンスキャッシュを利用する場合は、serial 型のシーケンスであっても明示的に設定する必要あり)
+	</p>
+<pre><span class="codetitle">sequenceDefinitionMapの仕様 @sequenceDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [table-name] = [sequence-name (with cache option)]
+    ...
+}
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="tablename">table-name (*)</h3>
+	<p>
+		シーケンスに関連付けるテーブル名を指定します。
+	</p>
+	<p>
+		AdditionalSchema (追加スキーマ)のテーブルの場合でも、特にスキーマ名の修飾は必要ありません。
+		(DBFluteでは、自動生成対象のテーブル名はユニークであることが前提のため)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブルの名前 (自動生成対象になっていること)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (但し実体と合わせることを推奨)</li>
+				<li>(単一の)PKが定義されたテーブルであること</li>
+				<li>AdditionalSchema (追加スキーマ)のテーブルでも、スキーマ名の修飾は必要なし</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		テーブル名に加えて、"." ドットつなぎでカラム名を指定することで、
+		PK以外のカラムのためのシーケンスを定義することもできます<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html#subcolumnsequence">現場フィット - 自動採番 - PK以外のカラムのシーケンス</a></div>
+	<h3 id="sequencename">sequence-name (*)</h3>
+	<p>
+		テーブルに関連付けるシーケンスの名前を指定します。
+	</p>
+	<h4>別スキーマのシーケンス</h4>
+	<p>
+		別スキーマのシーケンスを指定する場合は、アプリから(SQL上で)識別できる形式、例えば、"[スキーマ名].[シーケンス名]" というように指定します。特に
+		AdditionalSchema (追加スキーマ)の設定とは関連はせず、独立した設定となります。
+		その分、テーブルとは違うスキーマのシーケンスの指定や、追加スキーマでないスキーマ(自動生成対象でないスキーマ)のシーケンスの指定ができるようになっています。
+		(別スキーマ同名シーケンスも指定可能)
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<h4>シーケンスキャッシュ</h4>
+	<p>
+		(DBFluteが提供する)シーケンスキャッシュを利用する場合は、シーケンス名の後に ":dfcache(n)"
+		を指定します。インクリメント方式を利用する場合は、":dfcache()"
+		というようにキャッシュサイズは省略可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/runtimefit/sequencecache/index.html">現場フィット - シーケンスキャッシュ</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>シーケンスの名前 (+ 必要であればキャッシュ指定)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された名前(キャッシュ指定は除く)で、そのままSQLが発行される</li>
+				<li>大文字小文字の区別はDBMS依存(そのままの名前でSQLで発行されるため)</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="example">Example</h2>
+<pre><span class="codetitle">e.g. 基本的な設定 @sequenceDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; PURCHASE     = SEQ_PURCHASE
+    ; MEMBER       = SEQ_MEMBER
+    ; MEMBER_LOGIN = SEQ_MEMBER_LOGIN
+    ; PRODUCT      = SEQ_PRODUCT
+}
+</code></pre>
+<pre><span class="codetitle">e.g. シーケンスキャッシュの利用 @sequenceDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; PURCHASE     = SEQ_PURCHASE:dfcache() <span class="comment"># increment way</span>
+    ; MEMBER       = SEQ_MEMBER:dfcache(50) <span class="comment"># batch way</span>
+    ; MEMBER_LOGIN = SEQ_MEMBER_LOGIN
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 追加スキーマのテーブルとシーケンスを利用 {NEXT_SCHEMA_PRODUCT} @sequenceDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; PURCHASE     = SEQ_PURCHASE
+    ; MEMBER       = SEQ_MEMBER
+    <span class="comment"># テーブルにはスキーマ名は不要で、シーケンスには必要</span>
+    <span class="comment">#   o テーブルとシーケンスのスキーマが違ってもOK</span>
+    <span class="comment">#   o シーケンスのスキーマは追加スキーマでなくてもOK</span>
+    ; NEXT_SCHEMA_PRODUCT = <span class="point">NEXTSCHEMA</span>.SEQ_NEXT_SCHEMA_PRODUCT
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 追加スキーマのシーケンスにキャッシュ指定 {NEXT_SCHEMA_PRODUCT} @sequenceDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; PURCHASE     = SEQ_PURCHASE
+    ; MEMBER       = SEQ_MEMBER
+    ; NEXT_SCHEMA_PRODUCT = NEXTSCHEMA.SEQ_NEXT_SCHEMA_PRODUCT<span class="point">:dfcache(50)</span>
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

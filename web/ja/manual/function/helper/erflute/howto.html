@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ERFlute,ERD,ER図,ER-Diagram,ERMaster" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>ERFluteの使い方 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ERFluteの使い方</h1>
+	<p>
+		DBFluteプロジェクトが提供するライブラリ ERFlute の使い方のページ。
+	</p>
+	<p>
+		そもそも ERFlute とは？については、ERFluteのトップページをご覧ください。
+	</p>
+	<div class="relatedpage"><a href="./index.html">ERFluteトップページ</a></div>
+	${indexlist}
+
+	<h2 id="overview">ERFluteの概観</h2>
+	<dl class="keymainlist">
+		<dt>パレットメニュー</dt><dd>左の Select, Table, 1:n Replationship などのメニュー</dd>
+		<dt>ダイアグラム</dt><dd>テーブルが表示されているERDの表示領域</dd>
+		<dt>Outlineビュー</dt><dd>右のOutlineビュー、テーブルなどがアウトラインで表示される</dd>
+		<dt>ダイアグラムモニター</dt><dd>Outlineビューの下、ダイアグラムの概観が見れる</dd>
+	</dl>
+	<p class="imgbox">図 : ERFluteの概観
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-introduction-overview-snapshot.png" title="ERFluteの概観"><img src="../../../../../data/snapshot/helper/erflute/erflute-introduction-overview-snapshot.png" alt="ERFluteの概観" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="basic">基本操作</h2>
+	<h3 id="tableoperation">テーブルの操作</h3>
+	<dl class="shortkeymainlist">
+		<dt>テーブルの作成</dt><dd>パレットメニューの Table を選択してダイアグラム上へポトり</dd>
+		<dt>テーブルの編集</dt><dd>ダイアグラム上の Table をダブルクリック or 選択して Enter or Space</dd>
+		<dt>テーブルの削除</dt><dd>ダイアグラム上の Table を洗濯して削除ボタン</dd>
+	</dl>
+	<h3 id="columnoperation">カラムの操作</h3>
+	<p>
+		テーブルのダイアログのカラム一覧にて...
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>カラムの作成</dt><dd>Add ボタン</dd>
+		<dt>カラムの編集</dt><dd>カラムを選択して Edit ボタン or ダブルクリック or Space</dd>
+		<dt>カラムの削除</dt><dd>カラムを選択して Delete ボタン</dd>
+	</dl>
+	<h3 id="relationshipoperation">リレーションシップの操作 (FK制約)</h3>
+	<dl class="textlist">
+		<dt>リレーションシップの作成</dt>
+		<dd>メニューの 1:n Relationship を選択して...</dd>
+		<dd>
+			ダイアグラム上の "FK先テーブル" を選択してから、"FK元テーブル" を選択。
+		</dd>
+		<dd>
+			FK "先" (MEMBER と MEMBER_STATUS であれば、MEMBER_STATUS) から選択するので、間違えないように。
+			<span class="frm">(ERMaster-bから引き継いでいる挙動です。なので 1:n Relationship)</span>
+		</dd>
+	</dl>
+	<h3 id="noteoperation">ノートの操作</h3>
+	<dl class="shortkeymainlist">
+		<dt>ノートの作成</dt><dd>パレットメニューの Note を選択してダイアグラム上へポトり</dd>
+		<dt>ノートの編集</dt><dd>ダイアグラム上の Note をダブルクリック or 選択して Enter or Space</dd>
+		<dt>ノートの関連付け</dt><dd>パレットメニュー上の Note Connection を洗濯して Table と Note を...</dd>
+		<dt>ノートの削除</dt><dd>ダイアグラム上の Note を洗濯して削除ボタン</dd>
+	</dl>
+	<p>
+		ノートは、DBコメントでもないので、DDLには一切反映されず SchemaHTML にも載りませんが、"図上で補足したい"
+		というようなコメントがあったら、ノートに書くと良いでしょう。
+	</p>
+	<h3 id="tablegroupoperation">テーブルグループの操作</h3>
+	<p>
+		<span class="frm">※現時点 (0.4.4) あまり良い動作をしないので積極的な利用はオススメしません。仮想ダイアグラムを使いましょう。</span>
+	</p>
+	<p>
+		TODO jflute now writing...
+	</p>
+	<h3 id="imageondiagramoperation">ダイアグラム上の画像埋め込み</h3>
+	<p>
+		<span class="frm">画像を埋め込んで何が嬉しいんだ？という話もあります</span>
+	</p>
+	<p>
+		TODO jflute now writing...
+	</p>
+
+	<h2 id="tableoutlinesearch">テーブルのOutline検索 <span class="frm">*Point</span></h2>
+	<p>
+		ダイアグラム上で ctrl + O (おー) すると、図上に Outline
+		が表示され、テーブル名のキーワード入れてテーブルを選択 (Enter) すると、そのテーブルに飛びます。
+	</p>
+	<p class="imgbox">図 : Outlineによるテーブル検索
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-function-outline-table-search-snapshot.png" title="Outlineによるテーブル検索"><img src="../../../../../data/snapshot/helper/erflute/erflute-function-outline-table-search-snapshot.png" alt="Outlineによるテーブル検索" width="550" height="400" /></a>
+	</p>
+
+	<h2 id="exportddlimg">DDLや画像のエクスポート</h2>
+	<h3 id="ddlexport">DDLのエクスポート</h3>
+	<p>
+		ダイアグラム上の右クリックメニューで、Export - DDL すると、DDL出力のためのダイアログが表示されます。
+		DDLのオプションを指定してOKすると、DDLが出力されます。
+	</p>
+	<p class="imgbox">図 : DDLのエクスポートメニュー
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-function-ddl-popup-snapshot.png" title="DDLのエクスポートメニュー"><img src="../../../../../data/snapshot/helper/erflute/erflute-function-ddl-popup-snapshot.png" alt="DDLのエクスポートメニュー" width="550" height="360" /></a>
+	</p>
+	<p>
+		DDLの出力先パスは、workspace内のパスになっています。<span class="frm">(e.g. /maihama-base/modeling/...)</span>
+	</p>
+	<h3 id="imgexport">画像のエクスポート</h3>
+	<p>
+		ダイアグラム上の右クリックメニューで、Export - Image すると、出力先を指定するダイアログが表示されます。
+		そして、出力先を選ぶと画像が出力されます。
+	</p>
+
+	<h2 id="vdiagram">仮想ダイアグラム</h2>
+	<h3 id="whatisvdiagram">そもそも仮想ダイアグラムとは？</h3>
+	<p>
+		そもそも仮想ダイアグラム (Virtual Diagram) とは、一部のテーブルだけで構成できるダイアグラムです。
+		実体を管理せず、テーブルを仮想的に参照して別のモデリングビューを表現できるものです。
+		例えば、ダイアグラム上でテーブルを削除しても、ダイアグラムから消えるだけで実体は削除されません。
+	</p>
+	<p>
+		例えば、会員系、商品系というように業務カテゴリごとに分けることを想定しています。
+	</p>
+	<p>
+		ちょうど、Seaという名前の仮想ダイアグラムに、PURCHASEテーブルを含めようと、Outlineのテーブルオブジェクトをドラッグ&ドロップしようとしてるところですね。
+	</p>
+	<p class="imgbox">図 : 仮想ダイアグラムの概観
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-howto-vdiagram-overview-snapshot.png" title="仮想ダイアグラムの概観"><img src="../../../../../data/snapshot/helper/erflute/erflute-howto-vdiagram-overview-snapshot.png" alt="仮想ダイアグラムの概観" width="550" height="360" /></a>
+	</p>
+	<h3 id="maindiagram">対してメインダイアグラム</h3>
+	<p>
+		対して、デフォルトのダイアグラムを、メインダイアグラム (Main Diagram)
+		と呼びます。実体を直接管理しているので、例えばダイアグラム上でテーブルの削除をすると、そのまま実体の削除になります
+	</p>
+	<h3 id="lookvdiagram">仮想ダイアグラムの見た目</h3>
+	<p>
+		仮想ダイアグラムは、メインのダイアグラムとは別のタブで開かれます。
+	</p>
+	<p class="imgbox">図 : 仮想ダイアグラムのタブ
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-howto-vdiagram-tab-snapshot.png" title="仮想ダイアグラムのタブ"><img src="../../../../../data/snapshot/helper/erflute/erflute-howto-vdiagram-tab-snapshot.png" alt="仮想ダイアグラムのタブ" width="550" height="200" /></a>
+	</p>
+	<p>
+		Outline の Virtual Diagram にて管理されます。ダブルクリックすることで開けます。
+		<span class="frm">(何か描画がおかしくなったら、もう一度ここをダブルクリックすると良いでしょう)</span>
+	</p>
+	<p class="imgbox">図 : 仮想ダイアグラムのOutline
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-howto-vdiagram-outline-snapshot.png" title="仮想ダイアグラムのOutline"><img src="../../../../../data/snapshot/helper/erflute/erflute-howto-vdiagram-outline-snapshot.png" alt="仮想ダイアグラムのOutline" width="550" height="200" /></a>
+	</p>
+	<h3 id="howtovdiagram">仮想ダイアグラムの使い方</h3>
+	<dl class="keymainlist">
+		<dt>仮想ダイアグラムの作成</dt><dd>ダイアグラム上で右クリックして、new VirtualDiagram() (*1)</dd>
+		<dt>仮想ダイアグラムを開く</dt><dd>Outline上の仮想ダイアグラムをダブルクリック</dd>
+		<dt>テーブルの呼び寄せ</dt><dd>Outline上でテーブル選択してドラッグ&ドロップ</dd>
+		<dt>テーブルの除外</dt><dd>ダイアグラム上でテーブル選択して削除ボタン <span class="frm">(実体が消えるわけじゃない)</span></dd>
+		<dt>テーブルの作成</dt><dd>メインダイアグラムと同じようにできる</dd>
+		<dt>FK制約の作成</dt><dd>メインダイアグラムと同じようにできる</dd>
+		<dt>あれこれ</dt><dd>だいたいメインダイアグラムと同じようにできる</dd>
+	</dl>
+	<p>
+		(*1): 現時点(0.4.4)では、new VirtualDiagram()してもすぐに開かないので、Outline上の仮想ダイアグラムをダブルクリックして開いてください。
+	</p>
+	<h3 id="badvdiagram">仮想ダイアグラムのバッドノウハウ</h3>
+	<dl class="keymainlist">
+		<dt>仮想ダイアグラムの削除</dt><dd>できないので、XML技で該当の vdiagram タグを削除</dd>
+		<dt>描画が変になったら再描画</dt><dd>FK線がすっ飛んだら、Outlineの仮想ダイアグラムをダブルクリック</dd>
+	</dl>
+	<div class="relatedpage"><a href="#xmlway">this - XML技</a></div>
+
+	<h2 id="xmlway">XML技</h2>
+	<p>
+		ERMaster-bからフォークしても、すぐにどんどん改善されるわけではないので、
+		おかしなことなど何かあったら、ermファイルをテキストエディタで開いて、中の XML を直接修正して直すと良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>カラムの削除</dt><dd>XML上で <em class="mark">columns</em> タグの該当 <em class="mark">normal_column</em> タグを削除</dd>
+		<dt>仮想ダイアグラムの削除</dt><dd>XML上で <em class="mark">vdiagram</em> タグの該当タグを削除</dd>
+	</dl>
+	<p>
+		一度は、見て見ると良いと思います。思ったよりも敷居は高くないでしょう。
+	</p>
+	<p class="imgbox">図 : ermファイルのxml
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-introduction-xml-snapshot.png" title="ermファイルのxml"><img src="../../../../../data/snapshot/helper/erflute/erflute-introduction-xml-snapshot.png" alt="ermファイルのxml" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="xmlmaster">XMLを極めたいなら...</h2>
+	<p>
+		ぜひ、こちらを:
+	</p>
+<pre><span class="codetitle">e.g. specification of XML for erm file @erm</span><code>
+&lt;diagram&gt;
+    &lt;presenter&gt;ERFlute&lt;/presenter&gt; <span class="comment">// ERFluteのファイルであることを示すマーク</span>
+    &lt;page_setting&gt;
+        <span class="comment">// ページ設定、印刷とか</span>
+    &lt;/page_setting&gt;
+    &lt;color&gt;
+        <span class="comment">// テーブルを作成するときなどに使われるデフォルトの背景色、RGB</span>
+    &lt;/color&gt;
+    &lt;font_name&gt;&lt;/font_name&gt;
+    &lt;font_size&gt;9&lt;/font_size&gt;
+    &lt;settings&gt;
+        <span class="comment">// ダイアグラムの基本設定など</span>
+        &lt;export_setting&gt;
+            <span class="comment">// DDLなどのエクスポートの設定</span>
+        &lt;/export_setting&gt;
+        &lt;category_settings&gt;
+            <span class="comment">// カテゴリの設定 (ERFluteだと使ってないかも)</span>
+        &lt;/category_settings&gt;
+        &lt;model_properties&gt;
+            <span class="comment">// ダイアグラム自体の説明するマニアックな機能の設定</span>
+        &lt;/model_properties&gt;
+        &lt;table_properties&gt;
+            <span class="comment">// わからない</span>
+        &lt;/table_properties&gt;
+        &lt;environment_setting&gt;
+            <span class="comment">// わからない</span>
+        &lt;/environment_setting&gt;
+    &lt;/settings&gt;
+    &lt;tablespace_set&gt;
+        <span class="comment">// 表領域の設定だと思われる</span>
+    &lt;/tablespace_set&gt;
+    &lt;<span class="subpoint">diagram_walkers</span>&gt; <span class="comment">// ダイアグラム上を歩く人、テーブルとかノートとか</span>
+        &lt;<span class="subpoint">table</span>&gt; <span class="comment">// ひとつのテーブルを表す</span>
+            &lt;physical_name&gt;<span class="literal">MEMBER</span>&lt;/physical_name&gt; <span class="comment">// 物理名</span>
+            &lt;logical_name&gt;<span class="literal">会員</span>&lt;/logical_name&gt; <span class="comment">// 論理名</span>
+            &lt;description&gt;<span class="literal">普通の会員だよん</span>&lt;/description&gt; <span class="comment">// DBコメント</span>
+            &lt;font_name&gt;<span class="literal">Lucida Grande</span>&lt;/font_name&gt; <span class="comment">// ダイアグラム上のフォント</span>
+            &lt;font_size&gt;<span class="literal">9</span>&lt;/font_size&gt; <span class="comment">// ダイアグラム上のフォントサイズ</span>
+            &lt;x&gt;<span class="literal">580</span>&lt;/x&gt; <span class="comment">// ダイアグラム上の座標x</span>
+            &lt;y&gt;<span class="literal">254</span>&lt;/y&gt; <span class="comment">// ダイアグラム上の座標y</span>
+            &lt;color&gt; <span class="comment">// ダイアグラム上の背景色、RGB</span>
+                &lt;r&gt;<span class="literal">128</span>&lt;/r&gt;
+                &lt;g&gt;<span class="literal">128</span>&lt;/g&gt;
+                &lt;b&gt;<span class="literal">192</span>&lt;/b&gt;
+            &lt;/color&gt;
+            &lt;connections&gt; <span class="comment">// リレーションシップたち</span>
+                &lt;relationship&gt; <span class="comment">// 一つのリレーションシップ(FK制約)を表す</span>
+                    &lt;name&gt;<span class="literal">FK_MEMBER_MEMBER_STATUS</span>&lt;/name&gt; <span class="comment">// FK制約名</span>
+                    &lt;source&gt;<span class="literal">table.MEMBER_STATUS</span>&lt;/source&gt; <span class="comment">// FK先のテーブル (sourceだけど先、FK線をひくときの先というニュアンス)</span>
+                    &lt;target&gt;<span class="literal">table.MEMBER</span>&lt;/target&gt; <span class="comment">// FK元のテーブル (targetだけど元、FK線をひくときの元というニュアンス)</span>
+                    &lt;fk_columns&gt; <span class="comment">// FKカラムたち</span>
+                        &lt;fk_column&gt; <span class="comment">// FKカラムたち</span>
+                            &lt;fk_column_name&gt;<span class="literal">MEMBER_STATUS_CODE</span>&lt;/fk_column_name&gt; <span class="comment">// FKカラム名</span>
+                        &lt;/fk_column&gt;
+                    &lt;/fk_columns&gt;
+                    &lt;parent_cardinality&gt;<span class="literal">1</span>&lt;/parent_cardinality&gt; <span class="comment">// FK先のカージナリティ</span>
+                    &lt;child_cardinality&gt;<span class="literal">0..n</span>&lt;/child_cardinality&gt; <span class="comment">// FK元のカージナリティ</span>
+                    &lt;reference_for_pk&gt;<span class="literal">true</span>&lt;/reference_for_pk&gt; <span class="comment">// PKに対するFK (true or false)</span>
+                &lt;/relationship&gt;
+                &lt;relationship&gt;
+                    <span class="abbreviation">...</span>
+                &lt;/relationship&gt;
+            &lt;/connections&gt;
+            &lt;<span class="subpoint">columns</span>&gt; <span class="comment">// カラムたち</span>
+                &lt;normal_column&gt; <span class="comment">// 一つの普通のカラムを表す</span>
+                    &lt;physical_name&gt;<span class="literal">MEMBER_ID</span>&lt;/physical_name&gt; <span class="comment">// 物理名</span>
+                    &lt;logical_name&gt;<span class="literal">会員ID</span>&lt;/logical_name&gt; <span class="comment">// 論理名</span>
+                    &lt;type&gt;<span class="literal">integer</span>&lt;/type&gt; <span class="comment">// データ型 (ERFlute共通型)</span>
+                    &lt;description&gt;<span class="literal">自動採番だよん</span>&lt;/description&gt; <span class="comment">// DBコメント</span>
+                    &lt;not_null&gt;<span class="literal">true</span>&lt;/not_null&gt; <span class="comment">// NotNull制約 (true or false)</span>
+                    &lt;primary_key&gt;<span class="literal">true</span>&lt;/primary_key&gt; <span class="comment">// PK制約 (true or false)</span>
+                    &lt;auto_increment&gt;<span class="literal">true</span>&lt;/auto_increment&gt; <span class="comment">// Identity (true or false)</span>
+                &lt;/normal_column&gt;
+                &lt;normal_column&gt; <span class="comment">// 一つの普通のカラムを表す</span>
+                    &lt;physical_name&gt;<span class="literal">MEMBER_NAME</span>&lt;/physical_name&gt; <span class="comment">// 物理名</span>
+                    &lt;logical_name&gt;<span class="literal">会員名称</span>&lt;/logical_name&gt; <span class="comment">// 論理名</span>
+                    &lt;type&gt;<span class="literal">varchar(n)</span>&lt;/type&gt; <span class="comment">// データ型 (ERFlute共通型)</span>
+                    &lt;length&gt;<span class="literal">100</span>&lt;/length&gt; <span class="comment">// データサイズ</span>
+                    &lt;description&gt;<span class="literal">会員のフルネーム</span>&lt;/description&gt; <span class="comment">// DBコメント</span>
+                    &lt;not_null&gt;<span class="literal">true</span>&lt;/not_null&gt; <span class="comment">// NotNull制約 (true or false)</span>
+                &lt;/normal_column&gt;
+                &lt;normal_column&gt;
+                    <span class="abbreviation">...</span>
+                &lt;/normal_column&gt;
+                &lt;column_group&gt;<span class="literal">共通カラム</span>&lt;/column_group&gt; <span class="comment">// 定型カラムを定義する...</span>
+                &lt;column_group&gt;<span class="literal">排他制御カラム</span>&lt;/column_group&gt; <span class="comment">// カラムグループの名前</span>
+            &lt;/<span class="subpoint">columns</span>&gt;
+            &lt;indexes&gt; <span class="comment">// インデックスたち</span>
+                &lt;index&gt; <span class="comment">// 一つのインデックスを表す</span>
+                    <span class="abbreviation">...</span>
+                &lt;/index&gt;
+            &lt;/indexes&gt;
+            &lt;compound_unique_key_list&gt; <span class="comment">// 複合ユニーク制約たち</span>
+                <span class="abbreviation">...</span>
+            &lt;/compound_unique_key_list&gt;
+            &lt;table_properties&gt; <span class="comment">// テーブルの追加情報、マニアック</span>
+            &lt;/table_properties&gt;
+        &lt;/<span class="subpoint">table</span>&gt;
+        &lt;<span class="subpoint">table</span>&gt;
+            <span class="abbreviation">...</span>
+        &lt;/<span class="subpoint">table</span>&gt;
+    &lt;/<span class="subpoint">diagram_walkers</span>&gt;
+    &lt;vdiagrams&gt; <span class="comment">// 仮想ダイアグラムたち</span>
+        &lt;vdiagram&gt; <span class="comment">// 一つの仮想ダイアグラムを表す</span>
+            &lt;vdiagram_name&gt;<span class="literal">Sea</span>&lt;/vdiagram_name&gt; <span class="comment">// 仮想ダイアグラムの名前</span>
+            <span class="abbreviation">...</span>
+        &lt;/vdiagram&gt;
+    &lt;/vdiagrams&gt;
+    &lt;column_groups&gt; <span class="comment">// カラムグループたち</span>
+        <span class="abbreviation">...</span>
+    &lt;/column_groups&gt;
+    &lt;sequence_set&gt; <span class="comment">// シーケンスたち</span>
+        <span class="abbreviation">...</span>
+    &lt;/sequence_set&gt;
+    &lt;trigger_set&gt; <span class="comment">// トリガーたち (あんまり使わないかも)</span>
+        <span class="abbreviation">...</span>
+    &lt;/trigger_set&gt;
+&lt;/diagram&gt;
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

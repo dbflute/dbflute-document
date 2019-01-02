@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,DateFromTo,範囲条件,範囲検索" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>日付の定型的なFromTo条件 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>日付の定型的なFromTo条件</h1>
+	<p>
+		こちらのページは、<em class="keyword">1.0.x (Java6版) においてのみ、有効な内容</em> です。
+	</p>
+	<p>
+		1.1.x (Java8版) では、<em class="mark">FromTo</em> を利用してください。
+	</p>
+	<div class="detailpage"><a href="./fromto.html">FromTo</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		日付の定型的なFromTo条件を設定します。DateFromTo は、絞り込み条件を表す ConditionKey です。
+	</p>
+	<div class="relatedpage"><a href="../about.html#conditionkey">ConditionBeanについて - ConditionKeyとは？</a></div>
+	<p>
+		FromTo 条件のパターンの比較条件の一つである "日付による範囲条件"
+		を独立させたものです。FromToOption で compareAsDate()
+		を呼び出しているのと同じです。利用頻度が高いと考えられるため、オプションの指定なしに簡易に指定できるようにしています。
+	</p>
+	<p>
+		単なるエリアスメソッドと言えるので、もろもろの仕様などは FromTo と全く同じです。
+	</p>
+	<div class="relatedpage"><a href="./fromto.html">FromTo</a></div>
+	<p>
+		会話上では、<em class="keyword">でいとふろむとぅ</em>、<em class="keyword">日付のFromTo</em>
+		などと表現します。ちなみに、DateFromTo の Date とは、時分秒を含まない日付という概念を示す Date
+		です。(Date 型の Date ではありません)
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">set[date-column-name]_DateFromTo()</em>
+		を呼び出し、第一引数に from に相当する条件値、第二引数に to に相当する条件値を指定します。
+	</p>
+<pre><span class="codetitle">e.g. FromTo条件の実装手順 (Eclipseでコード補完) {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/10 08:24:53</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/16 14:36:29</span>
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .set まで打つとカラム選択</span>
+<span class="comment">// 2. FD (FormalizedDatetime) でカラム確定</span>
+<span class="comment">// 3. DFT (DateFromTo) で enter</span>
+cb.query().setFDDFT
+--
+cb.query().<span class="point">setFormalizedDatetime_DateFromTo</span>(fromDate, toDate);
+</code></pre>
+<pre><span class="codetitle">e.g. 日付で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/04/10 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2007/04/17 00:00:00'</span>
+</code></pre>
+	<p>
+		時分秒は考慮せずに指定された条件値の日付の範囲内であるかどうかを判定する条件が組み立てられます。
+		指定された toDate の条件値の時分秒が幾つであろうと、次の日に進めて LessThan
+		を利用し、該当の日のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の時分秒は切り捨てられます)
+	</p>
+	<h3 id="detailfromto">細かくはFromToの方を</h3>
+	<p>
+		細かい仕様は、FromTo の compareAsDate() の仕様を調べると良いでしょう。
+		また、細かい調整が必要になったら、どのみち FromTo の方の利用を検討すると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="./fromto.html">FromTo</a></div>
+
+	<h2 id="solution">定番業務の解決</h2>
+	<p>
+		特に、人が入力・指定した日付で "2007/04/16"
+		までと言った場合、16日中全てが含まれることを意味することが多いですが、素直にコンピュータに読み取らせると
+		"2007/04/16 00:00:00" までと解釈してしまう可能性があり、"2007/04/16 12:34:56"
+		のデータが対象外になってしまいます。
+		一方で、日付操作はバグの温床、こういった定型的な調整をする機能を使ってできるだけミスを無くすのが良いでしょう。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/datefromto/index.html">現場フィット - 日付範囲の条件指定を定型化(安全に)</a></div>
+
+	<h2 id="datetodate">時分秒なしDATE型に対しては</h2>
+	<p>
+		DateFromTo は、基本的には保持データの日付精度(時分秒あり)と検索条件の日付精度(時分秒なし)が違う場合に有効な機能ですが、
+		両方とも時分秒なしの場合でも、利用する必要性は高くはないですが問題なく利用できます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

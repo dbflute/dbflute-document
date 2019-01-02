@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Swaggerの環境セットアップ | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Swaggerの環境セットアップ</h1>
+	<p>
+		LastaFluteでSwaggerを使うためのセットアップ手順について
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="showbase">maihama-showbaseを参考に</h2>
+	<p>
+		LastaFluteのマルチプロジェクトのExample, maihama の maihama-showbase
+		にて、Swaggerが利用できる状態になっているで、そちらを参考にしながら説明していきます。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/tree/master/maihama-showbase">maihama-showbase | Github</a></div>
+	<p>
+		maihama-showbase からプロジェクトをスタートアップさせたときは、すでにセットアップ済みになります。
+		(JavaScript対抗ではなく動作確認のしづらい) JSON API を作成するのであれば、maihama-showbase でスタートアップすると良いでしょう。
+	</p>
+
+	<h2 id="howto">Swaggerの環境セットアップ方法</h2>
+	<p>
+		【注意】JettyBootだと、ローカル環境で Swagger が動かない状態です。ローカルで Swagger を使うのであれば、TomcatBootを使ってください。
+		<span class="frm">(Jettyが、どうやら WEB-INF/lib の jar しか探してくれない!?)</span>
+		<span class="frm">(また、ローカルで動かないことと無関係ですが、Jetty の場合は web.xml の metadata-complete="true" になっていると動きません)</span>
+	</p>
+	<h3 id="pomxml">1. pom.xmlにて、lasta-doc.jarを</h3>
+	<p>
+		LastaFluteでSwaggerを使うために最適化されたライブラリである lasta-doc.jar を pom.xml にて依存ライブラリに追加します。
+		<span class="frm">(Exampleで書いてるバージョンが古いかもしれないので、必ず最新版の確認を)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/pom.xml">maihama-showbase - pom.xml | Github</a></div>
+<pre><span class="codetitle">e.g. add lasta-doc.jar library @pom.xml</span><code>
+        <span class="abbreviation">...</span>
+
+        &lt;lasta.doc.version&gt;<span class="literal">0.2.7</span>&lt;/lasta.doc.version&gt;
+        &lt;swagger.ui.version&gt;<span class="literal">2.2.8</span>&lt;/swagger.ui.version&gt;
+
+        <span class="abbreviation">...</span>
+
+        &lt;dependency&gt; <span class="comment">&lt;!-- utflute depends but runtime scope here for swagger --&gt;</span>
+            &lt;groupId&gt;<span class="literal">org.lastaflute.doc</span>&lt;/groupId&gt;
+            &lt;artifactId&gt;<span class="literal">lasta-doc</span>&lt;/artifactId&gt;
+            &lt;version&gt;<span class="literal">${lasta.doc.version}</span>&lt;/version&gt;
+            &lt;scope&gt;<span class="literal">runtime</span>&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        <span class="abbreviation">...</span>
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;<span class="literal">org.webjars</span>&lt;/groupId&gt;
+            &lt;artifactId&gt;<span class="literal">swagger-ui</span>&lt;/artifactId&gt;
+            &lt;version&gt;<span class="literal">${swagger.ui.version}</span>&lt;/version&gt;
+            &lt;scope&gt;<span class="literal">runtime</span>&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		Exampleで書いてるバージョンが古いかもしれないので、必ず最新版の確認をしましょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lasta-doc/">lasta-doc.jar | Github</a></div>
+	<p>
+		実際には、UTFluteが依存していますが、UTFlute自体はtestスコープなので、そのままだとアプリ実行環境で使えないので、明示的に宣言をしてスコープを変えています。
+		<span class="frm">(また、UTFluteが依存しているバージョンが古いかもしれないですし)</span>
+	</p>
+	<h3 id="envprop">2. [app]_env.propertiesにて、swagger.enabled を</h3>
+	<p>
+		Swaggerの有効、無効を環境ごとに切り替えるために、[app]_env.properties でプロパティを設定します。
+		例えば、ローカルでしか使わないとか、本番だけは無効にするとか、そういう制御ができるように。
+		<span class="frm">(セキュリティ上、本番では無効にすべきです)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/resources/showbase_env.properties">maihama-showbase - showbase_env.properties | Github</a></div>
+<pre><span class="codetitle">e.g. add swagger.enabled property @[app]_env.properties</span><code>
+
+<span class="comment"># ========================================================================================
+#                                                                                     Web
+#                                                                                    =====</span>
+<span class="abbreviation">...</span>
+
+<span class="comment"># ----------------------------------------------------------
+#                                                    Swagger
+#                                                    -------</span>
+<span class="comment"># is it use swagger in this environment?</span>
+<span class="localvar">swagger.enabled</span> = <span class="literal">true</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="envdeploy">3. デプロイ環境の properties にも忘れず</h3>
+	<p>
+		[app]_env_integration.properties や [app]_env_production.properties
+		など、デプロイ環境の properties にも忘れずに swagger.enabled を設定しましょう。
+	</p>
+	<p>
+		DBFlute の Doc タスクを叩けば、PropertiesHTML で抜けがないか確認できます。
+	</p>
+	<div class="relatedpage"><a href="../architecture/objsafeprop.html#diffcheckedprop">LastaFluteのタイプセーフProperties - 差分チェックされる Properties</a></div>
+	<h3 id="firefreegen">4. FreeGenを叩きましょう</h3>
+	<p>
+		<em class="keyword">プロパティを追加したら、FreeGenを叩きましょう。</em>
+	</p>
+	<div class="relatedpage"><a href="../dbflute/lafreegen.html">なんでも自動生成 (FreeGen)</a></div>
+	<p>
+		この後の SwaggerAction にて、このプロパティを利用します。
+	</p>
+	<h3 id="bootswagger">5. BootクラスでSwaggerを読み込めるように</h3>
+	<p>
+		Swaggerは、Swaggerのjarファイルの中にリソースが入っていますので、それを起動時に読み込むように Boot クラスを調整します。
+	</p>
+	<p>
+		useMetaInfoResourceDetect() と useWebFragmentsDetect() を使います。
+	</p>
+<pre><span class="codetitle">e.g. use Swagger resources, by TomcatBoot @Java</span><code>
+<span class="keyword">public static void</span> main(String[] <span class="localvar">args</span>) { <span class="comment">// e.g. java -Dlasta.env=production -jar maihama-showbase.war</span>
+    TomcatBoot <span class="localvar">boot</span> = <span class="keyword">new</span> TomcatBoot(<span class="literal">8098</span>, <span class="literal">"/showbase"</span>).asDevelopment(isDevelopment());
+    <span class="localvar">boot</span>.<span class="point">useMetaInfoResourceDetect()</span>.<span class="point">useWebFragmentsDetect</span>(<span class="localvar">jarName</span> -&gt; { <span class="comment">// both for swagger</span>
+        <span class="keyword">return</span> <span class="localvar">jarName</span>.contains(<span class="literal">"swagger-ui"</span>); <span class="comment">// meanwhile, restricted by [app]_env.properties</span>
+    });
+    <span class="localvar">boot</span>.bootAwait();
+}
+
+<span class="keyword">private static boolean</span> isDevelopment() {
+    <span class="keyword">return</span> System.getProperty(<span class="literal">"lasta.env"</span>) == <span class="keyword">null</span>;
+}
+</code></pre>
+	<p>
+		useWebFragmentsDetect() の引数では、swagger-uiのリソースだけを読み込むように絞っています。
+		すべてのリソースを読み込むと不要な処理が走り起動コストが増えてしまうためです。
+		<span class="frm">(JettyBootだと、まだ絞込みのオプションがないかも...)</span>
+	</p>
+	<h3 id="actionadjustment">6. ActionAdjustmentを作成</h3>
+	<p>
+		セキュリティ強化のために、ActionAdjustmentProvider でリクエスト制限を掛けます。
+		この後出てくる SwaggerAction でも制限掛けていますが、本番で SwaggerAction
+		自体に到達してしまうこと自体が気持ち悪いので、もっと前の段階で弾きます。
+	</p>
+	<p>
+		isForced404NotFoundRouting()をオーバーライドして、swaggerにアクセスしてもOKかどうかの判定をしましょう。
+		先ほど追加した swagger.enabled プロパティもここで参照します。
+	</p>
+	<div class="relatedpage"><a href="../action/adjustment.html">ActionやJSONの微調整</a></div>
+<pre><span class="codetitle">e.g. ActionAdjustmentProvider of showbase @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> ShowbaseActionAdjustmentProvider <span class="keyword">extends</span> MaihamaActionAdjustmentProvider {
+
+    <span class="keyword">private final</span> ShowbaseConfig <span class="attribute">config</span>;
+
+    <span class="keyword">public</span> ShowbaseActionAdjustmentProvider(ShowbaseConfig <span class="localvar">config</span>) {
+        <span class="keyword">this</span>.<span class="attribute">config</span> = <span class="localvar">config</span>;
+    }
+
+    @Override
+    <span class="keyword">public boolean</span> isForced404NotFoundRouting(HttpServletRequest <span class="localvar">request</span>, String <span class="localvar">requestPath</span>) {
+        <span class="keyword">if</span> (!<span class="attribute">config</span>.isSwaggerEnabled() && isSwaggerRequest(requestPath)) { <span class="comment">// e.g. swagger's html, css</span>
+            <span class="keyword">return true</span>; <span class="comment">// to suppress direct access to swagger resources at e.g. production</span>
+        }
+        <span class="keyword">return super</span>.isForced404NotFoundRouting(<span class="localvar">request</span>, <span class="localvar">requestPath</span>);
+    }
+
+    <span class="keyword">private boolean</span> isSwaggerRequest(String <span class="localvar">requestPath</span>) {
+        <span class="keyword">return</span> <span class="localvar">requestPath</span>.startsWith(<span class="literal">"/webjars/swagger-ui"</span>) || <span class="localvar">requestPath</span>.startsWith(<span class="literal">"/swagger"</span>);
+    }
+}
+</code></pre>
+	<h3 id="swaggeraction">7. SwaggerActionを作成</h3>
+	<p>
+		Swaggerの画面を表示するための SwaggerAction を作成します。
+	</p>
+	<p>
+		app.web 直下に、ほぼ以下の通りに作成しましょう。
+		スーパークラスの名前やConfigクラスの名前は、自分のアプリ名に合わせます。ここでも、swagger.enabled
+		プロパティを参照しています<span class="frm">(実質的に、ここでは二重チェックの役割として)</span>。
+	</p>
+<pre><span class="codetitle">e.g. SwaggerAction of showbase @Java</span><code>
+<span class="comment">/**
+ * The action to show swaggar-ui.
+ * @author awaawa
+ * @author jflute
+ */</span>
+@AllowAnyoneAccess
+<span class="keyword">public class</span> SwaggerAction <span class="keyword">extends</span> ShowbaseBaseAction <span class="keyword">implements</span> LaActionSwaggerable {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Resource
+    <span class="keyword">private</span> RequestManager <span class="attribute">requestManager</span>;
+    @Resource
+    <span class="keyword">private</span> ShowbaseConfig <span class="attribute">config</span>;
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======</span>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() {
+        verifySwaggerAllowed();
+        String <span class="localvar">swaggerJsonUrl</span> = toActionUrl(SwaggerAction.<span class="keyword">class</span>, moreUrl(<span class="literal">"json"</span>));
+        <span class="keyword">return new</span> SwaggerAgent(<span class="attribute">requestManager</span>).prepareSwaggerUiResponse(<span class="localvar">swaggerJsonUrl</span>);
+    }
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;Map&lt;String, Object&gt;&gt; json() {
+        verifySwaggerAllowed();
+        <span class="keyword">return</span> asJson(<span class="keyword">new</span> SwaggerGenerator().generateSwaggerMap());
+    }
+
+    <span class="keyword">private void</span> verifySwaggerAllowed() { <span class="comment">// also check in ActionAdjustmentProvider</span>
+        verifyOrClientError(<span class="literal">"Swagger is not enabled."</span>, <span class="attribute">config</span>.isSwaggerEnabled());
+    }
+}	
+</code></pre>
+	<h3 id="saveswagger">8. LastaDocTest に付加情報を保存するテスト追加</h3>
+	<p>
+		デプロイ環境でも、JavaDocのe.g.値などの付加情報を利用するために、swagger.json
+		を保存する UnitTest を [App]LastaDocTest に追加します。
+	</p>
+	<p>
+		test_swaggerJson() を追加し、さらに prepareMockContextPath() もオーバーライドしましょう。
+	</p>
+<pre><span class="codetitle">e.g. swaggerJson test in LastaDocTest of showbase @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> ShowbaseLastaDocTest <span class="keyword">extends</span> UnitShowbaseTestCase {
+
+    @Override
+    <span class="keyword">protected</span> String <span class="subpoint">prepareMockContextPath()</span> {
+        <span class="keyword">return</span> ShowbaseBoot.<span class="attribute">CONTEXT</span>; // basically for swagger
+    }
+
+    <span class="keyword">public void</span> test_document() <span class="keyword">throws</span> Exception {
+        saveLastaDocMeta();
+    }
+
+    <span class="keyword">public void</span> <span class="point">test_swaggerJson()</span> <span class="keyword">throws</span> Exception {
+        saveSwaggerMeta(<span class="keyword">new</span> SwaggerAction());
+    }
+}
+</code></pre>
+	<p>
+		コンテキストパス (contextPath) も Swagger で利用したいので、prepareMockContextPath()
+		をオーバーライドして、Bootクラスで利用しているコンテキストパスをそのまま利用します。
+		Bootクラスでハードコードしているコンテキストパスを定数化して、利用できるようにしましょう。
+	</p>
+<pre><span class="codetitle">e.g. define CONTEXT in boot of showbase @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> ShowbaseBoot { <span class="comment">// #change_it_first</span>
+
+    <span class="keyword">public static final</span> String <span class="point">CONTEXT</span> = "/showbase";
+
+    <span class="keyword">public static void</span> main(String[] <span class="lovalvar">args</span>) { // e.g. java -Dlasta.env=production -jar maihama-showbase.war
+        TomcatBoot boot = <span class="keyword">new</span> TomcatBoot(8098, <span class="subpoint">CONTEXT</span>).asDevelopment(isDevelopment());
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="warswagger">9. swagger.jsonがwarファイルに含まれるように</h3>
+	<p>
+		test_swaggerJson() で作成された swagger.json が war ファイルに含まれるように、Maven
+		もしくは Gradle のビルド設定を調整します。
+	</p>
+	<p>
+		Maven であれば、maven-resources-plugin で <em class="keyword">強引に</em> コピーします。
+		<span class="frm">("for boot configuration" の部分は今回の件とは無関係ですが、本来あった方が良い設定なので入れておいても問題ありません)</span>
+	</p>
+<pre><span class="codetitle">e.g. embed swagger.json in Maven @Java</span><code>
+    &lt;plugin&gt;
+        &lt;groupId&gt;<span class="literal">org.apache.maven.plugins</span>&lt;/groupId&gt;
+        &lt;artifactId&gt;<span class="literal">maven-resources-plugin</span>&lt;/artifactId&gt;
+        &lt;executions&gt;
+            &lt;execution&gt;
+                &lt;id&gt;copy-common-resources&lt;/id&gt;
+                &lt;phase&gt;generate-resources&lt;/phase&gt;
+                &lt;goals&gt;
+                    &lt;goal&gt;copy-resources&lt;/goal&gt;
+                &lt;/goals&gt;
+                &lt;configuration&gt;
+                    &lt;outputDirectory&gt;<span class="literal">${basedir}/target/${project.build.finalName}</span>&lt;/outputDirectory&gt;
+                    &lt;overwrite&gt;<span class="literal">true</span>&lt;/overwrite&gt;
+                    &lt;resources&gt;
+                        &lt;resource&gt; <span class="comment">&lt;!-- for boot configuration --&gt;</span>
+                            &lt;directory&gt;<span class="literal">${basedir}/../maihama-common/src/main/resources</span>&lt;/directory&gt;
+                            &lt;includes&gt;
+                                &lt;include&gt;<span class="literal">*_config.properties</span>&lt;/include&gt;
+                                &lt;include&gt;<span class="literal">*_env*.properties</span>&lt;/include&gt;
+                                &lt;include&gt;<span class="literal">tomcat_*.properties</span>&lt;/include&gt;
+                            &lt;/includes&gt;
+                        &lt;/resource&gt;
+                        <span class="point">&lt;resource&gt;</span> <span class="comment">&lt;!-- for swagger --&gt;</span>
+                            &lt;directory&gt;<span class="literal">${basedir}/target/lastadoc</span>&lt;/directory&gt;
+                            &lt;includes&gt;
+                                &lt;include&gt;<span class="literal">swagger.json</span>&lt;/include&gt;
+                            &lt;/includes&gt;
+                        <span class="point">&lt;/resource&gt;</span>
+                    &lt;/resources&gt;
+                &lt;/configuration&gt;
+            &lt;/execution&gt;
+        &lt;/executions&gt;
+    &lt;/plugin&gt;
+</code></pre>
+	<p>
+		Gradle であれば、こんな感じ!?
+	</p>
+<pre><span class="codetitle">e.g. embed swagger.json in Gradle @Java</span><code>
+into(<span class="literal">'WEB-INF/classes'</span>) {
+    <span class="keyword">from</span> fileTree(dir: <span class="keyword">new</span> File(project.buildDir, <span class="literal">'lastadoc/'</span>), includes: [<span class="literal">'swagger.json'</span>])
+}
+</code></pre>
+	<h3 id="complete">10. /swagger にアクセスして表示されたら完了</h3>
+	<p>
+		です。
+	</p>
+	<div class="relatedpage"><a href="../action/laswagger.html">Swaggerで動作確認</a></div>
+
+	<h2 id="indeploy">デプロイ環境でのSwagger</h2>
+	<p>
+		基本的には、特に変わりなく利用できます。<span class="frm">(プロパティでtrueになっている環境であれば)</span>
+	</p>
+	<p>
+		ひとつ特徴的なのが、JavaDocからデフォルト値を取得する "e.g." 情報の取得の仕方が変わります。
+	</p>
+	<div class="relatedpage"><a href="../action/laswagger.html#egdefault">Swaggerで動作確認 - e.g.デフォルト値のススメ</a></div>
+	<dl class="shortkeymainlist">
+		<dt>ローカル</dt><dd>ソースコードを実行時に解決している</dd>
+		<dt>デプロイ環境</dt><dd>ビルド時にソースコードを解析した情報をwarの中に含める</dd>
+	</dl>
+	<p>
+		デプロイ環境では、UnitTest の [App]LastaDocTest にて、ソースコードを解析した情報をファイルとして出力します。
+		そのファイルを war ファイルの中に含めます。ゆえに、テストをスキップして war を作成すると、その情報が入りません。
+		<em class="keyword">テストはスキップしないようにしましょう。</em>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

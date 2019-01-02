@@ -1,0 +1,767 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,replace-schema,replace schema,スキーマの作成,テーブルの作成,create table,ログ,Log,コンソール,console,dbflute.log" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ReplaceSchemaタスクのログ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ReplaceSchemaタスクのログ</h1>
+	${indexlist}
+
+	<h2 id="about">ログの活用</h2>
+	<p>
+		指定されたDDL、登録したデータなどが表示され、期待通りの挙動をしているか確認ができます。
+		普段は逐一気にして見る必要はありませんが、作成されたスキーマが期待しない状態の場合は、
+		ログをみて設定したDDLやデータが正常に処理されたのかどうかを確認します。
+		ReplaceSchemaはヒューマンエラーをチェックするタスクとも言えますので、異常終了した際にどのファイルでどんなエラーが発生したのか、
+		こういった情報をログから読み取ることができます。
+		問題解決するためにメーリングリストなどにフィードバックをする際はこのログの提示が重要です。
+	</p>
+	<div class="relatedpage"><a href="../index.html#log">DBFluteタスク - タスク実行ログ</a></div>
+
+	<h2 id="example">ログのExample</h2>
+	<h3 id="normal">正常終了時のログ</h3>
+	<p>
+		例えば、正常終了時は以下のようなログが出力されます。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-spring-example のReplaceSchemaタスクのログ (日付など一部省略) @Console</span><code>
+<span class="abbreviation">...</span>$ sh replace-schema.sh
+/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+Execute the ReplaceSchema task.
+nnnnnnnnnn/
+Database will be initialized. Are you ready? (y or n) y
+Buildfile: ../mydbflute/dbflute-0.9.8.1/build-torque.xml
+
+replace-schema:
+     [echo] +-----------------------------------------------+
+     [echo] |                                               |
+     [echo] | Replace-Schema !                              |
+     [echo] |                                               |
+     [echo] +-----------------------------------------------+
+[df-create-schema] <span class="abbreviation">...</span>030 INFO  - ...Using contextProperties: build.properties
+[df-create-schema] <span class="abbreviation">...</span>034 INFO  - [Build-Properties]: size=1
+[df-create-schema] <span class="abbreviation">...</span>034 INFO  -   torque.project = exampledb
+[df-create-schema] <span class="abbreviation">...</span>035 INFO  - 
+[df-create-schema] <span class="abbreviation">...</span>069 INFO  - ...Creating data source:
+[df-create-schema] <span class="abbreviation">...</span>071 INFO  -   driver = org.h2.Driver
+[df-create-schema] <span class="abbreviation">...</span>072 INFO  -   url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+[df-create-schema] <span class="abbreviation">...</span>072 INFO  -   user   = sa
+[df-create-schema] <span class="abbreviation">...</span>078 INFO  - ...Connecting to the database:
+[df-create-schema] <span class="abbreviation">...</span>571 INFO  -   product = H2 1.3.150 (2011-01-28)
+[df-create-schema] <span class="abbreviation">...</span>572 INFO  -   driver  = H2 JDBC Driver 1.3.150 (2011-01-28) for JDBC 3.0
+[df-create-schema] <span class="abbreviation">...</span>573 INFO  - 
+[df-create-schema] <span class="abbreviation">...</span>574 INFO  - {Replace Schema Properties}
+[df-create-schema] <span class="abbreviation">...</span>577 INFO  - errorContinue     = true
+[df-create-schema] <span class="abbreviation">...</span>578 INFO  - sqlFileEncoding   = UTF-8
+[df-create-schema] <span class="abbreviation">...</span>579 INFO  - 
+[df-create-schema] <span class="abbreviation">...</span>581 INFO  - * * * * * * * * * * *
+[df-create-schema] <span class="abbreviation">...</span>582 INFO  - *                   *
+[df-create-schema] <span class="abbreviation">...</span>582 INFO  - * Initialize Schema *
+[df-create-schema] <span class="abbreviation">...</span>583 INFO  - *                   *
+[df-create-schema] <span class="abbreviation">...</span>583 INFO  - * * * * * * * * * * *
+[df-create-schema] <span class="abbreviation">...</span>637 INFO  - ...Getting tables:
+[df-create-schema] <span class="abbreviation">...</span>638 INFO  -   schema = {EXAMPLEDB.PUBLIC as main}
+[df-create-schema] <span class="abbreviation">...</span>638 INFO  -   types  = [TABLE, VIEW]
+[df-create-schema] <span class="abbreviation">...</span>711 INFO  - truncate table MEMBER_ADDRESS
+[df-create-schema] <span class="abbreviation">...</span>712 INFO  - truncate table MEMBER_LOGIN
+[df-create-schema] <span class="abbreviation">...</span>713 INFO  - truncate table MEMBER_SECURITY
+[df-create-schema] <span class="abbreviation">...</span>714 INFO  - truncate table MEMBER_SERVICE
+[df-create-schema] <span class="abbreviation">...</span>723 INFO  - truncate table MEMBER_WITHDRAWAL
+[df-create-schema] <span class="abbreviation">...</span>728 INFO  - truncate table PURCHASE
+[df-create-schema] <span class="abbreviation">...</span>730 INFO  - truncate table VENDOR_$_DOLLAR
+[df-create-schema] <span class="abbreviation">...</span>731 INFO  - truncate table VENDOR_CHECK
+[df-create-schema] <span class="abbreviation">...</span>743 INFO  - alter table MEMBER drop constraint FK_MEMBER_MEMBER_STATUS
+[df-create-schema] <span class="abbreviation">...</span>748 INFO  - alter table MEMBER_ADDRESS drop constraint FK_MEMBER_ADDRESS_MEMBER
+[df-create-schema] <span class="abbreviation">...</span>749 INFO  - alter table MEMBER_ADDRESS drop constraint FK_MEMBER_ADDRESS_REGION
+[df-create-schema] <span class="abbreviation">...</span>753 INFO  - alter table MEMBER_LOGIN drop constraint FK_MEMBER_LOGIN_MEMBER
+[df-create-schema] <span class="abbreviation">...</span>755 INFO  - alter table MEMBER_LOGIN drop constraint FK_MEMBER_LOGIN_MEMBER_STATUS
+[df-create-schema] <span class="abbreviation">...</span>759 INFO  - alter table MEMBER_SECURITY drop constraint FK_MEMBER_SECURITY_MEMBER
+[df-create-schema] <span class="abbreviation">...</span>762 INFO  - alter table MEMBER_SERVICE drop constraint FK_MEMBER_SERVICE_MEMBER
+[df-create-schema] <span class="abbreviation">...</span>763 INFO  - alter table MEMBER_SERVICE drop constraint FK_MEMBER_SERVICE_SERVICE_RANK_CODE
+[df-create-schema] <span class="abbreviation">...</span>770 INFO  - alter table MEMBER_WITHDRAWAL drop constraint FK_MEMBER_WITHDRAWAL_MEMBER
+[df-create-schema] <span class="abbreviation">...</span>770 INFO  - alter table MEMBER_WITHDRAWAL drop constraint FK_MEMBER_WITHDRAWAL_WITHDRAWAL_REASON
+[df-create-schema] <span class="abbreviation">...</span>771 INFO  - alter table PRODUCT drop constraint FK_PRODUCT_PRODUCT_CATEGORY
+[df-create-schema] <span class="abbreviation">...</span>772 INFO  - alter table PRODUCT drop constraint FK_PRODUCT_PRODUCT_STATUS
+[df-create-schema] <span class="abbreviation">...</span>773 INFO  - alter table PRODUCT_CATEGORY drop constraint FK_PRODUCT_CATEGORY_PARENT
+[df-create-schema] <span class="abbreviation">...</span>777 INFO  - alter table PURCHASE drop constraint FK_PURCHASE_MEMBER
+[df-create-schema] <span class="abbreviation">...</span>778 INFO  - alter table PURCHASE drop constraint FK_PURCHASE_PRODUCT
+[df-create-schema] <span class="abbreviation">...</span>796 INFO  - drop view SUMMARY_PRODUCT
+[df-create-schema] <span class="abbreviation">...</span>804 INFO  - drop view SUMMARY_WITHDRAWAL
+[df-create-schema] <span class="abbreviation">...</span>805 INFO  - drop table MEMBER
+[df-create-schema] <span class="abbreviation">...</span>809 INFO  - drop table MEMBER_ADDRESS
+[df-create-schema] <span class="abbreviation">...</span>810 INFO  - drop table MEMBER_LOGIN
+[df-create-schema] <span class="abbreviation">...</span>813 INFO  - drop table MEMBER_SECURITY
+[df-create-schema] <span class="abbreviation">...</span>814 INFO  - drop table MEMBER_SERVICE
+[df-create-schema] <span class="abbreviation">...</span>815 INFO  - drop table MEMBER_STATUS
+[df-create-schema] <span class="abbreviation">...</span>818 INFO  - drop table MEMBER_WITHDRAWAL
+[df-create-schema] <span class="abbreviation">...</span>819 INFO  - drop table PRODUCT
+[df-create-schema] <span class="abbreviation">...</span>822 INFO  - drop table PRODUCT_CATEGORY
+[df-create-schema] <span class="abbreviation">...</span>823 INFO  - drop table PRODUCT_STATUS
+[df-create-schema] <span class="abbreviation">...</span>829 INFO  - drop table PURCHASE
+[df-create-schema] <span class="abbreviation">...</span>831 INFO  - drop table REGION
+[df-create-schema] <span class="abbreviation">...</span>832 INFO  - drop table SERVICE_RANK
+[df-create-schema] <span class="abbreviation">...</span>834 INFO  - drop table VENDOR_$_DOLLAR
+[df-create-schema] <span class="abbreviation">...</span>835 INFO  - drop table VENDOR_CHECK
+[df-create-schema] <span class="abbreviation">...</span>836 INFO  - drop table WITHDRAWAL_REASON
+[df-create-schema] <span class="abbreviation">...</span>909 INFO  - 
+[df-create-schema] <span class="abbreviation">...</span>909 INFO  - * * * * * * * * *
+[df-create-schema] <span class="abbreviation">...</span>910 INFO  - *               *
+[df-create-schema] <span class="abbreviation">...</span>910 INFO  - * Create Schema *
+[df-create-schema] <span class="abbreviation">...</span>911 INFO  - *               *
+[df-create-schema] <span class="abbreviation">...</span>911 INFO  - * * * * * * * * *
+[df-create-schema] <span class="abbreviation">...</span>929 INFO  - {SQL File}: ./playsql/replace-schema-10-basic.sql
+[df-create-schema] <span class="abbreviation">...</span>939 INFO  - CREATE TABLE MEMBER( MEMBER_ID INTEGER IDENTITY NOT NULL PRIMARY KEY, MEMBER_NAME VARCHAR(200) NOT NULL, MEMBER_ACCOUNT VARCHAR(50) NOT NULL, MEMBER_STATUS_CODE CHAR(3) NOT NULL, FORMALIZED_DATETIME DATETIME, BIRTHDATE DATE, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>942 INFO  - CREATE TABLE MEMBER_ADDRESS( MEMBER_ADDRESS_ID INTEGER NOT NULL PRIMARY KEY, MEMBER_ID INTEGER NOT NULL, VALID_BEGIN_DATE DATE NOT NULL, VALID_END_DATE DATE NOT NULL, ADDRESS VARCHAR(200) NOT NULL, REGION_ID INTEGER NOT NULL, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>945 INFO  - CREATE TABLE MEMBER_LOGIN( MEMBER_LOGIN_ID BIGINT IDENTITY NOT NULL PRIMARY KEY, MEMBER_ID INTEGER NOT NULL, LOGIN_DATETIME DATETIME NOT NULL, MOBILE_LOGIN_FLG INTEGER NOT NULL, LOGIN_MEMBER_STATUS_CODE CHAR(3) NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>957 INFO  - CREATE TABLE MEMBER_SECURITY( MEMBER_ID INTEGER NOT NULL PRIMARY KEY, LOGIN_PASSWORD VARCHAR(50) NOT NULL, REMINDER_QUESTION VARCHAR(50) NOT NULL, REMINDER_ANSWER VARCHAR(50) NOT NULL, REMINDER_USE_COUNT INTEGER NOT NULL, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>959 INFO  - CREATE TABLE MEMBER_SERVICE( MEMBER_ID INTEGER NOT NULL PRIMARY KEY, POINT_COUNT INTEGER NOT NULL, SERVICE_RANK_CODE CHAR(3) NOT NULL, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>960 INFO  - CREATE TABLE MEMBER_WITHDRAWAL( MEMBER_ID INTEGER NOT NULL PRIMARY KEY, WITHDRAWAL_REASON_CODE CHAR(3), WITHDRAWAL_REASON_INPUT_TEXT TEXT, WITHDRAWAL_DATETIME DATETIME NOT NULL, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>962 INFO  - CREATE TABLE PURCHASE( PURCHASE_ID BIGINT IDENTITY NOT NULL PRIMARY KEY, MEMBER_ID INTEGER NOT NULL, PRODUCT_ID INTEGER NOT NULL, PURCHASE_DATETIME DATETIME NOT NULL, PURCHASE_COUNT INTEGER NOT NULL, PURCHASE_PRICE INTEGER NOT NULL, PAYMENT_COMPLETE_FLG INTEGER NOT NULL, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>963 INFO  - CREATE TABLE PRODUCT( PRODUCT_ID INTEGER IDENTITY NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(50) NOT NULL, PRODUCT_HANDLE_CODE VARCHAR(100) NOT NULL, PRODUCT_CATEGORY_CODE CHAR(3) NOT NULL, PRODUCT_STATUS_CODE CHAR(3) NOT NULL, REGULAR_PRICE INTEGER NOT NULL, REGISTER_DATETIME DATETIME NOT NULL, REGISTER_USER VARCHAR(200) NOT NULL, REGISTER_PROCESS VARCHAR(200) NOT NULL, UPDATE_DATETIME DATETIME NOT NULL, UPDATE_USER VARCHAR(200) NOT NULL, UPDATE_PROCESS VARCHAR(200) NOT NULL, VERSION_NO BIGINT NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>965 INFO  - CREATE TABLE WITHDRAWAL_REASON( WITHDRAWAL_REASON_CODE CHAR(3) NOT NULL PRIMARY KEY, WITHDRAWAL_REASON_TEXT TEXT NOT NULL, DISPLAY_ORDER INTEGER NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>966 INFO  - CREATE TABLE PRODUCT_CATEGORY( PRODUCT_CATEGORY_CODE CHAR(3) NOT NULL PRIMARY KEY, PRODUCT_CATEGORY_NAME VARCHAR(50) NOT NULL, PARENT_CATEGORY_CODE CHAR(3) )
+[df-create-schema] <span class="abbreviation">...</span>967 INFO  - CREATE TABLE PRODUCT_STATUS( PRODUCT_STATUS_CODE CHAR(3) NOT NULL PRIMARY KEY, PRODUCT_STATUS_NAME VARCHAR(50) NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>972 INFO  - CREATE TABLE REGION( REGION_ID INTEGER NOT NULL PRIMARY KEY, REGION_NAME VARCHAR(50) NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>973 INFO  - CREATE TABLE SERVICE_RANK( SERVICE_RANK_CODE CHAR(3) NOT NULL PRIMARY KEY, SERVICE_RANK_NAME VARCHAR(50) NOT NULL, POINT_INCIDENCE NUMERIC(5, 3) NOT NULL, NEW_ACCEPTABLE_FLG INTEGER NOT NULL, DESCRIPTION VARCHAR(200) NOT NULL, DISPLAY_ORDER INTEGER NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>974 INFO  - CREATE TABLE MEMBER_STATUS( MEMBER_STATUS_CODE CHAR(3) NOT NULL PRIMARY KEY, MEMBER_STATUS_NAME VARCHAR(50) NOT NULL, DESCRIPTION VARCHAR(200) NOT NULL, DISPLAY_ORDER INTEGER NOT NULL )
+[df-create-schema] <span class="abbreviation">...</span>975 INFO  - ALTER TABLE MEMBER ADD CONSTRAINT FK_MEMBER_MEMBER_STATUS FOREIGN KEY (MEMBER_STATUS_CODE) REFERENCES MEMBER_STATUS (MEMBER_STATUS_CODE)
+[df-create-schema] <span class="abbreviation">...</span>981 INFO  - ALTER TABLE MEMBER_ADDRESS ADD CONSTRAINT FK_MEMBER_ADDRESS_MEMBER FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER (MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>983 INFO  - ALTER TABLE MEMBER_ADDRESS ADD CONSTRAINT FK_MEMBER_ADDRESS_REGION FOREIGN KEY (REGION_ID) REFERENCES REGION (REGION_ID)
+[df-create-schema] <span class="abbreviation">...</span>989 INFO  - ALTER TABLE MEMBER_LOGIN ADD CONSTRAINT FK_MEMBER_LOGIN_MEMBER_STATUS FOREIGN KEY (LOGIN_MEMBER_STATUS_CODE) REFERENCES MEMBER_STATUS (MEMBER_STATUS_CODE)
+[df-create-schema] <span class="abbreviation">...</span>990 INFO  - ALTER TABLE MEMBER_LOGIN ADD CONSTRAINT FK_MEMBER_LOGIN_MEMBER FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER (MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>992 INFO  - ALTER TABLE MEMBER_SERVICE ADD CONSTRAINT FK_MEMBER_SERVICE_MEMBER FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER (MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>010 INFO  - ALTER TABLE MEMBER_SERVICE ADD CONSTRAINT FK_MEMBER_SERVICE_SERVICE_RANK_CODE FOREIGN KEY (SERVICE_RANK_CODE) REFERENCES SERVICE_RANK (SERVICE_RANK_CODE)
+[df-create-schema] <span class="abbreviation">...</span>016 INFO  - ALTER TABLE MEMBER_SECURITY ADD CONSTRAINT FK_MEMBER_SECURITY_MEMBER FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER (MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>019 INFO  - ALTER TABLE MEMBER_WITHDRAWAL ADD CONSTRAINT FK_MEMBER_WITHDRAWAL_MEMBER FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER (MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>034 INFO  - ALTER TABLE MEMBER_WITHDRAWAL ADD CONSTRAINT FK_MEMBER_WITHDRAWAL_WITHDRAWAL_REASON FOREIGN KEY (WITHDRAWAL_REASON_CODE) REFERENCES WITHDRAWAL_REASON (WITHDRAWAL_REASON_CODE)
+[df-create-schema] <span class="abbreviation">...</span>044 INFO  - ALTER TABLE PURCHASE ADD CONSTRAINT FK_PURCHASE_MEMBER FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER (MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>060 INFO  - ALTER TABLE PURCHASE ADD CONSTRAINT FK_PURCHASE_PRODUCT FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCT (PRODUCT_ID)
+[df-create-schema] <span class="abbreviation">...</span>063 INFO  - ALTER TABLE PRODUCT ADD CONSTRAINT FK_PRODUCT_PRODUCT_CATEGORY FOREIGN KEY (PRODUCT_CATEGORY_CODE) REFERENCES PRODUCT_CATEGORY (PRODUCT_CATEGORY_CODE)
+[df-create-schema] <span class="abbreviation">...</span>064 INFO  - ALTER TABLE PRODUCT ADD CONSTRAINT FK_PRODUCT_PRODUCT_STATUS FOREIGN KEY (PRODUCT_STATUS_CODE) REFERENCES PRODUCT_STATUS (PRODUCT_STATUS_CODE)
+[df-create-schema] <span class="abbreviation">...</span>065 INFO  - ALTER TABLE PRODUCT_CATEGORY ADD CONSTRAINT FK_PRODUCT_CATEGORY_PARENT FOREIGN KEY (PARENT_CATEGORY_CODE) REFERENCES PRODUCT_CATEGORY (PRODUCT_CATEGORY_CODE)
+[df-create-schema] <span class="abbreviation">...</span>067 INFO  - ALTER TABLE MEMBER ADD CONSTRAINT UQ_MEMBER_MEMBER_ACCOUNT UNIQUE (MEMBER_ACCOUNT)
+[df-create-schema] <span class="abbreviation">...</span>068 INFO  - ALTER TABLE MEMBER_ADDRESS ADD CONSTRAINT UQ_MEMBER_ADDRESS UNIQUE (MEMBER_ID, VALID_BEGIN_DATE)
+[df-create-schema] <span class="abbreviation">...</span>069 INFO  - ALTER TABLE MEMBER_LOGIN ADD CONSTRAINT UQ_MEMBER_LOGIN UNIQUE (MEMBER_ID, LOGIN_DATETIME)
+[df-create-schema] <span class="abbreviation">...</span>071 INFO  - ALTER TABLE PURCHASE ADD CONSTRAINT UQ_PURCHASE UNIQUE (MEMBER_ID, PRODUCT_ID, PURCHASE_DATETIME)
+[df-create-schema] <span class="abbreviation">...</span>072 INFO  - ALTER TABLE PRODUCT ADD CONSTRAINT UQ_PRODUCT_PRODUCT_HANDLE_CODE UNIQUE (PRODUCT_HANDLE_CODE)
+[df-create-schema] <span class="abbreviation">...</span>073 INFO  - ALTER TABLE MEMBER_STATUS ADD CONSTRAINT UQ_MEMBER_STATUS_MEMBER_STATUS_NAME UNIQUE (MEMBER_STATUS_NAME)
+[df-create-schema] <span class="abbreviation">...</span>073 INFO  - ALTER TABLE MEMBER_STATUS ADD CONSTRAINT UQ_MEMBER_STATUS_DISPLAY_ORDER UNIQUE (DISPLAY_ORDER)
+[df-create-schema] <span class="abbreviation">...</span>075 INFO  - ALTER TABLE REGION ADD CONSTRAINT UQ_REGION_REGION_NAME UNIQUE (REGION_NAME)
+[df-create-schema] <span class="abbreviation">...</span>075 INFO  - ALTER TABLE SERVICE_RANK ADD CONSTRAINT UQ_SERVICE_RANK_SERVICE_RANK_NAME UNIQUE (SERVICE_RANK_NAME)
+[df-create-schema] <span class="abbreviation">...</span>076 INFO  - ALTER TABLE SERVICE_RANK ADD CONSTRAINT UQ_SERVICE_RANK_DISPLAY_ORDER UNIQUE (DISPLAY_ORDER)
+[df-create-schema] <span class="abbreviation">...</span>076 INFO  - ALTER TABLE WITHDRAWAL_REASON ADD CONSTRAINT UQ_WITHDRAWAL_REASON_DISPLAY_ORDER UNIQUE (DISPLAY_ORDER)
+[df-create-schema] <span class="abbreviation">...</span>077 INFO  - ALTER TABLE PRODUCT_CATEGORY ADD CONSTRAINT UQ_PRODUCT_CATEGORY_PRODUCT_CATEGORY_NAME UNIQUE (PRODUCT_CATEGORY_NAME)
+[df-create-schema] <span class="abbreviation">...</span>078 INFO  - ALTER TABLE PRODUCT_STATUS ADD CONSTRAINT UQ_PRODUCT_STATUS_PRODUCT_STATUS_NAME UNIQUE (PRODUCT_STATUS_NAME)
+[df-create-schema] <span class="abbreviation">...</span>079 INFO  - CREATE INDEX IX_MEMBER_MEMBER_NAME ON MEMBER(MEMBER_NAME)
+[df-create-schema] <span class="abbreviation">...</span>080 INFO  - CREATE INDEX IX_MEMBER_FORMALIZED_DATETIME ON MEMBER(FORMALIZED_DATETIME)
+[df-create-schema] <span class="abbreviation">...</span>081 INFO  - CREATE INDEX IX_MEMBER_LOGIN_DATETIME ON MEMBER_LOGIN(LOGIN_DATETIME)
+[df-create-schema] <span class="abbreviation">...</span>081 INFO  - CREATE INDEX IX_MEMBER_SERVICE_POINT_COUNT ON MEMBER_SERVICE(POINT_COUNT)
+[df-create-schema] <span class="abbreviation">...</span>082 INFO  - CREATE INDEX IX_PURCHASE_PRODUCT_DATETIME ON PURCHASE(PRODUCT_ID, PURCHASE_DATETIME)
+[df-create-schema] <span class="abbreviation">...</span>082 INFO  - CREATE INDEX IX_PURCHASE_DATETIME_MEMBER ON PURCHASE(PURCHASE_DATETIME, MEMBER_ID)
+[df-create-schema] <span class="abbreviation">...</span>083 INFO  - CREATE INDEX IX_PURCHASE_PRICE ON PURCHASE(PURCHASE_PRICE)
+[df-create-schema] <span class="abbreviation">...</span>084 INFO  - CREATE INDEX IX_PRODUCT_PRODUCT_NAME ON PRODUCT(PRODUCT_NAME)
+[df-create-schema] <span class="abbreviation">...</span>085 INFO  -   --> success=50 failure=0
+[df-create-schema] <span class="abbreviation">...</span>085 INFO  - {SQL File}: ./playsql/replace-schema-20-view.sql
+[df-create-schema] <span class="abbreviation">...</span>108 INFO  - 
+[df-create-schema] -- PK is defined at DBFlute property
+[df-create-schema]  CREATE VIEW SUMMARY_PRODUCT AS select product.PRODUCT_ID , product.PRODUCT_NAME , product.PRODUCT_HANDLE_CODE , product.PRODUCT_STATUS_CODE , (select max(purchase.PURCHASE_DATETIME) from PURCHASE purchase where purchase.PRODUCT_ID = product.PRODUCT_ID ) as LATEST_PURCHASE_DATETIME from PRODUCT product
+[df-create-schema] <span class="abbreviation">...</span>113 INFO  - 
+[df-create-schema] -- PK is NOT defined at DBFlute property
+[df-create-schema] -- treated as no-primary-key table
+[df-create-schema]  CREATE VIEW SUMMARY_WITHDRAWAL AS select withdrawal.MEMBER_ID , member.MEMBER_NAME , withdrawal.WITHDRAWAL_REASON_CODE , reason.WITHDRAWAL_REASON_TEXT , withdrawal.WITHDRAWAL_REASON_INPUT_TEXT , withdrawal.WITHDRAWAL_DATETIME , member.MEMBER_STATUS_CODE , status.MEMBER_STATUS_NAME , (select max(purchase.PURCHASE_PRICE) from PURCHASE purchase where purchase.MEMBER_ID = member.MEMBER_ID ) as MAX_PURCHASE_PRICE from MEMBER_WITHDRAWAL withdrawal left outer join WITHDRAWAL_REASON reason on withdrawal.WITHDRAWAL_REASON_CODE = reason.WITHDRAWAL_REASON_CODE left outer join MEMBER member on withdrawal.MEMBER_ID = member.MEMBER_ID left outer join MEMBER_STATUS status on member.MEMBER_STATUS_CODE = status.MEMBER_STATUS_CODE
+[df-create-schema] <span class="abbreviation">...</span>118 INFO  -   --> success=2 failure=0
+[df-create-schema] <span class="abbreviation">...</span>118 INFO  - {SQL File}: ./playsql/replace-schema-80-comment.sql
+[df-create-schema] <span class="abbreviation">...</span>150 INFO  - 
+[df-create-schema] comment on table MEMBER is '会員: 会員登録時にInsertされる。
+[df-create-schema] 物理削除されることはない'
+[df-create-schema] <span class="abbreviation">...</span>165 INFO  - comment on column MEMBER.MEMBER_ID is '会員ID: 連番'
+[df-create-schema] <span class="abbreviation">...</span>166 INFO  - comment on column MEMBER.MEMBER_NAME is '会員名称: 会員の表示用の名称(姓名)'
+[df-create-schema] <span class="abbreviation">...</span>168 INFO  - comment on column MEMBER.MEMBER_ACCOUNT is '会員アカウント: 会員のログイン用のアカウント'
+[df-create-schema] <span class="abbreviation">...</span>168 INFO  - comment on column MEMBER.MEMBER_STATUS_CODE is '会員ステータスコード: '
+[df-create-schema] <span class="abbreviation">...</span>172 INFO  - comment on column MEMBER.BIRTHDATE is '生年月日: 不明な場合はデータなし'
+[df-create-schema] <span class="abbreviation">...</span>173 INFO  - comment on column MEMBER.FORMALIZED_DATETIME is '正式会員日時: 正式会員になる前はデータなし'
+[df-create-schema] <span class="abbreviation">...</span>174 INFO  - comment on table MEMBER_ADDRESS is '会員住所情報: 有効期間による履歴管理'
+[df-create-schema] <span class="abbreviation">...</span>175 INFO  - comment on column MEMBER_ADDRESS.MEMBER_ADDRESS_ID is '会員住所ID:'
+[df-create-schema] <span class="abbreviation">...</span>176 INFO  - comment on column MEMBER_ADDRESS.MEMBER_ID is '会員ID:'
+[df-create-schema] <span class="abbreviation">...</span>185 INFO  - comment on column MEMBER_ADDRESS.VALID_BEGIN_DATE is '有効開始日: 有効期間の開始日。前の終了日の一日後の値が格納される。'
+[df-create-schema] <span class="abbreviation">...</span>188 INFO  - comment on column MEMBER_ADDRESS.VALID_END_DATE is '有効終了日: 有効期間の終了日。次の有効開始日の一日前の値が格納される。'
+[df-create-schema] <span class="abbreviation">...</span>188 INFO  - comment on column MEMBER_ADDRESS.ADDRESS is '住所: 住所をまるごと'
+[df-create-schema] <span class="abbreviation">...</span>189 INFO  - comment on table MEMBER_SECURITY is '会員セキュリティ情報: '
+[df-create-schema] <span class="abbreviation">...</span>190 INFO  - comment on column MEMBER_SECURITY.LOGIN_PASSWORD is 'ログインパスワード: いわずとしれたパスワード'
+[df-create-schema] <span class="abbreviation">...</span>190 INFO  - comment on column MEMBER_SECURITY.REMINDER_QUESTION is 'リマインダ質問: パスワードを忘れた時のリマインダの質問'
+[df-create-schema] <span class="abbreviation">...</span>191 INFO  - comment on column MEMBER_SECURITY.REMINDER_ANSWER is 'リマインダ回答: パスワードを忘れた時のリマインダの回答'
+[df-create-schema] <span class="abbreviation">...</span>192 INFO  - comment on column MEMBER_SECURITY.REMINDER_USE_COUNT is 'リマインダ利用回数: リマインダを利用した回数(多いと忘れっぽい証拠)'
+[df-create-schema] <span class="abbreviation">...</span>193 INFO  - comment on table MEMBER_SERVICE is '会員サービス: 会員のサービス情報(ポイントサービスなど)'
+[df-create-schema] <span class="abbreviation">...</span>194 INFO  - comment on column MEMBER_SERVICE.POINT_COUNT is 'ポイント数: 会員が利用できるポイントの数(購入して増えて、利用すると減る)'
+[df-create-schema] <span class="abbreviation">...</span>198 INFO  - comment on table MEMBER_LOGIN is '会員ログイン: ログインの度にInsertされる'
+[df-create-schema] <span class="abbreviation">...</span>198 INFO  - comment on column MEMBER_LOGIN.MEMBER_LOGIN_ID is '会員ログインID: '
+[df-create-schema] <span class="abbreviation">...</span>209 INFO  - comment on column MEMBER_LOGIN.MEMBER_ID is '会員ID: '
+[df-create-schema] <span class="abbreviation">...</span>210 INFO  - comment on column MEMBER_LOGIN.LOGIN_DATETIME is 'ログイン日時: '
+[df-create-schema] <span class="abbreviation">...</span>210 INFO  - comment on column MEMBER_LOGIN.MOBILE_LOGIN_FLG is 'モバイルログインフラグ: モバイルからのログインか否か'
+[df-create-schema] <span class="abbreviation">...</span>212 INFO  - comment on column MEMBER_LOGIN.LOGIN_MEMBER_STATUS_CODE is 'ログイン会員ステータスコード: ログイン時の会員ステータス'
+[df-create-schema] <span class="abbreviation">...</span>214 INFO  - comment on table MEMBER_WITHDRAWAL is '会員退会情報: 退会するとInsertされる'
+[df-create-schema] <span class="abbreviation">...</span>214 INFO  - comment on table PURCHASE is '購入: 購入の度ににInsertされる'
+[df-create-schema] <span class="abbreviation">...</span>222 INFO  - comment on column PURCHASE.PURCHASE_COUNT is '購入数量: 購入した商品の個数'
+[df-create-schema] <span class="abbreviation">...</span>222 INFO  - comment on column PURCHASE.PURCHASE_PRICE is '購入価格: 購入商品の数量合計の価格'
+[df-create-schema] <span class="abbreviation">...</span>223 INFO  - comment on table PRODUCT is '商品: '
+[df-create-schema] <span class="abbreviation">...</span>238 INFO  - comment on table PRODUCT_STATUS is '商品ステータス: '
+[df-create-schema] <span class="abbreviation">...</span>238 INFO  - comment on table PRODUCT_CATEGORY is '商品カテゴリ: '
+[df-create-schema] <span class="abbreviation">...</span>239 INFO  - comment on table MEMBER_STATUS is '会員ステータス: 固定の区分値'
+[df-create-schema] <span class="abbreviation">...</span>239 INFO  - comment on column MEMBER_STATUS.MEMBER_STATUS_CODE is '会員ステータスコード: '
+[df-create-schema] <span class="abbreviation">...</span>240 INFO  - comment on column MEMBER_STATUS.MEMBER_STATUS_NAME is '会員ステータス名称: '
+[df-create-schema] <span class="abbreviation">...</span>241 INFO  - comment on column MEMBER_STATUS.DISPLAY_ORDER is '表示順: 昇順で利用'
+[df-create-schema] <span class="abbreviation">...</span>242 INFO  - comment on table SERVICE_RANK is 'サービスランク: 会員のサービスランク(プラチナ、ゴールドなど)'
+[df-create-schema] <span class="abbreviation">...</span>243 INFO  - comment on column SERVICE_RANK.POINT_INCIDENCE is 'ポイント発生率: 購入ごとのポイントの発生率(購入価格にこの値を掛けた数が発生ポイント)'
+[df-create-schema] <span class="abbreviation">...</span>244 INFO  - comment on column PRODUCT_CATEGORY.PRODUCT_CATEGORY_CODE is '商品カテゴリコード: '
+[df-create-schema] <span class="abbreviation">...</span>248 INFO  - comment on column PRODUCT_CATEGORY.PRODUCT_CATEGORY_NAME is '商品カテゴリ名称: '
+[df-create-schema] <span class="abbreviation">...</span>248 INFO  - comment on column PRODUCT_CATEGORY.PARENT_CATEGORY_CODE is '親カテゴリコード: '
+[df-create-schema] <span class="abbreviation">...</span>250 INFO  -   --> success=42 failure=0
+[df-create-schema] <span class="abbreviation">...</span>250 INFO  - {SQL File}: ./playsql/replace-schema-90-vendorcheck.sql
+[df-create-schema] <span class="abbreviation">...</span>268 INFO  - The SQL is line comment only so skip it:
+[df-create-schema] -- *basically unsupported (limiter valid)
+[df-create-schema] --create table "VENDOR-NON COMPILABLE" (
+[df-create-schema] --	"NON-COMPILABLE ID" INTEGER NOT NULL PRIMARY KEY,
+[df-create-schema] --	"NON COMPILABLE-NAME" VARCHAR(32),
+[df-create-schema] --	"PARENT-ID" INTEGER
+[df-create-schema] --)
+[df-create-schema] <span class="abbreviation">...</span>271 INFO  - The SQL is line comment only so skip it:
+[df-create-schema] --
+[df-create-schema] --ALTER TABLE "VENDOR-NON COMPILABLE" ADD CONSTRAINT FK_VENDOR_NON_COMPPILABLE_SELF
+[df-create-schema] --	FOREIGN KEY ("PARENT-ID") REFERENCES "VENDOR-NON COMPILABLE" ("NON-COMPILABLE ID")
+[df-create-schema] <span class="abbreviation">...</span>271 INFO  - CREATE TABLE VENDOR_CHECK ( VENDOR_CHECK_ID NUMERIC(16) NOT NULL PRIMARY KEY, TYPE_OF_CHAR CHAR(3), TYPE_OF_VARCHAR VARCHAR(32), TYPE_OF_CLOB CLOB, TYPE_OF_TEXT TEXT, TYPE_OF_NUMERIC_INTEGER NUMERIC(5, 0), TYPE_OF_NUMERIC_BIGINT NUMERIC(12, 0), TYPE_OF_NUMERIC_DECIMAL NUMERIC(5, 3), TYPE_OF_NUMERIC_INTEGER_MIN NUMERIC(1, 0), TYPE_OF_NUMERIC_INTEGER_MAX NUMERIC(9, 0), TYPE_OF_NUMERIC_BIGINT_MIN NUMERIC(10, 0), TYPE_OF_NUMERIC_BIGINT_MAX NUMERIC(18, 0), TYPE_OF_NUMERIC_SUPERINT_MIN NUMERIC(19, 0), TYPE_OF_NUMERIC_SUPERINT_MAX NUMERIC(38, 0), TYPE_OF_NUMERIC_MAXDECIMAL NUMERIC(38, 127), TYPE_OF_INTEGER INTEGER, TYPE_OF_BIGINT BIGINT, TYPE_OF_DATE DATE, TYPE_OF_TIMESTAMP TIMESTAMP, TYPE_OF_TIME TIME, TYPE_OF_BOOLEAN BOOLEAN, TYPE_OF_BINARY BINARY, TYPE_OF_BLOB BLOB, TYPE_OF_UUID UUID, TYPE_OF_ARRAY ARRAY, TYPE_OF_OTHER OTHER, U_Y_TEXT TEXT )
+[df-create-schema] <span class="abbreviation">...</span>272 INFO  - create table VENDOR_$_DOLLAR ( VENDOR_$_DOLLAR_ID INTEGER NOT NULL PRIMARY KEY, VENDOR_$_DOLLAR_NAME VARCHAR(32) )
+[df-create-schema] <span class="abbreviation">...</span>275 INFO  -   --> success=2 failure=0
+[df-create-schema] <span class="abbreviation">...</span>275 INFO  - {Create Schema}: success=96 failure=0 (in 4 files)
+[df-create-schema] <span class="abbreviation">...</span>277 INFO  - 
+[df-create-schema] <span class="abbreviation">...</span>277 INFO  - ...closeReally()
+[df-load-data] <span class="abbreviation">...</span>316 INFO  - ...Using contextProperties: build.properties
+[df-load-data] <span class="abbreviation">...</span>320 INFO  - [Build-Properties]: size=1
+[df-load-data] <span class="abbreviation">...</span>323 INFO  -   torque.project = exampledb
+[df-load-data] <span class="abbreviation">...</span>323 INFO  - 
+[df-load-data] <span class="abbreviation">...</span>356 INFO  - ...Creating data source:
+[df-load-data] <span class="abbreviation">...</span>356 INFO  -   driver = org.h2.Driver
+[df-load-data] <span class="abbreviation">...</span>357 INFO  -   url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+[df-load-data] <span class="abbreviation">...</span>358 INFO  -   user   = sa
+[df-load-data] <span class="abbreviation">...</span>364 INFO  - ...Connecting to the database:
+[df-load-data] <span class="abbreviation">...</span>825 INFO  -   product = H2 1.3.150 (2011-01-28)
+[df-load-data] <span class="abbreviation">...</span>825 INFO  -   driver  = H2 JDBC Driver 1.3.150 (2011-01-28) for JDBC 3.0
+[df-load-data] <span class="abbreviation">...</span>826 INFO  - 
+[df-load-data] <span class="abbreviation">...</span>827 INFO  - * * * * * * * * * * *
+[df-load-data] <span class="abbreviation">...</span>827 INFO  - *                   *
+[df-load-data] <span class="abbreviation">...</span>828 INFO  - * Load Data         *
+[df-load-data] <span class="abbreviation">...</span>828 INFO  - *                   *
+[df-load-data] <span class="abbreviation">...</span>828 INFO  - * * * * * * * * * * *
+[df-load-data] <span class="abbreviation">...</span>857 INFO  - 
+[df-load-data] <span class="abbreviation">...</span>858 INFO  - /= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+[df-load-data] <span class="abbreviation">...</span>859 INFO  - writeData(./playsql/data/common/xls/10-master.xls)
+[df-load-data] <span class="abbreviation">...</span>874 INFO  - = = = = = = =/
+[df-load-data] <span class="abbreviation">...</span>356 INFO  - MEMBER_STATUS:{PRV, PROVISIONAL, first status after entry, allowed to use only part of service, 3}
+[df-load-data] <span class="abbreviation">...</span>450 INFO  - MEMBER_STATUS:{FML, FORMALIZED, as formal member, allowed to use all service, 1}
+[df-load-data] <span class="abbreviation">...</span>451 INFO  - MEMBER_STATUS:{WDL, WITHDRAWAL, withdrawal is fixed, not allowed to use service, 2}
+[df-load-data] <span class="abbreviation">...</span>456 INFO  - REGION:{1, AMERICA}
+[df-load-data] <span class="abbreviation">...</span>456 INFO  - REGION:{2, CANADA}
+[df-load-data] <span class="abbreviation">...</span>457 INFO  - REGION:{3, CHINA}
+[df-load-data] <span class="abbreviation">...</span>457 INFO  - REGION:{4, CHIBA}
+[df-load-data] <span class="abbreviation">...</span>458 INFO  - SERVICE_RANK:{PLT, PLATINUM, 12.3, 1, platinum rank, 1}
+[df-load-data] <span class="abbreviation">...</span>460 INFO  - SERVICE_RANK:{GLD, GOLD, 9.2, 1, gold rank, 2}
+[df-load-data] <span class="abbreviation">...</span>461 INFO  - SERVICE_RANK:{SIL, SILVER, 6.74, 1, silver rank, 3}
+[df-load-data] <span class="abbreviation">...</span>461 INFO  - SERVICE_RANK:{BRZ, BRONZE, 2, 1, bronze rank, 4}
+[df-load-data] <span class="abbreviation">...</span>462 INFO  - SERVICE_RANK:{PLS, PLASTIC, 0.1, 0, plastic rank, 5}
+[df-load-data] <span class="abbreviation">...</span>463 INFO  - WITHDRAWAL_REASON:{SIT, サイトが使いにくいから, 1}
+[df-load-data] <span class="abbreviation">...</span>464 INFO  - WITHDRAWAL_REASON:{OTH, その他理由, 4}
+[df-load-data] <span class="abbreviation">...</span>465 INFO  - WITHDRAWAL_REASON:{FRT, フリテンだから, 3}
+[df-load-data] <span class="abbreviation">...</span>465 INFO  - WITHDRAWAL_REASON:{PRD, 商品に魅力がないから, 2}
+[df-load-data] <span class="abbreviation">...</span>471 INFO  - PRODUCT_CATEGORY:{MSC, 音楽, null}
+[df-load-data] <span class="abbreviation">...</span>471 INFO  - PRODUCT_CATEGORY:{FOD, 食品, null}
+[df-load-data] <span class="abbreviation">...</span>472 INFO  - PRODUCT_CATEGORY:{MCD, 音楽CD, MSC}
+[df-load-data] <span class="abbreviation">...</span>473 INFO  - PRODUCT_CATEGORY:{INS, 楽器, MSC}
+[df-load-data] <span class="abbreviation">...</span>473 INFO  - PRODUCT_CATEGORY:{HEB, ハーブ, FOD}
+[df-load-data] <span class="abbreviation">...</span>475 INFO  - PRODUCT_STATUS:{ONS, 生産販売可能}
+[df-load-data] <span class="abbreviation">...</span>476 INFO  - PRODUCT_STATUS:{PST, 生産中止}
+[df-load-data] <span class="abbreviation">...</span>476 INFO  - PRODUCT_STATUS:{SST, 販売中止}
+[df-load-data] <span class="abbreviation">...</span>479 INFO  - 
+[df-load-data] <span class="abbreviation">...</span>479 INFO  - /= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+[df-load-data] <span class="abbreviation">...</span>479 INFO  - writeData(./playsql/data/ut/xls/20-member.xls)
+[df-load-data] <span class="abbreviation">...</span>480 INFO  - = = = = = = =/
+[df-load-data] <span class="abbreviation">...</span>574 INFO  - MEMBER:{1, Stojkovic, Pixy, FML, 2007/12/01 11:01:10, 1965/03/03, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>579 INFO  - MEMBER:{2, Savicevic, Genius, PRV, null, 1966/09/15, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>580 INFO  - MEMBER:{3, Mijatovic, Mijato, WDL, 2005/10/03 13:03:30, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>581 INFO  - MEMBER:{4, Stankovic, Stanko, FML, 2006/09/04 14:04:40, 1978/09/11, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>583 INFO  - MEMBER:{5, Milosevic, Milose, FML, 2007/08/05 15:05:50, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>584 INFO  - MEMBER:{6, Mihajlovic, FreeKick, WDL, 2006/07/06 16:06:40, 1969/02/20, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>587 INFO  - MEMBER:{7, Og2000, Og2000, FML, 2005/06/07 17:07:30, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>588 INFO  - MEMBER:{8, Kezman, RedCard, FML, 2006/05/08 18:08:20, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>588 INFO  - MEMBER:{9, Maslovar, JEFUnited, FML, 2007/12/31 00:00:00, 1967/02/20, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>597 INFO  - MEMBER:{10, 諸葛亮孔明, ShokatsuGoGo, PRV, null, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>597 INFO  - MEMBER:{11, Boban, Boban, FML, 2007/12/01 11:01:10, 1968/10/08, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>599 INFO  - MEMBER:{12, Suker, Suker, PRV, null, 1968/01/01, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>600 INFO  - MEMBER:{13, Jarni, Jarni, WDL, 2005/10/03 13:03:30, 1968/10/26, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>602 INFO  - MEMBER:{14, Boksic, Boksic, FML, 2006/09/04 14:04:40, 1970/01/21, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>603 INFO  - MEMBER:{15, Prosinecki, Prosinecki, FML, 2007/08/05 15:05:50, 1969/01/12, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>605 INFO  - MEMBER:{16, RobeltKovac, RobeltKovac, WDL, 2006/07/06 16:06:40, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>606 INFO  - MEMBER:{17, NikoKovac, NikoKovac, FML, 2005/06/07 17:07:30, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>608 INFO  - MEMBER:{18, Jovanovic, Jovano, FML, 2006/05/08 18:08:20, 1981/04/18, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>610 INFO  - MEMBER:{19, Milko, Milko, FML, 2007/12/31 00:00:00, 1974/09/10, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>621 INFO  - MEMBER:{20, 諸葛瑾子瑜, ShokatsuKinKin, FML, 2007/12/31 00:00:00, null, 2011-03-26 11:17:14.571, foo, bar, 2011-03-26 11:17:14.571, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>648 INFO  - MEMBER_ADDRESS:{1, 1, 2007/03/24, 2015/12/31, Nagara, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>651 INFO  - MEMBER_ADDRESS:{2, 1, 1949/01/01, 1997/03/31, New York, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>653 INFO  - MEMBER_ADDRESS:{3, 1, 1997/04/01, 2000/09/30, Los Angels, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>654 INFO  - MEMBER_ADDRESS:{4, 1, 2000/10/01, 2003/08/31, New York, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>656 INFO  - MEMBER_ADDRESS:{5, 1, 2003/09/01, 2004/12/22, San Francisco Powell, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>662 INFO  - MEMBER_ADDRESS:{6, 1, 2004/12/23, 2006/03/23, San Francisco Daly City, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>666 INFO  - MEMBER_ADDRESS:{7, 1, 2016/01/01, 9999/12/31, Victoria, 2, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>668 INFO  - MEMBER_ADDRESS:{8, 2, 2004/12/24, 9999/12/31, Ichihara, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>669 INFO  - MEMBER_ADDRESS:{9, 3, 2004/12/24, 2007/03/23, Mobara, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>671 INFO  - MEMBER_ADDRESS:{10, 4, 2002/11/01, 9999/12/31, Sousa, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>673 INFO  - MEMBER_ADDRESS:{11, 6, 2002/11/01, 9999/12/31, Yokoshiba, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>674 INFO  - MEMBER_ADDRESS:{12, 9, 2010/11/01, 9999/12/31, Tateyama, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>676 INFO  - MEMBER_ADDRESS:{13, 10, 1970/01/01, 9999/12/31, Shoku, 3, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>678 INFO  - MEMBER_ADDRESS:{14, 12, 2000/11/01, 2001/11/01, Oohara, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>681 INFO  - MEMBER_ADDRESS:{15, 15, 2002/11/01, 2006/10/30, MinamiBousou, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>682 INFO  - MEMBER_ADDRESS:{16, 15, 2007/11/01, 9999/12/31, Tomisato, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>686 INFO  - MEMBER_ADDRESS:{17, 18, 2001/03/21, 2007/11/21, Katsuura, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>691 INFO  - MEMBER_ADDRESS:{18, 18, 2007/11/22, 9999/12/31, Kamogawa, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>693 INFO  - MEMBER_ADDRESS:{19, 19, 2000/11/01, 9999/12/31, Yotsukaido, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>695 INFO  - MEMBER_ADDRESS:{20, 20, 1970/01/01, 9999/12/31, Go, 3, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>718 INFO  - MEMBER_LOGIN:{1, 3, 2006/12/24 23:59:59, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>720 INFO  - MEMBER_LOGIN:{2, 6, 2007/11/11 16:16:16, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>723 INFO  - MEMBER_LOGIN:{3, 1, 2006/12/23 22:56:29, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>724 INFO  - MEMBER_LOGIN:{4, 6, 2007/11/01 02:13:00, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>727 INFO  - MEMBER_LOGIN:{5, 7, 2006/05/24 23:12:59, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>728 INFO  - MEMBER_LOGIN:{6, 6, 2005/11/11 16:32:01, 0, PRV}
+[df-load-data] <span class="abbreviation">...</span>729 INFO  - MEMBER_LOGIN:{7, 6, 2006/01/28 23:59:59, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>729 INFO  - MEMBER_LOGIN:{8, 6, 2007/11/09 16:23:00, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>730 INFO  - MEMBER_LOGIN:{9, 8, 2006/12/22 23:59:59, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>731 INFO  - MEMBER_LOGIN:{10, 6, 2007/11/11 09:01:00, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>732 INFO  - MEMBER_LOGIN:{11, 1, 2006/12/23 23:59:59, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>733 INFO  - MEMBER_LOGIN:{12, 9, 2007/11/15 12:43:00, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>733 INFO  - MEMBER_LOGIN:{13, 10, 2006/12/24 23:59:59, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>734 INFO  - MEMBER_LOGIN:{14, 6, 2007/04/01 16:23:01, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>734 INFO  - MEMBER_LOGIN:{15, 7, 2006/12/24 23:59:20, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>735 INFO  - MEMBER_LOGIN:{16, 6, 2007/05/01 12:23:02, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>736 INFO  - MEMBER_LOGIN:{17, 7, 2006/12/24 23:59:21, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>737 INFO  - MEMBER_LOGIN:{18, 6, 2007/06/11 17:23:03, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>738 INFO  - MEMBER_LOGIN:{19, 4, 2006/12/24 23:59:22, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>739 INFO  - MEMBER_LOGIN:{20, 3, 2007/11/01 16:12:04, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>739 INFO  - MEMBER_LOGIN:{21, 11, 2006/12/24 23:59:23, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>740 INFO  - MEMBER_LOGIN:{22, 1, 2007/11/01 16:23:05, 0, PRV}
+[df-load-data] <span class="abbreviation">...</span>741 INFO  - MEMBER_LOGIN:{23, 9, 2006/12/24 23:59:24, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>742 INFO  - MEMBER_LOGIN:{24, 8, 2007/11/01 16:23:06, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>742 INFO  - MEMBER_LOGIN:{25, 7, 2007/12/24 11:59:25, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>743 INFO  - MEMBER_LOGIN:{26, 6, 2007/06/21 01:23:57, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>744 INFO  - MEMBER_LOGIN:{27, 5, 2006/12/24 23:59:26, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>745 INFO  - MEMBER_LOGIN:{28, 3, 2007/11/01 16:23:08, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>746 INFO  - MEMBER_LOGIN:{29, 3, 2006/12/24 23:59:27, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>747 INFO  - MEMBER_LOGIN:{30, 10, 2007/11/01 16:23:09, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>748 INFO  - MEMBER_LOGIN:{31, 15, 2006/07/24 23:59:28, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>748 INFO  - MEMBER_LOGIN:{32, 14, 2007/11/01 17:23:10, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>749 INFO  - MEMBER_LOGIN:{33, 15, 2007/11/01 16:23:10, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>749 INFO  - MEMBER_LOGIN:{34, 18, 2006/07/24 23:59:29, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>750 INFO  - MEMBER_LOGIN:{35, 3, 2007/11/01 17:23:11, 0, PRV}
+[df-load-data] <span class="abbreviation">...</span>751 INFO  - MEMBER_LOGIN:{36, 5, 2007/11/01 16:23:11, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>752 INFO  - MEMBER_LOGIN:{37, 11, 2006/07/24 23:59:30, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>753 INFO  - MEMBER_LOGIN:{38, 20, 2007/11/01 17:23:12, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>753 INFO  - MEMBER_LOGIN:{39, 19, 2007/11/01 16:23:12, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>754 INFO  - MEMBER_LOGIN:{40, 4, 2006/07/24 23:59:31, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>758 INFO  - MEMBER_LOGIN:{41, 4, 2007/11/01 17:23:13, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>759 INFO  - MEMBER_LOGIN:{42, 4, 2007/11/01 16:23:13, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>760 INFO  - MEMBER_LOGIN:{43, 4, 2006/07/24 23:52:32, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>761 INFO  - MEMBER_LOGIN:{44, 4, 2007/11/01 11:23:14, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>761 INFO  - MEMBER_LOGIN:{45, 4, 2007/11/21 06:23:14, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>771 INFO  - MEMBER_LOGIN:{46, 12, 2006/07/24 23:52:33, 0, PRV}
+[df-load-data] <span class="abbreviation">...</span>772 INFO  - MEMBER_LOGIN:{47, 13, 2007/11/01 11:23:15, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>774 INFO  - MEMBER_LOGIN:{48, 14, 2007/11/21 06:23:15, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>775 INFO  - MEMBER_LOGIN:{49, 17, 2006/07/24 23:52:34, 1, FML}
+[df-load-data] <span class="abbreviation">...</span>776 INFO  - MEMBER_LOGIN:{50, 18, 2007/11/01 11:23:16, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>776 INFO  - MEMBER_LOGIN:{51, 16, 2007/11/21 06:23:16, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>778 INFO  - MEMBER_LOGIN:{52, 4, 2006/07/24 23:52:35, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>778 INFO  - MEMBER_LOGIN:{53, 5, 2007/11/01 11:23:17, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>779 INFO  - MEMBER_LOGIN:{54, 5, 2007/11/21 06:23:17, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>779 INFO  - MEMBER_LOGIN:{55, 11, 2006/07/24 23:52:36, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>780 INFO  - MEMBER_LOGIN:{56, 12, 2007/11/01 11:23:18, 0, FML}
+[df-load-data] <span class="abbreviation">...</span>821 INFO  - MEMBER_SECURITY:{1, aaa, 30符3飜は？, 自分で数えろ, 0, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>823 INFO  - MEMBER_SECURITY:{2, bbb, 50符2飜は？, 自分で数えろ, 2, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>824 INFO  - MEMBER_SECURITY:{3, ccc, 110符2飜は？, 自分で数えろ, 3, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>825 INFO  - MEMBER_SECURITY:{4, ddd, タンヤオ？, そう, 12, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>827 INFO  - MEMBER_SECURITY:{5, eee2, ピンフ？, そう, 410, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>829 INFO  - MEMBER_SECURITY:{6, fff, サンアンコウ？, そう, 2, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>830 INFO  - MEMBER_SECURITY:{7, ggg3, イーペーコウ？, そう, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>830 INFO  - MEMBER_SECURITY:{8, hhh555, リャンペーコウ？, そう, 9, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>831 INFO  - MEMBER_SECURITY:{9, iii, サンペーコウはないよね？, 当たり前だ, 25, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>831 INFO  - MEMBER_SECURITY:{10, jjj, 私はイカサマしません, 実はする, 8, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>833 INFO  - MEMBER_SECURITY:{11, qwe, 70符3飜は？, 自分で数えろ, 72, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>833 INFO  - MEMBER_SECURITY:{12, sdf, 20符4飜は？, 自分で数えろ, 41, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>834 INFO  - MEMBER_SECURITY:{13, dfgsf, 大三元は？, 役満だよ, 22, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>834 INFO  - MEMBER_SECURITY:{14, ert, タンヤオ？, そう, 4, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>835 INFO  - MEMBER_SECURITY:{15, fhgf, ピンフ？, そう, 98, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>835 INFO  - MEMBER_SECURITY:{16, ghj, サンアンコウ？, そう, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>836 INFO  - MEMBER_SECURITY:{17, tyuffff, サンレンコウ？, そう, 0, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>836 INFO  - MEMBER_SECURITY:{18, jkl, イーペーコウ？, そう, 0, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>837 INFO  - MEMBER_SECURITY:{19, ghjfff, 左ハイは？, 痛い, 1, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>837 INFO  - MEMBER_SECURITY:{20, cvb, 孫権は？, 呉, 6, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.572, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>845 INFO  - MEMBER_SERVICE:{1, 1234, PLT, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>846 INFO  - MEMBER_SERVICE:{2, 2345, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>847 INFO  - MEMBER_SERVICE:{3, 3456, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>847 INFO  - MEMBER_SERVICE:{4, 875, BRZ, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>848 INFO  - MEMBER_SERVICE:{5, 1111, BRZ, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>849 INFO  - MEMBER_SERVICE:{6, 5422, SIL, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>850 INFO  - MEMBER_SERVICE:{7, 24678, SIL, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>850 INFO  - MEMBER_SERVICE:{8, 234, SIL, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>851 INFO  - MEMBER_SERVICE:{9, 3, SIL, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>851 INFO  - MEMBER_SERVICE:{10, 98765, PLT, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>851 INFO  - MEMBER_SERVICE:{11, 34, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>852 INFO  - MEMBER_SERVICE:{12, 532, PLT, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>853 INFO  - MEMBER_SERVICE:{13, 23678, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>854 INFO  - MEMBER_SERVICE:{14, 432, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>854 INFO  - MEMBER_SERVICE:{15, 543, BRZ, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>855 INFO  - MEMBER_SERVICE:{16, 23545, PLT, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>855 INFO  - MEMBER_SERVICE:{17, 2345, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>856 INFO  - MEMBER_SERVICE:{18, 8763, SIL, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>857 INFO  - MEMBER_SERVICE:{19, 34567, SIL, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>857 INFO  - MEMBER_SERVICE:{20, 43, GLD, 2011-03-26 11:17:14.572, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>867 INFO  - MEMBER_WITHDRAWAL:{3, null, 俺はワールドカップでPK外した…, 2006/12/24 23:59:59.123, 2011-03-26 11:17:14.573, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>868 INFO  - MEMBER_WITHDRAWAL:{6, SIT, null, 2007/11/11 16:00:00.456, 2011-03-26 11:17:14.573, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>884 INFO  - MEMBER_WITHDRAWAL:{13, PRD, 左サイドで走りすぎて疲れた, 2006/12/24 05:52:29.789, 2011-03-26 11:17:14.573, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>893 INFO  - MEMBER_WITHDRAWAL:{16, SIT, コバチが２人いるため, 2007/11/13 16:00:00.456, 2011-03-26 11:17:14.573, foo, bar, 2011-03-26 11:17:14.573, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>896 INFO  - 
+[df-load-data] <span class="abbreviation">...</span>896 INFO  - /= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+[df-load-data] <span class="abbreviation">...</span>896 INFO  - writeData(./playsql/data/ut/xls/30-product.xls)
+[df-load-data] <span class="abbreviation">...</span>896 INFO  - = = = = = = =/
+[df-load-data] <span class="abbreviation">...</span>948 INFO  - PRODUCT:{1, Cold Spring Harbor, BILLYJOEL-01, MCD, PST, 1100, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>014 INFO  - PRODUCT:{2, Piano Man, BILLYJOEL-02, MCD, ONS, 1200, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>015 INFO  - PRODUCT:{3, Streetlife Serenade, BILLYJOEL-03, MCD, ONS, 1300, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>016 INFO  - PRODUCT:{4, Turnstiles, BILLYJOEL-04, MCD, ONS, 1400, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>016 INFO  - PRODUCT:{5, The Stranger, BILLYJOEL-05, MCD, ONS, 1500, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>017 INFO  - PRODUCT:{6, 52nd Street, BILLYJOEL-06, MCD, ONS, 1600, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>018 INFO  - PRODUCT:{7, Glass House, BILLYJOEL-07, MCD, ONS, 1700, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>019 INFO  - PRODUCT:{8, Nylon Curtain, BILLYJOEL-08, MCD, ONS, 1800, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>020 INFO  - PRODUCT:{9, Bridge, BILLYJOEL-09, MCD, ONS, 1900, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>020 INFO  - PRODUCT:{10, Storm Front, BILLYJOEL-10, MCD, ONS, 2000, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>021 INFO  - PRODUCT:{11, River of Dreams, BILLYJOEL-11, MCD, ONS, 2100, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>024 INFO  - PRODUCT:{12, Grand Piano, PIANO-01, INS, ONS, 1400000, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>026 INFO  - PRODUCT:{13, Upright Piano, PIANO-02, INS, ONS, 1100000, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>026 INFO  - PRODUCT:{14, Low Price Flute, FLUTE-01, INS, ONS, 50000, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>027 INFO  - PRODUCT:{15, Silver Flute, FLUTE-02, INS, ONS, 500000, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>027 INFO  - PRODUCT:{16, Gold Flute, FLUTE-03, INS, ONS, 4000000, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>027 INFO  - PRODUCT:{17, Rosemary (100g), HARB-100-01, HEB, ONS, 400, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>028 INFO  - PRODUCT:{18, Lemon Grass (100g), HARB-100-02, HEB, ONS, 380, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>029 INFO  - PRODUCT:{19, Camomile (100g), HARB-100-03, HEB, ONS, 380, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>030 INFO  - PRODUCT:{20, Hatomugi (100g), HARB-100-04, HEB, ONS, 340, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.943, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>044 INFO  - PURCHASE:{1, 5, 3, 2006/12/24 23:59:59, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>046 INFO  - PURCHASE:{2, 15, 7, 2007/11/11 16:16:16, 1, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>052 INFO  - PURCHASE:{3, 13, 3, 2006/12/23 22:56:29.235, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>062 INFO  - PURCHASE:{4, 2, 5, 2007/11/01 02:13:00, 2, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>066 INFO  - PURCHASE:{5, 9, 11, 2006/05/24 23:12:59, 5, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>067 INFO  - PURCHASE:{6, 20, 2, 2005/11/11 16:32:01, 1, 2000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>070 INFO  - PURCHASE:{7, 19, 9, 2006/01/28 23:59:59.999, 1, 1000, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>071 INFO  - PURCHASE:{8, 4, 7, 2007/11/09 16:23:00, 1, 1535, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>074 INFO  - PURCHASE:{9, 4, 10, 2006/12/22 23:59:59, 20, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>074 INFO  - PURCHASE:{10, 2, 10, 2007/11/01 02:13:00.345, 1, 1700, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>075 INFO  - PURCHASE:{11, 5, 2, 2007/11/09 16:23:01, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>075 INFO  - PURCHASE:{12, 15, 2, 2006/12/22 23:59:12, 1, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>076 INFO  - PURCHASE:{13, 13, 8, 2007/11/01 02:13:00.346, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>078 INFO  - PURCHASE:{14, 2, 4, 2007/11/09 16:23:02, 2, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>078 INFO  - PURCHASE:{15, 9, 11, 2006/12/22 23:59:32, 5, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>079 INFO  - PURCHASE:{16, 20, 1, 2007/11/01 02:13:00.347, 1, 2000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>079 INFO  - PURCHASE:{17, 19, 11, 2006/12/22 23:59:33, 2, 1000, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>080 INFO  - PURCHASE:{18, 4, 10, 2007/11/01 02:13:00.348, 1, 1535, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>081 INFO  - PURCHASE:{19, 4, 11, 2007/11/01 02:13:00.348, 4, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>082 INFO  - PURCHASE:{20, 2, 11, 2006/12/22 23:59:35, 1, 1700, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>083 INFO  - PURCHASE:{21, 2, 15, 2006/12/22 23:59:35, 1, 400000, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>084 INFO  - PURCHASE:{22, 3, 6, 2007/11/01 02:13:00.350, 4, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>085 INFO  - PURCHASE:{23, 15, 7, 2006/12/22 23:59:36, 1, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>086 INFO  - PURCHASE:{24, 13, 3, 2007/09/11 12:13:00.351, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>087 INFO  - PURCHASE:{25, 16, 2, 2006/12/22 23:59:37, 2, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>087 INFO  - PURCHASE:{26, 3, 4, 2005/12/21 12:13:00.352, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>088 INFO  - PURCHASE:{27, 2, 8, 2006/12/22 23:59:38, 1, 2000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>088 INFO  - PURCHASE:{28, 6, 17, 2007/11/01 02:13:00.353, 2, 600, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>090 INFO  - PURCHASE:{29, 4, 4, 2006/12/22 23:59:39, 1, 1535, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>090 INFO  - PURCHASE:{30, 4, 3, 2007/11/01 02:13:00.354, 4, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>091 INFO  - PURCHASE:{31, 4, 10, 2006/12/22 23:59:40, 1, 1700, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>091 INFO  - PURCHASE:{32, 13, 3, 2006/12/28 12:13:10.355, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>092 INFO  - PURCHASE:{33, 16, 2, 2006/12/22 23:59:41, 2, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>093 INFO  - PURCHASE:{34, 3, 4, 2007/05/21 12:13:00.356, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>094 INFO  - PURCHASE:{35, 2, 8, 2006/12/12 23:59:42, 1, 2000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>094 INFO  - PURCHASE:{36, 6, 3, 2007/05/01 02:13:00.357, 2, 1000, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>095 INFO  - PURCHASE:{37, 4, 4, 2006/12/12 23:59:43, 1, 1535, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>095 INFO  - PURCHASE:{38, 4, 3, 2007/05/01 02:03:00.358, 4, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>096 INFO  - PURCHASE:{39, 4, 10, 2006/12/12 23:59:44, 1, 1700, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>097 INFO  - PURCHASE:{40, 4, 10, 2007/05/01 12:13:00.359, 1, 1700, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>097 INFO  - PURCHASE:{41, 4, 11, 2007/11/01 02:13:00.354, 4, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>100 INFO  - PURCHASE:{42, 10, 16, 2006/12/22 23:59:40, 1, 2800000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>101 INFO  - PURCHASE:{43, 13, 17, 2006/12/28 12:13:10.355, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>103 INFO  - PURCHASE:{44, 16, 14, 2006/12/22 23:59:41, 2, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>104 INFO  - PURCHASE:{45, 3, 18, 2007/05/21 12:13:00.356, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>105 INFO  - PURCHASE:{46, 2, 7, 2006/12/12 23:59:42, 1, 2000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>105 INFO  - PURCHASE:{47, 6, 14, 2007/05/01 02:13:00.357, 2, 1000, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>106 INFO  - PURCHASE:{48, 16, 12, 2006/12/12 23:59:43, 1, 100000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>123 INFO  - PURCHASE:{49, 4, 20, 2007/05/01 02:03:00.358, 4, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>123 INFO  - PURCHASE:{50, 4, 19, 2006/12/12 23:59:44, 1, 1700, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>124 INFO  - PURCHASE:{51, 4, 11, 2007/11/21 02:13:00.354, 4, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>125 INFO  - PURCHASE:{52, 20, 17, 2006/12/23 23:59:40, 1, 400, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>125 INFO  - PURCHASE:{53, 13, 16, 2007/12/28 12:13:10.355, 1, 600000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>126 INFO  - PURCHASE:{54, 16, 14, 2006/02/22 23:59:41, 2, 1700, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>127 INFO  - PURCHASE:{55, 3, 3, 2007/07/21 12:13:00.356, 1, 1800, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>127 INFO  - PURCHASE:{56, 2, 8, 2006/12/22 23:59:42, 1, 2000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>128 INFO  - PURCHASE:{57, 6, 19, 2007/02/01 02:13:00.357, 2, 1000, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>128 INFO  - PURCHASE:{58, 2, 12, 2006/12/12 23:59:43, 1, 4000000, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>130 INFO  - PURCHASE:{59, 4, 18, 2007/05/01 02:03:00.358, 1, 380, 1, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>131 INFO  - PURCHASE:{60, 4, 20, 2006/12/12 23:59:44, 2, 680, 0, 2011-03-26 11:17:14.943, foo, bar, 2011-03-26 11:17:14.946, foo, bar, 0}
+[df-load-data] <span class="abbreviation">...</span>160 INFO  - 
+[df-load-data] <span class="abbreviation">...</span>162 INFO  - /= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+[df-load-data] <span class="abbreviation">...</span>162 INFO  - writeData(./playsql/data/ut/xls/80-vendor.xls)
+[df-load-data] <span class="abbreviation">...</span>162 INFO  - = = = = = = =/
+[df-load-data] <span class="abbreviation">...</span>200 INFO  - VENDOR_CHECK:{1, 0, abc}
+[df-load-data] <span class="abbreviation">...</span>201 INFO  - VENDOR_CHECK:{2, 1, def}
+[df-load-data] <span class="abbreviation">...</span>202 INFO  - VENDOR_CHECK:{3, 1, null}
+[df-load-data] <span class="abbreviation">...</span>202 INFO  - VENDOR_CHECK:{4, 0, obc}
+[df-load-data] <span class="abbreviation">...</span>203 INFO  - VENDOR_CHECK:{5, 1, jcb}
+[df-load-data] <span class="abbreviation">...</span>204 INFO  - ...closeReally()
+[df-take-finally] <span class="abbreviation">...</span>245 INFO  - ...Using contextProperties: build.properties
+[df-take-finally] <span class="abbreviation">...</span>249 INFO  - [Build-Properties]: size=1
+[df-take-finally] <span class="abbreviation">...</span>249 INFO  -   torque.project = exampledb
+[df-take-finally] <span class="abbreviation">...</span>249 INFO  - 
+[df-take-finally] <span class="abbreviation">...</span>288 INFO  - ...Creating data source:
+[df-take-finally] <span class="abbreviation">...</span>288 INFO  -   driver = org.h2.Driver
+[df-take-finally] <span class="abbreviation">...</span>289 INFO  -   url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+[df-take-finally] <span class="abbreviation">...</span>290 INFO  -   user   = sa
+[df-take-finally] <span class="abbreviation">...</span>294 INFO  - ...Connecting to the database:
+[df-take-finally] <span class="abbreviation">...</span>755 INFO  -   product = H2 1.3.150 (2011-01-28)
+[df-take-finally] <span class="abbreviation">...</span>755 INFO  -   driver  = H2 JDBC Driver 1.3.150 (2011-01-28) for JDBC 3.0
+[df-take-finally] <span class="abbreviation">...</span>760 INFO  - 
+[df-take-finally] <span class="abbreviation">...</span>761 INFO  - * * * * * * * **
+[df-take-finally] <span class="abbreviation">...</span>761 INFO  - *              *
+[df-take-finally] <span class="abbreviation">...</span>761 INFO  - * Take Finally *
+[df-take-finally] <span class="abbreviation">...</span>762 INFO  - *              *
+[df-take-finally] <span class="abbreviation">...</span>763 INFO  - * * * * * * * **
+[df-take-finally] <span class="abbreviation">...</span>771 INFO  - {SQL File}: ./playsql/take-finally.sql
+[df-take-finally] <span class="abbreviation">...</span>793 INFO  - 
+[df-take-finally] -- =======================================================================================
+[df-take-finally] --                                                                     Business Constraint
+[df-take-finally] --                                                                     ===================
+[df-take-finally] -- #df:assertCountZero#
+[df-take-finally] -- /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[df-take-finally] -- Formalized members should have their own formalized date-times.
+[df-take-finally] -- - - - - - - - - - -/
+[df-take-finally]  select count(*) from MEMBER where MEMBER_STATUS_CODE = 'FML' and FORMALIZED_DATETIME is null
+[df-take-finally] <span class="abbreviation">...</span>819 INFO  - 
+[df-take-finally] -- #df:assertListZero#
+[df-take-finally] -- /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[df-take-finally] -- Withdrawal members should have their own withdrawal informations.
+[df-take-finally] -- - - - - - - - - - -/
+[df-take-finally]  select member.MEMBER_ID, member.MEMBER_NAME from MEMBER member where member.MEMBER_STATUS_CODE = 'WDL' and not exists (select withdrawal.MEMBER_ID from MEMBER_WITHDRAWAL withdrawal where withdrawal.MEMBER_ID = member.MEMBER_ID )
+[df-take-finally] <span class="abbreviation">...</span>828 INFO  - 
+[df-take-finally] -- #df:assertListZero#
+[df-take-finally]  select member.MEMBER_ID as MEMBER_ID , count(member.MEMBER_ID) as SELECTED_COUNT , min(address.MEMBER_ADDRESS_ID) as MIN_ADDRESS_ID , max(address.MEMBER_ADDRESS_ID) as MAX_ADDRESS_ID , CURRENT_DATE as TARGET_DATE from MEMBER member left outer join MEMBER_ADDRESS address on member.MEMBER_ID = address.MEMBER_ID and address.VALID_BEGIN_DATE <= CURRENT_DATE and address.VALID_END_DATE >= CURRENT_DATE group by member.MEMBER_ID having count(member.MEMBER_ID) > 1
+[df-take-finally] <span class="abbreviation">...</span>839 INFO  - 
+[df-take-finally] -- =======================================================================================
+[df-take-finally] --                                                                     TestData Constraint
+[df-take-finally] --                                                                     ===================
+[df-take-finally] -- /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[df-take-finally] -- These tables should have at least one record at ut and should not have at real.
+[df-take-finally] -- - - - - - - - - - -/
+[df-take-finally] -- #df:assertCountExists@ut#
+[df-take-finally] -- #df:assertCountZero@real#
+[df-take-finally]  select count(*) from MEMBER member
+[df-take-finally] <span class="abbreviation">...</span>842 INFO  - [RESULT]: count=20
+[df-take-finally] <span class="abbreviation">...</span>842 INFO  - 
+[df-take-finally] -- #df:assertCountExists@ut#
+[df-take-finally] -- #df:assertCountZero@real#
+[df-take-finally]  select count(*) from MEMBER_LOGIN login
+[df-take-finally] <span class="abbreviation">...</span>843 INFO  - [RESULT]: count=56
+[df-take-finally] <span class="abbreviation">...</span>844 INFO  -   --> success=5 failure=0
+[df-take-finally] <span class="abbreviation">...</span>851 INFO  - {Take Finally}: success=5 failure=0 (in 1 files)
+[df-take-finally] <span class="abbreviation">...</span>856 INFO  - ...closeReally()
+[df-take-finally] <span class="abbreviation">...</span>898 INFO  - 
+[df-take-finally] 
+[df-take-finally] _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+[df-take-finally] [Task End]: 00m03s925ms
+[df-take-finally] 
+[df-take-finally]   DBFLUTE_CLIENT: {exampledb}
+[df-take-finally]     database  = h2 (H2 1.3.150 (2011-01-28))
+[df-take-finally]     language  = java
+[df-take-finally]     container = spring
+[df-take-finally]     package   = com.example.dbflute.spring.dbflute
+[df-take-finally] 
+[df-take-finally]   DBFLUTE_ENVIRONMENT_TYPE: {df:default}
+[df-take-finally]     driver = org.h2.Driver
+[df-take-finally]     url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+[df-take-finally]     schema = {EXAMPLEDB.PUBLIC as main}
+[df-take-finally]     user   = sa
+[df-take-finally]     props  = {}
+[df-take-finally]     additionalSchema = 
+[df-take-finally]     dataLoadingType  = ut
+[df-take-finally]     refreshProject   = dbflute-spring-example
+[df-take-finally] 
+[df-take-finally]  {Create Schema}: success=96 failure=0 (in 4 files)
+[df-take-finally]   o replace-schema-10-basic.sql
+[df-take-finally]   o replace-schema-20-view.sql
+[df-take-finally]   o replace-schema-80-comment.sql
+[df-take-finally]   o replace-schema-90-vendorcheck.sql
+[df-take-finally] 
+[df-take-finally]  {Load Data}: loaded-files=4
+[df-take-finally]   (common)
+[df-take-finally]   o 10-master.xls
+[df-take-finally]   (ut)
+[df-take-finally]   o 20-member.xls
+[df-take-finally]   o 30-product.xls
+[df-take-finally]   o 80-vendor.xls
+[df-take-finally] 
+[df-take-finally]  {Take Finally}: success=5 failure=0 (in 1 files)
+[df-take-finally]   o take-finally.sql
+[df-take-finally] _/_/_/_/_/_/_/_/_/_/ {ReplaceSchema}
+
+BUILD SUCCESSFUL
+Total time: 5 seconds
+</code></pre>
+	<h3 id="error">異常終了時のログ</h3>
+	<p>
+		例えば、実行エラーのDDLがあった場合は、タスク終了時の最後のログ(final
+		info)で以下のようにどのファイルでどのようなエラーがあったか表示されます。
+		(ちなみに、DDLのエラーではタスクは中断せず続行されます)
+	</p>
+<pre><span class="codetitle">e.g. "CREATE TANYAO WITH PON" という間違ったDDLがあった場合のログ (日付など一部省略) @Console</span><code>
+<span class="abbreviation">...</span>$ sh replace-schema.sh
+/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+Execute the ReplaceSchema task.
+nnnnnnnnnn/
+Database will be initialized. Are you ready? (y or n) y
+Buildfile: ../mydbflute/dbflute-0.9.8.1/build-torque.xml
+
+replace-schema:
+     [echo] +-----------------------------------------------+
+     [echo] |                                               |
+     [echo] | Replace-Schema !                              |
+     [echo] |                                               |
+     [echo] +-----------------------------------------------+
+<span class="abbreviation">...</span>
+[df-take-finally] <span class="abbreviation">...</span>915 INFO  - [RESULT]: count=56
+[df-take-finally] <span class="abbreviation">...</span>916 INFO  -   --> success=5 failure=0
+[df-take-finally] <span class="abbreviation">...</span>917 INFO  - {Take Finally}: success=5 failure=0 (in 1 files)
+[df-take-finally] <span class="abbreviation">...</span>926 ERROR - Look! Read the message below.
+[df-take-finally] /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+[df-take-finally] Failed to execute DBFlute Task 'ReplaceSchema'.
+[df-take-finally] 
+[df-take-finally] [Advice]
+[df-take-finally] Check the exception messages and the stack traces.
+[df-take-finally] 
+[df-take-finally] [Database Product]
+[df-take-finally] H2 1.3.150 (2011-01-28)
+[df-take-finally] 
+[df-take-finally] [JDBC Driver]
+[df-take-finally] H2 JDBC Driver 1.3.150 (2011-01-28) for JDBC 3.0
+[df-take-finally] * * * * * * * * * */
+[df-take-finally] org.seasar.dbflute.exception.DfCreateSchemaFailureException: Failed to create schema (Look the final info)
+[df-take-finally] 	at org.seasar.dbflute.task.replaceschema.DfTakeFinallyTask.handleSchemaFailure(DfTakeFinallyTask.java:274)
+[df-take-finally] 	at org.seasar.dbflute.task.replaceschema.DfTakeFinallyTask.doExecute(DfTakeFinallyTask.java:64)
+[df-take-finally] 	at org.seasar.dbflute.task.bs.DfAbstractTask.execute(DfAbstractTask.java:93)
+[df-take-finally] 	at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:288)
+[df-take-finally] 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+[df-take-finally] 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+[df-take-finally] 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+[df-take-finally] 	at java.lang.reflect.Method.invoke(Method.java:592)
+[df-take-finally] 	at org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:105)
+[df-take-finally] 	at org.apache.tools.ant.Task.perform(Task.java:348)
+[df-take-finally] 	at org.apache.tools.ant.Target.execute(Target.java:357)
+[df-take-finally] 	at org.apache.tools.ant.Target.performTasks(Target.java:385)
+[df-take-finally] 	at org.apache.tools.ant.Project.executeSortedTargets(Project.java:1329)
+[df-take-finally] 	at org.apache.tools.ant.Project.executeTarget(Project.java:1298)
+[df-take-finally] 	at org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:41)
+[df-take-finally] 	at org.apache.tools.ant.Project.executeTargets(Project.java:1181)
+[df-take-finally] 	at org.apache.tools.ant.Main.runBuild(Main.java:698)
+[df-take-finally] 	at org.apache.tools.ant.Main.startAnt(Main.java:199)
+[df-take-finally] 	at org.apache.tools.ant.launch.Launcher.run(Launcher.java:257)
+[df-take-finally] 	at org.apache.tools.ant.launch.Launcher.main(Launcher.java:104)
+[df-take-finally] 2011-03-26 11:32:07,950 INFO  - ...closeReally()
+[df-take-finally] 2011-03-26 11:32:07,989 INFO  - 
+[df-take-finally] 
+[df-take-finally] _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+[df-take-finally] [Task End]: 00m03s824ms *Abort
+[df-take-finally] 
+[df-take-finally]   DBFLUTE_CLIENT: {exampledb}
+[df-take-finally]     database  = h2 (H2 1.3.150 (2011-01-28))
+[df-take-finally]     language  = java
+[df-take-finally]     container = spring
+[df-take-finally]     package   = com.example.dbflute.spring.dbflute
+[df-take-finally] 
+[df-take-finally]   DBFLUTE_ENVIRONMENT_TYPE: {df:default}
+[df-take-finally]     driver = org.h2.Driver
+[df-take-finally]     url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+[df-take-finally]     schema = {EXAMPLEDB.PUBLIC as main}
+[df-take-finally]     user   = sa
+[df-take-finally]     props  = {}
+[df-take-finally]     additionalSchema = 
+[df-take-finally]     dataLoadingType  = ut
+[df-take-finally]     refreshProject   = dbflute-spring-example
+[df-take-finally] 
+[df-take-finally]  {Create Schema}: success=96 failure=1 (in 4 files)
+[df-take-finally]   x replace-schema-10-basic.sql
+[df-take-finally]   CREATE TANYAO WITH PON
+[df-take-finally]    >> SQLステートメントに文法エラーがあります "CREATE TANYAO[*] WITH PON"; 期待されるステートメント "OR, FORCE, VIEW, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, DATATYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL, GLOBAL, TEMP, TEMPORARY, TABLE, PRIMARY, UNIQUE, HASH, INDEX"
+[df-take-finally]       Syntax error in SQL statement "CREATE TANYAO[*] WITH PON"; expected "OR, FORCE, VIEW, ALIAS, SEQUENCE, USER, TRIGGER, ROLE, SCHEMA, CONSTANT, DOMAIN, TYPE, DATATYPE, AGGREGATE, LINKED, MEMORY, CACHED, LOCAL, GLOBAL, TEMP, TEMPORARY, TABLE, PRIMARY, UNIQUE, HASH, INDEX"; SQL statement:
+[df-take-finally]       CREATE TANYAO WITH PON [42001-150]
+[df-take-finally]       (SQLState=42001 ErrorCode=42001)
+[df-take-finally]   o replace-schema-20-view.sql
+[df-take-finally]   o replace-schema-80-comment.sql
+[df-take-finally]   o replace-schema-90-vendorcheck.sql
+[df-take-finally] 
+[df-take-finally]  {Load Data}: loaded-files=4
+[df-take-finally]   (common)
+[df-take-finally]   o 10-master.xls
+[df-take-finally]   (ut)
+[df-take-finally]   o 20-member.xls
+[df-take-finally]   o 30-product.xls
+[df-take-finally]   o 80-vendor.xls
+[df-take-finally] 
+[df-take-finally]  {Take Finally}: success=5 failure=0 (in 1 files)
+[df-take-finally]   o take-finally.sql
+[df-take-finally]     * * * * * *
+[df-take-finally]     * Failure *
+[df-take-finally]     * * * * * *
+[df-take-finally] _/_/_/_/_/_/_/_/_/_/ {ReplaceSchema}
+
+BUILD FAILED
+/Users/jflute/workflute/oss/workspace/dbflute-spring-example/mydbflute/dbflute-0.9.8.1/build-torque.xml:234: org.seasar.dbflute.exception.DfDBFluteTaskFailureException: 
+/* * * * * * * * * * * * * * * * * * * * * * *
+Failed to execute DBFlute task: ReplaceSchema
+Look at the log: console or dbflute.log
+* * * * * * * * * */
+
+Total time: 5 seconds
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,innerJoin,inner join,内部結合,ManualInnerJoin" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(Manual)InnerJoin | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(Manual)InnerJoin</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		指定されたリレーションの結合方式を内部結合(inner join)にします。
+	</p>
+	<h3 id="fewuse">めったに使わない</h3>
+	<p>
+		ConditionBeanの結合方式は、基本的に外部結合(left outer join)が利用されます。
+	</p>
+	<div class="relatedpage"><a href="./relation.html#joinway">Query(Relation) - 結合方式の基本は外部結合</a></div>
+	<p>
+		ConditionBeanのポリシーとして、<em class="keyword">結合するだけでレコードが絞り込まれる</em>
+		ってのは避けた方がいいと考えています。なので、絞り込みを目的に、この (Manual)InnerJoin
+		の機能は使わない方が良いでしょう。many-to-one, one-to-one の関連テーブルが存在するという絞り込みをしたいのであれば...
+	</p>
+<pre><span class="codetitle">e.g. InnerJoinの実装手順 (Eclipseでコード補完) {MemberStatus} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+
+<span class="comment">// 結合先のPKが存在する (つまり、結合先のデータが存在する)</span>
+cb.query().queryMemberWithdrawalAsOne().setMemberId_IsNotNull();
+</code></pre>
+	<p>
+		という風にやると良いでしょう。また、この条件を入れると InnerJoinAutoDetect の機能で自然と inner join
+		になるので、パフォーマンス的な意味合いでの inner join も同時に満たされます。
+	</p>
+	<div class="relatedpage"><a href="../sidebar/innerjoinautodetect.html">InnerJoinAutoDetect</a></div>
+	<p>
+		こういった状況以外で、どうしても left outer join を強制的に inner join
+		にしなければならないとパフォーマンスが出ない、というときに (Manual)InnerJoin を使います。
+	</p>
+	<h3 id="performance">稀な状況でのパフォーマンス</h3>
+	<p>
+		ごく稀な状況で、外部結合から内部結合に変えることでパフォーマンスが改善することがあります。
+		例えば、数百万件を超えるデータ、古いバージョンのDBMS、様々な要素が絡み合ってそういう状況が発生する可能性があります。
+		そういったパフォーマンス上の調整のために、どの結合を内部結合にするかを手動で指定 <em class="keyword">(Manual)InnerJoin</em> できるようになっています。
+	</p>
+	<p>
+		会話上では、<em class="keyword">いんなーじょいん</em> もしくは <em class="keyword">まにゅあるいんなーじょいん</em> と表現します。
+	</p>
+	<h3 id="attention">InnerJoin の利用上の注意</h3>
+	<p>
+		InnerJoin は、リレーションのカージナリティ次第では、(絞り込み条件を指定していない場合でも)基点テーブルに絞り込みが発生する可能性があります。
+		利用する時は業務的なカージナリティをよく考慮した上で細心の注意を払って利用して下さい。以下、特に注意すべきパターンです。
+	</p>
+	<ul>
+		<li>{n : 0...1} 型リレーション <span class="frm">(会員から見た会員退会情報、会員退会情報から見た退会理由)</span></li>
+		<li>カージナリティ的には大丈夫でも、OnClause や InlineView で絞り込みがある</li>
+	</ul>
+	<p>
+		もちろん、該当リレーションを使った(OnClause や InlineView ではない)絞り込み条件がある場合は、
+		実質的な {n : 1} 型リレーションになるため、外部結合でも内部結合でも検索結果は変わりませんので気にする必要はありません。
+	</p>
+	<h3 id="twoedgedsword">諸刃の剣</h3>
+	<p>
+		TwoEdgedSword 認定のされた機能です。しっかり精度高く利用しないと、逆にカオスを生み出します。
+		どうしても InnerJoinAutoDetect では行き届かない結合で、しかしながらそこを内部結合にすると速くなる、というケース以外での利用は想定されません。
+		<span class="frm">(要は、基本的に使わないで、という感じです)</span>
+	</p>
+	<div class="detailpage"><a href="../sidebar/innerjoinautodetect.html">InnerJoinAutoDetect</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query().query[relation]() の後、<em class="keyword">innerJoin()</em>
+		を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. InnerJoinの実装手順 (Eclipseでコード補完) {MemberStatus} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().queryMemberStatus().setDisplayOrder_LessThan(<span class="literal">3</span>);
+cb.query().queryMemberStatus().inn <span class="comment">// .inn と打って enter</span>
+--
+cb.query().queryMemberStatus().<span class="point">innerJoin()</span>; <span class="comment">// [何のためかコメント]</span>
+</code></pre>
+	<p>
+		<em class="keyword">※何のための innerJoin() なのか、コメントで書きましょう。</em>
+	</p>
+<pre><span class="codetitle">e.g. 会員ステータスの結合を内部結合に @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="point">inner join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> dfrel_0.DISPLAY_ORDER &lt; <span class="literal">3</span>
+</code></pre>
+	<p>
+		指定されたリレーションの結合が内部結合になります。呼び出すタイミングは任意ですが、
+		習慣的に対象となるリレーションでの絞り込み条件などを指定した後が良いでしょう。
+	</p>
+	<p>
+		SetupSelect(Relation) のリレーションにも適用されます。
+	</p>
+<pre><span class="codetitle">e.g. SetupSelectしたリレーションを内部結合に {MemberStatus} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().queryMemberStatus().<span class="point">innerJoin()</span>; <span class="comment">// [何のためかコメント]</span>
+</code></pre>
+<pre><span class="codetitle">e.g. SetupSelectしたリレーションを内部結合に {MemberStatus} @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID, dfloc.MEMBER_NAME, <span class="abbreviation">...</span>
+     <span class="point">, dfrel_0.MEMBER_STATUS_CODE, ...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="point">inner join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> <span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="relationonly">リレーションに対してのみ利用</h3>
+	<p>
+		リレーションに対してのみ利用できます。基点テーブルの Query で呼び出した場合は例外です。
+	</p>
+	<h3 id="severalcall">複数回の呼び出し</h3>
+	<p>
+		何度呼び出しても設定が上書きされるだけですが、業務的な意味はありません。
+	</p>
+	<h3 id="unionsubquery">Union や SubQuery では</h3>
+	<p>
+		Union や SubQuery などで指定された同じリレーションには影響しません。
+		同じく内部結合にしたい場合は、それぞれ innerJoin() を呼び出す必要があります。
+	</p>
+	<h3 id="nestedrelation">ネストしたリレーションでは</h3>
+	<p>
+		ネストしたリレーションに対して利用した場合でも、そのリレーションを辿る途中のリレーションには影響しません。
+		あくまでピンポイントで指定されたリレーションの結合だけが内部結合になります。
+		SQLの文法的には、その場合は途中のリレーションも内部結合にしてしまっても同じ結果となりますが、
+		この機能はあくまでピンポイントでの指定を基本としています。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

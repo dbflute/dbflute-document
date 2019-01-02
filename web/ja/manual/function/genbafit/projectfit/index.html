@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,現場フィット,プロジェクト構成への対応,Project Fit" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>プロジェクト構成対応 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>プロジェクト構成対応</h1>
+	${indexlist}
+
+	<h2 id="linklist">リンクの一覧</h2>
+	<dl class="hierarchylist">
+		<dt><a href="./viewgeneration/index.html">View の自動生成 (ViewGeneration)</a></dt>
+		<dd><em class="keyword">View</em> を自動生成対象に(DefaultでOK)</dd>
+		<dt><a href="./synonymgeneration/index.html">シノニムの自動生成 (SynonymGeneration)</a></dt>
+		<dd>(Oracleの)シノニムや(DB2の)Aliasを自動生成対象に</dd>
+		<dt><a href="./tableexcepttarget/index.html">テーブルの除外・対象 (TableExceptTarget)</a></dt>
+		<dd>アプリで利用しないテーブルの除外・対象の指定</dd>
+		<dt><a href="./columnexcept/index.html">カラムの除外 (ColumnExcept)</a></dt>
+		<dd>アプリで利用しないカラムの除外</dd>
+		<dt><a href="./multipledb/index.html">複数DB (MultipleDB)</a></dt>
+		<dd>複数DBの利用(複数DBFluteクライアント)</dd>
+		<dt><a href="./additionalschema/index.html">追加スキーマ (AdditionalSchema)</a></dt>
+		<dd>別スキーマを追加スキーマとして自動生成対象に</dd>
+		<dt><a href="./schematablename/index.html">スキーマ修飾テーブル (SchemaTableName)</a></dt>
+		<dd>自動組み立てSQLのテーブル名にスキーマ名を付与</dd>
+		<dt><a href="./dienvironment/index.html">DI環境 (DIEnvironment)</a></dt>
+		<dd>DI環境の様々な調整</dd>
+		<dt><a href="./gearedcipher/index.html">暗号化・復号化処理の組み込み (GearedCipher)</a></dt>
+		<dd>暗号化処理(主にはSQL関数)をCBやBehaviorで自動的に</dd>
+		<dt><a href="./craftdiff/index.html">手作り差分チェック (CraftDiff)</a></dt>
+		<dd>HistoryHTMLやSchemaSyncCheckで差分チェック項目を独自に増やす</dd>
+		<dt><a href="./classauthor/index.html">クラスのAuthor指定 (ClassAuthor)</a></dt>
+		<dd>自動生成クラスにプロジェクト独自の Author を指定</dd>
+		<dt><a href="./copyright/index.html">クラスのコピーライト指定 (Copyright)</a></dt>
+		<dd>自動生成クラスにプロジェクト独自のコピーライトを指定</dd>
+		<dt><a href="./projectprefix/index.html">クラス名のプレフィックス (ProjectPrefix)</a></dt>
+		<dd>プロジェクト独自のクラス名のプレフィックス</dd>
+		<dt><a href="./numericautomapping/index.html">NUMERICの自動マッピング (AutoMapping)</a></dt>
+		<dd>NUMERIC型の(IntegerやLongへの)自動マッピング</dd>
+		<dt><a href="./applicationoutsidesql/index.html">アプリごとの外だしSQL (ApplicationOutsideSql)</a></dt>
+		<dd>複数プロジェクト構成のためのアプリごとの外だしSQL</dd>
+		<dt><a href="./applicationbehavior/index.html">アプリごとのBehavior (ApplicationBehavior)</a></dt>
+		<dd>アプリケーションギャップのためのアプリごとのBehavior</dd>
+		<dt><a href="./applicationplaysql/index.html">アプリごとのPlaySql (ApplicationPlaySql)</a></dt>
+		<dd>アプリケーションギャップのためのアプリごとのPlaySql</dd>
+		<dt><a href="./outsidesqladjustment/index.html">外だしSQL環境の微調整 (OutsideSqlAdjustment)</a></dt>
+		<dd>外だしSQLのパッケージ、エンコーディングなど</dd>
+		<dt><a href="./emptystring/index.html">空文字の取扱い(等値条件など) (EmptyString)</a></dt>
+		<dd>DBFluteにおける空文字の取扱いの調整(等値条件の利用など)</dd>
+		<dt><a href="./simpledto/index.html">(転送用の)シンプルなDTO (SimpleDto)</a></dt>
+		<dd>Flex や JSON などと連携するためのDBFlute依存しないDTO</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

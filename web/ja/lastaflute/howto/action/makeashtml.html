@@ -1,0 +1,898 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Actionの作り方 (HTMLスタイル) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Actionの作り方 (HTMLスタイル)</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<div class="relatedpage"><a href="./index.html">LastaFluteのAction</a></div>
+	${indexlist}
+
+	<h2 id="flow">実装の流れ</h2>
+	<h3 id="precon">ちょっと前提</h3>
+	<p>
+		ここでは、docksidestage.org というドメイン、つまりパッケージは <em class="mark">org.docksidestage</em>
+		を想定し、<em class="mark">harbor</em> というアプリ名であることを想定して説明していきます。
+	</p>
+	<h3 id="handson">ハンズオンで Action を作ってみよう！</h3>
+	<p>
+		LastaFluteでの実装のやり方を学んでいる最中であれば、まずは、Exampleプロジェクト harbor
+		で、実際にクラスを作りながらやっていってもよいでしょう。コードを真似て書きながら(コピーでもOK)、画面を作っていくと流れとコツがわかってくるかと思います。
+		<span class="frm">(それができるようにドキュメントを作っています)</span>
+	</p>
+	<p>
+		harborプロジェクトは、組み込みの H2 Database を使っているので、データベースのインストールは不要です。
+		ただし、clone した後、ReplaceSchema を叩くの忘れないように。<span class="frm">(Quick Trial の欄を参考に)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor">lastaflute-example-harbor | Github</a></div>
+	<h3 id="rough">まずはラフスケッチ実装</h3>
+	<p>
+		一行一行、しっかり書いていくのではなく、まずは流れを実装して、全体像を構築してから細かいところを固めていくというスタイルをオススメしています。
+		最初の一ターン目はラフスケッチです。わからないことがあったら保留して次に進み、全体像を把握できる状態になってからつまづいたところを解決していきましょう。
+	</p>
+	<ol>
+		<li><a href="#designurl">URLを決める</a></li>
+		<li><a href="#makeaction">Actionクラスを作る</a></li>
+		<li><a href="#prepareexecute">Executeメソッドを準備</a></li>
+		<li><a href="#makeform">Formを作る</a></li>
+		<li><a href="#makehtmltemplate">HTMLテンプレートを作る</a></li>
+		<li><a href="#makehtmlbean">HTML Bean を作る</a></li>
+		<li><a href="#implexecute">Executeメソッドを実装</a></li>
+		<li><a href="#roughfinished">ラフスケッチできた</a></li>
+	</ol>
+
+	<h2 id="designurl">URLを決める</h2>
+	<p>
+		まずは、URLを決めましょう。 
+	</p>
+	<p>
+		ここでは <em class="mark">/sea/land/3?pay=HAN</em> (/sea/land/[商品ID]?pay=[支払方法]) というGETリクエストの対応する Action を作ることにしましょう。
+	</p>
+	<p>
+		/3 の部分はPathパラメーターで商品IDと想定し、<em class="mark">ログイン会員(自分)とフォローしている会員の、指定された商品に対応する購入一覧</em>
+		を表示するとします。もし、payが指定されていたら、指定された方法で支払された購入に絞ります。<span class="frm">(maihamadb を参考に、よくわからなければ後で)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/example/exampledb.html">MaihamaDB</a></div>
+
+	<h2 id="makeaction">Actionクラスを作る</h2>
+	<h3 id="actionname">Actionの名前を決める</h3>
+	<p>
+		/3 はPathパラメーターとするならば、Actionを識別する部分が /sea/land/ となり、
+	</p>
+	<ul>
+		<li>A. <em class="mark">Sea</em>Action#<em class="mark">land</em>()</li>
+		<li>B. <em class="mark">SeaLand</em>Action#index()</li>
+	</ul>
+	<p>
+		の、どちらかとなります。<em class="keyword">(規約)</em>
+	</p>
+	<div class="relatedpage"><a href="./index.html#urlmapping">LastaFluteのAction - URL Mapping</a></div>
+	<p>
+		基本的には、一つの画面に付き一つのActionがオススメです。ですが、業務規模などの都合で微調整してもよいでしょう。
+		<span class="frm">(とりあえず漠然と決めて、あとでやっぱりこっちだった、となればリファクタリングすればOKです。変更してもURLには影響しません)</span>
+	</p>
+	<p>
+		ここでは、landという画面があると想定して、<em class="mark">SeaLandAction#index()</em> を作りましょう。
+	</p>
+	<h3 id="pkglocation">Actionのパッケージ(配置場所)を決める</h3>
+	<p>
+		SeaLandAction であれば...
+	</p>
+	<ul>
+		<li>A. ...app.web.SeaLandAction</li>
+		<li>B. ...app.web.<em class="mark">sea</em>.SeaLandAction</li>
+		<li>C. ...app.web.<em class="mark">sea.land</em>.SeaLandAction</li>
+	</ul>
+	<p>
+		のどれかになります。<em class="keyword">(規約)</em>
+	</p>
+	<div class="relatedpage"><a href="./index.html#actionpackage">LastaFluteのAction - Action Package</a></div>
+	<p>
+		web直下に置くのは、よほどのメジャー感のあるものなので、基本的には B, C となるでしょう。
+		seaの仲間がすごく多いことが想定される場合は C ですが、まずは B にしておいて、後から移動してもよいでしょう。
+		<span class="frm">(あとでパッケージを移動しても、URLやプログラムに影響はありません)</span>
+	</p>
+	<p>
+		ここでは、...app.web.<em class="mark">sea</em> に置くことにしましょう。
+	</p>
+	<h3 id="actuallymakeaction">実際に作る</h3>
+	<p>
+		実際に org.docksidestage.app.web.sea.SeaLandAction にクラスを作ってみましょう。
+	</p>
+<pre><span class="codetitle">e.g. Action class location @Package</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-app
+ |  |  |-logic
+ |  |  |-web
+ |  |  |  |-<span class="subpoint">sea</span>
+ |  |  |  |  |-<span class="point">SeaLandAction.java</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-bizfw
+ |  |-dbflute
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="prepareexecute">Executeメソッドを準備</h2>
+	<h3 id="extendsbase">Baseクラスを継承</h3>
+	<p>
+		まずは、作成したActionにて、そのアプリのBaseクラスを継承しましょう。アプリ名が harbor
+		であれば、	<em class="mark">HarborBaseAction</em> を継承します。<span class="frm">(そのアプリのBaseActionが用意されているはずです)</span>
+	</p>
+<pre><span class="codetitle">e.g. Action class extends Base class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandAction <span class="subpoint">extends</span> <span class="point">HarborBaseAction</span> {
+}
+</code></pre>
+	<h3 id="executedef">Executeメソッドを定義</h3>
+	<p>
+		ここでは、HTMLスタイルの Execute メソッド <em class="mark">index()</em>
+		を作ってみましょう。
+	</p>
+	<p>
+		Executeアノテーションを付けて戻り値は HtmlResponse,
+		そして、Pathパラメーター /3 を受け取る引数を最初に定義して、GETパラメーターを受け取る Form を最後の引数に定義します。<em class="keyword">(規約)</em>
+	</p>
+	<div class="relatedpage"><a href="./index.html#actionclass">LastaFlute の Action - Action Class</a></div>
+<pre><span class="codetitle">e.g. Action class extends Base class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandAction <span class="keyword">extends</span> HarborBaseAction {
+
+    @Execute
+    <span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(Integer <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    	<span class="comment">// まだ、Formがない、returnがないのでコンパイルエラーです！</span>
+    	<span class="comment">// この後、Formを作って戻り値を指定しますので、ちょっとそのままで。</span>
+    }
+}
+</code></pre>
+	<p>
+		もし、Pathパラメーターの /3 が非必須の要素であれば、productId の型を OptionalThing&lt;Integer&gt;
+		にします。省略されたときは empty になります。そもそも、PathパラメーターもFormパラメーターもないのであれば、引数なしでOKです。
+	</p>
+
+	<h2 id="makeform">Formを作る</h2>
+	<h3 id="formdef">Formクラスを定義</h3>
+	<p>
+		SeaLandForm は定義してみましたが、まだ存在しないのでコンパイルエラーです。
+	</p>
+	<p>
+		<em class="keyword">Formのクラス名は Form で終わる</em> 必要があります<em class="keyword">(規約)</em>。その前の名前は任意ですが、Actionとイメージの近い名前がオススメです。
+		ここでは、<em class="mark">SeaLandForm</em> という名前で作りましょう。
+	</p>
+	<p>
+		パッケージ(置き場所)は、Actionクラスと同じ (つまり、Actionの隣に置く) がオススメです。
+	</p>
+<pre><span class="codetitle">e.g. Form class location @Directory</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-app
+ |  |  |-logic
+ |  |  |-web
+ |  |  |  |-sea
+ |  |  |  |  |-SeaLandAction.java
+ |  |  |  |  |-<span class="point">SeaLandForm.java</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-bizfw
+ |  |-dbflute
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="formimpl">Formの実装</h3>
+	<p>
+		publicフィールドで受け取るパラメーターのプロパティを定義します。フリー入力項目でなければ、Stringではなく、Integer や LocalDate
+		や CDef (区分値) など、ネイティヴな型で宣言してOKです。
+		<span class="frm">(変換できない値だったら、それはシステム上のミス、もしくは、いたずらということで 400 になる)</span>
+	</p>
+	<p>
+		ここでは、pay=HANというGETパラメーターに対応して、payプロパティを定義しましょう。
+		商品ステータスの区分値なので、CDef 型で宣言します。
+	</p>
+<pre><span class="codetitle">e.g. Form class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandForm {
+
+    <span class="keyword">public</span> <span class="point">CDef.PaymentMethod</span> <span class="attribute">pay</span>;
+}
+</code></pre>
+	<p>
+		もし、バリデーションを行うなら、Validatorアノテーションを付けます。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html">LastaFlute Validation</a></div>
+	<dl class="longvaluemainlist">
+		<dt>必須チェック</dt><dd>@Required <span class="frm">(String, Integerなんでも使える)</span></dd>
+		<dt>文字列の最大長</dt><dd>@Length</dd>
+		<dt>数値の最大値</dt><dd>@Max</dd>
+		<dt>などなど</dt><dd>いろいろ</dd>
+	</dl>
+	<p>
+		ここでは、payプロパティを必須にしてしまいましょう。<span class="frm">(何も付けないと説明しづらいので...)</span>
+	</p>
+<pre><span class="codetitle">e.g. Form class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandForm {
+
+    <span class="point">@Required</span>
+    <span class="keyword">public</span> CDef.PaymentMethod <span class="attribute">pay</span>;
+}
+</code></pre>
+
+	<h2 id="makehtmltemplate">HTMLテンプレートを作る</h2>
+	<p>
+		Actionの実装の前に、HTMLテンプレートのファイルを作って、自動生成だけやっておきましょう。
+	</p>
+	<p>
+		ここでは、Thymeleafテンプレートを想定します。
+	</p>
+	<div class="relatedpage"><a href="./lathymeleaf.html">LastaFlute の Thymeleaf</a></div>
+	<h3 id="htmlname">HTMLテンプレートのファイル名</h3>
+	<p>
+		関連するActionクラスを識別できる名前にします。<em class="keyword">(規約)</em>
+	</p>
+	<p>
+		SeaLandAction であれば、sea_land.html になります。
+		<span class="frm">(名前は任意になりますが、合わせておくのがオススメです)</span>
+	</p>
+	<p>
+		ここでは、<em class="mark">sea_land.html</em> にします。
+	</p>
+	<h3 id="htmldir">HTMLテンプレートのディレクトリ</h3>
+	<p>
+		HTMLは、src/main/webapp/WEB-INF/view の下に作成します。<em class="keyword">(規約)</em>
+	</p>
+	<p>
+		そこからのディレクトリ構成は、Actionクラスと同じで、sea_land.html なら、sea ディレクトリか sea/land ディレクトリの下に配置します。
+		<em class="keyword">(規約)</em>
+	</p>
+	<p>
+		ここでは、src/main/webapp/WEB-INF/view/<em class="mark">sea</em> ディレクトリにします。
+	</p>
+	<h3 id="htmlfreegen">HTMLの実装...はさておいて</h3>
+	<p>
+		まだ、ラフスケッチ中なので、中身はシンプルな状態で。この時点では真っ白でもOKです。
+		ここでは、<em class="mark">何も表示されないと悲しい</em> ので、一覧を表示するHTMLだけちょこっと書いておきましょう。
+	</p>
+	<p>
+		LastaFluteオリジナルの属性が利用されていますので、ぜひ注目しましょう。
+	</p>
+	<div class="relatedpage"><a href="./lathymeleaf.html#laoriginal">LastaFlute の Thymeleaf - LastaFluteオリジナル表現</a></div>
+<pre><span class="codetitle">e.g. execute FreeGen @Command</span><code>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ja" xmlns:th="http://www.thymeleaf.org"&gt;
+&lt;head&gt;
+&lt;!--/*/ &lt;th:block th:include="/common/layout.html :: head (title='List of Purchase')"&gt; /*/--&gt;
+	&lt;meta charset="utf-8"/&gt;
+	&lt;link rel="stylesheet" type="text/css" href="../../../css/reset.css" /&gt;
+	&lt;link rel="stylesheet" type="text/css" href="../../../css/common.css" /&gt;
+	&lt;link rel="stylesheet" type="text/css" href="../../../css/individual.css" /&gt;
+	&lt;title&gt;Preview Title&lt;/title&gt;
+&lt;!--/*/ &lt;/th:block&gt; /*/--&gt;
+&lt;!--/* individual Css write to after */--&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;header th:replace="/common/layout.html :: header"&gt;
+	&lt;section class="nav-main cf"&gt;
+		&lt;div class="wrap"&gt;
+			&lt;h1 class="main-title"&gt;&lt;a href="#"&gt;Harbor&lt;span&gt; (LastaFlute Example)&lt;/span&gt;&lt;/a&gt;&lt;/h1&gt;
+			&lt;ul class="nav-home"&gt;
+				&lt;li&gt;&lt;a href="../product/product_list.html"&gt;&lt;span class="link-block"&gt;Products&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+				&lt;li&gt;&lt;a href="../member/member_list.html"&gt;&lt;span class="link-block"&gt;Members&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+				&lt;li&gt;&lt;a href="../withdrawal/withdrawal.html"&gt;&lt;span class="link-block"&gt;Withdrawal&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
+			&lt;/ul&gt;
+			&lt;ul class="nav-user"&gt;
+				&lt;li&gt;
+					&lt;p class="nameHeader"&gt;Welcome, Mr.Guest&lt;/p&gt;
+					&lt;ul class="child"&gt;
+						&lt;li&gt;&lt;a href="#"&gt;Profile&lt;/a&gt;&lt;/li&gt;
+						&lt;li&gt;&lt;a href="#"&gt;Sign out&lt;/a&gt;&lt;/li&gt;
+					&lt;/ul&gt;
+				&lt;/li&gt;
+			&lt;/ul&gt;
+		&lt;/div&gt;
+	&lt;/section&gt;
+&lt;/header&gt;
+&lt;main&gt;
+&lt;div class="contents"&gt;
+	&lt;h2 class="content-title"&gt;List of Purchase&lt;/h2&gt;
+	&lt;section class="product-search-box"&gt;
+        &lt;h3 class="content-title-second"&gt;Search Condition&lt;/h3&gt;
+        &lt;p&gt;
+        	Payment Method: &lt;span th:text="${pay}"/&gt;
+        	&lt;span la:errors="pay"/&gt;
+        &lt;/p&gt;
+	&lt;/section&gt;
+    &lt;section class="product-result-box"&gt;
+        &lt;h3 class="content-title-second"&gt;Search Results&lt;/h3&gt;
+        &lt;table class="list-tbl"&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;ID&lt;/th&gt;
+                    &lt;th&gt;Member Name&lt;/th&gt;
+                    &lt;th&gt;Product Name&lt;/th&gt;
+                    &lt;th&gt;Product Handle Code&lt;/th&gt;
+                    &lt;th&gt;Purchase Date&lt;/th&gt;
+                    &lt;th&gt;Purchase Price&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                &lt;tr th:each="bean : ${beans}"&gt;
+                    &lt;td th:text="${bean.purchaseId}"&gt;bean.purchaseId&lt;/td&gt;
+                    &lt;td th:text="${bean.memberName}"&gt;bean.memberName&lt;/td&gt;
+                    &lt;td th:text="${bean.productName}"&gt;bean.productName&lt;/td&gt;
+                    &lt;td th:text="${bean.productHandleCode}"&gt;bean.productHandleCode&lt;/td&gt;
+                    &lt;td th:text="${bean.purchaseDate}"&gt;bean.purchaseDate&lt;/td&gt;
+                    &lt;td th:text="${bean.purchasePrice}"&gt;bean.purchasePrice&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/section&gt;
+&lt;/div&gt;
+&lt;/main&gt;
+&lt;footer th:replace="/common/layout.html :: footer"&gt;
+	&lt;div class="wrap"&gt;
+		&lt;ul class="footer-link"&gt;
+			&lt;li&gt;&lt;a href="http://dbflute.seasar.org/"&gt;DBFlute Top&lt;/a&gt;&lt;/li&gt;
+			&lt;li&gt;&lt;a href="http://dbflute.seasar.org/lastaflute"&gt;LastaFlute Top&lt;/a&gt;&lt;/li&gt;
+		&lt;/ul&gt;
+		&lt;p class="copyright"&gt;&copy; LastaFlute project&lt;/p&gt;
+	&lt;/div&gt;
+&lt;/footer&gt;
+&lt;!--/*/ &lt;th:block th:include="/common/layout.html :: afterScript"&gt; /*/--&gt;
+&lt;!-- script contents --&gt;
+&lt;script src="../../../js/jquery-2.1.3.min.js" &gt;&lt;/script&gt;
+&lt;script src="../../../js/common.js" &gt;&lt;/script&gt;
+&lt;!--/*/ &lt;/th:block&gt; /*/--&gt;
+&lt;!--/* individual Script write to after */--&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+	<h3 id="htmlfreegen">FreeGenを叩いてパス自動生成</h3>
+	<p>
+		それでは、HTMLテンプレートもできたことなので、そのファイルをプログラムから指定するためのパス定義を自動生成してみましょう。
+		LastaFluteでは、ファイルパスをハードコードしたりしません。
+	</p>
+	<div class="relatedpage"><a href="./lathymeleaf.html#genhtmlpath">LastaFlute の Thymeleaf - HtmlPathを自動生成しよう</a></div>
+	<p>
+		manageタスク (DBFluteクライアントの manage.bat|sh) の 12 (freegen) を叩いて、FreeGen を実行すると、そのHTMLテンプレートに対応するパス定義が自動生成されます。
+		ここでは <em class="mark">HarborHtmlPath</em> に <em class="mark">path_Sea_SeaLandHtml</em> というパス定義が追加されるでしょう。
+	</p>
+	<div class="relatedpage"><a href="../dbflute/lafreegen.html">なんでも自動生成 (FreeGen)</a></div>
+<pre><span class="codetitle">e.g. execute FreeGen @Command</span><code>
+<span class="abbreviation">...</span>$ sh <span class="point">manage.sh</span>
+
+<span class="comment">// メニューが表示されるので、12 (freegen) を入力してEnter</span>
+<span class="comment">// Windowsなら manage.bat, Eclipseからでも直接叩ける (ctrl+shift+Rから叩こう)</span>
+</code></pre>
+	<h3 id="returnfornow">ひとまずreturnを書いておく</h3>
+	<p>
+		Executeメソッドの実装はこの後ですが、せっかく HarborHtmlPath にパス定義ができたことですし、
+		コンパイルエラーのまま実装するのはつらいので、とりあえず解決しておきましょう。
+	</p>
+	<p>
+		asHtml([自動生成されたHTMLテンプレートのパス定義]) を return します。
+	</p>
+<pre><span class="codetitle">e.g. return HtmlResponse as HTML template @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="keyword">return</span> <span class="point">asHtml</span>(<span class="attribute">path_Sea_SeaLandHtml</span>); 
+}
+</code></pre>
+	<p>
+		もし、別の Action へのリダイレクトなら、redirect([リダイレクト先のAction]) を return します。
+	</p>
+<pre><span class="codetitle">e.g. return HtmlResponse as redirect @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="keyword">return</span> <span class="point">redirect</span>(PiariDstoreAction.class); 
+}
+</code></pre>
+	<p>
+		<span class="frm">(jflute備忘録: デモンストレーションのとき、ここで Boot で画面アクセス)</span>
+	</p>
+
+	<h2 id="makehtmlbean">HTML Bean を作る</h2>
+	<p>
+		HTMLテンプレートへ表示データを渡すための HTML Bean クラスを作成し、検索されたデータを詰め替えます。
+	</p>
+	<h3 id="htmlbeandef">HTML Beanの定義</h3>
+	<p>
+		名前に関しては、特に制約はありませんが、慣習として Bean という名前のクラスをActionの隣に作っています。
+		ここでは、<em class="mark">SeaLandRowBean</em> というクラスを作りましょう。
+	</p>
+<pre><span class="codetitle">e.g. Bean class location @Directory</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-app
+ |  |  |-logic
+ |  |  |-web
+ |  |  |  |-sea
+ |  |  |  |  |-SeaLandAction.java
+ |  |  |  |  |-SeaLandForm.java
+ |  |  |  |  |-<span class="point">SeaLandRowBean.java</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-bizfw
+ |  |-dbflute
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="htmlbeanimpl">HTML Beanの実装</h3>
+	<p>
+		プロパティの宣言の仕方は、基本的に Form と同じです。
+	</p>
+	<p>
+		ここでは、HTMLテンプレートの中で表示する一行のデータ項目を表現しましょう。
+	</p>
+<pre><span class="codetitle">e.g. properties for display in HTML Bean class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandRowBean {
+
+    @Required
+    <span class="keyword">public</span> Long <span class="attribute">purchaseId</span>;
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productHandleCode</span>;
+    @Required
+    <span class="keyword">public</span> LocalDate <span class="attribute">purchaseDate</span>;
+    @Required
+    <span class="keyword">public</span> Integer <span class="attribute">purchasePrice</span>;
+}
+</code></pre>
+	<h3 id="htmlbeanvalidation">HTML Bean でも Validation</h3>
+	<p>
+		HTML Bean でも Validator Annotation を付けましょう<span class="frm">(@Required や @NotNull など基本的なものだけ)</span>。
+		HTMLテンプレートに対する入力チェックと解釈することができます。
+		HTMLテンプレート内で発生する例外はデバッグしづらいので事前に防ぐとともに、ドキュメント的な意味合いも兼ねます。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#responsevalidation">番外. レスポンスデータのバリデーション</a></div>
+
+	<h2 id="implexecute">Executeメソッドを実装</h2>
+	<h3 id="validate">validate()を呼ぶ</h3>
+	<p>
+		FormにValidatorアノテーションを一つでも付けているなら、validate() を呼ぶ必要があります。
+		<span class="frm">(今回、付けているのでもちろん呼びましょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. validate() in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>); 
+}
+</code></pre>
+	<p>
+		Eclipseで、DBFlute秘伝の EditorTemplate が設定されていれば、魔法のように補完できます。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/onjava8.html#triclipse">DBFlute on Java8 - 裏技あります</a></div>
+	<p>
+		相関バリデーションやDBを使ったバリデーションなど、アノテーションでは実現できないものは、第二引数の Lambda の中で実装します。
+		<span class="frm">(if文でチェックしてメッセージを追加)</span>
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#morevalidation">見通しのValidation - 3. Lambdaで、もっとValidation</a></div>
+	<h3 id="selectbydbflute">DBFluteで検索しよう</h3>
+	<p>
+		DBFluteを使って検索・更新などを行うのであれば...基点テーブルの Behavior を DI しましょう。
+	</p>
+	<p>
+		ここでは、購入の一覧でしたから、基点テーブルは <em class="mark">PURCHASE</em> です。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Behavior's DI @Java</span><code>
+@Resource
+<span class="keyword">private</span> <span class="point">PurchaseBhv</span> <span class="attribute">purchaseBhv</span>;
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		そして、ConditionBean で検索しましょう。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. ログイン会員(自分)とフォローしている会員の、指定された商品に対応する購入一覧 @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+    });
+    Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+    ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_Member();
+        <span class="localvar">cb</span>.setupSelect_Product();
+        <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+        <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+            <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+            <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+            });
+        });
+        <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+            <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+        });
+        <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>); 
+}
+</code></pre>
+	<p>
+		<span class="frm">※実際、商品IDが固定なので、商品は単独データ取得してリストでは要らないはずですが、簡略化しています</span>
+	</p>
+	<p>
+		ログインしているユーザーの情報は、getUserBean() で取得できます。
+		ここでは、ログインしていることが前提なので、戻り値の OptionalThing は問答無用で get() してしまいます。
+	</p>
+	<p>
+		まだ、ラフスケッチ中なので、完璧な実装じゃなくてもOKです。とりあえずなんか検索できれば。
+	</p>
+	<h3 id="mappingto">HTML Beanにマッピング</h3>
+	<p>
+		検索したデータ (Entity) を、HTML Bean にマッピングします。<span class="frm">(いわゆる詰替え)</span>
+	</p>
+<pre><span class="codetitle">e.g. mapping entity to HTML bean in Action class @Java</span><code>
+
+@Resource
+<span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+    });
+    Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+    ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(cb -&gt; {
+        <span class="abbreviation">...</span>
+    });
+    List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+        SeaLandRowBean <span class="localvar">bean</span> = <span class="keyword">new</span> SeaLandRowBean();
+        <span class="localvar">bean</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+        <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+            <span class="localvar">bean</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+        });
+        <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+            <span class="localvar">bean</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+            <span class="localvar">bean</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+        });
+        <span class="localvar">bean</span>.purchaseDate = <span class="localvar">purchase</span>.getPurchaseDatetime().toLocalDate();
+        <span class="localvar">bean</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+        <span class="keyword">return</span> <span class="localvar">bean</span>;
+    }).collect(Collectors.toList());
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>); 
+}
+</code></pre>
+	<p>
+		ちなみに、リフレクションで詰め替えるとかは強烈に非推奨です。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/architect.html#entityset">EntityとDTOとの詰め替えは地道に</a></div>
+	<h3 id="dispdata">表示データをResponseに設定</h3>
+	<p>
+		asHtml()を使っている場合、HTMLテンプレートに表示データを渡します。
+	</p>
+	<p>
+		asHtml()に続いて、renderWith()メソッドを呼び、Lambda引数の data の register()
+		を使って、HTMLテンプレート上で参照する名前をキーに、表示データを登録します。
+	</p>
+<pre><span class="codetitle">e.g. renderWith() in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+    });
+    Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+    ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="abbreviation">...</span>
+    List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = <span class="abbreviation">...</span>
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>).<span class="point">renderWith</span>(<span class="localvar">data</span> -&gt; {
+        <span class="localvar">data</span>.<span class="subpoint">register</span>(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+    });
+}
+</code></pre>
+
+	<h2 id="roughfinished">ラフスケッチできた</h2>
+	<p>
+		さて、これでラフスケッチ実装は終了です。全体像が、見えてきたでしょうか？
+	</p>
+	<h3 id="actionfornow">とりあえずActionはこんな感じ</h3>
+	<p>
+		この時点では、このような感じで Action ができあがっているはずです。
+	</p>
+<pre><span class="codetitle">e.g. rough sketch finished @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandAction <span class="keyword">extends</span> HarborBaseAction {
+
+    @Resource
+    <span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+        validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+        });
+        Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.setupSelect_Member();
+            <span class="localvar">cb</span>.setupSelect_Product();
+            <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+            <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+                <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+                <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                    <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+                });
+            });
+            <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+                <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+            });
+            <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+        });
+        List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+            SeaLandRowBean <span class="localvar">bean</span> = <span class="keyword">new</span> SeaLandRowBean();
+            <span class="localvar">bean</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+            <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+                <span class="localvar">bean</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+            });
+            <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+                <span class="localvar">bean</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+                <span class="localvar">bean</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+            });
+            <span class="localvar">bean</span>.purchaseDate = <span class="localvar">purchase</span>.getPurchaseDatetime().toLocalDate();
+            <span class="localvar">bean</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+            <span class="keyword">return</span> <span class="localvar">bean</span>;
+        }).collect(Collectors.toList());
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>).renderWith(<span class="localvar">data</span> -&gt; {
+            <span class="localvar">data</span>.<span class="subpoint">register</span>(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        });
+    }
+}
+</code></pre>
+	<h3 id="firstboot">Bootしてアクセスしてみましょう</h3>
+	<p>
+		Bootクラスを起動して、実際にそのURLでアクセスしてみましょう。
+		恐らく非常にそっけない画面しか表示されないと思いますが、ログをみてちゃんと動いていればこの先に進めます。
+	</p>
+	<p>
+		ここでは、<em class="mark">HarborBoot</em> クラスの main() を実行しましょう。
+	</p>
+<pre><span class="codetitle">e.g. HarborBoot @Java</span><code>
+/**
+ * @author jflute
+ */
+<span class="keyword">public class</span> HarborBoot { <span class="comment">// #change_it_first</span>
+
+    <span class="keyword">public static void</span> main(String[] args) { <span class="comment">// e.g. java -Dlasta.env=production -jar harbor.war</span>
+        <span class="keyword">new</span> JettyBoot(<span class="literal">8090</span>, <span class="literal">"/harbor"</span>).asDevelopment(isDevelopment()).bootAwait();
+    }
+
+    <span class="keyword">private static boolean</span> isDevelopment() {
+        return System.getProperty(<span class="literal">"lasta.env"</span>) == null;
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. boot log @Console</span><code>
+INFO  (...@showBoot():105) - _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+INFO  (...@showBoot():106) -  the system has been initialized:
+INFO  (...@showBoot():107) - 
+INFO  (...@showBoot():108) -   -> Harbor (Local Development)
+INFO  (...@showBoot():109) - _/_/_/_/_/_/_/_/_/_/
+Boot successful as development: url -> <span class="literal">http://localhost:8090/harbor</span>
+</code></pre>
+	<p>
+		ここで、<a href="http://localhost:8090/harbor/sea/land/3?pay=HAN"><em class="mark">http://localhost:8090/harbor/sea/land/3?pay=HAN</em></a> にアクセスしてみましょう。
+		さて、ブラウザで何が表示されたでしょうか？
+	</p>
+	<p>
+		ただ、この時点で単純にアクセスするとログイン必須エラーでログイン画面に飛ばされます。
+		harborプロジェクトはログイン機能を使っているのでActionクラスはデフォルトでログイン必須になっていますし、処理の中でログインユーザーの情報を利用しているのでログインが前提です。
+	</p>
+	<p>
+		ログイン画面で、'Pixy', 'sea' と入力してログインしてみましょう。
+	</p>
+	<h3 id="serverlog">サーバーのログでも確認してみましょう</h3>
+	<p>
+		サーバーのログ (IDEのコンソールなど) にも着目してみましょう。
+		想定通りのSQLが実行されて、想定通しのJSONレスポンスが戻っていることを確認してみてください。
+	</p>
+	<p>
+		LastaFluteでこのようにログが出る、ということを知っておくことも大切です。うまく活用してスムーズなデバッグライフを送ってください。
+	</p>
+	<h3 id="refactoring">ちょいっとリファクタリング</h3>
+	<p>
+		ちょっとメソッド長いですね。実際に業務だと、もっと大きくなる可能性があります。
+	</p>
+	<p>
+		IDEのショートカットを使って、稲妻のようにリファクタリングして、確認のためもう一度アクセスしてみましょう。
+		<span class="frm">(jflute備忘録: デモンストレーションのとき稲妻のように)</span>
+	</p>
+<pre><span class="codetitle">e.g. after refactoring @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> SeaLandAction <span class="keyword">extends</span> HarborBaseAction {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Resource
+    <span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======</span>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+        validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+        });
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = selectPurchaseList(<span class="localvar">productId</span>, <span class="localvar">form</span>);
+        List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = mappingToBeans(<span class="localvar">purchaseList</span>);
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>).renderWith(<span class="localvar">data</span> -&gt; {
+            <span class="localvar">data</span>.<span class="subpoint">register</span>(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        });
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                              Select
+    //                                                                              ======</span>
+    <span class="keyword">private</span> ListResultBean&lt;Purchase&gt; selectPurchaseList(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+        Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.setupSelect_Member();
+            <span class="localvar">cb</span>.setupSelect_Product();
+            <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+            <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+                <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+                <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                    <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+                });
+            });
+            <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+                <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+            });
+            <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+        });
+        return <span class="localvar">purchaseList</span>;
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Mapping
+    //                                                                             =======</span>
+    <span class="keyword">private</span> List&lt;SeaLandRowBean&gt; mappingToBeans(ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span>) {
+        List&lt;SeaLandRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+            SeaLandRowBean <span class="localvar">bean</span> = <span class="keyword">new</span> SeaLandRowBean();
+            <span class="localvar">bean</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+            <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+                <span class="localvar">bean</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+            });
+            <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+                <span class="localvar">bean</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+                <span class="localvar">bean</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+            });
+            <span class="localvar">bean</span>.purchaseDate = <span class="localvar">purchase</span>.getPurchaseDatetime().toLocalDate();
+            <span class="localvar">bean</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+            <span class="keyword">return</span> <span class="localvar">bean</span>;
+        }).collect(Collectors.toList());
+        <span class="keyword">return</span> <span class="localvar">beans</span>;
+    }
+}
+</code></pre>
+
+	<h2 id="tryhotdeploy">ホットデプロイ体験</h2>
+	<p>
+		例えば、cb.query().setProductId_Equal(productId) を一時的にコメントアウトして、(再起動せずに)アクセスしてみましょう。
+		検索結果が変わるはずです。<span class="frm">(終わったら戻しておきましょう)</span>
+	</p>
+	<p>
+		appパッケージ配下のクラスは、ホットデプロイ (HotDeploy) が効きますので、修正したらすぐに反映されます。
+		それの特徴をうまく活用して、開発効率を上げていってください。
+		<span class="frm">(ただし、FreeGenなどDBFluteの自動生成を挟んだときは再起動が必要です)</span>
+	</p>
+
+	<h2 id="deftest">DefTestでポリシーチェック</h2>
+	<p>
+		"Action定義のテスト" のドキュメントをよく読み...
+	</p>
+	<div class="detailpage"><a href="./actiondeftest.html">Action定義のテスト (ActionDefTest)</a></div>
+	<p>
+		HarborActionDefTest を実行してみましょう。
+	</p>
+	<p>
+		現時点で特に何か落ちるような不備はないはずなので、結果はgreenになるはずです。
+		何か一つでも、わざと落ちるような修正をしてみて、結果がredになるようにして例外メッセージを読んでみましょう。
+		<span class="frm">(読み終わったら元に戻して、greenになることを確認しましょう)</span>
+	</p>
+	<p>
+		LastaFluteには、最初からこのような横断的なプログラムのポリシーチェックをする UnitTest
+		が用意されています。UnitTestは気軽に実行できるものですから、"Actionを作りながら" や "Actionを作り終わったとき"
+		などに、実行してみてポリシー崩れがないかどうか確認するようにしましょう。 
+	</p>
+
+	<h2 id="lastadoc">LastaDocの自動生成</h2>
+	<p>
+		"Actionのドキュメント自動生成" のドキュメントをよく読み...
+	</p>
+	<div class="detailpage"><a href="../dbflute/lastadoc.html">Actionのドキュメント自動生成 (LastaDoc)</a></div>
+	<p>
+		LastaDocを自動生成し直して、新しく自分で作った SeaLandAction が LastaDoc に反映されることを確認してみましょう。
+	</p>
+	<p>
+		LastaFluteには、このようにActionに関するドキュメントを自動生成する機能が備わっています。
+		DBFluteで言えば、SchemaHTML のようなものです。ぜひ、有効活用していってください。
+	</p>
+
+	<h2 id="littletips">ちょこっとTips</h2>
+	<h3 id="supermethod">スーパークラスのメソッド、何が使える？</h3>
+	<p>
+		Actionクラスの中で、this.docu...() と document
+		メソッドを補完して、JavaDocを表示してみてください。すると...
+	</p>
+<pre><span class="codetitle">e.g. document methods @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    <span class="point">this.docu</span> <span class="comment">// 補完して、IDE上でJavaDoc表示</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		実装しながら、ふとActionの規約を忘れちゃったときとか、ブラウザで検索してドキュメントを探す...ではなく、
+		ササッと this.docu... ってやってみるといいかもですね。
+	</p>
+
+	<h2 id="office">事務連絡</h2>
+	<p>
+		harbor で、実際に SeaLandAction
+		を作っていくと、HarborHtmlPath など幾つかのリソースに修正マークが付いてしまいます。
+		<span class="frm">(Actionとかは、gitignoreしてますが、どうしても無視設定できない修正が...)</span>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

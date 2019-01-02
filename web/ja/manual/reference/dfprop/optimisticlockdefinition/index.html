@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,optimisticLockDefinitionMap.dfprop,楽観的並行性制御,排他制御" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>optimisticLockMap (optimisticLockDefinitionMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>optimisticLockMap</h1>
+	<p>
+		Java6版までは、optimisticLockDefinitionMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	<p>
+		そもそも、Java8版からは、littleAdjustmentMap のひとつのプロパティとして取り込まれました。
+	</p>
+	<div class="relatedpage"><a href="../littleadjustment/index.html">littleAdjustmentMap</a></div>
+	${indexlist}
+
+	<h2 id="about">optimisticLockMapとは？</h2>
+	<p>
+		楽観的並行性制御(排他制御)についての設定を行うためのDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の littleAdjustmentMap.dfprop の中のひとつのプロパティです。主に Generateタスク から参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<p>
+		DBFluteではタイムスタンプかバージョン番号による楽観的排他制御をサポートしていて、デフォルトはバージョン番号による制御を行います。
+		もし、<em class="keyword">バージョン番号に該当するカラム名が "VERSION_NO" (大文字小文字区別なし)なら、ここでの設定は不要</em> です。
+	</p>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em>
+		で、<em class="keyword">バージョン番号</em>、<em class="keyword">タイムスタンプ</em>
+		のカラム名を定義します。
+	</p>
+<pre><span class="codetitle">optimisticLockMapの仕様 @littleAdjustmentMap.dfprop</span><code>
+; optimisticLockMap = <span class="keyword">map:</span>{
+    ; updateDateFieldName = [update-date-field-name(column-name)]
+    ; versionNoFieldName = [version-no-field-name(column-name)]
+}
+</code></pre>
+	<p>
+		両方を同時に設定されることは想定されません(例えば、VERSION_NOカラムがあるのにタイムスタンプを設定するなど)。
+	</p>
+	<h3 id="updatedatefieldname">updateDateFieldName</h3>
+	<p>
+		排他制御に使用するためのタイムスタンプ型のカラムを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラム名</dd>
+		<dt>デフォルト</dt><dd>なし (タイムスタンプ型での排他制御はしない)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (但し実体と合わせることを推奨)</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		<em class="keyword">タイムスタンプ型での排他制御の正確性はDBMSのミリ秒の精度に依存</em>
+		するため、基本的にはバージョン番号を利用した排他制御が推奨されます。
+	</p>
+	<h3 id="versionnofieldname">versionNoFieldName</h3>
+	<p>
+		排他制御に使用するための数値型のカラムを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラム名</dd>
+		<dt>デフォルト</dt><dd><em class="keyword">VERSION_NO</em></dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (但し実体と合わせることを推奨)</li>
+			</ul>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,orScopeQuery,or,or句,or条件,または,連結条件,Connector" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>OrScopeQuery | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>OrScopeQuery</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		複数の絞り込み条件を or で連結します。
+	</p>
+	<p>
+		通常の Query の連結条件は and です。OrScopeQuery を使うことで、ある範囲の複数条件の Query
+		を or 条件にすることができます。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Query</a></div>
+	<p>
+		パフォーマンス考慮において、or と union
+		はよく議論されます。特に、大量データのテーブルに対しての検索では、OrScopeQuery はよく吟味してから利用して下さい。 
+	</p>
+	<div class="relatedpage"><a href="../sidebar/unionquery.html#performance">UnionQuery - パフォーマンス考慮での union</a></div>
+	<p>
+		会話上では、<em class="keyword">おあすこーぷくえり</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		ConditionBean の orScopeQuery() を呼び出し、引数のコールバック(orQuery)で or
+		条件の Query を設定します。そのコールバック内で設定された条件同士が or で連結されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. OrScopeQuery条件の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+cb.or <span class="comment">// .or と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "orCBLambda" が選択状態に</span>
+cb.<span class="point">orScopeQuery</span>(orCBLambda);
+--
+
+<span class="comment">// cbLambdaの部分で、_ll (補完テンプレートが有効なら)</span>
+cb.orScopeQuery(<span class="subpoint">_ll</span>);
+--
+
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.orScopeQuery(orCB -&gt; {
+    <span class="comment">// 会員名称が "S" で始まる、もしくは、会員IDが 3 の会員</span>
+    orCB.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, op -&gt: op.likePrefix());
+    orCB.query().setMemberId_Equal(memberId);
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称が "S"、もしくは、会員IDが 3 の会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> (dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+     <span class="keyword">or</span> dfloc.MEMBER_ID = <span class="literal">3</span>
+       )
+</code></pre>
+	<p>
+		通常の Query と OrScopeQuery を組み合わせて利用できます。
+	</p>
+<pre><span class="codetitle">e.g. 正式会員で、会員名称が "S" で始まる、もしくは、会員IDが 3 の会員 @Java</span><code>
+cb.<span class="point">query()</span>.setMemberStatusCode_Equal_Formalized();
+cb.<span class="point">orScopeQuery</span>(orCB -&gt: {
+    orCB.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, op -&gt: op.likePrefix());
+    orCB.query().setMemberId_Equal(<span class="literal">3</span>);
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員で、かつ、[会員名称が "S" で始まる、もしくは、会員IDが 3] の会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+   <span class="point">and</span> (dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+     <span class="keyword">or</span> dfloc.MEMBER_ID = <span class="literal">3</span>
+       )
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+	<p>
+		ConditionBean の orScopeQuery() を呼び出し、引数のコールバック(orQuery)で or
+		条件の Query を設定します。そのコールバック内で設定された条件同士が or で連結されます。
+	</p>
+<pre><span class="codetitle">e.g. OrScopeQuery条件の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.or <span class="comment">// .or と打って enter</span>
+--
+<span class="comment">// メソッドが補完されて、引数の "orQuery" が選択状態に</span>
+cb.<span class="point">orScopeQuery</span>(orQuery)
+--
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+cb.orScopeQuery(<span class="point">new </span>)
+--
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.orScopeQuery(<span class="keyword">new</span> OrQuery&lt;MemberCB&gt;() {
+
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+--
+<span class="comment">// インナークラスに渡すために final をつける。</span>
+<span class="comment">// 先にインナークラスの中で参照してから ctrl + 1 で final を補完してもOK。</span>
+<span class="keyword">final</span> Integer memberId = <span class="literal">3</span>;
+
+<span class="comment">// ctrl (or command) + D で不要な空行やTODOコメントを消して</span>
+<span class="comment">// or 条件の絞り込み条件を指定</span>
+cb.orScopeQuery(<span class="keyword">new</span> OrQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        <span class="comment">// 会員名称が "S" もしくは "J" で始まる、もしくは、会員IDが 3 の会員</span>
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"J"</span>);
+        orCB.query().setMemberId_Equal(memberId);
+    }
+}); <span class="comment">// セミコロンを忘れずに</span>
+</code></pre>
+	<h3 id="andpart">or 条件の中の and 条件</h3>
+	<p>
+		or 条件の中で and 条件を利用することができます。これを OrScopeQuery の AndPart
+		と呼びます。OrScopeQuery の中のコールバックの中で、orScopeQueryAndPart()
+		を呼び出し、引数のコールバックの中で and 条件にしたい絞り込み条件を設定します。<span class="frm">@since 0.9.7.3</span>
+	</p>
+<pre><span class="codetitle">e.g. 退会会員、もしくは、正式会員日時のなく会員IDが100以上、もしくは、生年月日のない正式会員 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.<span class="point">orScopeQuery</span>(orCB -&gt; {
+    orCB.query().setMemberStatusCode_Equal_Withdrawal();
+    orCB.<span class="point">orScopeQueryAndPart</span>(andCB -&gt; {
+        andCB.query().setMemberId_GreaterEqual(<span class="literal">100</span>);
+        andCB.query().setFormalizedDatetime_IsNull();
+    });
+    orCB.<span class="point">orScopeQueryAndPart</span>(andCB -&gt; {
+        andCB.query().setMemberStatusCode_Equal_Formalized();
+        andCB.query().setBirthdate_IsNull();
+    });
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 退会会員、もしくは、正式会員日時のなく会員IDが100以上、もしくは、生年月日のない正式会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> (dfloc.MEMBER_STATUS_CODE = <span class="literal">'WDL'</span>
+     <span class="keyword">or</span> (dfloc.MEMBER_ID &gt;= <span class="literal">100</span> <span class="point">and</span> dfloc.FORMALIZED_DATETIME <span class="keyword">is null</span>)
+     <span class="keyword">or</span> (dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span> <span class="point">and</span> dfloc.BIRTHDATE <span class="keyword">is null</span>)
+       )
+</code></pre>
+	<p>
+		OrScopeQuery を経由しない AndPart、および、AndPart 内での OrScopeQuery の呼び出しは利用できません。
+		(ネストした OrScopeQuery はサポートされていません)
+	</p>
+	<div class="relatedpage"><a href="#invalidcall">this - 無効な呼び出し</a></div>
+	<h3 id="splitby">LikeSearch の SplitBy</h3>
+	<p>
+		LikeSearch の SplitBy は、それ自身で and か or を選択できる特殊な機能です。OrScopeQuery
+		内で使った場合でも(AndPart も含む)、連結条件は SplitBy の仕様を優先します。 
+	</p>
+	<div class="relatedpage"><a href="./likesearch.html#split">LikeSearch - 区切り文字でスプリットして複数条件</a></div>
+<pre><span class="codetitle">e.g. 会員名称に "S" と "t" が含まれている、もしくは、"J" で始まる会員 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.orScopeQuery(<span class="keyword">new</span> OrQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        LikeSearchOption option
+            = <span class="keyword">new</span> LikeSearchOption().likeContain().<span class="point">splitBySpace()</span>;
+        orCB.query().setMemberName_LikeSearch(<span class="literal">"S t"</span>, option);
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"J"</span>);
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称に "S" もしくは "M" で始まる、もしくは、"J" で始まる会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> ((dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'%S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span> <span class="point">and</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'%t%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>)
+     <span class="keyword">or</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'J%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+       )
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称に "S" もしくは "M" で始まる、もしくは、"J" で始まる会員 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.orScopeQuery(<span class="keyword">new</span> OrQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        LikeSearchOption option
+            = <span class="keyword">new</span> LikeSearchOption().likePrefix().<span class="point">splitBySpace().asOrSplit()</span>;
+        orCB.query().setMemberName_LikeSearch(<span class="literal">"S M"</span>, option);
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"J"</span>);
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称に "S" もしくは "M" で始まる、もしくは、"J" で始まる会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> (dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+     <span class="keyword">or</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'M%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+     <span class="keyword">or</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'J%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+       )
+</code></pre>
+	<p>
+		そもそも AsOrSplit は、内部的に OrScopeQuery を利用して実現しています。
+	</p>
+	<h3 id="datefromto">日付のFromTo (DateFromTo)</h3>
+	<p>
+		OrScopeQuery の中で日付の FromTo (DateFromTo) 条件を利用した場合は、FromTo 条件は and
+		固定で連結されます。(and で利用することに意味がある機能のため) <span class="frm">@since 0.9.9.4A</span>
+	</p>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="onlyquery">コールバックでは絞り込み条件のみ</h3>
+	<p>
+		OrScopeQuery 内では、絞り込み条件のみ設定できます。以下の機能が利用できます。
+	</p>
+	<ul>
+		<li>query() 経由で利用できる絞り込み条件</li>
+		<li>OnClause, InlineView</li>
+		<li>ColumnQuery</li>
+	</ul>
+	<p>
+		※SetupSelect や UnionQuery など、それ以外の機能を呼び出してはいけません。
+	</p>
+	<div class="relatedpage"><a href="./onclause.html">OnClause</a></div>
+	<div class="relatedpage"><a href="./inlineview.html">InlineView</a></div>
+	<div class="relatedpage"><a href="./columnquery.html">ColumnQuery</a></div>
+	<h3 id="onlyone">条件が一つだけの場合</h3>
+	<p>
+		業務的には、Query を使って設定したときと同じ動きになります。SQL上では、その唯一の条件が
+		OrScopeQuery の名残である括弧で囲まれます。
+	</p>
+	<h3 id="nothing">条件が全て無効になった場合</h3>
+	<p>
+		例えば、OrScopeQuery 内の条件値が全て null で条件が成立しなかった場合、
+		OrScopeQuery を呼び出さなかったのと同じ動きになります。
+	</p>
+	<h3 id="severalcall">同カラム同条件に対する複数指定は有効に</h3>
+	<p>
+		通常の Query では、絞り込み条件の同カラムに対する複数指定は、ConditionKey
+		次第では上書きになりますが、OrScopeQuery 内では(AndPart も含む)、呼び出した分だけ条件が付与されます。
+	</p>
+<pre><span class="codetitle">e.g. 会員IDが 1 もしくは 3 の会員 @Java</span><code>
+cb.<span class="point">orScopeQuery</span>(orCB -&gt; {
+    orCB.query().setMemberId_Equal(<span class="literal">1</span>);
+    orCB.query().setMemberId_Equal(<span class="literal">3</span>);
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 会員IDが 1 もしくは 3 の会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+ <span class="keyword">where</span> (dfloc.MEMBER_ID = <span class="literal">1</span>
+     <span class="keyword">or</span> dfloc.MEMBER_ID = <span class="literal">3</span>
+       )
+</code></pre>
+	<p>
+		但し、同カラムに対する同じ条件値での複数指定(業務的に無意味な条件)も、呼び出した分だけ条件が付与されてしまいます。
+		(通常の Query では、その旨を伝えるデバッグログが出力されて無視される)
+	</p>
+	<h3 id="subquery">サブクエリのCBは独立</h3>
+	<p>
+		OrScopeQuery の中で ExistsReferrer などのサブクエリを利用する場合に、サブクエリ内の ConditionBean
+		の連結条件に特に変わりはありません。OrScopeQuery の状態が引き継がれることはありませんので、サブクエリの中で OrScopeQuery
+		を利用する場合は、明示的に呼び出して設定します。
+	</p>
+	<h3 id="invalidcall">無効な呼び出し</h3>
+	<p>
+		以下のような呼び出しは無効です。
+	</p>
+	<ul>
+		<li>OrScopeQuery 内でない場所での AndPart の呼び出し (業務的に無意味)</li>
+		<li>AndPart 内での (ネストした)OrScopeQuery の呼び出し (サポートされない)</li>
+	</ul>
+
+	<div class="inucolumn">
+		<h2 id="difficult">ソースコードリーディングのススメ</h2>
+		<p>
+			OrScopeQuery は、ConditionBean の中で最も実現が大変だった機能の一つです。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

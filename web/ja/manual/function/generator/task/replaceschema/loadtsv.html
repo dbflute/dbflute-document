@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,LoadData,TSV,TSVファイル,CSV,CSVファイル" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>データ登録(TSV) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>データ登録(TSV)</h1>
+	${indexlist}
+
+	<h2 id="tsv">TSVデータの登録</h2>
+	<p>
+		タブ区切りのテキストデータを登録します。
+	</p>
+	<div class="relatedpage"><a href="./loaddata.html">ReplaceSchema - データ登録</a></div>
+	<div class="inucolumn">
+		<h3 id="delimiterdata">デリミタデータ</h3>
+		<p>
+			DBFluteでは、TSVやCSVなど区切り文字を問わずに表現する言葉として、TSVのような区切り文字のテキストデータを
+			<em class="keyword">デリミタデータ</em> と呼びます。さらに、そのテキストファイルを
+			<em class="keyword">デリミタファイル</em> と呼びます。
+		</p>
+		<p>
+			但し、ReplaceSchema においては、そもそも TSV と言うだけで、大抵は CSV
+			も含みます。機能的に全く違いがなく、あまり区切り文字の違い意識する場面が少ないからです。
+			デリミタデータという言葉は、誤解されないために、抽象的であることを強調するのによく利用されます。
+		</p>
+	</div>
+	<h3 id="tsvfiledir">TSVファイルの配置</h3>
+	<p>
+		"[DBFluteクライアント]/playsql/data" 配下の "common/tsv" ディレクトリ、および、"[dataLoadingType]/tsv"
+		配下のTSVファイルが登録されます。
+	</p>
+	<div class="relatedpage"><a href="./loaddata.html#dataloadingtype">dataLoadingTypeによる切り替え</a></div>
+<pre><span class="codetitle">e.g. TSVファイルの配置(dataLoadingTypeはデフォルトの "ut") @playsql</span><code>
+dbflute_exampledb
+ |-playsql
+    |-data
+       |-common
+       |  |-tsv
+       |     |-...
+       |-ut
+       |  |-tsv
+       |     |-...
+</code></pre>
+	<p>
+		"common" は、どんな "dataLoadingType" であっても登録されます。よって、"common"
+		配下にはデータどの環境においても変わらない共通のマスタデータなどを配置すると良いでしょう。
+	</p>
+	<h3 id="tsvencoding">TSVファイルのエンコーディング</h3>
+	<p>
+		"tsv" ディレクトリの "そのTSVファイルのエンコーディング名と同じ名前のディレクトリ" 配下の ".tsv"
+		で終わるファイルをTSVファイルと認識します。そのディレクトリ名をそのままファイルを読み込むときのエンコーディングに利用します。
+	</p>
+<pre><span class="codetitle">e.g. TSVファイルの配置(エンコーディングはUTF-8) @playsql</span><code>
+playsql
+ |-data
+    |-common
+    |  |-tsv
+    |     |-UTF-8
+    |        |-xxx.tsv
+    |-ut
+    |  |-tsv
+    |     |-UTF-8
+    |        |-xxx.tsv
+</code></pre>
+	<h3 id="tsvfilename">TSVファイルのファイル名</h3>
+	<p>
+		TSVのファイル名は "番号-テーブル名.tsv" もしくは "テーブル名.tsv"
+		という形式で配置します。ファイル名上のテーブル名をそのまま登録する先のテーブルとして扱います。
+	</p>
+	<p>
+		登録順序を確定させるために、番号で順序管理するのがお奨めです。
+	</p>
+<pre><span class="codetitle">e.g. TSVファイルの配置: 会員系テーブルのUTF-8のTSVファイル @playsql</span><code>
+playsql
+ |-data
+    |-common
+    |  |-tsv
+    |     |-UTF-8
+    |        |-<span class="literal">10-MEMBER_STATUS.tsv</span>
+    |-ut
+    |  |-tsv
+    |     |-UTF-8
+    |        |-<span class="literal">10-MEMBER.tsv</span>
+    |        |-<span class="literal">20-MEMBER_LOGIN.tsv</span>
+</code></pre>
+	<h3 id="tsvdataspec">TSVファイルのデータ仕様</h3>
+	<dl class="textlist">
+		<dt>テーブル名</dt><dd>ファイル名(先頭の番号と終わりの拡張子は除く)</dd>
+		<dt>カラム定義</dt><dd>テキストファイルの一行目(タブ区切り)</dd>
+		<dt>データ定義</dt><dd>テキストファイルの二行目以降(タブ区切り)</dd>
+		<dt>データ形式の補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>改行を含む値は、必ずダブルクォーテーションで囲われていること ex. "ABC\nDEF"</li>
+				<li>ダブルクォーテーションを含む値は、必ずダブルクォーテーションで囲われ、値としてのダブルクォーテーションがダブルクォーテーションでエスケープされていること ex. "ABC""DEF"</li>
+				<li>日付は "yyyy/MM/dd HH:mm:ss.SSS" 形式("-" 区切り可、ミリ秒・時分秒省略可)</li>
+				<li>Time型は "HH:mm:ss" 形式</li>
+				<li>両端のダブルクォーテーションは、データとして扱わない(除去される)</li>
+				<li>データはトリムされない(エクセルデータとは違うので注意)。但し、数値カラムや日付カラムなどで明らかにトリムをしても問題ない場合は、トリムされる</li>
+				<li>空文字の値は "null" として扱われる (<a href="#convertvaluemap">変換して登録できるようにはできる</a>)</li>
+				<li>Boolean型のカラムは、"1"・"t"・"true"をtrue、"0"・"f"・"false"をfalseとして扱う</li>
+				<li>バイナリデータはバイナリファイルへのパスを指定する {<a href="./loaddata.html#binary">バイナリデータの登録</a>}</li>
+			</ul>
+		</dd>
+		<dt>その他補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>NotNull制約のないカラムは省略可能</li>
+				<li>デフォルト制約のあるカラムは省略可能</li>
+				<li>デフォルト設定(<a href="./loaddata.html#defaultvaluemap">defaultValueMap.dataprop</a>)のあるカラムは省略可能</li>
+				<li>存在しないカラムが定義されている場合は登録エラー <span class="frm">@since 1.0.4A</span> {<a href="./loadingcontrol.html#issuppresscolumndefcheck">オプションあり</a>}</li>
+				<li>登録データは一レコードずつログに出力される {<a href="./loaddata.html#islogginginsertsql">オプションあり</a>}</li>
+				<li>登録時に定義されている値を<a href="#convertvaluemap">別の値に変換して登録する機能あり</a></li>
+				<li>一つのファイルでのレコード数制限は特になし</li>
+				<li>エクセルデータ登録と同様にバッチ更新で登録 {<a href="./loaddata.html#issuppressbatchupdate">オプションあり</a>} <span class="frm">@since 0.9.7.5</span></li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="convertvaluemap">値のコンバート設定(dataprop)</h2>
+	<p>
+		定義されている値をそのまま登録するのではなく、ある値にマッピングして登録することが可能です。
+	</p>
+	<div class="detailpage"><a href="./loaddata.html#convertvaluemap">データ登録 - 値のコンバート設定(dataprop)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

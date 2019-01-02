@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Action定義のテスト (ActionDefTest) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Action定義のテスト (ActionDefTest)</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<div class="relatedpage"><a href="./index.html">LastaFlute の Action</a></div>
+	${indexlist}
+
+	<h2 id="about">Action定義のテストとは？</h2>
+	<h3 id="letsdeftest">[App]ActionDefTest.javaを実行しよう</h3>
+	<p>
+		LastaFlute の Example から作られたプロジェクトであれば、最初から [App]ActionDefTest.java
+		があるはずです。まずは、その UnitTest を実行してみましょう！
+	</p>
+<pre><span class="codetitle">e.g. ActionDefTest location {org.docksidestage, Dockside} @Directory</span><code>
+src/main/java <span class="comment">// メインコード置き場</span>
+src/main/resources <span class="comment">// メインのリソース置き場</span>
+src/test/java <span class="comment">// テストクラス置き場</span>
+ |-org.docksidestage
+    |-app
+    |  |-<span class="abbreviation">...</span> <span class="comment">// アプリのUnitTestクラスたち (Actionのテストとか)</span>
+    |
+    |-mylasta
+    |  |-<span class="point">DocksideActionDefTest.java</span> <span class="comment">// これが ActionDefTest です！</span>
+    |  |-DocksideLastaDocTest.java  <span class="comment">// こっちはLastaDocのメタデータ抽出</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		policeStoryOf...()だけを呼んでいる怪しいテストたちです。
+	</p>
+<pre><span class="codetitle">e.g. ActionDefTest {Dockside} @Java</span><code>
+<span class="keyword">public class</span> DocksideActionDefTest <span class="keyword">extends</span> UnitDocksideTestCase {
+
+    <span class="keyword">public void</span> test_component() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> ActionComponentPolice(tp -&gt; getComponent(tp)));
+    }
+
+    <span class="keyword">public void</span> test_hotDeployDestroyer() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> HotDeployDestroyerPolice(tp -&gt; getComponent(tp)));
+    }
+
+    <span class="abbreviation">...</span>    
+}
+</code></pre>
+	<h3 id="deftestintro">そもそも ActionDefTest とは？</h3>
+	<p>
+		業務的な UnitTest ではなく、Action自体の定義、フレームワークとして使い方、などが合っているかどうかをテストする UnitTest
+		が用意されています。それを <em class="mark">ActionDefTest</em> と呼んでいます。
+	</p>
+	<p>
+		例えば...
+	</p>
+	<ul>
+		<li>Actionがしっかり初期化できるか？ <span class="frm">(定義の仕方とか間違っていたら落ちる)</span></li>
+		<li>HotDeployを壊すようなクラス参照してないか？ <span class="frm">(appの外からappのクラスを参照してたら落ちる)</span></li>
+		<li>ActionじゃないのにBaseActionを継承してないか？ <span class="frm">(してたら落ちる)</span></li>
+		<li>webじゃないクラスがwebのクラスを使ってないか？ <span class="frm">(使ってたら落ちる)</span></li>
+		<li>忍者のようなクラス参照をしていないか？ <span class="frm">(忍者がいたら落ちる)</span></li>
+		<li>などなど</li>
+	</ul>
+	<p>
+		これらは、業務的な UnitTest を書いていても、なかなかチェックされないものです。
+		多くの場合、これらを満たしていなくても動いてしまうので、通常だとレビューとかで人が指摘するしかありません。
+	</p>
+	<p>
+		そこで、LastaFlute では、(多くの場合)動いちゃうけど "アーキテクチャの根本を壊しかねないやり方" を UnitTest で検知できるようにしています。
+		クラス名は、<em class="mark">[App]ActionDefTest.java</em> となっています。
+		<span class="frm">(Actionが初期化できなかったら動かないので起動すれば気付きますが...その検知は早い方がいいですよね)</span>
+	</p>
+	<h3 id="runeasily">とても気軽に実行しましょう</h3>
+	<p>
+		UnitTest はいくら実行しても構いませんので、ちょっと実装が進んで "大丈夫かな？"
+		と思ったら、気軽にこの ActionDefTest を実行してみましょう。
+	</p>
+	<p>
+		そもそも、<em class="keyword">コミット前には UnitTest をすべて流す</em> のがお約束です。
+		少なくとも、修正したアプリプロジェクトの src/test/java 配下だけでも。
+		なので、Actionを実装して "さあコミットするぞ" というときに、自然とこの UnitTest も実行されるでしょう。
+		<span class="frm">(最初からテストが落ちまくってるとか、テストの実行に時間がかかりすぎるので難しいとかであれば、残念がりましょう: その時はピンポイントでこのテストだけでも実行で)</span>
+	</p>
+
+	<h2 id="deftestmethod">ActionDefTestのメソッドたち</h2>
+	<h3 id="component">Actionがしっかり初期化できるか？</h3>
+	<p>
+		Actionクラスは、初期化されるだけで様々なチェックが掛かります。
+	</p>
+	<p>
+		例えば、@Executeメソッドの引数の順序など "LastaFluteが規約に則っているか" などがチェックされます。
+		間違っていればアプリ起動してリクエストすれば判明しますが、事前に検知したいところです。
+		<span class="frm">(Actionごとの UnitTest でも、コンポーネント化するわけではないので、検知されないところもあります)</span>
+	</p>
+	<p>
+		<em class="mark">test_component()</em> を実行すれば、そのアプリプロジェクトのすべての Action
+		クラスが一気にコンポーネント化され初期化処理が走り、その中のチェックで間違いが検知されれば落ちます。
+	</p>
+<pre><span class="codetitle">e.g. test_component() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_component() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> ActionComponentPolice(tp -&gt; getComponent(tp)));
+    }
+</code></pre>
+	<p>
+		できるだけ、画面を実際に動かさなくても色々なミスが検知できるようにしたいところです。
+		<span class="frm">(もちろん、画面を実際に動かすテストはするときはしますが、インクリメンタル開発では毎リリースごと完璧に網羅するのは難しいことなので)</span>
+	</p>
+	<h3 id="hotdeploydestroyer">HotDeployを壊すようなクラス参照してないか？</h3>
+	<p>
+		appパッケージ配下は HotDeploy (アプリを再起動しなくても修正が反映される) になりますが、appの外 (mylasta, dbfluteなど)
+		からappのクラスを参照すると、その HotDeploy の機能は無効になってしまいます。
+	</p>
+	<p>
+		仕組み上の都合でもありますが、そもそも業務的にもそういった参照は "参照カオス"
+		のきっかけになるので、そういった参照は避けましょうというところです。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>app配下 to app配下</dt><dd>OK</dd>
+		<dt>app配下 to appの外</dt><dd>OK</dd>
+		<dt>appの外 to app配下</dt><dd><em class="mark">Bad</em> <span class="frm">(HotDeployが壊れるし、そもそも参照カオス)</span></dd>
+		<dt>つまり app配下 to mylasta配下</dt><dd>OK <span class="frm">(e.g. Action から UserBean など)</span></dd>
+		<dt>つまり mylasta配下 to app配下</dt><dd><em class="mark">Bad</em> <span class="frm">(e.g. AssistantDirector から Action など)</span></dd>
+	</dl>
+	<p>
+		<em class="mark">test_hotDeployDestroyer()</em>
+		を実行すれば、そのアプリプロジェクトのすべてのクラスでチェックされます<span class="frm">(抜け道はあるかもですが、おおよそ検知します)</span>。
+	</p>
+<pre><span class="codetitle">e.g. test_hotDeployDestroyer() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_hotDeployDestroyer() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> HotDeployDestroyerPolice(tp -&gt; getComponent(tp)));
+    }
+</code></pre>
+	<p>
+		こういった参照をしてしまっても普通に動いてはしまうので、ぜひともこの UnitTest で検知したいものです。気付いたら HotDeploy
+		が全然効かなくなっていた、とかにならないように。
+	</p>
+	<h3 id="nonactionextendsaction">ActionじゃないのにBaseActionを継承してないか？</h3>
+	<p>
+		つまり、Logicクラスが、Actionのスーパークラスを継承しちゃっていないか？を検知します。
+	</p>
+	<div class="detailpage"><a href="../impldesign/logicdesign.html#nomorelogicaction">No more, Logic が Action 継承!?</a></div>
+<pre><span class="codetitle">e.g. test_nonActionExtendsAction() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_nonActionExtendsAction() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> NonActionExtendsActionPolice());
+    }
+</code></pre>
+	<p>
+		つまり、こういうことはしないようにしましょう、ということです。
+	</p>
+<pre><span class="codetitle">e.g. No way, logic should not extend action @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic <span class="keyword">extends</span> DocksideBaseAction { <span class="comment">// ★絶対ダメ</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="nonwebhaswebreference">webじゃないクラスがwebのクラスを使ってないか？</h3>
+	<p>
+		つまり、Logicクラスが、FormクラスやSessionManagerなどを使っちゃってないか？を検知します。
+	</p>
+	<div class="detailpage"><a href="../impldesign/logicdesign.html#nomorelogicweb">No more, Logic が WEB に依存!?</a></div>
+<pre><span class="codetitle">e.g. test_nonWebHasWebReference() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_nonWebHasWebReference() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> NonWebHasWebReferencePolice());
+    }
+</code></pre>
+	<p>
+		つまり、こういうことはしないようにしましょう、ということです。
+	</p>
+<pre><span class="codetitle">e.g. No way, logic should not depend on web @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic {
+
+    <span class="keyword">public void</span> land(<span class="point">SeaForm</span> form) { <span class="comment">// ★絶対ダメ</span>
+    }
+}
+</code></pre>
+	<h3 id="webpackageninjareference">忍者のようなクラス参照をしていないか？</h3>
+	<p>
+		例えば、A画面が、B画面のFormクラスを使ってるとかを検知します。
+	</p>
+	<div class="detailpage"><a href="../impldesign/actiondesign.html#nomorecaosref">No more, あっちらこっちら参照</a></div>
+<pre><span class="codetitle">e.g. test_webPackageNinjaReference() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_webPackageNinjaReference() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> WebPackageNinjaReferencePolice());
+    }
+</code></pre>
+	<p>
+		つまり、こういうことはしないようにしましょう、ということです。
+	</p>
+<pre><span class="codetitle">e.g. stileto reference @Directory</span><code>
+app
+ |-web
+ |  |-sea
+ |  |  |-SeaAction.java
+ |  |  |-<span class="subpoint">SeaForm.java</span>
+ |  |-land
+ |  |  |-LandAction.java <span class="comment">// uses SeaForm</span>
+</code></pre>
+	<h3 id="injectedresourcedefinition">@ResourceのDI定義が変じゃないか？</h3>
+	<p>
+		例えば、privateではないフィールドでの DI を検知します。<span class="frm">(publicやprotectedなど)</span>
+	</p>
+	<p>
+		Exampleデフォルトでは、アプリ内のDIは、すべてprivateフィールドということで統一しています。
+	</p>
+<pre><span class="codetitle">e.g. test_injectedResourceDefinition() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_injectedResourceDefinition() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> InjectedResourceDefinitionPolice().shouldBePrivateField(field -> {
+            <span class="keyword">return true</span>; <span class="comment">// means all fields</span>
+        }));
+    }
+</code></pre>
+	<h3 id="lastapresentssomething">その他、LastaFluteから何かあれば</h3>
+	<p>
+		何か "明らかにLastaFluteでは違うと思うような書き方" について検知します。
+	</p>
+	<p>
+		その内容は徐々に追加され、アップグレードすることでチェックが自然とされるようになります。
+	</p>
+<pre><span class="codetitle">e.g. test_lastaPresentsSomething() of ActionDefTest @Java</span><code>
+    <span class="keyword">public void</span> test_lastaPresentsSomething() <span class="keyword">throws</span> Exception {
+        policeStoryOfJavaClassChase(<span class="keyword">new</span> LastaPresentsSomethingPolice());
+    }
+</code></pre>
+
+	<h2 id="originalcheck">オリジナルのPoliceStoryを作ろう</h2>
+	<p>
+		こういったチェックを、自分で作ることもできます。そのプロジェクト固有のオリジナルのチェックを作り、UnitTest
+		で自動的にチェックされるようにすると良いでしょう。
+	</p>
+	<p>
+		policeStoryOf...() のに合う PoliceStory を実装すれば誰でも作ることができます。
+		別のテストクラスにしてもいいですし、集約させるために ActionDefTest に追加してもいいでしょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

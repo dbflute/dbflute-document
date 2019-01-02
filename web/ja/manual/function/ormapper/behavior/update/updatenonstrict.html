@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,updateNonstrict,更新,一件更新,排他制御なし,問答無用で更新,強制更新" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>updateNonstrict(entity) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>updateNonstrict(entity)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		Entityをもとに <em class="keyword">排他制御なし一件更新</em> をします。Nonstrict の strict
+		は、排他制御のことです。主に、排他制御の不要なバッチ処理などで利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御(楽観的並行性制御)</a></div>
+	<p>
+		会話上では、<em class="keyword">あっぷでーとのんすとりくと</em>
+		と表現します。文脈上、排他制御の有無を強調したい場合は <em class="keyword">排他制御なしのあっぷでーと</em>
+		などと言うとわかりやすいでしょう。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">update()</em>
+		を呼び出し、Entityを指定します。
+	</p>
+<pre><span class="codetitle">e.g. updateNonstrict()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.upN <span class="comment">// .upN と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.<span class="point">updateNonstrict(member)</span>;
+</code></pre>
+	<p>
+		排他制御が不要なため、PKの値が設定されていれば更新ができます。
+	</p>
+<pre><span class="codetitle">e.g. Entityに対して更新値を設定して更新 {MEMBER, memberId=3} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberId(<span class="literal">3</span>);
+member.setMemberName(<span class="literal">"Stojkovic"</span>);
+<span class="attribute">memberBhv</span>.updateNonstrict(member);
+</code></pre>
+	<h3 id="uniqueby">ユニークキーで更新 <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		主キーではなく、ユニーク制約のキーで更新することもできます。
+	</p>
+	<p>
+		プログラム上でPKは持ってなくて代わりにユニークキーだけを持っているような場合に、PK取得のためだけの無駄な事前検索を省くことができます。
+		<span class="frm">(こういったケースはわりと多いと想定されます)</span>
+	</p>
+<pre><span class="codetitle">e.g. ユニークキーである会員アカウントで更新 {MEMBER} @Java</span><code>
+<span class="comment">// PK取得のためだけの無駄な事前検索は不要</span>
+<span class="comment">//Member member = memberBhv.selectEntityWithDeletedCheck(cb);</span>
+Member member = <span class="keyword">new</span> Member();
+member.<span class="point">uniqueBy</span>(memberAccount); <span class="comment">// ユニークキー (複合キーなら引数が増える)</span>
+member.setMemberName(<span class="literal">"Stojkovic"</span>); <span class="comment">// 業務的な更新値の設定</span>
+<span class="attribute">memberBhv</span>.updateNonstrict(member);
+</code></pre>
+	<p>
+		細かい仕様は、update()と同じです。
+	</p>
+	<div class="relatedpage"><a href="./update.html#uniqueby">update() - ユニークキーで更新</a></div>
+	<p>
+		排他制御をしないのであれば、queryUpdate() で更新するのとやってることはほぼ同じです。
+		<span class="frm">(実行して対象のレコードが存在しなかったときに例外になるか素通りするかの違いはあります)</span>
+	</p>
+	<div class="relatedpage"><a href="./queryupdate.html">queryUpdate()</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのEntityとなります。
+	</p>
+	<p>
+		nullを指定した場合は例外発生します。また、PKカラムの値の指定は必須です(指定なしは例外)。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		void です。
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>更新対象が存在しなかった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyDeletedException</dd>
+		<dd>
+			この例外は、指定された主キーに対応するレコードが存在しなかった場合に発生します。
+			業務的に存在することが前提の更新であれば、開発時はバグ・データ不備、結合テスト・運用時はすれ違いと捉えることができます。
+		</dd>
+		<dt>更新結果が複数件の場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityDuplicatedException</dd>
+		<dd>予期せぬレコードを削除してしまっている可能性があるため、ロールバックが求められます。</dd>
+		<dt>一意制約違反があった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyExistsException</dd>
+		<dd>
+			DBFluteで正式サポートしていない DBMS では、別の例外(SQLFailureException)の可能性があります。
+			<div class="relatedpage"><a href="../../../../../environment/supported.html#database">DBFluteのサポート情報 - データベース</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="modified">設定された値だけ更新</h2>
+	<p>
+		update(entity) と同じ仕様です。
+	</p>
+	<div class="detailpage"><a href="./update.html#modified">update(entity) - 設定された値だけ更新</a></div>
+
+	<h2 id="exclusive">排他制御カラムは自動更新</h2>
+	<p>
+		排他制御の処理自体は行われませんが、排他制御カラムは自動更新されます。例えば、バージョン番号は
+		<em class="keyword">DB上の値にSQL上でインクリメント(+1)された値で更新</em>
+		されます。よって、このメソッドを使った更新(の事実)を、(排他制御が必要な)別の更新の排他制御にしっかり伝えることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+	<p>
+		更新後の Entity には、(インクリメントされた)その値は格納されません。
+		更新前に排他制御カラムに(Entityに)設定された値は、利用されないだけでなく更新後にそのまま残っています。
+	</p>
+<pre><span class="codetitle">e.g. 排他制御カラムの値は自動更新 {MEMBER,memberId=3} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberId(<span class="literal">3</span>);
+member.setMemberName(<span class="literal">"Stojkovic"</span>);
+<span class="attribute">memberBhv</span>.update(member);
+<span class="comment">// update MEMBER</span>
+<span class="comment">//    set MEMBER_NAME = 'Stojkovic'</span>
+<span class="comment">//      , VERSION_NO = VERSION_NO + 1</span>
+<span class="comment">//  where MEMBER_ID = 3</span>
+</code></pre>
+	<p>
+		バージョン番号の更新方法と更新後のEntityでの状態が update(entity) とは変わります。
+		updateNonstrict() は、主に事前検索なしでの更新を想定しているため、更新前のEntityにバージョン番号を設定されないことを前提としているためです。
+		ほとんどの場合において、この違いを意識する必要はないと想定されますが、
+		更新後のEntityをさらに続けて利用して、バージョン番号も意識した処理を行うような場合は注意して下さい。
+	</p>
+
+	<h2 id="commoncolumn">共通カラムの自動設定</h2>
+	<p>
+		update(entity) と同じ仕様です。
+	</p>
+	<div class="detailpage"><a href="./update.html#commoncolumn">update(entity) - 共通カラムの自動設定</a></div>
+
+	<h2 id="nocascade">カスケードはしません</h2>
+	<p>
+		update(entity) と同じ仕様です。
+	</p>
+	<div class="detailpage"><a href="./update.html#nocascade">update(entity) - カスケードはしません</a></div>
+
+	<h2 id="scope">Entity更新のスコープ</h2>
+	<p>
+		update(entity) と同じ仕様です。
+	</p>
+	<div class="detailpage"><a href="./update.html#scope">update(entity) - Entity更新のスコープ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

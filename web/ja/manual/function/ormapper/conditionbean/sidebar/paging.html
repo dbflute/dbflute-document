@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,paging,ページング,paginate,pagination" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Paging | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Paging</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		ページングの設定をします。この機能を使うことで Behavior の selectPage(cb) が利用できます。
+	</p>
+	<div class="relatedpage"><a href="../../behavior/select/selectpage.html">Behavior - selectPage(cb)</a></div>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/pagingselect.html">Topic - ページング検索</a></div>
+	<p>
+		ページングの実現方法は、DBMSごとに異なりますが、基本的にDBMS固有のSQL構文を使って実現されます。
+		例えば、MySQL なら limit、PostgreSQL なら limit, offset、Oracle なら rounum。
+		但し、一部 DBMS (SQLServerなど) では、limit, offset の片方がサポートされていない、もしくは、両方サポートされていないことがあるので、
+		そういうサポートされていない場合に限り、部分的にカーソルスキップで実現されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#paging">MySQL - ページング検索の条件</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/postgresql/index.html#paging">PostgreSQL - ページング検索の条件</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#paging">Oracle - ページング検索の条件</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/sqlserver/index.html#paging">SQLServer - ページング検索の条件</a></div>
+	<p>
+		会話上では、<em class="keyword">ぺーじんぐ</em> と表現します。文脈上、曖昧で伝わりにくい場合は
+		<em class="keyword">ConditionBeanのぺーじんぐ(機能)</em>
+		などと言うとわかりやすいでしょう。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		まずは通常通り、ConditionBean の設定をし、実行する前に paging()
+		を呼び出して、第一引数(pageSize)に <em class="keyword">1 ページのレコード数(ページサイズ)</em>、第二引数(pageNumber)に
+		<em class="keyword">検索するページ番号</em> を設定します。その後、Behavior の selectPage() を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 1 ページに付き20件で、3 ページ目を検索 (Eclipseでコード補完) @Java</span><code>
+<span class="keyword">int</span> currentPageNumber = <span class="literal">3</span>; <span class="comment">// 実業務では、画面などで指定されたページ番号など</span>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().addOrderBy_Birthdate_Desc();
+cb.pa <span class="comment">// .pa と打って enter</span>
+--
+cb.<span class="point">paging</span>(<span class="literal">20</span>, currentPageNumber);
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.<span class="point">selectPage</span>(cb);
+<span class="keyword">int</span> allRecordCount = memberPage.<span class="point">getAllRecordCount()</span>;
+<span class="keyword">int</span> allPageCount = memberPage.<span class="point">getAllPageCount()</span>;
+<span class="keyword">for</span> (Member member : memberPage) {
+    <span class="abbreviation">...</span>
+}
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		PagingResultBean には、指定されたページ番号のデータが格納されています。
+	</p>
+	<div class="relatedpage"><a href="../../behavior/resultbean/paging/index.html">Behavior - PagingResultBean</a></div>
+	<h3 id="countlater">カウント検索を後に (CountLater)</h3>
+	<p>
+		enablePagingCountLater() を呼び出すことで、カウント検索を後に実行することができます。ただ、この機能は DBFlute の設定として <em class="keyword">デフォルトで有効</em>
+		になっているので<span class="frm">(@since 0.9.9.0A)</span>、プロパティで抑制していない限り明示的に呼び出す必要はありません。
+		(つまり、通常は意識する必要はありません)
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html#countlater">現場フィット - ページング検索 - 総レコード数取得を後にするオプション</a></div>
+<pre><span class="codetitle">e.g. カウント検索をページング実データ検索の後に実行 @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().addOrderBy_Birthdate_Desc();
+cb.paging(<span class="literal">20</span>, currentPageNumber);
+cb.<span class="point">enablePagingCountLater()</span>;
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		逆に局所的にカウント検索を先に実行したい場合は、disablePagingCountLater() を呼び出します。
+	</p>
+	<h3 id="countleastjoin">カウント検索の結合を最小限に (CountLeastJoin)</h3>
+	<p>
+		enablePagingCountLeastJoin() を呼び出すことで、カウント検索において必要性を自動判別して結合(Join)を最小限にすることができます<span class="frm">(@since 0.9.8.8)</span>。
+		ただ、この機能は DBFlute の設定として <em class="keyword">デフォルトで有効</em>
+		になっているので<span class="frm">(@since 0.9.9.0A)</span>、プロパティで抑制していない限り明示的に呼び出す必要はありません。
+		(つまり、通常は意識する必要はありません)
+	</p>
+	<p>
+		ただし、Union を利用している場合は、いずれにせよ最小限にするための処理はされません。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html#countleastjoin">現場フィット - ページング検索 - カウント検索の結合を最小限にするオプション</a></div>
+<pre><span class="codetitle">e.g. カウント検索で結合を最小限に @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().addOrderBy_Birthdate_Desc();
+cb.paging(<span class="literal">20</span>, currentPageNumber);
+cb.<span class="point">enablePagingCountLeastJoin()</span>;
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		逆に局所的に結合の最小限化を抑制したい場合は、disablePagingCountLeastJoin() を呼び出します。
+	</p>
+	<h3 id="nonreselect">再検索はしない (NonReSelect)</h3>
+	<p>
+		enablePagingCountLater() を呼び出すことで、カウント検索を後に実行することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html#reselect">現場フィット - ページング検索 - 存在しないページが指定された時の再検索</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="notzerominus">引数は正の値</h3>
+	<p>
+		引数の pageSize, pageNumber には必ず正の値を入れます。0 や マイナス値が指定された場合、pageSize
+		は例外ですが、pageNumber は 1 が指定されたときと同じ動きをします。pageNumber
+		は、ユーザ入力値(指定値)である可能性が想定されるため(任意の値を指定される可能性があるため)、不用意に例外にしないようにしています。
+	</p>
+	<h3 id="severalcall">複数回呼び出しは上書き</h3>
+	<p>
+		複数回、Paging を呼び出した場合は、最後に設定された値が有効(上書き)になります。
+	</p>
+	<h3 id="paginginit">FetchFirst 設定を上書き</h3>
+	<p>
+		FetchFirst が設定がされている状態で、Paging を呼び出すと、FetchFirstの設定は無効になります。
+	</p>
+	<div class="relatedpage"><a href="./fetchfirst.html">ConditionBean - FetchFirst</a></div>
+	<div class="inucolumn">
+		<h3 id="oldstyle">その昔は、FetchFirst + FetchPage</h3>
+		<p>
+			その昔は、paging() はなく、fetchFirst() を呼び出した後に、fetchPage()
+			というメソッドでページ番号を指定することでページングを指定していました。
+			その名残はまだありますが、paging() がサポートされている今では意識する必要は全くありません。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

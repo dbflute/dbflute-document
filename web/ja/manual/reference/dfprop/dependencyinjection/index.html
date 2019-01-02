@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,dependencyInjectionMap.dfprop,DIコンテナ,Dicon,Seasar,Spring,Guice,Lucy" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>dependencyInjectionMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>dependencyInjectionMap</h1>
+	${indexlist}
+
+	<h2 id="about">dependencyInjectionMapとは？</h2>
+	<p>
+		DIコンテナに関する設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の dependencyInjectionMap.dfprop という名前のテキストファイルです。主に Generateタスク から参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々な key-value 形式のプロパティを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		必須のプロパティはありません。
+	</p>
+	<p>
+		それぞれのDIコンテナごとにプロパティが用意されています。
+	</p>
+
+	<h2 id="spring">Spring Frameworkのプロパティ</h2>
+	<h3 id="dbflutebeansfilename">dbfluteBeansFileName</h3>
+	<p>
+		dbfluteBeans.xml のファイル名を指定します。Spring Framework 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/spring/index.html">Spring Framework</a></div>
+	<div class="relatedpage"><a href="../../diway/lucy/index.html">T2 Lucy</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>dbfluteBeans.xmlの代わりになるファイル名</dd>
+		<dt>デフォルト</dt><dd>dbfluteBeans.xml</dd>
+	</dl>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。(dbfluteBeans.xmlは
+		"一つのDBに付き一つのファイル" となるため)
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+	<h3 id="dbflutebeansdatasourcename">dbfluteBeansDataSourceName</h3>
+	<p>
+		dbfluteBeans.xml で定義される DataSource のコンポーネント名を指定します。Spring Framework 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/spring/index.html">Spring Framework</a></div>
+	<div class="relatedpage"><a href="../../diway/lucy/index.html">T2 Lucy</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>ユニークなコンポーネント名</dd>
+		<dt>デフォルト</dt><dd>dataSource</dd>
+	</dl>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。
+		(DIコンテナで管理されるDataSourceをユニークにするために)
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+
+	<h2 id="seasar">Seasar(S2Container)のプロパティ</h2>
+	<h3 id="dbflutediconnamespace">dbfluteDiconNamespace</h3>
+	<p>
+		dbflute.dicon の namespace を指定します。Seasar(S2Container) 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/seasar/index.html">Seasar(S2Container)</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>dbflute.dicon で利用する namespace</dd>
+		<dt>デフォルト</dt><dd>dbflute</dd>
+	</dl>
+<pre><span class="codetitle">e.g. デフォルトの dbflute.dicon の namespace @dbflute.dicon</span><code>
+&lt;components namespace=<span class="literal">"dbflute"</span>&gt;
+    ...
+&lt;/components&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. dbflute.dicon に独自の namespace に設定 @dependencyInjectionMap.dfprop</span><code>
+; dbfluteDiconNamespace = dbflute_foodb
+</code></pre>
+	<h3 id="dbflutediconfilename">dbfluteDiconFileName</h3>
+	<p>
+		dbflute.dicon のファイル名を指定します。Seasar(S2Container) 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/seasar/index.html">Seasar(S2Container)</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>dbflute.diconの代わりになるファイル名</dd>
+		<dt>デフォルト</dt><dd>dbflute.dicon</dd>
+	</dl>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。(dbflute.diconは
+		"一つのDBに付き一つのファイル" となるため)
+	</p>
+<pre><span class="codetitle">e.g. dbflute.dicon を独自のファイル名に変更 {foodb用} @dependencyInjectionMap.dfprop</span><code>
+; dbfluteDiconFileName = dbflute-foodb.dicon
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+	<h3 id="j2eediconresourcename">j2eeDiconResourceName</h3>
+	<p>
+		dbflute.diconでインクルードする j2ee.dicon のファイル名を指定します。Seasar(S2Container) 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/seasar/index.html">Seasar(S2Container)</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>j2ee.diconの代わりになるファイル名</dd>
+		<dt>デフォルト</dt><dd>j2ee.dicon</dd>
+	</dl>
+<pre><span class="codetitle">e.g. デフォルトの dbflute.dicon の j2ee.dicon のインクルード @dbflute.dicon</span><code>
+&lt;components namespace=<span class="literal">"dbflute"</span>&gt;
+    &lt;include path=<span class="literal">"j2ee.dicon"</span>/&gt;
+    ...
+&lt;/components&gt;
+</code></pre>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。(dbflute.diconは
+		"一つのDBに付き一つのファイル" となるため)
+	</p>
+<pre><span class="codetitle">e.g. インクルードする j2ee.dicon のファイル名を変更 {foodb用} @dependencyInjectionMap.dfprop</span><code>
+; j2eeDiconResourceName = j2ee-foodb.dicon
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+
+	<h2 id="lastadi">Lasta Diのプロパティ</h2>
+	<h3 id="dbflutedixmlnamespace">dbfluteDiXmlNamespace</h3>
+	<p>
+		dbflute.xml の namespace を指定します。Lasta Di 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/lastadi/index.html">Lasta Di</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>dbflute.xml で利用する namespace</dd>
+		<dt>デフォルト</dt><dd>dbflute</dd>
+	</dl>
+<pre><span class="codetitle">e.g. デフォルトの dbflute.xml の namespace @dbflute.dicon</span><code>
+&lt;components namespace=<span class="literal">"dbflute"</span>&gt;
+    ...
+&lt;/components&gt;
+</code></pre>
+<pre><span class="codetitle">e.g. dbflute.xml に独自の namespace に設定 @dependencyInjectionMap.dfprop</span><code>
+; dbfluteDiXmlNamespace = dbflute_seadb
+</code></pre>
+	<h3 id="dbflutedixmlpackagename">dbfluteDiXmlPackageName</h3>
+	<p>
+		dbflute.xml の出力先を指定します。Lasta Di 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/lastadi/index.html">Lasta Di</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>自動生成ディレクトリ (e.g. src/main/java) からの相対パス</dd>
+		<dt>デフォルト</dt><dd>../resources <span class="frm">(つまり、src/main/resources となる)</span></dd>
+	</dl>
+	<h3 id="dbflutedixmlfilename">dbfluteDiXmlFileName</h3>
+	<p>
+		dbflute.xml のファイル名を指定します。Lasta Di 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/lastadi/index.html">Lasta Di</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>dbflute.xmlの代わりになるファイル名</dd>
+		<dt>デフォルト</dt><dd>dbflute.xml</dd>
+	</dl>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。(dbflute.xmlは
+		"一つのDBに付き一つのファイル" となるため)
+	</p>
+<pre><span class="codetitle">e.g. dbflute.xml を独自のファイル名に変更 {seadb用} @dependencyInjectionMap.dfprop</span><code>
+; dbfluteDiXmlFileName = dbflute-seadb.dicon
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+	<h3 id="rdbdixmlresourcename">rdbDiXmlResourceName</h3>
+	<p>
+		dbflute.xmlでインクルードする rdb.xml のファイル名を指定します。Lasta Di 利用時のプロパティです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/lastadi/index.html">Lasta Di</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>rdb.xmlの代わりになるファイル名</dd>
+		<dt>デフォルト</dt><dd>rdb.xml</dd>
+	</dl>
+<pre><span class="codetitle">e.g. デフォルトの dbflute.xml の rdb.xml のインクルード @dbflute.xml</span><code>
+&lt;components namespace=<span class="literal">"dbflute"</span>&gt;
+    &lt;include condition=<span class="literal">"#exists('#path')"</span> path=<span class="literal">"my_included_dbflute.xml"</span>/&gt;
+    &lt;include path=<span class="literal">"rdb.xml"</span>/&gt;
+    ...
+&lt;/components&gt;
+</code></pre>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。(dbflute.xmlは
+		"一つのDBに付き一つのファイル" となるため)
+	</p>
+<pre><span class="codetitle">e.g. インクルードする rdb.xml のファイル名を変更 {seadb用} @dependencyInjectionMap.dfprop</span><code>
+; rdbDiXmlResourceName = rdb-seadb.dicon
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+
+	<h2 id="guice">Google Guiceは？</h2>
+	<p>
+		Google Guiceは、DIのための設定ファイルが存在しないため、DBFluteプロパティで調整することもありません。
+		拡張は、プログラム上でオーバーライド方式で実現することができます。
+		DBFluteは、DBFluteのコンポーネントを登録するためのGuice専用モジュールを自動生成します。
+	</p>
+	<div class="detailpage"><a href="../../diway/guice/index.html">Google Guice</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

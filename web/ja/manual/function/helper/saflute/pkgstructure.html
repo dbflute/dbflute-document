@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFluteのパッケージ構成 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteのパッケージ構成</h1>
+	<p>
+		SAFluteのパッケージや重要なクラス、リソースについて。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">とりあえずこんな感じです</h2>
+	<p>
+		架空のプロジェクトである、Maihamaプロジェクトの Dockside ドメイン (Webアプリ)
+		を想定して説明します。これらは、SAFlute の Example 実装として公開されています。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute-session/memorable-saflute">外部サイト - Maihamaリポジトリのページ</a></div>
+<pre><span class="codetitle">e.g. Maihamaプロジェクトのパッケージ構成 @Directory</span><code>
+
+saflute <span class="comment">// SAFlute本体 (ソースコード)</span>
+ |-src/main/java
+ |  |-org.dbflute.saflute
+ |  |  |-core           <span class="comment">// SAFluteのcoreとなるパッケージ</span>
+ |  |  |  |-direction   <span class="comment">// SAFlute全体のディレクションを司る</span>
+ |  |  |  |  |-OptionalAssistDirection.java <span class="comment">// Configのディレクション</span>
+ |  |  |  |  |-OptionalCoreDirection.java   <span class="comment">// Coreのディレクション</span>
+ |  |  |  |
+ |  |  |  |-exception   <span class="comment">// SAFluteの基本の共通クラスたち</span>
+ |  |  |  |-interceptor <span class="comment">// SeasarのInterceptorの拡張クラスたち</span>
+ |  |  |  |-json        <span class="comment">// JSONハンドリングのクラスたち</span>
+ |  |  |  |-magic       <span class="comment">// 魔法のようなクラスたち (スレッドキャッシュなど)</span>
+ |  |  |  |-message     <span class="comment">// メッセージハンドリングのクラスたち</span>
+ |  |  |  |-security    <span class="comment">// セキュリティ関連のクラスたち (Cipherなど)</span>
+ |  |  |  |-smartdeploy <span class="comment">// Seasarのスマートデプロイの拡張クラスたち</span>
+ |  |  |  |-time        <span class="comment">// 時間ハンドリングのクラスたち (現在日時取得など)</span>
+ |  |  |  |-util        <span class="comment">// ちょっとしたUtilクラスたち (ContainerUtilなど)</span>
+ |  |  |-db             <span class="comment">// SAFluteのDB関連のパッケージ</span>
+ |  |  |  |-dbflute     <span class="comment">// SAFluteのDBFlute拡張クラス</span>
+ |  |  |  |  |-OptionalDBFluteDirection.java <span class="comment">// DBFluteのディレクション</span>
+ |  |  |  |
+ |  |  |  |-jta         <span class="comment">// JTAの拡張クラスたち (微調整クラス)</span>
+ |  |  |-web            <span class="comment">// SAFluteのWeb関連のパッケージ</span>
+ |  |  |  |-action      <span class="comment">// Action (SAStruts) 関連のパッケージ</span>
+ |  |  |  |  |-api         <span class="comment">// API (Ajax や JSON など) のやり取りを司るクラスたち</span>
+ |  |  |  |  |-callback    <span class="comment">// ActionCallback を司るクラスたち</span>
+ |  |  |  |  |-exception   <span class="comment">// Action関連の共通例外クラスたち</span>
+ |  |  |  |  |-interceptor <span class="comment">// Action関連のInterceptor関連クラスたち</span>
+ |  |  |  |  |-login       <span class="comment">// ログインに関するクラスたち (UserBeanなど)</span>
+ |  |  |  |  |-message     <span class="comment">// メッセージに関するクラスたち (MessageResourceなど)</span>
+ |  |  |  |  |-processor   <span class="comment">// RequestProcessorに関するクラスたち☆</span>
+ |  |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |  |  |-ActionMultipartRequestHandler.java <span class="comment">// DoS対策など</span>
+ |  |  |  |  |  |-ActionMappingWrapper.java <span class="comment">// ForwardもSAFlute風にしたりなど</span>
+ |  |  |  |  |  |-<span class="point">ActionRequestProcessor.java</span>   <span class="comment">// RequestProcessorの拡張</span>
+ |  |  |  |  |  | <span class="comment">// ☆これはハイパー大事</span>
+ |  |  |  |  |  | <span class="comment">// (struts-config.xmlにて定義される)</span>
+ |  |  |  |  |  |-<span class="point">GodHandableActionWrapper.java</span> <span class="comment">// GodHandを実現する拡張</span>
+ |  |  |  |  |  | <span class="comment">// ☆これもミラクル大事</span>
+ |  |  |  |  |  | <span class="comment">// (ActionRequestProcessorにてnewされる)</span>
+ |  |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |  |-response   <span class="comment">// Actionの戻り値 (Response) に関するクラスたち</span>
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |  |-ActionResolver.java  <span class="comment">// ActionクラスとURLのマッピングなどを司る</span>
+ |  |  |  |  |-OptionalActionDirection.java  <span class="comment">// Actionのディレクション</span>
+ |  |  |  |  |-RootAction.java         <span class="comment">// Actionの根っこスーパークラス</span>
+ |  |  |  |  |-<span class="point">TypicalBaseAction.java</span>  <span class="comment">// Actionの典型的スーパークラス</span>
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |
+ |  |  |  |-servlet     <span class="comment">// Servlet 関連のパッケージ</span>
+ |  |  |  |  |-cookie   <span class="comment">// Cookieに関するクラスたち (CookieManagerなど)</span>
+ |  |  |  |  |-filter   <span class="comment">// 独自のServletFilterたち</span>
+ |  |  |  |  |  |-<span class="point">RequestLoggingFilter.java</span> <span class="comment">// デバッグログ大事ですよ (web.xml)</span>
+ |  |  |  |  |  |-<span class="point">RequestRoutingFilter.java</span> <span class="comment">// RoutingFilterの拡張 (web.xml)</span>
+ |  |  |  |  |-request  <span class="comment">// Requestに関するクラスたち (RequestManagerなど)</span>
+ |  |  |  |  |-session  <span class="comment">// Sessionに関するクラスたち (SessionManagerなど)</span>
+ |  |  |  |  |-taglib   <span class="comment">// Taglibに関するクラスたち (MappingFormTagなど)</span>
+ |  |  |  |  |-<span class="point">ContainerManagementServlet.java</span> <span class="comment">// S2ContainerServletの拡張</span>
+ |  |  |  |  |-OptionalServletDirection.java <span class="comment">// Servletのディレクション</span>
+ |  |  |  |
+ |  |  |  |-task        <span class="comment">// Task (バッチ) 関連のパッケージ</span>
+ |  |  |  |  |-callback    <span class="comment">// TaskでもActionCallbackみたいにするクラスたち</span>
+ |  |  |  |  |-interceptor <span class="comment">// TaskでもActionみたいにいろいろできるクラスたち</span>
+ |  |  |  |  |-BatchBaseTask.java         <span class="comment">// 全てのTaskのスーパークラス</span>
+ |  |  |  |  |-OptionalTaskDirection.java <span class="comment">// Taskのディレクション</span>
+ |  |  |  |
+ |-src/main/resources
+ |  |-jta+UserTransaction.dicon <span class="comment">// トランザクションフックのオーバーライド dicon</span>
+ |  |-saflute_assist.dicon <span class="comment">// アプリが ++.dicon で AD を追加する dicon</span>
+ |  |-saflute_core.dicon   <span class="comment">// coreのコンポーネントを定義する dicon</span>
+ |  |-saflute_db.dicon     <span class="comment">// DB周りのコンポーネントを定義する dicon</span>
+ |  |-saflute_web.dicon    <span class="comment">// Web周りのコンポーネントを定義する dicon</span>
+ |  |-saflute.dicon <span class="comment">// アプリが include する、いわゆる "入り口dicon"</span>
+ |-<span class="abbreviation">...</span>
+
+maihama-base           <span class="comment">// ベースプロジェクト (親pomやドキュメントなど)</span>
+ |-<span class="abbreviation">...</span>
+
+maihama-common         <span class="comment">// commonプロジェクト (DBFluteも含む)</span>
+ |-src/main/java       <span class="comment">// Maihamaプロジェクト共通クラス</span>
+ |  |-org.dbflute.maihama
+ |     |-dbflute           <span class="comment">// DBFluteのパッケージ (DBFluteなので説明は割愛)</span>
+ |     |  |-allcommon
+ |     |  |-<span class="abbreviation">...</span>
+ |     |-projectfw         <span class="comment">// Maihamaプロジェクトのフレームワークパッケージ</span>
+ |        |-core           <span class="comment">// SAFluteのcoreを拡張したクラスなど</span>
+ |        |  |-direction   <span class="comment">// SAFluteをMaihamaプロジェクト風にするところ☆</span>
+ |        |     |-sponsor  <span class="comment">// AssistantDirectorで設定する処理を切り出したクラスなど</span>
+ |        |     |-MaihamaConfig.java <span class="comment">// maihama_config 対応クラス(自動生成)</span>
+ |        |     |-MaihamaEnv.java    <span class="comment">// maihama_env 対応クラス(自動生成)</span>
+ |        |     |-<span class="point">MaihamaFwAssistantDirector.java</span> <span class="comment">// SAFluteの現場フィットを司る</span>
+ |        |       <span class="comment">// ☆これが最強に大事</span>
+ |        |       <span class="comment">// (各ドメインが継承して微調整オーバーライドする)</span>
+ |        |
+ |        |-web           <span class="comment">// SAFluteのwebを拡張したクラスなど</span>
+ |           |-action          <span class="comment">// SAFluteのwebを拡張したクラスなど</span>
+ |           |-login           <span class="comment">// ログインに関する</span>
+ |           |-paging          <span class="comment">// SAFluteのwebを拡張したクラスなど</span>
+ |
+ |-src/main/resources  <span class="comment">// convention.dicon, dbflute.dicon など</span>
+ |  |-convention.dicon    <span class="comment">// Seasarのスマートデプロイのルートパッケージを決める dicon</span>
+ |  |-creator.dicon    <span class="comment">// SeasarのスマートデプロイのCreatorを定義した dicon</span>
+ |  |-dbflute.dicon    <span class="comment">// DBFluteの dicon (自動生成)</span>
+ |  |-env_ut.txt       <span class="comment">// SeasarのUnitTest時の環境タイプ</span>
+ |  |-env.txt          <span class="comment">// Seasarのアプリ実行時の環境タイプ (ローカル環境用なのでut)</span>
+ |  |-jdbc.dicon       <span class="comment">// DB接続dicon (URLなどはConfigから取得するようにしている)</span>
+ |  |-maihama_config.properties <span class="comment">// Maihamaプロジェクト共通のコンフィグ</span>
+ |  |-maihama_env.properties    <span class="comment">// Maihamaプロジェクト共通の環境依存コンフィグ</span>
+ |  |-maihama_message_ja.properties <span class="comment">// Maihamaプロジェクト共通の日本語リソース</span>
+ |  |-maihama_message.properties    <span class="comment">// Maihamaプロジェクト共通の英語リソース</span>
+ |  |-projectfw.dicon   <span class="comment">// Maihamaプロジェクトフレームワークのコンポーネント定義dicon</span>
+ |  |-s2container.dicon <span class="comment">// Seasarの大事なdicon (S2ClassBuilder定義含む)</span>
+ |
+ |-src/allpackage/resources <span class="comment">// mavenでpackageするときの共通リソース</span>
+ |  |-env.txt <span class="comment">// Seasarのアプリ実行時の環境タイプ (product)</span>
+ |
+ |-src/integration/resources <span class="comment">// 結合環境のリソース</span>
+ |  |-maihama_env.properties <span class="comment">// 結合環境の環境依存コンフィグ</span>
+ |    <span class="comment">// ※ここにdiconを置くようなことは、原則しないこと</span>
+ |
+ |-src/production/resources  <span class="comment">// 本番環境のリソース</span>
+ |  |-maihama_env.properties <span class="comment">// 本番環境の環境依存コンフィグ</span>
+ |    <span class="comment">// ※ここにdiconを置くようなことは、原則しないこと</span>
+ |
+ |-<span class="abbreviation">...</span>
+
+maihama-dockside       <span class="comment">// ドメインプロジェクト (Webアプリ)</span>
+ |-src/main/java       <span class="comment">// Docksideドメインのクラス</span>
+ |  |-org.dbflute.maihama
+ |     |-app           <span class="comment">// ルートパッケージ (Actionクラスなど)</span>
+ |     |  |-logic <span class="comment">// 画面間で再利用するLogicを配置するパッケージ</span>
+ |     |  |-web   <span class="comment">// Web関連のクラスを配置するパッケージ (Actionクラスなど)</span>
+ |     |     |-base   <span class="comment">// Actionなどのスーパークラスを配置するパッケージ</span>
+ |     |     |  |-<span class="point">DocksideBaseAction.java</span> <span class="comment">// 全てのActionが継承するスーパークラス</span>
+ |     |     |  |-<span class="abbreviation">...</span>
+ |     |     |-login  <span class="comment">// ログイン画面 (Action, Form, WebBeanなど)</span>
+ |     |     |-member <span class="comment">// 会員管理の画面 (Action, Form, WebBeanなど)</span>
+ |     |     |  |-MemberListAction.java <span class="comment">// 会員一覧画面のAction</span>
+ |     |     |  |-MemberListForm.java   <span class="comment">// 会員一覧画面のForm</span>
+ |     |     |  |-MemberWebBean.java    <span class="comment">// 会員ひとりを表す画面表示用Bean</span>
+ |     |     |  |-<span class="abbreviation">...</span>
+ |     |     |-<span class="abbreviation">...</span>
+ |     |-domainfw       <span class="comment">// Docksideドメインのフレームワークパッケージ</span>
+ |        |-action      <span class="comment">// Action関連の自動生成クラスや継承クラス、アノテーションなど</span>
+ |        |-direction   <span class="comment">// SAFluteをMaihamaプロジェクト風にするところ☆</span>
+ |           |-DocksideConfig.java <span class="comment">// dockside_config 対応クラス(自動生成)</span>
+ |           |-<span class="point">DocksideFwAssistantDirector.java</span> <span class="comment">// SAFluteの現場フィットを司る</span>
+ |             <span class="comment">// ☆継承してちょっと微調整オーバーライドしているだけで意外にスリム</span>
+ |             <span class="comment">// (saflute_assist++.diconで定義される)</span>
+ |-src/main/resources  <span class="comment">// app.dicon, saflute_assist++.dicon など</span>
+ |  |-aop++.dicon <span class="comment">// アプリ独自のInterceptorを定義するdicon (あまり使わない)</span>
+ |  |-app.dicon   <span class="comment">// アプリが読み込む最初のdicon</span>
+ |  |-customizer.dicon <span class="comment">// SeasarのスマートデプロイコンポーネントのAOPなどの設定dicon</span>
+ |  |-dockside_config.properties <span class="comment">// Docksideドメインのコンフィグ</span>
+ |  |-dockside_message_ja.properties <span class="comment">// Docksideドメインの日本語リソース</span>
+ |  |-dockside_message.properties    <span class="comment">// Docksideドメインの英語リソース</span>
+ |  |-log4j.properties       <span class="comment">// Log4jの設定 (ローカル環境用なのでDEBUG)</span>
+ |  |-saflute_assist++.dicon <span class="comment">// Config や AssistantDirector を追加するdicon</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="conceptmap">アーキテクチャ概念マップ</h3>
+	<p>
+		アーキテクチャ概念マップを見ながら見るとよいでしょう。
+	</p>
+	<p class="imgbox">図 : SAFluteアーキテクチャ概念マップ
+		<a href="../../../../data/model/saflute/saflute-Architecture-view.png" title="SAFluteアーキテクチャ概念マップ"><img src="../../../../data/model/saflute/saflute-Architecture-view.png" alt="SAFluteアーキテクチャ概念マップ" width="550" height="440" /></a>
+	</p>
+	<h3 id="projstructure">Maihamaプロジェクトのプロジェクト構成</h3>
+	<p>
+		そもそものプロジェクト構成は、別ページにて紹介しています。
+	</p>
+	<div class="detailpage"><a href="./projstructure.html">SAFluteのプロジェクト構成</a></div>
+
+	<h2 id="feature">おおまかな特徴</h2>
+	<p>
+		おおまかな特徴は以下の通り。
+	</p>
+	<dl class="textlist">
+		<dt>階層重視</dt>
+		<dd>
+			フレームワーク、プロジェクト共通、ドメイン共通、それぞれの画面、というように領域を明確に分け、スーパークラスもその階層ごとに存在しています。
+			たまに空っぽに近いスーパークラスもいますが、いずれ必要になる可能性があるため最初から存在します。
+		</dd>
+		<dt>設定ファイルも共通化</dt>
+		<dd>
+			propertiesなども、継承できるようにして共通のものはcommonで管理できるようにしています。
+			<div class="relatedpage"><a href="./incremental.html#objectiveprop">継承できる Properties</a></div>
+		</dd>
+		<dt>diconでコンフィグ管理しない</dt>
+		<dd>
+			環境ごとに切り替えるのは .properties ファイルだけで、diconを切り替えるようなことはしない。
+			<div class="relatedpage"><a href="./incremental.html#antidiconfig">これはやめたい！diconの環境ごとの切り替え</a></div>
+		</dd>
+		<dt>SAFluteの現場フィットをAssistantDirectorに集中</dt>
+		<dd>
+			diconをコピーして拡張するというようなことがないように、SAFlute側であらかじめ拡張ポイントを用意しています。
+			アプリは AssistantDirector だけを拡張して、SAFluteを現場の要件にフィットさせます。
+			<div class="relatedpage"><a href="#genbafit">this - 現場フィットを一元管理</a></div>
+		</dd>
+		<dt>スマートデプロイ対象とそうでないものをパッケージ分け</dt>
+		<dd>
+			HotDeployトラブル (LinkageError や、不思議な ClassCastException など)
+			を避け、HotDeployのメリットを最大限享受するため、スマートデプロイ対象のクラスとそうでないクラスを明確にパッケージ分けしています。
+			<div class="relatedpage"><a href="#smartdeploy">this - スマートデプロイ対象を明確に</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="genbafit">現場フィットを一元管理</h2>
+	<p>
+		SAFluteをアプリに適用させるための設定や調整(つまり現場フィット)などは、AssistantDirector経由で行います。
+		決して、diconをコピー拡張したりはしません。
+	</p>
+	<div class="detailpage"><a href="./assistantdirector.html">AssistantDirector</a></div>
+
+	<h2 id="smartdeploy">スマートデプロイ対象を明確に</h2>
+	<p>
+		HotDeployトラブル (LinkageError や、不思議な ClassCastException など)
+		を避け、HotDeployのメリットを最大限享受するため、スマートデプロイ対象のクラスとそうでないクラスを明確にパッケージ分けしています。
+	</p>
+	<p>
+		ごちゃませにするとHotDeployトラブルがおきやすく、たとえ convention.dicon で Ignore
+		設定したとしても、ディベロッパーが気付かずに参照方向を間違える可能性があるため、最初から分けていた方が世話ないという思想です。
+		<span class="frm">(ディベロッパーは、appの外からappの中のクラスを参照してはいけないと覚えるだけ)</span>
+	</p>
+<pre><span class="codetitle">e.g. スマートデプロイ対象を明確に @Directory</span><code>
+maihama-common
+/src/main/java
+ |
+ |-org.dbflute.maihama
+ |  |-app       <span class="comment">// ルートパッケージ (スマートデプロイ対象、Actionクラスなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-dbflute   <span class="comment">// DBFluteのパッケージ (フレームワークなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-projectfw <span class="comment">// Maihamaプロジェクトのフレームワークパッケージ</span>
+ |  |  |-<span class="abbreviation">...</span>
+
+maihama-dockside
+/src/main/java
+ |
+ |-org.dbflute.maihama
+ |  |-app       <span class="comment">// ルートパッケージ (スマートデプロイ対象、Actionクラスなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-domainfw  <span class="comment">// Docksideドメインのフレームワークパッケージ</span>
+ |  |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		DBFluteのクラスも外に出します。DBFluteはそもそも HotDeploy に対応していません。バッチを叩いてまで HotDeploy
+		である必要はないと考えるからです。厳密には、Exクラスへの追加もありますが、頻度は少ないため割り切っています。
+	</p>
+
+	<h2 id="exdef">羽ばたく拡張クラス</h2>
+	<p>
+		SAStrutsやSeasarなどを拡張したクラスは、様々な設定ファイルで定義されます。
+	</p>
+	<dl class="textlist">
+		<dt>struts-config.xml</dt>
+		<dd>ActionRequestProcessor, ActionMultipartRequestHandler, PropertiesMessageResourcesFactory</dd>
+		<dt>web.xml</dt>
+		<dd>RequestLoggingFilter, RequestRoutingFilter, ContainerManagementServlet</dd>
+		<dt>jta+UserTransaction.dicon</dt>
+		<dd>HookedUserTransaction</dd>
+		<dt>creator.dicon</dt>
+		<dd>RomanticLogicCreator</dd>
+		<dt>customizer.dicon</dt>
+		<dd>
+			ConcreteDrivenCustomizerChain, ActionCustomizerChain, ActionTxAttributeCustomizer,
+			RomanticActionCustomizer, ExplicitTxAttributeCustomizer
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,コード補完,キャメルケース,Eclipse,IDE" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>キャメルケースコード補完 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>キャメルケースコード補完</h1>
+	${indexlist}
+
+	<h2 id="about">キャメルケースコード補完とは？</h2>
+	<p>
+		Eclipse のような IDE 上でのプログラミングで、例えば、<em class="keyword">executeBindFixedDomain()</em>
+		というメソッドをコード補完する際に <em class="keyword">exBFD</em>
+		と打ち込んで、キャメルケースとしての大文字部分を辿ってメソッドを絞り込んでいくことを示します。
+	</p>
+	<ul>
+		<li>1. "obj." とまで打ち込んで</li>
+		<li>2. "exBFD" と打ち込んで Enter！</li>
+		<li>3. 最後にセミコロン ";"</li>
+	</ul>
+<pre><span class="codetitle">e.g. キャメルケースコード補完 @Java</span><code>
+obj.
+--
+obj.<span class="point">exBFT</span>
+--
+obj.executeBindFixedDomain();
+</code></pre>
+	<p>
+		この機能を活用することで、コード補完する際に <em class="keyword">意味の通じやすい、しかしながら、長くて打ち込みづらいクラスやメソッド</em>
+		を、スムーズに利用することができるようになります。
+	</p>
+
+	<h2 id="atdbflute">DBFluteでは特に大活躍</h2>
+	<p>
+		DBFluteでは、テーブル名やカラム名がそのままクラスやメソッドの名前に組み込まれます。短いカラム名は打ち込みやすいですが、
+		間違い(や勘違い)も生みやすいものです。
+		DB設計ではテーブル名やカラム名には業務的に意味の通る名前をしっかり付け、
+		プログラミングではこの機能を活用してより快適なタイプセーフ生活を送ることをお奨めします。
+	</p>
+
+	<h2 id="rhythm">リズムが大事</h2>
+	<p>
+		そのメソッドを頭の中で声に出しながら、<em class="keyword">ex(えぐぜきゅーと)、B(ばいんど)、F(フィックスド)、D(ドメイン)</em>
+		とリズミカルに打ち込んで行くと、どんどん慣れてきます。次第に自然に打てるようになってきます。但し、実際に声を出すと隣の人に驚かれます。
+	</p>
+
+	<h2 id="notcomplete">最後まで打ち込まなくてもいい</h2>
+	<p>
+		exFBT と打ち込んでいる途中で、例えば、<em class="keyword">exF の時点で既にメソッドが一つに絞り切れている</em>
+		のであれば、そこで止めて Enter しても良いです。何度も使うクラス、メソッドであれば、だんだんそれを覚えてきて、<em class="keyword">exF + Enter</em>
+		と素早く打ち込めるようになるでしょう。
+	</p>
+
+	<h2 id="nounique">ユニークにならない場合</h2>
+	<p>
+		例えば、<em class="keyword">executeBindFixedDomain()</em> と <em class="keyword">executeBonFireDance()</em>
+		というメソッドが定義されていた場合、<em class="keyword">exBFD</em> と打ち込んでも絞りきれません。
+		但し、その時点でほぼ二つ、三つくらいに絞り込まれているので、後はちょっと矢印キーを押して Enter
+		すれば良いでしょう。達人の域まで達するなら、<em class="keyword">exBiFD</em> とういうように打ち込んで絞り切ることもできます。
+	</p>
+
+	<h2 id="underscore">アンダースコアがあっても大丈夫</h2>
+	<p>
+		例えば、<em class="keyword">executeBind_Fixed_Domain()</em>
+		というメソッド名になっていても、アンダースコアがないときと同じように <em class="keyword">exBFD</em>
+		で補完できます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

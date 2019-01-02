@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>SAFluteでビルドデプロイするやり方 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteでビルドデプロイするやり方</h1>
+	<p>
+		SAFluteにおけるビルドデプロイのやり方です。
+	</p>
+	<div class="relatedpage"><a href="../index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="mavenwar">Mavenでwarファイル作成</h2>
+	<h3 id="mvnpackage">installとpackageの順序</h3>
+	<p>
+		継承や依存などの Maven の構成を把握していることを前提として...
+	</p>
+	<div class="relatedpage"><a href="../projstructure.html#maven">SAFluteのプロジェクト構成 - Mavenの構成</a></div>
+	<p>
+		依存の順序通りに maven を実行していきます。
+	</p>
+	<ol>
+		<li>saflute で mvn -e clean install</li>
+		<li>xxx-base で mvn -e clean install</li>
+		<li>xxx-common で mvn -e clean install <span class="frm">(profileの切り替えが必要なら -P オプション)</span></li>
+		<li>xxx-dockside で mvn -e clean package <span class="frm">(profileの切り替えが必要なら -P オプション)</span></li>
+	</ol>
+	<h3 id="mvnprofile">環境ごとに切り替えデプロイ</h3>
+	<p>
+		環境切り替え設定などの構成を把握していることを前提として...
+	</p>
+	<div class="relatedpage"><a href="../projstructure.html#envswitch">SAFluteのプロジェクト構成 - 環境切り替えの構成</a></div>
+	<p>
+		環境ごとに設定を切り替え場合は、commonとwebプロジェクトにて、profileを指定します。
+	</p>
+<pre><span class="codetitle">e.g. 結合環境(integration)用のcommonプロジェクトをビルド @Command</span><code>
+mvn -e clean install <span class="point">-P integration</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 結合環境(integration)用のwebプロジェクトをビルド @Command</span><code>
+mvn -e clean package <span class="point">-P integration</span>
+</code></pre>
+	<p>
+		すると、warファイルの中に含まれる xxx_env.properties などが、指定された環境のものになっています。
+		<span class="frm">(一方で、環境情報をwarに含めたくない場合は、propertiesの扱い方を工夫する必要があるでしょう)</span>
+	</p>
+	<p>
+		環境ごとに切り替える設定ファイルの環境に適した修正が終わっていることが前提です。
+	</p>
+	<div class="relatedpage"><a href="../projstructure.html#envproperties">環境切り替え用のproperties</a></div>
+	<div class="relatedpage"><a href="../projstructure.html#log4jproperties">ログの設定 (log4j.properties)</a></div>
+
+	<h2 id="newdeployenv">新しいデプロイ環境をつくる</h2>
+	<p>
+		新しいデプロイ環境 (profile) をつくる場合は、いくつかの設定ファイルを修正していく必要があります。
+	</p>
+	<p>
+		まずは、Mavenの構成、および、環境切り替えの構成を把握していることを前提として...
+	</p>
+	<div class="relatedpage"><a href="../projstructure.html#maven">Mavenの構成</a></div>
+	<div class="relatedpage"><a href="../projstructure.html#envswitch">環境切り替えの構成</a></div>
+	<p>
+		例えば、sea という名前の環境を新たに作るとします。
+	</p>
+	<h3 id="addprofile">1. pom.xml にて profile を追加</h3>
+	<p>
+		common, webプロジェクトの pom.xml の profile で新しい環境の設定を追加します。
+	</p>
+	<p>
+		<span class="frm">※profileの設定場所を変更している場合は、そちらを修正</span>
+	</p>
+	<h3 id="addresources">2. src/sea/resources を追加</h3>
+	<p>
+		common, webプロジェクトの src/sea/resources フォルダを作成します。
+	</p>
+	<h3 id="addproperties">3. resources に環境依存propertiesを追加</h3>
+	<p>
+		独自に作ったばかりの src/なんとか/resources フォルダに xxx_env.properties
+		を追加します。別の環境の xxx_env.properties をコピーして作るとよいです。
+		が、修正漏れだけには厳重注意しましょう。
+	</p>
+	<p>
+		プロパティ値だけでなく、コメントの中も新しい環境に合わせましょう。<span class="frm">(環境名とか書いてあるかも)</span>
+	</p>
+	<h3 id="addpropertieshtml">4. propertiesHtmlMap にて env を追加</h3>
+	<p>
+		documentDefinitionMap.dfprop の propertiesHtmlMap のそれぞれの environmentMap
+		にて、新しい環境の設定を追加します。<span class="frm">(PropertiesHTMLで比較ができるようにするため)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/doc/propertieshtml.html">Docタスク - PropertiesHTML</a></div>
+<pre><span class="codetitle">e.g. propertiesHtmlMap の environmentMap に新しい環境を追加 @Command</span><code>
+        ; Sea_ConfigProperties = map:{
+            <span class="abbreviation">...</span>
+            ; environmentMap = map:{
+                ; integration = $$baseDir$$/integration/resources
+                ; production = $$baseDir$$/production/resources
+                <span class="point">; sea = $$baseDir$$/sea/resources</span>
+            }
+            <span class="abbreviation">...</span>
+        }
+</code></pre>
+	<p>
+		Docタスク (manageの22番) を叩いて、PropertiesHTML に新しい環境の情報が追加されていることを確認しましょう。
+	</p>
+	<h3 id="addoriginal">5. resources にその他環境依存のファイルを追加</h3>
+	<p>
+		もし、アプリで独自の環境依存の設定ファイルを作っていれば、それを resources に作成します。
+	</p>
+	<h3 id="addreplaceschema">6. ReplaceSchemaの環境設定を追加</h3>
+	<p>
+		これは、もし新しい環境のDBを ReplaceSchema 管理するときだけです。
+	</p>
+	<p>
+		ReplaceSchemaの環境切り替えの構成について把握していることを前提として...
+	</p>
+	<div class="relatedpage"><a href="../projstructure.html#envreps">ReplaceSchemaの環境切り替え</a></div>
+	<ol>
+		<li>DBFluteクライアント/dfprop/sea フォルダを作成</li>
+		<li>そこに、databaseInfoMap+.dfprop と replaceSchemaDefinitionMap+.dfprop を作成</li>
+		<li>databaseInfoMap+.dfprop の設定</li>
+		<li>replaceSchemaDefinitionMap+.dfprop の設定</li>
+		<li>DBFluteクライアント/_sea_replace-schema.sh を作成 (環境変数をseaに)</li>
+	</ol>
+	<p>
+		_sea_replace-schema.sh を叩けば、sea環境用の設定で ReplaceSchema できるようになります。
+	</p>
+
+	<h2 id="newwebproj">新しいWebプロジェクトつくる</h2>
+	<p>
+		TODO jflute
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

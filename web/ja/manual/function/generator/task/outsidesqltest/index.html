@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,OutsideSqlTest,outside-sql-test,外だしSQLのテスト,2Way-SQLとして実行,外だしSQLのチェック,文法チェック" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>OutsideSqlTestタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>OutsideSqlTestタスク</h1>
+	${indexlist}
+
+	<h2 id="about">OutsideSqlTestタスクとは？</h2>
+	<p>
+		外だしSQLを <em class="keyword">2Way-SQLとして実際にDBに実行</em> して、SQLのチェックを行うDBFluteタスクです。
+	</p>
+	<p>
+		ディベロッパーが実装した外だしSQLを気軽にチェックするという役割だけでなく、
+		<em class="keyword">外だしSQLへのDB変更時の影響を調べる</em> のにも利用できます。
+	</p>
+	<p class="imgbox">図 : OutsideSqlTestタスクの概念図
+		<a href="../../../../../data/model/otest-OTestConcept-view.png" title="OutsideSqlTestタスクの概念図"><img src="../../../../../data/model/otest-OTestConcept-view.png" alt="OutsideSqlTestタスクの概念図" width="550" height="200" /></a>
+	</p>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>外だしSQLの実装中 (ディベロッパー)</li>
+		<li>DB変更の発生 (アーキテクト)</li>
+		<li>DBFluteアップグレード直後 (アーキテクト)</li>
+		<li>本番運用後のDB変更 (アーキテクト)</li>
+	</ul>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">outsidesqltest.(bat|sh)</em> をコマンドから実行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップが終わった時点から利用できます。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		OutsideSqlTestタスクを実行すると処理が始まります。
+	</p>
+	<ul class="flowlist">
+		<li><a href="#refsql">1. 外だしSQLを参照</a></li>
+		<li><a href="#checkpmcomment">2. パラメータコメントのチェック</a></li>
+		<li><a href="#execsql">3. 外だしSQLを(2Way-SQLとして)実行</a></li>
+	</ul>
+	<h3 id="refsql">1. 外だしSQLを参照</h3>
+	<p>
+		SQLの読み込み対象は、Sql2Entityタスクと同じです。
+	</p>
+	<div class="relatedpage"><a href="../sql2entity/index.html#refsql">Sql2Entity - 外だしSQLを参照</a></div>
+	<h3 id="checkpmcomment">2. パラメータコメントをチェック</h3>
+	<p>
+		<span class="existscloset">パラメータコメントの文法チェックを行います</span>。
+		簡易なチェックだけではありますが、アプリケーションを実行してからの画面実行経由での発見よりもずっとコストは下がります。
+	</p>
+	<h4 id="checksql2entitymark">Sql2Entityマークのチェック</h4>
+	<p>
+		Sql2Entityマークのケアレスミスなどをチェックします。例えば、コロンがセミコロンになっていたり、m が n
+		になっていたり、ありがちなチェックをしています。
+	</p>
+	<h4 id="checkpmcommentparse">パラメータコメントのパース可否</h4>
+	<p>
+		パラメータコメントがパース可能かどうかをチェックします。主に IFコメントのケアレスミス や
+		ENDコメントの不足 を検知します。
+	</p>
+	<h4 id="checksqltitle">外だしSQLのタイトル (オプション)</h4>
+	<p>
+		<em class="keyword">外だしSQLのタイトル</em> が記述されているか否かをチェックします。これは outsideSqlDefinitionMap.dfprop
+		で設定するオプションであり、<em class="keyword">プロジェクトのポリシーとして外だしSQLのタイトルを必須にしたい場合</em> に有効です。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/genbafit/outsidesqltitle/index.html">(外だしSQL)現場フィット - 外だしSQLのタイトル</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#isrequiredsqltitle">dfprop - isRequiredSqlTitle</a></div>
+	<h4 id="checksqldesc">外だしSQLの説明 (オプション)</h4>
+	<p>
+		<em class="keyword">外だしSQLの説明</em> が記述されているか否かをチェックします。これは outsideSqlDefinitionMap.dfprop
+		で設定するオプションであり、<em class="keyword">プロジェクトのポリシーとして外だしSQLの説明を必須にしたい場合</em> に有効です。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/genbafit/outsidesqldescription/index.html">(外だしSQL)現場フィット - 外だしSQLの説明</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#isrequiredsqldescription">dfprop - isRequiredSqlDescription</a></div>
+	<h3 id="execsql">3. 外だしSQLを(2Way-SQLとして)実行</h3>
+	<p>
+		読み込んだSQL(select文)を <em class="keyword">そのまま実行</em>
+		します。よって、実行されるSQLは 2Way-SQL
+		形式となっていなければなりません(2Way-SQLになっているかのチェックにもなっています)。
+	<p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/about.html#twowaysql">外だしSQL - 2Way-SQL</a></div>
+	<p>
+		SQLエラーがあっても中断はせず、全てのSQLが実行されて、最後にログに結果が一覧として表示されます。
+		一つでもSQLエラーがあればタスクはFAILUREとして終了します。
+		SQLに不具合がある場合は、<em class="keyword">タスクの実行ログで原因を確認して修正してから</em> 再度実行して下さい。
+	</p>
+	<p>
+		また、全てトランザクション内の実行で必ずロールバックされます。
+	</p>
+	<div class="detailpage"><a href="../index.html#log">タスクの実行ログ</a></div>
+
+	<h2 id="exceptsql">実行対象外SQL</h2>
+	<p>
+		デフォルトでは読み込まれた全てのSQLが実行されますが、どうしてもOutsideSqlTestで実行されてほしくないSQLがある場合に、特別に
+		<em class="keyword">OutsideSqlTestでの実行対象から外すマーク</em>があります。
+	</p>
+	<p>
+		Sql2EntityマークのCustomizeEntityマークの形式で、クラス名部分に df:x
+		と指定すると、OutsideSqlTestでの実行対象外になります。これを
+		<em class="keyword">OutsideSqlTest除外マーク</em> と呼びます。
+	</p>
+	<div class="relatedpage"><a href="./customizeentity.html#customizeentitymark">CustomizeEntityマーク</a></div>
+<pre><span class="codetitle">e.g. ある外だしSQLをOutsideSqlTestでの実行対象外にする @SQL-File</span><code>
+<span class="comment">-- #df:x#</span>
+<span class="keyword">truncate table</span> MEMBER;
+</code></pre>
+	<p>
+		同時にSql2EntityタスクでもこのSQLが実行されることはありません。
+	</p>
+	<p>
+		トランザクションでロールバックできないSQLに有効です。例えば、truncate文やcreate文です。
+	</p>
+
+	<h2 id="variousoption">様々なオプション</h2>
+	<p>
+		Sql2Entityタスクと同様に様々なオプションがあります。
+	</p>
+	<div class="detailpage"><a href="../sql2entity/index.html#variousoption">Sql2Entityタスク - 様々なオプション</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,499 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,allcommon,自動生成される共通クラス,DBFluteConfig" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DBFluteConfig | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteConfig</h1>
+	${indexlist}
+
+	<h2 id="about">DBFluteConfigとは？</h2>
+	<p>
+		アプリケーション実行時にDBFluteのランタイム環境を調整するコンフィグです。
+	</p>
+	<p>
+		DBFluteプロパティとは違い、設定ファイルではなく、allcommon配下に自動生成されるシングルトンのクラスとなっています。
+		自動生成時に(挙動を)固定してしまうのではなく、アプリケーションの実行環境で柔軟に切り替えられるようにするためです。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteConfigインスタンスの取得 @Java</span><code>
+DBFluteConfig config = DBFluteConfig.<span class="point">getInstance()</span>;
+</code></pre>
+	<p>
+		様々なコンフィグが用意されていて、それぞれのメソッドで設定を行うことができます。
+		おいそれと変更してはいけないプロパティがオンパレードなため、
+		設定するときは必ず設定前にロックを解除し、設定後にロックを掛けるという微妙に面倒な作業と共にすることを習慣としています。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteConfigで queryTimeout の設定 {300秒} @Java</span><code>
+DBFluteConfig config = DBFluteConfig.getInstance();
+config.<span class="point">unlock()</span>;
+config.<span class="point">setDefaultStatementConfig</span>(<span class="keyword">new</span> StatementConfig().queryTimeout(<span class="literal">300</span>));
+config.<span class="point">lock()</span>;
+</code></pre>
+	<h3 id="beforeinit">初期化される前に設定すること</h3>
+	<p>
+		<em class="keyword">DBFluteが初期化される前(DIコンテナが初期化される前)に設定されることが大前提</em>
+		であり、それ以降の設定は推奨されません。(DBFluteの初期化が終わると、ロックし忘れを防止するために自動的にロックが掛けられます)
+	</p>
+	<p>
+		どうしてもアプリ稼働途中で変更をしたいというような場面がある場合は、
+		ソースをしっかり読んで挙動を確認し、十分テストした上で利用することが求められます。
+	</p>
+	<h3 id="settingplain">どこで設定すればいいの？</h3>
+	<p>
+		環境依存の設定なのか、どの環境でも必ず設定したい固定的な設定なのかによって変わります。
+	</p>
+	<p>
+		例えば、WEBアプリ上では設定したいが、バッチでは設定したくない、テスト環境では設定したくない、もしくは、設定する値が変わる、
+		というような環境依存の設定であれば、それぞれの環境における初期化領域で設定をします。
+		必要に応じて、単体テストの環境でも設定します。
+	</p>
+	<p>
+		一方で、どの環境でも必ず設定したい固定的な設定の場合は、DBFluteの初期化と同期させると良いでしょう。littleAdjustmentMap.dfprop
+		の extendedDBFluteInitializerClass で DBFluteInitializer
+		を継承した独自のクラスを設定することができます<span class="frm">(@since 0.9.8.4)</span>。再自動生成後、その独自のクラスの中で固定的な
+		DBFluteConfig の設定が書いてあれば、どの環境であろうとDBFluteの初期化時に一緒に呼び出されることになります。
+		この方法を利用しなくても、DIコンテナによってはそれ自身の機能で差し替えができることがありますが要領は一緒です。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#extendeddbfluteinitializerclass">dfprop - extendedDBFluteInitializerClass</a></div>
+<pre><span class="codetitle">e.g. DBFluteInitializerを継承した独自クラスを作成 @Package</span><code>
+src/main/java
+ |-com.example<span class="abbreviation">...</span>
+    |-dbflute
+       |-allcommon
+       |-bsbhv
+       |-...
+       |-exentity
+       |-nogen <span class="comment">// means no-generate</span>
+          |-ExtendedDBFluteInitializer <span class="comment">// どこにどんな名前で作るかは任意</span>
+</code></pre>
+<pre><span class="codetitle">e.g. DBFluteInitializerを継承した独自クラスを指定 @littleAdjustmentMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+; extendedDBFluteInitializerClass = com.exa<span class="abbreviation">...</span>nogen.ExtendedDBFluteInitializer
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		具体的には、DBFluteInitializer の prologue メソッドをオーバーライドし、その中で設定処理を書きます。
+		ただし、必ずスーパークラスの prologue メソッド自体を呼び出すことを忘れてはいけません。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteInitializerを継承した独自クラスでDBFluteConfigの設定 @Java</span><code>
+<span class="abbreviation">...</span>
+    @Override
+    <span class="keyword">protected void</span> prologue() {
+        <span class="keyword">super</span>.prologue();
+
+        DBFluteConfig config = DBFluteConfig.getInstance();
+        config.unlock();
+        config.set<span class="abbreviation">...</span>
+        config.lock();
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="settinglog">設定されたときのログ</h3>
+	<p>
+		どのコンフィグにおいても、設定されたときはINFOレベルのログが出力されます。
+		とても重要な設定であること、かつ、初期化時に一回だけ設定されるのが前提であることからそのようにしています。
+	</p>
+
+	<h2 id="emptystringqueryallowed">emptyStringQueryAllowed</h2>
+	<p>
+		ConditionBean の一律のデフォルトの挙動として、空文字の条件設定を許可します<span class="frm">(@since 0.9.7.8)</span>。
+		全ての ConditionBean が cb.allowEmptyStringQuery() が呼び出されたのと同じ状態になります。 
+	</p>
+	<p>
+		プロジェクト全体で空文字に業務的な意味があるような場合、そのようなカラムが多く存在する場合に有効です。
+		ただし、条件値に "空文字という業務的な値" と "値がないこと" という両方のパターンが混在する場合は、このコンフィグは利用せずに
+		ConditionBean の設定で都度調整することが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+	<p>
+		ConditionBean の基本仕様と異なる挙動をするため、ドキュメントの内容や Example
+		と実際の挙動が厳密に一致しません。このコンフィグを利用する場合は、必ずディベロッパーに通知が行き届くようにする必要があります。
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="emptystringparameterallowed">emptyStringParameterAllowed</h2>
+	<p>
+		ParameterBean の一律のデフォルトの挙動として、空文字の条件設定を許可します<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<p>
+		プロジェクト全体で空文字に業務的な意味があるような場合、そのようなカラムが多く存在する場合に有効です。
+		ただし、条件値に "空文字という業務的な値" と "値がないこと" という両方のパターンが混在する場合は、このコンフィグは利用せずに
+		ParameterBean の設定(オーバーライド拡張)で都度調整することが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+	<p>
+		このコンフィグを有効にした場合、当然のことですが、パラメータコメントの IF コメントでよく利用される FOO != null
+		という条件は、空文字の場合に true となりません。空文字でも true
+		と判定したい場合は、空文字を意識した条件に変更する必要があります。
+	</p>
+	<p>
+		ParameterBean の基本仕様と異なる挙動をするため、ドキュメントの内容や Example
+		と実際の挙動が厳密に一致しません。このコンフィグを利用する場合は、必ずディベロッパーに通知が行き届くようにする必要があります。
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="invalidquerychecked">invalidQueryChecked</h2>
+	<p>
+		ConditionBean の一律のデフォルトの挙動として、nullや空文字などの無効な条件が設定された場合に例外にします(<span class="frm">(@since 0.9.7.8)</span>)。
+		全ての ConditionBean が cb.checkInvalidQuery() が呼び出されたのと同じ状態になります。 
+	</p>
+	<p>
+		プロジェクト全体でnullや空文字などの無効な値が設定されたときに例外になってもよいと確定する場合に有効です。
+		ただし、"無効な値の場合は例外にしたい" という場面と "無効な値の場合は条件を無効にしたい" という場面の両方が混在する場合は、
+		プロジェクト全体でどちらのパターンの方が多いかを深く検討して利用する必要があります。
+		そういった場合 DBFlute では、よほどの極端な割合でない限り基本的にこのコンフィグを利用せず、
+		そもそも外部から渡って来たデータはしっかり入り口で必ずアプリで明示的にチェックする、保険を掛けるにしても ConditionBean の
+		CheckInvalidQuery を利用して都度対応する、といったやり方を推奨しています。
+	</p>
+	<div class="relatedpage"><a href="../../conditionbean/sidebar/checkinvalidquery.html">ConditionBean - CheckInvalidQuery</a></div>
+	<p>
+		ConditionBean の基本仕様と異なる挙動をするため、ドキュメントの内容や Example
+		と実際の挙動が厳密に一致しません。このコンフィグを利用する場合は、必ずディベロッパーに通知が行き届くようにする必要があります。
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<p>
+		これに対応する ParameterBean の機能はありません。ParameterBean
+		は自由度の高い外だしSQLで利用されるため、一律のチェックによる例外は逆に混沌を生み出す可能性があると想定しているためです。
+	</p>
+
+	<h2 id="queryloglevelinfo">queryLogLevelInfo</h2>
+	<p>
+		QueryLog のレベルを INFO に設定します(通常は、DEBUGレベル)。
+		アプリ要件で QueryLog を本番環境などでも出力する必要がある場合に有効です。
+		ただし、当然のことですが、(微々たるものではありますが)表示用SQLの生成処理とログ出力の分、パフォーマンスに影響します。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/debuglog/index.html#sqlexeclog">現場フィット - デバッグログ - DBFluteのSQL実行ログ</a></div>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="executestatusloglevelinfo">executeStatusLogLevelInfo</h2>
+	<p>
+		ExecuteStatusLog のレベルを INFO に設定します(通常は、DEBUGレベル)。
+		アプリ要件で QueryLog を本番環境などでも出力する必要がある場合に有効です。
+		ただし、当然のことですが、(微々たるものではありますが)表示用SQLの生成処理とログ出力の分、パフォーマンスに影響します。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/debuglog/index.html#sqlexeclog">現場フィット - デバッグログ - DBFluteのSQL実行ログ</a></div>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="logdateformat">logDateFormat</h2>
+	<p>
+		SQL実行時に出力される表示用SQLの日付型の条件値の表示フォーマットを設定します。
+		デフォルトのフォーマットが都合悪いときに利用します。
+		java.util.Dateにマッピングされたカラムに対して有効です。SimpleDateFormatが解釈できる形式で指定します。
+	</p>
+	<div class="relatedpage"><a href="../displaysql.html#dateformat">表示用SQL - 日付・日時型のフォーマット</a></div>
+<pre><span class="codetitle">e.g. 独自の日付型フォーマットを設定 {スラッシュを利用} @Java</span><code>
+DBFluteConfig config = DBFluteConfig.getInstance();
+config.setLogDateFormat(<span class="literal">"yyyy/MM/dd"</span>);
+</code></pre>
+	<p>
+		フォーマットされた後の日付表現の前後に、独自の文字列を追加したい場合は、"${yyyy-MM...}"
+		形式でフォーマットを囲って、その前後に独自の文字列を記述して設定します。		
+	</p>
+<pre><span class="codetitle">e.g. 日付フォーマットでdateリテラルを付与 @Java</span><code>
+DBFluteConfig config = DBFluteConfig.getInstance();
+config.setLogDateFormat(<span class="literal">"date ${yyyy/MM/dd}"</span>);
+</code></pre>
+	<p>
+		主に、Oracleのtimestampリテラルの付与の用途などで利用します。但し、Oracleに関しては既にデフォルトで timestamp
+		リテラルが付与されるようになっているため、必要になる場面はあまりないと想定されています。
+		(そのOracleのデフォルト設定をフォーマットだけちょっと変えて上書きするような場合には必要になります)
+	</p>
+
+	<h2 id="logtimestampformat">logTimestampFormat</h2>
+	<p>
+		SQL実行時に出力される表示用SQLの日時型の条件値の表示フォーマットを設定します。
+		デフォルトのフォーマットが都合悪いときに利用します。
+		java.sql.Timestampにマッピングされたカラムに対して有効です。SimpleDateFormatが解釈できる形式で指定します。
+	</p>
+	<div class="relatedpage"><a href="../displaysql.html#dateformat">表示用SQL - 日付・日時型のフォーマット</a></div>
+<pre><span class="codetitle">e.g. 独自の日時型フォーマットを設定 {スラッシュを利用} @Java</span><code>
+DBFluteConfig config = DBFluteConfig.getInstance();
+config.setLogTimestampFormat(<span class="literal">"yyyy/MM/dd HH:mm:ss.SSS"</span>);
+</code></pre>
+	<p>
+		リテラルの付与に関しては、logDateFormat と同様です。
+	</p>
+
+	<h2 id="defaultstatementconfig">defaultStatementConfig</h2>
+	<p>
+		全ての検索に適用するデフォルトの StatementConfig を設定します。設定した
+		StatementConfig インスタンスがDBFlute内部で利用されます。設定後にそのインスタンスの設定値を変更してはいけません。
+	</p>
+	<div class="relatedpage"><a href="../statementconfig.html">StatementConfig</a></div>
+
+	<h2 id="cursorselectfetchsize">cursorSelectFetchSize</h2>
+	<p>
+		全てのカーソル検索に適用するデフォルトの FetchSize (JDBCのパラメータ) を設定します。
+		カーソル検索におけるパフォーマンスの調整や、JDBCドライバの特殊な仕様に対応する場合に利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#cursorselect">MySQLの取扱い - カーソル検索でのメモリ対策</a></div>
+	<p>
+		littleAdjustmentMap.dfprop でも、このコンフィグの値を設定できます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#cursorselectfetchsize">dfprop - cursorSelectFetchSize</a></div>
+
+	<h2 id="datasourcehandler">dataSourceHandler</h2>
+	<p>
+		DBFlute内部で DataSource からのコネクションの取得処理をフィルタします。
+		利用している DBCP の環境次第で調整が必要になるときに有効です。
+	</p>
+	<p>
+		DBFlute内部でこの機能を利用しているものもあります。Spring Framework と Commons DBCP
+		を組み合わせたときのスレッドトランザクションの実現の際、このコンフィグを使って Spring の DataSourceUtils
+		を利用しています(自動登録されます)。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/diway/spring/index.html#commonsdbcp">Spring Frameworkの取扱い - Commons DBCP との組み合わせ</a></div>
+
+	<h2 id="physicalconnectiondigger">physicalConnectionDigger</h2>
+	<p>
+		論理コネクションから物理コネクションを取得するコールバック処理を設定します<span class="frm">(@since 0.9.7.6)</span>。
+	</p>
+	<p>
+		DBFluteは、DIコンテナ経由でアプリから渡された DataSource を利用してコネクションを取得しています。
+		ゆえに、DBFluteはそのコネクションが論理的なものなのか物理的なものなのかは意識していません。
+		通常は、それで全く問題ありませんが、一部機能でどうしても物理コネクションが必要になることがあります。
+		その機能を利用する時のために、アプリの DBCP 構成に合わせた物理コネクション処理を登録します。
+	</p>
+	<p>
+		代表的な例として、Oracleのプロシージャパラメータに、TABLE型やOBJECT型のデータを指定するときに利用します。
+		(基本的には、DBMSのJDBCドライバに依存せざるを得ない機能を使うときに必要になる可能性があります)
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/oraclearraystruct.html">Oracleの配列・構造体パラメータ</a></div>
+
+	<h2 id="sqlexceptiondigger">sqlExceptionDigger</h2>
+	<p>
+		抽象例外から SQLException を取得するコールバック処理を設定します<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<p>
+		DBFluteは、DIコンテナ経由でアプリから渡された DataSource
+		を利用してコネクションを取得していますが、利用している DBCP の仕組み次第では SQLException
+		以外の例外を戻す可能性があり、DBFluteの一律の例外である SQLFailureException
+		に翻訳できない可能性があります。ほとんどの場合、それで困る場面はあまり想定されませんが、万が一困るような場合に、(JDBCをラップした)DBCP
+		から発生した抽象例外から SQLException を抽出するロジックを設定して SQLFailureException に統一することができます。
+	</p>
+	<p>
+		デフォルトでは、発生した例外の getCause() から SQLException を抽出するロジックが登録されています。
+		また、Seasar(S2Container) を利用している場合は、それに加えて S2Container の
+		SQLRuntimeException から SQLException を抽出するロジックが登録されています。
+		(詳しくは、自動生成されたソースコードをご覧下さい)
+	</p>
+
+	<h2 id="sequencecachekeygenerator">sequenceCacheKeyGenerator</h2>
+	<p>
+		シーケンスキャッシュのキーを生成する処理を差し替えます。シーケンスキャッシュの単位のデフォルトは、
+		"テーブルごとのシーケンス" ですが、そのキーの単位を変更したい場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/runtimefit/sequencecache/index.html">現場フィット - シーケンスキャッシュ</a></div>
+
+	<h2 id="sqlclausecreator">sqlClauseCreator</h2>
+	<p>
+		ConditionBean の 内部でSQLを組み立てるクラス、SqlClause のファクトリクラスを差し替えます。
+		ConditionBean で発行されるSQLを拡張したいときに利用します。(ただし、拡張リスクがあります)
+	</p>
+
+	<h2 id="tablesqlnamefilter">tableSqlNameFilter</h2>
+	<p>
+		自動組み立てをする SQL のテーブル名をフィルタします<span class="frm">(@since 0.9.7.6)</span>。
+		主に以下のような状況での利用が想定されます。
+	</p>
+	<dl class="textlist">
+		<dt>スキーマ名の修飾を環境ごとに切り替える</dt>
+		<dd>
+			例えば、SQL上ではテーブル名にスキーマ名の修飾が必要な上に、かつ、
+			開発環境と本番環境でのスキーマ構成が統一できないような場合に有効です。
+			(環境ごとに切り替える必要のないスキーマ名の修飾(静的な修飾)であれば、別途機能として用意されていますのでそちらをご利用下さい)
+			<div class="relatedpage"><a href="../../../genbafit/projectfit/schematablename/index.html">現場フィット - 自動組み立てSQLのテーブル名にスキーマ名を付与</a></div>
+		</dd>
+		<dt>アプリのステータス次第で実行時にテーブル名を切り替える</dt>
+		<dd>
+			例えば、テーブル名に suffix を付けるなどしてテーブル構造を冗長化させていて、
+			実行時のアプリのステータスやデータなどによって、登録や検索するテーブルを切り替える必要がある場合に有効です。
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. PUBLICというスキーマ名をテーブル名に付与する @Java</span><code>
+<span class="keyword">final</span> String schema = <span class="attribute">"PUBLIC"</span>; <span class="comment">// 実業務ではアプリのプロパティなどから取得</span> 
+DBFluteConfig.getInstance().<span class="point">setTableSqlNameFilter</span>(<span class="keyword">new</span> SqlNameFilter() {
+    <span class="keyword">public</span> String filter(String sqlName, String correspondingDbName) {
+        <span class="keyword">return</span> schema + <span class="attribute">"."</span> + sqlName;
+    }
+});
+</code></pre>
+	<p>
+		このフィルタは、Behavior や ConditionBean などのSQLの自動組み立て処理が対象であり、外だしSQLには影響しません。
+		外だしSQLのフィルタは、同じく DBFluteConfig の outsideSqlExecutorFactory を利用することで実現できます。
+	</p>
+	<div class="relatedpage"><a href="#outsidesqlexecutorfactory">this - outsideSqlExecutorFactory</a></div>
+	<p>
+		dbflute-multipledb-seasar-example にて、Example があります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+	<p>
+		このフィルタの設定は、必ずコンテナの初期化の前に設定する必要があります。そもそも DBFluteConfig
+		はそういった利用を想定していますが、このコンフィグは初期化後にロックを解除して設定しても反映されない可能性があります。
+		具体的には、各テーブルの DBMeta クラスが、クラスロードされたときにこのフィルタが設定されます。
+		フィルタが設定された後は、SQLが実行されるごとにフィルタ処理が実行されます。
+		(極端に重いフィルタ処理はするべきではありません)
+	</p>
+	<p>
+		また、Generateタスク実行時に TableSqlName をフィルタするような機能を併用する場合、コールバックの引数は既にそのフィルタが実行された値となります。
+		具体的には、スキーマ名の静的な修飾を行う SchemaTableName や、予約語テーブル名のためのクォーテーション処理などです。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/schematablename/index.html">現場フィット - スキーマ修飾テーブル</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#quotetablenamelist">dfprop - quoteTableNameList</a></div>
+	<p>
+		利用する際は、<em class="keyword">環境が変わってスキーマ名が変わっても動作するというテスト</em> もしくは
+		<em class="keyword">テーブル名を切り替えても動作するというテスト</em> を必ず行うようにして下さい。
+		例えば、開発環境でずっと同じスキーマ名で試していて、いきなりにスキーマ名の違う本番環境にアップするというのは、そのテストが抜け落ちていることになります。
+		結合テストで自然とテストすることになるかもしれませんが、結合テストと開発環境はスキーマ名が同じである可能性もあります。
+		そもそも、予期せぬリスクを回避するために、結合テストが始まるもっと前の早い段階で確認されることが推奨されます。
+	</p>
+
+	<h2 id="outsidesqlpackage">outsideSqlPackage</h2>
+	<p>
+		外だしSQLの配置パッケージを変更します。
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="outsidesqlexecutorfactory">outsideSqlExecutorFactory</h2>
+	<p>
+		Behavior の outsideSql() メソッド経由で利用する OutsideSqlExecutor クラスの
+		ファクトリを差し替えます。外だしSQLの挙動を拡張するのに有効です。(ただし、拡張リスクがあります)
+	</p>
+	<p>
+		通常、outsideSql() の後に続けてメソッドを利用するため、クラス名をディベロッパーが意識していないことが多いため、馴染みのないクラスとなっていますが、
+		外だしSQLの根幹になるクラスを差し替えることができます。頑張れば、外だしSQLの読み込み処理をフックして、フィルタを掛けるようなこともできます。
+		利用する時は、デフォルトで利用されている DefaultOutsideSqlExecutorFactory
+		を使うと良いでしょう。OutsideSqlContextFactory も差し替えることができます<span class="frm">(@since 0.9.7.6)</span>。
+		OutsideSqlFilter (外だしSQLのフィルタ)を指定することもできます<span class="frm">(@since 0.9.7.6)</span>。(詳しくはソースにて)
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="gearedciphermanager">gearedCipherManager</h2>
+	<p>
+		ConditionBean や Behavior(の更新系の処理) において、(主にはSQL関数の)暗号化・復号化処理を連動させることができます。
+		<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/projectfit/gearedcipher/index.html">現場フィット - 連動する暗号化・復号化処理</a></div>
+
+	<h2 id="usesqllogregistry">useSqlLogRegistry</h2>
+	<p>
+		Seasar の SqlLogRegistry 機能を利用できるように設定します。
+		ただし、DBFluteとしては、CallbackContext を使って同じことが代替できるため、非推奨となっています。
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="fulltextsearchoperand">fullTextSearchOperand</h2>
+	<p>
+		全文検索用の検索条件の演算子を差し替えます。
+		全文検索をサポートしていて、かつ、調整のオプションがある DBMS (例えば、PostgreSQL)のみ、このコンフィグが存在します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/postgresql/index.html#fulltextsearch">PostgreSQL - ConditionBeanで全文検索</a></div>
+
+	<h2 id="valuetype">ValueType</h2>
+	<p>
+		独自の ValueType を設定することができます。
+	</p>
+	<div class="relatedpage"><a href="../valuetype.html">ValueType</a></div>
+	<h3 id="basicvaluetype">基本ValueType</h3>
+	<p>
+		プログラム型をキーに ValueType を指定します。
+		独自のプログラム型を利用する場合などに有効です。typeMappingMap.dfprop
+		と連携して利用することがほとんどの利用パターンです。ただし、<em class="keyword">厳重注意のもと利用すること</em>。
+		特にデフォルトで登録されている ValueType を差し替えた場合、DBFluteが正常に動作しない可能性もあります。
+	</p>
+<pre><span class="codetitle">e.g. 独自の基本ValueTypeを登録 @Java</span><code>
+DBFluteConfig config = DBFluteConfig.getInstance();
+config.<span class="point">registerBasicValueType</span>(KorondeItai.class, <span class="keyword">new</span> KolobValueType());
+</code></pre>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/typemapping/index.html">typeMappingMap.dfprop</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wb.html#basicvaluetype">BasicValueType (基本ValueType)</a></div>
+	<h3 id="pluginvaluetype">プラグインValueType</h3>
+	<p>
+		名前をキーに ValueType を指定します。設定したキーを指定して、どのカラムでどの ValueType
+		を指定するか手動で設定します。
+		ピンポイントで <em class="keyword">このカラムだけ、この ValueType を利用するようにしたい</em>
+		という場合に有効です。ただし、<em class="keyword">厳重注意のもと利用すること</em>。
+		特にデフォルトで登録されている ValueType を差し替えた場合、DBFluteが正常に動作しない可能性もあります。
+	</p>
+<pre><span class="codetitle">e.g. 独自のプラグインValueTypeを登録 @Java</span><code>
+DBFluteConfig config = DBFluteConfig.getInstance();
+config.<span class="point">registerPluginValueType</span>(<span class="literal">"korondeItai"</span>, <span class="keyword">new</span> KolobValueType());
+</code></pre>
+<pre><span class="codetitle">e.g. 独自のプラグインValueTypeを利用 @Java</span><code>
+<span class="comment">// EntityのExクラスにて</span>
+<span class="keyword">public static final</span> String memberName_VALUE_TYPE = <span class="literal">"korondeItai"</span>;
+</code></pre>
+	<p>
+		定数アノテーションの [プロパティ名]_VALUE_TYPE のプロパティ名は、JavaBeansルールに従うこと。
+		例えば、"T_NAME" カラムだったら、プロパティ名は、"TName"。(tNameではない)
+	</p>
+	<p>
+		ConditionBean の検索条件のバインド変数においては、このプラグインValueTypeは利用されません。
+		データの取得処理や、登録・更新などのバインド変数に限ります。
+	</p>
+	<p>
+		このコンフィグは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

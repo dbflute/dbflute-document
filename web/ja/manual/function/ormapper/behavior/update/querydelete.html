@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,queryDelete,CBによる削除,ConditionBeanで削除,ConditionBeanでdelete,条件削除,子テーブル削除" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>queryDelete(cb) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>queryDelete(cb)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		ConditionBean の絞り込み条件に一致するレコード全てを削除します。
+	</p>
+	<p>
+		例えば、"とある会員のログイン情報を全て削除"、"未払い購入のある会員を全て削除"
+		というような削除ができます。ConditionBean を指定します。
+	</p>
+	<p>
+		排他制御処理はありません。問答無用で削除します。
+	</p>
+	<div class="relatedpage"><a href="#exclusive">this - 排他制御処理なし</a></div>
+	<p>
+		条件なしでの削除(NonQueryDelete)は、デフォルトでは許可されません<span class="frm">(@since 0.9.7.8)</span>。
+	</p>
+	<div class="relatedpage"><a href="#nonquery">this - 条件なしでの削除(全件削除)</a></div>
+	<p>
+		会話上では、<em class="keyword">くえりでりーと</em>
+		と表現します。<em class="keyword">ConditionBean のでりーと</em> とも言えます。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		Behaviorの <em class="keyword">queryDelete()</em>
+		を呼び出し、ConditionBean を指定します。
+	</p>
+<pre><span class="codetitle">e.g. queryDelete()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.quD <span class="comment">// .quD と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "cbLambda" が選択状態に</span>
+<span class="attribute">memberBhv</span>.<span class="point">queryDelete</span>(cbLambda)
+--
+
+<span class="comment">// cbLambdaの部分で、_ll (補完テンプレートが有効なら)</span>
+<span class="attribute">memberBhv</span>.<span class="point">queryDelete</span>(<span class="subpoint">_ll</span>)
+--
+
+<span class="comment">// Lambda引数名はcbにして...セミコロン ";" を忘れずに</span>
+<span class="attribute">memberBhv</span>.<span class="point">queryDelete</span>(cb -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+});
+</code></pre>
+	<p>
+		Entity には PK の値も不要です。更新値だけを設定します。
+	</p>
+<pre><span class="codetitle">e.g. 未払い購入のある会員を全て削除 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().existsPurchaseList(purchaseCB -&gt; {
+    purchaseCB.query().<span class="point">setPaymentCompeleteFlg_Equal_False()</span>;
+});
+
+<span class="attribute">memberBhv</span>.queryDelete(cb);
+</code></pre>
+	<p>
+		絞り込み条件は、InScope を使ったサブクエリ方式です。
+	</p>
+	<div class="relatedpage"><a href="#dbmsheadache">DBMSによっては制限も</a></div>
+	<div class="relatedpage"><a href="#compoundpk">複合主キーの場合は制限</a></div>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+<pre><span class="codetitle">e.g. queryDelete()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.quD <span class="comment">// .quD と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.<span class="point">queryDelete</span>(cb);
+
+<span class="comment">// .qu と打つと queryDelete() や queryDelete() など</span>
+<span class="comment">// クエリ更新系のメソッドだけが補完候補に列挙される</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのConditionBeanになります。<span class="frm">(1.1.xよりコールバック)</span>
+	</p>
+	<p>
+		nullを指定した場合は例外発生します。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		削除したレコードの件数が戻ります。削除対象が存在しなかった場合は 0 が戻ります。
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>条件なし削除(全件削除)の場合</dt>
+		<dd>org.seasar.dbflute.exception.NonQueryDeleteNotAllowedException</dd>
+	</dl>
+	<h3 id="dbmsheadache">DBMSによっては制限も</h3>
+	<p>
+		DBMSによっては利用できる機能に制限があります。例えば、MySQLは、delete 文の where
+		句のサブクエリにて更新対象のテーブルを参照できない、という制約があるため、サブクエリ方式ではなく、where
+		句に直接条件を展開しています。すると、Query(Relation) や ExistsReferrer
+		などの関連テーブルを利用した絞り込み条件が利用できなくなります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#queryupdate">MySQL - QueryUpdate/Deleteの実現</a></div>
+	<h3 id="compoundpk">複合主キーの場合は制限</h3>
+	<p>
+		複合主キーの場合は制限は、サブクエリ方式が利用できないため、MySQLと同じ制限になります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#queryupdate">MySQL - QueryUpdate/Deleteの実現</a></div>
+	<div class="relatedpage"><a href="../../../../function/genbafit/deprecatedfit/compoundprimarykey/index.html">現場フィット - 複合主キーの対策</a></div>
+
+	<h2 id="exclusive">排他制御処理なし</h2>
+	<p>
+		排他制御処理はありません。
+	</p>
+
+	<h2 id="nocascade">カスケードはしません</h2>
+	<p>
+		delete(entity) と同じ仕様です。
+	</p>
+	<div class="detailpage"><a href="./delete.html#nocascade">delete(entity) - カスケードはしません</a></div>
+
+	<h2 id="nonquery">条件なしでの更新(全件更新)</h2>
+	<p>
+		条件なしでの削除(NonQueryDelete)は、デフォルトでは許可されません<span class="frm">(@since 0.9.7.8)</span>。
+		(万が一の)不意の全件更新を防ぐためです。どうしても全件更新をしたい場合は、varyingQueryDelete()
+		を利用し、DeleteOption で許可するオプションを指定することで実現できます。
+	</p>
+	<div class="relatedpage"><a href="./varyingquerydelete.html">varyingQueryDelete(entity, cb, option)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

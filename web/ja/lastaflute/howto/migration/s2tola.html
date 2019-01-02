@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,リーンスタートアップ" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteとSeasarとの違い | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteとSeasarとの違い</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="java8seasar">Seasar を Java8 でフォーク</h2>
+	<dl class="keymainlist">
+		<dt>徹底したスリム化</dt><dd>使わない機能削減、依存ライブラリ削減(依存jarを少なくシンプルに)</dd>
+		<dt>デバッグしやすいように</dt><dd>コンテナ内で発生したエラーのメッセージをDBFlute風に</dd>
+		<dt>OGNL改めJS</dt><dd>OGNLの代わりにJava同梱のNashornのJavaScriptエンジンを利用</dd>
+		<dt>Java8 でコンパイル</dt><dd>少し速くなるかなぁ...</dd>
+		<dt>ホットデプロイはそのまま</dt><dd>欠かせないホットデプロイは変わらず利用できるように</dd>
+	</dl>
+
+	<h2 id="java8sastruts">SAStruts を Java8 でフォーク</h2>
+	<dl class="keymainlist">
+		<dt>Struts1外し</dt><dd>一番のネックだった Struts1 への依存のない SAStruts を</dd>
+		<dt>commonsへの依存最小限</dt><dd>古いcommonsへの依存を外し、アプリで最新版使えるように</dd>
+		<dt>内部フォワードしない</dt><dd>フォワードせずとも綺麗なURLを実現</dd>
+		<dt>設定ファイル削減</dt><dd>定型化された設定を組み込んで、アプリで管理する設定をシンプルに</dd>
+		<dt>シンプルなコード</dt><dd>RequestからActionが呼ばれるまでの道のりできるだけシンプルに</dd>
+		<dt>Hibernate Validator</dt><dd>バリデーションに Hibernate Validator を使う</dd>
+		<dt>Java8 でコンパイル</dt><dd>少し速くなるかなぁ...</dd>
+		<dt>規約ベースはそのまま</dt><dd>欠かせない規約ベースURLマッピングは変わらず利用できるように</dd>
+	</dl>
+
+	<h2 id="lastadilist">Lasta Diなら、の箇条書き</h2>
+	<p>
+		Lasta Di なら...
+	</p>
+	<h3 id="lastapolicy">ポリシー</h3>
+	<ul>
+		<li>とにかく起動を速く</li>
+		<li>エラーメッセージ改善</li>
+	</ul>
+	<h3 id="lastadiarch">アーキテクチャ</h3>
+	<ul>
+		<li>コンパイルスコープの依存ライブラリが、Javassist, Slf4j, JTA のみ</li>
+		<li>Servlet には依存していない (一部web系のものは、LastaFluteへ)</li>
+		<li>Seasar の Logger は削除し、Slf4j に移行 <span class="frm">(まだ移行中 at 2015/10/01)</span></li>
+		<li>S2JDBC は完全削除</li>
+		<li>Dxo や Beans.copy() は完全削除</li>
+		<li>S2ClassBuilderを内包、redefinerという名前に</li>
+		<li>dicon じゃなくて Di xml, 拡張子は .xml, DTD宣言も変わっている</li>
+		<li>組み込みの Di xml をリファクタリング、拡張しやすいように</li>
+		<li>☆フィールドインジェクションのみサポート <span class="frm">(回避策あり)</span></li>
+	</ul>
+	<h3 id="dixmlexp">Di xml の Expression</h3>
+	<ul>
+		<li>Nashorn の JavaScript で Di xml の expression を表現 (若干自由度下がる)</li>
+		<li>いざとなれば、パースエンジンを差し替えられる (OGNL や Groovy にすることもできる)</li>
+		<li>三項演算子で new をしても、@ResourceのprivateフィールドでDIできる</li>
+		<li>include の condition で #exists('#path') で "もしあればinclude" ができる</li>
+	</ul>
+	<div class="relatedpage"><a href="../../lastadi/dixmlexp.html">Di xml の Expression</a></div>
+	<h3 id="lastadioffice">事務的な話</h3>
+	<ul>
+		<li>ガンガンリファクタリング <span class="frm">(S2という言葉はLaに変更, 一部内部的なものはLdiというprefixを付けたり)</span></li>
+		<li>日本語のJavaDocは削除</li>
+		<li>Genericは頑張って付けた</li>
+		<li>Java8で増えたインターフェースのメソッドを実装 <span class="frm">(一部空実装だが、特に問題ないと想定)</span></li>
+		<li>エラーメッセージは英語</li>
+		<li>エラーメッセージをDBFlute風に (ド派手エラー)</li>
+		<li>起動時のログで、Di xml の階層がわかるように</li>
+	</ul>
+
+	<h2 id="lastaflutelist">LastaFluteなら、の箇条書き</h2>
+	<p>
+		LastaFlute なら...
+	</p>
+	<h3 id="lastaflutepolicy">ポリシー</h3>
+	<ul>
+		<li>基本、トップページに書いてある通り (ですが、SAStrutsとの違いに焦点を当てるなら...)</li>
+		<li>Interceptorをあまり使わない <span class="frm">(ActionHookを使う)</span></li>
+		<li>INとOUTは引数/戻り値で</li>
+		<li>できるだけネイティヴ型がつかえるように (FormでIntegerやLocalDateなど)</li>
+	</ul>
+	<h3 id="lastaflutearch">アーキテクチャ</h3>
+	<ul>
+		<li>デフォルトでは、Action は enhance されていない <span class="frm">(起動スピードの向上)</span></li>
+		<li>Form は DI コンポーネントではない、フレームワークが new するが、単なる new</li>
+		<li>Struts1 は外している (一部クラスはfork)</li>
+		<li>commons には依存していない</li>
+		<li>Validator は Hibernate Validator</li>
+		<li>JSPの機能は、lasta-taglib へ外だし</li>
+		<li>ConnectionPoolのログ機能を大強化</li>
+		<li>ログは、Slf4j</li>
+		<li>Formでネイティヴ型を使えるように</li>
+		<li>配列プロパティでOutOfMemory攻撃対応</li>
+	</ul>
+
+	<div class="inucolumn">
+		<h2 id="hasslide">講演会でのスライド資料</h2>
+		<p>
+			参考までに。
+		</p>
+		<div class="detailpage"><a href="https://speakerdeck.com/jflute/lastaflute-first-impact/">Seasarで育ったDBFlute, スタートアップ現場でのJava8とSeasarを思う, LastaFluteの誕生 | SpeakerDeck</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

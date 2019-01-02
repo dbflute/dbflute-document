@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ページング検索,PagingSelect,PagingSearch,ページングナビゲーション,PagingNavigation,paginate,pagination" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ページング検索 (PagingSelect) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ページング検索</h1>
+	${indexlist}
+
+	<h2 id="about">ページング検索とは？</h2>
+	<p>
+		そもそもページング検索とは？について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/programming/dbaccess/pagingselect.html">ページング検索</a></div>
+
+	<h2 id="solution">定型化されたページング検索</h2>
+	<h3 id="conditionbean">ConditionBean</h3>
+	<p>
+		一つの ConditionBean でページング検索の総レコード数取得と実データ取得の二つの処理を実行され、ページング条件は最大限DBMSのSQLの機能を使って実現されます。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/behavior/select/selectpage.html">Behavior - selectPage()</a></div>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+cb.paging(<span class="literal">20</span>, <span class="literal">5</span>); <span class="comment">// 1 ページ 20 件で、5 ページ目を検索 (81-100)</span>
+
+<span class="comment">// 総レコード数取得と実データ取得</span>
+PagingResultBean&lt;Member&gt; page = <span class="attribute">memberBhv</span>.selectPage(cb);
+
+<span class="comment">// ページング結果の計算処理</span>
+<span class="keyword">int</span> allRecordCount = page.getAllRecordCount(); <span class="comment">// 総レコード数</span>
+<span class="keyword">int</span> allPageCount = page.getAllPageCount(); <span class="comment">// 総ページ数</span>
+<span class="keyword">boolean</span> existsPrePage = page.existsPrePage(); <span class="comment">// 前のページがあるか？</span>
+<span class="keyword">boolean</span> existsNextPage = page.existsNextPage(); <span class="comment">// 次のページがあるか？</span>
+<span class="keyword">for</span> (Member member : page) { <span class="comment">// 実データのループ(java.util.Listの実装型)</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		そして、検索結果がページング結果の計算ロジックを持っています。
+	</p>
+	<div class="detailpage"><a href="#pagingnavi">this - ページングナビゲーション</a></div>
+	<h3 id="outsidesql">外だしSQL(OutsideSql)</h3>
+	<p>
+		一つの外だしSQLでページング検索の総レコード数取得と実データ取得の二つの処理を実行され、
+		ページング条件はSQLの機能を利用するか(ManualPaging)、カーソルでの(自動の)絞り込みをするか(AutoPaging)を選択できます。
+	</p>
+	<p>
+		厳密なパフォーマンス考慮のために "SQLスキップ" を利用する場合は、ManualPaging を利用します。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - ManualPaging</a></div>
+	<p>
+		一方、実装のし易さを考慮して "カーソルスキップ" を利用する場合は、AutoPaging を利用します。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/select/selectpageauto.html">OutsideSql - AutoPaging</a></div>
+<pre><span class="codetitle">e.g. PostgreSQLでOutsideSqlのManualPagingでページング検索のSQL {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span> 
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="keyword">offset</span> <span class="comment">/*$pmb.pageStartIndex*/</span><span class="literal">80</span> <span class="keyword">limit</span> <span class="comment">/*$pmb.fetchSize*/</span><span class="literal">20</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+<pre><span class="codetitle">e.g. PostgreSQLでOutsideSqlのManualPagingでページング検索の呼び出し {81-100} @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+pmb.paging(<span class="literal">20</span>, <span class="literal">5</span>); <span class="comment">// 1 ページ 20 件で、5 ページ目を検索 (81-100)</span>
+
+<span class="comment">// 総レコード数取得と実データ取得</span>
+PagingResultBean&lt;SimpleMember&gt; page
+    = <span class="attribute">memberBhv</span>.outsideSql().manualPaging().selectPage(path, pmb, entityType);
+
+<span class="comment">// ページング結果の計算処理</span>
+<span class="keyword">int</span> allRecordCount = page.getAllRecordCount(); <span class="comment">// 総レコード数</span>
+<span class="keyword">int</span> allPageCount = page.getAllPageCount(); <span class="comment">// 総ページ数</span>
+<span class="keyword">boolean</span> existsPrePage = page.existsPrePage(); <span class="comment">// 前のページがあるか？</span>
+<span class="keyword">boolean</span> existsNextPage = page.existsNextPage(); <span class="comment">// 次のページがあるか？</span>
+<span class="keyword">for</span> (Member member : page) { <span class="comment">// 実データのループ(java.util.Listの実装型)</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		そして、検索結果がページング結果の計算ロジックを持っています。
+	</p>
+	<div class="detailpage"><a href="#pagingnavi">this - ページングナビゲーション</a></div>
+
+	<h2 id="various">様々な考慮</h2>
+	<h3 id="reselect">存在しないページが指定された時の再検索</h3>
+	<p>
+		存在しないページを検索してしまう状況は、二つの要因によって発生します。一つはすれ違い、もう一つは(不意の)ユーザ入力。
+		そういった場合に、存在する最後のページを再検索します。
+		この仕組みが組み込まれているため、不意に(矛盾のある)空っぽの画面が表示されにくいようになっています。万が一、この挙動を抑えたい場合は、CB もしくは Pmb
+		の指定で、disablePagingReSelect() を呼び出すと、この再検索の処理を無効にすることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/pagingselect.html#optimisticlock">DBアクセス - ページング検索 - ページングの排他制御</a></div>
+	<h3 id="countlater">総レコード数取得を後に <span class="frm">(つまり、実データが先)</span></h3>
+	<p>
+		ConditionBean、外だしSQLのどちらにおいても、総レコード数の取得(カウント検索)を、実データの取得(実データ検索)の後に実行します<span class="frm">(@since 0.9.9.0A)</span>。
+		これを、PagingCountLater と呼び、実データの取得だけで総レコード数が判明するような場合に総レコード数の取得処理を省略することができ、その分のパフォーマンスコストを削減することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/pagingselect.html#processorder">DBアクセス - ページング検索 - ページング処理の順序</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/sidebar/paging.html#countlater">ConditionBean - Paging - カウント検索を後に</a></div>
+	<h3 id="countleastjoin">カウント検索の結合を最小限に</h3>
+	<p>
+		ConditionBeanにおいて、総レコード数の取得の際の検索 "カウント検索"
+		のSQL上の結合(Join)を最小限にします<span class="frm">(@since 0.9.8.8)</span>。
+		これを PagingCountLeastJoin と呼び、そうすることで、結合コストを除外した分パフォーマンス向上が期待できます。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/pagingselect.html#countleastsql">DBアクセス - ページング検索 - 総レコード取得時のSQL</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/sidebar/paging.html#countleastjoin">ConditionBean - Paging - カウント検索の結合を最小限に</a></div>
+	<p>
+		ちなみに、OrderBy はオプションの有無に関わらず自動的にカウント検索では除去されます。
+	</p>
+
+	<h2 id="pagingnavi">ページングナビゲーション</h2>
+	<p>
+		ページング検索の検索結果である PagingResultBean
+		クラスが、ページングナビゲーションのための計算ロジックを持っており、
+		より安全に定型的にページングナビゲーション構築のための計算処理を行うことができます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/behavior/resultbean/paging/index.html">Behavior - PagingResultBean</a></div>
+	<p class="imgbox">図 : ページングナビゲーションの対応図 (PageRange)
+		<a href="../../../../../data/model/genba/genba-implfit-PagingNavigation-mapping.png" title="ページングナビゲーションの対応図 (PageRange)"><img src="../../../../../data/model/genba/genba-implfit-PagingNavigation-mapping.png" alt="ページングナビゲーションの対応図 (PageRange)" width="550" height="280" /></a>
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、テストケースの中で実際にページング検索を利用しています。
+		また、dbflute-ymir-example や dbflute-sastruts-example では、WEBフレームワークと合わせた場合のページング検索のExampleがあります。
+		(他の多くのExampleでも同様に利用されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#friends">DBFlute Example - 他のフレームワーク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

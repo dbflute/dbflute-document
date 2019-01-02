@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteModule,DBFluteモジュール,自動生成エンジン" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFluteエンジン (旧モジュール) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteエンジン (旧モジュール)</h1>
+	${indexlist}
+
+	<h2 id="about">DBFluteエンジンとは？</h2>
+	<p>
+		DBFluteエンジンは、DBFluteで自動生成ツールとしての処理(DBFluteタスクの実行)を行う機能をを擁したファイル群です。
+		ANTやVelocityテンプレートや依存ライブラリを含んでいます。
+	</p>
+	<p>
+		もともと、DBFluteモジュールと呼んでいましたが、1.1.xの頃からDBFluteエンジンと呼ぶようになっています。
+		というより、DBFluteエンジンのモジュールが zip として提供され、mydbflute配下に配置される、という表現ができるでしょう。
+	</p>
+	<p>
+		mydbfluteに配置後は、通常の利用でエンジンに手をふれることはないでしょう。
+	</p>
+
+	<h2 id="download">DBFluteエンジンのダウンロード</h2>
+	<p>
+		DBFluteエンジンは、EMechaもしくはサイトからダウンロードできます。
+		zipファイルを解凍し、適切な場所に配置して利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="client">DBFluteクライアントとの関係</h2>
+	<p>
+		DBFluteクライアントがDBFluteエンジンを参照し、
+		スクリプト経由でタスクを実行して実処理をDBFluteエンジンが行います。
+	</p>
+<pre><span>e.g. DBFluteクライアントとDBFluteエンジンの関係{exampledb, 1.0.0}</span><code>
+example-project
+ |-dbflute_exampledb   <span class="comment">// DBFluteクライアント</span>
+ |  |-dfprop
+ |  |-...
+ |  |-_project.bat(sh) <span class="comment">// DBFluteエンジンへの参照(相対パス)が定義される</span>
+ |  |-...
+ |-mydbflute
+    |-dbflute-1.0.0    <span class="comment">// DBFluteエンジン</span>
+</code></pre>
+	<div class="relatedpage"><a href="../client/index.html#about">DBFluteクライアントとは？</a></div>
+
+	<h2 id="client">DBFluteエンジンの構造</h2>
+	<p>
+		基本的にはDBFluteエンジンの内部構造を意識する必要はありませんが、
+		DBFluteを拡張するような場合に理解が必要となります。
+	</p>
+<pre><span>e.g. DBFluteエンジンの全体構造{1.0.0}</span><code>
+mydbflute
+ |-dbflute-1.0.0   <span class="comment">// DBFluteエンジン</span>
+    |-ant          <span class="comment">// ANTライブラリ</span>
+    |-etc          <span class="comment">// 様々なファイルの置き場</span>
+    |  |-client-template  <span class="comment">// クライアントテンプレート</span>
+    |  |-cmd              <span class="comment">// タスク実行内部スクリプト</span>
+    |  |-license          <span class="comment">// ライセンスファイル(置き場)</span>
+    |  |-logprop          <span class="comment">// タスク実行時のログ設定(logj4)</span>
+    |-lib          <span class="comment">// 依存ライブラリ</span>
+    |-templates    <span class="comment">// Velocityテンプレート</span>
+    |  |-doc              <span class="comment">// Docタスク用</span>
+    |  |-om               <span class="comment">// Generate、Sql2Entityタスク用</span>
+    |-build-torque.xml         <span class="comment">// タスク実行用ANT定義ファイル</span>
+    |-product-is-dbflute-1.0.0 <span class="comment">// バージョン情報ファイル</span>
+</code></pre>
+	
+<p>TODO jflute now writing</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

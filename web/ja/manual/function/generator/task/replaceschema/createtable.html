@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,テーブル作成,create table,スキーマ作成,CreateSchema,replace-schema.sql" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>テーブル作成 (CreateSchema) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>テーブル作成</h1>
+	${indexlist}
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		DBFluteプロパティ databaseInfoMap.dfprop
+		に定義されたスキーマに接続し、仕様に合致するファイルに定義されているDDL文を実行します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+	
+	<h2 id="filespec">実行ファイルの仕様</h2>
+	<h3 id="convention">実行ファイルの規約</h3>
+	<p>
+		以下の全ての条件に合致するテキストファイルが実行対象：
+	</p>
+	<ul>
+		<li>"DBFluteクライアント]/playsql" 配下のファイル</li>
+		<li>ファイル名が "replace-schema" で始まる</li>
+		<li>ファイル名が ".sql" で終わる</li>
+	</ul>
+	<p>
+		条件で定められている部分以外のファイル名は任意の文字列となります。基本的にはそのSQLファイルの役割を表現するようにします。また、replace-schema.sql
+		という名前のファイルも実行対象となります。
+	</p>
+<pre><span class="codetitle">e.g. テーブル作成のSQLファイル @DBFluteClient</span><code>
+playsql
+ |-replace-schema-basic.sql
+ |-replace-schema-sequence.sql
+ |-replace-schema-view.sql
+ |-...
+</code></pre>
+	<h3 id="order">実行順序</h3>
+	<p>
+		実行する順序は、<em class="keyword">拡張子を含めたファイル名の辞書順(昇順)</em>
+		で実行します。実行順序を明確にしておくために、習慣的に <em class="keyword">番号で管理</em>
+		しておくことをお奨めします。
+	</p>
+<pre><span class="codetitle">e.g. テーブル作成のSQLファイルで番号管理 @DBFluteClient</span><code>
+playsql
+ |-replace-schema-10-basic.sql
+ |-replace-schema-20-view.sql
+ |-replace-schema-30-sequence.sql
+ |-...
+</code></pre>
+	<h3 id="encoding">エンコーディング</h3>
+	<p>
+		エンコーディングは "UTF-8" として扱われます。別のエンコーディングを利用したい場合は、オプションで変更可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#sqlfileencoding">dfprop - sqlFileEncoding</a></div>
+
+	<h2 id="sqlspec">SQLの仕様</h2>
+	<h3 id="delimiter">SQLのデリミタ</h3>
+	<p>
+		一つのファイル内に複数のSQLを定義できます。<em class="keyword">デリミタは ";" (セミコロン)</em>
+		とし、読み込まれた順序で実行していきます。
+	</p>
+<pre><span class="codetitle">e.g. SQLのデリミタ @SQL-File</span><code>
+<span class="keyword">create table</span> MEMBER ...
+;
+<span class="keyword">create table</span> PURCHASE ...
+;
+...
+</code></pre>
+	<h3 id="beginend">SQLの範囲の明示的指定</h3>
+	<p>
+		但し、プロシージャなどデリミタが ";"
+		だと都合の悪いことがあります。その場合は、ある範囲を一つのSQLとして明示的に指定することが可能です。
+	</p>
+	<p>
+		SQLコメントで "<em class="keyword">-- #df:begin#</em>" を開始とし、"<em class="keyword">-- #df:end#</em>"
+		を終了として、一つのSQLを囲みます。この中にデリミタ文字が含まれていても、それはSQLの一部とみなされます。
+	</p>
+<pre><span class="codetitle">e.g. SQLの範囲を明示的に指定 @SQL-File for Oracle</span><code>
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_NO_PARAMETER
+<span class="keyword">as</span>
+<span class="keyword">begin</span>
+  dbms_output.put_line('aaa');
+<span class="keyword">end</span> SP_NO_PARAMETER;
+/
+<span class="comment">-- #df:end#</span>
+
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create or replace procedure</span> SP_IN_OUT_PARAMETER(
+...
+<span class="comment">-- #df:end#</span>
+</code></pre>
+	<h3 id="definedsql">定義するSQL</h3>
+	<p>
+		ここではDDL文が定義されていることを想定していますが、実際にはDML文と区別をして実行しているわけではないので、
+		insert文やupdate文が定義されている場合にそのまま実行されます。但し、ほとんどの場合においてDML文をここで実行する必要性はないと想定しています。
+		(例えば、データの登録は "ReplaceSchemaのデータ登録" の機能を利用)
+	</p>
+	<div class="relatedpage"><a href="./loaddata.html">ReplaceSchemaのデータ登録</a></div>
+	<h3 id="errorhandling">エラーハンドリング</h3>
+	<p>
+		どれかのSQLがエラーになった瞬間にタスクは中断します<span class="frm">(@since 0.9.9.3C)</span>。
+	</p>
+	<p>
+		ただし、replaceSchemaDefinitionMap.dfprop にて isErrorSqlContinue を true にすると、
+		SQLがエラーになっても処理を続行させることができます。
+		ただそのときでも、ReplaceSchema タスクの "タスク実行ステータス" は "失敗"
+		となり、コンソールの最後には BUILD FAILED と表示されます<span class="frm">(@since 0.9.7.9)</span>。
+		基本的には、やはりSQLのエラーはタスクの失敗という扱いであり、どうしても落ちても仕方のないDDLがあるような状況のためのオプションです。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#iserrorsqlcontinue">dfprop - isErrorSqlContinue</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wt.html#taskexecutionstatus">TaskExecutionStatus (タスク実行ステータス)</a></div>
+	<h3 id="transaction">トランザクション</h3>
+	<p>
+		これらの処理は全て "オートコミットモード" で実行されます。ただ、基本的にDDL文を想定しているのでトランザクションの有無はそもそも無関係です。
+	</p>
+	<h3 id="linehandling">改行の扱い</h3>
+	<p>
+		SQL上の改行は、実行時には空白として扱われます。但し、"SQLの範囲の明示的指定" を利用した場合や、"comment on"
+		構文(DBMSごとに異なる)を利用した場合は、そのまま改行が保持されます。実行ログに実際にDBに発行したSQLが出力されます。
+	</p>
+	<div class="relatedpage"><a href="#beginend">this - SQLの範囲の明示的指定</a></div>
+	<div class="relatedpage"><a href="../index.html#log">DBFluteタスク - 実行ログ</a></div>
+
+	<h2 id="filtervariables">変数のフィルタ</h2>
+	<p>
+		SQL上の値が環境によって変わるような場合は、"replaceSchemaDefinitionMap.dfprop"
+		の "filterVariablesMap" を利用して、SQLファイル上は変数で扱い実際の値を環境ごとに切り替えられるDBFluteプロパティで管理します。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#filtervariablesmap">dfprop - filterVariablesMap</a></div>
+<pre><span class="codetitle">e.g. filterVariablesMapの定義 @replaceSchemaDefinitionMap.dfprop</span><code>
+; filterVariablesMap = <span class="keyword">map:</span>{
+    ; mainSchema   = EXAMPLEDB
+}
+</code></pre>
+	<p>
+		"filterVariablesMap" で定義した値は、SQLファイル上で "/*$[variable-name]*/"
+		という形式で指定します。実行時にフィルタされて、実際の値に置き換えられます。
+	</p>
+	<p>
+		filterVariablesMap の値ではなく、databaseInfoMap.dfprop の情報を直接参照したい場合は、"dfprop.xxx"
+		という形式で指定することで利用できます<span class="frm">(@since 0.9.8.3)</span>。
+	</p>
+<pre><span class="codetitle">e.g. filterVariablesMapを利用したSQL @replace-schema-xxx.sql</span><code>
+<span class="keyword">create user</span> /*$mainSchema*/.MEMBER ...
+</code></pre>
+	<p>
+		このようにDBFluteプロパティで環境依存の値を管理し、"環境タイプによる切り替え" を利用して環境ごとに違う値で実行できるようにします。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/index.html#environmenttype">dfprop - 環境タイプによる切り替え</a></div>
+
+	<h2 id="systemuser">システムユーザでの実行</h2>
+	<p>
+		一部のDDLをシステムユーザで実行することができ、DBユーザ自体の作成を自動化できます。
+	</p>
+	<div class="detailpage"><a href="./systemuser.html">システムユーザでの実行</a></div>
+
+	<h2 id="repsenvtype">環境ごとの実行チェック</h2>
+	<h3 id="checkenv">checkEnv()コメント</h3>
+	<p>
+		環境ごとに実行するDDLファイルを切り替えることができます。
+		DDLファイルの中(基本的には先頭行)で <em class="keyword">-- #df:checkEnv([env-type])#</em>
+		というように指定すると、そのDDLファイルは指定された環境タイプのときのみ実行されます。
+		この環境タイプは、replaceSchemaDefinitionMap.dfprop の repsEnvType の値となります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#repsenvtype">dfprop - repsEnvType</a></div>
+<pre><span class="codetitle">e.g. "ut" のときだけ実行されるDDLファイル @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:checkEnv(ut)#</span>
+
+<span class="keyword">create table</span> ...;
+</code></pre>
+	<h3 id="midcheck">checkEnvの途中定義</h3>
+	<p>
+		基本的には先頭行に定義されることが前提となりますが、途中で定義した場合で該当の環境タイプではなかったら、
+		その定義を含んでいるSQLを含めてそれ以降の(そのDDLファイル内の)SQLが実行されなくなります。
+	</p>
+<pre><span class="codetitle">e.g. "ut" のときだけ実行されるDDLファイル @replace-schema-xxx.sql</span><code>
+<span class="comment">-- 常に実行される</span>
+<span class="keyword">create table</span> ...;
+<span class="keyword">create table</span> ...;
+
+<span class="comment">-- #df:checkEnv(ut)#</span>
+<span class="comment">-- これ以降 ut じゃなければ実行されない</span>
+<span class="keyword">create table</span> ...;
+<span class="keyword">create table</span> ...;
+<span class="keyword">create table</span> ...;
+<span class="keyword">create table</span> ...;
+</code></pre>
+	<h3 id="multipleenv">環境タイプの複数指定</h3>
+	<p>
+		環境タイプは複数指定もできます。
+	</p>
+<pre><span class="codetitle">e.g. "ut" と "it" のときだけ実行されるDDLファイル @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:checkEnv(ut, it)#</span>
+
+<span class="keyword">create table</span> ...;
+</code></pre>
+	<h3 id="systemcheck">主にはシステムユーザで</h3>
+	<p>
+		主には、システムユーザで実行するDDLにおいて利用されることを想定しています。
+	</p>
+	<div class="relatedpage"><a href="./systemuser.html#repsenvtype">システムユーザでの実行 - 環境ごとの実行チェック</a></div>
+
+	<h2>サブスキーマのテーブルdrop</h2>
+	<p>
+		メインユーザがアクセスできる範囲のサブスキーマのテーブルdrop処理を実行することが可能です。
+	</p>
+	<p>
+		"replaceSchemaDefinitionMap.dfprop" の "additionalDropMapList"
+		にて細かく定義できます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#additionaldropmaplist">dfprop - additionalDropMapList</a></div>
+	<p>
+		但し、サブスキーマに関してはサブスキーマ側で "ReplaceSchema"
+		環境を構築して(DBFluteクライアントをもう一つ用意して)構成管理をする方が管理しやすいため、この機能の利用はあまりお奨めではありません。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

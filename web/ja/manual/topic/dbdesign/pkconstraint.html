@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,DB設計,DB Design,PK主キー制約,PK制約,Primary Key,サロゲートキー,Surrogate Key,代理キー,人工キー,連番,連番カラム,Alternate Key,ナチュラルキー,自然キー,ビジネスキー,業務キー,複合主キー,複合PK,複数PK,Compound Key,Compound PK,Composite Key,Composite PK,複合ユニーク制約" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>PK制約 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>PK制約について</h1>
+	<p>
+		DB設計におけるPK制約の役割やメリットなどを、DBFluteとの関わりを交えながら話題にします。
+	</p>
+	${indexlist}
+
+	<h2 id="about">PK制約とは？</h2>
+	<p>
+		リレーショナルデータベースにおける基本中の基本なので、ここでは一般的な説明は割愛します。PK制約と DBFlute
+		との関わり、そして、PK制約にまつわるよく議論される話題 <em class="keyword">複合主キーとサロゲートキー</em> に関して分析してみたいと思います。
+	</p>
+
+	<h2 id="required">PK制約を推奨</h2>
+	<p>
+		DBFluteでは、必ずテーブルにPK制約を付与することが推奨されています。
+	</p>
+	<p>
+		不整合なデータほどリリース後の運用を悩ませるものはありません。
+		また、そのテーブルが何でユニークになるのか？それを制約として明示することは、ディベロッパーに業務仕様を伝える手段にもなります。
+		PK制約があることで、わざわざDB設計者に質問するまでもなく、そのテーブルのユニーク性を理解できます。
+	</p>
+	<p>
+		PK制約がないテーブルが存在するパターンを挙げてみます。
+	</p>
+	<dl class="textlist">
+		<dt>ユニークになるカラムがない</dt>
+		<dd>
+			そもそもユニークになるカラムが存在しないパターンです。ピンポイントで検索するということができないテーブルで、通常あまりこういった状況は発生しません。
+			一件による更新や削除も同様です。業務的にもやれることが半減します。
+			万が一発生しても、代理キー(連番カラム)を導入することで、このパターンをなくすことはできます。
+			いざ、要らないと思っていたら後で一件更新などの要件が出てくるということを考えると、代理キーを導入することにためらう理由はあまり見当たりません。
+			<div class="relatedpage"><a href="surrogatekey">this - 代理キー</a></div>
+		</dd>
+		<dd>
+			PK制約のチェックコストを省略したいという考えもありますが、少なくとも2010年を過ぎた時点でのインフラ環境のパワーを考えたときに、
+			そのチェックコストを気にする必要のあるシステムは極少と考えられます(よほどの世界的なシステムでない限り)。
+			また、PK制約のチェックコストを気にするような場合は、そもそも別のことを考える必要があります。DBFluteどころか、Java や C#
+			という部分も再考する必要があるかもしれません。
+		</dd>
+		<dt>PK役割のカラムがあるのに単に制約がない</dt>
+		<dd>
+			テーブルにはユニークになるPK役割のカラムがあるのにが制約が付与されていないパターンです。
+			不整合なデータが発生する可能性があります。また、そのカラムがPK役割であることは、人しか知りません。
+			すると、メタデータなどを利用して処理を行うツールなどでは、その便利さが半減する可能性があります<span class="frm">(例えば、DBFluteではそうなります)</span>。
+		</dd>
+		<dd>
+			PK制約を付与する手間というのはほとんどないと言っていいので、業務仕様を表現するという意味合いでも、
+			せっかくのPK役割のカラムを活かすためにPK制約を付与するのにためらう理由はあまり見当たりません。
+			(PK制約のチェックコストに関しては、"ユニークになるカラムがない" パターンで述べたことと同じです)
+		</dd>
+		<dt>代わりにユニーク制約を使っている</dt>
+		<dd>
+			PK制約の代わりにユニーク制約を付与しているパターンです。
+			ユニーク制約は、一つのテーブルに複数付与できるものですが、ユニーク制約に対してFK制約を付与することもできます。
+		</dd>
+		<dd>
+			DBMSにはPK制約というテーブルでメインとなるユニークを表現する機能がサポートされています。
+			ユニーク制約で代理していると、ディベロッパーにはその意図が伝わりにくく、あまりメリットはないと考えられます。
+		</dd>
+	</dl>
+	<p>
+		既に述べられていますが、PK制約を付与する手間はほとんどなく、PK制約を付与するデメリットもほとんど見当たりません。
+	</p>
+	<h3>DBFluteでの扱い</h3>
+	<p>
+		DBFluteでは、PK制約がないテーブルに関しては <em class="keyword">デフォルトでは更新系メソッドが利用できない</em>
+		という制限があります。一件更新や一件削除ができないのは当然ですが(ユニークに絞り込みするカラムが判断できないため)、一件登録もできません。
+	</p>
+	<p>
+		もし、"PK役割のカラムがあるのに単に制約がない" もしくは "代わりにユニーク制約を使っている"
+		パターンの場合は、実際にはユニークに絞り込みをするカラムがテーブルには存在するということになりますので、そのカラムが何なのか？
+		をDBFluteに伝えることで更新系メソッドが利用できるようになります。AdditionalPrimaryKey
+		で "どのカラムがPKなのか" を設定します。 
+	</p>
+	<div class="relatedpage"><a href="../../reference/dfprop/additionalprimarykey/index.html">additionalPrimaryKeyMap.dfprop</a></div>
+	<p>
+		また、"ユニークになるカラムがない" パターンの場合は、一件登録だけは利用できるようになるオプションがあります。
+		それ以外の処理が必要になった場合は外だしSQLで実装します。<span class="frm">(結局、外だしSQLを使えば、大抵のことはできるというのに変わりはありません)</span>
+	</p>
+	<div class="relatedpage"><a href="../../function/genbafit/deprecatedfit/nonprimarykeyinsert/index.html">現場フィット - PKのないinsert</a></div>
+	<p>
+		もちろん、これらは回避策でありメインの機能ではありません。
+		利用しているアプリも少ないと考えられるので、動作確認をしっかりした上で利用するようにして下さい。
+		<span class="frm">(DBFluteのテストでもこのようなパターンのテストは多くはされていません)</span>
+	</p>
+	<div class="inucolumn">
+		<h3>PK制約の必須のチェック！？</h3>
+		<p>
+			そもそも、DBMS自体の仕様として、PK制約が必須でも良いと考えています。ただし、それができないのは仕方ありません。
+			長い歴史があり、多くの人に利用されているDBMSが今からPK制約を必須にすることはできません。
+		</p>
+		<p>
+			また、比較的新しい時期に誕生した DBFlute でも、PK制約がないテーブルがあった場合に例外にする、ということはしていません。
+			そういった DBMS の歴史から、万が一でも存在しないテーブルがあるかもしれないからです。
+			<em class="keyword">DBはアプリとは違い、変更し難いものです</em>。不整合、もしくは、不整合リスクを許容して既に運用しているシステムもあるかもしれません。
+			そのシステムに DBFlute を適用する可能性もあります。(運用中にDB変更が頻繁に発生するシステムで、DBFluteが採用されるケースは珍しくありません)
+		</p>
+		<p>
+			それだけに、ツールでは思い切ったことができないため、その分、また新たにPK制約が存在しないDBも誕生します。
+			DBFluteでは、PK制約のないテーブルは <em class="keyword">デフォルトでは更新系メソッドが利用できない</em>
+			というささやかな制限でPK制約の重要性を表現しています。
+		</p>
+	</div>
+	<h3></h3>
+
+	<h2 id="pkmain">PK制約における話題の中心</h2>
+	<p>
+		よく議論される話題のメインとしては、<em class="keyword">複合主キーと代理キーの扱い</em>
+		と考えられます。本当によく聞く話で話題が尽きません。
+		内容が大きいので、別のページにまとめています。
+	</p>
+	<div class="detailpage"><a href="./surrogatekey.html">DB設計 - サロゲートキーと複合主キー</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

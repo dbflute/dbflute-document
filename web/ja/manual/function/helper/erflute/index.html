@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ERFlute,ERD,ER図,ER-Diagram,ERMaster" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>ERFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ERFlute</h1>
+	<p>
+		DBFluteプロジェクトが提供するライブラリ ERFlute のページ。
+	</p>
+	<div class="relatedpage"><a href="./howto.html">How to use ERFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">ERFluteとは？</h2>
+	<p>
+		Eclipse Pluginとして作成された <em class="keyword">マージできるERDツール</em> です。
+	</p>
+	<p>
+		ERMaster をフォークした ERMaster-b をフォークしています。
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20161020/newerflute">外部サイト - マージできるERDツール、ERFlute作りました | jfluteの日記</a></div>
+	<h3 id="lasta">スタートアップ＆インクリメンタル開発のために</h3>
+	<p>
+		スタートアップ＆インクリメンタル開発では、テーブルが少ない時代から大規模な時代を経て、様々な特徴的な悩みが発生します。
+		複数人で同時にDB設計をすることも想定されますし、ドキュメント整備の時間もなかなかとれません。
+		チームでの議論やレビューのために正確な ERD は欲しいが、変更も激しく本番との同期も難しいです。
+	</p>
+	<p>
+		その中でぜひやりたい "ERDを描いてDDLを出力してDBを作ってクラスを自動生成して...(の繰り返し)"
+		という <em class="keyword">ERDドリブンスタイル</em> を支えるツールとして、
+		ERFlute が活躍できればいいなと。
+	</p>
+	<p>
+		そのために、三つの大きな特徴を持っています。
+	</p>
+	<ul>
+		<li><a href="#simplebutgraphical"><em class="keyword">シンプルbutグラフィカル</em></a></li>
+		<li><a href="#simplebutfunctional"><em class="keyword">シンプルbutファンクショナル</em></a></li>
+		<li><a href="#mergeable"><em class="keyword">☆☆☆ マージできるERD ☆☆☆</em></a></li>
+	</ul>
+	<h3 id="simplebutgraphical">特徴1. シンプルbutグラフィカル</h3>
+	<p>
+		シンプルなERDツールでありながら、嬉しいグラフィック表現を持っています。
+	</p>
+	<ul>
+		<li>テーブル間のカージナリティの表現 (0:n, 1:n)</li>
+		<li>テーブルのフォントや背景色の変更</li>
+		<li>ダイアグラム上でのノートやグループ</li>
+	</ul>
+	<h4>ERFluteの概観</h4>
+	<p class="imgbox">図 : ERFluteの概観
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-introduction-overview-snapshot.png" title="ERFluteの概観"><img src="../../../../../data/snapshot/helper/erflute/erflute-introduction-overview-snapshot.png" alt="ERFluteの概観" width="550" height="360" /></a>
+	</p>
+	<h3 id="simplebutfunctional">特徴2. シンプルbutファンクショナル</h3>
+	<p>
+		シンプルなERDツールでありながら、ポイントを抑えた機能を持っています。
+	</p>
+	<ul>
+		<li>対象DBMS用のDDL出力</li>
+		<li>ダイアグラムモニターによるダイアグラムの移動</li>
+		<li>Outlineによるテーブル検索、対象テーブルへの移動 (control+O)</li>
+		<li>仮想ダイアグラムでカテゴリごとのモデリング</li>
+	</ul>
+	<h4>DDLのエクスポートメニュー</h4>
+	<p class="imgbox">図 : DDLのエクスポートメニュー
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-function-ddl-popup-snapshot.png" title="DDLのエクスポートメニュー"><img src="../../../../../data/snapshot/helper/erflute/erflute-function-ddl-popup-snapshot.png" alt="DDLのエクスポートメニュー" width="550" height="360" /></a>
+	</p>
+	<h4>ダイアグラムモニター</h4>
+	<p class="imgbox">図 : ダイアグラムモニター
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-function-diagram-monitor-snapshot.png" title="ダイアグラムモニター"><img src="../../../../../data/snapshot/helper/erflute/erflute-function-diagram-monitor-snapshot.png" alt="ダイアグラムモニター" width="550" height="360" /></a>
+	</p>
+	<h4>Outlineによるテーブル検索</h4>
+	<p class="imgbox">図 : Outlineによるテーブル検索
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-function-outline-table-search-snapshot.png" title="Outlineによるテーブル検索"><img src="../../../../../data/snapshot/helper/erflute/erflute-function-outline-table-search-snapshot.png" alt="Outlineによるテーブル検索" width="550" height="400" /></a>
+	</p>
+	<h3 id="mergeable">特徴3. マージできるERD</h3>
+	<p>
+		複数人での同時DB設計でもマージしやすい保存形式になっています。
+	</p>
+	<p>
+		保存される ".erm" ファイルの中身は XML
+		になっていて、保存時のランダム要素が少ないため、よほど同じ項目を同時に修正しない限りはgitでの自動マージが効きやすい形になっています。
+	</p>
+	<h4>ermファイルのxml</h4>
+	<p class="imgbox">図 : ermファイルのxml
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-introduction-xml-snapshot.png" title="ermファイルのxml"><img src="../../../../../data/snapshot/helper/erflute/erflute-introduction-xml-snapshot.png" alt="ermファイルのxml" width="550" height="360" /></a>
+	</p>
+	<h3 id="oss">オープンソースとして</h3>
+	<p>
+		スタートアップ＆インクリメンタル開発では、高額なERDツールも買えません。
+		複数人でDB設計をやるとなるとライセンス料も大きなものとなります。それゆえにオープンソースのERDツールという存在が大切です。
+	</p>
+	<p>
+		ただ、オープンソースのERDツールの開発は容易なことではなく、継続的な開発は非常に厳しいものです。
+		それゆえ、みんなでメンテナンスができるような構成にすることが大切で、シンプルな状態をキープしていく必要があります。
+	</p>
+	<p>
+		そこで、ERFluteの開発テーマは、以下のようになっています。
+	</p>
+	<ul>
+		<li>プルリクをもらいやすくするために、コードをできるだけシンプルに</li>
+		<li>利用頻度の低い機能をばっさり削除 <span class="frm">(他のツールでできることは他のツールに任せる)</span></li>
+		<li>その代わり、ERDのコア機能での細かなユーザビリティを向上に集中</li>
+	</ul>
+
+	<h2 id="install">ERFluteのインストール</h2>
+	<h3 id="precondition">前提となるEclipse</h3>
+	<p>
+		Eclipse-4.4.2 以上である必要があります。また、Java8の実行環境(JRE)が必要です<span class="frm">(@since 0.5.0)</span>。
+	</p>
+	<p>
+		"Eclipse for Java Developer" で問題なく動作する想定ですが、もしそれで動かない場合は、Marketplace から PDE (Plug-in Development Environment)
+		のインストールしてみてください。
+	</p>
+	<h3 id="downloadjar">Jarファイルのダウンロード</h3>
+	<p>
+		jarファイルはこちら: <a href="http://dbflute.seasar.org/download/misc/helper/erflute/org.dbflute.erflute_0.5.7.jar">org.dbflute.erflute_0.5.7.jar</a>
+	</p>
+	<h3 id="locatejar">Jarファイルのdropinsへの配置</h3>
+	<p>
+		これを、Eclipse の dropins に以下のように配置して、Eclipseを再起動します。
+	</p>
+<pre><span class="codetitle">e.g. ERFlute to dropins @Directory</span><code>
+...
+ |-<span class="subpoint">dropins</span>
+ |  |-ERFlute
+ |  |  |-eclipse
+ |  |     |-plugins
+ |  |        |-<span class="point">org.dbflute.erflute_0.5.7.jar</span>
+ |  |
+ |  |-...
+ |-...
+</code></pre>
+	<p class="imgbox">図 : ERFluteのdropinsへの配置 (MacOSX)
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-install-dropins-macosx-snapshot.png" title="ERFluteのdropinsへの配置"><img src="../../../../../data/snapshot/helper/erflute/erflute-install-dropins-macosx-snapshot.png" alt="ERFluteのdropinsへの配置" width="400" height="420" /></a>
+	</p>
+	<h3 id="confirminstalled">インストールの確認</h3>
+	<p>
+		そして、Preferences の項目に ERFlute があればインストールされています。
+	</p>
+	<p class="imgbox">図 : preferencesの項目にERFlute
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-install-preferences-snapshot.png" title="preferencesの項目にERFlute"><img src="../../../../../data/snapshot/helper/erflute/erflute-install-preferences-snapshot.png" alt="preferencesの項目にERFlute" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="howto">ERFluteの使い方</h2>
+	<p>
+		右クリックメニューから New - Others... で、ERFlute を探します。
+	</p>
+	<p class="imgbox">図 : ERFluteの新規ダイアグラムの作成
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-howto-newdiagram-snapshot.png" title="ERFluteの新規ダイアグラムの作成"><img src="../../../../../data/snapshot/helper/erflute/erflute-howto-newdiagram-snapshot.png" alt="ERFluteの新規ダイアグラムの作成" width="550" height="360" /></a>
+	</p>
+	<p>
+		ERFluteの詳しい使い方は、How-toドキュメントをご覧ください。
+	</p>
+	<div class="detailpage"><a href="./howto.html">How to use ERFlute</a></div>
+
+	<h2 id="forkhistory">フォークの歴史</h2>
+	<h3 id="ermastergood">ERMasterの良いところ</h3>
+	<p>
+		非常に素晴らしいツールです。オープンソースのERDツールで、これほどの品質で提供されているのは本当に素敵なことです。
+		<span class="frm">(開発されたorg.insightechの方々には感謝しています)</span>
+	</p>
+	<div class="relatedpage"><a href="http://ermaster.sourceforge.net/index_ja.html">ERMaster | Sourceforge</a></div>
+	<ul>
+		<li>グラフィック的な表現力の高さ e.g. リレーションシップやテーブル背景色など</li>
+		<li>検索性能の高さ e.g. テーブル検索など</li>
+		<li>豊富なDBMS対応 e.g. DDL出力など</li>
+		<li>細かい現場フィット e.g. ノート、カテゴリ、DBコメント出力など数え切れず</li>
+	</ul>
+	<h3 id="ermastermore">ERMasterのあともうちょい</h3>
+	<p>
+		もうちょいこうなると嬉しいと思うところです。
+	</p>
+	<ul>
+		<li>テーブル数が多くなると動きが遅くなる <span class="frm">(大規模開発対応)</span></li>
+		<li>保存されるXMLのランダム性が高く、マージができない <span class="frm">(複数人開発対応)</span></li>
+		<li>翻訳機能や辞書機能の扱いが難しい <span class="frm">(振り回されることの方が多い...要らないという声も)</span></li>
+		<li>利用頻度の低い機能がたくさんありコードが膨大で拡張が難しい</li>
+		<li>データ型周りのロジックが複雑でちょっとした型の追加修正が難しい</li>
+	</ul>
+	<h3 id="ermasterbgood">ERMaster-bの良いところ</h3>
+	<p>
+		そして、フォークされた ERMaster-b は、あともうちょいのところをがだいぶ改善されています。
+		<span class="frm">(開発されたnaoki-iwamiさんには感謝しています)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/naoki-iwami/ermaster-b/">ERMaster-b | Github</a></div>
+	<ul>
+		<li>大量テーブルでも動きが遅くならない</li>
+		<li>仮装モデルの導入で、図がでかすぎる問題も解決</li>
+		<li>アウトライン(ctrl+O)による手軽なテーブル検索</li>
+		<li>テーブルダイアログやカラムダイアログをEnterやSpaceで開く</li>
+		<li>リレーションシップを引いた時のデフォルトカージナリティを0..*に</li>
+		<li>リレーションシップを引いた時のデフォルトFK名を設定 <span class="frm">(無名FK問題の回避)</span></li>
+		<li>MySQLにて、データ型のリストボックスで、よく利用される型だけ優先表示</li>
+		<li>DDL出力でFKの無効化がデフォルトでされてしまうのを抑制</li>
+		<li>(あとは、いろいろありすぎて忘れました...)</li>
+	</ul>
+	<h3 id="ermasterbmore">ERMaster-bのあともうちょい</h3>
+	<p>
+		主に、仮装モデルを導入したことによる影響です。
+	</p>
+	<ul>
+		<li>メインモデルでノートやカテゴリが使えない</li>
+		<li>描画がちょっと変になることがある</li>
+	</ul>
+	<h3 id="thenerflute">そして、ERFluteは...</h3>
+	<p>
+		ERMaster でのあともうちょい、ERMaster-b でのあともうちょいを直し、
+		シンプル性をキープしながら、スタートアップ＆インクリメンタル開発でフィットしやすいERDツールを目指していきます。
+	</p>
+	<p>
+		※XMLを修正しているため、ERFluteで編集したものはERMaster(-b)では開けません。
+	</p>
+	<h4>まずは引き算の修正</h4>
+	<ul>
+		<li>翻訳機能を削除 <span class="frm">(シンプル化のため、暴発して変な名前になることもあるため)</span></li>
+		<li>辞書機能を削除 <span class="frm">(シンプル化のため、時々トラブルもあるため)</span></li>
+		<li>変更履歴機能を削除 <span class="frm">(他のツールでできるだめ)</span></li>
+		<li>Hibernateのクラス自動生成を削除 <span class="frm">(他のツールでできるだめ)</span></li>
+		<li>HTML,Excel出力機能を削除 <span class="frm">(他のツールでできるだめ)</span></li>
+		<li>日本語表示を削除 <span class="frm">(英語とのダブルメンテはつらいため)</span></li>
+		<li>Viewオブジェクトの機能を削除 <span class="frm">(ERDで管理する必要があまりないため)</span></li>
+		<li>トリガーの機能を削除 <span class="frm">(ERDで管理する必要があまりないため)</span></li>
+		<li>カラム自動作成Relationship追加機能を削除 <span class="frm">(選択肢を減らして使い方をシンプルにするため)</span></li>
+		<li>N:NのRelationship追加機能を削除 <span class="frm">(選択肢を減らして使い方をシンプルにするため)</span></li>
+		<li>PhysicalName と LogicalName の連携機能を削除 <span class="frm">(意味のないLogicalNameにならないように)</span></li>
+		<li>細かい使わなそうな機能を削除</li>
+	</ul>
+	<p>
+		<span class="frm">※やっぱり欲しい機能であれば、また整理整頓した上で追加します。それよりもまずはシンプル化を。</span>
+	</p>
+	<h4>そしてポイントとなる修正</h4>
+	<ul>
+		<li>o 保存のたびにXMLの順序が変わらないように <span class="frm">(ID参照をやめて名前参照にするなど)</span></li>
+		<li>o 閲覧だけでXMLが変わらないように <span class="frm">(その代わり、直前の閲覧情報は保持されない)</span></li>
+		<li>o XMLのシンプル化、手でも修正できるくらい <span class="frm">(不要なタグ削除、定義順序など)</span></li>
+		<li>o XMLのファイルサイズが 1 / 3 くらいに <span class="frm">(wordタグの削除、空タグの削除)</span></li>
+		<li>o テーブル名やカラム名や制約名のユニークチェック <span class="frm">(XMLの固定化のためにも必要)</span></li>
+		<li>o PhysicalName を必須に <span class="frm">(XMLの固定化のためにも必要)</span></li>
+		<li>o ユニーク制約名、インデックス名を必須に <span class="frm">(XMLの固定化のためにも必要)</span></li>
+		<li>o FK制約名のデフォルト値設定、入力促進 <span class="frm">(XMLの固定化のためにも必要)</span></li>
+		<li>o FKカラム選択時に自動カラム作成オプション <span class="frm">(カラム自動作成1:nを削除した分)</span></li>
+		<li>v コードのがっつりリファクタリング <span class="frm">(永遠にやり続ける)</span></li>
+		<li>x データ型マッピングのシンプル化 <span class="frm">(新しいデータ型追加のために、でもまだできてない)</span></li>
+	</ul>
+
+	<h2 id="migration">ERMasterからの移行</h2>
+	<h3 id="openfileonly">そのままファイル開いて移行</h3>
+	<p>
+		そのまま、.ermファイルを ERFlute で開いて保存すれば移行完了です。
+	</p>
+	<h3 id="migrationflow">移行の流れ、ちゃんと確認もしましょう</h3>
+	<ol>
+		<li>ERMasterをアンインストール</li>
+		<li>ERFluteをインストール</li>
+		<li>ermファイルをERFluteで開く <span class="frm">(ERMaster形式のXMLを読み込み)</span></li>
+		<li>テーブルダイアログ開いて特に何もせず閉じて保存 <span class="frm">(ERFlute形式でXMLを保存)</span></li>
+		<li>いったんそのermファイルを閉じる</li>
+		<li>もう一度ermファイルをERFluteで開く</li>
+		<li>DDL出力して、ERMasterのときのDDLと変化がないことを確認</li>
+		<li>模擬的なDB変更をして期待通りのDDLになることを確認 <span class="frm">(確認後は忘れずに変更を破棄しましょう)</span></li>
+	</ol>
+	<p>
+		<span class="frm">※トリガーなど、ERFluteで削除された機能を利用している場合はDDLが同じにはならない可能性あり。</span>
+	</p>
+	<p>
+		<span class="frm">※一度、ERFluteに移行したら、ERMasterやERMaster-bでは開けません。</span>
+	</p>
+
+	<h2 id="forcommitter">コミッタ向け情報</h2>
+	<h3 id="repository">Githubリポジトリ</h3>
+	<dl class="valuemainlist">
+		<dt>Github Page</dt><dd><a href="https://github.com/dbflute-session/erflute">https://github.com/dbflute-session/erflute</a></dd>
+		<dt>Pull Request Branch</dt><dd><a href="https://github.com/dbflute-session/erflute/tree/develop">develop</a></dd>
+	</dl>
+	<h3 id="compileenv">コンパイル環境</h3>
+	<dl class="valuemainlist">
+		<dt>Eclipse Version</dt><dd>Eclipse-4.4.2 (Luna)</dd>
+		<dt>Java Version</dt><dd>Java8 <span>@since 0.5.0 (Java7 before 0.5.0)</span></dd>
+	</dl>
+	<h3 id="classworldmap">ERFluteアーキテクチャマップ</h3>
+	<p class="imgbox">ERFluteアーキテクチャマップ
+		<a href="../../../../../data/model/helper/erflute/erflute-architecture-map.png" title="ERFluteアーキテクチャマップ"><img src="../../../../../data/model/helper/erflute/erflute-architecture-map.png" alt="ERFluteアーキテクチャマップ" width="550" height="330" /></a>
+	</p>
+	<h3 id="editorobjectsmap">ERFlute Editor ClassWorldマップ</h3>
+	<p class="imgbox">ERFlute Editor ClassWorldマップ
+		<a href="../../../../../data/model/helper/erflute/erflute-editor-classworld-map.png" title="ERFlute Editor ClassWorldマップ"><img src="../../../../../data/model/helper/erflute/erflute-editor-classworld-map.png" alt="ERFlute Editor ClassWorldマップ" width="550" height="330" /></a>
+	</p>
+	<h3 id="pullreqreq">プルリクリクエスト</h3>
+	<p>
+		以下の機能を募集しています。
+	</p>
+	<ul>
+		<li>★リバース処理にて、MySQLのJDBCドライバー 8.0.x だと、権限テーブルを見てしまう!?</li>
+		<li>☆☆☆Constraint Name for UNIQUE KEYを指定すると、MySQLのDDLが実行できない</li>
+		<li>☆☆☆テーブル名の規則で背景色が自動的に設定されるように</li>
+		<li>☆☆仮想ダイアグラムを作成した時に、すぐにその仮想ダイアグラムを開く</li>
+		<li>☆☆仮想ダイアグラムごとに見た目の色々な設定を保存できる</li>
+		<li>☆テーブル選択すると、リレーションシップ線が光る</li>
+		<li>☆ダイアグラム上のテーブルのカラムを選択して Enter や Space でカラム詳細の表示</li>
+		<li>☆リレーションシップの線に色をつけたりして区別できるように</li>
+		<li>☆Oracleにて、シーケンスを独立して取り扱うことができない <span class="frm">(今はトリガーとセットになっちゃってる)</span></li>
+		<li>テーブル名やカラム名の大文字小文字を統一するオプション <span class="frm">(2018/05/16)</span></li>
+		<li>コマンドラインからDDLや画像ファイルを出力できるように <span class="frm">(2018/07/30)</span></li>
+		<li>Compound Unique Key の設定が強烈にわかりづらい</li>
+		<li>MySQL-5.7 の generated column 対応 (詳しくはDBFluteML参照)</li>
+		<li>MySQL-5.7 の FULLTEXT idxcontent (content) WITH PARSER ngram (詳しくはDBFluteML参照)</li>
+		<li>リレーションシップのテーブルを選ぶ直前でテーブル名検索 (or テーブル指定のFK貼り) from okubo</li>
+		<li>デフォルトカラーを業務ごとに保存して選べるように from okubo</li>
+		<li>仮想ダイアグラムを削除できない</li>
+		<li>DDLの改行コードをLFに統一するオプション (ERMasterからの移行キープのためにデフォルトは変えない)</li>
+		<li>仮想ダイアグラムにて、選択テーブルとその子テーブルを一緒に持ってくる機能</li>
+		<li>グループ名を修正した後の再描画</li>
+		<li>アウトライン上で選択した仮想ダイアグラムを Enter や Space で開く</li>
+		<li>複数オブジェクト（テーブル、FKの線等）をまとめてマウスで移動</li>
+		<li>カラムグループの順序固定</li>
+		<li>何も変更してないのに、ちょっと操作するだけで変更ファイルになる <span class="frm">(本当に変更されたときだけ変更ファイルに)</span></li>
+		<li>FK削除で自動カラム作成されたFKカラムが中途半端に残ってしまう <span class="frm">(開き直せば消える)</span></li>
+		<li>DDLやImage出力時に、変更の保存を促す <span class="frm">(保存確定させてから出力の方が安心)</span></li>
+		<li>FK作成ダイアログで、データ型食い違いのバリデーション <span class="frm">(現状、データ型が全然違くても作れてしまう)</span></li>
+		<li>FK作成ダイアログで、FKカラムを選択したら new column のチェック外す</li>
+		<li>FKカラムの編集画面で、データ型のサイズが変更できてしまう <span class="frm">(データ型と同様、変更できなくていい)</span></li>
+		<li>Self Relationship も、1:n Relationship にドッキング</li>
+		<li>Table Group が使い物になってない</li>
+		<li>SqlType.xls 運用をやめたい <span class="frm">(もっと手軽にデータ型を追加できるようにしたい)</span></li>
+		<li>データ型リストボックの優先表示をもっとまともな実装で</li>
+		<li>ソースコードが警告だらけ</li>
+		<li>よくわからないコメントアウト</li>
+		<li>中身のないif文</li>
+		<li>英語がところどころあやしい</li>
+		<li>ところどころで文字化け</li>
+		<li>done ノートを消そうとするとNullPointerException</li>
+		<li>done 仮想ダイアグラムのイメージ出力</li>
+		<li>done 自動カラム作成で作ったFKを削除した後にXML上でnullになってしまってファイルを開けない</li>
+		<li>done ColumnGroupの編集で自分自身のグループ名と重複エラーになってしまう</li>
+		<li>done FK作成ダイアログで、すぐにFK制約名の入力 <span class="frm">(現状、一度作ってからじゃないと指定できない)</span></li>
+		<li>done ☆☆☆仮想ダイアグラムでテーブルをドラッグ＆ドロップしたときの再描画</li>
+		<li>done ☆☆☆仮想ダイアグラムの名前の変更のメニューがキー値そのまま</li>
+		<li>done ☆☆☆仮想ダイアグラムの名前の変更のダイアログで文字化け</li>
+		<li>done ☆☆☆ノートの背景色のデフォルトをもうちょい良い色に</li>
+		<li>done ☆☆仮想ダイアグラムを空文字で作れてしまう</li>
+		<li>done ☆Export to DDLで、Output Fileに存在しないパスを入れるとNullPointerException発生</li>
+		<li>done ☆起動した直後の再描画 (現状カラム名が表示されない)</li>
+	</ul>
+	<h3 id="otherimpl">その他実装情報</h3>
+	<ul>
+		<li>管理しづらいので message の properties は、徐々に使わない方向で。<span class="frm">(ハードコードしていきます)</span></li>
+		<li>不要な "this." は削除していく方向で</li>
+		<li>不要な空行は削除していく方向で</li>
+		<li>Tablespaceの機能は必要だろうか？ <span class="frm">(Oracleだと嬉しい？)</span></li>
+	</ul>
+	<h3 id="testway">テストの方法</h3>
+	<ol>
+		<li>plugin.xml を Plug-in Manifest Editor で開く</li>
+		<li>Overviewタブで、Launch an Eclipse application リンクをクリックする</li>
+		<li>Eclipse がもう一個起動するので、そこで ERFlute の動作確認をする</li>
+	</ol>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

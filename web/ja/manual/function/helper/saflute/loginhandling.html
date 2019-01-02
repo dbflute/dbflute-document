@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFluteのログイン周り (Login Handling) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteのログイン周り</h1>
+	<p>
+		SAFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="embeddedlogic">組み込みのログインロジック</h3>
+	<p>
+		ログインのロジックが組み込まれています。
+	</p>
+	<p>
+		これを必ず使わなければならないわけではないですが、カスタマイズも可能なのでオススメです。
+	</p>
+	<h3 id="embeddedcheck">ログインチェックも組み込み</h3>
+	<p>
+		TypicalBaseAction の中でログインチェックが組み込まれています。
+		組み込みのログインロジックを使って自動的にログインチェックがかかるようになっています。
+	</p>
+
+	<h2 id="loginaction">ログインのAction</h2>
+	<p>
+		ログインのActionは、以下のような実装となります。
+	</p>
+<pre><span class="codetitle">e.g. ログインのActionの実装 @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> String index() { <span class="comment">// ログイン画面を開く</span>
+    DocksideUserBean userBean = getUserBean(); <span class="comment">// セッションのユーザー情報を取得</span>
+    <span class="keyword">if</span> (userBean.isLogin()) { <span class="comment">// すでにログイン済みなら</span>
+        <span class="keyword">return</span> redirect(MypageIndexAction.<span class="keyword">class</span>); <span class="comment">// マイページへ</span>
+    }
+    <span class="keyword">return</span> <span class="attribute">path_Login_LoginJsp</span>; <span class="comment">// ログイン画面を描画</span>
+}
+
+@DocksidePerformLogin <span class="comment">// ログイン処理に付けるアノテーション</span>
+@Execute(validator=<span class="keyword">true</span>, input = path_Login_LoginJsp)
+<span class="keyword">public</span> String doLogin() { <span class="comment">// ログインボタン押した</span>
+    <span class="comment">// DB検索して、セッションにユーザー情報を入れて、</span>
+    <span class="comment">// 必要に応じてクッキーにも入れて、ログイン履歴を残して、が一行でおしまい</span>
+    <span class="attribute">memberLoginLogic</span>.<span class="point">login</span>(loginForm.email, loginForm.password, loginForm.isAutoLoginTrue());
+    <span class="keyword">return</span> redirect(MypageIndexAction.<span class="keyword">class</span>); <span class="comment">// デフォルトはマイページへ</span>
+}
+</code></pre>
+	<p>
+		ログインの処理は、LoginLogic に集約されています。
+	</p>
+	<p>
+		ログイン必須画面にログインしていない状態でアクセスしたときのログインであれば、ログイン後はアクセスしようとしたURLに飛びます。
+		ログインのActionで MypageIndexAction にリダイレクトしているのは、通常のログインであれば遷移する先(デフォルト)と捉えるとよいでしょう。
+	</p>
+
+	<h2 id="godhandbefore">ログインチェック</h2>
+	<p>
+		ログイン必須画面にログインしていない状態でのアクセスを防ぐ仕組みは、ActionCallback
+		の GodHand で行われています。
+	</p>
+<pre><span class="codetitle">e.g. ログインのActionの実装 @Java</span><code>
+@Override
+<span class="keyword">public</span> String godHandActionPrologue(<span class="keyword">final</span> ActionExecuteMeta executeMeta) { <span class="comment">// fixed process</span>
+    arrangePreparedAccessContext(executeMeta);
+
+    <span class="comment">// should be after access-context (using access context's info)</span>
+    arrangeCallbackContext(executeMeta);
+
+    <span class="comment">// should be after access-context (may have update)</span>
+    <span class="keyword">final</span> String redirectTo = <span class="point">handleLoginRequiredCheck</span>(executeMeta);
+    <span class="keyword">if</span> (redirectTo != <span class="keyword">null</span>) {
+        <span class="keyword">return</span> redirectTo;
+    }
+    <span class="keyword">return null</span>;
+}
+
+<span class="abbreviation">...</span>
+
+<span class="comment">/**
+ * Handle the login required check for the requested action.
+ * @param executeMeta The meta of action execute to determine required action. (NotNull)
+ * @return The forward path, basically for login-redirect. (NullAllowed)
+ */</span>
+<span class="keyword">protected</span> String handleLoginRequiredCheck(ActionExecuteMeta executeMeta) {
+    <span class="keyword">final</span> LoginHandlingResource resource = createLogingHandlingResource(executeMeta);
+    <span class="keyword">final</span> String forwardTo = <span class="attribute">loginManager</span>.<span class="point">checkLoginRequired</span>(resource);
+    <span class="keyword">if</span> (forwardTo != <span class="keyword">null</span> && executeMeta.isApiAction()) {
+        <span class="keyword">return</span> dispatchApiLoginRequiredFailure(executeMeta);
+    }
+    <span class="keyword">return</span> forwardTo;
+}
+</code></pre>
+	<p>
+		すべての Action にて、loginManager の checkLoginRequired() が呼ばれます。
+	</p>
+	<p>
+		ここでの loginManager は、LoginLogic のことです。LoginLogic は LoginManager インターフェースを implements
+		しているので、フレームワークの中では、LoginManagerとしてDIして利用しています。
+	</p>
+
+	<h2 id="loginlogic">ログインのLogic</h2>
+	<p>
+		ログインのAction や ActionCallback でのログインチェックから呼び出される、ログインの Logic
+		が存在します。こちらに、認証処理やセッションの設定、クッリーの設定、ログイン履歴など、ログインに必要な処理が詰め込まれています。
+	</p>
+	<h3 id="logichierarchy">Logicクラスの階層構造</h3>
+	<p>
+		それぞれのWebプロジェクトに LoginLogic があり、例えば Maihama プロジェクトの Dockside
+		Webアプリであれば、DocksideLoginLogic となります。
+	</p>
+<pre><span class="codetitle">e.g. LoginLogic の階層構造、Maihamaプロジェクトなら @Structure</span><code>
+LoginManager <span class="comment">// フレームワーク用インターフェース</span>
+ |-TypicalLoginBaseLogic <span class="comment">// フレームワーク提供の典型的なベースクラス</span>
+    |-MaihamaLoginBaseLogic <span class="comment">// プロジェクト共通のベースクラス</span>
+       |-<span class="point">DocksideLoginLogic</span> <span class="comment">// Webプロジェクトのロジッククラス (スマートデプロイ対象)</span>
+</code></pre>
+	<p>
+		SAFluteが提供する TypicalLoginBaseLogic に、おおよそのロジックが組み込まれていて、それぞれのプロジェクトにフィットさせる部分を、
+		サブクラスで実装していくような形です。
+	</p>
+	<p>
+		なので、DocksideLoginLogic にはあまりロジックはたくさんありません。
+		どのテーブルにアクセスするのか？どこに履歴を残すのか？など、ピンポイントで必要な情報をスーパークラスに渡してあげるだけになります。
+		もちろん、とある処理だけをオーバーライドして独自の挙動にすることもできます(権限チェックなどはそのように)。
+	</p>
+	<h3 id="logicmethod">Logicクラスのメソッド</h3>
+	<p>
+		大きくは以下の二つ：
+	</p>
+	<dl class="keymainlist">
+		<dt>login()</dt><dd>ログイン処理を行う (ログインのActionから呼ばれる想定)</dd>
+		<dt>checkLoginRequired()</dt><dd>ログイン必須チェックを行う (ActionCallbackから呼ばれる想定)</dd>
+	</dl>
+	<p>
+		実際には、引数が違うだけのオーバーロードのメソッドや、多種多様なログイン処理を行うメソッド、
+		ログイン処理やチェック処理の一部だけを行う部品的なメソッドなどがあります。
+	</p>
+	<p>
+		メソッドの一覧が見たければ、LoginManager のソースを読むとよいでしょう。
+	</p>
+	<p>
+		詳しい処理に関しては、TypicalLoginBaseLogic を読んでみましょう。
+	</p>
+	<p>
+		厳密には、TypicalLoginBaseLogic を使わなければならないわけではありません。基本的に Typical
+		と付いているものは、もし現場にフィットするなら使ってみてください、というニュアンスのものです。
+		ですが、多くの処理をオーバーライドなどで拡張できるようにしているので、よほど特殊でなければフィットさせることができるのではないかと想定しています。
+	</p>
+
+	<h2 id="auth">権限チェックの実装</h2>
+	<h3 id="authextpoint">拡張ポイントが用意されている</h3>
+	<p>
+		権限チェックの仕組み自体は、かなり業務に特化する部分なので特に組み込みでの用意はありませんが、
+		ログインロジックのプロセスの一環として組み込める拡張ポイントが用意されています。
+	</p>
+	<h3 id="processauth">processAuthority()</h3>
+	<p>
+		ログインチェックの処理の中で、ログイン状態のときに必ず呼ばれるメソッドをあります。
+		そのメソッドの中で権限チェックをすることで、ログインしていてもその画面で必要な権限がないアクセスを弾くことができます。
+	</p>
+	<p>
+		LoginLogic が継承している TypicalLoginBaseLogic にて、processAuthority()
+		というメソッドが定義されていて、デフォルトでは中身は空っぽです。
+	</p>
+<pre><span class="codetitle">e.g. processAuthority()のそのままのコード @Java</span><code>
+<span class="comment">/**
+ * Process for the authority of the login user. (called in login status)
+ * @param resource The resource of login handling to determine. (NotNull)
+ * @param userBean The bean of the login user. (NotNull)
+ * @return The forward path, basically for authority redirect. (NullAllowed: if null, authority check passed)
+ */</span>
+<span class="keyword">protected</span> String processAuthority(LoginHandlingResource resource, USER_BEAN userBean) {
+    <span class="keyword">return null</span>; <span class="comment">// no check as default, you can override</span>
+}
+</code></pre>
+	<p>
+		processAuthority()は、<em class="keyword">既にログイン済み、もしくは、いま自動ログインしたばかり</em> のときに呼び出されます。
+	</p>
+	<h3 id="overrideauth">オーバーライドして権限チェック</h3>
+	<p>
+		それぞれの LoginLogic にて、 この processAuthority() をオーバーライドして、権限チェックをするとよいでしょう。
+		戻り値は、Action の return で戻すものと同じです。
+	</p>
+<pre><span class="codetitle">e.g. processAuthority()のそのままのコード @Java</span><code>
+<span class="comment">/** {@inheritDoc} */</span>
+@Override
+<span class="keyword">protected</span> String processAuthority(LoginHandlingResource resource, USER_BEAN userBean) {
+    if (この画面で、この人が権限もっていなければ) {
+        <span class="attribute">sessionManager</span>.saveErrors(DocksideMessages.ERRORS_AUTHORITY_VIOLATION);
+        <span class="keyword">return</span> DocksideJspPath.path_Error_ErrorMessageJsp;
+    }
+    <span class="keyword">return null</span>; <span class="comment">// 権限ある</span>
+}
+</code></pre>
+	<h3 id="authsettings">どの画面がどんな権限？</h3>
+	<p>
+		ここは様々な方法がありますが、一例として、アノテーションに付けるやり方があります。
+	</p>
+<pre><span class="codetitle">e.g. LoginRequiredのアノテーションにロールを指定 @Java</span><code>
+<span class="subpoint">@DocksideLoginRequired</span>({ <span class="point">CDef.OperationRole.Sea</span>, <span class="point">CDef.OperationRole.Land</span> })
+@Execute(validator = <span class="keyword">false</span>, urlPattern = "{ikspiari}")
+<span class="keyword">public</span> String index() {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		ロールはテーブル区分値として定義しておきます。自動生成された CDef をアノテーションで指定できるようにして、
+		processAuthority()の中でそのアノテーションの値を取得して、ログインユーザーのロールと照らし合わせてアクセス可能かどうかを判定します。
+	</p>
+	<p>
+		必ずこのやり方である必要はありません。データベースに画面と必要なロールを紐づけるテーブルを作ってもよいでしょう。
+		ただ、画面が増えたときにそのテーブルのデータもメンテナンスしてあげないといけないので、アノテーションであればプログラム作成時に自然と権限が付与されるので、
+		定義し忘れのトラブルは少ないでしょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

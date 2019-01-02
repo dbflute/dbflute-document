@@ -1,0 +1,470 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFlute Intro,イントロ,支援ツール,Decomment" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Decomment (でこめんと) on Intro | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Decomment (でこめんと) on Intro</h1>
+	<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
+	<div class="relatedpage"><a href="./hacomment.html">Hacomment (はこめんと) on Intro</a></div>
+	${indexlist}
+
+	<h2 id="about">Decommentとは？</h2>
+	<h3 id="situation">こんなシチュエーションで使います</h3>
+	<ol>
+		<li>ディベロッパーが、SchemaHTML見ながらテーブルやカラムのことで悩んでる</li>
+		<li>ディベロッパーが、わからないことを誰かに質問して知る</li>
+		<li>ディベロッパーが、"ちゃんとDBコメント書いてあったらすぐわかったのに..." と思う</li>
+	</ol>
+	<h3 id="whatfunction">ズバリなに？</h3>
+	<p>
+		<em class="keyword">SchemaHTML上で "DBコメント" を追加・修正する、DBFlute Intro の機能</em> です。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/doc/schemahtml.html">SchemaHTML</a></div>
+	<p>
+		<em class="keyword">複数人で追加・修正してもgitコンフリクトを起こさずマージできる</em>
+		のが特徴です。
+	</p>
+	<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
+	<p class="imgbox">SchemaHTMLでデコメント
+		<a href="../../../../../data/snapshot/intro/decomment/intro-decomment-open-dialog-snapshot.png" title="DBFluteIntro Decomment OpenDialog"><img src="../../../../../data/snapshot/intro/decomment/intro-decomment-open-dialog-snapshot.png" alt="DBFluteIntro Decomment OpenDialog" width="550" height="280" /></a>
+	</p>
+	<h3 id="whathappens">えっ、なに？</h3>
+	<p>
+		ERDツール (ERFluteなど) を開かなくても、普段開発中にでよく見ている SchemaHTML
+		で、各ディベロッパーが "こんなコメントがあったらもっと早くわかったのになぁ"
+		と思った瞬間にDBコメントを記録することができます。
+	</p>
+	<p>
+		gitのブランチも、<em class="keyword">わざわざ専用のDB変更ブランチなどに切り替える必要はなく、</em>
+		それぞれのディベロッパーのトピックブランチで作業できます。<span class="frm">(同じテーブル、同じカラムのコメントを複数人で修正しても、gitコンフリクトは発生しません: 後述)</span>
+	</p>
+	<h3 id="whynoterd">ERDツールじゃダメなの？</h3>
+	<p>
+		通常、DBコメントの追加は、ERDドリブンの開発であればDDLを出力するERDツール (ERFluteなど)
+		から追加します。ただ、ERDツールはDBコメントの <em class="mark">気軽な</em> 追加にはあまり向いていません。
+	</p>
+	<ul>
+		<li>ERDの保存ファイルは一般的にマージはできない (専用のブランチに切り替える必要あり)</li>
+		<li>そもそもERDツールの起動してからテーブルとカラムまで行くまでとても気軽ではない</li>
+	</ul>
+	<h3 id="whyintro">Introはどう関係しているの？</h3>
+	<p>
+		DBFlute Introが、入力されたDBコメントを受け付ける中継サーバーとなって、DBFluteクライアント内に保存をします。
+		詳しくは、また後で。
+	</p>
+	<ol>
+		<li>ディベロッパーが、DBFlute Intro経由で SchemaHTML を開く</li>
+		<li>ディベロッパーが、SchemaHTML でテーブルやカラムのDBコメントを追加・修正する</li>
+	</ol>
+
+	<h2 id="howto">Decommentの使い方</h2>
+	<h3 id="precondition">DBFlute Introを起動</h3>
+	<p>
+		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。
+	</p>
+	<div class="relatedpage"><a href="#setup">this - Decommentの環境構築</a></div>
+	<h3 id="bootschemahtml">SchemaHTMLを起動</h3>
+	<p>
+		Intro の Operate 画面の、<em class="mark">Open the table layout ...</em> リンクをクリックします。
+	</p>
+	<p class="imgbox">Operate画面のドキュメントリンクあり
+		<a href="../../../../../data/snapshot/intro/operate/intro-operate-linkdoc-snapshot.png" title="DBFluteIntro Operate LinkDoc"><img src="../../../../../data/snapshot/intro/operate/intro-operate-linkdoc-snapshot.png" alt="DBFluteIntro Operate LinkDoc" width="550" height="300" /></a>
+	</p>
+	<p>
+		すると、SchemaHTMLが表示されます。
+	</p>
+	<p class="imgbox">SchemaHTMLのExample
+		<a href="../../../../data/model/alto/doc/doc-SchemaHtml-List-example.png" title="SchemaHTML Example"><img src="../../../../data/model/alto/doc/doc-SchemaHtml-List-example.png" alt="SchemaHTML Example" width="550" height="220" /></a>
+	</p>
+	<p>
+		そもそも、まだ SchemaHTML が存在しないのであれば、自動生成しましょう。
+	</p>
+	<div class="relatedpage"><a href="./index.html#firstdoc">DBFlute Intro - とりあえず、テーブル定義ドキュメント</a></div>
+	<h3 id="registerdecomment">デコメントの登録</h3>
+	<p>
+		SchemaHTML上の任意のテーブルやカラムのコメント欄をクリックすると、ダイアログが開きます。
+	</p>
+	<p class="imgbox">デコメントのダイアログを開く
+		<a href="../../../../../data/snapshot/intro/decomment/intro-decomment-open-dialog-snapshot.png" title="DBFluteIntro Decomment OpenDialog"><img src="../../../../../data/snapshot/intro/decomment/intro-decomment-open-dialog-snapshot.png" alt="DBFluteIntro Decomment OpenDialog" width="550" height="280" /></a>
+	</p>
+	<p>
+		テキストエリアで何か入力して...
+	</p>
+	<p class="imgbox">デコメントのダイアログで入力
+		<a href="../../../../../data/snapshot/intro/decomment/intro-decomment-input-snapshot.png" title="DBFluteIntro Decomment Input"><img src="../../../../../data/snapshot/intro/decomment/intro-decomment-input-snapshot.png" alt="DBFluteIntro Decomment Input" width="550" height="240" /></a>
+	</p>
+	<p>
+		OKするとデコメントが登録され、すぐに反映されます。
+	</p>
+	<p class="imgbox">デコメントが表示された！
+		<a href="../../../../../data/snapshot/intro/decomment/intro-decomment-displayed-snapshot.png" title="DBFluteIntro Decomment Displayed"><img src="../../../../../data/snapshot/intro/decomment/intro-decomment-displayed-snapshot.png" alt="DBFluteIntro Decomment Displayed" width="550" height="210" /></a>
+	</p>
+	<h3 id="gitcommit">gitでpieceファイルをコミット</h3>
+	<p>
+		登録されたデコメントは、DBFluteクライアント内に "pieceと呼ばれるファイル" <span class="frm">(詳しくは後述)</span> で保存され、そのpieceファイルをgitでコミットすることで他の人に共有されます。
+	</p>
+	<div class="relatedpage"><a href="#savedecomment">this - デコメントはどう保存される？</a></div>
+	<p>
+		ただし、この時点では、Intro経由で SchemaHTML を開いたときだけデコメント (追加した分のコメント) が表示されます。
+		ブラウザで直接SchemaHTMLを開いても表示されるようになるのは、まだこのあと "Docタスク" 叩いた後です。
+	</p>
+	<h3 id="realpickup">DocタスクでSchemaHTMLに固定化</h3>
+	<p>
+		ブラウザで直接SchemaHTMLを開いても表示されるようにするためには、<em class="mark">Docタスク</em> 叩きます。
+		多くの人が、SchemaHTMLを閲覧するときはブラウザで直接開くと想定されるので、これにて本当に皆が参照する共有コメントとなります。
+	</p>
+	<p>
+		ただ、チーム開発の場合、DocタスクはDB変更専用のブランチ (alter_dbブランチなど)
+		で実行するような運用になっていると思いますので、<em class="keyword">わざわざデコメントのために Doc を叩くのではなく、自然の流れに任せる</em> で良いかと思います。
+		コメントですので、気付いたら反映されているくらいでいいかと。
+	</p>
+
+	<h2 id="conflictway">コンフリクトするとどうなる？</h2>
+	<h3 id="conflictconcept">gitコンフリクトはせず業務的なコンフリクト</h3>
+	<p>
+		同じテーブル同じカラムのコメントを複数人で同時に修正しても、gitコンフリクトはしないように作られていますが、
+		(当然のことながら)業務的なコンフリクトは発生します。
+	</p>
+	<h3 id="conflictexp">SchemaHTML上でコンフリクトの表現</h3>
+	<p>
+		SchemaHTMLのコメント上で、コンフリクトが表現されます。
+	</p>
+	<ul>
+		<li>コメント表示が "赤字" になる</li>
+		<li>デリミタ "=======" つなぎで複数のコメントが連結表示される</li>
+	</ul>
+	<p class="imgbox">デコメントのコンフリクト
+		<a href="../../../../../data/snapshot/intro/decomment/intro-decomment-conflict-view-snapshot.png" title="DBFluteIntro Decomment ConflictView"><img src="../../../../../data/snapshot/intro/decomment/intro-decomment-conflict-view-snapshot.png" alt="DBFluteIntro Decomment ConflictView" width="550" height="330" /></a>
+	</p>
+	<h3 id="conflictresolve">コンフリクトの解消方法</h3>
+	<p>
+		クリックすれば、同じようにダイアログが開き、同じ要領でそのままコンフリクトしたコメントを修正することができます。
+		<span class="frm">(自動マージは一切されず、必ず人間が目で見て修正する方式です)</span>
+	</p>
+
+	<h2 id="cabomapping">テーブル名が変更されるとどうなる？</h2>
+	<h3 id="notabledecomment">一時的に、存在しないテーブルへのデコメント</h3>
+	<p>
+		テーブル名やカラム名が変更されると、一時的に登録されたデコメントは切り離されてしまいます。
+		存在しない古い名前に紐づくデコメントということで、どこにも表示されません。
+	</p>
+	<p>
+		DBFluteからすると、テーブルが削除されたのか、新しい名前に変更されたのかが自動で判別できないので、どうしても人が教えて上げる必要があります。
+	</p>
+	<h3 id="mappingtonewtable">新しいテーブルへマッピング</h3>
+	<p>
+		そこで、DBFlute Introは、古いテーブル (いま存在しないテーブル) を参照しているデコメントを発見すると、
+		SchemaHTMLのトップにマッピングのための操作領域を表示します。
+	</p>
+	<p>
+		"その古いテーブル名は、新しいテーブルだとどの名前？" というのを選択すると、DBFlute Introがデコメントをマージし、新しいテーブルに紐付けられるようになります。
+	</p>
+	<p>
+		以下は、MEMBER_LOGIN を MEMBER_SEA_LAND に変更した例です。
+	</p>
+	<p class="imgbox">デコメントのかぼマッピング
+		<a href="../../../../../data/snapshot/intro/decomment/intro-decomment-cabomapping-snapshot.png" title="DBFluteIntro Decomment CaboMapping"><img src="../../../../../data/snapshot/intro/decomment/intro-decomment-cabomapping-snapshot.png" alt="DBFluteIntro Decomment CaboMapping" width="550" height="330" /></a>
+	</p>
+	<h3 id="mappinggitcommit">マッピングファイルのgitコミット</h3>
+	<p>
+		このマッピング結果自体も、DBFluteクライアント内のファイル (decomment-mappingファイル) として保存され、gitでコミットすることで共有されます。
+	</p>
+	<p>
+		<span class="frm">※e.g. decomment-mapping-MEMBER_LOGIN-MEMBER_SEA_LAND-20180520-165122-463-jflute-1bf2eaa4.dfmap</span>
+	</p>
+	<h3 id="mappingconflict">マッピング自体のコンフリクト</h3>
+	<p>
+		マッピング自体のコンフリクトが発生したら、再度マッピングを求められるだけなので、デコメント自体と同様にトピックブランチで気軽にマッピングできます。
+	</p>
+
+	<h2 id="savedecomment">デコメントはどう保存される？</h2>
+	<h3 id="underclient">DBFluteクライアントに保存される</h3>
+	<p>
+		DBFluteクライアントの schema/decomment にテキストファイルとして保存されます。
+	</p>
+<pre><span class="codetitle">e.g. pickup for decomment @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-<span class="subpoint">schema</span>
+ |  |  |-<span class="point">decomment</span> <span class="comment">// decomment resources</span>
+ |  |  |  |
+ |  |  |  |-pickup <span class="comment">// decomment pickup</span>
+ |  |  |  |  |-decomment-pickup.dfmap
+ |  |  |  |
+ |  |  |  |-piece <span class="comment">// decomment pieces</span>
+ |  |  |  |  |-decomment-piece-MEMBER_SECURITY-20171229-173339-978-ryohei-339d5b82.dfmap
+ |  |  |  |  |-decomment-piece-PURCHASE-PURCHASE_PRICE-20171229-172847-616-jflute-6dd20e16.dfmap
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="piecebydecomment">デコメントごとにpieceファイルが保存される</h3>
+	<p>
+		一つ一つのデコメントを <em class="mark">piece</em> と呼んでいます。
+		<span class="frm">(一回のOKボタンに付き、一ファイルが作成されます)</span>
+	</p>
+	<p>
+		pieceファイルは、schema/decomment/piece 配下に保存されます。
+	</p>
+<pre><span class="codetitle">e.g.  @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |  |-decomment <span class="comment">// decomment resources</span>
+ |  |  |  |
+ |  |  |  |-pickup <span class="comment">// decomment pickup</span>
+ |  |  |  |  |-decomment-pickup.dfmap
+ |  |  |  |
+ |  |  |  |-<span class="subpoint">piece</span> <span class="comment">// decomment pieces</span>
+ |  |  |  |  |-<span class="point">decomment-piece-MEMBER_SECURITY-20171229-173339-978-ryohei-339d5b82.dfmap</span>
+ |  |  |  |  |-<span class="point">decomment-piece-PURCHASE-PURCHASE_PRICE-20171229-172847-616-jflute-6dd20e16.dfmap</span>
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="pickupbydoc">Docタスクでpickupファイルが作成・更新される</h3>
+	<p>
+		pieceたちを集荷した情報を <em class="mark">pickup</em> と呼んでいます。
+	</p>
+	<p>
+		pickupファイルは、Docタスクを叩くと schema/decomment/pickup 配下に保存されます。
+	</p>
+<pre><span class="codetitle">e.g.  @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |  |-decomment <span class="comment">// decomment resources</span>
+ |  |  |  |
+ |  |  |  |-<span class="subpoint">pickup</span> <span class="comment">// decomment pickup</span>
+ |  |  |  |  |-<span class="point">decomment-pickup.dfmap</span>
+ |  |  |  |
+ |  |  |  |-piece <span class="comment">// decomment pieces</span>
+ |  |  |  |  |-<span class="comment">// pieces are deleted</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		pickupには、pieceファイルたちの情報がすべて含まれています。
+		これらの情報は SchemaHTML にも反映されるので、ブラウザで直接 SchemaHTML
+		を開いたときでも、登録されたデコメントたちが表示されるようになります。
+	</p>
+	<p>
+		一方で、集荷されたpieceファイルたちは不要になりますので削除されます。
+	</p>
+	<h3 id="architecturemodel">Decommentのアーキテクチャマップ</h3>
+	<p>
+		DBFlute Intro と piece と pickup の関係などを表現したモデルがこちら。
+	</p>
+	<p class="imgbox">図 : Decommentのアーキテクチャマップ
+		<a href="../../../../../data/model/intro/intro-decomment-architecture-map.png" title="Decommentのアーキテクチャマップ"><img src="../../../../../data/model/intro/intro-decomment-architecture-map.png" alt="Decommentのアーキテクチャマップ" width="550" height="400" /></a>
+	</p>
+
+	<h2 id="setup">デコメントの環境構築</h2>
+	<h3 id="availablever">必要なDBFluteのバージョン</h3>
+	<p>
+		DBFlute と DBFlute Intro が以下のバージョン以降である必要があります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>DBFlute</dt><dd><em class="mark">1.1.6</em> <span class="frm">(2018/1/1リリース)</span></dd>
+		<dt>DBFlute Intro</dt><dd><em class="mark">0.2.0</em> <span class="frm">(2018/1/1リリース)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../../environment/newest.html">DBFluteの最新バージョン</a></div>
+	<h3 id="dbflutefirst">DBFluteが先にある場合</h3>
+	<p>
+		すでに DBFlute の環境が整っている場合は、DBFluteタスクの manage.sh|bat の 88 (intro)
+		を実行すれば、プロジェクト直下に DBFlute Intro がダウンロードされ、自動的に起動します。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro のjarファイルを dbflute-intro ディレクトリ配下に @Directory</span><code>
+[Project Root]
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute_maihamadb <span class="comment">// client</span>
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat
+ |  |-manage.sh
+ |
+ |-mydbflute
+ |  |-dbflute-1.1.6 <span class="comment">// engine</span>
+ |
+ |-<span class="point">dbflute-intro.jar</span> <span class="comment">// downloaded by manage task</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		一度ダウンロードしておけば、ダウンロードは発生しないので、実行するだけのコマンドとして manage の 88 が利用できます。
+	</p>
+	<h3 id="introfirst">DBFlute Introが先にある場合</h3>
+	<p>
+		DBFlute Intro の機能を使って、DBFluteをセットアップしましょう。
+	</p>
+	<div class="detailpage"><a href="./index.html#useflow">DBFlute Intro - 使い方の流れ</a></div>
+	<h3 id="upgradeintro">DBFlute Introのアップグレード</h3>
+	<p>
+		削除してダウンロードです。
+	</p>
+	<ol>
+		<li>dbflute-intro.jar を削除</li>
+		<li>manage.sh|bat の 88 (intro) を実行 <span class="frm">(jarがなければダウンロードされる)</span></li>
+	</ol>
+	<h3 id="gitignorestrategy">DBFlute Introはgitignoreする？</h3>
+	<p>
+		どちらでも構いません。ディベロッパーからすれば、manage を叩いて起動することには変わりはないので、どちらであっても利用してる分には意識しません。
+	</p>
+	<p>
+		Introのバージョンを強制させたい場合は、コミット対象にしておけば横展開が簡単にはあります。
+		ただ、それなりのサイズではあるので、やはりignoreにしてIntroのアップグレードは各自に任せるのも良いでしょう。
+		<span class="frm">(LastaFluteのExampleでは、デフォルトでignoreになっています)</span>
+	</p>
+
+	<h2 id="decommentserver">デコメントサーバー</h2>
+	<p>
+		各々のディベロッパーが Intro をつどつど起動するのではなく、Intro
+		を社内サーバーなどに常駐させて、手軽にデコメントを登録するやり方もあります。
+	</p>
+	<h3 id="notplainserver">単純に常駐させると？</h3>
+	<p>
+		ただ、単純に Intro を常駐させると、以下のような不都合があります。
+	</p>
+	<ul>
+		<li>デコメントの author が、すべてサーバーのアカウントになってしまう</li>
+		<li>Introの別の機能で、複数人同時実行してはいけないものがあって不安</li>
+	</ul>
+	<h3 id="serverfordecomment">デコメントのためのモード</h3>
+	<p>
+		そこで、<em class="keyword">デコメント登録を目的としたサーバーとしての起動モード</em> をサポートしています。
+	</p>
+	<p>
+		Javaの起動パラメーターで <em class="mark">intro.decomment.server</em> を指定します。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro をデコメントサーバーとして起動 @Command</span><code>
+java <span class="point">-Dintro.decomment.server</span>=<span class="keyword">true</span> -jar dbflute-intro.jar
+</code></pre>
+	<p>
+		すると、以下のような挙動になり、安心してデコメントを利用することができます。
+	</p>
+	<ul>
+		<li>初回デコメント登録時だけauthorを入力すると、クッキーに保存されて自動的に利用される</li>
+		<li>Introの別の機能で、複数人同時実行してはいけないものは実行できないようになる</li>
+	</ul>
+	<p>
+		こちらを利用するためには、以下のバージョンが必要です。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>DBFlute</dt><dd><em class="mark">1.1.8</em> (patch 2018/06/30) 以上</dd>
+		<dt>DBFlute Intro</dt><dd><em class="mark">0.2.2</em> 以上</dd>
+	</dl>
+	<h3 id="autocommitpiece">溜まったpieceファイルは？</h3>
+	<p>
+		デコメントを登録すると、どんどんサーバーにpieceファイルが溜まっていきます。
+		それを放っておいても共有されませんので、例えば Jenkins
+		などを使い、定期的にpieceファイルがgitにコミットされるようにすると良いでしょう。
+	</p>
+	<h3 id="changehostport">IPアドレスやポート番号を変更したい場合</h3>
+	<p>
+		IPアドレスは、Javaのシステムプロパティ <em class="mark">intro.host</em> で、変更することができます。<span class="frm">(@since 0.2.3)</span>
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro をIPアドレス 999.999.999.999 で起動 @Command</span><code>
+java -Dintro.decomment.server=<span class="keyword">true</span> <span class="point">-Dintro.host</span>=<span class="literal">999.999.999.999</span> -jar dbflute-intro.jar
+</code></pre>
+	<p>
+		ポート番号は、Javaのシステムプロパティ <em class="mark">intro.host</em> で、変更することができます。<span class="frm">(@since 0.2.3)</span>
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro をポート番号 9999 で起動 @Command</span><code>
+java -Dintro.decomment.server=<span class="keyword">true</span> <span class="point">-Dintro.port</span>=<span class="literal">9999</span> -jar dbflute-intro.jar
+</code></pre>
+
+	<h2 id="forcommiter">コミッター向け情報</h2>
+	<h3 id="repository">Githubリポジトリ</h3>
+	<dl class="valuemainlist">
+		<dt>Github Page</dt><dd><a href="https://github.com/dbflute/dbflute-intro">https://github.com/dbflute/dbflute-intro</a></dd>
+		<dt>Pull Request Branch</dt><dd><a href="https://github.com/dbflute/dbflute-intro/tree/develop">develop</a></dd>
+	</dl>
+	<h3 id="classwordmodel">Decommentのクラス概観マップ</h3>
+	<p class="imgbox">図 : Decommentのクラス概観マップ
+		<a href="../../../../../data/model/intro/intro-decomment-classworld-map.png" title="Decommentのクラス概観マップ"><img src="../../../../../data/model/intro/intro-decomment-classworld-map.png" alt="Decommentのクラス概観マップ" width="550" height="400" /></a>
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="silentdb">無言のデータベースほど寡黙なものはない</h2>
+		<p>
+			データベースは単なる構造で、武士のようなものです。
+		</p>
+		<p>
+			プログラムの世界は、"コメントを書こう" という習慣が(まあまあ)世界的に浸透しているように思えます。
+			でも、データベースの世界では "コメントを書こう" という意識があまり一般化していないように思えます。
+			ですが、テーブルやカラムこそコメントが欲しいと思う場面が多々あります。
+		</p>
+		<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20170628/letsdbcomment">コードにコメント書くのにDBにコメント書かないの？ | jfluteの日記</a></div>
+		<p>
+			月並みですが、データベースはアプリよりも一般的に長生きで、分析が非常にしづらいものです。
+			データを見ればある程度は予測付くこともありますが、テストデータでは情報量が少なく、本番データは容易に見れません。
+			データベースこそ技術的負債の温床と言えるでしょう。
+		</p>
+		<p>
+			ただ、DBコメントの追加はプログラム上のコメント追加に比べて、仕組み的に非常に面倒になりがちです。
+			なので、"DBコメントを入れよう" というキャンペーンを打ち出しても中々成立しません。
+		</p>
+		<p>
+			そこで、ディベロッパーのみんなが見ている SchemaHTML でそのままコメントが登録できたらいいのになぁと考えました。
+			ただ、壁は大きく二つ、HTMLから直接ローカルファイルにはアクセスできないことと、gitでコンフリクトしてしまうと元も子もないこと。
+			DBFlute Introを使うことでこれを乗り越えました。
+		</p>
+		<p>
+			まだまだ課題はありますが、Introのデコメント機能を使って、無言のデータベースが少なくなればいいなと夢見ています。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

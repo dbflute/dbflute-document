@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 12 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 12</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		Dream Cruise へようこそ 
+	</p>
+	<div class="relatedpage"><a href="./section11.html">ハンズオンセクション 11</a></div>
+	<p>
+		このセクションを見つけてしまった人は、やらなければならない。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		<em class="keyword">src/main/java</em> 配下に org.docksidestage.handson.logic.HandsOn12Logic
+		クラスを作成してください。この時点では空っぽで構いません。
+		また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		【事務連絡】org.dbflute.handson から、org.docksidestage.handson に変わりました。
+		org.dbfluteで開始した人は、そのまま org.dbflute で続けてOKです。もし、移行するなら log4j.properties と basicInfoMap.dfprop
+		の該当箇所を修正してください。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20150311">ハンズオンニュース - org.docksidestageに変更</a></div>
+
+	<h2 id="ready">Dream Cruise</h2>
+	<p>
+		とにかく cb.dreamCruiseCB() です。
+		(この章の検索は、すべて ConditionBean で実現すべし)
+	</p>
+
+	<h2 id="orderby">Dream Order</h2>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectDreamOrderList()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>サービスポイントカウントを会員IDで割った値の大きい順で会員を検索</li>
+				<li>その割った値の先頭からの合計値が 24000 より小さい人だけのリストを戻す</li>
+				<li>その絞り込みは SQL でなくてもいいが、できるだけ効率よく</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectDreamOrderList_その通りの順序で検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>その通りの順序で検索されていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="likesearch">Dream LikeSearch</h2>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectDreamLikeSearchList()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称と会員アカウントを連結して部分一致させて、会員を検索</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectDreamLikeSearchList_その通りの条件で検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>連結した文字列に "cP" を含む会員を検索</li>
+				<li>その通りの文字列を含んでいることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="update">Dream Update</h2>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>void updateDreamUpdate()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>購入価格を購入数量で割った価格に更新</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_updateDreamUpdate_その通りの条件で更新されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>そのレコードが期待通り更新されていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="correlation">Dream Correlation</h2>
+	<p>
+		<span class="frm">OverTheWaves...</span>
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectDreamCorrelationList()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>セクション５のテストデータの登録時チェックの住所の期間重複チェックをCBで</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectDreamCorrelationList_その通りの条件で検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>テストケース内で一時的に期間重複のレコードを作成</li>
+				<li>そのレコードが検索されることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="ranking">Dream DerivedRanking</h2>
+	<p>
+		<span class="frm">MyselfDerived...</span>
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectDreamDerivedRankingList()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>サービスポイント数ランキング(1始まり)付きの会員を会員IDの昇順で検索</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectDreamDerivedRankingList_その通りの条件で検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>ランキングが正しいことをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="easy">Dream お手軽チャレンジ</h3>
+	<p>
+		ランキング順位にログイン回数を掛け算した値の大きい順で並べてみましょう。<span class="frm">(会員IDの昇順は無しで)</span>
+	</p>
+
+	<h2 id="bonus">Dream ボーナスステージ</h2>
+	<p>
+		<span class="frm">OverTheWaves...</span>
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectSection11RetryList()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>セクション１１の "自分だけが購入している商品を買ったことのある会員" を DreamCruise で</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectSection11RetryList_その通りの条件で検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>そのレコードが検索されることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="mystic">Dream AddedBoundDate</h2>
+	<p>
+		<span class="frm">MysticRhythms...</span>
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectAddedBoundDateList()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>舞浜にある海パーク開業日にサービスポイント数を日数として足した日が、正式会員日時を越える会員</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectAddedBoundDateList_その通りの条件で検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>そのレコードが検索されることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="final">Dream 最終試練</h2>
+	<p>
+		Dream Cruise を使ったエクササイズを自分で考えて、自分で解いてみましょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

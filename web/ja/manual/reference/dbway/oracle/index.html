@@ -1,0 +1,635 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Oracle,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Oracleの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Oracleの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>Oracle9iR2(9.2.0.1) 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>なし</dd>
+		<dt>(推奨)JDBCドライバ</dt><dd>ojdbc6.jar <span class="frm">(Exampleで利用)</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = oracle.jdbc.OracleDriver
+    ; url      = jdbc:oracle:thin:@[host]:[port]:[SID]
+    ; schema   = [SCHEMA]
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はそもそも対応する概念がないため設定不要</li>
+		<li>schema は大文字で指定</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-oracle-exampleの場合 {host=localhost,port=1521,SID=XE} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = oracle.jdbc.OracleDriver
+    ; url      = jdbc:oracle:thin:@localhost:1521:XE
+    ; schema   = EXAMPLEDB
+    ; user     = exampledb
+    ; password = exampledb
+}
+</code></pre>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>CHAR, VARCHAR2, N...CHAR, ...CLOB</dd>
+		<dt>java.lang.Integer</dt><dd>{NUMBER(1-9, 0)}</dd>
+		<dt>java.lang.Long</dt><dd>{NUMBER(10-18, 0)}</dd>
+		<dt>java.math.BigDecimal</dt><dd>INTEGER, NUMBER(n, m)</dd>
+		<dt>java.util.Date</dt><dd>DATE</dd>
+		<dt>java.sql.Time</dt><dd>なし</dd>
+		<dt>java.sql.Timestamp</dt><dd>TIMESTAMP, (TIMESTAMP WITH TIME ZONE)</dd>
+		<dt>byte[]</dt><dd>BLOB, RAW</dd>
+	</dl>
+	<h3 id="automapping">自動マッピング</h3>
+	<p>
+		NUMBER に関しては、自動マッピング機能が利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/numericautomapping/index.html">現場フィット - NUMERICの自動マッピング</a></div>
+	<h3 id="unsupportedtype">未サポートのデータ型</h3>
+	<dl class="longkeymainlist">
+		<dt>BINARY_FLOAT</dt><dd>数値表現の文字列として利用可能 <span class="frm">(ex. "123.45")</span></dd>
+		<dt>BINARY_DOUBLE</dt><dd>数値表現の文字列として利用可能 <span class="frm">(ex. "123.45")</span></dd>
+		<dt>INTERVAL YEAR TO MONTH</dt><dd>年月表現の文字列として利用可能 <span class="frm">(ex. "32-10")</span></dd>
+		<dt>INTERVAL DAY TO SECOND</dt><dd>日秒表現の文字列として利用可能 <span class="frm">(ex. "1 0:0:1.0")</span></dd>
+		<dt>ROWID</dt><dd>利用不可 (今後のサポートは未定)</dd>
+		<dt>ARRAY</dt><dd>利用不可 (今後のサポートは未定) <span class="frm">プロシージャでは限定的に利用可</span></dd>
+		<dt>OBJECT</dt><dd>利用不可 (今後のサポートは未定) <span class="frm">プロシージャでは限定的に利用可</span></dd>
+		<dt>LONG</dt><dd>利用不可 (サポート予定なし)</dd>
+	</dl>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">シーケンス</em> を利用します。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#isincrementsequencetodatamax">ReplaceSchema - データ登録 - シーケンス値の調整</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">rownum</em> を利用します。
+	</p>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="point">select</span> *
+  <span class="point">from</span> (
+<span class="point">select</span> plain.*, <span class="point">rownum</span> <span class="keyword">as</span> rn
+  <span class="point">from</span> (
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+       ) plain
+       ) ext
+ <span class="point">where</span> ext.rn &gt; <span class="literal">80</span>
+   <span class="point">and</span> ext.rn &lt;= <span class="literal">100</span>
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="point">select</span> *
+  <span class="point">from</span> (
+<span class="point">select</span> plain.*, <span class="point">rownum</span> <span class="keyword">as</span> rn
+  <span class="point">from</span> (
+<span class="keyword">select</span> ...
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> ...
+ <span class="keyword">where</span> ...
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> ...
+       ) plain
+       ) ext
+ <span class="point">where</span> ext.rn &gt; <span class="comment">/*pmb.pageStartIndex*/</span><span class="literal">80</span>
+   <span class="point">and</span> ext.rn &lt;= <span class="comment">/*pmb.pageEndIndex*/</span><span class="literal">100</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		TypedParameterBean における ManualPaging の自動判別ロジックは、"rownum"
+		という文字列が含まれることです。(大文字小文字は区別せず)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">for update of [pk-column]</em> を利用します。
+	</p>
+	<div class="relatedpage"><a href="#forupdatenowait">this - "for update nowait (wait N)" を利用</a></div>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+ <span class="point">for update of</span> dfloc.MEMBER_ID
+</code></pre>
+	<ul class="codeoutro">
+		<li>基点テーブルのカラム名を指定することで、ロックを基点テーブルのみ掛けるようにしています。</li>
+		<li>PKのないテーブルでは、何かしらのカラムが指定されます。</li>
+	</ul>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">ストアドプロシージャ</em> および <em class="keyword">ストアドファンクション</em>
+		を(DBFluteの機能としての)プロシージャとしてサポートしています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+	<dl class="keymainlist">
+		<dt>INパラメータ</dt><dd>サポート</dd>
+		<dt>OUTパラメータ</dt><dd>サポート</dd>
+		<dt>INOUTパラメータ</dt><dd>サポート</dd>
+		<dt>プロシージャリターン</dt><dd>サポート <span class="frm">※ストアドファンクションにおいて</span></dd>
+		<dt>ResultSetパラメータ</dt><dd>サポート</dd>
+		<dt>ResultSetリターン</dt><dd>DBMSにて未サポート</dd>
+		<dt>NotParamResult</dt><dd>DBMSにて未サポート</dd>
+		<dt>パッケージプロシージャ</dt><dd>サポート <span class="frm">※一部例外あり</span></dd>
+		<dt>プロシージャシノニム</dt><dd>サポート <span class="frm">※一部例外あり</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetparameter">ResultSetパラメータ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetreturn">ResultSetリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+	<h3 id="parametertype">プロシージャパラメータの型</h3>
+	<p>
+		テーブルのデータ型に加えて、TABLE型(PL/SQL表)、VARRAY型などが限定的に利用できます。
+	</p>
+	<div class="detailpage"><a href="./oraclearraystruct.html">Oracleの配列・構造体パラメータ</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#supportedtype">ProcedurePmb - サポートされる型</a></div>
+	<h3 id="packageprocedure">パッケージプロシージャ</h3>
+	<p>
+		パッケージプロシージャのParameterBeanのクラス名にはパッケージ名が付与されます。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#packageprocedure">パッケージプロシージャ</a></div>
+	<p>
+		パッケージプロシージャで利用できるオーバーロードプロシージャに対して、厳密なサポートはされていません。
+		オーバーロードは全て一つの ProcedurePmb として自動生成され、最小公倍数のプロパティ項目が定義されます。
+		そのままでは実行できないため、独自にサブクラスを定義してプロパティ項目を絞ることで実行が可能です。
+	</p>
+	<h3 id="proceduresynonym">プロシージャシノニム</h3>
+	<p>
+		プロシージャシノニムの自動生成はオプションです。
+	</p>
+	<div class="detailpage"><a href="#synonym">this - シノニムの利用</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#proceduresynonym">プロシージャシノニム</a></div>
+	<h3 id="nextprocedure">別スキーマのプロシージャ</h3>
+	<p>
+		別スキーマのプロシージャもオプションで自動生成できます。
+	</p>
+	<div class="detailpage"><a href="#additionalschema">this - 別スキーマの利用</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherschema">別スキーマ(OtherSchema)</a></div>
+	<h3 id="targetprocedure">自動生成対象プロパティの有効項目</h3>
+	<dl class="keymainlist">
+		<dt>Catalog</dt><dd>サポート <span class="frm">(パッケージプロシージャのパッケージ名として)</span></dd>
+		<dt>Schema</dt><dd>サポート</dd>
+		<dt>Name</dt><dd>サポート</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../dfprop/outsidesqldefinition/index.html#targetprocedure">dfprop - プロシージャの自動生成対象プロパティ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#catalog">Catalog(カタログ)</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<h3 id="forupdatenowait">"for update nowait (wait N)" を利用</h3>
+	<p>
+		Oracle独自の "for update of [pk] nowait" および "for update of [pk] wait N" を利用できます。
+	</p>
+<pre><span class="codetitle">e.g. selectした行を待機時間なし(NOWAIT)でロック @Java</span><code>
+cb.<span class="point">lockForUpdateNoWait</span>();
+Member member = memberBhv.selectEntityWithDeletedCheck(cb);
+<span class="comment">// select ... from MEMBER ... for update of MEMBER_ID nowait</span>
+</code></pre>	
+<pre><span class="codetitle">e.g. selectした行を待機時間 3 秒(WAIT 3)でロック @Java</span><code>
+cb.<span class="point">lockForUpdateWait</span>(3);
+Member member = memberBhv.selectEntityWithDeletedCheck(cb);
+<span class="comment">// select ... from MEMBER ... for update of MEMBER_ID wait 3</span>
+</code></pre>	
+	<h3 id="fulltextsearch">ConditionBeanで全文検索</h3>
+	<p>
+		"Oracle Text" の利用を想定した全文検索の条件を指定できます。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#oracletext">Oracle Text</a></div>
+<pre><span class="codetitle">e.g. 会員名称を "foo" で全文検索 @Java</span><code>
+MemberDbm dbm = MemberDbm.getInstance();
+cb.query().<span class="point">match</span>(dbm.columnMemberName(), <span class="literal">"foo"</span>);
+<span class="comment">// where (contains(dfloc.MEMBER_NAME, '{foo}') > 0)</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称と会員アカウントを "f{o}o" で全文検索 @Java</span><code>
+MemberDbm dbm = MemberDbm.getInstance();
+List&lt;ColumnInfo&gt; textColumnList = <span class="keyword">new</span> ArrayList&lt;ColumnInfo&gt;();
+textColumnList.add(dbm.columnMemberName());
+textColumnList.add(dbm.columnMemberAccount());
+cb.query().<span class="point">match</span>(textColumnList, <span class="literal">"f{o}o"</span>);
+<span class="comment">// where (contains(dfloc.MEMBER_NAME, '{f{o}}o}') > 0</span>
+<span class="comment">//    or contains(dfloc.MEMBER_ACCOUNT, '{f{o}}o}') > 0</span>
+<span class="comment">//       )</span>
+</code></pre>
+	<p>
+		条件値が null もしくは空文字の場合は、ConditionBeanの基本仕様と同じく条件は無効になります。条件値は必ずエスケープされます。("{}" で囲われる)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/howto.html#basicspec">ConditionBeanの使い方 - 基本仕様</a></div>
+
+	<h2 id="originaluse">DBMS独自の利用方法</h2>
+	<h3 id="materializedview">マテリアライズドビューの利用</h3>
+	<p>
+		マテリアライズドビューは、通常のビューと同様に自動生成して CB などで検索できます。
+	</p>
+	<p>
+		ReplaceSchemaで作成する場合は、データを登録してから作成する方が効率が良いので、take-finally(.sql)
+		にて create 文を記述すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/takefinally.html">ReplaceSchema - 最終チェック</a></div>
+<pre><span class="codetitle">e.g. ReplaceSchemaのデータ登録の後にマテリアライズドビューを作成 @take-finally.sql</span><code>
+<span class="keyword">create materialized view</span> SUMMARY_MEMBER_PURCHASE
+<span class="attribute">refresh complete</span>
+<span class="attribute">on commit</span>
+<span class="keyword">as</span>
+<span class="keyword">select</span> ... <span class="keyword">from</span> ...
+</code></pre>
+	<h3 id="synonym">シノニムの利用</h3>
+	<p>
+		以下の設定を行うことで自動生成対象にすることができます。
+	</p>
+	<dl class="textlist">
+		<dt>接続プロパティにシノニムを含める設定を有効に</dt>
+		<dd>databaseInfoMap.dfprop の propertiesMap に includeSynonyms=true を設定</dd>
+		<dt>自動生成対象オブジェクトにシノニムを追加</dt>
+		<dd>databaseInfoMap.dfprop の variousMap の objectTypeTargetList に SYNONYM を追加</dd>
+	</dl>
+	<div class="detailpage"><a href="../../dfprop/databaseinfo/index.html#propertiesmap">dfprop - propertiesMap</a></div>
+	<div class="detailpage"><a href="../../dfprop/databaseinfo/index.html#variousmap">databaseInfoMap - variousMap</a></div>
+	<h4>テーブル参照のシノニム自動生成の特徴</h4>
+	<ul>
+		<li>通常のテーブルと全く同じようにプログラム上で扱うことができる</li>
+		<li>シノニムのメタデータ(PK、FK、UQなど)を完全サポート <span class="frm">(参照先テーブルから取得)</span></li>
+		<li>シノニムの参照先テーブル自体は(直接利用しないなら)自動生成対象から除外してもよい</li>
+		<li>FK先テーブルにシノニムがある場合はそのシノニムの方に対して(のみ)関連が作成される</li>
+		<li>データベースリンクのシノニムもサポート。但し、一部メタデータ(FKとIndex情報)は未サポート</li>
+	</ul>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wd.html#dblink">データベースリンク(DB Link)</a></div>
+	<h4>プロシージャ参照のシノニム</h4>
+	<p>
+		プロシージャ参照のシノニム(プロシージャシノニム)に対する ProcedurePmb を自動生成するには、
+		テーブル参照のシノニムの設定に追加して、outsideSqlDefinitionMap.dfprop の
+		procedureSynonymHandlingType を設定することで自動生成できるようになります。
+	</p>
+	<div class="detailpage"><a href="../../dfprop/outsidesqldefinition/index.html#proceduresynonymhandlingtype">dfprop - procedureSynonymHandlingType</a></div>
+	<p>
+		データベースリンク先のプロシージャシノニムの場合は、データベースリンク先のプロシージャと同じく、
+		一部の機能が利用できない可能性があります。
+	</p>
+	<div class="relatedpage"><a href="#dblinkprocedure">データベースリンク先のプロシージャ</a></div>
+	<p>
+		パッケージプロシージャのパッケージ部分を参照したシノニム(パッケージシノニム)に関しては、未サポートです。
+		パッケージプロシージャ自体はシノニム経由ではない直接呼び出しでサポートされています。
+		DBリンク先のパッケージプロシージャは、DBFluteプロパティの直接定義においてサポートされています。
+		シノニムの利用が必須でないならば、これらで代替できます。
+		ただ、どうしてもシノニムの利用が必須の場合は、自動生成だけは直接パッケージプロシージャを参照して、
+		実行時は ProcedurePmb の Exクラスにて、プロシージャ名をオーバーライドしてシノニムに修正すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#packageprocedure">パッケージプロシージャ</a></div>
+	<div class="relatedpage"><a href="#dblinkprocedure">データベースリンク先のプロシージャ</a></div>
+	<h4>その他オブジェクト参照のシノニム</h4>
+	<p>
+		テーブル(として扱えるオブジェクト)とプロシージャ以外を参照するシノニムは特に自動生成という形式でのサポートはありません。
+		例えば、シーケンスのシノニムであれば、シノニムの名前を sequenceDefinitionMap.dfprop
+		にシーケンス名としてそのまま指定して利用できます(但し、シーケンスキャッシュは利用できません)。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/sequencedefinition/index.html">sequenceDefinitionMap.dfprop</a></div>
+	<h3 id="additionalschema">別スキーマの利用</h3>
+	<p>
+		(同じDBインスタンス内の)別スキーマのテーブルを自動生成の対象にすることができます。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherschema">別スキーマ(OtherSchema)</a></div>
+	<p>
+		但し、シノニムが利用できる環境であれば、別スキーマのテーブルを参照するシノニムを自動生成対象に含めることで代替することができます。
+		シノニムであれば、外だしSQL(OutsideSql)でもSQL上のテーブルのスキーマ修飾を意識する必要がありません。
+	</p>
+	<div class="relatedpage"><a href="#synonym">this - シノニムの利用</a></div>
+	<h3 id="dblinkprocedure">データベースリンク先のプロシージャ</h3>
+	<p>
+		outsideSqlDefinitionMap.dfprop の targetProcedureNameList にて、"プロシージャ名@データベースリンク名"
+		という形式で指定すると、そのプロシージャの ProcedurePmb が自動生成されます。ただし、一部の機能が利用できない可能性があります。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/outsidesqldefinition/index.html#targetprocedurenamelist">dfprop - targetProcedureNameList</a></div>
+	<p>
+		この場合、本来のこのプロパティの自動生成対象の絞り込みには影響しません。
+		データベースリンク先のどのプロシージャを自動生成対象にするかを、このプロパティを間借りして指定しているだけです。
+	</p>
+	<p>
+		パッケージシノニムはサポートされていないので、データベースリンク先のパッケージプロシージャを呼び出す場合は、
+		この機能を使って代替します。
+	</p>
+	<div class="relatedpage"><a href="#packageprocedure">パッケージプロシージャ</a></div>
+	<h3 id="recyclebin">Recyclebin の一掃</h3>
+	<p>
+		OracleでReplaceSchemaを繰り返し実行すると、Oracle内部の Recyclebin
+		の古いテーブル情報がどんどん積み重なっていきます。それで特に問題になることはありませんが、
+		JDBCタスクでの除外作業がちょっとずつ長くなる可能性がありますので、take-finally(.sql)
+		にて、"purge recyclebin" を実行すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/takefinally.html">ReplaceSchema - 最終チェック</a></div>
+<pre><span class="codetitle">e.g. ReplaceSchemaの最後に Recyclebin を一掃 @take-finally.sql</span><code>
+<span class="keyword">purge</span> <span class="attribute">recyclebin</span>;
+</code></pre>
+	<h3 id="dateliteral">日付リテラル</h3>
+	<p>
+		表示用SQLの日付フォーマットとして、日付リテラルを利用しています。表示用SQLをツールから実行するような場合に、
+		(Oracleの仕様として)リテラルなしの日付フォーマットだとエラーになることがあるためです。
+	</p>
+	<dl class="valuemainlist">
+		<dt>日付</dt><dd>date '2009-12-24'</dd>
+		<dt>日時</dt><dd>timestamp '2009-12-24 12:34:56'</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Oracleの日付リテラルを利用した表示用SQL @DisplaySql</span><code>
+ <span class="keyword">where</span> BIRTHDATE &gt;= <span class="attribute">timestamp</span> '2009-12-24 12:34:56'
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="attribute">timestamp</span> '2009-12-24 12:34:56.123'
+</code></pre>
+	<p>
+		これは、2Way-SQL を実現する上でも重要な要素です。バインド変数コメントのテスト値でこの日付リテラルを利用して、2Way-SQL
+		の要件を満たすようにします。
+	</p>
+<pre><span class="codetitle">e.g. Oracleの日付リテラルを利用した2Way-SQL @OutsideSql</span><code>
+member.FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate*/</span><span class="attribute">date</span> '1964-12-27'
+</code></pre>
+	<ul class="codeoutro">
+		<li>この場合に限り、テスト値の中に空白(date や timestamp の後ろ)が含まれていても正常に認識される</li>
+	</ul>
+	<h3 id="oracledate">Oracleの日付型の最適化</h3>
+	<p>
+		Oracle のDATE型(時分秒あり)に対する検索条件では、java.sql.Timestamp でバインドするよりも、oracle.sql.DATE
+		でバインドする方がインデックス利用効率が良いことが報告されています。
+		(Timestamp でもインデックスが利用されないわけではなく、oracle.sql.DATE の方がより効率のよいインデックス利用をする)
+	</p>
+	<p>
+		デフォルトでは前者ですが、オプションにて後者を利用するように最適化することができます。littleAdjustmentMap.dfprop
+		の isAvailableDatabaseNativeJDBC を有効にすると、上記の最適化を利用することができます。具体的には、java.util.Date
+		型のプロパティに対するバインドの型が Timestamp ではなく oracle.sql.DATE
+		に差し替えられます。<span class="frm">@since 0.9.7.5</span>
+	</p>
+	<div class="detailpage"><a href="../../dfprop/littleadjustment/index.html#isavailabledatabasenativejdbc">dfprop - isAvailableDatabaseNativeJDBC</a></div>
+	<p>
+		但し、これはJavaやJDBCドライバ、Oracle自体のバージョンに結果が依存するかもしれません。
+		プロジェクトの環境に最適だと考えられる場合に限り利用するようにして下さい。
+	</p>
+	<p>
+		dbflute-oracle-example(Java6, ojdbc6.jar, Oracle10g XE)においては、30万件のテーブルのDATE型に対する検索条件で、
+		わずかながらパフォーマンスが向上されたことが確認されています。
+		テスト環境のPC上において(MacOSX上のVMWareによるWindowsXP)、日付型カラムに GreaterEqual の条件を付与して selectCount()
+		を実行し、平均 50ms の検索処理が 平均 30ms に。そもそもインデックスが付いていない場合だと、どちらにしても平均 150ms は超える。
+	</p>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="derivedonetoone">導出的one-to-oneのインラインビュー化</h3>
+	<p>
+		Oracle では、join の on 句に相関サブクエリを記述することができないため(Oracle10gで確認)、
+		導出的one-to-oneを利用する場合は、固定条件(fixedCondition)をインラインビューにする必要があります。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html#derivedonetoone">現場フィット - 業務的one-to-one - 導出的one-to-one</a></div>
+	<h3 id="procedureescape">プロシージャのエスケープ</h3>
+	<p>
+		char型のパラメータが存在して、かつ、内部でDBアクセス処理を行っている場合、
+		エスケープ処理を施していると逆にエラーになってしまうことがあります(JDBCドライバのバージョンに依存する可能性あり)。その場合は、ProcedurePmb
+		にて、そのプロシージャだけエスケープなしで実行されるように調整します。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#escape">Sql2Entity - ProcedurePmb - プロシージャのエスケープ</a></div>
+	<h3 id="customizemetadata">CustomizeEntityの対応テーブル</h3>
+	<p>
+		CustomizeEntityのそれぞれのカラムが、元は何のテーブルの何のカラムから派生したものか、通常はJDBCのメタデータから取得できるため、	Sql2Entity
+		内で自動解決し、JavaDocコメント上などで表示されます。但し、Oracleに関してはこのメタデータが取得できません。
+		これによって、機能の利用の仕方が少しだけ変わるものがあります。外だしSQLでの LoadReferrer
+		では、このことによりPKマークで "元は何のテーブルのカラムだったのか" を明示的に指定する必要があります。 
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/behavior/select/loadreferrer.html#outsidesql">Behavior - 外だしSQLでもLoadReferrer</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		Oracle を使ったExample実装 <em class="keyword">dbflute-oracle-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにOracleと付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<dl class="textlist">
+		<dt>CLOBのValueType</dt>
+		<dd>
+			OracleのCLOBは、VARCHARの時とは違うValueTypeを使う必要がありますが、その指定をEntityの定数アノテーションにて行っています。
+			自動生成時にCLOBか否かを判断し、該当カラムに付与します。
+			一方で、プラグインValueTypeとしてCLOB専用のValueTypeを、初期化時に登録しています。
+		</dd>
+		<dt>in句の1000制限対応</dt>
+		<dd>
+			Oracleの in句 (InScope) は、指定できる要素が 1000 個までと制限されています。頻度は少ないにしろ、業務で 1000
+			個以上指定したいこともあり、通常その場合は条件を分割して or 句などでつなげる必要があります。DBFlute の ConditionBean
+			では、1000 以上の要素が InScope に指定されたときに、内部で自動的に分割して同じ条件を実現しています。
+		</dd>
+		<dt>バッチ更新の排他制御</dt>
+		<dd>
+			OracleのJDBCドライバは、PreparedStatement.executeBatch()
+			の戻り値からとして更新件数を取得することができません。代わりに Statement.getUpdateCount()
+			の値を使って排他制御を実現しています。
+		</dd>
+		<dt>DATEのマッピング</dt>
+		<dd>
+			OracleのDATEは、JDBC上では ojdbc5.jar と ojdbc6.jar で違う型として扱われています。前者は java.sql.Types.DATE、後者は
+			java.sql.Types.TIMESTAMP。DBFluteではこの違いを意識しないために、OracleのDATEを java.util.Date
+			で扱うことを固定の仕様とし、メタデータ取得時に固定で前者の型にマッピングしています。
+		</dd>
+		<dt>表示用SQLの日付フォーマット</dt>
+		<dd>
+			日付リテラルを利用するようにしていますが、これはデフォルトのフォーマットと違うため、
+			初期化時(DBFluteConfigの初期化)に専用のフォーマットを設定して実現してます。
+			また、バインド変数コメントのテスト値で利用された場合に、リテラル表現の後の空白をテスト値の終わりと判断しないようにしています。
+		</dd>
+		<dt>シノニムのメタデータ</dt>
+		<dd>
+			JDBC経由だとシノニムのメタデータ(PKやFKなど)はほとんど取得できません。
+			データディクショナリを直接参照し、参照先テーブルのメタデータを取得して利用しています。
+		</dd>
+		<dt>プロシージャのカタログ名</dt>
+		<dd>
+			メタデータ上のプロシージャのカタログ名が、パッケージプロシージャのパッケージ名として扱われているため、特別な処理を施しています。
+			(他のDBMSでは、基本的にはカタログ名はそのままカタログ名(データベース名)として扱われます)
+		</dd>
+		<dt>全角の "％" や "＿" もワイルドカード</dt>
+		<dd>
+			Oracleは、全角の "％" や "＿" もワイルドカードとして扱われるため、曖昧検索のエスケープ処理にて、これらも対象としています。
+			但し、DBMSごとの分岐がとてもしづらい部分での処理のため、DBMSに関わらずエスケープしています。
+			(全角をワイルドカードにしない他のDBMSでは単にエスケープ文字が無視されるだけで、動作に問題ないことはテストで確認されている)
+		</dd>
+		<dd>
+			ただ、Oracleのバージョンによって、全角の "％" や "＿" がワイルドカードにならないケースがあるようです。
+			<div class="relatedpage"><a href="https://groups.google.com/forum/#!topic/dbflute/LzuHYseRtmA">外部サイト - Oracle11gR2でLike検索でエラーになるケース</a></div>
+		</dd>
+	</dl>
+	<p>
+		その他、挙げるとキリがないくらいあります。
+	</p>
+
+	<h2 id="supplement">Oracle補足資料</h2>
+	<h3>マテリアライズドビューを作成</h3>
+<pre><span class="codetitle">e.g. マテリアライズドビューを作成 @SQL</span><code>
+<span class="keyword">create materialized view</span> SUMMARY_MEMBER_PURCHASE
+<span class="attribute">refresh complete</span>
+<span class="attribute">on commit</span>
+<span class="keyword">as</span>
+<span class="keyword">select</span> ... <span class="keyword">from</span> ...
+</code></pre>
+	<h3>シノニムを作成</h3>
+<pre><span class="codetitle">e.g. シノニムを作成 @SQL</span><code>
+<span class="keyword">create synonym</span> VD_SYNONYM_MEMBER <span class="keyword">for</span> MEMBER;
+</code></pre>
+	<h3>シーケンスを作成</h3>
+<pre><span class="codetitle">e.g. シーケンスを作成 {SEQ_MEMBER} @SQL</span><code>
+<span class="keyword">create sequence</span> SEQ_MEMBER <span class="keyword">start with</span> 1 <span class="keyword">increment by</span> 1;
+</code></pre>
+	<h3>シーケンスを取得</h3>
+<pre><span class="codetitle">e.g. シーケンスを取得 {SEQ_MEMBER} @SQL</span><code>
+<span class="keyword">select</span> SEQ_MEMBER.<span class="attribute">nextval</span> <span class="keyword">from</span> dual;
+</code></pre>
+	<h3>Oracleでストアドプロシージャを作成</h3>
+<pre><span class="codetitle">e.g. パラメータなしのストアドプロシージャを作成 @SQL</span><code>
+<span class="keyword">create or replace procedure</span> SP_NO_PARAMETER
+<span class="keyword">as</span>
+<span class="keyword">begin</span>
+  dbms_output.put_line(<span class="literal">'aaa'</span>);
+<span class="keyword">end</span> SP_NO_PARAMETER;
+</code></pre>
+<pre><span class="codetitle">e.g. パラメータありのストアドプロシージャを作成 @SQL</span><code>
+<span class="keyword">create or replace procedure</span> SP_IN_OUT_PARAMETER(
+  v_in_varchar <span class="attribute">in</span> <span class="dbtype">varchar2</span>
+  , v_out_varchar <span class="attribute">out</span> <span class="dbtype">varchar2</span>
+  , v_inout_varchar <span class="attribute">in out</span> <span class="dbtype">varchar2</span>) <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  dbms_output.put_line(v_in_varchar);
+  dbms_output.put_line(v_out_varchar);
+  dbms_output.put_line(v_inout_varchar);
+  v_out_varchar := <span class="literal">'ddd'</span>;
+  v_inout_varchar := <span class="literal">'eee'</span>;
+<span class="keyword">end</span> SP_IN_OUT_PARAMETER;
+</code></pre>
+	<h4>ResultSetパラメータ</h4>
+<pre><span class="codetitle">e.g. ResultSetパラメータのストアドプロシージャを作成 @SQL</span><code>
+<span class="keyword">create or replace procedure</span> SP_RESULT_SET_PARAMETER(cur <span class="attribute">out</span> <span class="attribute">sys_refcursor</span>)
+<span class="keyword">as</span>
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur <span class="keyword">for select</span> * <span class="keyword">from</span> MEMBER;
+<span class="keyword">end</span> SP_RESULT_SET_PARAMETER;
+</code></pre>
+	<h4>パッケージプロシージャ</h4>
+<pre><span class="codetitle">e.g. パッケージプロシージャを作成 (definition) @SQL</span><code>
+<span class="keyword">create or replace package</span> MAIN_PKG <span class="keyword">as</span>
+  <span class="keyword">procedure</span> SP_PKG_NO_PARAMETER;
+  <span class="keyword">procedure</span> SP_PKG_IN_OUT_PARAMETER(v_in_varchar <span class="attribute">in</span> <span class="dbtype">varchar2</span>
+                                  , v_out_varchar <span class="attribute">out</span> <span class="dbtype">varchar2</span>
+                                  , v_inout_varchar <span class="attribute">in out</span> <span class="dbtype">varchar2</span>);
+<span class="keyword">end</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. パッケージプロシージャを作成 (body) @SQL</span><code>
+<span class="keyword">create or replace package body</span> MAIN_PKG <span class="keyword">as</span>
+<span class="keyword">procedure</span> SP_PKG_NO_PARAMETER <span class="keyword">is</span>
+<span class="keyword">begin</span>
+  dbms_output.put_line(<span class="literal">'aaa'</span>);
+<span class="keyword">end</span> SP_PKG_NO_PARAMETER;
+<span class="keyword">procedure</span> SP_PKG_IN_OUT_PARAMETER(v_in_varchar <span class="attribute">in</span> <span class="dbtype">varchar2</span>
+                                , v_out_varchar <span class="attribute">out</span> <span class="dbtype">varchar2</span>
+                                , v_inout_varchar <span class="attribute">in out</span> <span class="dbtype">varchar2</span>) <span class="keyword">is</span>
+<span class="keyword">begin</span>
+  dbms_output.put_line(v_in_varchar);
+  dbms_output.put_line(v_out_varchar);
+  dbms_output.put_line(v_inout_varchar);
+  v_out_varchar := 'ddd';
+  v_inout_varchar := 'eee';
+<span class="keyword">end</span> SP_PKG_IN_OUT_PARAMETER;
+<span class="keyword">end</span>;
+</code></pre>
+	<h3>ストアドファンクションを作成</h3>
+<pre><span class="codetitle">e.g. パラメータなしのストアドファンクションを作成 (body) @SQL</span><code>
+<span class="keyword">create or replace function</span> FN_NO_PARAMETER
+<span class="keyword">return</span> <span class="dbtype">varchar2</span> <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  <span class="keyword">return</span> <span class="literal">'FN_NO_PARAMETER'</span>;
+<span class="keyword">end</span> FN_NO_PARAMETER;
+</code></pre>
+<pre><span class="codetitle">e.g. パラメータなしのストアドファンクションを作成 (body) @SQL</span><code>
+<span class="keyword">create or replace function</span> FN_IN_OUT_PARAMETER(
+  v_in_varchar <span class="attribute">in</span> <span class="dbtype">varchar2</span>
+  , v_out_varchar <span class="attribute">out</span> <span class="dbtype">varchar2</span>
+  , v_inout_varchar <span class="attribute">in out</span> <span class="dbtype">varchar2</span>)
+<span class="keyword">return</span> <span class="dbtype">varchar2</span> <span class="keyword">as</span>
+<span class="keyword">begin</span>
+  dbms_output.put_line(v_in_varchar);
+  dbms_output.put_line(v_out_varchar);
+  dbms_output.put_line(v_inout_varchar);
+  v_out_varchar := <span class="literal">'ddd'</span>;
+  v_inout_varchar := <span class="literal">'eee'</span>;
+  <span class="keyword">return</span> <span class="literal">'FN_IN_OUT_PARAMETER'</span>;
+<span class="keyword">end</span> FN_IN_OUT_PARAMETER;
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

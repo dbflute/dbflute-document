@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 C | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 C</h1>
+	<p>
+		"C" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="camelcase" class="dicword">CamelCase (キャメルケース)</h2>
+	<p>
+		それぞれの単語の先頭を大文字にして複数の単語を連結した表現のことを示します。例えば、"MEMBER STATUS"
+		をキャメルケースにすると "MemberStatus" となります。DBFluteでは、先頭文字だけ小文字にした "memberStatus"
+		もキャメルケースと呼んでいます。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/programming/completion/camelcase.html">キャメルケースコード補完</a></div>
+
+	<h2 id="catalog" class="dicword">Catalog (カタログ)</h2>
+	<p>
+		DBFluteでは、主にスキーマの上位であるデータベースという概念のことを示します。
+		JDBC上では、データベースはこのカタログという言葉で取り扱われています。
+		DBFluteでも、データベースという言葉が非常に曖昧なため、DBMSに依存しないという意味でもこのカタログという言葉を使っています。
+	</p>
+
+	<h2 id="childtable" class="dicword">Child Table (子テーブル)</h2>
+	<p>
+		主に one-to-many リレーションの関連側のテーブルのことを示す。
+		one-to-one は、FK制約の参照方向が one-to-many と同じであるが、DBFluteの実装上は many-to-one
+		と同じように扱うことができるため、どちらかと言うと ParentTable に含まれる。
+		(そういう意味では、この言葉は "基点に対して関連側が many になるもの" と定義できる)
+	</p>
+	<p>
+		但し、DBFluteの実装から離れて、スキーマ上のテーブル構造だけの世界だけの焦点を当てる場合は、
+		one-to-one は、この言葉ではなく、FK制約の参照方向でカテゴリ分けして ChildTable に含まれることがある。
+		(この場合は、実装上の扱いではなく、業務的なデータの従属性に焦点を当てている)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/entity/relation.html">Entity間のリレーション</a></div>
+	<div class="relatedword"><a href="./wp.html#parenttable">Parent Table (親テーブル)</a></div>
+
+	<h2 id="clientdirectory" class="dicword">ClientDirectory (クライアントディレクトリ)</h2>
+	<p>
+		DBFluteクライアントの別名。ディレクトリであることを強調するときに利用される。
+	</p>
+	<div class="relatedword"><a href="./wd.html#dbfluteclient">DBFluteClient (DBFluteクライアント)</a></div>
+
+	<h2 id="commoncolumn" class="dicword">CommonColumn (共通カラム)</h2>
+	<p>
+		全てのテーブル(もしくは、ほとんどのテーブル)に定義されるカラムを示します。
+		主には登録日時や更新ユーザ、更新プロセスなどの該当レコードのメタ情報で、アプリケーションによって形式は変わることが多いです。
+		これらカラムは大抵一定の規則に従って登録・更新されることが多いので、DBFluteではこれらカラムに対して登録時・更新時の自動設定を行うことができます。
+	</p>
+	<div class="detailpage"><a href="../../../topic/programming/dbaccess/commoncolumn.html">DBアクセス - 共通カラム</a></div>
+
+	<h2 id="concurrentupdate" class="dicword">ConcurrentUpdate (すれ違い更新)</h2>
+	<p>
+		同じレコードに対して、複数の人がほぼ同時に更新を行うことを示します。
+		例えば、Aさん、Bさんがいたとして、Aさんがあるレコードを更新画面で開いて更新値を入力している間に、Bさんが同じレコードを更新してしまって、
+		続いて、Aさんが更新してしまうという状況、これは業務的に正しい状況では言えない可能性があります。
+		この場合、互いに、相手が更新したことを知りません(少なくとも、アプリの仕組みとして知ることが強制されない)。
+		もしかしたら、Bさんの更新内容によっては、Aさんは業務的にそのレコードを更新する必要はなかったかもしれません(してはいけなかったかもしれない)。
+		また、アプリの作り方次第ですが、Bさんの更新内容がAさんの更新で上書きされてしまったかもしれません。
+		そのような "すれ違い" を防ぐための仕組みが排他制御です。
+	</p>
+	<div class="detailpage"><a href="../../../topic/programming/dbaccess/exclusivecontrol.html">DBアクセス - 排他制御</a></div>
+
+	<h2 id="conditionbean" class="dicword">ConditionBean</h2>
+	<p>
+		DBFluteが提供するタイプセーフにSQLを組み立てるAPI。これを極めるとDBアクセスが楽しくなる。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/conditionbean/index.html">ConditionBean</a></div>
+
+	<h2 id="conditionkey" class="dicword">ConditionKey</h2>
+	<p>
+		ConditionBeanにおける、比較条件のことを示します。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/conditionbean/about.html#conditionkey">ConditionKeyとは？</a></div>
+
+	<h2 id="constantannotation" class="dicword">ConstantAnnotation (定数アノテーション)</h2>
+	<p>
+		Java Tiger のアノテーションや C# の属性を代替する、言語のバージョンに依存せずに利用できる定数を使ったアノテーションを示します。
+		DBFluteでは、一部(ほとんど)内部的に利用しています。タイプセーフではない代わりに、定義場所を問わずに利用できるのが特徴です。
+		例えば、ProcedurePmb のパラメータ定義などに利用されています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#parameterdef">ProcedurePmb - プロシージャのパラメータ定義</a></div>
+
+	<h2 id="containsearch" class="dicword">ContainSearch (部分一致)</h2>
+	<p>
+		LikeSearch条件の方向の一つで、例えば、"A を含む" という条件における一致の方向のこと、もしくは、
+		また、その条件を設定する機能のことを示します。中間一致という言葉と区別なく利用されます。
+		基本的には、(Bツリー)インデックスが利用できないため、パフォーマンスに対する意識を強くする必要があります。
+	</p>
+	<div class="relatedword"><a href="./wl.html#likesearchmatchdirection">LikeSearchMatchDirection (LikeSearch条件の一致の方向)</a></div>
+
+	<h2 id="cursorskip" class="dicword">CursorSkip (カーソルスキップ) <span class="frm">for Paging</span></h2>
+	<p>
+		ページング処理におけるページング条件の実現方法の一つで、検索結果をカーソルで扱っているときに、
+		必要なデータだけ読み込むようにカーソル操作してページング条件を実現させる方法のことを示します。
+	</p>
+	<div class="detailpage"><a href="../../../topic/programming/dbaccess/pagingselect.html#cursorskip">DBアクセス - ページング検索 - カーソルスキップ</a></div>	
+	<div class="relatedword"><a href="./wl.html#loopthrough">LoopThrough (ループスルー)</a></div>	
+	<div class="relatedword"><a href="./wp.html#pointershift">PointerShift (ポインタシフト)</a></div>	
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

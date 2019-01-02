@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,union,UnionQuery,パフォーマンス" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>UnionQuery | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>UnionQuery</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		基点テーブルに対する(一つのSQL内での)二つ以上の結果セットを統合します(union句の利用)。
+	</p>
+	<p>
+		union all も可能です。業務的に重複がないことが確定するのであれば、(SQL内部での)重複チェックが行われない union all
+		の方が(若干)パフォーマンス的に優位です。
+	</p>
+	<p>
+		パフォーマンス考慮としての union に関するポリシーがあります。 
+	</p>
+	<div class="detailpage"><a href="#performance">パフォーマンス考慮での union</a></div>
+	<p>
+		会話上では、<em class="keyword">ゆにおんくえり</em> もしくは単に <em class="keyword">ゆにおん</em>
+		と表現します。また、union で統合される中の一つの select 文のことを UnionQuery と表現することもあります。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		まずは通常通り、取得対象のテーブルを確定します。基点テーブルだけであれば、単に new
+		するだけ。関連テーブルがある場合は、SetupSelect を指定。その後、union() を呼び出して、UnionQuery
+		のコールバック実装を引数に指定します。
+	</p>
+<pre><span class="codetitle">e.g. 会員の名称だけを取得 (Eclipseでコード補完) @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus(); <span class="comment">// 取得テーブル(カラム)を確定させて</span>
+cb.query().setMemberName_PrefixSearch</span>(<span class="literal">"S"</span>); <span class="comment">// メインの絞り込み条件</span>
+cb.u <span class="comment">// .u と打って enter (union all なら、.uA + enter)</span>
+--
+<span class="comment">// メソッドが補完されて、引数の "unionQuery" が選択状態に</span>
+cb.<span class="point">union</span>(unionQuery)
+--
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+cb.union(<span class="point">new </span>)
+--
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.union(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+--
+<span class="comment">// ctrl (or command) + D で不要な空行やTODOコメントを消して</span>
+<span class="comment">// UnionQuery での絞り込み条件を指定</span>
+cb.union(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        unionCB.query().setBirthdate_GreaterEqual</span>(toDate(<span class="literal">"2000/01/01"</span>));
+    }
+});
+cb.query().addOrderBy_Birthdate_Asc(); <span class="comment">// order-by は union の後に設定</span>
+</code></pre>
+	<p>
+		UnionQuery 内で SetupSelect をする必要はありません(してはいけません)。メインの ConditionBean での SetupSelect
+		が UnionQuery に引き継がれます。また、SpecifyColumn も同様です。
+	</p>
+	<div class="relatedpage"><a href="#aftersetupselect">this - 必ず SetupSelect の後に指定</a></div>
+	<p>
+		また、OrderBy でのカラムへの参照はエリアス名で解決されます。また、OrderBy に関する幾つかの機能制限があります。
+	</p>
+	<div class="relatedpage"><a href="#beforeorderby">this - 必ず OrderBy の前に指定</a></div>
+	<div class="relatedpage"><a href="#nocasewhen">this - OrderBy で case when 構文がNG</a></div>
+<pre><span class="codetitle">e.g. 会員名称が "S" で始まる、もしくは、生年月日が 2000/01/01 以降 の会員 @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID as c1, dfloc.MEMBER_NAME as c2, <span class="abbreviation">...</span>
+     , dfrel_0.MEMBER_STATUS_CODE as c14, dfrel_0.MEMBER_STATUS_NAME as c15, <span class="abbreviation">...</span> 
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 on dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE 
+ <span class="keyword">where</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+ <span class="point">union</span> 
+<span class="keyword">select</span> dfloc.MEMBER_ID as c1, dfloc.MEMBER_NAME as c2, <span class="abbreviation">...</span>
+     , dfrel_0.MEMBER_STATUS_CODE as c14, dfrel_0.MEMBER_STATUS_NAME as c15, <span class="abbreviation">...</span> 
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE 
+ <span class="keyword">where</span> dfloc.BIRTHDATE &gt;= <span class="literal">'2000-01-01'</span>
+ <span class="keyword">order by</span> <span class="point">c6</span> <span class="keyword">asc</span>
+</code></pre>
+	<h3 id="severalunion">UnionQuery の連結</h3>
+	<p>
+		UnionQuery を何度も連結させることができます。
+	</p>
+<pre><span class="codetitle">e.g. UnionQueryの複数回の連結 @Java</span><code>
+cb.union(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        cb.query().setMemberStatusCode_Equal_Formalized();
+    }
+});
+cb.unionAll(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        cb.query().setBirthdate_IsNotNull();
+    }
+});
+cb.union(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        cb.query().setFormalizedDatetime_IsNotNull();
+    }
+});
+</code></pre>
+	<h3 id="collaboration">他の機能との組み合わせ</h3>
+	<p>
+		ExistsReferrer や (Specify)DerivedReferrer などの SubQuery 内でも UnionQuery
+		は利用できます。また、そういうときでも、発行されるSQLの整形が乱れることはありません。
+	</p>
+	<div class="relatedpage"><a href="../query/existsreferrer.html">ExistsReferrer</a></div>
+	<div class="relatedpage"><a href="../specify/derivedreferrer.html">(Specify)DerivedReferrer</a></div>
+<pre><span class="codetitle">e.g. ExistsReferrer の中で UnionQuery @Java</span><code>
+cb.query().<span class="point">existsPurchaseList</span>(new SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.query().setPaymentCompleteFlg_Equal_True();
+        subCB.<span class="point">union</span>(<span class="keyword">new</span> UnionQuery&lt;PurchaseCB&gt;() {
+            <span class="keyword">public void</span> query(PurchaseCB unionCB) {
+                unionCB.query().setPurchaseCount_GreaterEqual(<span class="literal">2</span>);
+            }
+        });
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. ExistsReferrer の中で UnionQuery @DisplaySql</span><code>
+ <span class="keyword">where exists</span> (<span class="keyword">select</span> sub1loc.MEMBER_ID
+                 <span class="keyword">from</span> PURCHASE sub1loc 
+                <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+                  <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">1</span>
+                <span class="keyword">union</span> 
+               <span class="keyword">select</span> sub1loc.MEMBER_ID 
+                 <span class="keyword">from</span> PURCHASE sub1loc 
+                <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+                  <span class="keyword">and</span> sub1loc.PURCHASE_COUNT >= <span class="literal">2</span>
+       )
+</code></pre>
+
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="aftersetupselect">必ず SetupSelect の後に指定</h3>
+	<p>
+		呼び出しの順番の制約として、UnionQuery は必ず SetupSelect および SpecifyColumn
+		の後に指定します。順番通りでない場合は例外が発生します。
+	</p>
+	<div class="relatedpage"><a href="../setupselect/index.html">SetupSelect(Relation)</a></div>
+	<div class="relatedpage"><a href="../specify/specifycolumn.html">SpecifyColumn</a></div>
+	<h3 id="beforeorderby">必ず OrderBy の前に指定</h3>
+	<p>
+		呼び出しの順番の制約として、UnionQuery は必ず OrderBy の前に指定します。順番通りでない場合は例外が発生します。
+	</p>
+	<div class="relatedpage"><a href="../query/orderby/index.html">OrderBy</a></div>
+	<h3 id="nocasewhen">OrderBy で case when 構文がNG</h3>
+	<p>
+		UnionQuery を使った場合、ManualOrder はサポートされません。また、NullsFirst/Last
+		は、case when 構文で実現する DBMS の場合にサポートされません。
+	</p>
+	<div class="relatedpage"><a href="../query/orderby/manualorder.html">ManualOrder</a></div>
+	<div class="relatedpage"><a href="../query/orderby/nullsfirstlast.html">NullsFirst/Last</a></div>
+	<h3 id="nestedunion">UnionQuery の中の UnionQuery</h3>
+	<p>
+		無意味ですが、特に例外にもならず、無視されます。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="performance">パフォーマンス考慮での union</h2>
+		<p>
+			union は、or 条件の代替として利用されることがあります。or
+			条件は、テーブルスキャンが発生してしまう可能性がありますが、union
+			に分解すれば、それぞれの select
+			文でインデックスが利用され(されるように条件を書く)、パフォーマンス的に安定するためです。
+		</p>
+		<p>
+			但し、昨今のDBMSでは(2010/11/05時点)、or 条件でもインデックスを利用し、極端なパフォーマンス劣化を防ごうという動きもあります。
+			例えば、MySQL-5.1のインデックス結合最適化(index_merge)など。そういう意味では、あまり union
+			にこだわる必要はないかもしれませんが、それに任せてしまって良いかどうかは結局アプリのパフォーマンス要件の厳しさや状況次第になるかと思います。
+		</p>
+		<p>
+			union でないと実現できない、or 条件でないと実現できない、という明確な要件がある場合を除くとして、結論としては、
+			両方試して実行計画や実行時間を吟味するのが一番というところです。
+			少なくともDBFluteでは、仮に union の方がパフォーマンスが良いという状況の場合に、別の余計な要素で union
+			の利用を止めてしまうようなことが無いように努めています。union と聞くと "SQL書くのが面倒そう"
+			と思われる方が多いと思われますが、確かに外だしSQLで書けば入力文字は圧倒的に増えますが、ConditionBean
+			であれば、コールバックで絞り込み条件を指定するだけとなります(select 句や from, join 句は自動解決)。
+			また、"SQLが見づらくなりそう" という問題も、union を使ってもしっかり整形されたSQLとなります。
+		</p>
+<pre><span class="codetitle">e.g. 会員名称が "S" で始まる、もしくは、生年月日が 2000/01/01 以降 の会員 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().<span class="point">setMemberName_PrefixSearch</span>(<span class="literal">"S"</span>);
+cb.union(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        unionCB.query().<span class="point">setBirthdate_GreaterEqual</span>(toDate(<span class="literal">"2000/01/01"</span>));
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称が "S" で始まる、もしくは、生年月日が 2000/01/01 以降 の会員 @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID as c1, dfloc.MEMBER_NAME as c2, <span class="abbreviation">...</span>
+     , dfrel_0.MEMBER_STATUS_CODE as c14, dfrel_0.MEMBER_STATUS_NAME as c15, <span class="abbreviation">...</span> 
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 on dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE 
+ <span class="keyword">where</span> <span class="point">dfloc.MEMBER_NAME like <span class="literal">'S%'</span> escape '|'</span>
+ <span class="keyword">union</span> 
+<span class="keyword">select</span> dfloc.MEMBER_ID as c1, dfloc.MEMBER_NAME as c2, <span class="abbreviation">...</span>
+     , dfrel_0.MEMBER_STATUS_CODE as c14, dfrel_0.MEMBER_STATUS_NAME as c15, <span class="abbreviation">...</span> 
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE 
+ <span class="keyword">where</span> <span class="point">dfloc.BIRTHDATE &gt;= <span class="literal">'2000-01-01'</span></span>
+</code></pre>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

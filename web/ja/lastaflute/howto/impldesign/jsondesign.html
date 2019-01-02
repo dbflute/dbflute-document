@@ -1,0 +1,910 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>JSON APIのJSONデザイン | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>JSON APIのJSONデザイン</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<p>
+		LastaFluteのドキュメントではありますが、どんなフレームワークを使っていても JSON API
+		を構築するときに通じるお話かもしれません。
+	</p>
+	<p>
+		一方で、jfluteもまだまだ研究中のテーマなので、何か要因が見つかれば随時更新していきます。
+	</p>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="atfirst">まず、これを決めましょう</h3>
+	<p>
+		JSON APIを作ろうとしている人は、実装する前に必ずこれを決めましょう。
+	</p>
+	<ul>
+		<li><a href="#jsonnuance">A. そもそもJSONをどんなニュアンスで戻す？</a></li>
+		<li><a href="#jsonerrorexp">B. エラー表現: Failure統一パターン？共通ヘッダーパターン？</a></li>
+		<li><a href="#jsonresponse">C. JSONのデータ型: 型ありJSON？型なしJSON？</a></li>
+		<li><a href="#dateformat">D. 日付フォーマット: クライアントフォーマット？サーバーフォーマット？</a></li>
+		<li><a href="#messagemanage">E. メッセージ管理: クライアントメッセージ管理？サーバーメッセージ管理？</a></li>
+		<li><a href="#keycase">F. キーのケース: キャメルケース？スネークケース？</a></li>
+		<li><a href="#bodyform">G. リクエストの形: JSON Body？Form？</a></li>
+	</ul>
+	<p>
+		<span class="frm">※というか、JSON APIじゃなくても(サーバーサイドHTMLでも)、Ajax で JsonResponse
+		を受け取るメソッドをたくさん作るのであれば同じことです。</span>
+	</p>
+	<h3 id="forspecified">どちらかと言うと、特定クライアント向けAPI</h3>
+	<p>
+		ただ、特定クライアント向けAPIと外部クライアント向けAPIで色々と変わるかもしれません。
+		ここでは、どちらかと言うと、特定クライアント向けAPIを想定しています。つまり、Webアプリの JavaScript や iPhone, Android
+		など、サービスを作る上での構成アプリの一つだったり、サービス外でも社内の別のサービスだったり、クライアントを特定できるケースでのAPIです。
+	</p>
+	<div class="inucolumn">
+		<h3 id="firstapiforever">最初のAPIのデザインが会社標準デザイン</h3>
+		<p>
+			よくあることです。最初に開発するAPIで決めたデザインが、気づいたら会社標準のデザインになっていた、なんてことよくあります。
+			これは、アーキテクチャマネジメントをしっかりやらない限り、自然とそうなりがちです。
+			その流れで、自然と外部(他社)に公開するAPIもそれになっていたってことも。
+		</p>
+		<p>
+			もう一度利用され始めた API のデザインは、変えられません。公開APIでなくても、クライアントサイドを修正するコストを払えないでしょう。
+			もう、向こう5年10年変わらないかもしれません。
+			<span class="frm">(多くの現場で、クライアントサイドとサーバーサイドで組織が違ったり、リリースタイミングが違ったりするので、なおさら足並み揃えて変更するというのは無理でしょう)</span>
+		</p>
+		<p>
+			そしてよくあるが、最初に開発したAPIの業務に引きづられたデザイン、それがそのまま全体の標準に。
+			でも、標準化するというのも呼び出す側からすると嬉しいことで非常に大切なことなので、一概に悪いわけではないです。
+			ただ、それがチグハグだと良くない...。
+		</p>
+		<p>
+			いま決めるものが、5年10年の会社の標準のJSONデザインになる(かもしれない)。
+			その覚悟を持って、<em class="keyword">しっかりと思想を持ってデザインすること！</em>
+		</p>
+	</div>
+
+	<h2 id="jsonnuance">A. そもそもJSONをどんなニュアンスで戻す？</h2>
+	<h3 id="resourceordisplay">元データ方式？表示データ方式？</h3>
+	<p>
+		あくまでJSONでデータを戻すわけですが、厳密なニュアンスを決めておいたほうが良いです。
+	</p>
+	<dl class="keymainlist">
+		<dt>画面に表示するための元データ</dt><dd>画面でどう表示するかはあまり意識しない素のデータを戻す</dd>
+		<dt>画面にそのまま表示するデータ</dt><dd>画面を意識してフォーマットされたデータを戻す</dd>
+	</dl>
+	<p>
+		クライアントが画面じゃないなら、そのクライアントに依存する処理を想像すると良いでしょう。
+	</p>
+	<p>
+		わかりやすいのは、"D. 日付フォーマット" での話と関連する、日付のデータの例です。
+		例えば、クライアントで yyyy/MM/dd で表示するとします。
+		JSON自体での転送データはISO標準の yyyy-MM-dd'T'HH:mm:ss.SSS にして、クライアントで yyyy/MM/dd
+		にするのであれば <em class="mark">元データ方式</em> です。そうではなく、JSONのデータも yyyy/MM/dd 形式で渡そうと思うなら、<em class="mark">表示データ方式</em> です。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>元データ方式</dt><dd>転送は yyyy-MM-dd'T'HH:mm:ss.SSS で、クライアントで yyyy/MM/dd</dd>
+		<dt>表示データ方式</dt><dd>転送自体が yyyy/MM/dd <span class="frm">(サーバーで変換しても戻す)</span></dd>
+	</dl>
+	<p>
+		元データ方式のメリットは、クライアントのロジックにサーバーが依存しないので、日付フォーマットが変わってもサーバーの再リリースは不要です。
+		また、そのAPIを再利用しやすくなります。iPhone や Android, JavaScript
+		で表示ロジックが若干違ったとしても同じAPIを呼びやすくなります。
+	</p>
+	<p>
+		表示データ方式のメリットは、画面の表示ロジックなどがサーバーで一極集中管理できることです。
+	</p>
+	<h3 id="basicconcept">様々な判断の基本コンセプトに</h3>
+	<p>
+		細かい話ですが、これがJSONデザインにおける様々な判断の基本コンセプトになります。
+		このコンセプトが決まれば、この後の判断は自動的に決まったりもします。
+		なのでまず、その JSON API で何を戻すのか？どういうニュアンスのデータを戻すのか？
+		しっかり考えましょう。
+	</p>
+	<p>
+		それがあやふやなまま作り始めると、APIクラスごとに違うポリシーで実装されて、チグハグな状態になります。
+		とあるAPIでは表示の変更はクライアントの修正なのに、とあるAPIではサーバーの再起動を必要としたりと。
+	</p>
+	<div class="inucolumn">
+		<h3 id="resourcebasis">どちらかと言えば元データ方式推奨？</h3>
+		<p>
+			どちらでも実現はできますが、インクリメンタル開発の現場での組織的なことを考えると、
+			クライアントの些細なロジックにサーバーのロジックが依存するのはリリース運用が非常にやりづらいケースが多いと想定されるので、
+			jfluteはなんのしがらみもなければ "元データ方式" を採用します。
+		</p>
+		<p>
+			また、LastaFluteではJSONのクラスにネイティヴ型 (Integer や LocalDate など)
+			が定義できるので、元データ方式でそのままタイプセーフな型を使うことができた方が、UnitTestなどもやりやすく安全です。
+		</p>
+		<p>
+			もちろん、APIは潜在的にクライアントに依存しがちです。
+			なので、ある程度は仕方ないですが、あまりに細かいレベルで極端に依存しているつらいので、緩和するというニュアンスですね。
+		</p>
+	</div>
+
+	<h2 id="jsonerrorexp">B. エラー表現 <span class="frm">(Failure統一？共通ヘッダー？)</span></h2>
+	<p>
+		JSON API の処理の中で、エラーが発生したとき...システム例外、クライアント例外、業務例外、バリデーションエラー含めて、正常系のレスポンスを戻せなかったときどうするか？
+	</p>
+	<p>
+		様々なパターンがありますが、ここではざっくりと二つのパターンを紹介します。必ず実装する前に考えましょう。
+		<em class="mark">Failure統一パターン</em> と <em class="mark">共通ヘッダーパターン</em> です。
+	</p>
+	<h3 id="failureunified">Failure統一パターンとは？</h3>
+	<h4>正常系のJSON</h4>
+	<p>
+		正常なときは、普通にその業務の JSON を戻します。
+	</p>
+<pre><span class="codetitle">e.g. Failure統一パターンでの正常系のときのJSON戻り、ここでは商品一覧 @Json</span><code>
+{
+    <span class="localvar">"productList"</span> : [
+        <span class="abbreviation">...</span>
+    ]
+}
+</code></pre>
+	<h4>エラー系のJSON</h4>
+	<p>
+		エラーのときだけ、共通的なフォーマットで JSON を戻します。
+	</p>
+<pre><span class="codetitle">e.g. Failure統一パターンでのエラーのときのJSON戻り、ここではバリデーションエラー @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : "VALIDATION_ERROR"
+    , <span class="localvar">"errors"</span> : {
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
+		そのとき、どんなエラーだったのかを表す項目を戻します。エラーの場合はメッセージが付きものなのでエラーメッセージも戻します。
+		<span class="frm">(メッセージは、メッセージそのものか？メッセージを示すキーか？デザインに寄ります: 詳しくは "D. メッセージ管理" にて)</span>
+	</p>
+	<h4>HTTPステータスはどのように戻すのか？</h4>
+	<p>
+		HTTPステータスは、正常系は200, エラー系は400系 もしく、500系で戻します。
+	</p>
+	<dl class="lolongvaluemainlist">
+		<dt>正常系</dt><dd>200</dd>
+		<dt>エラー系</dt><dd>バリデーションエラーや業務例外なら400系、システム例外は500系</dd>
+	</dl>
+	<h4>クライアントはどのように判断するのか？</h4>
+	<p>
+		まずは、HTTPステータスで判断します。200ならそのまま業務のJSONとしてパース、400/500系なら統一的なJSONとしてパースして処理。
+	</p>
+	<p>
+		クライアントサイドの実装イメージです。クライアントの共通部品でこのような実装をすると良いでしょう。
+		Javaっぽいコードですが単にExampleロジックを示したいだけなので、参考までにと。実際の要件に照らし合わせて微調整しましょう。
+		また、多くのクライアントの仕組みで正常系とエラー系は自動的に振り分けられると想定されるので、実際にはもっとシンプルになるかと思います。
+	</p>
+<pre><span class="codetitle">e.g. Failure統一パターンでのクライアントサイドのJSONパースの共通部品での実装イメージ @Java?</span><code>
+<span class="keyword">if</span> (HTTP Status: <span class="literal">200</span>) { <span class="comment">// success</span>
+    XxxJsonResult <span class="localvar">result</span> = parseJsonAsSuccess(<span class="localvar">response</span>);
+    <span class="comment">// do process per action</span>
+    <span class="abbreviation">...</span>
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">400</span>) { <span class="comment">// e.g. validation error, application exception, client exception</span>
+    FailureResult <span class="localvar">result</span> = parseJsonAsFailure(<span class="localvar">response</span>);
+    <span class="comment">// show result.errors or do process per result.cause</span>
+    <span class="abbreviation">...</span>
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">404</span>) { <span class="comment">// e.g. real not found, invalid parameter</span>
+    showNotFoundError();
+} <span class="keyword">else</span> { <span class="comment">// basically 500 or other client errors</span>
+    showSystemError();
+}
+</code></pre>
+	<h4>限定的ヘッダーパターンはまた別</h4>
+	<p>
+		ページングの結果を戻すAPIときに、ページサイズやページ番号を戻すような共通的なヘッダーを付与するのは、
+		Failure統一パターンの中でも利用することはあります。
+		200の結果の中で限定的なスコープで業務的な共通的なヘッダーは、それはそれでまたレイヤの違う話なので、効率的であれば全然使っても良いでしょう。
+	</p>
+	<h4>LastaFluteではどう実装する？</h4>
+	<p>
+		LastaFlute の Example (harbor, maihama)
+		では、デフォルトでFailure統一パターンになっていますので、そちらを参考に。
+		Example からスタートアップした場合は、そのまま [App]ApiFailureHook
+		を育てていけばOKです。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/src/main/java/org/docksidestage/mylasta/direction/sponsor/HarborApiFailureHook.java#L37">HarborApiFailureHook.java | Github</a></div>
+	<h3 id="commonheader">共通ヘッダーパターンとは？</h3>
+	<h4>正常系、エラー系に関係なく共通ヘッダー</h4>
+	<p>
+		正常系、エラー系に関係なく、一律共通ヘッダー的な項目を追加して、エラーかどうかの判定はすべてアプリ独自の項目で表現する。
+		HTTPステータスは、どんなときでも 200 を戻します<span class="frm">(NullPointerExceptionでも200)</span>。
+	</p>
+	<p>
+		正常系なら:
+	</p>
+<pre><span class="codetitle">e.g. 共通ヘッダーパターンの正常系のときのJSON戻り、ここでは商品一覧 @Json</span><code>
+{
+    <span class="localvar">"header"</span> : {
+        <span class="localvar">"businessStatus"</span> : SUCCESS
+        , <span class="localvar">"messageMap"</span> : {} <span class="comment">// 正常系はメッセージがないのでだいたい空っぽ</span>
+    }
+    , <span class="localvar">"body"</span> : {
+        <span class="localvar">"productList"</span> : [
+            <span class="abbreviation">...</span>
+        ]
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
+		バリデーションエラーなら: <span class="frm">(業務例外でもシステム例外でもこんな感じ)</span>
+	</p>
+<pre><span class="codetitle">e.g. 共通ヘッダーパターンのエラー系のときのJSON戻り、ここではバリデーションエラー @Json</span><code>
+{
+    <span class="localvar">"header"</span> : {
+        <span class="localvar">"businessStatus"</span> : VALIDATION_ERROR
+        , <span class="localvar">"messageMap"</span> : {
+            <span class="abbreviation">...</span>
+        }
+    }
+    , <span class="localvar">"body"</span> : {} <span class="comment">// エラー系はBodyデータがないので空っぽ</span>
+}
+</code></pre>
+	<h4>クライアントはどのように判断するのか？</h4>
+	<p>
+		共通ヘッダーパターンでも、HTTPステータスは無視できません。
+		アプリケーションサーバーやフレームワークのエラーがHTTPステータスで戻ってくる可能性があるからです。
+		<span class="frm">(どれだけ奥深いレイヤまで頑張っても、HTTPである限りはあり得ることなので)</span>
+	</p>
+	<p>
+		クライアントサイドの実装イメージです。クライアントの共通部品でこのような実装をすると良いでしょう。
+		Javaっぽいコードですが単にExampleロジックを示したいだけなので、参考までにと。実際の要件に照らし合わせて微調整しましょう。
+	</p>
+<pre><span class="codetitle">e.g. 共通ヘッダーパターンでのクライアントサイドのJSONパースの共通部品での実装イメージ @Java?</span><code>
+<span class="keyword">if</span> (HTTP Status: <span class="literal">200</span>) { <span class="comment">// success</span>
+    CommonJsonResult <span class="localvar">result</span> = parseJson(<span class="localvar">response</span>);
+    <span class="keyword">if</span> (Business Status: <span class="literal">200</span>) { <span class="comment">// success</span>
+        <span class="comment">// do process per action</span>
+        <span class="abbreviation">...</span>
+    } <span class="keyword">else if</span> (Business Status : <span class="literal">404</span>) { <span class="comment">// e.g. business not found, invalid parameter</span>
+        showNotFoundError();
+    } <span class="keyword">else</span> { <span class="comment">// basically 500 or other client errors</span>
+        showSystemError();
+    }
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">400</span>) { <span class="comment">// e.g. validation error, application exception, client exception</span>
+    FailureResult <span class="localvar">result</span> = parseJsonAsFailure(<span class="localvar">response</span>);
+    <span class="comment">// show result.messageMap or do process per result.failureType</span>
+    <span class="abbreviation">...</span>
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">404</span>) { <span class="comment">// e.g. real not found, invalid parameter</span>
+    showNotFoundError();
+} <span class="keyword">else</span> { <span class="comment">// basically 500 or other client errors</span>
+    showSystemError();
+}
+</code></pre>
+	<h4>共通ヘッダーパターンのアンチパターン</h4>
+	<p>
+		共通ヘッダーがあると、ついつい色々な項目を付け足したくなります。
+		例えば、"ページングのページサイズ" や "更新件数" など、とある業務に特化しているけれどもわりと多くのAPIで使うものなどを入れていくと、
+		どんどん共通ヘッダーが <em class="mark">最小公倍数化</em> していきます。
+		こうなると、共通ヘッダーを意識せずに実装することができなくなるため、クライアントサイドもサーバーサイドも、いたるところで共通ヘッダーを無視できないジレンマを抱えるでしょう。
+		<span class="frm">(実際に、共通ヘッダーパターンの現場で発生しているのを見かけます)</span>
+	</p>
+	<p>
+		共通ヘッダーをやるなら、<em class="keyword">APIのやり取りをマネジメントするための項目だけに使う</em>
+		つまり、共通部品だけがそれらの項目を利用するという状態をキープするほうが良いでしょう。
+	</p>
+	<p>
+		APIのバージョンを含める、というケースもよく見かけます。これが悪いとは言えませんが、HTTPヘッダーを使うという選択肢もあります。
+		その辺も踏まえてしっかりとデザインすると良いでしょう。
+	</p>
+	<h4>LastaFluteではどう実装する？</h4>
+	<p>
+		LastaFluteは、共通ヘッダーパターンに対して積極的なサポートをしていません。
+		もちろん、もともとアプリで全部管理するという話なので、LastaFluteの機能を気にせずやろうと思えばできますが、
+		Exampleとしては用意がありませんので、わりと手続きが必要になるかと思います。
+		<span class="frm">(共通ヘッダー用のResultクラスを作ったり、ApiFailureHookですべて200でも戻すようにしたり)</span>
+	</p>
+	<p>
+		この辺は、今後のフィードバックで共通ヘッダーパターンのメリットがもっと明確になってきたときにサポートを検討しようかなと思っています。
+	</p>
+	<h3 id="failuremerit">Failure統一パターンのメリット</h3>
+	<p>
+		共通ヘッダーパターンと比べてのメリットを挙げてみます。
+	</p>
+	<dl class="textlist">
+		<dt>正常系のJSONに余計なものがない</dt>
+		<dd>
+			正常系はいたってシンプル、その業務のJSONだけになる。
+		</dd>
+		<dd>
+			共通ヘッダーパターンだと、正常系でも必ずヘッダーが付くので、
+			(ほとんど使わない項目ばかりでも)その文字列の分の出力処理とパース処理に時間がかかり、JSON自体のサイズも大きくなる。
+		</dd>
+		<dt>クライアントサイドがシンプル</dt>
+		<dd>
+			HTTPの仕組みをある程度使うことで、<em class="keyword">既存の仕組みの乗っかって</em> 処理ができる。
+			例えば、アプリケーションサーバーやフレームワーク内で発生する 404 や 500 エラーも統一的にハンドリングできる。
+		</dd>
+		<dd>
+			共通ヘッダーパターンだと、正常でもエラーでもHTTPステータスが常に200のなので、200の中でのエラー分岐もするし、かつ、HTTPステータスの分岐も必要になる。
+		</dd>
+		<dt>インフラで正常系の判断がしやすい</dt>
+		<dd>
+			HTTPステータスを使っているので、例えばインフラ側でAPIの結果をキャッシュするなど仕組みを入れる場合に、
+			正常系だけをキャッシュ対象にしたいときなど、HTTPの仕組みだけで判断しやすくなる。
+			仕組みだけでなく目視確認でもアクセスログからも正常なのかエラーなのかが判断しやすくなる。
+		</dd>
+		<dd>
+			共通ヘッダーパターンだと、正常でもエラーでもHTTPステータスが常に200のなので、HTTPステータスだけでは判断できない。
+		</dd>
+	</dl>
+	<p>
+		<span class="frm">※デメリットは "共通ヘッダーパターンのメリットの逆" を考えると良いでしょう。</span>
+	</p>
+	<h3 id="commonheadermerit">共通ヘッダーパターンのメリット</h3>
+	<p>
+		ごめんなさい、あまり思いつきませんでした...
+	</p>
+	<dl class="textlist">
+		<dt>正常系のメッセージの共通化</dt>
+		<dd>
+			正常系でもメッセージを共通化できる。
+			<span class="frm">(ただ、正常系でメッセージを戻す場面がそもそもあまり多くはないので、共通化のメリットはあまりないかも。常にメッセージを戻すようなシステムであればというところで)</span>
+		</dd>
+		<dt>HTTPという仕組みを一切意識しない</dt>
+		<dd>
+			もし、HTTP通信していること自体を気にしたくないのであれば。<span class="frm">(この場合、もうクライアントもHTTPスタータスは一切見ずに、JSONだけを見るようにするとかでもいいのかも!?)</span>
+		</dd>
+	</dl>
+	<p>
+		<span class="frm">※デメリットは "Failure統一パターンのメリットの逆" を考えると良いでしょう。</span>
+	</p>
+	<div class="inucolumn">
+		<h3 id="failureorheader">Failure統一？共通ヘッダー？ or ...</h3>
+		<p>
+			jfluteの業務経験としては両方あるので、どちらでも実現はできますが、特になんのしがらみもない環境であれば "Failure統一パターン"
+			を採用します。
+		</p>
+		<p>
+			Failure統一パターンは、"HTTPの仕組み" と "自前の仕組み" のハイブリッドと言えるかもしれません。
+			HTTPである限りは、それに乗っかった方が良い部分があるだろうということで。ただ、戻しているのはあくまで JSON
+			なので、HTTPとは相性の悪いところもあり、あまり深く突っ込みすぎないようにと<span class="frm">(4xx系を細かく使い分けたりはしない)</span>。
+		</p>
+		<p>
+			もし、共通ヘッダーを採用するなら、それこそ jflute にたくさん聞いてください。
+			何も考えずにやるとアンチパターンに陥りやすいし、共通ヘッダー部分のResultクラスをどう表現するか？Actionクラスでどう表現するか？
+			インフラ側でエラーの判断をしてもらうためにはどうするか？などなど、独自でやってへんてこりんになっても悲しいですから。
+		</p>
+		<p>
+			世の中の記事を読んでいると、もっと色々なケースありますよね。そもそも REST にするとか、HTTPステータスをもっと細かく活用していこうとか、
+			HTTPヘッダーをもっと活用していこうとか。そういう意味では、ここで紹介したパターンに色々と微調整をしていくのもアリです。
+		</p>
+		<p>
+			大事なのは、しっかり思想を持ってデザインして決めること。"なあなあ" で決めないこと。
+		</p>
+	</div>
+
+	<h2 id="jsonresponse">C. JSONのデータ型 <span class="frm">型付き？型なし？</span></h2>
+	<p>
+		JSONのデータ型をどうするか？
+	</p>
+	<h3 id="typedjson">型付きJSONパターンとは？</h3>
+	<p>
+		いわゆる普通のJSON。TSVなどと違ってJSONには型の概念があり、それを有効活用します。
+	</p>
+<pre><span class="codetitle">e.g. 型付きJSONパターンのJSON @Json</span><code>
+{
+    <span class="localvar">"productId"</span> : <span class="literal">7</span>
+    , <span class="localvar">"productName"</span> : <span class="literal">"Sea"</span>
+    , <span class="localvar">"soldOutFlg"</span> : <span class="keyword">false</span>
+    , <span class="localvar">"saleDatetime"</span> : <span class="keyword">null</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="notypedjson">型なしJSONパターンとは？</h3>
+	<p>
+		型をなくしたAll文字列型のJSONで、TSVのようにすべて文字列で取り扱います。nullも "" として表現します。
+	</p>
+<pre><span class="codetitle">e.g. 型ありのJSONパターンのJSON @Json</span><code>
+{
+    <span class="localvar">"productId"</span> : <span class="literal">"7"</span>
+    , <span class="localvar">"productName"</span> : <span class="literal">"Sea"</span>
+    , <span class="localvar">"soldOutFlg"</span> : <span class="literal">"false"</span>
+    , <span class="localvar">"saleDatetime"</span> : <span class="literal">""</span> <span class="comment">// 値がないことを空文字で表現</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="typedjsonmerit">型付きJSONパターンのメリット</h3>
+	<p>
+		型なしに比べてのメリットを挙げてみます。
+	</p>
+	<dl class="textlist">
+		<dt>ネイティヴ型が使える</dt>
+		<dd>
+			クライアント側で、Integer や Boolean
+			などネイティヴ型がそのまま受け取りのクラスで利用しやすいので、それぞれの業務コードで変換処理などが不要。
+		</dd>
+		<dd>
+			型なしでも、JSONパーサーの工夫次第でネイティヴ型に変換はできるが、JSON APIのクライアントが様々な場合、その工夫ロジックをいたるところで入れないといけない。
+			<span class="frm">(すぐ次の、"どのJSONパーサーでも普通にパース" に絡む)</span>
+		</dd>
+		<dd>
+			<span class="frm">(そのうち null の場合に、Optional も 使えるようになるかも!?)</span>
+		</dd>
+		<dt>どのJSONパーサーでも普通にパース</dt>
+		<dd>
+			一般的なので、特にJSONパーサーに何か微調整をあまり入れなくても利用しやすい。
+		</dd>
+		<dd>
+			マイクロサービスアーキテクチャに寄っていくと、様々なクライアントが発生するので、それぞれのクライアントのJSONパーサーに微調整を入れるとなると大変。
+		</dd>
+		<dt>クライアントもわかりやすい</dt>
+		<dd>
+			サーバーサイドのドキュメントは見るにせよ、JSONを見て型がわかれば "ここは数値なんだ (数字しか来ないんだ)"
+			とクライアントの人が判断をしやすい。すべて文字列になってると数字しか来ないことを確定できなくて安心できない。
+		</dd>
+		<dt>JSON上でもわかりやすい</dt>
+		<dd>
+			なんだかんだ、デバッグやトラブルシューティングでJSONを見ることがあり、そのとき型があるとわかりやすい。
+		</dd>
+	</dl>
+	<p>
+		<span class="frm">※デメリットは "型なしJSONパターンのメリットの逆" を考えると良いでしょう。</span>
+	</p>
+	<h3 id="notypedjsonmerit">型なしJSONパターンのメリット</h3>
+	<p>
+		ごめんなさい、あまり思いつきませんでした...
+	</p>
+	<dl class="textlist">
+		<dt>表示データ方式ならフィットする</dt>
+		<dd>
+			"A. そもそもJSONで何を戻す？" であったように、そのまま表示できるデータをサーバーサイドが戻す方式なら、
+			クライアントはそのままもらったデータを何も考えず表示するだけなので、文字列型で問題ない。
+			<span class="frm">(ただ、必ずしも相手が画面とは限らないので、API to API の場合は結局あまり意味がないかも)</span>
+		</dd>
+	</dl>
+	<p>
+		<span class="frm">※デメリットは "型付きJSONパターンのメリットの逆" を考えると良いでしょう。</span>
+	</p>
+	<div class="inucolumn">
+		<h3 id="typedjsonbasis">かなり強めに型付きJSONが推奨？</h3>
+		<p>
+			"どちらかと言えば" ではなく、かなり強めに "型付きJSON" をお奨めしています。
+		</p>
+		<p>
+			これまた jflute は両方を経験したことがあります。
+			"型なしJSON" だと、もろに "型付きJSONのメリットの反対" を食らいます。
+		</p>
+		<p>
+			最初はAPIサービス自体が少なく、最初に開発した画面実装にかなり依存した形で作り、だんだんとマイクロサービスアーキテクチャ寄りになっていったときに、
+			一般的ではないJSONの取り扱いがネックになり、色々なJSONパーサーで工夫を入れないといけなくなってしまいがちです。
+			それが、外部のAPIにまで波及し、外部クライアント(他社)のエンジニアにまでが、その工夫を強いられていることになったり。
+		</p>
+		<p>
+			特に、nullを空文字として表現するのが大変だったという印象です。数値型で値がないときに ""
+			になっていて、パーサーで落ちるとか。jfluteが管理しやすい範囲のプロジェクトならいいですが、どんどん色々なクライアントが出てきて、そうでないプロジェクトでトラブルになったり。 
+		</p>
+		<p>
+			一応、LastaFluteで、型なしでもネイティヴ型に変換するための工夫は入られれます。
+			Exampleでもこのやり方はしていないので、実装方法はMLなどで聞いてください。
+			ですが、まず "なぜ型なしにするのでしょうか？" と聞かせて頂くかと思います。
+			<span class="frm">(いまわかっていないメリットがあるなら、また話は別ですし)</span>
+		</p>
+		<p>
+			...思想的にも、例えばDB設計する時に、すべてのカラムを VARCHAR
+			にして、NotNull制約を付けて値がないときは空文字にするかというとしないのと同じで、
+			せっかく型の概念があるので最低限活用しよう、という思いです。
+		</p>
+	</div>
+
+	<h2 id="dateformat">D. 日付フォーマット <span class="frm">クライアント？サーバー？</span></h2>
+	<p>
+		yyyy/MM/dd を、クライアントが決めますか？サーバーが決めますか？
+	</p>
+	<h3 id="clientdateformat">クライアント日付フォーマット方式とは？</h3>
+	<p>
+		サーバーはISO標準で戻して、クライアントで日付フォーマットする方式です。
+	</p>
+<pre><span class="codetitle">e.g. 日付をISO標準で戻す @Json</span><code>
+{
+    <span class="localvar">"seaBeginDatetime"</span> : <span class="point">"2001-09-04T12:34:56"</span> <span class="comment">// ISO標準</span>
+}
+</code></pre>
+	<h3 id="serverdateformat">サーバー日付フォーマット方式とは？</h3>
+	<p>
+		サーバーですでに日付フォーマットしてから戻して、クライアントでは単に表示する方式です。
+	</p>
+<pre><span class="codetitle">e.g. 日付を画面で表示する形で戻す @Json</span><code>
+{
+    <span class="localvar">"seaBeginDatetime"</span> : <span class="point">"2001/09/04 12:34:56"</span> <span class="comment">// 画面で表示する形</span>
+}
+</code></pre>
+	<h3 id="clientdateformatmerit">クライアント日付フォーマット方式のメリット</h3>
+	<dl class="textlist">
+		<dt>フォーマット修正でサーバーリリース不要</dt>
+		<dd>
+			クライアントのロジックにサーバーが依存しないので、仮に日付フォーマットが変わってもサーバーの再リリースは不要です。
+		</dd>
+		<dt>APIを再利用しやすくなる</dt>
+		<dd>
+			iPhone や Android, JavaScript で表示ロジックが若干違ったとしても同じAPIを呼びやすくなります。
+		</dd>
+	</dl>
+	<h3 id="serverdateformatmerit">サーバー日付フォーマット方式のメリット</h3>
+	<dl class="textlist">
+		<dt>日付フォーマットを一元管理しやすい</dt>
+		<dd>
+			サーバーを直せば、すべてのクライアントでフォーマットが変わる。<span class="frm">(but それをしたいかどうか!?)</span>
+		</dd>
+	</dl>
+	<h3 id="dependsonnuance">どんなニュアンスで戻すか？次第</h3>
+	<p>
+		これは、まさしく "A. そもそもJSONをどんなニュアンスで戻す？" 次第です。
+	</p>
+	<div class="relatedpage"><a href="#jsonnuance">this - A. そもそもJSONをどんなニュアンスで戻す？</a></div>
+	<dl class="keymainlist">
+		<dt>元データ方式</dt><dd>クライアント日付フォーマット方式</dd>
+		<dt>表示データ方式</dt><dd>サーバー日付フォーマット方式</dd>
+	</dl>
+	<h3 id="dateformatanti">日付フォーマットのアンチパターン</h3>
+	<p>
+		このポリシーをはっきりしておかないと...こんなへんてこりんな状況もあり得ます。
+	</p>
+	<ol>
+		<li>サーバーで表示用の日付フォーマットして戻している</li>
+		<li>なのに、クライアントでそれを日付パースして日付型として扱って...</li>
+		<li>改めてフォーマットしてる <span class="frm">(えっ!?)</span></li>
+	</ol>
+	<p>
+		であれば、最初から日付型として扱いやすい転送用の日付を戻すほうが良いでしょう。
+	</p>
+	<h3 id="lastadateformat">LastaFluteだと、どんな実装に？</h3>
+	<p>
+		LastaFluteでは、LocalDate, LocalDateTimeで定義すれば、デフォルトでISO標準の日付フォーマットで出力されます。
+		<span class="frm">(そのデフォルトのフォーマットを変更することもできます)</span>
+	</p>
+	<p>
+		一方で、LocalDate, LocalDateTime のままで、サーバーサイドでフォーマットすることもできます。
+		@JsonDatePatternアノテーションでフォーマットを指定すれば、そのようになります。
+	</p>
+	<div class="relatedpage"><a href="./lajsonapi.html#nativedateformat">素早さのJSON API - LocalDate型の日付フォーマット</a></div>
+	<h3 id="i18ndate">国際化対応するときはまた色々と</h3>
+	<p>
+		国際化対応するときは、また色々と考える必要があるので、また違った話になるでしょう。
+	</p>
+	<div class="inucolumn">
+		<h3 id="clientformatbasic">日付フォーマットはクライアントで解決がオススメ？</h3>
+		<p>
+			"A. そもそもJSONをどんなニュアンスで戻す？"
+			でのロジックの通り、クライアントの細かな表示の都合にサーバーが縛られると再利用やリリース運用的にやりづらいので、
+			なんのしがらみもなければ、jfluteやはりクライアント日付フォーマット方式を採用します。
+			<span class="frm">(フォーマット変更のためだけにサーバーを再起動するのはつらいかなと)</span>
+		</p>
+		<p>
+			一方で、クライアントが何種類もある場合に、そのクライアント間での統一がしづらいのがジレンマです。
+			iPhone, Android, JavaScript のそれぞれのプログラム上で日付フォーマットを持ってしまうのは少し気になります。
+			そこまで徹底するなら、サーバーはプロジェクト標準日付フォーマットが含まれたコンフィグのようなものを予めクライアントに渡しておけば良いでしょう。
+		</p>
+		<p>
+			さて、いずれにせよ、最初に決めてないとですね。何よりもバラバラになるのが一番つらい。
+		</p>
+	</div>
+
+	<h2 id="messagemanage">E. メッセージ管理: <span class="frm">クライアント？サーバー？</span></h2>
+	<p>
+		メッセージリソースを、クライアントで持ちますか？サーバーで持ちますか？
+	</p>
+	<h3 id="clientmessage">クライアントメッセージ方式とは？</h3>
+	<p>
+		クライアントで、メッセージリソースを保持する方式です。
+		例えば、サーバーサイドのバリデーションエラーのときは、サーバーはメッセージの "キー" と "値" だけを戻します。
+	</p>
+<pre><span class="codetitle">e.g. クライアントメッセージ方式で、バリデーションエラーを戻す @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"VALIDATION_ERROR"</span>
+    , <span class="localvar">"errors"</span> : [
+         <span class="localvar">"field"</span> : <span class="literal">"product_name"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"REQUIRED"</span>
+         , <span class="localvar">"data"</span> : {}
+    ], [
+         <span class="localvar">"field"</span> : <span class="literal">"product_count"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"MAX"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">"max"</span> : <span class="literal">"100"</span> } <span class="comment">// 数値の最大値</span>
+    ]
+}
+</code></pre>
+	<h3 id="servermessage">サーバーメッセージ方式とは？</h3>
+	<p>
+		サーバーで、メッセージリソースを保持する方式です。
+		例えば、サーバーサイドのバリデーションエラーのときは、サーバーはそのまま表示できるメッセージを戻します。
+	</p>
+<pre><span class="codetitle">e.g. サーバーメッセージ方式で、バリデーションエラーを戻す @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"VALIDATION_ERROR"</span>
+    , <span class="localvar">"errors"</span> : [
+        <span class="localvar">"field"</span> : <span class="literal">"email"</span>
+        , <span class="localvar">"messages"</span> : <span class="subpoint">["メアドじゃない", "長っ。100文字までって言わなかったでしょうか？"]</span>
+    ], [
+        <span class="localvar">"field"</span> : "birthdate"
+        , <span class="localvar">"messages"</span> : <span class="subpoint">["まあ、いいけど"]</span>
+    ]
+}
+</code></pre>
+	<h3 id="clientmessagemerit">クライアントメッセージ方式のメリット</h3>
+	<dl class="textlist">
+		<dt>クライアントで現象ごとに独自処理できる</dt>
+		<dd>
+			クライアントサイドで、メッセージを表示するだけじゃなく、現象ごとに(エラーメッセージごとに)独自の処理を実行できる。
+		</dd>
+		<dt>クライアントだけで閉じる</dt>
+		<dd>
+			クライアント側のロジックだけで発生するメッセージがあっても、クライアントだけで解決することができる。
+		</dd>
+		<dt>クライアントごとにメッセージを変更できる</dt>
+		<dd>
+			表示領域や、表示ロジックの違いなどから、クライアントごとにメッセージの長さやニュアンスが変わったりする場合でも、難なく解決できる。
+		</dd>
+	</dl>
+	<h3 id="servermessagemerit">サーバーメッセージ方式のメリット</h3>
+	<dl class="textlist">
+		<dt>メッセージの一元管理ができる</dt>
+		<dd>
+			メッセージの変更するときに、サーバーだけ直せばすべてのクライアントで反映される。
+		</dd>
+		<dt>クライアントとの取り決めが少ない</dt>
+		<dd>
+			完成されたメッセージを戻すので、"どういうキーが戻ってくるの？" とか話し合う必要がない。
+		</dd>
+		<dt>クライアントでメッセージ管理の必要がない</dt>
+		<dd>
+			クライアントは楽になる。<span class="frm">(but クライアント処理だけ発生するメッセージがあったら!?)</span>
+		</dd>
+	</dl>
+	<h3 id="independentmessage">元データ方式、表示データ方式との関係は？</h4>
+	<p>
+		"A. そもそもJSONをどんなニュアンスで戻す？" の "元データ方式、表示データ方式"
+		からすると、そのポリシー次第で自然と決まることのように思えます。
+	</p>
+	<div class="relatedpage"><a href="#jsonnuance">this - A. そもそもJSONをどんなニュアンスで戻す？</a></div>
+	<p>
+		ですが、クライアントの仕組み的にメッセージリソースの機能を持っていないことがあったりする可能性などを考えると、全体的には "元データ方式"
+		ここだけはその逆にするというのもあり得るかもしれません。
+	</p>
+	<h3 id="hybridmessage">ハイブリッドメッセージ方式もあり？</h3>
+	<p>
+		クライアントがあまり特定できないように環境での JSON API であれば、コードもメッセージも両方を戻すハイブリッドでもいいかもしれません。
+		サーバー提供のメッセージをそのまま使ってもいいし、クライアントが自分で用意してもいいしと。
+		<span class="frm">(Thanks, Wakipon)</span>
+	</p>
+	<p>
+		若干、無駄なデータも送信することにはなるので、特定クライアントで、かつ、厳密なパフォーマンスを求めるような場合であれば、やはりどちらかに決め打った方が良いでしょう。
+	</p>
+	<h3 id="lastamessage">LastaFluteだと、どう実装する？</h3>
+	<p>
+		ApiFailureHook で実装すればいいので "まあ、どちらでも" という感じですが、LastaFlute の Example
+		としては、サーバーサイドHTMLのAjaxならサーバーメッセージ方式になっていて、完全なJSON APIを想定したものはクライアントメッセージ管理方式になっています。
+	</p>
+	<dl class="textlist">
+		<dt>サーバーサイドHTMLのAjaxのExample</dt><dd>サーバーメッセージ方式 <span class="frm">e.g. harbor, dockside</span></dd>
+		<dt>完全にJSON APIのアプリのExample</dt><dd>クライアントメッセージ方式 <span class="frm">e.g. hangar, (showbase)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../action/apifailure.html">忘れられないApiFailureHook</a></div>
+	<p>
+		もし、クライアントメッセージ方式にする場合は、[app]_message.properties
+		に定義されている自然言語のメッセージを、キーと値だけにしてクライアントに戻せるようにすると良いでしょう。
+		<span class="frm">(クライアントサイドとしっかり取り決めをしましょう)</span>
+	</p>
+	<div class="detailpage"><a href="#egfaicli">this - e.g. Failure統一クライアントメッセージ</a></div>
+	<p>
+		そして、ハイブリッドメッセージ方式は、クライアントメッセージ方式に少しだけ手を加えてサーバーのメッセージも同時に表現できるようにすれば良いでしょう。
+		<span class="frm">(showbaseがハイブリッドメッセージ方式になっています)</span>
+	</p>
+	<div class="detailpage"><a href="#egfaihy">this - e.g. Failure統一ハイブリッドメッセージ</a></div>
+
+	<h2 id="keycase">F. キーのケース: <span class="frm">キャメル？スネーク？</span></h2>
+	<p>
+		JSONのキーをキャメルにする？スネークにする？
+	</p>
+	<h3 id="keycamel">キャメルケース方式</h3>
+	<p>
+		Javaっぽい。
+	</p>
+<pre><span class="codetitle">e.g. キャメルケース方式 @Json</span><code>
+{
+    <span class="localvar">"seaId"</span> : <span class="abbreviation">...</span>
+    , <span class="localvar">"landName"</span> : <span class="abbreviation">...</span>
+    , <span class="localvar">"piariDate"</span> : <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="keysnake">スネークケース方式</h3>
+	<p>
+		蛇っぽい。
+	</p>
+<pre><span class="codetitle">e.g. スネークケース方式 @Json</span><code>
+{
+    <span class="localvar">"sea_id"</span> : <span class="abbreviation">...</span>
+    , <span class="localvar">"land_name"</span> : <span class="abbreviation">...</span>
+    , <span class="localvar">"piari_date"</span> : <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="keywhich">どっちがいい？</h3>
+	<p>
+		知りません。
+	</p>
+	<h3 id="lastakeycase">LastaFluteだと、どうなる？</h3>
+	<p>
+		デフォルトでは、JsonResult クラスのプロパティ名通りに出力されます。
+		なので、普通にJavaの慣習どおりに書いたら、自然とキャメルケース方式になります。
+	</p>
+	<p>
+		スネークにしたい場合は、プロパティをスネークケースで宣言をするか、JsonResourceProvider 経由で JsonMappingOption の JsonFieldNaming を指定して自動変換させます。
+	</p>
+	<div class="relatedpage"><a href="../action/adjustment.html#jsonresource">ActionやJSONの調整 - JsonResourceProvider</a></div>
+
+	<h2 id="bodyform">G. リクエストの形: <span class="frm">JSON？Form？</span></h2>
+	<p>
+		リクエストで受け取るパラメーターを、JSONで受け取るか？Formで受け取るか？
+	</p>
+	<h3 id="jsonbody">JSON Body受け取り方式</h3>
+	<h4>リクエストボディでJSON</h4>
+	<p>
+		リクエストボディに直接定義された JSON で受け取ります。<span class="frm">(HTTPメソッド的には必ず POST に)</span>
+	</p>
+	<h4>JSON Body受け取り方式のメリット</h4>
+	<dl class="textlist">
+		<dt>複雑なデータを送信しやすい</dt>
+		<dd>
+			昨今のアプリケーションだと、ネストなどの複雑な構造をしたデータを一気に送信したいことが多い。
+		</dd>
+		<dt>INもOUTも同じルール</dt>
+		<dd>
+			データ型の変換などJSONとFormで若干違う可能性もあるので、IN/OUT統のほうが世話ない。
+		</dd>
+	</dl>
+	<h4>Form受け取り方式</h4>
+	<p>
+		HTTPの普通のリクエストパラメーターを受け取る方式です。
+	</p>
+	<h4>Form受け取り方式のメリット</h4>
+	<dl class="textlist">
+		<dt>今までと一緒</dt>
+		<dd>
+			今までの (サーバーサイドHTMLの) Webアプリと同じなので、経験者ならそのまま活かせる。
+		</dd>
+		<dt>ブラウザから簡単に叩ける</dt>
+		<dd>
+			プラグインを入れなくても、ブラウザで叩いて動作確認できる。<span class="frm">(別にプラグイン入れればいい!?)</span>
+		</dd>
+	</dl>
+	<h3 id="bodyformhybrit">JSON BodyとFormのハイブリットも？</h3>
+	<p>
+		すべてを JSON Body (POST) に統一ということもあれば、GETで済むようなものだけは Form
+		でやっちゃおうってこともあるでしょう。<span class="frm">(ちょっと厳密な線引は難しいかもしれませんが)</span>
+	</p>
+	<h3 id="lastajsonbody">LastaFluteなら、どう実装する？</h3>
+	<p>
+		JSON Bodyは、Executeメソッドの引数の受け取りクラス名を Body という名前にすれば、リクエストボディのJSONをパースしてマッピングします。
+	</p>
+	<div class="relatedpage"><a href="../action/index.html#jsonbody">JSON Body (for JSON in request body)</a></div>
+	<p>
+		Formは、Executeメソッドの受け取りクラス名を Form という名前にすれば、リクエストパラメーターをマッピングします。
+	</p>
+	<div class="relatedpage"><a href="../action/index.html#actionform">Action Form (for POST, GET parameter)</a></div>
+	<div class="inucolumn">
+		<h3 id="hearingjsonbody">色々と聞いてみると JSON Body が多いような...</h3>
+		<p>
+			経験としては、両方あります。周りに聞くと、JSON Body が多い印象です。
+		</p>
+		<p>
+			Formで複雑な構造を無理やり受けようとして頑張っているのを見ると、ハイブリットでもいいから
+			JSON Body で受け取っちゃったほうが世話ないのにと思うことはあります。
+		</p>
+	</div>
+
+	<h2 id="madamada">H. まだまだありそうだけど？</h2>
+	<p>
+		とりあえず、ここまで。また、気づいた時点で追記していきます。
+	</p>
+	<ul>
+		<li>JSONをラップさせるかどうかとか!?</li>
+		<li>ファイルのアップロードの仕方とか!?</li>
+		<li>ログインどうする!?</li>
+		<li>認証どうする!?</li>
+		<li>画面ファサードAPIどうする!?</li>
+	</ul>
+
+	<div class="inucolumn">
+		<h2 id="egfaicli"><span class="frm">e.g.</span> ふぇいくらパターン</h2>
+		<p>
+			"Failure統一パターンでクライアントメッセージ方式" <em class="mark">(通称: ふぇいくらパターン)</em> の Example をここで紹介します。
+			<span class="frm">(身の回りでよく使われるでありながら、よく考えてデザインしてクライアントと共有しないと、"へんてこりん" になりがちだし、実装も少し工夫が必要なので)</span>
+		</p>
+		<p>
+			詳しくは、専用のページにて。
+		</p>
+		<div class="detailpage"><a href="./jsonfaicli.html">JSON API, Failure統一クライアントメッセージ</a></div>
+<pre><span class="codetitle">e.g. "ふぇいくらパターン" で、バリデーションエラーのとき @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"VALIDATION_ERROR"</span>
+    , <span class="localvar">"errors"</span> : [{
+         , <span class="localvar">"field"</span> : <span class="literal">"product_name"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"REQUIRED"</span>
+         , <span class="localvar">"data"</span> : {}
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"product_count"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"MAX"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">max</span> : <span class="literal">"100"</span> } <span class="comment">// 数値の最大値</span>
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"member.email"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"LENGTH"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">min</span> : <span class="literal">"20"</span>, <span class="localvar">max</span> : <span class="literal">"50"</span> } <span class="comment">// 文字列の最大長</span>
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"member.email"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"EMAIL"</span>
+         , <span class="localvar">"data"</span> : {}
+    }]
+}
+</code></pre>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="egfaihy"><span class="frm">e.g.</span> ふぇいはいパターン</h2>
+		<p>
+			"Failure統一パターンでハイブリッドメッセージ方式" <em class="mark">(通称: ふぇいはいパターン)</em> の Example をここで紹介します。
+			<span class="frm">(基本的にはクライアントメッセージ方式を同じで、加えてサーバーのメッセージも付与している感じです)</span>
+		</p>
+		<div class="detailpage"><a href="./jsonfaihy.html">JSON API, Failure統一ハイブリッドメッセージ</a></div>
+<pre><span class="codetitle">e.g. "ふぇいはいパターン" で、バリデーションエラーのとき @Json</span><code>
+{
+    <span class="localvar">"cause"</span> : <span class="literal">"VALIDATION_ERROR"</span>
+    , <span class="localvar">"errors"</span> : [{
+         , <span class="localvar">"field"</span> : <span class="literal">"product_name"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"REQUIRED"</span>
+         , <span class="localvar">"data"</span> : {}
+         , <span class="localvar">"message"</span> : "is required"
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"product_count"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"MAX"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">max</span> : <span class="literal">"100"</span> } <span class="comment">// 数値の最大値</span>
+         , <span class="localvar">"message"</span> : <span class="literal">"should be less than or equal 100"</span>
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"member.email"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"LENGTH"</span>
+         , <span class="localvar">"data"</span> : { <span class="localvar">min</span> : <span class="literal">"20"</span>, <span class="localvar">max</span> : <span class="literal">"50"</span> } <span class="comment">// 文字列の最大長</span>
+         , <span class="localvar">"message"</span> : <span class="literal">"should be between 20 and 50"</span>
+    }, {
+         , <span class="localvar">"field"</span> : <span class="literal">"member.email"</span>
+         , <span class="localvar">"code"</span> : <span class="literal">"EMAIL"</span>
+         , <span class="localvar">"data"</span> : {}
+         , <span class="localvar">"message"</span> : <span class="literal">"wrong format as email"</span>
+    }]
+}
+</code></pre>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

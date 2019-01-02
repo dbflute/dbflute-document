@@ -1,0 +1,502 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 9 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>nj
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 9</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、ハンズオンの続きです。
+	</p>
+	<div class="relatedpage"><a href="./section08.html">(ひとつまえ) ハンズオンセクション 8</a></div>
+	<p>
+		"はじめての外だしSQL" を学んでいきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		<em class="keyword">src/main/java</em> 配下に org.docksidestage.handson.logic.HandsOn09Logic
+		クラスを作成してください。この時点では空っぽで構いません。また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		【事務連絡】org.dbflute.handson から、org.docksidestage.handson に変わりました。
+		org.dbfluteで開始した人は、そのまま org.dbflute で続けてOKです。もし、移行するなら log4j.properties と basicInfoMap.dfprop
+		の該当箇所を修正してください。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20150311">ハンズオンニュース - org.docksidestageに変更</a></div>
+
+	<h2 id="introduction">外だしSQLについて</h2>
+	<p>
+		DBFluteにおける外だしSQLのコンセプトをもう一度おさらいしましょう。
+	</p>
+	<div class="detailpage"><a href="../../introduction/dbaccessif.html">バランス重視のDBアクセスI/F</a></div>
+	<p>
+		そして、外だしSQLの概要を学んでいきましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/outsidesql/index.html">外だしSQL</a></div>
+
+	<h2 id="firstoutside">初めての外だしSQL</h2>
+	<p>
+		まずは、外だしSQLの使い方です。<span class="frm">(講師によるフォローあり)</span>
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/outsidesql/howto.html">外だしSQLの使い方</a></div>
+	<p>
+		それではエクササイズをやってみましょう。
+		SQLファイルは EMecha を使って作成し、CustomizeEntity や ParameterBean は、Sql2Entity で自動生成します。
+	</p>
+	<dl class="textlist">
+		<dt>外だしSQLのファイル</dt>
+		<dd>MemberBhv_selectOutsideMember.sql</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ID、会員名称、生年月日、会員ステータス名称、サービスポイント数を取得</li>
+				<li>会員IDの等値、会員名称の前方一致、会員ステータスの等値を and で連結</li>
+				<li>それぞれ条件値がない場合は条件自体が無効になるように</li>
+				<li>全ての条件値がない場合は全件検索になるように</li>
+			</ul>
+		</dd>
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;OutsideMember&gt; letsOutside(OutsideMemberPmb pmb)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された ParameterBean で会員を検索する</li>
+				<li>引数の値で null は許されない</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_letsOutside_会員が検索されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称が "S" で始まる正式会員 <span class="frm">(区分値メソッドを使う)</span> で検索すること</li>
+				<li>条件値を設定しなかった条件が除去されていることをログで目視確認</li>
+				<li>会員サービスのサービスポイント数が取得できていることをアサート</li>
+				<li>検索された会員が "S" で始まっていることをアサート</li>
+				<li>正式会員であることをアサート <span class="frm">(区分値メソッドを使う、select句にカラムを追加してもOK)</span></li>
+			</ul>
+		</dd>
+		<dd>test_letsOutside_条件値なしで全件検索されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>全ての引数を null にして実行</li>
+				<li>where句が存在しないことをログで目視確認</li>
+				<li>検索結果が全件であることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="schemahtml">外だしSQLのドキュメント</h3>
+	<p>
+		Docタスクを叩いて、SchemaHTMLを作り直して外だしSQLの欄を見てみましょう。
+	</p>
+	<h3 id="firstexplain">2Way-SQLを活かして実行計画</h3>
+	<p>
+		2Way-SQLの特徴を活かして、作成した外だしSQLの実行計画を見てみましょう。
+		login-mysql-root.bat(sh) を実行してMySQLにroot接続して、use maihamadb; してから explain [SQL文字列]
+		を流してみましょう。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLのコメントを必須に設定 @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">explain</span> select <span class="abbreviation">...</span> from <span class="abbreviation">...</span>;
+</code></pre>
+	<p>
+		実行計画の見方が変わらない場合は、片っ端からわからない単語などをググって、おおまかな流れを把握してみましょう。
+		カラムのインデックスの有無は、SchemaHTMLを参考に。また、検索結果が一件もヒットしないSQLの場合はそっけない実行計画になるので、会員IDの等値条件を抜いたりして試すと良いでしょう。
+	</p>
+	<p>
+		同じように、今までの ConditionBean の検索の中で、"ちょっと実行計画見てみたいなぁ"
+		と思うようなものを二つ選んで、テストを実行してログに表示されたSQLをコピーして explain
+		してみてください。ざらっと眺めて満足したら次のエクササイズへ。
+		<span class="frm">(ここでは、インデックスによる検索の基本的な概念と、おおまかな実行計画の見方を掴むことさえできたらOKです)</span>
+	</p>
+
+	<h2 id="paging">外だしSQLでページングってみる</h2>
+	<p>
+		外だしSQLでのページング検索です。
+	</p>
+	<p>
+		ConditionBeanでのページング検索を思い出して、比較しながら実装してみましょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/programming/dbaccess/pagingselect.html">DBアクセス - ページング検索</a></div>
+	<dl class="textlist">
+		<dt>外だしSQLのファイル</dt>
+		<dd>MemberBhv_selectPartOfMember.sql</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>(Manual)ページング検索すること</li>
+				<li>基本は "初めての外だしSQL" のSQLと同じで...</li>
+				<li>会員ステータスの等値条件は要らない</li>
+				<li>会員サービスのサービスポイント数の大なり条件を追加</li>
+				<li>結合に関して、カウント検索のパフォーマンスを最大限考慮すること <span class="frm">(会員サービスの結合とか)</span></li>
+				<li>そのとき、IFコメントに記述する条件が複雑にならないように <span class="frm">(代理判定メソッドを使う)</span></li>
+			</ul>
+		</dd>
+		<dt>ロジックのメソッド</dt>
+		<dd>PagingResultBean&lt;PartOfMember&gt; selectPartOfMember()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称に "vi" を含む会員を対象に検索</li>
+				<li>ページサイズは 4、ページ番号は 1 で検索すること</li>
+				<li>指定された ParameterBean で検索して、検索結果を戻す</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectPartOfMember_ページング検索されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>期待通りのSQLがログに出力されることを目視確認する</li>
+				<li>検索したカラム全てのデータをログ出力</li>
+				<li>検索結果がページサイズ以下のデータだけであることをアサート</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">※実装できたら、サービスポイント数が1000以上というのを追加してみましょう。実行して落ちなければOKです。</span>
+		</dd>
+		<dd>
+			<span class="frm">※代理判定メソッドの UnitTest をやってみましょう。PartOfMemberPmb で (Eclipseなら) ctrl+9 でテストクラス作成(継承クラスはPlainTestCaseでOK)。
+			isPaging()をオーバーライドして固定でtrueやfalseを戻したりして、代理判定メソッドの判定パターンをぜんぶ検証してみましょう。</span>
+		</dd>
+	</dl>
+
+	<h2 id="moreout">さらに外だし</h2>
+	<p>
+		それではさらに外だしSQLのエクササイズです。せっかくなので機能的なやり方でやりましょう。
+		以下は、ConditionBeanでは実現できないレベルのSQLです。頑張ってください。
+	</p>
+	<dl class="textlist">
+		<dt>外だしSQLのファイル</dt>
+		<dd>PurchaseBhv_selectPurchaseMonthSummary.sql</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>"会員と購入月" ごとの購入の平均購入価格、合計購入数量を検索する</li>
+				<li>会員ID、会員名称、購入月、平均購入価格、合計購入数量という形で検索</li>
+				<li>"支払済みの購入だけ" という条件が指定できるように <span class="frm">(逆に "未払いだけ" の条件は要らない)</span></li>
+				<li>会員名称の曖昧検索(部分一致)という条件が指定ができるようにする</li>
+				<li>会員のサービスポイント数の大なり条件が指定できるようにする</li>
+				<li>会員IDの昇順、購入月の降順で並べる</li>
+			</ul>
+		</dd>
+		<dt>ロジックのメソッド</dt>
+		<dd>ListResultBean&lt;PurchaseMonthSummary&gt; selectLetsSummary(String memberName)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>引数の値で null は許されない</li>
+				<li>指定された ParameterBean で検索して、検索結果を戻す</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectLetsSummary_集計が検索されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称に "vi" を含む会員を対象に検索</li>
+				<li>会員名称に "vi" が含まれていることをアサート</li>
+				<li>期待通りのSQLがログに出力されることを目視確認する</li>
+				<li>期待通りの総レコード数であることを目視確認する ※1</li>
+				<li>検索したカラム全てのデータをログ出力</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">※1: 一時的にpageSizeを99999にして実行した実データ検索の件数が総レコード数と言える</span>
+		</dd>
+	</dl>
+	<h3 id="theoutside">外だしSQLならでは</h3>
+	<p>
+		ConditionBeanと外だしSQLの概念的な違いを理解しましょう。
+		ちょうど、この外だしSQLは、"ConditionBeanでは実現できない、外だしSQLならではの検索" と言えます。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/ormapper/conditionbean/cbscope.html">ConditionBeanのスコープ</a></div>
+	<h3 id="challenge">お手軽チャレンジ</h3>
+	<p>
+		ちょっと、この集計のSQLをページング検索に修正してみてください。
+		ページサイズは 4 でページ番号は 1 で検索してみましょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/programming/dbaccess/pagingselect.html">ページング検索</a></div>
+
+	<h2 id="commentrequired">外だしSQLのコメントを必須に</h2>
+	<p>
+		外だしSQLのコメント(タイトルと説明)は必須になっています。
+		<span class="frm">※Java8 (DBFlute-1.1) よりデフォルトで必須です。</span>
+	</p>
+	<p>
+		試しに、すでに作成した外だしSQLのどれかを、コメント削除して "OutsideSqlTestタスク"
+		を実行してみてください。manage.sh(bat) の 25 番です。
+	</p>
+	<p>
+		"タイトルと説明のないSQLは作らないようにしよう" という思想です。
+		他人の作ったSQLは、非常にメンテナンスしづらいものです。
+		何のためのSQLか？どういう特徴を持っているSQLなのか？最低限の情報を残しておきたいものです。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/dbflutefit/outsidesqltitle/index.html">現場フィット - 外だしSQLのタイトル</a></div>
+
+	<h2 id="columncomment">プロパティとカラムのコメントを付与</h2>
+	<p>
+		"初めての外だしSQL" のSQLで、ParameterBeanのプロパティにコメントを付与してみましょう。
+		<span class="frm">(ParameterBeanのページを参考に)</span>
+	</p>
+	<div class="detailpage"><a href="../../manual/function/generator/task/sql2entity/pmbpropoption.html#propcomment">ParameterBean - プロパティのコメント</a></div>
+	<p>
+		"さらに外だし" のSQLで、検索カラム (CustomizeEntityのプロパティ) にコメントを付与してみましょう。
+		<span class="frm">(CustomizeEntityのページを参考に)</span>
+	</p>
+	<div class="detailpage"><a href="../../manual/function/generator/task/sql2entity/customizeentity.html#columncomment">CustomizeEntity - 検索カラムのコメント</a></div>
+	<p>
+		再度 Sql2Entity を実行し、ParameterBean と CustomizeEntity のGetter/SetterのJavaコメントを確認してみましょう。
+	</p>
+
+	<h2 id="cursor">外だしSQLでカーソル検索ってみる</h2>
+	<p>
+		そして、"さらに外だし" で作成した外だしSQLと同じ仕様(ページングは不要)で、新たにカーソル検索のエクササイズをやってみましょう。
+		ConditionBeanでのカーソル検索を思い出して、比較しながら実装してみましょう。<span class="frm">(講師によるお話あり)</span>
+	</p>
+	<div class="detailpage"><a href="../../manual/topic/programming/dbaccess/cursorselect.html">そもそもカーソル検索とは？</a></div>
+	<p>
+		このエクササイズは <em class="keyword">とっても難しい</em> です。気を引き締めて臨んでください。
+	</p>
+	<dl class="textlist">
+		<dt>外だしSQLのファイル</dt>
+		<dd>PurchaseBhv_selectPurchaseMonthCursor.sql</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>"さらに外だし" と同じ仕様(ページングは不要)</li>
+				<li>カーソル検索として作成すること</li>
+				<li>明らかにおかしいカラム名のカラムはデータ取得してはいけない <span class="frm">(後は何を取ってもOKですが、これだけはっ)</span></li>
+			</ul>
+		</dd>
+		<dt>ロジックのメソッド</dt>
+		<dd>void selectLetsCursor(PurchaseMonthCursorPmb pmb)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された ParameterBean でカーソル検索する</li>
+				<li>引数の値で null は許されない</li>
+				<li>平均購入価格の分、その会員のサービスポイント数を足す</li>
+				<li>足す際、パフォーマンス考慮のために事前selectはせず、updateだけで足す <span class="frm">(varyingUpdat...)</span></li>
+				<li>ジョブスケジューラーからで呼ばれることを想定した処理として実装 <span class="frm">(つまりバッチ処理として)</span></li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectLetsCursor_集計が検索されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称に "vi" を含む会員を対象に検索</li>
+				<li>期待通りのSQLがログに出力されることを確認する</li>
+				<li>誰か一人でもサービスポイント数が増えていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="cursorbonus">ボーナスステージ</h3>
+	<p>
+		さて、MySQL (ハンズオンのデフォルト) を使っているのであれば、そのままでは実はメモリ対策になっていません。
+		DBFluteがカーソル検索をしていても、MySQLのJDBCドライバーが全件メモリ上に保持してしまいます<span class="frm">(少なくとも、MySQL JDBC-5.1.xでは)</span>。
+		ジョブスケジューラーからで呼ばれることを想定したバッチ処理であれば、検索対象が100万件になるかもしれませんので、このままだと本番環境で OutOfMemoryError が発生する可能性があります。
+	</p>
+	<p>
+		そこで、outsideSql().configure() メソッドを使って、StatementConfig の FetchSize に Integer.MIN_VALUE
+		を設定して再実行してみましょう。
+	</p>
+	<p>
+		ただし、ここから壁が待っています。それに伴い、新しい要件です。
+	</p>
+	<dl class="textlist">
+		<dt>本番でもテストでも動く</dt>
+		<dd>
+			本番環境でもUnitTest実行でも問題なく動作するようにしましょう。
+			ハンズオンでは、本番での実行をテストする仕組みはありませんが、論理的に問題なく実行されることを想定した実装をしましょう。
+		</dd>
+		<dt>Interceptorを実行させない</dt>
+		<dd>
+			Logicクラスにはたくさんの Interceptor (AOP) が仕掛けられているとします。
+			UnitTestの環境では実行しづらい処理が含まれていると想定して、UnitTestのときは実行されないようにしましょう。
+		</dd>
+		<dt>テストデータは元に戻す</dt>
+		<dd>
+			やむを得ずトランザクションをコミットせざるを得ないにしても、無理矢理でも良いのでUnitTestでデータが自動的に元に戻るようにしてみましょう。
+		</dd>
+	</dl>
+	<p>
+		ちなみに、ハンズオンの環境では、テストクラスにて新しいトランザクションを発行したり、トランザクション分離レベルを制御したりできます。
+		これらはスーパークラスのメソッドです。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>新しいトランザクション発行</dt><dd>performNewTransaction()</dd>
+		<dt>READ COMMITTED にする</dt><dd>adjustTransactionIsolationLevel_ReadCommitted()</dd>
+	</dl>
+	<p>
+		さて、どうしてもわからない場合は、ヒントが用意されています。見ると後悔するかもしれませんので、タイミング良く見てください。
+	</p>
+	<div class="detailpage"><a href="./hint/hint09.html">セクション 9 のヒント</a></div>
+	<h3 id="superbonus">スーパーボーナスステージ</h3>
+	<p>
+		もし、ものすごい頑張れるのであれば、一行ずつフェッチでCSVにデータを出力してみてください。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>出力項目</dt><dd>会員名称、購入月、合計購入数量</dd>
+		<dt>デリミタ文字</dt><dd>カンマ</dd>
+		<dt>エンコーディング</dt><dd>UTF-8</dd>
+		<dt>改行コード</dt><dd>LF</dd>
+		<dt>カラムヘッダー</dt><dd>一行目にはカラム名のヘッダー</dd>
+		<dt>出力ファイル</dt><dd>[PROJECT_ROOT]/target/hands-on-outside-bonus.csv <span class="frm">※1</span></dd>
+		<dt>CSV出力API</dt><dd>FileToken <span class="frm">@since DBFlute-1.0.4F (それはもう、じっくりソースを読んで...)</span></dd>
+	</dl>
+	<p>
+		<span class="frm">※1: DfResourceUtil.getBuildDir(getClass())で target/classes の File インスタンスが取得できます</span>
+	</p>
+	<p>
+		Logicクラスの selectLetsCursor() にて、そのまま処理を追加し、
+		テストコードのアサートにて、同じく FileToken を使ってそのファイルを読み込んでログに出力してみましょう。
+		<span class="frm">(講師によるコードリーディングの小話あり)</span>
+	</p>
+	<h3 id="miraclebonus">ミラクルボーナスステージ</h3>
+	<p>
+		もし、ミラクルものすごい頑張れるのであれば、セクション３のカーソル検索の実装に、TSV出力処理を追加してみましょう。
+		<span class="frm">(セクション３のコードをセクション９にコピーして持ってきて、修正してみましょう)</span>
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>出力項目</dt><dd>会員名称、生年月日(yyyy/MM/dd)、正式会員日時(yyyy/MM/dd HH:mm:ss)</dd>
+		<dt>デリミタ文字</dt><dd>タブ</dd>
+		<dt>エンコーディング</dt><dd>UTF-8</dd>
+		<dt>改行コード</dt><dd>LF</dd>
+		<dt>カラムヘッダー</dt><dd>なし</dd>
+		<dt>出力ファイル</dt><dd>[PROJECT_ROOT]/target/hands-on-cb-bonus.tsv</dd>
+		<dt>TSV出力API</dt><dd>FileToken <span class="frm">@since DBFlute-1.0.4F</span></dd>
+	</dl>
+	<p>
+		同じように、アサートで FileToken を使ってそのファイルを読み込んでログに出力してみてください。
+	</p>
+	<p>
+		しかしながら、テストを実行するたびに target 配下を F5 するのは面倒ではありませんか？
+		そのテストの最後の処理でハンズオンのプロジェクトを自動的に F5 されるようにしてみたらどうでしょう!?
+		<span class="frm">(Eclipseじゃない人には無関係ですが、エクササイズとして実行するプログラムは書いてみましょう)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>F5 API (リフレッシュAPI)</dt><dd>DfRefreshResourceRequest <span class="frm">@since DBFlute-1.0.4F</span></dd>
+		<dt>Project Name</dt><dd>dbflute-hands-on</dd>
+		<dt>Request URL</dt><dd>http://localhost:8386/</dd>
+	</dl>
+
+	<h2 id="procedure">ストアドプロシージャも外だしSQL</h2>
+	<p>
+		ちょっとだけストアドプロシージャも作って呼んでみましょう。<span class="frm">(講師によるお話あり)</span>
+	</p>
+	<h3 id="inoutproc">IN, OUTパラメータのプロシージャ</h3>
+	<p>
+		outsideSqlMap.dfprop のプロシージャ対応の ParameterBean を自動生成するプロパティを true
+		にし、playsql に以下プロシージャを記述した replace-schema-50-procedure.sql
+		を作成し、ReplaceSchemaしてプロシージャをDBに作成して、Sql2Entity
+		を実行してください。そして、自動生成されたクラスを使ってエクササイズをやってみましょう。
+	</p>
+<pre><span class="codetitle">e.g. IN, OUTパラメーター混在のプロシージャ @replace-schema-50-procedure.sql</span><code>
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create procedure</span> SP_IN_OUT_PARAMETER(
+      <span class="keyword">in</span> v_in_varchar <span class="dbtype">varchar(32)</span>
+    , <span class="keyword">out</span> v_out_varchar <span class="dbtype">varchar(32)</span>
+    , <span class="keyword">inout</span> v_inout_varchar <span class="dbtype">varchar(32)</span>
+)
+<span class="keyword">begin</span>
+  <span class="keyword">set</span> v_out_varchar = v_inout_varchar;
+  <span class="keyword">set</span> v_inout_varchar = v_in_varchar;
+<span class="keyword">end</span>;
+<span class="comment">-- #df:end#</span>
+</code></pre>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>SpInOutParameterPmb callInOutProcedure(String in, String inout)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>SP_IN_OUT_PARAMETER を call</li>
+				<li>ParameterBean を戻す</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_callInOutProcedure_値がへんてこりんになっていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>in に "foo" を、inout に "bar" を設定</li>
+				<li>プロシージャを呼び出した後、ParameterBeanの値が入れ替わってること</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="inoutproc">結果セットを戻すプロシージャ</h3>
+	<p>
+		さらには、検索セットを戻すプロシージャを試してみましょう。
+	</p>
+	<p>
+		outsideSqlMap.dfprop にて、プロシージャの CustomizeEntity を自動生成するプロパティを true
+		にして、以下のプロシージャを先ほどのSQLファイルに追加して、同じようにエクササイズをしてみてください。
+	</p>
+<pre><span class="codetitle">e.g. 複数の検索を実行するプロシージャ @replace-schema-50-procedure.sql</span><code>
+<span class="comment">-- #df:begin#</span>
+<span class="keyword">create procedure</span> SP_RETURN_RESULT_SET(<span class="keyword">in</span> birthdateFrom <span class="dbtype">DATE</span>)
+<span class="keyword">begin</span>
+  <span class="keyword">select</span> MEMBER_NAME, BIRTHDATE, MEMBER_STATUS_CODE
+    <span class="keyword">from</span> MEMBER
+   <span class="keyword">where</span> BIRTHDATE >= birthdateFrom
+   <span class="keyword">order by</span> BIRTHDATE <span class="keyword">desc</span>, MEMBER_ID <span class="keyword">asc</span>;
+  <span class="keyword">select</span> MEMBER_STATUS_CODE, MEMBER_STATUS_NAME
+    <span class="keyword">from</span> MEMBER_STATUS
+   <span class="keyword">order by</span> DISPLAY_ORDER;
+<span class="keyword">end</span>;
+<span class="comment">-- #df:end#</span>
+</code></pre>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>SpReturnResultSetPmb callResultSetProcedure(LocalDate birthdateFrom)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された ParameterBean で SP_RETURN_RESULT_SET を call</li>
+				<li>会員名称と会員ステータス名称を一行のログで出力すること</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_callResultSetProcedure_検索結果が取得できてること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>birthdate に1968年1月1日を設定</li>
+				<li>生年月日が1968年以降であることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section10.html">ハンズオンセクション 10</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

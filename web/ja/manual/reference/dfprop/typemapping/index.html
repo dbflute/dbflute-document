@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,typeMappingMap.dfprop,型のマッピング" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>typeMappingMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>typeMappingMap</h1>
+	${indexlist}
+
+	<h2 id="about">typeMappingMapとは？</h2>
+	<p>
+		JDBC型とプログラム型を関連付ける設定をするDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の typeMappingMap.dfprop という名前のテキストファイルです。主に JDBCタスク、Sql2Entity
+		タスクから参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/jdbc/index.html">JDBCタスク</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/index.html">Sql2Entityタスク</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbctype">JDBC型</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#programtype">プログラム型</a></div>
+	<p>
+		実は、裏技でDBデータ型とJDBC型を関連付けることもできます。
+	</p>
+	<div class="detailpage"><a href="#datatypemapping">this - DBデータ型とJDBC型のマッピング</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wd.html#dbdatatype">DBデータ型</a></div>
+	<p>
+		このプロパティは TwoEdgedSword 扱いです。<em class="keyword">厳重注意のもと</em> 利用して下さい。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、JDBC型とプログラム型の関連を key-value 形式で定義します。
+	</p>
+<pre><span class="codetitle">typeMappingMapの仕様 @typeMappingMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [JDBC-type] = [program-type]
+    ...
+}
+</code></pre>
+	<p>
+		デフォルトのJDBC型とプログラム型のマッピング表を参考にしながら設定して下さい。
+	</p>
+	<div class="relatedpage"><a href="#defaultmapping">this - JDBC型とプログラム型のデフォルトマッピング</a></div>
+	<p>
+		このプロパティは、本当にいざっっっ、てときに利用します。通常はデフォルトのままで利用して下さい。
+		このプロパティの設定内容によっては正常に動作しなくなる可能性もありますので、利用には細心の注意を払って下さい。
+	</p>
+	<h3 id="automapping">自動マッピング</h3>
+	<p>
+		NUMERIC型とDECIMAL型は、桁数や小数点の有無などを自由に選択できる型(であることが多い)です。これら型を全て一律 BigDecimal
+		にするのではなく、桁数や小数点の有無の情報をもとに自動でマッピングする型を変えることができます。
+	</p>
+	<p>
+		プログラム型を指定する部分で <em class="keyword">$$AutoMapping$$</em> と指定します。
+	</p>
+<pre><span class="codetitle">自動マッピングの指定 @typeMappingMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; NUMERIC = <span class="attribute">$$AutoMapping$$</span>
+    ; DECIMAL = <span class="attribute">$$AutoMapping$$</span>
+    ...
+}
+</code></pre>
+	<p>
+		NUMERIC と DECIMAL については、<em class="keyword">セットアップデフォルトとして自動マッピングが付与</em> されます。
+	</p>
+	<div class="relatedpage"><a href="../index.html#setupdefault">dfprop - セットアップデフォルト</a></div>
+	<p>
+		自動マッピングの仕様は以下の通りです。
+	</p>
+	<dl class="valuemainlist">
+		<dt>NUMERIC( 1 -  9 , 0)</dt><dd>INTEGER</dd>
+		<dt>NUMERIC(10 - 18 , 0)</dt><dd>BIGINT</dd>
+		<dt>NUMERIC(19 - 38 , 0)</dt><dd>NUMERIC</dd>
+		<dt>NUMERIC( 1 - 38 , 2)</dt><dd>NUMERIC</dd>
+		<dt>DECIMAL( 1 -  9 , 0)</dt><dd>INTEGER</dd>
+		<dt>DECIMAL(10 - 18 , 0)</dt><dd>BIGINT</dd>
+		<dt>DECIMAL(19 - 38 , 0)</dt><dd>DECIMAL</dd>
+		<dt>DECIMAL( 1 - 38 , 2)</dt><dd>DECIMAL</dd>
+	</dl>
+
+	<h3 id="datatypemapping">DBデータ型とJDBC型のマッピング</h3>
+	<p>
+		<em class="keyword">$$[DBデータ型の名前]$$ に対してJDBC型を指定</em>
+		することで、DBデータ型とJDBC型のマッピングができます。
+	</p>
+	<p>
+		主には、未サポートのDBデータ型を扱えるようにする場合に利用します。
+	</p>
+<pre><span class="codetitle">typeMappingMapのDBデータ型マッピングの仕様 @typeMappingMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; $$[DB data type]$$ = [JDBC type]
+    ...
+}
+</code></pre>
+<pre><span class="codetitle">e.g. CLOBをなぜかDATE型にマッピング @typeMappingMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; $$CLOB$$ = DATE
+    ...
+}
+</code></pre>
+	<p>
+		独自のJDBC型にマッピングすることもできます。存在しないJDBC型を指定された場合は、内部的にその新しい型を取り込んで認識できるようにします。
+		その場合は、新しいJDBC型のプログラム型へのマッピングも同時に指定します。
+	</p>
+<pre><span class="codetitle">e.g. CLOBをKOLOB型(新しい型)にマッピング (KOLOB型のマッピングも設定) @typeMappingMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; $$CLOB$$ = KOLOB
+    ; KOLOB = com.example.type.KorondeItai
+    ...
+}
+</code></pre>
+	<p>
+		このように、指定したDBデータ型を <em class="keyword">完全に独自のプログラム型にマッピング</em>
+		することもできます。但し、独自のプログラム型に対応する独自の ValueType を別途 DBFluteConfig にて設定する必要があります。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#valuetype">DBFluteConfig - ValueType</a></div>
+	
+	<h2 id="defaultmapping">JDBC型とプログラム型のデフォルトマッピング</h2>
+<pre><span class="codetitle">JDBC型とプログラム型のデフォルトのマッピング</span><code>
+ --------------------------------------------------------
+ | JDBC Type     | Java Native          | CSharp Native |
+ | ------------------------------------------------------
+ | CHAR          | java.lang.String     | String        |
+ | VARCHAR       | java.lang.String     | String        |
+ | LONGVARCHAR   | java.lang.String     | String        |
+ | NUMERIC       | java.math.BigDecimal | decimal?      |
+ | DECIMAL       | java.math.BigDecimal | decimal?      |
+ | TINYINT       | java.lang.Integer    | int?          |
+ | SMALLINT      | java.lang.Integer    | int?          |
+ | INTEGER       | java.lang.Integer    | int?          |
+ | BIGINT        | java.lang.Long       | long?         |
+ | REAL          | java.math.BigDecimal | decimal?      |
+ | FLOAT         | java.math.BigDecimal | decimal?      |
+ | DOUBLE        | java.math.BigDecimal | decimal?      |
+ | DATE          | java.util.Date       | DateTime?     |
+ | TIME          | java.sql.Time        | DateTime?     |
+ | TIMESTAMP     | java.sql.Timestamp   | DateTime?     |
+ | BIT           | java.lang.Boolean    | bool?         |
+ | BOOLEAN       | java.lang.Boolean    | bool?         |
+ | BINARY        | byte[]               | byte[]        |
+ | VARBINARY     | byte[]               | byte[]        |
+ | LONGVARBINARY | byte[]               | byte[]        |
+ | ARRAY         | *Unsupported         | *Unsupported  |
+ | UUID          | java.util.UUID       | *Unsupported  |
+ --------------------------------------------------------
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

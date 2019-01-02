@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 11 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 11</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、最終試練です。
+	</p>
+	<div class="relatedpage"><a href="./section10.html">(ひとつまえ) ハンズオンセクション 10</a></div>
+	<p>
+		"子テーブルへのアプローチ (なんとかReferrer)" を学んでいきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		<em class="keyword">src/main/java</em> 配下に org.docksidestage.handson.logic.HandsOn11Logic
+		クラスを作成してください。この時点では空っぽで構いません。
+		また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+	<p>
+		【事務連絡】org.dbflute.handson から、org.docksidestage.handson に変わりました。
+		org.dbfluteで開始した人は、そのまま org.dbflute で続けてOKです。もし、移行するなら log4j.properties と basicInfoMap.dfprop
+		の該当箇所を修正してください。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20150311">ハンズオンニュース - org.docksidestageに変更</a></div>
+
+	<h2 id="loadreferrer">子テーブルの取得</h2>
+	<p>
+		今までは、基点テーブルと一緒に、親テーブル(many-to-one)、さらにone-to-oneテーブルを取得してきました。
+		今度は、基点テーブル一つのレコードに対して複数になり得る子テーブルのレコードも取得していきます。
+		<span class="frm">(講師による講習あり)</span>
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/behavior/select/loadreferrer.html">Behavior - LoadReferrer</a></div>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectPurchaseMemberList(String memberName)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された memberName を含んでいる会員名称の会員を検索する</li>
+				<li>その会員に紐づく支払済み購入のデータも取得する</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectPurchaseMemberList_会員と購入が検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称が "vi" を含んでいる会員を検索</li>
+				<li>支払済み購入が取得できていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="existsreferrer">子テーブルの条件で絞り込み</h2>
+	<p>
+		今までは、基点テーブルに加えて、親テーブル(many-to-one)、さらにone-to-oneテーブルのカラムの条件で絞り込みをしてきました。
+		今度は、基点テーブル一つのレコードに対して複数になり得る子テーブルのカラムで絞り込み条件を定義していきます。
+		<span class="frm">(講師による講習あり)</span>
+	</p>
+	<p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/conditionbean/query/existsreferrer.html">ConditionBean - ExistsReferrer</a></div>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectUnpaidMemberList(String memberName)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>未払い購入のある会員を検索する</li>
+				<li>指定された memberName で含んでいる会員名称の会員を検索する</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectUnpaidMemberList_未払い購入がある会員が検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称が "vi" を含んでいる会員を検索</li>
+				<li>検索された会員が未払い購入を持っていることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="derivedreferrer">子テーブルの導出カラムを取得</h2>
+	<p>
+		今度は、基点テーブル一つのレコードに対して複数になり得る子テーブルのカラムの集計(最大値や平均値など)を導出していきます。
+		<span class="frm">(講師による講習あり)</span>
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/conditionbean/specify/derivedreferrer.html">ConditionBean - DerivedReferrer</a></div>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectLoggedInMemberList(String memberName)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員と最終ログイン日時を(一緒に)検索する</li>
+				<li>指定された memberName で含んでいる会員名称の会員を検索する</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectLoggedInMemberList_会員と最終ログイン日時が検索されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称が "vi" を含んでいる会員を検索</li>
+				<li>会員の最終ログイン日時が本当に最終ログイン日時であることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="onparadereferrer">子テーブルからみまくりの検索</h2>
+	<p>
+		それでは子テーブルからみまくりの検索のエクササイズです。
+	</p>
+	<p>
+		もし、該当するデータがない場合は、テストケースの中で一時的にデータを更新して、
+		テストケースが成り立つようにしてみてください。今後も複雑なケースのエクササイズが想定されますので、
+		ケースがなければ一時的な「ちょこっと更新」で仮想データを作成するようにしてください。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/dbdesign/testdata.html#updatedata">ちょこっと更新でテストデータ作成</a></div>
+	<h3 id="onparadefirst">オンパレードの第一歩</h3>
+	<p>
+		さあ、まずは第一歩
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectOnParadeFirstStepMember(boolean completeOnly)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータス、会員サービス、サービスランク、購入、購入支払、会員ステータス経由の会員ログインも取得</li>
+				<li>(基点テーブルごとの)モバイルからのログイン回数も導出して取得する</li>
+				<li>指定された判定次第で未払い購入の存在しない会員だけを対象にできるように</li>
+				<li>購入は商品の定価の高い順、購入価格の高い順で並べる</li>
+				<li>会員ごとのログイン回数と購入一覧と購入支払一覧をデバッグログに綺麗に出力する</li>
+				<li>購入支払は、最も推奨されている方法のみ検索</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectOnParadeFirstStepMember_未払い購入の存在しない会員()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>未払い購入の存在しない会員だけを検索</li>
+				<li>未払い購入が存在しないことをアサート</li>
+				<li>会員ステータス経由の会員ログインが取得できていることをアサート</li>
+				<li>購入支払が最も推奨されている方法のみ検索されていることをアサート</li>
+				<li>その他、ロジックの中で出力したログを見て期待通りであることを確認</li>
+				<li>検索された全会員の購入支払金額の合計をstream()で求めてログに出す！ <span class="frm">(streamチャレンジ)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="onparadesecond">オンパレードはつづく</h3>
+	<p>
+		つづいていきますよ。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectOnParadeSecondStepMember()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータス、購入と商品と購入商品種類数(*1)を一緒に検索</li>
+				<li>商品ステータスが "生産中止" の商品を買ったことのある会員...もしくは(続く)</li>
+				<li>(続き)手渡しだけでも払い過ぎてるのに未払いになっている購入を持ってる会員にフォローされている会員</li>
+				<li>購入は商品ステータスの表示順の昇順、購入日時の降順で並べる</li>
+				<li>会員ごとの購入一覧と商品名称、購入商品種類数をデバッグログに綺麗に出力する</li>
+			</ul>
+		</dd>
+		<dd>
+			*1: 購入商品種類数は、例えば、A, B, C という商品を買ったことがあるなら 3 (種類)
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectOnParadeSecondStepMember_購入のみならず商品も検索()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>商品も取得できることをアサート</li>
+				<li>購入商品種類数が妥当であることをアサート</li>
+				<li>生産中止の商品を買ったことのある会員が(一人でも)検索されていることをアサート</li>
+				<li>どんな手段でもいいので、手渡しだけでも...(略)ている会員が(一人でも)検索されていることを目視確認</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="onparadex">すごいオンパレード</h3>
+	<p>
+		これはすごい。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectOnParadeXStepMember(int leastLoginCount)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>正式会員のときにログインした最終ログイン日時とログイン回数を導出して会員を検索</li>
+				<li>さらに、支払済み購入の最大購入価格を導出して取得</li>
+				<li>もっとさらに、購入と商品と商品ステータスと商品カテゴリと親商品カテゴリ(*1)も取得</li>
+				<li>もっともっとさらに、会員ログイン情報も取得</li>
+				<li>正式会員のときにログインした最終ログイン日時の降順、会員IDの昇順で並べる</li>
+				<li>ログイン回数が指定された回数以上で絞り込み</li>
+				<li>仮会員のときにログインをしたことのある会員を検索</li>
+				<li>自分だけが購入している商品を買ったことのある会員を検索</li>
+				<li>購入は商品カテゴリ(*1)の親カテゴリ名称の昇順、子カテゴリ名称の昇順、購入日時の降順</li>
+				<li>会員ログイン情報はログイン日時の降順</li>
+			</ul>
+		</dd>
+		<dd>
+			*1: 商品カテゴリは、二階層になっていることが前提として
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectOnParadeXStepMember_オンパレードであること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>ログイン回数が 2 回より多い会員を検索し、結果がその通りであることをアサート</li>
+				<li>最終ログイン日時の降順と会員IDの昇順で並んでいることをアサート</li>
+				<li>支払済み購入の最大購入価格が妥当であることをアサート</li>
+				<li>仮会員のときにログインをしたことのある会員であることをアサート</li>
+				<li>自分だけが購入している商品を買ったことのある会員であることをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="simplearrange">シンプルな応用編</h3>
+	<p>
+		シンプルに応用してみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;ServiceRank&gt; selectServiceRankSummary()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>サービスランクごとの会員数、合計購入価格、平均最大購入価格(*1)、ログイン数を検索</li>
+				<li>紐付く会員とその会員に紐付く購入と会員ログインも取得する</li>
+				<li>会員数の多い順に並べる</li>
+			</ul>
+		</dd>
+		<dd>
+			*1: 会員ごとの最大購入価格のサービスランクごとの平均 <span class="frm">(nullにならないようにすること)</span>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectServiceRankSummary_集計されていること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員数が妥当であることをアサート</li>
+				<li>検索した内容をログに綺麗に出して目視で確認すること</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="simplearrange">さらにシンプルな応用編</h3>
+	<p>
+		さらにシンプルに！
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>Integer selectMaxAvgPurchasePrice()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>それぞれの会員の平均購入価格の会員全体での最大値を検索</li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectMaxAvgPurchasePrice_平均の最大の会員()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>平均の最大価格に該当する会員が存在することをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h3 id="ending">Ending</h3>
+	<p>
+		Enjoy your DBFlute life! See you.
+	</p>
+
+	<!--
+	<h2 id="hiddensection">裏ステージはこちら</h2>
+	<p>
+		Dream Cruise なエクササイズの裏ステージへ
+	</p>
+	<div class="detailpage"><a href="./section12.html">ハンズオンセクション 12</a></div>
+	 -->
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

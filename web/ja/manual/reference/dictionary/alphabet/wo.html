@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 O | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 O</h1>
+	<p>
+		"O" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="objectgraph" class="dicword">ObjectGraph (オブジェクトグラフ)</h2>
+	<p>
+		主にリレーショナルデータベースの(リレーションを含めた)データ構造が、プログラム上のオブジェクト(クラス)で表現されている様を示します。
+		テーブルに対応するEntity "DomainEntity" は、まさしくデータ構造をオブジェクトグラフで表現されたクラスです。
+		例えば、会員のEntityは、会員ステータスのEntityへの参照を保持しています。一方で、SQLに対応するEntity "CustomizeEntity"
+		は、リレーションを一切持たないフラットな構造なため、オブジェクトグラフと表現されることは基本的にありません。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/entity/index.html#about">Entityとは？ (DomainEntityの説明あり)</a></div>
+
+	<h2 id="offset" class="dicword">offset <span class="frm">for Paging</span></h2>
+	<p>
+		主にページング検索における絞り込みの "from" を示します。例えば、81-100件目を取得するときの offset 値は 80
+		となります。その絞り込みを実現するための処理を "offset処理" と呼んでいます。
+	</p>
+	<div class="relatedword"><a href="./wl.html#limit">limit</a></div>
+
+	<h2 id="oracle" class="dicword">Oracle</h2>
+	<p>
+		DBFluteがサポートするDBMSの一つ。
+	</p>
+	<div class="detailpage"><a href="../../dbway/oracle/index.html">DMBSごとの取扱い - Oracle</a></div>
+
+	<h2 id="oracletext" class="dicword">Oracle Text</h2>
+	<p>
+		Oracleで全文検索を行うための製品。
+	</p>
+	<div class="detailpage"><a href="../../dbway/oracle/index.html#fulltextsearch">Oracle - ConditionBeanで全文検索</a></div>
+	<div class="relatedword"><a href="./wf.html#fulltextsearch">FullTextSearch (全文検索)</a></div>
+
+	<h2 id="outparameter" class="dicword">OutParameter (OUTパラメータ)<span class="frm">for Procedure</span></h2>
+	<p>
+		プロシージャにおける、プロシージャから呼び出し側へ値を渡すことのできるパラメータ(引数)のことを示します。
+		OUTパラメータと言った場合、状況に応じてINOUTパラメータを含んでいることもあります。
+		同様に、特にJDBCにおいては、プロシージャリターンもOUTパラメータの一部として表現されることがあります。
+	</p>
+
+	<h2 id="othercatalog" class="dicword">OtherCatalog (別カタログ)</h2>
+	<p>
+		特に機能にとらわれず(アプリで利用するかどうかは別にして)、DBFluteでメインで利用しているスキーマのカタログとは別のカタログのことを示します。
+		但し、主にメインスキーマから構造的・権限的に参照可能なカタログを示すことが多いです。
+	</p>
+	<div class="relatedword"><a href="./wc.html#catalog">Catalog (カタログ)</a></div>
+	<div class="relatedword"><a href="#otherschema">OtherSchema (別スキーマ)</a></div>
+
+	<h2 id="otherdatabase" class="dicword">OtherDatabase (別データベース)</h2>
+	<p>
+		主に "別カタログ" と同義で利用されます。単に(利用しているDBMSとは)別のデータベース製品を表現するときは、基本的には
+		"別DBMS" と言いますが、厳密に使い分けられているわけではありません。
+	</p>
+	<div class="relatedword"><a href="#othercatalog">OtherCatalog (別カタログ)</a></div>
+
+	<h2 id="otherschema" class="dicword">OtherSchema (別スキーマ)</h2>
+	<p>
+		特に機能にとらわれず(アプリで利用するかどうかは別にして)、DBFluteでメインで利用しているスキーマとは別のスキーマのことを示します。
+		但し、主にメインスキーマから構造的・権限的に参照可能なスキーマを示すことが多いです。
+		この別スキーマの中で、メインスキーマと共に(一つのDBFluteクライアント環境で)自動生成対象に定義されたスキーマを追加スキーマと呼びます。
+	</p>
+	<div class="relatedword"><a href="./wa.html#additionalschema">additionalSchema (追加スキーマ)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

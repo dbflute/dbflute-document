@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFlute環境セットアップ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFlute Template</h1>
+	<p>
+		SAFlute Templateを使ったSAFluteプロジェクトの環境のセットアップについて。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	<p>
+		こちら、すでに Java8 環境で DBFlute-1.1.0 を使うことが前提になっています。
+	</p>
+	<div class="relatedpage"><a href="./../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+	${indexlist}
+
+	<h2 id="overview">ベタな方法とEclipseプラグイン</h2>
+	<p>
+		SAFluteプロジェクトの環境構築には、大きく二つの方法があります。
+	</p>
+	<h3 id="beta">ベタな方法</h3>
+	<p>
+		Maihamaプロジェクトをコピーして、Maihama や Dockside
+		な部分をどんどん置換していく方法です。大変ですがとても単純ですし、README_ja.txt
+		に詳しく書いてありますので、ここではもうこれだけにしておきます。<span class="frm">(プラグインを使う方がオススメ)</span>
+	</p>
+	<h3 id="eclipseplugin">Eclipseプラグイン</h3>
+	<p>
+		有志の方が提供している、SAFluteを使ったプロジェクトを作成するためのEclipseプラグインを利用することができます。
+		<em class="keyword">SAFlute Template</em> と言います。
+	</p>
+	<p>
+		ベタな方法に比べはるかに簡単にプロジェクトを作れるようになっていますので、ぜひご利用ください。
+		このページでは、この "SAFlute Template" を使った手順をメインに説明します。
+	</p>
+	<h3 id="anywaymaihama">いずれにせよ、Maihamaプロジェクトは見ること</h3>
+	<p>
+		ただ、セットアップ後の細かい微調整などのためにも、Maihamaプロジェクトの README_ja.txt は必ず読んでおくと良いでしょう。
+		また、プラグインでは調整できない部分もありますので、最終的にはMaihamaプロジェクトを参考に理解を深めてアドリブで調整できるようにすると良いでしょう。
+	</p>
+
+	<h2 id="plugin">SAFlute Template プラグイン</h2>
+	<h3 id="structure">プロジェクト構成</h3>
+	<p>
+		既に実践的な構成のプロジェクトを作成できます。
+	</p>
+	<dl class="keymainlist">
+		<dt>baseプロジェクト</dt><dd>pom.xmlの共通定義を統括するベースプロジェクト</dd>
+		<dt>commonプロジェクト</dt><dd>共通ライブラリのプロジェクト、DBFluteの自動生成クラスなど</dd>
+		<dt>webプロジェクト</dt><dd>WEBアプリのプロジェクト、複数作成可能</dd>
+	</dl>
+	<h3 id="install">SAFlute Template のインストール</h3>
+	<p>
+		以下のリンクからダウンロードできます。<span class="frm">(本家からのコピーですので、更新が少し遅れる可能性はあります)</span>
+	</p>
+	<p>
+		<a href="http://dbflute.seasar.org/download/misc/friends/saflute_template-eclipse-plugin.zip">saflute_template-eclipse-plugin.zip</a> (dropins形式)
+	</p>
+
+	<h2 id="clonesaflute">まずは、SAFluteをclone</h2>
+	<p>
+		SAFluteは、jarとして提供されていないため、ソースコードを直接 clone
+		してきます。<span class="frm">(ゆくゆくは切り離して、アプリのものとしてしまいましょう)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute-session/memorable-saflute">外部サイト - SAFluteリポジトリのページ</a></div>
+
+	<h2 id="makebase">baseプロジェクトの作成</h2>
+	<h3 id="selectwizard">ウィザードの選択</h3>
+	<p>
+		パッケージ・エクスプローラーで右クリックして "New" - "Other..."
+		を選択すると、様々なプロジェクト作成の項目の中から SAFlute のウィザードを選ぶことができます。
+	</p>
+	<p class="imgbox">SAFluteTemplate、ウィザードの選択
+		<a href="../../../../data/model/saflute/saflutetemplate-SelectWizard-example.png" title="SAFluteTemplate Select Wizard"><img src="../../../../data/model/saflute/saflutetemplate-SelectWizard-example.png" alt="SAFluteTemplate Select Wizard" width="550" height="420" /></a>
+	</p>
+	<h3 id="basemaven">baseプロジェクトのMaven情報の入力</h3>
+	<p>
+		ウィザードの選択で、SAFlute project-base を選ぶと、baseプロジェクトのMaven情報を入力する画面になります。
+		ここでは、プロジェクト全体のパッケージなどを入力します。
+	</p>
+	<p>
+		作成した後で修正の利かない重要な項目<span class="frm">(★)</span>は、しっかり吟味して入力しましょう。
+	</p>
+	<dl class="textlist">
+		<dt>Group ID <span class="frm">★</span></dt>
+		<dd>グループID、このプロジェクトのJavaのパッケージでもある。<span class="frm">※Seasarのrootではない</span></dd>
+		<dd>例えば、Maihamaプロジェクトであれば、org.dbflute.maihama となる。</dd>
+		<dt>Artifact ID <span class="frm">★</span></dt>
+		<dd>アーティファクトID、Eclipseプロジェクト名でもある。</dd>
+		<dd>例えば、Maihamaプロジェクトであれば、maihama-base となる。</dd>
+		<dt>Name</dt><dd>pom.xmlの name タグの内容、まあ気の利いた感じに</dd>
+		<dt>Description</dt><dd>pom.xmlの description タグの内容、まあ気の利いた感じに</dd>
+	</dl>
+	<p class="imgbox">SAFluteTemplate、baseプロジェクトのMaven
+		<a href="../../../../data/model/saflute/saflutetemplate-BaseMaven-example.png" title="SAFluteTemplate Base Maven"><img src="../../../../data/model/saflute/saflutetemplate-BaseMaven-example.png" alt="SAFluteTemplate Base Maven" width="550" height="420" /></a>
+	</p>
+	<h3 id="baseproject">baseプロジェクトの作成</h3>
+	<p>
+		Maven情報の入力を終えて Next すると、baseプロジェクトの作成画面になります。
+	</p>
+	<p>
+		入力されたMaven情報を元に、既にプロジェクト名が入力されるので、基本的には最後に確認をするだけとなります。
+		想定通りになっていれば、Finishしましょう。
+	</p>
+	<p>
+	</p>
+	<dl class="textlist">
+		<dt>Project Name <span class="frm">★</span></dt>
+		<dd>Eclipseプロジェクトの名前。</dd>
+		<dd>例えば、Maihamaプロジェクトであれば、maihama-base となる。</dd>
+		<dt>SAFlute project name <span class="frm">★</span></dt>
+		<dd>Javaのクラスやコメントなどで利用されるプロジェクト名。</dd>
+		<dd>例えば、Maihamaプロジェクトであれば、Maihama となる。</dd>
+	</dl>
+	<p class="imgbox">SAFluteTemplate、baseプロジェクトの作成
+		<a href="../../../../data/model/saflute/saflutetemplate-BaseProject-example.png" title="SAFluteTemplate Base Project"><img src="../../../../data/model/saflute/saflutetemplate-BaseProject-example.png" alt="SAFluteTemplate Base Project" width="550" height="420" /></a>
+	</p>
+
+	<h2 id="makecommon">commonプロジェクトの作成</h2>
+	<h3 id="commonmaven">commonプロジェクトのMaven情報の入力</h3>
+	<p>
+		ウィザードの選択で、SAFlute project-common を選ぶと、commonプロジェクトのMaven情報を入力する画面になります。
+		<span class="frm">(要領は、baseプロジェクトの時と同じです)</span>
+	</p>
+	<p>
+		作成した後で修正の利かない重要な項目<span class="frm">(★)</span>は、しっかり吟味して入力しましょう。
+	</p>
+	<dl class="textlist">
+		<dt>Group ID <span class="frm">★</span></dt>
+		<dd>グループID、基本的に base プロジェクトと同じ。</dd>
+		<dd>例えば、Maihamaプロジェクトであれば、org.dbflute.maihama となる。</dd>
+		<dt>Artifact ID <span class="frm">★</span></dt>
+		<dd>アーティファクトID、Eclipseプロジェクト名でもある。</dd>
+		<dd>例えば、Maihamaプロジェクトであれば、maihama-common となる。</dd>
+		<dt>Name</dt><dd>pom.xmlの name タグの内容、まあ気の利いた感じに</dd>
+		<dt>Description</dt><dd>pom.xmlの description タグの内容、まあ気の利いた感じに</dd>
+		<dt>Parent Project - Group ID <span class="frm">★</span></dt>
+		<dd>親プロジェクトのグループID、base プロジェクトのグループIDを入力。</dd>
+		<dt>Parent Project - Artifact ID <span class="frm">★</span></dt>
+		<dd>親プロジェクトのアーティファクトID、base プロジェクトのアーティファクトIDを入力。</dd>
+	</dl>
+	<p class="imgbox">SAFluteTemplate、commonプロジェクトのMaven
+		<a href="../../../../data/model/saflute/saflutetemplate-CommonMaven-example.png" title="SAFluteTemplate Common Maven"><img src="../../../../data/model/saflute/saflutetemplate-CommonMaven-example.png" alt="SAFluteTemplate Common Maven" width="550" height="420" /></a>
+	</p>
+	<h3 id="commonproject">commonプロジェクトの作成</h3>
+	<p>
+		ここちょっとポイントです。<span class="frm">(見逃さないでじっくり読んでください)</span>
+	</p>
+	<p>
+		baseプロジェクトの時と同じように、既にいい感じにプロジェクト名が入力されていますが、一つだけ Yyy という名前になっています。
+		これは、webアプリプロジェクトの名前です。webアプリは複数作成されることが想定されますが、この時点ではとりあえずその一つの名前を指定することが求められます。
+		具体的には、DBFluteの FreeGen や PropertiesHTML の設定などで利用されます。
+	</p>
+	<p>
+		例えば、Maihamaプロジェクトの Dockside ドメイン (maihama-dockside) であれば、Dockside
+		となります。<span class="frm">(Yyyで作ってしまうと後で修正が大変なのでここでしっかり)</span>
+	</p>
+	<p class="imgbox">SAFluteTemplate、commonプロジェクトの作成
+		<a href="../../../../data/model/saflute/saflutetemplate-CommonProject-example.png" title="SAFluteTemplate Common Project"><img src="../../../../data/model/saflute/saflutetemplate-CommonProject-example.png" alt="SAFluteTemplate Common Project" width="550" height="420" /></a>
+	</p>
+	<div class="inucolumn">
+		<h3 id="">ちょっと差分を更新</h3>
+		<p>
+			SAFlute本体は更新されるため、タイミングによって SAFlute Template
+			で出力されるテンプレートとちょっとズレがある可能性があります。
+			その場合は、SAFlute本体の更新と同時にメンテされるMaihamaプロジェクトを参考に修正してください。
+		</p>
+		<p>
+			2013/09/08時点にて、国際化対応周りでズレあり。コンパイルエラー箇所において、インターフェースのメソッドを実装すればOKです。
+			国際化対応しないのであれば、ひとまず空実装で問題ありません。
+			Java8が出て、インターフェースメソッドのデフォルト実装というのがサポートされれば、こういう問題は回避できるのでしょうか...!?
+		</p>
+	</div>
+
+	<h2 id="makewebapp">webプロジェクトの作成</h2>
+	<h3 id="webappmaven">webプロジェクトの情報の入力</h3>
+	<p>
+		ウィザードの選択で、SAFlute project-applicatoin を選ぶと、webプロジェクトのMaven情報を入力する画面になります。
+		<span class="frm">(要領は、commonプロジェクトの時と同じです)</span>
+	</p>
+	<p>
+		作成した後で修正の利かない重要な項目<span class="frm">(★)</span>は、しっかり吟味して入力しましょう。
+	</p>
+	<dl class="textlist">
+		<dt>Group ID <span class="frm">★</span></dt>
+		<dd>グループID、基本的に base プロジェクトと同じ。</dd>
+		<dd>例えば、Maihamaプロジェクトであれば、org.dbflute.maihama となる。</dd>
+		<dt>Artifact ID <span class="frm">★</span></dt>
+		<dd>アーティファクトID、Eclipseプロジェクト名でもある。</dd>
+		<dd>例えば、MaihamaプロジェクトのDocksideアプリであれば、maihama-dockside となる。</dd>
+		<dt>Name</dt><dd>pom.xmlの name タグの内容、まあ気の利いた感じに</dd>
+		<dt>Description</dt><dd>pom.xmlの description タグの内容、まあ気の利いた感じに</dd>
+		<dt>Parent Project - Group ID <span class="frm">★</span></dt>
+		<dd>親プロジェクトのグループID、base プロジェクトのグループIDを入力。</dd>
+		<dt>Parent Project - Artifact ID <span class="frm">★</span></dt>
+		<dd>親プロジェクトのアーティファクトID、base プロジェクトのアーティファクトIDを入力。</dd>
+	</dl>
+	<p class="imgbox">SAFluteTemplate、webプロジェクトのMaven
+		<a href="../../../../data/model/saflute/saflutetemplate-WebAppMaven-example.png" title="SAFluteTemplate WebApp Maven"><img src="../../../../data/model/saflute/saflutetemplate-WebAppMaven-example.png" alt="SAFluteTemplate WebApp Maven" width="550" height="420" /></a>
+	</p>
+	<h3 id="webappproject">webプロジェクトの作成</h3>
+	<p>
+		baseプロジェクトの時と同じように、既にいい感じにプロジェクト名が入力されています。
+	</p>
+	<p>
+		特に問題なければ Finish!
+	</p>
+	<p class="imgbox">SAFluteTemplate、webプロジェクトの作成
+		<a href="../../../../data/model/saflute/saflutetemplate-WebAppProject-example.png" title="SAFluteTemplate WebApp Project"><img src="../../../../data/model/saflute/saflutetemplate-WebAppProject-example.png" alt="SAFluteTemplate WebApp Project" width="550" height="420" /></a>
+	</p>
+
+	<h2 id="letsdbflute">DBFluteを動かしてみましょう</h2>
+	<h3 id="dbflutedownload">DBFluteのダウンロード <span class="frm">(クライアントは作成済み)</span></h3>
+	<p>
+		commonプロジェクトでは、DBFluteクライアントが既にいい感じに作成されています。
+	</p>
+	<p>
+		ただ、DBFluteエンジンだけは同梱されていないので、dbflute-maven-plugin
+		を実行して、DBFluteエンジンだけをダウンロードしましょう。
+		ターミナルでcommonプロジェクト直下に行って、mvnコマンドで dbflute:download ゴールを叩きます。
+		<span class="frm">(すると、baseのpom.xmlに定義されているDBFluteランタイムと同じバージョンのDBFluteエンジンがダウンロードされる)</span>
+	</p>
+<pre><span class="codetitle">e.g. dbflute:download ゴールを叩く！ @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">mvn</span> -e dbflute:download
+</code></pre>
+	<p>
+		もし、Mavenが利用できない環境であれば、手動でダウンロードすることもできます。zipをダウンロードして、mydbflute配下で解凍します。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/newest.html">DBFluteの最新バージョン</a></div>
+	<h3 id="dbflutelatest">最新版のDBFluteへアップグレード</h3>
+	<p>
+		もし、DBFluteのバージョンが最新バージョンでなければ、一緒にアップグレードしてしまいましょう。
+		そもそも、いま最新版がいくつか？ってのは、DBFluteの最新バージョンのページを見るとわかります。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/newest.html">DBFluteの最新バージョン</a></div>
+	<p>
+		(つい先ほど dbflute-maven-plugin で現状のバージョンのDBFluteエンジンがダウンロードされていることが前提として)
+		Manageタスク (manage.bat|sh) を叩き、94 (upgrade) を指定して実行すると、最新版のDBFluteエンジンがダウンロードされます。
+		<span class="frm">(mydbflute配下に、想定したバージョンのDBFluteエンジンがダウンロードされていることを確認)</span>
+	</p>
+	<p>
+		そして、baseプロジェクトの pom.xml のDBFluteランタイムのバージョン (dbflute.versionプロパティ) を、最新版に修正します。
+		この瞬間、既存クラスがコンパイルエラーになる可能性がありますが、後のクラス自動生成でなくなるのでここでは気にする必要はありません。
+	</p>
+	<h3 id="databasesetting">データベースの設定 <span class="frm">(デフォルトMySQL)</span></h3>
+	<p>
+		デフォルトでは、以下のような設定になっています。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>DBMS</dt><dd>MySQL</dd>
+		<dt>スキーマ</dt><dd>プロジェクト名 + db <span class="frm">※Maihamaプロジェクトなら maihamadb</span></dd>
+		<dt>ユーザー</dt><dd>プロジェクト名 + user <span class="frm">※Maihamaプロジェクトなら maihamauser</span></dd>
+		<dt>パスワード</dt><dd>プロジェクト名 + word <span class="frm">※Maihamaプロジェクトなら maihamaword</span></dd>
+	</dl>
+	<p>
+		これでよければ、特に気にせず次へ進みましょう。
+	</p>
+	<p>
+		もし、他のDBMSを使ったり、スキーマの名前やユーザー名を変更する場合は、手動で設定ファイルを修正します。
+		主な修正ファイルは以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>[project-name]_env.properties</dt>
+		<dd>アプリからつなぐDBの設定 <span class="frm">※ローカル、結合、本番と環境ごとに存在 (ひとまずローカルだけでも修正)</span></dd>
+		<dt>databaseInfoMap.dfprop</dt>
+		<dd>自動生成ツールとしてのDBFluteがつなぐDBの設定</dd>
+		<dt>replaceSchemaDefinitionMap.dfprop</dt>
+		<dd>ReplaceSchemaがシステムユーザーでつなぐDBの設定 <span class="frm">※利用しないなら設定をコメントアウト</span></dd>
+		<dt>replace-schema-00-system.sql</dt>
+		<dd>システムユーザーで実行するDDL <span class="frm">※利用しないなら削除</span></dd>
+	</dl>
+	<div class="relatedpage"><a href=".././../generator/task/replaceschema/systemuser.html">ReplaceSchema - システムユーザでの実行</a></div>
+	<h3 id="replaceschema">この時点で、ReplaceSchemaできるはず</h3>
+	<p>
+		デフォルトでは、replace-schema-10-basic.sql に Maihama プロジェクトの DDL
+		が入っています。DBの準備ができていれば、この時点で ReplaceSchema を叩いてスキーマを作成できるはずです。
+	</p>
+	<p>
+		1.1.0からは、Manageタスク (manage.bat|sh) の 0 番を選択すると ReplaceSchema になります。
+	</p>
+	<p>
+		失敗した場合は、何かがおかしいです。ReplaceSchemaのログをみながら直していきましょう。
+	</p>
+	<h3 id="generate">クラス自動生成してみましょう</h3>
+	<p>
+		スキーマができたら、Manageタスクの regenerate (2番) を叩いてみましょう。
+		クラスの自動生成が一通りうまく動作するはずです。<span class="frm">(ここでは既存のMaihamaクラスが上書きされるだけ)</span>
+	</p>
+	<h3 id="freegen">FreeGenを実行してみましょう</h3>
+	<p>
+		Manageタスクの freegen (12番) を叩いて正常終了することを確認してみましょう。
+		<span class="frm">(ここでは既存のConfigクラスやMessagesクラスが上書きされるだけ)</span>
+	</p>
+
+	<h2 id="letsboot">画面を起動してみましょう</h2>
+	<h3 id="jetty">Run Jetty Run で起動</h3>
+	<p>
+		Eclipse の Run Jetty Run の設定をして、Webプロジェクトを起動してしてみましょう。
+		<span class="frm">(Run Jetty Run がインストールされてなければ、Eclipse Marketplace からインストール)</span>
+	</p>
+	<p>
+		Webプロジェクトを右クリックして、Run As - Run Jetty で起動できます。
+		デフォルトでは8080で起動するかと思います。Run Configurationで細かくカスタマイズできます。
+		ただし、コンテキストパスは jetty-web.xml にて設定されています。<span class="frm">(後で好きなようにカスタマイズしてOK)</span>
+	</p>
+	<h3 id="firstlogin">ログイン画面を表示してみましょう</h3>
+	<p>
+		/[context-path]/login/ でログイン画面にアクセスすることができます。
+		placeholderに表示されている通りのパスワードでログインできます。ログイン後に会員一覧画面を動かすことができるはずです。
+	</p>
+	<p>
+		参考実装としてMaihamaプロジェクトと同じ画面が組み込まれています。<span class="frm">(後で削除してもOK)</span>
+	</p>
+
+	<h2 id="letsdbflute">DB設計して、自分用で再自動生成</h2>
+	<p>
+		さて、ここから、自分用にどんどんカスタマイズしていきます。まずは、DB設計。
+	</p>
+	<h3 id="ermasterbinstall">ERMaster-b をインストール</h3>
+	<p>
+		こちらからダウンロード: <a href="http://dbflute.seasar.org/download/misc/friends/ermaster-b-eclipse-plugin.zip">ermaster-b-eclipse-plugin.zip</a>
+	</p>
+	<p>
+		zipを解凍して、利用している Eclipse の dropins ディレクトリに、ERMaster-b ディレクトリごと放り込みます。
+		[eclipse-root]/dropins/ERMaster-b/eclipse/plugins/...jar というディレクトリ構成になっていればOKです。
+		Eclipse を再起動して、Preferences の項目として ERMaster が追加されていればOKです。
+	</p>
+	<p>
+		※ここでは本家の ERMaster ではなく、改良された ERMaster を利用することを前提とします。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/friends/eclipse/ermaster/index.html">Friends - ERMaster-b</a></div>
+	<h3 id="dbdesign">ERMaster-b でDB設計</h3>
+	<p>
+		baseプロジェクトの document/erd/xxxdb.erm を ERMaster-b
+		で開くと、Maimahaプロジェクトのテーブルが存在しています。自分のプロジェクト用に修正しましょう。
+		<span class="frm">(がっつり削除してもいいでしょうし、土台にして修正していってもいいでしょう)</span>
+	</p>
+	<p>
+		※ermファイルが開けない場合は、ERMaster-b のインストールに失敗しています。
+	</p>
+	<h3 id="exportddl">ERMaster-b でDDL出力</h3>
+	<p>
+		ひとまずの段階で、ダイアグラムで右クリックして、エクスポートのDDLを選択します。
+		commonプロジェクトにある ReplaceSchema の replace-schema-10-basic.sql に出力します。
+		細かい設定などはデフォルトのままでOKです。
+	</p>
+	<h3 id="adjustdfprop">DBFluteプロパティを調整</h3>
+	<p>
+		幾つかのDBFluteプロパティを自分のプロジェクト用に修正します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>documentDefinitionMap.dfprop</dt>
+		<dd>PropertiesHTMLの設定</dd>
+		<dt>freeGenDefinitionMap.dfprop</dt>
+		<dd>FreeGenの設定</dd>
+		<dt>outsideSqlDefinitionMap.dfprop</dt>
+		<dd>applicationOutsideSqlMapの設定</dd>
+		<dt>refreshDefinitionMap.dfprop</dt>
+		<dd>自動F5の設定</dd>
+	</dl>
+	<h3 id="renewal">そして、リニューアル</h3>
+	<p>
+		Manageタスクの renewal (1番) を実行します。
+	</p>
+	<p>
+		Maihamaの会員テーブルたちを削除しているときは、DBFlute の dfprop
+		から削除されたテーブルの設定を消されないとDBFluteタスクが落ちます。主に、classificationDefinitionMap.dfprop や
+		additionalForeignKeyMap.dfprop たちです。エラー内容を見て適宜消していってください。
+	</p>
+	<p>
+		それでもなお Manage タスクが失敗している場合は、それ以前に設定か何か環境がおかしいです。
+		DBFluteのログをみて直していきましょう。
+	</p>
+	<h3 id="adjust">いい感じに修正していきましょう</h3>
+	<p>
+		Maihamaのテーブルを削除した後にリニューアルすると、Exampleとして用意されている会員一覧画面のクラスなどがコンパイルエラーになります。
+		ここからは、もう自分の世界ですので、いい感じに修正していきましょう。
+	</p>
+
+	<h2 id="welcome">そして、SAFluteの世界へ</h2>
+	<p>
+		ここからは、もう自分の世界ですので、いい感じに修正していきましょう。
+	</p>
+	<p>
+		とりあえずは...
+	</p>
+	<h3 id="secretkey">秘密鍵をどうにか</h3>
+	<p>
+		秘密鍵を設定しましょう。TODOコメントを探してください。<span class="frm">(Eclipseであれば、Tasksビューで探せます)</span>
+	</p>
+	<p>
+		いますぐでなくてもOKですが、管理方法などアプリで独自にカスタマイズしましょう。
+	</p>
+	<h3 id="loginpassword">ログインパスワードの暗号化</h3>
+	<p>
+		仮の実装になっています。OneWayCryptoLogicをアプリに合わせた形でカスタマイズしましょう。
+	</p>
+	<h3 id="multilang">他言語対応しますか？</h3>
+	<p>
+		もし、しないなら(日本語だけなら)、そーとーしばらくする予定がないなら、言語ごとの
+		properties ファイルの分割をやめます。<span class="frm">(二重管理にならないように、デフォルトを日本語にしてしまいます)</span>
+	</p>
+	<dl class="textlist">
+		<dt>_ja.properties は削除</dt>
+		<dd>xxx_ja.properties の内容を xxx.properties に移して、_ja の方は全てファイルごと削除</dd>
+		<dt>dfprop の _ja.properties を修正</dt>
+		<dd>
+			documentDefinitionMap.dfprop の propertiesHtmlMap、そして、freeGenDefinitionMap.dfprop
+			にて、xxx_ja.properties と指定されている箇所を xxx.properties に修正
+		</dd>
+	</dl>
+	<p>
+		もし、他言語対応する、もしくは、いつかは対応するので意識していくのなら、xxx_ja.properties
+		と xxx.properties の両方に、必ず同じキー項目を追加していきましょう。PropertiesHTMLでズレをチェックできます。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/doc/propertieshtml.html">PropertiesHTML</a></div>
+
+	<h2 id="moredomain">さらにwebプロジェクトを追加する場合</h2>
+	<p>
+		同じように、プラグイン (SAFlute project-application) から追加します。
+	</p>
+	<p>
+		ただ、DBFluteの FreeGen や PropertiesHTML などの設定は追加されませんので、手動で追加する必要があります。
+		主な設定追加箇所は以下の通り。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>documentDefinitionMap.dfprop</dt>
+		<dd>PropertiesHTMLの設定</dd>
+		<dt>freeGenDefinitionMap.dfprop</dt>
+		<dd>FreeGenの設定</dd>
+		<dt>outsideSqlDefinitionMap.dfprop</dt>
+		<dd>applicationOutsideSqlMapの設定</dd>
+		<dt>refreshDefinitionMap.dfprop</dt>
+		<dd>自動F5の設定</dd>
+	</dl>
+
+	<div class="inucolumn">
+		<h2 id="welcomefeedback">わからなければ、聞いてみましょう</h3>
+		<p>
+			SAFlute自体は DBFlute のメインストリームではないため、細かく環境構築の手順を用意しているわけではありません。
+			もともと、ソースコードを読んで使い方を学んでいくことを前提としていたもので、パッケージとして広く展開することを想定されたものではありません。
+		</p>
+		<p>
+			ですが、思ったより反応が良く、利用したいという人がわりと増えてきたため、ちょっとずつドキュメントを整備しています。
+			とはいえ、やはりきめ細かいドキュメントは用意し切れないと考えています。<span class="frm">(あくまで優先度は DBFlute 本体の方が高いため)</span>
+		</p>
+		<p>
+			例外的な要件に対する救済的な説明もありませんし、手順通りやってうまくいくとも限りません。
+			DBFlute本体のドキュメントではあまり見かけない "いい感じに" という言葉も連呼されます。
+		</p>
+		<p>
+			なので、わからなければ遠慮なく質問(フィードバック)してみましょう。
+		</p>
+		<div class="detailpage"><a href="../../../topic/office/feedback.html">フィードバック</a></div>
+		<p>
+			SAFluteを使いたいと言ってくれた人の中には、わざわざ jflute に会いに来てくれた方もいらっしゃいました。
+			希望があれば、勉強会などでも積極的に話題にしていきたいと思います。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

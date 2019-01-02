@@ -1,0 +1,41 @@
+@charset "UTF-8";
+
+@import "./sub-content.css";
+
+/* Layout
+---------------------------------*/
+#container, 
+#mainbar {
+	margin: 0;
+	padding: 0;
+}
+#sidebar, #header, #footer {
+	display: none;
+}
+
+/* Head
+---------------------------------*/
+#content h1, 
+#content h2,
+#content h3 {
+	background: none;
+	margin-left: 0;
+	margin-right: 0;
+	padding-left: 0;
+	padding-right: 0;
+}
+#content h2 {
+	border-bottom: 2px solid #999;
+	text-align: left;
+}
+#content h3,
+#content h4 {
+	border: none;
+}
+#content h1 span.second-line, #content h2 span.second-line, #content h3 span.second-line {
+	display: inline;
+}
+#content h1 {
+	font-size: 21pt;
+}
+

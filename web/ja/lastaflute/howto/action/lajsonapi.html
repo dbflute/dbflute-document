@@ -1,0 +1,528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>素早さのJSON API | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>素早さのJSON API</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="returnjson">JSON戻すActionの実装</h2>
+	<h3 id="jsonresponse">JsonResponseを戻り値に</h3>
+	<p>
+		Executeメソッドの戻り値が、<em class="mark">JsonResponse</em> 型になり、<em class="mark">asJson()</em> で Bean を戻します。
+	</p>
+	<div class="relatedpage"><a href="../action/index.html#actionresponse">LastaFlute の Action - Action Response</a></div>
+<pre><span class="codetitle">e.g. JsonResponse and asJson() @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="point">JsonResponse</span><span class="subpoint">&lt;SeaLandResult&gt;</span> index() {
+    <span class="abbreviation">...</span>
+    SeaLandResult <span class="localvar">result</span> = <span class="keyword">new</span> SeaLandResult();
+    <span class="localvar">result</span>.<span class="attribute">piari</span> = <span class="literal">"piary"</span>;
+    <span class="localvar">result</span>.<span class="attribute">bonvo</span> = <span class="literal">"yage"</span>;
+    <span class="abbreviation">...</span>
+    <span class="keyword">return</span> <span class="subpoint">asJson</span>(<span class="localvar">result</span>); 
+}
+</code></pre>
+	<p>
+		JsonResponse には Generic の型として、JSON に変換する Result クラスを指定します。
+		<span class="frm">(JSONを戻す実現要件としては本当は不要ですが、仕組みの中で型を判別できることで、LastaDocに載せたりバリデーションのミスをチェックしたりなどの様々なメリットを享受することができます。
+		なのでプログラム上の明示という意味合いも兼ねて指定するようにしています)</span>
+	</p>
+	<p>
+		Jsonに変換される Bean クラスは、...Result と命名するのがLastaFluteのオススメです。
+		<span class="frm">(制約ではありませんが、API の結果であることがわかるように明示しています)</span>
+	</p>
+	<h3 id="jsonwithhtml">HtmlResponseと混在してもOK</h3>
+	<p>
+		JSON APIというよりかはAJAX的な使い方をする場合、一つのActionクラスの中に HtmlResponse と JsonResponse
+		のメソッドが混じってもOKです。
+	</p>
+	<p>
+		もともと HtmlResponse の場合は、Actionは一つの画面に付き一つ作るというのがオススメです。
+		JsonResponoseが必要な画面でも、API専用のActionというように分けず、同じActionにあった方が再利用もしやすく、管理しやすいかと思います。
+		<span class="frm">(もちろん、ケースバイケースのさじ加減が必要ですが、少なくとも仕組み的な制約はないということです)</span>
+	</p>
+	<h3 id="validateapi">API用のvalidateApi()</h3>
+	<p>	
+		JsonResponseの場合は、バリデーションのメソッドとして <em class="mark">validateApi()</em> を使います。
+	</p>
+<pre><span class="codetitle">e.g. validateApi() for form in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaLandResult&gt; index(SeaLandForm <span class="localvar">form</span>) {
+    <span class="point">validateApi</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		普通の validate() に比べて、バリデーションエラー時の制御をする第三引数のLambdaがありません。
+	</p>
+	<p>
+		JsonResponseのときは、Actionごとつどつど制御するのではなく、アプリ全体で共通的な処理をすることが想定されるため、
+		<em class="bigmark">ApiFailureHook</em> の <em class="mark">handleValidationError()</em> にてエラー用のJSONを戻します。
+		<span class="frm">(ちなみに、業務例外も同様に、ApiFailureHook で制御されます)</span>
+	</p>
+	<p>
+		ちなみに、もしそのアプリがJSON APIサーバーで全部 JsonResponse というときは、BaseAction が implements しているインターフェースを LaValidatableApi
+		に変更すると、validate() 自体が JsonResponse 用のメソッドになります。<span class="frm">(これは一番最初に決めましょう)</span>
+	</p>
+	<div class="detailpage"><a href="#apifailurehook">this - 忘れられないApiFailureHook</a></div>
+	<h3 id="publicfield">Resultのプロパティはpublicフィールド</h3>
+	<p>
+		Form や Body と同様に、Web周りの Bean は、<em class="mark">publicフィールド</em> をベースにするのが LastaFlute のスタイルです。
+		特に JsonResult は、仮に Getter/Setter を作ったとしても、privateフィールドが直接参照されますので、フィールドベースにするのがよいでしょう<span class="frm">(これは Gson の特徴)</span>。
+	</p>
+<pre><span class="codetitle">e.g. Required annotation in Result class @Java</span><code>
+<span class="keyword">public class</span> SeaLandResult {
+
+    <span class="point">public</span> Integer <span class="attribute">piari</span>;
+
+    <span class="point">public</span> String <span class="attribute">bonvo</span>;
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="nativetypeproperty">Resultのプロパティはネイティヴ型</h3>
+	<p>
+		String だけじゃなく、Integer, Long, LocalDate, Boolean, CDef.Xxx など、対応するネイティヴ型をそのまま定義することができます。
+	</p>
+<pre><span class="codetitle">e.g. native type property in Bean class @Java</span><code>
+<span class="keyword">public class</span> SeaLandResult {
+
+    <span class="keyword">public</span> <span class="point">Integer</span> <span class="attribute">piari</span>;
+
+    <span class="keyword">public</span> <span class="point">LocalDate</span> <span class="attribute">bonvo</span>;
+
+    <span class="keyword">public</span> <span class="point">Boolean</span> <span class="attribute">dstore</span>;
+
+    <span class="keyword">public</span> <span class="point">CDef.MemberStatus</span> <span class="attribute">amba</span>;
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="nativetypewrapper">ネイティヴ型は基本的にWrapper型</h3>
+	<p>
+		プロパティの型に、int, long や boolean などの primitive 型も定義できますが、オススメしません。
+	</p>
+	<p>
+		後述される Validator Annotation
+		との相性を考えると、全体的に <em class="keyword">プロパティの型にはWrapper型を使う</em> というポリシーがよいでしょう。
+		<span class="frm">(primitive 型だと、setし忘れても0やfalseなどのデフォルト値が入ってしまうので必須チェックできない)</span>
+	</p>
+	<h3 id="nativedateformat">LocalDate型の日付フォーマット</h3>
+	<p>
+		LocalDate などの日付型は、<em class="mark">yyyy-MM-dd</em>, <em class="mark">yyyy-MM-dd'T'HH:mm:ss.SSS</em>
+		(ISOの日付フォーマット) で解釈されます。一応、これを調整しようと思えばできます。
+	</p>
+	<p>
+		ただ、日付のフォーマットをサーバーで解決するのか？クライアントで解決するのか？
+		これはプロジェクトのポリシーとして決まっているべきことです。
+		ディベロッパーが勝手に判断してはいけないので、迷う場合は必ず確認をしましょう。
+	</p>
+	<div class="relatedpage"><a href="../impldesign/jsondesign.html#dateformat">JSONデザイン - D. 日付フォーマット クライアント？サーバー？</a></div>
+	<dl class="longvaluemainlist">
+		<dt>サーバーで決定</dt><dd>何かしらの方法で、LocalDateのフォーマットを変更</dd>
+		<dt>クライアントで決定</dt><dd>そのまま転送用の日付フォーマットで通信(ISOのデフォルトフォーマット)</dd>
+	</dl>
+	<p>
+		もし、サーバーで決定するのであれば、どのレベルで調整するのか次第でやり方が変えましょう。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>ぜんぶ調整</dt><dd>option でネイティヴ型のフォーマットを変更</dd>
+		<dt>そこだけ調整</dt><dd>@JsonDatePatternアノテーションで変更</dd>
+	</dl>
+	<div class="relatedpage"><a href="#nativemapping">this - ネイティヴ型のマッピング</a></div>
+	<p>
+		いずれにせよ、国際化対応などで独自の変換ロジックを必要としない限り、日付を String
+		で定義する必要はないでしょう。LocalDate, LocalDateTime を積極的に使っていきましょう。
+	</p>
+	<h3 id="resultvalidator">JsonResultもバリデーション</h3>
+	<p>
+		Form や Body と同様に、asJson() に入れる JsonResult もバリデーションすることができます。
+		プロパティに @Required などの Validator Annotation を付けると、実際にバリデーションが実行されます。
+		この場合のバリデーションエラーは、サーバーサイドのバグやデータの不整合が想定されますので、システムエラーとして扱われます。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#jsonbeanvalidation">JsonResultのバリデーション</a></div>
+<pre><span class="codetitle">e.g. Required annotation in Result class @Java</span><code>
+<span class="keyword">public class</span> SeaLandResult {
+
+    <span class="point">@Required</span>
+    <span class="keyword">public</span> Integer <span class="attribute">piari</span>;
+
+    <span class="point">@Required</span>
+    <span class="keyword">public</span> String <span class="attribute">bonvo</span>;
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		LastaDocにもアノテーションが載るので、フロントサイドのディベロッパーに項目の特徴を自然と伝えることができます。
+		ドキュメント的な意味合いとアサート的な意味合いの両方のメリットを享受します。
+	</p>
+	<div class="relatedpage"><a href="#tellbylastadoc">this - JSON を LastaDoc で伝える</a></div>
+	<p>
+		ただ、やり過ぎるとキリが無いので、とりあえず @Required や @NotNull だけは付けておく、というのがオススメです。
+		<span class="frm">(それだけでも、サーバーサイドの "設定し忘れバグ" を防ぐことができますので)</span>
+	</p>
+	<p>
+		一方で、実装上の三大チェックポイントは抑えておきましょう。
+	</p>
+	<div class="detailpage"><a href="./lavalidation.html#bigcheck">LastaFlute の Validation - 三大チェックポイント</a></div>
+	<dl class="keymainlist">
+		<dt>primitive型プロパティ</dt><dd><a href="./lavalidation.html#dontuseprimitive">気をつけて！int や boolean の @Required</a></dd>
+		<dt>ネストBeanプロパティ</dt><dd><a href="./lavalidation.html#dontforgetvalid">忘れないで！ネストBean には @Valid</a></dd>
+		<dt>Listプロパティ</dt><dd><a href="./lavalidation.html#rememberlistrequired">思い出して！List の @Required は一件以上</a></dd>
+	</dl>
+
+	<h2 id="acceptjson">JSON受け取るActionの実装</h2>
+	<h3 id="jsonbody">JsonBodyクラスを引数に</h3>
+	<p>
+		JSON を RequestBody で直接受け取る場合は、Formクラスではなく、Bodyクラスを使います。
+	</p>
+	<div class="relatedpage"><a href="../action/index.html#jsonbody">LastaFlute の Action - JSON Body</a></div>
+<pre><span class="codetitle">e.g. JsonBody instead of form @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaLandResult&gt; index(<span class="point">SeaLandBody</span> <span class="localvar">body</span>) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		Bodyクラスは、Formと同様にpublicフィールドベースで、ネイティヴ型で定義します。
+		Validator Annotation も付けることができます。この辺の要領は、JsonResult と全く同じです。
+	</p>
+<pre><span class="codetitle">e.g. validator annotation in form @Java</span><code>
+<span class="keyword">public class</span> SeaLandBody {
+
+    @Required
+    <span class="keyword">public</span> Integer <span class="attribute">piari</span>;
+
+    @Required
+    <span class="keyword">public</span> LocalDate <span class="attribute">bonvo</span>;
+}
+</code></pre>
+	<h3 id="bodyvalidate">Bodyのバリデーション</h3>
+	<p>	
+		Bodyクラスでも、バリデーションは Form と全く要領は同じです。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#howto">Validationの実装方法</a></div>
+	<p>
+		その Action の戻りが HTML なら validate() ですし、JSON なら validateApi() です。
+		<span class="frm">(JSON Bodyを受け取りながらHTMLを戻すというのはあまり考えられないので、Bodyならほとんど
+		validateApi() だと想定しています)</span>
+	</p>
+	<h3 id="bodyfilter">Bodyの一律Filter</h3>
+	<p>
+		Bodyで受け取るJSONの項目にフィルター処理をかけたい場合は、JsonResourceProvider の provideOption()
+		にて、JsonMappingOption の filterSimpleTextReading() で設定します。
+	</p>
+	<p>
+		厳密には、JsonManagerの読み込み処理のすべてに適用されるので、Bodyだけじゃなく JsonManager
+		の fromJson() でもFilterされます。
+	</p>
+
+	<h2 id="tellbylastadoc">JSON を LastaDocで伝える</h2>
+	<p>
+		JSON APIでアプリを作成するときは、フロントサイドのディベロッパーに "どんなJSONが戻るのか？" をスムーズに伝えるのに苦労します。
+		手動でドキュメントを作っても、開発の荒波の中でどんどん実装とズレていったりなど、なかなかうまく運用していくのは大変です。
+	</p>
+	<p>
+		LastaFluteでは <em class="keyword">JsonResult から LastaDoc</em>
+		というように、実際に作成したJsonResultクラスをパースして、ドキュメントを自動生成します。
+		<span class="frm">("DBからSchemaHTML" というDBFluteの発想と同じような感じ)</span>
+	</p>
+	<div class="detailpage"><a href="../dbflute/lastadoc.html">Actionのドキュメント自動生成(LastaDoc)</a></div>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/lastaflute/lastaflute-lastadoc-json-execute-snapshot.png" title="JSONスタイルのExecuteメソッド詳細"><img src="../../../../data/snapshot/lastaflute/lastaflute-lastadoc-json-execute-snapshot.png" alt="JSONスタイルのExecuteメソッド詳細" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="nativemapping">ネイティヴ型のマッピング</h2>
+	<p>
+		例えば、LocalDate は、デフォルトでは ISO の yyyy-MM-dd で解釈されます。
+	</p>
+	<p>
+		これらは、<em class="mark">JsonResourceProvider</em> の <em class="mark">provideOption()</em>
+		にて調整できます。option にある様々なメソッドで指定します。
+		これ自体はインターフェースなので、実装クラスは Maihama プロジェクトであれば、<em class="mark">MaihamaJsonResourceProvider</em> というクラスになり、AssistantDirectorで登録されます。
+	</p>
+	<div class="relatedpage"><a href="../architecture/assistantdirector.html">AssistantDirector</a></div>
+<pre><span class="codetitle">e.g. format date delimited by slash at provideOption() @Java</span><code>
+<span class="keyword">public class</span> MaihamaJsonResourceProvider <span class="keyword">implements</span> JsonResourceProvider {
+
+    @Override
+    <span class="keyword">public</span> JsonMappingOption provideOption() {
+        JsonMappingOption <span class="localvar">option</span> = <span class="keyword">new</span> JsonMappingOption();
+        <span class="localvar">option</span>.formatLocalDateBy(DateTimeFormatter.ofPattern(<span class="literal">"yyyy/MM/dd"</span>));
+        <span class="localvar">option</span>.formatLocalDateTimeBy(DateTimeFormatter.ofPattern(<span class="literal">"yyyy/MM/dd HH:mm:ss"</span>));
+        <span class="keyword">return</span> option;
+    }
+}
+</code></pre>
+
+	<h2 id="jsapitogether">JS/APIひとまとめパターン</h2>
+	<p>
+		HTML/JavaScriptのリソースと JSON API
+		を <em class="keyword">ひとつのサーバーにひとまとめに</em>
+		するパターン、つまり、一つのwarファイルに両方のリソースを入れて同じドメインで運用する場合のコツについて。
+	</p>
+	<h3 id="fixedapiperfix">JSON API の URL には固定の /api を</h3>
+	<p>
+		HTML/JavaScriptのリソースと JSON API へのリクエストを区分けするために、JSON API の方の URL には固定の <em class="bigmark">/api</em> を付与するようにします。
+		<span class="frm">(別に /api でなくてもいいです。例えばということで)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>HTML/JavaScript</dt><dd>/api ではないURL <em class="smallmark">e.g /index.js</em></dd>
+		<dt>JSON API</dt><dd>/api で始まるURL <em class="smallmark">e.g. /api/product/list</em></dd>
+	</dl>
+	<h3 id="removeapiprefix">ApiProductListAction にならないように</h3>
+	<p>
+		そうすると、Actionクラス名には必ず Api という prefix をつけることになります。パッケージも app.api.xxx
+		というように、api パッケージを挟むことになります。固定的にすべての Action に Api
+		が付くことになるので、さすがに除去したいです。
+	</p>
+	<p>
+		そこで、ActionAdjustmentProvider の customizeActionMappingRequestPath()
+		をオーバーライドして、ActionのマッピングURLから /api
+		を除去します。すると、パッケージもクラス名も、/api に対応する名前をつける必要はありません。
+		<span class="frm">(/api/product/list でも、app.product.ProductListAction でOK )</span>
+	</p>
+	<p>
+		もし、Maihamaプロジェクトであれば、mylasta.direction.sponsor.MaihamaActionAdjustmentProvider になります。
+	</p>
+<pre><span class="codetitle">e.g. remove /api prefix from action mapping URL @Java</span><code>
+<span class="keyword">public class</span> MaihamaActionAdjustmentProvider <span class="keyword">implements</span> ActionAdjustmentProvider {
+
+    @Override
+    <span class="keyword">public</span> String <span class="point">customizeActionMappingRequestPath</span>(String <span class="localvar">requestPath</span>) {
+        <span class="comment">// action class name does not need 'Api' prefix</span>
+        <span class="keyword">return</span> DfStringUtil.substringFirstRear(<span class="localvar">requestPath</span>, <span class="literal">"/api"</span>);
+    }
+}
+</code></pre>
+	<h3 id="exceptnonapirequest">/api でないURLでAction探さないように</h3>
+	<p>
+		必須ではありませんが、パフォーマンス考慮のために、/api でないURL で Action クラスを探しにいかないようにするとよいでしょう。
+		もともと .js, .css, .html などの拡張子の付いた URL なら Action
+		クラスを探しにいかないですが、/operate/maihamadb/ というような URL だと探しに行ってしまいます。
+		<span class="frm">(探しに行って見つからなければ JavaScript 側でつかまえて動作はしますが、無駄な処理が走ります)</span>
+	</p>
+	<p>
+		ActionAdjustmentProvider の isForcedRoutingExcept()
+		をオーバーライドして、/api ではないものを除外するようにします。
+	</p>
+<pre><span class="codetitle">e.g. except non /api request as action mapping @Java</span><code>
+<span class="keyword">public class</span> MaihamaActionAdjustmentProvider <span class="keyword">implements</span> ActionAdjustmentProvider {
+
+    @Override
+    <span class="keyword">public boolean</span> <span class="point">isForcedRoutingExcept</span>(HttpServletRequest <span class="localvar">request</span>, String <span class="localvar">requestPath</span>) {
+        <span class="comment">// of course, request to angular resources does not need routing</span>
+        <span class="comment">// (requestPath might contain /dbflute-intro/ so use contains())</span>
+        <span class="keyword">return</span> !<span class="localvar">requestPath</span>.contains(<span class="literal">"/api"</span>);
+    }
+}
+</code></pre>
+	<h3 id="jsapiadjustment">二つ足し合わせると...</h3>
+	<p>
+		mylasta.direction.sponsor.MaihamaActionAdjustmentProvider
+		は、それら二つの実装を足し合わせるとこのような実装になります。<span class="frm">(メソッドの定義順序は、インターフェースに合わせています)</span>
+	</p>
+<pre><span class="codetitle">e.g. adjustment for JS/API together pattern @Java</span><code>
+<span class="keyword">public class</span> MaihamaActionAdjustmentProvider <span class="keyword">implements</span> ActionAdjustmentProvider {
+
+    <span class="keyword">protected static final</span> String <span class="attribute">API_URL_PREFIX</span> = <span class="literal">"/api"</span>; <span class="comment">// to be separated from angular request</span>
+
+    @Override
+    <span class="keyword">public boolean</span> <span class="point">isForcedRoutingExcept</span>(HttpServletRequest <span class="localvar">request</span>, String <span class="localvar">requestPath</span>) {
+        <span class="comment">// of course, request to angular resources does not need routing</span>
+        <span class="comment">// (requestPath might contain /dbflute-intro/ so use contains())</span>
+        <span class="keyword">return</span> !<span class="localvar">requestPath</span>.contains(<span class="attribute">API_URL_PREFIX</span>);
+    }
+
+    @Override
+    <span class="keyword">public</span> String <span class="point">customizeActionMappingRequestPath</span>(String <span class="localvar">requestPath</span>) {
+        <span class="comment">// action class name does not need 'Api' prefix</span>
+        <span class="keyword">return</span> DfStringUtil.substringFirstRear(<span class="localvar">requestPath</span>, <span class="attribute">API_URL_PREFIX</span>);
+    }
+}
+</code></pre>
+	<h3 id="jsapiintro">DBFlute Introが参考実装に</h3>
+	<p>
+		DBFlute Intro がまさしく "JS/APIひとまとめパターン"  なっていますので参考にしてみてください。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-intro">DBFlute Intro | Github</a></div>
+	<div class="relatedpage"><a href="http://dbflute.seasar.org/ja/manual/function/helper/intro/index.html">DBFlute Intro | DBFlute</a></div>
+
+	<h2 id="jsapiseparated">JS/API別サーバーパターン <span class="frm">(CORS)</span></h2>
+	<p>
+		互いに独立しているので、クラスやURLなどで調整することは基本的にありません。
+	</p>
+	<h3 id="cors">CORS対応</h3>
+	<p>
+		ただ、CORS (Cross-Origin Resource Sharing) 対応をする必要があるでしょう。
+	</p>
+	<p>
+		prepareWebDirection() にて、directCors() で CorsHook を指定します。
+	</p>
+	<p>
+		Exampleプロジェクト Maihama の Hangar にてExample実装されています。
+		マルチプロジェクトなので、prepareWebDirection() をオーバーライドして、superを呼びつつ CORS
+		の設定をしています。
+	</p>
+<pre><span class="codetitle">e.g. CORS for JS/API separated pattern @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HangarFwAssistantDirector <span class="keyword">extends</span> MaihamaFwAssistantDirector {
+
+    @Override
+    <span class="keyword">protected void</span> setupAppConfig(List<String> nameList) {
+        nameList.add("hangar_config.properties"); <span class="comment">// base point</span>
+        nameList.add("hangar_env.properties");
+    }
+
+    @Override
+    <span class="keyword">protected void</span> setupAppMessage(List<String> nameList) {
+        nameList.add("hangar_message"); <span class="comment">// base point</span>
+        nameList.add("hangar_label");
+    }
+
+    @Override
+    <span class="keyword">protected</span> ListedClassificationProvider createListedClassificationProvider() {
+        <span class="keyword">return new</span> HangarListedClassificationProvider();
+    }
+
+    @Override
+    <span class="keyword">protected void</span> prepareWebDirection(FwWebDirection <span class="localvar">direction</span>) {
+        <span class="keyword">super</span>.prepareWebDirection(<span class="localvar">direction</span>);
+        <span class="keyword">final</span> String <span class="localvar">allowOrigin</span> = <span class="subpoint">"http://localhost:3000"</span>; <span class="comment">// #simple_for_example should be environment configuration</span>
+        <span class="localvar">direction</span>.<span class="point">directCors</span>(<span class="keyword">new</span> CorsHook(<span class="localvar">allowOrigin</span>)); <span class="comment">// #change_it</span>
+    }
+}
+</code></pre>
+	<p>
+		allowOrigin は、環境ごとに変わるのであれば [app]_env.properties に定義すると良いでしょう。
+	</p>
+
+	<h2 id="restapi">REST APIにするには？</h2>
+	<h3 id="restmethod">HTTPメソッドごとにマッピングする方法</h3>
+	<p>
+		例えば、/sea/land/ というURL で、GET のときと POST のときで処理を切り替えるためには、(SeaActionを前提として)Executeメソッド名を以下のようにします。
+	</p>
+	<dl class="valuemainlist">
+		<dt>GET</dt><dd>get$land()</dd>
+		<dt>POST</dt><dd>post$land()</dd>
+	</dl>
+	<p>
+		indexでも使えます。例えば、/sea/ の GET であれば get$index() となります。
+	</p>
+	<h3 id="restword">Pathパラメーターの場所を入れ替える方法</h3>
+	<p>
+		例えば、/sea/3/land/ というように、Pathパラメーターを固定のキーワードの途中に挟むためには、urlPattern で @word
+		を使います。メソッド名に相当するキーワードの位置を調整できます。
+	</p>
+<pre><span class="codetitle">e.g. word in urlPattern for REST API @Java</span><code>
+<span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> DocksideBaseAction {
+
+    @Execute(urlPattern=<span class="literal">"{}/@word"</span>) <span class="comment">// /sea/3/land/</span>
+    <span class="keyword">public</span> JsonResponse&lt;<span class="abbreviation">...</span>&gt; get$land(Integer seaId) {
+    }
+}
+</code></pre>
+	<p>
+		例えば、/sea/3/land/4/piari というように、メソッド名に相当するキーワードが二つある場合は、メソッド名の中でキャメルケースで含めて、@word
+		を二つ使います。
+	</p>
+<pre><span class="codetitle">e.g. double words in urlPattern for REST API @Java</span><code>
+<span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> DocksideBaseAction {
+
+    @Execute(urlPattern=<span class="literal">"{}/@word/{}/@word"</span>) <span class="comment">// /sea/3/land/4/piary</span>
+    <span class="keyword">public</span> JsonResponse&lt;<span class="abbreviation">...</span>&gt; get$landPiari(Integer seaId, Integer landId) {
+    }
+}
+</code></pre>
+	<p>
+		一つのURLの要素にキャメルケース、例えば seaLand を含めることはできません。/sea/land/ と分解するか、/sealand/
+		と小文字にするかの対応が必要です。そもそも "RESTっぽいURL"
+		を目指しているのであれば、そもそもキャメルケースで要素を表現すること自体があまり馴染まないと思うので、サポートする予定も今のところありません。
+	</p>
+	<p>
+		<span class="frm">(一方で、REST自体、単純な CRUD の JSON API であればフィットしやすいですが、業務ロジックがゴリゴリ入った JSON API
+		だとけっこう無理が出てきてしまうと考えているので、サポートの優先度は下げています)</span>
+	</p>
+	<p>
+		TODO jflute この機能はもっと使いやすさを追求していかなければならない <span class="frm">(Actionクラスのwordを...)</span>
+	</p>
+	<h3 id="restver">バージョンをURLに埋め込む方法</h3>
+	<p>
+		例えば、/v1/sea/ という URL で、v1 はバージョンだとしたときは、ActionAdjustmentProvider
+		の customizeActionMappingRequestPath() にて調整します。
+	</p>
+	<p>
+		このメソッドでバージョンを抜き出して、マッピングのためのURLは filter
+		し、抜き出したバージョンはリクエスト属性に入れるなりして Action に引き継いで利用するとよいでしょう。
+	</p>
+	<div class="relatedpage"><a href="./adjustment.html#actionmapping">Actionマッピングの調整</a></div>
+
+	<h2 id="apifailurehook">忘れられないApiFailureHook</h2>
+	<p>
+		JsonResponse の Action にて <em class="mark">バリデーションエラー</em>、<em class="mark">業務例外</em>、<em class="mark">システム例外</em>が発生したときは、
+		<em class="keyword">Actionごとつどつど制御するのではなくアプリ全体で共通的な処理をすることが想定される</em>
+		ため、共通部分で統一的なJSONを戻します。
+	</p>
+	<p>
+		それを司るのが、<em class="bigmark">ApiFailureHook</em>
+		です。これ自体はインターフェースなので、実装クラスは Maihama プロジェクトであれば、<em class="mark">MaihamaApiFailureHook</em> というクラスとなり、AssistantDirectorで登録されます。
+	</p>
+	<div class="detailpage"><a href="./apifailure.html">忘れられないApiFailureHook</a></div>
+
+	<h2 id="swagger">Swaggerを使いましょう</h2>
+	<p>
+		気軽に叩けない JSON API であれば、Swagger を使って動作確認をしましょう。
+		<span class="frm">(もちろん、UnitTestも書きますが、最終的にリクエストを飛ばして確認もしたいものです)</span>
+	</p>
+	<div class="detailpage"><a href="./laswagger.html">Swaggerで動作確認</a></div>
+	<div class="relatedpage"><a href="../structure/swaggerenv.html">Swaggerの環境セットアップ</a></div>
+
+	<h2 id="jsondesign">JSONデザイン <span class="frm">(どんなJSONを戻す？)</span></h2>
+	<p>
+		大切です。
+	</p>
+	<div class="detailpage"><a href="../impldesign/jsondesign.html">JSON APIのJSONデザイン</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

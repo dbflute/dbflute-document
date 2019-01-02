@@ -1,0 +1,471 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,documentDefinitionMap.dfprop,別名,和名" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>documentMap (documentDefinitionMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>documentMap</h1>
+	<p>
+		Java6版までは、documentDefinitionMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">documentMapとは？</h2>
+	<p>
+		あらかじめ取得したスキーマのメタ情報を元に、ドキュメント生成を実行する際の設定を行うDBFluteプロパティ。
+	</p>
+	<p>
+		DBFluteクライアントの dfprop
+		配下の documentMap.dfprop <span class="frm">(documentDefinitionMap.dfprop)</span> という名前のテキストファイルです。主に Docタスク
+		を実行する際に参照され、このプロパティの設定を行うことで、以下のドキュメントの生成を調整することができます。
+	</p>
+	<ul>
+		<li><a href="../../../function/generator/task/doc/schemahtml.html">SchemaHTML</a></li>
+		<li><a href="../../../function/generator/task/doc/historyhtml.html">HistoryHTML</a></li>
+		<li><a href="../../../function/generator/task/doc/loaddatareverse.html">LoadDataReverse</a></li>
+		<li><a href="../../../function/generator/task/doc/schemasynccheck.html">SchemaSyncCheck</a></li>
+		<li><a href="../../../function/generator/task/doc/propertieshtml.html">PropertiesHTML</a></li>
+	</ul>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/index.html">Docタスク</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々な key-value 形式のプロパティを定義します。
+	</p>
+	<p>
+		必須のプロパティはありません。
+	</p>
+	<h3 id="documentoutputdirectory">documentOutputDirectory</h3>
+	<p>
+		Docタスクで自動生成する SchemaHTML、HistoryHTML などドキュメント類の出力先ディレクトリを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/schemahtml.html">Doc - SchemaHTML</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/historyhtml.html">Doc - HistoryHTML</a></div>
+	<p>
+		基本的には、利用する必要はありません。どの(DBFlute)プロジェクトに行っても、同じところにドキュメントが置いてあるというのは価値のあることです。
+		構造的にどうしても必要になったときに利用するようにして下さい(例えば、ApplicationBehaviorの利用時など)。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/applicationbehavior/index.html">現場フィット - アプリごとのBehavior</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteクライアントディレクトリからの相対パス</dd>
+		<dt>デフォルト</dt><dd>./output/doc</dd>
+	</dl>
+	<h3 id="aliasdelimiterindbcomment">aliasDelimiterInDbComment</h3>
+	<p>
+		DBに定義したコメント(DBコメント)を、<em class="keyword">カラムの別名: カラムの説明</em>
+		というように扱うための区切り文字を指定します。(ドキュメント上の説明として区切り文字 ":" を利用)
+	</p>
+	<div class="relatedpage"><a href="../../dbway/index.html">DBMSごとの取扱い</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wd.html#dbcomment">DBコメント</a></div>
+	<p>
+		カラムの別名は、通常DB定義として専用の領域を設けられていませんので、<em class="keyword">DBFluteではDBコメントにそれら情報を忍び込ませる</em>
+		ことで SchemaHTML や JavaDoc 上でカラムの別名を取り扱うことが可能になります。主にローカル言語での名前(和名など)での表現がある場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/aliasdefinition">現場フィット - 別名(和名)の定義</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>一文字もしくは二文字程度の任意の区切り文字</dd>
+		<dt>デフォルト</dt><dd>なし (別名を扱わない)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>別名だけ定義して説明がない場合はDBコメントには "別名:" と定義</li>
+				<li>別名無しで説明だけの場合はDBコメントには区切り文字なしで説明だけを定義</li>
+				<li>習慣として ":" コロンがお奨め</li>
+				<li>HTMLやJavaDoc上に適さない表現(文字列)が含まれているものは不可</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isdbcommentonaliasbasis">isDbCommentOnAliasBasis</h3>
+	<p>
+		DBコメントが別名基準で利用されているか否かを指定します。<span class="frm">@since 0.9.8.2</span>
+	</p>
+	<p>
+		このプロパティは、aliasDelimiterInDbComment と同時に利用されます。
+		DBコメントに別名デリミタが存在しない場合はデフォルトではそのDBコメントは説明として扱われますが、
+		別名として扱いたい場合にこのプロパティを利用します。
+	</p>
+	<p>
+		説明が存在する場合のみ区切り文字と説明が別名の後ろに付与される、というような場合に有効です。
+		DDLを自動生成するツールとの兼ね合いで調整すると良いでしょう。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (デリミタがない場合は説明)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>aliasDelimiterInDbComment と一緒に利用することが前提</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isentityjavadocdbcommentvalid">isEntityJavaDocDbCommentValid</h3>
+	<p>
+		DBに定義したコメントをJavaDocコメントに生成するか指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true <span class="frm">@since 1.0.4D</span></dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBコメントがJavaDocの表示に適さない場合を考慮してデフォルトは "false"</li>
+				<li>JavaDoc上に適さない表現(文字列)が含まれているものは不可</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isentitydbmetadbcommentvalid">isEntityDBMetaDbCommentValid</h3>
+	<p>
+		DBに定義したコメントを(自動生成される)DBMetaに反映するか指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/entity/dbmeta/index.html">Entity - DBMeta</a></div>
+	<p>
+		テーブルのコメントは <em class="keyword">DBMeta.getTableComment()</em>、カラムのコメントは
+		<em class="keyword">ColumnInfo.getColumnComment()</em>
+		より取得できるようになります。このプロパティを有効にしない場合は、これらメソッドは null を戻します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (DBMetaには反映しない)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBコメントがプログラム上の文字列リテラルに適さない場合を考慮してデフォルトは "false"</li>
+				<li>プログラム上の文字列リテラルに適さない表現(文字列)が含まれているものは不可</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="schemahtmlfilename">schemaHtmlFileName</h3>
+	<p>
+		SchemaHTMLのHTMLファイル名を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/schemahtml.html">Doc - SchemaHTML</a></div>
+	<p>
+		基本的には、利用する必要はありません。どの(DBFlute)プロジェクトに行っても、同じ(規則の)名前であるというのは価値のあることです。
+		構造的にどうしても必要になったときに利用するようにして下さい(例えば、ApplicationBehaviorの利用時など)。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>HTMLのファイル名</dd>
+		<dt>デフォルト</dt><dd>schema-[project-name].html</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>".html" で終わる名前であること</li>
+				<li>パス表現は利用できない (出力先変更は別のプロパティ)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="issuppressschemahtmloutsidesql">isSuppressSchemaHtmlOutsideSql</h3>
+	<p>
+		SchemaHTMLで、外だしSQLの情報(リスト)の出力を抑制するかどうか指定します。
+	</p>
+	<p>
+		基本的には、利用する必要はありません。外だしSQLの情報(リスト)はディベロッパーにとってとてもありがたいものです。
+		SchemaHTMLをフォーマルなテーブル定義書として納品をするような場合で、外だしSQLの情報がない純粋なテーブル定義だけのドキュメントにしたいときに利用します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false *外だしSQLの情報を出力する</dd>
+	</dl>
+	<h3 id="historyhtmlfilename">historyHtmlFileName</h3>
+	<p>
+		HistoryHTMLのHTMLファイル名を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/historyhtml.html">Doc - HistoryHTML</a></div>
+	<p>
+		基本的には、利用する必要はありません。どの(DBFlute)プロジェクトに行っても、同じ(規則の)名前であるというのは価値のあることです。
+		構造的にどうしても必要になったときに利用するようにして下さい(例えば、ApplicationBehaviorの利用時など)。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>HTMLのファイル名</dd>
+		<dt>デフォルト</dt><dd>history-[project-name].html</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>".html" で終わる名前であること</li>
+				<li>パス表現は利用できない (出力先変更は別のプロパティ)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="ischeckcolumndeforderdiff">isCheckColumnDefOrderDiff <span class="frm">@since 0.9.9.0D</span></h3>
+	<p>
+		HistoryHTMLの差分判定で、カラム定義順の差異もチェックするかどうか指定します。
+		これは、SchemaSyncCheck や AlterCheck などにも影響します。<span class="frm">@since 0.9.9.0D</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/historyhtml.html">Doc - HistoryHTML</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/altercheck.html">ReplaceSchemaタスク - AlterCheck</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="ischeckdbcommentdiff">isCheckDbCommentDiff <span class="frm">@since 0.9.9.0D</span></h3>
+	<p>
+		HistoryHTMLの差分判定で、テーブルやカラムのDBコメントもチェックするかどうか指定します。
+		これは、SchemaSyncCheck や AlterCheck などにも影響します。<span class="frm">@since 0.9.9.0D</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/historyhtml.html">Doc - HistoryHTML</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/altercheck.html">ReplaceSchemaタスク - AlterCheck</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		コメント文字列の両端にトリムされる値がある場合は、HistoryHTMLではクォートされて表示されます。<span class="frm">@since 0.9.9.1C</span>
+	</p>
+	<h3 id="ischeckprocedurediff">isCheckProcedureDiff <span class="frm">@since 0.9.9.7F</span></h3>
+	<p>
+		HistoryHTMLの差分判定で、プロシージャもチェックするかどうか指定します。
+		これは、SchemaSyncCheck や AlterCheck などにも影響します。<span class="frm">@since 0.9.9.7F</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/historyhtml.html#procedure">HistoryHTML - ストアドプロシージャの違い</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/altercheck.html">ReplaceSchemaタスク - AlterCheck</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<div class="relatedpage"><a href="../outsidesqldefinition/index.html#isgenerateprocedureparameterbean">dfprop - isGenerateProcedureParameterBean</a></div>
+	<h3 id="loaddatareversemap">loadDataReverseMap <span class="frm">@since 1.0.4B</span></h3>
+	<p>
+		LoadDataReverse の生成に関するプロパティを指定します。
+		<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/loaddatareverse.html">Docタスク - LoadDataReverse</a></div>
+	<p>
+		map の中の recordList を指定すると LoadDataReverse が有効になります。
+		値がマイナスの場合は無制限でデータが出力されます。その他、微調整するプロパティがあります。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>isReplaceSchemaDirectUse</dt><dd>ReplaceSchemaで直接利用 (playsqlへ直接出力)</dd>
+		<dt>isOverrideExistingDataFile</dt><dd>既存のエクセルファイルに上書き出力</dd>
+		<dt>isSynchronizeOriginDate</dt><dd>DateAdjustmentの基準日を同期</dd>
+		<dt>xlsLimit <span class="frm">(@since 0.9.9.1A)</span></dt><dd>エクセル出力のリミット、超えるとTSV出力</dd>
+	</dl>
+<pre><span class="codetitle">e.g. loadDataReverseMapの仕様 @documentDefinitionMap.dfprop</span><code>
+; loadDataReverseMap = <span class="keyword">map:</span>{
+    ; recordLimit = [limit size] <span class="comment"># デフォルト: 設定なし</span>
+    ; isReplaceSchemaDirectUse = [true or false] <span class="comment"># デフォルト: false</span>
+    ; isOverrideExistingDataFile = [true or false] <span class="comment"># デフォルト: false</span>
+    ; isSynchronizeOriginDate = [true or false] <span class="comment"># デフォルト: false</span>
+    ; xlsLimit = [limit size] <span class="comment"># デフォルト: 65000</span>
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>list型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>recordLimit がマイナスの場合は、無制限でデータが出力される</li>
+				<li>isReplaceSchemaDirectUse が true の場合は playsql 配下に直接出力される</li>
+				<li>全てをTSV出力にしたい場合は、xlsLimitを 0 にすることで実現できる</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="oldloaddatareversemap">loadDataReverseMap <span class="frm">@until 1.0.4A</span></h3>
+	<p>
+		※こちらは、1.0.4A以前の loadDataReverseMap についてのドキュメントです。
+	</p>
+	<p>
+		LoadDataReverse の生成に関するプロパティを指定します。<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/loaddatareverse.html">Docタスク - LoadDataReverse</a></div>
+	<p>
+		map の中の recordList を指定すると LoadDataReverse が有効になります。
+		値がマイナスの場合は無制限でデータが出力されます。
+	</p>
+	<p>
+		出力データに共通カラムを含める場合は isContainsCommonColumn <span class="frm">(@until 1.0.4A)</span> を true
+		に、ReplaceSchema でそのまま利用するのであれば、isOutputToPlaySql <span class="frm">(@until 1.0.4A)</span> を true に。
+	</p>
+<pre><span class="codetitle">e.g. loadDataReverseMapの仕様 @documentDefinitionMap.dfprop</span><code>
+; loadDataReverseMap = <span class="keyword">map:</span>{
+    ; recordLimit = [limit size] <span class="comment"># デフォルト: 設定なし</span>
+    ; isContainsCommonColumn = [true or false] <span class="comment"># デフォルト: false</span>
+    ; isOutputToPlaySql = [true or false] <span class="comment"># デフォルト: false</span>
+    ; xlsLimit = [limit size] <span class="comment"># デフォルト: 65000</span>
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>list型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>recordLimit がマイナスの場合は、無制限でデータが出力される</li>
+				<li>isOutputToPlaySql が true の場合は playsql 配下に直接出力される</li>
+				<li>xlsLimit を超える行数(エクセルの限界)のデータはTSV形式で出力される</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		TSV出力にスイッチする基準のレコード件数は、xlsLimit
+		にて指定できる<span class="frm">(@since 0.9.9.1A)</span>。
+		もし、全てをTSV出力にしたい場合は、この値を 0 にすることで実現できる。
+	</p>
+	<h3 id="schemasynccheckmap">schemaSyncCheckMap</h3>
+	<p>
+		SchemaSyncCheck の生成に関するプロパティを指定します。
+		<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/schemasynccheck.html">Docタスク - SchemaSyncCheck</a></div>
+	<p>
+		map の中の user を指定すると SchemaSyncCheck が有効になります。
+		もちろん、その状況で必須の他の情報もしっかり設定する必要があります。
+	</p>
+<pre><span class="codetitle">e.g. schemaSyncCheckMapの仕様 @documentDefinitionMap.dfprop</span><code>
+; schemaSyncCheckMap = <span class="keyword">map:</span>{
+    ; url = [connection url] <span class="comment"># デフォルト: databaseInfoMap.dfpropのものと同じ</span>
+    ; catalog = [catalog (database name)] <span class="comment"># デフォルト: url から自動判別される</span>
+    ; schema = [schema] <span class="comment"># デフォルト: 設定なし (スキーマの概念のないDBMSでは空指定)</span>
+    ; user = [user] <span class="comment"># 必須</span>
+    ; password = [password] <span class="comment"># デフォルト: 設定なし</span>
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>list型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>catalog は基本的に url の中から自動で判別されるため指定の必要なし</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="propertieshtmlmap">propertiesHtmlMap <span class="frm">@since 1.0.1</span></h3>
+	<p>
+		PropertiesHTML の生成に関するプロパティを指定します。
+		<span class="frm">@since 1.0.1</span>
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/doc/propertieshtml.html">Docタスク - PropertiesHTML</a></div>
+<pre><span class="codetitle">e.g. propertiesHtmlMapの仕様 @documentDefinitionMap.dfprop</span><code>
+; propertiesHtmlMap = <span class="keyword">map:</span>{
+    ; df:header = map:{
+        ; title = [title of PropertiesHTML]
+    }
+    ; [request name] = <span class="keyword">map:</span>{
+        ; baseDir = [base directory for variable in dfprop]
+        ; rootFile = [path to root file]
+        ; environmentMap = map:{
+            ; [environment name] = [path to environment directory]
+        }
+        ; diffIgnoredKeyList = list:{ [list of property key] }
+        ; maskedKeyList = list:{ [list of property key] }
+        ; isEnvOnlyFloatLeft = [true or false]
+        ; extendsPropRequest = [name of other request that it extends]
+        ; isCheckImplicitOverride = [true or false]
+    }
+    <span class="comment"># path is relative path from dbflute client</span>
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>list型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>df:header の title を指定すると、HTML上の title を変更できる</li>
+				<li>baseDirで指定した文字列を、path指定の中で $$baseDir$$ という形式で参照できる</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="dataxlstemplatemap">dataXlsTemplateMap <span class="frm">@until 0.9.8.3</span></h3>
+	<p>
+		DataXlsTemplate の生成に関するプロパティを指定します。
+		(同時に DataXlsTemplate を生成するか否かの指定にもなります)
+		<span class="frm">@since 0.9.8.3</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/dataxlstemplate.html">Docタスク - DataXlsTemplate</a></div>
+	<p>
+		map の中の recordList を指定すると DataXlsTemplate が生成されます。
+		値がマイナスの場合は無制限でデータが出力されます。出力データに共通カラムを含める場合は isContainsCommonColumn を true
+		に、ReplaceSchema の LoadData のリバース(LoadDataReverse)の場合は isLoadDataReverse を true に。
+	</p>
+<pre><span class="codetitle">e.g. dataXlsTemplateMapの仕様 @documentDefinitionMap.dfprop</span><code>
+; dataXlsTemplateMap = <span class="keyword">map:</span>{
+    ; recordLimit = [limit size] <span class="comment"># デフォルト: 設定なし</span>
+    ; isContainsCommonColumn = [true or false] <span class="comment"># デフォルト: false</span>
+    ; isLoadDataReverse = [true or false] <span class="comment"># デフォルト: false</span>
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>list型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>recordLimit がマイナスの場合は、無制限でデータが出力される</li>
+				<li>エクセルの最大行数(65000を決め打ち) を超えるデータはTSV形式で出力される</li>
+				<li>LoadDataReverse の場合は、ReplaceSchema の playsql 配下に直接出力される</li>
+				<li>LoadDataReverse の場合は、追加スキーマのテーブルやビューは除外される</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="dataxlstemplaterecordlimit">dataXlsTemplateRecordLimit <span class="frm">@until 0.9.8.2</span></h3>
+	<p>
+		DataXlsTemplate を生成する際、テーブルごとに何件まで取得するか数値で指定します。
+		(同時に DataXlsTemplate を生成するか否かの指定にもなります)
+		<span class="frm">(dataXlsTemplateMap に吸収されました)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/dataxlstemplate.html">Docタスク - DataXlsTemplate</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>正負の数値 (-1 から 65000)</dd>
+		<dt>デフォルト</dt><dd>なし (DataXlsTemplateを生成しない)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"0" を指定するとデータは取得せず、テーブルごとにカラム名だけを記述したシートを生成</li>
+				<li>"-1" を指定すると、テーブルの全データを取得(但し、取得件数の上限は65000)</li>
+				<li>取得するデータは順不同</li>
+				<li>共通カラム(CommonColumn)の出力有無は別プロパティにて調整</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isdataxlstemplatecontainscommoncolumn">isDataXlsTemplateContainsCommonColumn <span class="frm">@until 0.9.8.2</span></h3>
+	<p>
+		DataXlsTemplateに共通カラム(CommonColumn)のカラムを含める否かを指定します。
+		<span class="frm">(dataXlsTemplateMap に吸収されました)</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false (共通カラムは出力しない)</dd>
+	</dl>
+	<p>
+		DataXlsTemplateの役割から、デフォルトでは共通カラムは出力しません。ReplaceSchema
+		のデータ登録では、共通カラムを自動設定する機能があり、基本的にエクセルデータには共通カラムが不要なためです。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/loaddata.html">ReplaceSchema - データ登録</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

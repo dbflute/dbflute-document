@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Ant" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFluteタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteタスク</h1>
+	${indexlist}
+
+	<h2 id="about">DBFluteタスクとは？</h2>
+	<p>
+		DBFluteが提供する "Antタスク" です。
+	</p>
+	<p>
+		タスクを実行することで自動生成ツールとしての機能を利用することができます。
+	</p>
+
+	<h2 id="tasklist">DBFluteタスクの一覧</h2>
+	<dl class="keymainlist">
+		<dt><a href="./jdbc/index.html">JDBCタスク</a></dt><dd>実際のデータベースからスキーマ情報を取得</dd>
+		<dt><a href="./doc/index.html">Docタスク</a></dt><dd>スキーマ情報からドキュメントを自動生成</dd>
+		<dt><a href="./generate/index.html">Generateタスク</a></dt><dd>スキーマ情報からクラスを自動生成</dd>
+		<dt><a href="./sql2entity/index.html">Sql2Entityタスク</a></dt><dd>外だしSQL(OutsideSql)からクラスを自動生成</dd>
+		<dt><a href="./outsidesqltest/index.html">OutsideSqlTestタスク</a></dt><dd>外だしSQL(OutsideSql)を一括実行してテスト</dd>
+		<dt><a href="./replaceschema/index.html">ReplaceSchemaタスク</a></dt><dd>スキーマを再構築(初期化・作成・データ登録・整合性チェック)</dd>
+		<dt><a href="./manage/index.html">Manageタスク</a></dt><dd>管理用のサブタスク (Renewal, Regenerate など) を実行できる</dd>
+	</dl>
+
+	<h2 id="command">タスク実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下に、それぞれのタスクを実行する "<em class="keyword">スクリプトファイル(.bat|sh)</em>"
+		があり、それを実行することでDBFluteタスクを実行することができます。
+	</p>
+	<div class="relatedpage"><a href="../client/index.html">DBFluteクライアント</a></div>
+	<p>
+		Windows環境のEclipse上からは、ダブルクリックで実行できます。もしくは、"ctrl + shift + R" の "Open Resource"
+		からコマンドファイルを選択して実行できます<span class="frm">(多くの人がこれで実行しています)</span>。
+	</p>
+
+	<h2 id="timingrole">タスクの実行タイミングと役割</h2>
+	<p>
+		DBFluteタスクのおおよそ想定される実行タイミングとその役割です。ReplaceSchemaに関しては、開発プロジェクトの利用ポリシー次第によって色々と変わってきます。
+	</p>
+	<h3>実装前</h3>
+	<dl class="textlist">
+		<dt>開発用DBスキーマの作成</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>DBスキーマを作成、マスタ・テストデータの登録 <span class="supplement">(アーキテクト、ディベロッパー)</span></dd>
+			</dl>
+		</dd>
+		<dt>実装開始直前 (開発用DBスキーマの作成後)</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">JDBC</em></dt>
+				<dd>メタ情報を取得 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Doc</em></dt>
+				<dd>SchemaHTMLを生成 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Generate</em></dt>
+				<dd>クラスを自動生成 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+		</dd>
+	</dl>
+	<h3 id="inimpl">実装中</h3>
+	<dl class="textlist">
+		<dt>アプリ実装中</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">OutsideSqlTest</em></dt>
+				<dd>外だしSQLの2Way-SQLとしての検証 <span class="supplement">(ディベロッパー)</span></dd>
+				<dt><em class="keyword">Sql2Entity</em></dt>
+				<dd>外だしSQLのクラスを自動生成 <span class="supplement">(ディベロッパー)</span></dd>
+			</dl>
+		</dd>
+		<dt>DB変更の発生</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>DBスキーマを再作成 <span class="supplement">(アーキテクト、ディベロッパー)</span></dd>
+				<dt><em class="keyword">JDBC</em></dt>
+				<dd>変更分のメタ情報を取得 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Doc</em></dt>
+				<dd>変更分をSchemaHTMLに反映 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Generate</em></dt>
+				<dd>変更分をクラスに反映、影響範囲の特定 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">OutsideSqlTest</em></dt>
+				<dd>外だしSQLの影響範囲の特定 <span class="supplement">(アーキテクト、ディベロッパー)</span></dd>
+				<dt><em class="keyword">Sql2Entity</em></dt>
+				<dd>変更分をクラスに反映、影響範囲の特定 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+			<div class="relatedpage"><a href="./dbchange.html">DB変更が発生したら</a></div>
+		</dd>
+		<dt>DBFluteアップグレード直後</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">JDBC</em></dt>
+				<dd>新しいDBFlute(モジュール)にメタ情報を反映 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Doc</em></dt>
+				<dd>新しいバージョンのSchemaHTMLを生成 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Generate</em></dt>
+				<dd>新しいバージョンのクラスを生成 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Sql2Entity</em></dt>
+				<dd>新しいバージョンのクラスを生成 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+		</dd>
+		<dt>テストデータの変更・追加</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>マスタ・テストデータの変更分の反映 <span class="supplement">(アーキテクト、ディベロッパー)</span></dd>
+			</dl>
+		</dd>
+	</dl>
+	<h3 id="afterimpl">実装後</h3>
+	<dl class="textlist">
+		<dt>結合テスト用DBスキーマ作成</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>DBスキーマを作成、マスタ・テストデータの登録 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+		</dd>
+		<dt>結合テスト用テストデータの変更・追加</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>マスタ・テストデータの変更分の反映 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+		</dd>
+		<dt>本番用DBスキーマ作成</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>DBスキーマを作成、マスタ・初期データの登録 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+		</dd>
+		<dt>本番運用後のDB変更</dt>
+		<dd>
+			<dl class="compactlist">
+				<dt><em class="keyword">ReplaceSchema</em></dt>
+				<dd>alter 文の整合性チェック、<em class="keyword">開発用</em> のDBスキーマを再作成 <span class="supplement">(アーキテクト、ディベロッパー)</span></dd>
+				<dt><em class="keyword">JDBC</em></dt>
+				<dd>変更分のメタ情報を取得 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Doc</em></dt>
+				<dd>変更分をSchemaHTMLに反映 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">Generate</em></dt>
+				<dd>変更分をクラスに反映、影響範囲の特定 <span class="supplement">(アーキテクト)</span></dd>
+				<dt><em class="keyword">OutsideSqlTest</em></dt>
+				<dd>外だしSQLの影響範囲の特定 <span class="supplement">(アーキテクト、ディベロッパー)</span></dd>
+				<dt><em class="keyword">Sql2Entity</em></dt>
+				<dd>変更分をクラスに反映、影響範囲の特定 <span class="supplement">(アーキテクト)</span></dd>
+			</dl>
+			<div class="relatedpage"><a href="./dbchange.html">DB変更が発生したら</a></div>
+		</dd>
+	</dl>
+	<h4>補足</h4>
+	<p>
+		本番DBに対しては ReplaceSchema は利用しません(してはいけません)。
+	</p>
+
+	<h2 id="log">タスク実行ログ</h2>
+	<h3 id="logoutput">実行ログの出力先</h3>
+	<p>
+		DBFluteタスクの実行ログは <em class="keyword">コンソール</em> かつ <em class="keyword">[DBFluteクライアント]/log/dbflute.log</em>
+		に出力されます。エラー発生時などはこれらログを参考にエラー原因を特定します。
+	</p>
+	<div class="relatedpage"><a href="../client/index.html#log">DBFluteクライアント - タスク実行ログ (log)</a></div>
+	<div class="relatedpage"><a href="./jdbc/logging.html">JDBCタスクのログ</a></div>
+	<div class="relatedpage"><a href="./replaceschema/logging.html">ReplaceSchemaタスクのログ</a></div>
+	<h3 id="finalmessage">最後のログメッセージ</h3>
+	<p>
+		お決まりの最後のログメッセージ(Final Message)を見逃さないようにしましょう。
+		エラーが発生したのかどうか、そのときどんな設定だったのか、そういった情報を得ることができますし、タスクによって独自の結果情報が表示されることもあります。
+		特に ReplaceSchema は詳細な実行結果が表示され、DDLやテストデータの不備があった場合などにこの情報がとても役に立ちます。
+	</p>
+<pre><span class="codetitle">e.g. ReplaceSchemaのお決まりの最後のログメッセージ(Final Message) @Log</span><code>
+<span class="abbreviation">...</span>
+ _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+ [Final Message]: 00m05s805ms
+ 
+   DBFLUTE_CLIENT: {exampledb}
+     database  = mysql (MySQL 5.0.51a)
+     language  = java
+     container = seasar
+     package   = com.example.dbflute.mysql.dbflute
+ 
+   DBFLUTE_ENVIRONMENT_TYPE: {df:default}
+     driver = com.mysql.jdbc.Driver
+     url    = jdbc:mysql://localhost:3306/exampledb
+     schema = {exampledb.$$NoNameSchema$$ as main}
+     user   = exampledb
+     props  = {}
+     additionalSchema = nextexampledb.$$NoNameSchema$$(catalog)
+     dataLoadingType  = ut
+     refreshProject   = dbflute-mysql-example
+ 
+  {Create Schema}: success=92 failure=0 (in 4 files)
+   o replace-schema-00-system.sql
+   o replace-schema-10-basic.sql
+   o replace-schema-20-view.sql
+   o replace-schema-50-procedure.sql
+ 
+  {Load Data}: loaded-files=21
+   (common)
+   o 10-master.xls
+   (ut)
+   o 90-VENDOR_LARGE_DATA.tsv
+   o 91-VENDOR_LARGE_DATA_REF.tsv
+   o 94-WHITE_QUOTED.tsv
+   o (and other tsv files...)
+   o 96-WHITE_SELF_REFERENCE.csv
+   o 98-WHITE_BINARY.csv
+   o 20-member.xls
+   o 30-product.xls
+ 
+  {Take Finally}: success=14 failure=0 (in 2 files)
+   o take-finally-00-assert.sql
+   o take-finally-90-largedata.sql
+ _/_/_/_/_/_/_/_/_/_/ {ReplaceSchema}
+</code></pre>
+
+	<h2 id="memory">タスクのメモリ設定</h2>
+	<p>
+		DBFluteタスクが利用するメモリ設定は、DBFluteクライアントの _project.bat|sh
+		にて設定されています。ただし、基本的にはデフォルト設定で十分であると想定されています。
+	</p>
+	<div class="relatedpage"><a href="../client/index.html#project">DBFluteクライアント - モジュールへの参照 (_project.bat|sh)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

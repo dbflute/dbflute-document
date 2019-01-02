@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,ManualOrder,order by,手動で並べる,指定した値でソート" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>ManualOrder | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ManualOrder</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		特殊条件を付けて order by を指定します。例えば...
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>優先処理</dt><dd>指定された値を優先して並べる <span class="frm">e.g. SEA, LAND を先に並べて、後は別の条件</span></dd>
+		<dt>計算処理</dt><dd>カラムに足し算、掛け算など計算をして並べる <span class="frm">e.g. PURCHASE_COUNT * 2</span></dd>
+		<dt>関数処理</dt><dd>カラムに関数を仕掛けて並べる <span class="frm">e.g. trunc(PURCHASE_DATETIME)</span></dd>
+	</dl>
+	<p>
+		会話上では、<em class="keyword">まにゅあるおーだー</em> と表現します。
+	</p>
+	<h3 id="priororder">優先処理</h3>
+	<p>
+		指定された値を優先して並べます。
+	</p>
+	<p>
+		また、正式会員と仮会員だけは最初に並べて、それ以外の会員は単に更新日時で並べるというような、ある値だけを優先するソート要件がある場合などにも対応できます。
+		"24時間以内に更新されたものを先に並べる" というような条件で指定することもできます。
+	</p>
+	<p>
+		アプリでは、並べる順番の値のリストを指定することで、order by の中で case when 構文を使ってそのソート条件を実現します。
+		必ず OrderBy と組み合わせて指定します。
+	</p>
+	<h3 id="calcorder">計算処理</h3>
+	<p>
+		カラムに足し算、掛け算など計算をして並べます。主に、数値カラムで利用します。
+	</p>
+	<p>
+		計算処理が入る分、処理コストはかかりますし、インデックスが活用できなくなる可能性もあるので、パフォーマンスのことを考えると
+		<em class="keyword">気軽に使う機能ではない</em> ということは念頭に置きましょう。
+	</p>
+	<h3 id="funcorder">関数処理</h3>
+	<p>
+		カラムに関数を仕掛けて並べます。主に、数値カラムで利用します。
+	</p>
+	<p>
+		関数処理が入る分、処理コストはかかりますし、インデックスが活用できなくなる可能性もあるので、パフォーマンスのことを考えると
+		<em class="keyword">気軽に使う機能ではない</em> ということは念頭に置きましょう。<span class="frm">(DBMSによっては、関数インデックスを作れるものもありますので、そういったものも検討すると良いでしょう)</span>
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		まずは、OrderBy のメソッド呼び出しの直後に続けて、withManualOrder()
+		を呼び出し、コールバックで特殊条件を指定します。Lambda の引数は、ManualOrderBean です。
+	</p>
+<pre><span class="codetitle">e.g. 指定された値の順番通りに並べる実装手順 {MEMBER_STATUS_CODE} @Java</span><code>
+<span class="comment">// 会員を正式会員、仮会員を先に並べるとする</span>
+<span class="comment">// (区分値カラムであれば、CDef 自体を値としてそのまま利用できる)</span>
+List&lt;CDef.MemberStatus&gt; orderValueList = <span class="keyword">new</span> ArrayList&lt;CDef.MemberStatus&gt;();
+orderValueList.add(CDef.MemberStatus.Formalized);  <span class="comment">// 正式会員</span>
+orderValueList.add(CDef.MemberStatus.Provisional); <span class="comment">// 仮会員</span>
+
+<span class="comment">// cb: MemberCB</span>
+<span class="comment">// OrderBy指定の後、.wi まで打ってメソッドを選択</span>
+cb.query().addOrderBy_MemberStatusCode_Asc().wi
+--
+
+<span class="comment">// メソッドが補完されて、引数の "opLambda" が選択状態に</span>
+cb.query().addOrderBy_MemberStatusCode_Asc().<span class="point">withManualOrder</span>(opLambda);
+--
+
+<span class="comment">// _ll で補完 (DBFlute補完テンプレートが有効なら)</span>
+cb.query().addOrderBy_MemberStatusCode_Asc().withManualOrder(<span class="subpoint">_ll</span>);
+--
+
+<span class="comment">// Lambda引数名は op にして...色々な特殊条件を指定</span>
+cb.query().addOrderBy_MemberStatusCode_Asc().withManualOrder(op -&gt; {
+    op.<span class="subpoint">acceptOrderValueList</span>(orderValueList); <span class="comment">// 優先処理</span>
+});
+cb.query().addOrderBy_MemberName_Asc(); <span class="comment">// その後のソート順</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員、仮会員を先に並べる @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc  
+ <span class="keyword">order by</span> 
+   <span class="keyword">case</span>
+     <span class="keyword">when</span> dfloc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span> <span class="keyword">then</span> <span class="literal">0</span>
+     <span class="keyword">when</span> dfloc.MEMBER_STATUS_CODE = <span class="literal">'PRV'</span> <span class="keyword">then</span> <span class="literal">1</span>
+     <span class="keyword">else</span> <span class="literal">2</span>
+   <span class="keyword">end asc</span>, dfloc.MEMBER_NAME <span class="keyword">asc</span>
+</code></pre>
+	<h3 id="optionmethod">オプションのメソッド</h3>
+	<dl class="shoshortkeymainlist">
+		<dt>優先処理</dt><dd>op.accessOrderValueList(), op.when_LessThan(), op.when_FromTo(), ...</dd>
+		<dt>計算処理</dt><dd>op.plus(), op.minus(), op.multiply(), ...</dd>
+		<dt>関数処理</dt><dd>op.convert(convOp -&gt; convOp.truncTime())</dd>
+	</dl>
+	<h3 id="conditionalprior">条件判定でので優先処理</h3>
+	<p>
+		例えば、24時間以内に更新されたデータを優先して並べるが、それより前のものに関しては別のカラムの値で並べる。
+		この場合、日付の大なり小なり比較が必要になりますが、ManualOrderBean で比較演算子を指定して条件を追加することができます。
+	</p>
+<pre><span class="codetitle">e.g. 24時間以内に更新されたデータを優先して並べる {UPDATE_DATETIME} @Java</span><code>
+cb.query().addOrderBy_UpdateDatetime_Asc().<span class="subpoint">withManualOrder</span>(op -&gt; {
+    op.<span class="point">when_GreaterThan</span>(date24before); <span class="comment">// 更新日時 &gt; 24時間前</span>
+});
+cb.query().addOrderBy_MemberName_Asc(); <span class="comment">// その後のソート順</span>
+</code></pre>
+	<p>
+		一つのケース(when)に対して複数の条件を連結させることもできます。whenメソッドで一つ目の条件を追加した後に続けて and_ もしくは、or_
+		で二つ目以降の条件を追加します。ただし、三つ以上の条件を連結する際、一つのケース内で利用できる連結子(and/or)は一つです。and と or を組み合わせて利用することはできません。
+	</p>
+<pre><span class="codetitle">e.g. 会員IDが 5 から 10 の会員を優先して並べる {MEMBER_ID} @Java</span><code>
+cb.query().addOrderBy_MemberId_Asc().<span class="subpoint">withManualOrder</span>(op -&gt; {
+    op.<span class="point">when_GreaterEqual</span>(5).<span class="point">and_LessEqual</span>(10); <span class="comment">// 5 から 10</span>
+});
+cb.query().addOrderBy_MemberName_Asc(); <span class="comment">// その後のソート順</span>
+</code></pre>
+	<h3 id="specifiedderived">SpecifiedDerivedOrderBy との組み合わせ</h3>
+	<p>
+		SpecifiedDerivedOrderBy に対しても利用できます。
+	</p>
+	<div class="relatedpage"><a href="./specifiedderivedorderby.html">SpecifiedDerivedOrderBy</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>適用対象</dt><dd>ManualOrder は、直前の OrderBy に対してのみ適用されます。</dd>
+		<dt>nullの指定</dt><dd>nullが指定されたら例外です。また、リストの中の null 要素は無視されます。</dd>
+		<dt>空リストの指定</dt>
+		<dd>
+			acceptOrderValueList()に空リストが指定されたらその ManualOrder
+			は無効です。もし、同じカラムに対して既に一度 ManualOrder
+			を設定している場合は、その設定を上書きして、ManualOrder を無効化します。
+		</dd>
+		<dt>ケースの条件値</dt>
+		<dd>ManualOrderBean の when メソッドの引数の条件値は必須です。null は例外です。</dd>
+	</dl>
+	<h3 id="readonlylist">読み取り専用リストでも可</h3>
+	<p>
+		内部では指定されたリストに更新操作はしないので、読み取り専用リストも指定できます。よって、Arrays.asList()
+		を使って、シンプルにリストを構築することもできます。
+	</p>
+	<h3 id="cdef">CDef型の利用</h3>
+	<p>
+		区分値カラムに関しては、CDef型(厳密には Classification
+		型)の値をそのまま利用できます。(SQL上ではコード値が利用されます)
+	</p>
+	<div class="relatedpage"><a href="../../../runtime/allcommon/index.html#cdef">allcommon - CDef</a></div>
+	<h3 id="unioncasewhen">UnionQuery と case when</h3>
+	<p>
+		DBMSに関わらず、UnionQuery を使った時の ManualOrder はサポートされません。
+	</p>
+	<h3 id="afterorderby">必ず OrderBy の後に</h3>
+	<p>
+		OrderBy のメソッド呼び出し直後以外のタイミングでは呼び出してはいけません。
+	</p>
+	<h3 id="severalcall">同カラムに対する複数回呼び出し</h3>
+	<p>
+		一つのカラムに対して、ManualOrder を複数回呼び出しても上書きされるだけです。
+	</p>
+
+	<h2 id="supported">サポートされる型</h2>
+	<p>
+		SQLの文法的に許される限り全ての型に対してサポートされます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

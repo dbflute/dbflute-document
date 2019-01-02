@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 A | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 A</h1>
+	<p>
+		"A" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="allcommon" class="dicword">allcommon</h2>
+	<p>
+		DBFluteランタイムと自動生成されるクラス(Entityなど)の架け橋となる
+		<em class="keyword">Generateタスクで自動生成される業務依存の共通クラス</em> です。
+		DI管理される共通のコンポーネントも含まれます。このパッケージ配下のクラスはジェネレーションギャップではありません。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/runtime/allcommon/index.html">DBFluteランタイム - allcommon</a></div>
+
+	<h2 id="antexecutionstatus" class="dicword">AntExecutionStatus (Ant実行ステータス)</h2>
+	<p>
+		"タスク実行ステータス" のことを、Apache Antを前面に押し出して表現した言い方です。
+	</p>
+	<div class="relatedpage"><a href="./wt.html#taskexecutionstatus">TaskExecutionStatus (タスク実行ステータス)</a></div>
+	<div class="relatedpage"><a href="../../../topic/friends/ant.html">Apache Ant</a></div>
+
+	<h2 id="anttask" class="dicword">AntTask (Antタスク)</h2>
+	<p>
+		Apache Ant のタスクのことを示します。DBFluteの自動生成処理(DBFluteタスク)は、Antタスクとして実行されます。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/friends/ant.html">Apache Ant</a></div>
+
+	<h2 id="architect" class="dicword">Architect (アーキテクト)</h2>
+	<p>
+		DBFluteにおいては、主にDBFluteの利用ポリシーの決定、インストール・アップグレード作業、DBFluteプロパティの設計など、
+		ディベロッパーにDBFluteの実装環境を横展開する役割を示します。
+		あくまで役割を示すので、実際にはアプリ実装に集中するディベロッパーと兼任する場合も十分あり得るでしょう。
+		ゆえに線引きは曖昧なのですが、アプリ実装に集中するディベロッパーと明確に区別して説明を行うためにこの言葉を利用しています。
+	</p>
+	<div class="relatedword"><a href="./wd.html#developer">Developer (ディベロッパー)</a></div>
+
+	<h2 id="additionalforeignkey" class="dicword">additionalForeignKey</h2>
+	<p>
+		スキーマ上に制約として示されていない暗黙のリレーションをDBFlute上で明示的に定義する機能、もしくは、その定義されたリレーション自体を示します。
+		DBFluteは、FK制約の情報をもとに Entity
+		同士のリレーションを定義付けるため、(FK制約が付与されてもいいリレーションなのに)スキーマ上にFK制約がない場合は、
+		additionalForeignKeyMap.dfprop にてそのリレーションを定義しDBFluteに伝えます。DBFlute上の "疑似のFK"
+		とも呼ばれます。また、暗黙のFKだけでなく、そもそもFK情報を保持していないビューに対してや、"業務的one-to-one"
+		の構築においても利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/additionalforeignkey/index.html">additionalForeignKeyMap.dfprop</a></div>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/viewgeneration/index.html">現場フィット - ビューの自動生成</a></div>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html">現場フィット - 業務的one-to-one</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/fkconstraint.html">DB設計 - FK制約</a></div>
+
+	<h2 id="additionalprimarykey" class="dicword">additionalPrimaryKey</h2>
+	<p>
+		スキーマ上に制約として示されていない暗黙の主キーをDBFlute上で明示的に定義する機能、もしくは、その定義された主キー自体を示します。
+		DBFluteは、PK制約の情報をもとに Entity
+		におけるユニーク性を表現するため、(PK制約が付与されてもいいカラムがあるのに)スキーマ上にPK制約がない場合は、
+		additionalPrimaryKeyMap.dfprop にてその主キーを定義しDBFluteに伝えます。DBFlute上の "疑似のPK"
+		とも呼ばれます。また、暗黙のPKだけでなく、そもそもPK情報を保持していないビューに対しても利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/additionalprimarykey/index.html">additionalPrimaryKeyMap.dfprop</a></div>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/viewgeneration/index.html">現場フィット - ビューの自動生成</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/pkconstraint.html">DB設計 - PK制約</a></div>
+
+	<h2 id="additionalschema" class="dicword">additionalSchema (追加スキーマ)</h2>
+	<p>
+		DBFluteの AdditionalSchema 機能、もしくは、その機能を使って自動生成対象になっている別スキーマのことを示します。
+		DBMSに依存しますが、別データベースのスキーマも追加スキーマにすることができます。
+		また、スキーマの概念のないDBMSにおいては、無名のスキーマが存在する、という概念をもとに
+		"別データベースの無名のスキーマ" を追加スキーマとすることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<div class="relatedword"><a href="./wo.html#otherschema">(OtherSchema) 別スキーマ</a></div>
+
+	<h2 id="additionaltable" class="dicword">additionalTable</h2>
+	<p>
+		JDBCからメタ情報が取得できないテーブルに対して、DBFlute上で明示的に定義する機能、もしくは、その定義されたテーブル自体を示します。
+		基本的には、JDBCからテーブル情報は取得できるため、本当にいざってときのための機能です(ほとんど利用しません)。
+		きっかけは、古いバージョンのDBFluteにおいて、"Oracleのデータリンク参照のシノニム"
+		のメタ情報を全く取得できなかったことでしたが、その後、DBFluteはそれに対しても特殊な方法でメタ情報を取得するように改良されたので、
+		本当によほどのことがない限り利用しないでしょう。		
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/additionaltable/index.html">additionalTableMap.dfprop</a></div>
+
+	<h2 id="additionalunique" class="dicword">additionalUnique</h2>
+	<p>
+		スキーマ上に制約として示されていない暗黙のユニークキーをDBFlute上で明示的に定義する機能、もしくは、その定義されたユニークキー自体を示します。
+		DBFluteは、UQ制約の情報をもとに Entity
+		同士の one-to-one のリレーションを定義付けるため、(UQ制約が付与されてもいいカラムがあるのに)スキーマ上にUQ制約がない場合は、
+		additionalUniqueKeyMap.dfprop にてそのユニークキーを定義しDBFluteに伝えます。DBFlute上の "疑似のUQ"
+		とも呼ばれます。また、暗黙のUQだけでなく、そもそもUQ情報を保持していないビューに対しても利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/additionaluniquekey/index.html">additionalUniqueKeyMap.dfprop</a></div>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/viewgeneration/index.html">現場フィット - ビューの自動生成</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/uqconstraint.html">DB設計 - UQ制約</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

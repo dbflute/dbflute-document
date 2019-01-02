@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteのデプロイ環境 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteのデプロイ環境</h1>
+	<p>
+		LastaFluteにおけるビルドデプロイのやり方です。マルチプロジェクトを想定しています。
+		シングルプロジェクトでは、一つになって単純になるだけですので、ぜひ空気を読んでください。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="executablewar">実行可能warでアプリ起動</h2>
+	<h3 id="javawar">warをjavaコマンドで実行</h3>
+	<p>
+		組み込みJetty, 組み込みTomcatを使って、warファイルをjavaコマンドで実行することでアプリを起動させるのが基本です。
+		<span class="frm">(必須ではないですが、その方式で問題なければという感じで)</span>
+	</p>
+<pre><span class="codetitle">e.g. javaコマンドでwarファイルを実行、組み込みJetty,Tomcatが起動する @Command</span><code>
+java -jar maihama-dockside.war
+</code></pre>
+	<h3 id="lastaenv">lasta.envを指定</h3>
+	<p>
+		実際には、結合環境、本番環境と設定を切り替える必要があるかと思います。
+		環境設定を切り替えるためには、javaコマンドでシステムプロパティ <em class="keyword">lasta.env</em> を指定します。
+	</p>
+<pre><span class="codetitle">e.g. javaコマンドで lasta.env に production (本番) を指定 @Command</span><code>
+java <span class="point">-Dlasta.env=production</span> -jar maihama-dockside.war
+</code></pre>
+	<p>
+		これにより、アプリで読み込まれる ..._env.properties が切り替わります。
+	</p>
+	<p>
+		例えば、lasta.env が production
+		であれば、..._env_production.properties が読み込まれます。
+		<span class="frm">(普段のローカル開発環境では lasta.env は指定されないので、ローカル用の ..._env.properties が読み込まれます)</span>
+	</p>
+	<h3 id="portswitch">ポート番号をスイッチ</h3>
+	<p>
+		デプロイ環境ではポート番号を別にしたいなら、lasta.env の有無で分岐するとよいでしょう。
+	</p>
+<pre><span class="codetitle">e.g. デプロイ環境ではport番号を 8080 にする (結合も本番も同じだとして) @Java</span><code>
+<span class="keyword">private static final int</span> <span class="attribute">DEVELOPMENT_PORT</span> = <span class="literal">8091</span>;
+<span class="keyword">private static final int</span> <span class="attribute">PRODUCTION_PORT</span> = <span class="literal">8080</span>;
+
+<span class="keyword">public static void</span> main(String[] args) { <span class="comment">// e.g. java -Dlasta.env=production -jar maihama-dockside.war</span>
+    <span class="keyword">new</span> TomcatBoot(derivePort(), <span class="literal">"/dockside"</span>).asDevelopment(isNoneEnv()).bootAwait();
+}
+
+<span class="keyword">private static int</span> derivePort() {
+    <span class="keyword">return</span> isNoneEnv() ? <span class="attribute">DEVELOPMENT_PORT</span> : <span class="attribute">PRODUCTION_PORT</span>;
+}
+
+<span class="keyword">private static boolean</span> isNoneEnv() {
+    <span class="keyword">return</span> System.getProperty(<span class="literal">"lasta.env"</span>) == <span class="keyword">null</span>;
+}
+</code></pre>
+	<p>
+		もっと、細かくデプロイ環境ごとに変更したいとかであれば、javaコマンドの引数で指定したりしてもよいでしょう。
+		main() の args から指定された port 番号を取得できるようにするなど。
+	</p>
+
+	<h2 id="traditionaldeploy">インストールTomcatで起動</h2>
+	<h3 id="alsolastaenv">こちらでも lasta.env を忘れずに</h3>
+	<p>
+		組み込みTomcat (jar起動) ではなく、<em class="smallmark">インストールしたTomcat</em>
+		にwarを配備させて動作させる場合は、<em class="keyword">必ず Tomcat 側のJava実行時のプロパティ指定で lasta.env を設定してください。</em>
+	</p>
+	<p>
+		jar起動でもwar配備でも、Javaプロパティの lasta.env で [app]_env.properties を切り替えることには変わりません。
+		lasta.env を設定しないで配備して起動した場合は、ローカル開発環境用の設定で動いてしまいます。<span class="frm">(例えば、HotDeployのままで起動してしまいます)</span>
+	</p>
+	<h3 id="2waywar">実行可能warをそのまま配備できる</h3>
+	<p>
+		実行可能warは、インストールTomcat (シェルなどで実行するTomcat) などに配備できる形をキープしています。
+		なので、実行可能でもあるし、そのままインストールTomcatに配備することもできます。
+		<span class="frm">(実行可能warの中身に関しては後述)</span>
+	</p>
+	<p>
+		この場合、[App]Bootクラスは利用されずに起動することになります。
+	</p>
+
+	<h2 id="mavenwar">Mavenでwarファイル作成</h2>
+	<p>
+		継承や依存などの Maven の構成を把握していることを前提として...<span class="frm">(LastaEnvを前提に)</span>
+	</p>
+	<div class="relatedpage"><a href="./projstructure.html#maven">Mavenの構成</a></div>
+	<h3 id="howtomakewar">実行可能warの作り方</h3>
+	<p>
+		[service]-base にて <em class="keyword">mvn -e clean package</em> を叩けばOKです。
+		<span class="frm">(aggregateしているため)</span>
+	</p>
+	<p>
+		<em class="keyword">できあがったwarファイルは環境依存をしていません</em> ので、javaコマンド実行時にシステムプロパティとして
+		<em class="mark">lasta.env</em> を指定しましょう。<span class="frm">(LastaEnv方式)</span>
+	</p>
+	<div class="relatedpage"><a href="../dbflute/ladfprop.html#env">lastafluteMap.dfprop - 環境プロパティ</a></div>
+<pre><span class="codetitle">e.g. 本番環境(production)としてアプリを実行 @Command</span><code>
+java <span class="point">-Dlasta.env=production</span> -jar maihama-dockside.war
+</code></pre>
+	<p>
+		すると、参照される [app]_env.properties が切り替わります。
+	</p>
+	<p>
+		<span class="frm">(ちなみに、Maven-3.1.1 より古いバージョンだとうまくwarファイルが作成されないという報告がありますので、
+		そのときは Maven のアップグレードをお願いします)</span>
+	</p>
+	<h3 id="execwardetail">実行可能warの中身</h3>
+	<p>
+		<em class="smallmark">Jetty/Tomcat起動の世界</em> と、<em class="smallmark">アプリの世界</em> が一つにまとまっています。
+	</p>
+	<dl class="keymainlist">
+		<dt>war直下 <span class="frm">(WEB-INF除く)</span></dt><dd>Jetty/Tomcat起動の世界 <span class="frm">(Bootクラスのためのクラスやリソースたち)</span></dd>
+		<dt>WEB-INF配下</dt><dd>アプリの世界 <span class="frm">(アプリのためのクラスやリソースたち)</span></dd>
+	</dl>
+	<p>
+		<span class="frm">(一度、warを作ってみて解凍して中身を見てみると理解が深まるでしょう)</span>
+	</p>
+	<p>
+		Jetty/Tomcat起動の世界から、アプリの世界のクラスやリソースは参照できないので、[App]Bootクラスで利用できるクラスやリソースは限られています。
+		[App]Bootクラスで、[app]_env.propertiesなどを参照する場合は、それらをwar直下に配置する必要があります。<span class="frm">(後述)</span>
+	</p>
+	<h3 id="execwarsettings">実行可能warの設定</h3>
+	<p>
+		pom.xml では、このような定義がされています。
+	</p>
+	<dl class="keymainlist">
+		<dt>Jettyなら</dt><dd><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/pom.xml#L165">plugins in pom.xml for Jetty (harbor) | Github</a></dd>
+		<dt>Tomcatなら</dt><dd><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-dockside/pom.xml#L74">plugins in pom.xml for Tomcat (dockside) | Github</a></dd>
+	</dl>
+	<p>
+		<span class="frm">(行番号へのリンクなので、位置が変わってる可能性があります: plugin定義の maven-dependency-plugin と maven-war-plugin のところを探しましょう)</span>
+	</p>
+	<h3 id="execwarprops">実行可能warに含めるリソース</h3>
+	<p>
+		先ほどの記述の通り、[App]Bootクラスで [app]_env.propertiesなどを参照する場合は、war直下にそれらリソースを配置する必要があります。
+		maven-war-plugin にてそれらリソースをincludeします。<span class="frm">(先述の通り、Jetty/Tomcat起動の世界から、アプリの世界のクラスやリソースは参照できないので)</span>
+	</p>
+<pre><span class="codetitle">e.g. Bootクラスで、propertiesなどのリソースを使えるように for Tomcat @pom.xml</span><code>
+    <span class="abbreviation">...</span>
+    &lt;webResources&gt;
+        &lt;resource&gt;
+            <span class="abbreviation">...</span>
+            <span class="point">&lt;includes&gt;</span>
+                &lt;include&gt;**/*Boot*.class&lt;/include&gt;
+                <span class="comment">&lt;!-- properties may be used by the boot class --&gt;</span>
+                &lt;include&gt;<span class="subpoint">*_config.properties</span>&lt;/include&gt;
+                &lt;include&gt;<span class="subpoint">*_env*.properties</span>&lt;/include&gt;
+                &lt;include&gt;<span class="subpoint">tomcat_*.properties</span>&lt;/include&gt;
+            <span class="point">&lt;/includes&gt;</span>
+        &lt;/resource&gt;
+    &lt;/webResources&gt;
+</code></pre>
+	<p>
+		マルチプロジェクトの場合、これだけだと "commonプロジェクト" の properties が含まれません。
+		これに関しては、現時点でスマートな解決方法がないため、ベタベタに書いてコピーします。<span class="frm">(何か良い方法があれば教えてください...)</span>
+	</p>
+<pre><span class="codetitle">e.g. commonプロジェクト、propertiesなどのリソースを使えるように for Tomcat @pom.xml</span><code>
+    <span class="abbreviation">...</span>
+    &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;
+        &lt;executions&gt;
+            &lt;execution&gt;
+                &lt;id&gt;copy-common-resources&lt;/id&gt;
+                &lt;phase&gt;generate-resources&lt;/phase&gt;
+                &lt;goals&gt;
+                    &lt;goal&gt;copy-resources&lt;/goal&gt;
+                &lt;/goals&gt;
+                &lt;configuration&gt;
+                    &lt;outputDirectory&gt;${basedir}/target/${project.build.finalName}&lt;/outputDirectory&gt;
+                    &lt;overwrite&gt;true&lt;/overwrite&gt;
+                    &lt;resources&gt;
+                        &lt;resource&gt;
+                            &lt;directory&gt;${basedir}/../maihama-common/src/main/resources&lt;/directory&gt;
+                            &lt;includes&gt;
+                                &lt;include&gt;*_config.properties&lt;/include&gt;
+                                &lt;include&gt;*_env*.properties&lt;/include&gt;
+                                &lt;include&gt;tomcat_*.properties&lt;/include&gt;
+                            &lt;/includes&gt;
+                        &lt;/resource&gt;
+                    &lt;/resources&gt;
+                &lt;/configuration&gt;
+            &lt;/execution&gt;
+        &lt;/executions&gt;
+    &lt;/plugin&gt;
+</code></pre>
+
+	<h2 id="newdeployenv">新しいデプロイ環境をつくる</h2>
+	<p>
+		新しいデプロイ環境 (profile) をつくる場合は、いくつかの設定ファイルを修正していく必要があります。
+	</p>
+	<p>
+		まずは、Mavenの構成、および、環境切り替えの構成を把握していることを前提として...
+	</p>
+	<div class="relatedpage"><a href="./projstructure.html#maven">Mavenの構成</a></div>
+	<div class="relatedpage"><a href="./projstructure.html#envswitch">環境切り替えの構成</a></div>
+	<p>
+		例えば、sea という名前の環境を新たに作るとします。
+	</p>
+	<h3 id="addproperties">1. resources に環境依存propertiesを追加</h3>
+	<p>
+		src/main/resources に xxx_env_sea.properties を追加します。別の環境の xxx_env.properties をコピーして作るとよいです。
+		が、修正漏れだけには厳重注意しましょう。
+	</p>
+	<p>
+		プロパティ値だけでなく、コメントの中も新しい環境に合わせましょう。<span class="frm">(環境名とか書いてあるかも)</span>
+	</p>
+	<h3 id="addreplaceschema">2. ReplaceSchemaの環境設定を追加 <span class="frm">(必要であれば)</span></h3>
+	<p>
+		これは、新しい環境のDBを ReplaceSchema 管理するときだけの話です。
+	</p>
+	<p>
+		dfpropの環境切り替えの構成について把握していることを前提として...
+	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/dfprop/environmenttype.html">環境タイプごとの dfprop</a></div>
+	<ol>
+		<li>DBFluteクライアント/dfprop/sea フォルダを作成</li>
+		<li>そこに、databaseInfoMap+.dfprop と replaceSchemaMap+.dfprop を作成</li>
+		<li>databaseInfoMap+.dfprop の設定</li>
+		<li>replaceSchemaMap+.dfprop の設定</li>
+		<li>DBFluteクライアント/__sea_manage.sh を作成 (環境変数をseaに)</li>
+	</ol>
+	<p>
+		__sea_manage.sh を叩けば、sea環境用の設定で ReplaceSchema できるようになります。
+	</p>
+
+	<h2 id="newwebproj">新しいWebプロジェクトつくる</h2>
+	<p>
+		TODO jflute
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

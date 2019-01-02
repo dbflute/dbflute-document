@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,機能,Example,Dao" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Behavior | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Behavior</h1>
+	${indexlist}
+
+	<h2 id="about">Behaviorとは？</h2>
+	<p>
+		そもそもBehaviorとは？について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="./about.html">Behaviorについて</a></div>
+	<h2 id="howto">Behaviorの使い方</h2>
+	<p>
+		Behaviorの使い方について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="./howto.html">Behaviorの使い方</a></div>
+
+	<h2 id="function">Behaviorの機能</h2>
+	<dl class="hierarchylist">
+		<dt><a href="./select/index.html">Select</a></dt><dd>検索系 (外だしSQLは除く) <span class="frm">※太字は基本的な機能であることを示す</span></dd>
+		<dd>
+			<dl>
+				<dt><em class="keyword"><a href="./select/selectcount.html">selectCount(cb)</a></em></dt><dd>カウント検索</dd>
+				<dt><em class="keyword"><a href="./select/selectentity.html">selectEntity(cb)</a></em></dt><dd>一件検索(結果がない場合はnullを戻す)</dd>
+				<dt><em class="keyword"><a href="./select/selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck(cb)</a></em></dt><dd>一件検索(結果がない場合は例外発生)</dd>
+				<dt><a href="./select/selectbypkvalue.html">selectByPKValue(pk)</a></dt><dd>PKによる一件検索(結果がない場合はnullを戻す)</dd>
+				<dt><a href="./select/selectbypkvaluewithdeletedcheck.html">selectByPKValueWithDeletedCheck(pk)</a></dt><dd>PKによる一件検索(結果がない場合は例外発生)</dd>
+				<dt><em class="keyword"><a href="./select/selectlist.html">selectList(cb)</a></em></dt><dd>リスト検索</dd>
+				<dt><em class="keyword"><a href="./select/selectpage.html">selectPage(cb)</a></em></dt><dd>ページング検索</dd>
+				<dt><a href="./select/selectcursor.html">selectCursor(cb, entityRowHandler)</a></dt><dd>カーソル検索(Entityへのマッピングなし)</dd>
+				<dt><a href="./select/selectnextval.html">selectNextVal()</a></dt><dd>シーケンス検索(登録時は自動取得されるので基本的に利用する必要なし)</dd>
+				<dt><a href="./select/scalarselect.html">scalarSelect(cb)</a></dt><dd>スカラ検索(max(), min(), avg()など)</dd>
+				<dt><em class="keyword"><a href="./select/loadreferrer.html">LoadReferrer</a></em></dt><dd>子テーブルの取得(Refererrテーブル毎にメソッドがある)</dd>
+			</dl>
+		</dd>
+		<dt><a href="./update/index.html">Update</a></dt><dd>更新系 (外だしSQLは除く) <span class="frm">※太字は基本機能</span></dd>
+		<dd>
+			<dl>
+				<dt><em class="keyword"><a href="./update/insert.html">insert(entity)</a></em></dt><dd>一件登録</dd>
+				<dt><em class="keyword"><a href="./update/update.html">update(entity)</a></em></dt><dd>排他制御あり一件更新</dd>
+				<dt><em class="keyword"><a href="./update/updatenonstrict.html">updateNonstrict(entity)</a></em></dt><dd>排他制御なし一件更新</dd>
+				<dt><em class="keyword"><a href="./update/delete.html">delete(entity)</a></em></dt><dd>排他制御あり一件削除</dd>
+				<dt><em class="keyword"><a href="./update/deletenonstrict.html">deleteNonstrict(entity)</a></em></dt><dd>排他制御なし一件削除</dd>
+				<dt><a href="./update/deletenonstrictignoredeleted.html">deleteNonstrictIgnoreDeleted(entity)</a></dt><dd>排他制御なし一件削除</dd>
+				<dt><a href="./update/insertorupdate.html">insertOrUpdate(entity)</a></dt><dd>排他制御あり一件登録もしくは更新</dd>
+				<dt><a href="./update/insertorupdatenonstrict.html">insertOrUpdateNonstrict(entity)</a></dt><dd>排他制御なし一件登録もしくは更新</dd>
+				<dt><a href="./update/batchinsert.html">batchInsert(entityList)</a></dt><dd>バッチ登録</dd>
+				<dt><a href="./update/batchupdate.html">batchUpdate(entityList)</a></dt><dd>排他制御ありバッチ更新</dd>
+				<dt><a href="./update/batchupdatenonstrict.html">batchUpdateNonstrict(entityList)</a></dt><dd>排他制御なしバッチ更新</dd>
+				<dt><a href="./update/batchdelete.html">batchDelete(entityList)</a></dt><dd>排他制御ありバッチ削除</dd>
+				<dt><a href="./update/batchdeletenonstrict.html">batchDeleteNonstrict(entityList)</a></dt><dd>排他制御なしバッチ削除</dd>
+				<dt><a href="./update/queryinsert.html">queryInsert(setupper)</a></dt><dd>ConditionBeanによる登録 - <span class="refcode">insert into ... select ...</span></dd>
+				<dt><em class="keyword"><a href="./update/queryupdate.html">queryUpdate(entity, cb)</a></em></dt><dd>ConditionBeanによる更新 - <span class="refcode">update ... where ...</span></dd>
+				<dt><em class="keyword"><a href="./update/querydelete.html">queryDelete(cb)</a></em></dt><dd>ConditionBeanによる削除 - <span class="refcode">delete ... where ...</span></dd>
+			</dl>
+		</dd>
+		<dt><a href="./varying/index.html">Varying</a></dt><dd>オプション更新 ※外だしSQLは除く</dd>
+		<dd>
+			<dl>
+				<dt><a href="./varying/varyinginsert.html">varyingInsert(entity, option)</a></dt><dd>オプション付き一件登録</dd>
+				<dt><a href="./varying/varyingupdate.html">varyingUpdate(entity, option)</a></dt><dd>オプション付き排他制御あり一件更新</dd>
+				<dt><a href="./varying/varyingupdatenonstrict.html">varyingUpdateNonstrict(entity, option)</a></dt><dd>オプション付き排他制御なし一件更新</dd>
+				<dt><a href="./varying/varyingdelete.html">varyingDelete(entity, option)</a></dt><dd>オプション付き排他制御あり一件削除</dd>
+				<dt><a href="./varying/varyingdeletenonstrict.html">varyingDeleteNonstrict(entity, option)</a></dt><dd>オプション付き排他制御なし一件削除</dd>
+				<dt><a href="./varying/varyinginsertorupdate.html">varyingInsertOrUpdate(entity, ...)</a></dt><dd>オプション付き一件登録もしくは排他制御あり更新</dd>
+				<dt><a href="./varying/varyinginsertorupdatenonstrict.html">varyingInsertOrUpdateNonstrict(entity, ...)</a></dt><dd>オプション付き一件登録もしくは排他制御なし更新</dd>
+				<dt><a href="./varying/varyingbatchinsert.html">varyingBatchInsert(entityList, option)</a></dt><dd>オプション付きバッチ登録</dd>
+				<dt><a href="./varying/varyingbatchupdate.html">varyingBatchUpdate(entityList, option)</a></dt><dd>オプション付き排他制御ありバッチ更新</dd>
+				<dt><a href="./varying/varyingbatchupdatenonstrict.html">varyingBatchUpdateNonstrict(entityList, option)</a></dt><dd>オプション付き排他制御なしバッチ更新</dd>
+				<dt><a href="./varying/varyingqueryinsert.html">varyingQueryInsert(setupper, option)</a></dt><dd>オプション付きConditionBeanによる登録</dd>
+				<dt><a href="./varying/varyingqueryupdate.html">varyingQueryUpdate(entity, cb, option)</a></dt><dd>オプション付きConditionBeanによる更新</dd>
+				<dt><a href="./varying/varyingquerydelete.html">varyingQueryDelete(entity, cb, option)</a></dt><dd>オプション付きConditionBeanによる削除</dd>
+			</dl>
+		</dd>
+		<dt><a href="../outsidesql/index.html">OutsideSql</a></dt><dd>外だしSQL - <span class="refcode">bhv.outsideSql()...</span></dd>
+		<dt><a href="./resultbean/index.html">ResultBean</a></dt><dd>検索の結果クラス</dd>
+		<dd>
+			<dl>
+				<dt><a href="./resultbean/list/index.html">ListResultBean</a></dt><dd>リスト検索の結果クラス(implements java.util.List)</dd>
+				<dd>
+					<dl>
+						<dt><a href="./resultbean/list/groupinglist.html">GroupingList</a></dt><dd>グルーピングリスト - <span class="refcode">list.groupingList(groupingRowSetupper, groupingOption)</span></dd>
+					</dl>
+				</dd>
+				<dt><a href="./resultbean/paging/index.html">PagingResultBean</a></dt><dd>ページング検索の結果クラス(implements java.util.List)</dd>
+			</dl>
+		</dd>
+		<dt><a href="./sidebar/pulloutrelation.html">PulloutRelation</a></dt><dd>親テーブルリストの取得 ※DBアクセスしない - <span class="refcode">bhv.pulloutFoo(barList)</span></dd>
+		<dt><a href="./sidebar/extractcolumn.html">ExtractColumn</a></dt><dd>PKやUQ値のリストの取得 ※DBアクセスしない - <span class="refcode">bhv.extractFooId(fooList)</span></dd>
+		<dt><a href="./sidebar/newmyconditionbean.html">NewMyConditionBean</a></dt><dd>ConditionBeanの生成 ※DBアクセスしない - <span class="refcode">bhv.newMyConditionBean()</span></dd>
+		<dt><a href="./sidebar/newmyentity.html">NewMyEntity</a></dt><dd>Entityの生成 ※DBアクセスしない - <span class="refcode">bhv.newMyEntity()</span></dd>
+		<dt><a href="./various/index.html">Various</a></dt><dd>その他いろいろ</dd>
+		<dd>
+			<dl>
+				<dt><a href="./various/primarykeyabstraction.html">PrimaryKeyAbstraction</a></dt><dd>PKの抽象化</dd>
+				<dt><a href="./various/interfacedispatch.html">InterfaceDispatch</a></dt><dd>インターフェース経由での抽象的な利用</dd>
+				<dt><a href="./various/tableinfo.html">TableInfo</a></dt><dd>テーブル情報の取得 ※DBアクセスしない</dd>
+				<dt><a href="./various/dontuse.html">Don't Use</a></dt><dd>利用してはいけない</dd>
+			</dl>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ディベロッパー,Developer,FAQ" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>ディベロッパーのためのFAQ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ディベロッパーのためのFAQ</h1>
+	<div class="relatedpage"><a href="./developer.html">ディベロッパーのためのチュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="howtosearch">ConditionBeanの機能、どうやって探すの？</h2>
+	<p>
+		真っ先に、"ConditionBeanのトップページ" に飛んでください。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBeanのトップページ</a></div>
+	<p>
+		そして、やりたいことはなんでしょうか？
+	</p>
+	<ul>
+		<li><a href="../manual/function/ormapper/conditionbean/index.html#select">データの取得？</a> <span class="frm">(関連テーブルのデータも画面に表示するとか)</span></li>
+		<li><a href="../manual/function/ormapper/conditionbean/index.html#query">データの絞り込み？</a> <span class="frm">(比較条件で検索対象レコードを限定するとか)</span></li>
+		<li><a href="../manual/function/ormapper/conditionbean/index.html#orderby">データの並び替え？</a> <span class="frm">(検索対象レコードをどう並べるかとか)</span></li>
+		<li><a href="../manual/function/ormapper/conditionbean/index.html#selectstyle">検索のスタイル？</a> <span class="frm">(一件検索とかページング検索とか)</span></li>
+	</ul>
+	<p>
+		例えば、会員の検索において "未払いの購入を持っている会員を検索したい" のであれば、やりたいことは "データの絞り込み"
+		です。子テーブルのカラムで基点テーブルを絞り込みたいと考えられます。
+	</p>
+	<p>
+		そして...
+	</p>
+	<ol>
+		<li>ConditionBeanのトップページへ行く</li>
+		<li>"ConditionBeanの機能" の "データの絞り込み" のリンクをクリック</li>
+		<li>"利用できるカラム" を見てみて、"子テーブルのカラム (one-to-many)" を探す</li>
+		<li>"ExistsReferrer" が見つかり、そのページの "実装手順" を読む</li>
+	</ol>
+	<p>
+		やりたいこと(目的)が明確になってさえいれば、その目的から辿っていけるようなドキュメントになっています。
+		目的ドリブンのAPIであり、目的ドリブンのドキュメントとなっています。
+	</p>
+	<h3 id="queryrelation">親テーブルのカラムで絞り込みしたいときは？</h3>
+	<p>
+		ConditionBeanの機能の "データの絞り込み" をクリックし、"利用できるカラム" を欄を見て、many-to-one
+		に該当する機能をクリックすると、親テーブルのカラムで絞り込み方法がわかります。
+	</p>
+	<h3 id="loadreferrer">one-to-manyのテーブルのデータも検索したいときは？</h3>
+	<p>
+		ConditionBeanの機能の "データの取得" をクリックし、"取得できるカラム" を欄を見て、one-to-many
+		のカラムに該当する機能をクリックすると、子テーブルの取得方法がわかります。
+	</p>
+	<h3 id="existsreferrer">one-to-manyのテーブルのカラムで絞り込みしたいときは？</h3>
+	<p>
+		ConditionBeanの機能の "データの絞り込み" をクリックし、"利用できるカラム" を欄を見て、one-to-many
+		のカラムに該当する機能をクリックすると、子テーブルのカラムでの絞り込み方法がわかります。
+	</p>
+	<h3 id="columnquery">カラムとカラムの比較で絞り込みしたいときは？</h3>
+	<p>
+		ConditionBeanの機能の "データの絞り込み" をクリックし、"絞り込み条件" を欄を見てずっと眺めていくと、"カラム同士の比較で絞り込み"
+		という条件が見つかります。
+	</p>
+	<div class="inucolumn">
+		<h3 id="howtodocument">なんでこんな素直じゃないFAQなの？</h3>
+		<p>
+			ズバリの回答ではなく、その答えにどうやったら辿り着くのか？ここでは機能ドキュメントの探し方を説明しています。確かに素直じゃないですね。
+		</p>
+		<p>
+			何十人もの人にDBFluteハンズオンを行ってきましたが、自力で探せる人と探せない人の差を見かけるようになりました。
+			その過程をじっくり研究すると、探せる人は目的ドリブンで ConditionBean
+			のドキュメントを辿ってわりと簡単に機能を見つけていました。
+			そのドキュメントの探し方を教えるようにしたところ、自力で探せる人が圧倒的に増えました。
+		</p>
+		<div class="relatedpage"><a href="./handson/index.html">DBFluteハンズオン</a></div>
+		<p>
+			ということで、このFAQにおいても、ドキュメントの辿り方に重点を置いて回答しています。
+		</p>
+	</div>
+
+	<h2 id="normal">普通のFAQ</h2>
+	<p>
+		TODO jflute 書き途中
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

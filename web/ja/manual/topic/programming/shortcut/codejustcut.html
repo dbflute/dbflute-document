@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,ショートカット,Eclipse,IDE" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>コード調整ショートカット | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>コード調整ショートカット</h1>
+	${indexlist}
+
+	<h2 id="about">コード調整ショートカットとは？</h2>
+	<p>
+		ソースコードを調整するショートカットです。
+	</p>
+
+	<h2 id="look">見た目周り</h2>
+	<dl class="textlist">
+		<dt>コードフォーマット</dt>
+		<dd><em class="keyword">ctrl + shift + F</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd>
+			ソースコードのフォーマットを行う。保存ショートカット ctrl + S
+			を押す直前にこのショートカットを押す習慣があると良い。
+			ただ、保存時(ctrl + S)に自動的にフォーマットされるようにすることも可能なので、覚える必要ないかもしれない。
+			<div class="relatedpage"><a href="../../friends/eclipse/index.html">Friends - Eclipse</a></div>
+		</dd>
+		<dd>
+			ただし、Eclipse のデフォルト設定だと横幅 80 文字で改行されたり、コメント内もフォーマットされたりと若干使いづらい部分があるので、
+			フォーマッター定義を独自に作成するのが推奨される。プロジェクトのプロパティの "Java Code Style"
+			の Formatter にて定義できる。 
+		</dd>
+		<dd>
+			DBFlute の Example は全てフォーマット定義がされていて、チェックアウトした状態でそのまま利用できるようになっている。
+			横幅を 120 文字まで増やし、コメント内のフォーマットを OFF にしている。フォーマット定義は、dbflute-basic-example や
+			dbflute-spring-example などで後でインポート可能な形式の XML
+			として保存されているので、独自のフォーマット定義が何も思い付かない場合は、とりあえずこれを利用しても良いでしょう。
+		</dd>
+	</dl>
+
+	<h2 id="code">コード周り</h2>
+	<dl class="textlist">
+		<dt>インポートの調整</dt>
+		<dd><em class="keyword">ctrl + shift + O</em> <span class="frm">("おー")</span> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd>
+			import 文の整理整頓を行ってくれる。
+		</dd>
+		<dt>リファクタリング</dt>
+		<dd><em class="keyword">alt + shift + R</em> <span class="frm">(alt + command + R in Mac)</span></dd>
+		<dd>
+			クラス名やメソッド名などのリファクタリング。
+		</dd>
+	</dl>
+
+	<h2 id="comment">コメント周り</h2>
+	<dl class="textlist">
+		<dt>コメントアウト</dt>
+		<dd><em class="keyword">ctrl + /</em> <span class="frm">(スラッシュ)</span> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd>
+			現在カーソルのある行、もしくは、選択した行が "//" でコメントアウトされる。
+			その行が既にコメントアウトされている行であれば、逆にコメントが外れる。
+		</dd>
+		<dt>JavaDoc</dt>
+		<dd><em class="keyword">/** + enter</em></dd>
+		<dd>
+			クラス宣言やメソッド宣言の真上で、"/**" と打って enter
+			すると、引数や戻り値などを考慮した上での JavaDoc コメントの雛形を作ってくれる。
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

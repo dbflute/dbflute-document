@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 0.9.5.2 to 0.9.5.3 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 0.9.5.2 to 0.9.5.3</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3>同梱するJDBCドライバの整理(SQLServerとFirebird)</h3>
+	<p>
+		SQLServerのJDBCドライバ「sqljdbc.jar」がこのバージョンから同梱されないようになりました。
+		DBFluteの構造とこのJDBCドライバの構造が相性が悪いため、ユーザが明示的にJDBCドライバを取得してきて、
+		DBFluteモジュールに設置する方が良いと考えました。
+	</p>
+	<p>
+		FirebirdのJDBCドライバがこのバージョンから同梱されないようになりました。
+		もともとサポートしていないDBであり、将来のために残していましたが、どんどんバージョンが
+		古くなっていくだけで無意味なため一旦は削除するようにしました。
+	</p>
+	<h3>テーブル区分値はEntityのName/Aliasを取得するメソッド無し</h3>
+	<p>
+		テーブル区分値のClassificationの場合、EntityのgetXxxName(), getXxxAlias()メソッドは生成されません。
+		通常、テーブル区分値の場合は名称の取得に関してはしっかりテーブルの方を見るべきであり(運用中のマスタ変更を想定)、
+		Name/Aliasの取得メソッドセキュリティホールになる恐れがあるためです。<br />
+	</p>
+	<p>
+		基本的にテーブル区分値のClassificationは設定(classify)や判定(isXxx)だけに利用し、
+		名称の表示に関しては、FKを辿ってSQL経由で名称を取得することを想定しています。
+	</p>
+	<p>
+		互換性のために、littleAdjustmentMap.dfpropに「isMakeEntityTableClassificationNameAlias = true」を
+		設定して自動生成し直すとテーブル区分値のClassificationでもEntityのgetXxxName(), getXxxAlias()メソッドが生成されます。
+	</p>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<p>
+		特になし
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

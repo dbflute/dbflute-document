@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Doc,SchemaSyncCheck,スキーマ同期,スキーマの違い,同期チェック,二つのスキーマ,テスト環境とローカル環境" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>SchemaSyncCheck | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SchemaSyncCheck</h1>
+	<p>
+		Alto DBFlute のパートです。
+	</p>
+	<div class="relatedpage"><a href="../../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">SchemaSyncCheckとは？</h2>
+	<p>
+		<em class="keyword">二つのスキーマ構造に違いがないかどうか？</em> をチェックする機能です<span class="frm">(@since 0.9.8.4)</span>。
+	</p>
+	<h3 id="integration">結合DBと開発DBの比較</h3>
+	<p>
+		例えば、結合DBと開発DBで本当に同じスキーマ構造をしているのかどうか不明なときに、確認作業の支援機能として利用できます。
+		本来はそのような状況が発生しないような仕組み作りが必要ですが(例えば、ReplaceSchema を活用するなど)、
+		どうしてもズレが発生する可能性のある仕組みが既にでき上がってしまっている場合に SchemaSyncCheck を使ってチェックすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/index.html">ReplaceSchema</a></div>
+	<h3 id="integration">本番DBと開発DBの比較</h3>
+	<p>
+		また、本番運用をしているうちに、どうしても本番DBと開発DBがズレていってしまうこともあるでしょう。もしくは、ズレてるのかどうかがわからなくて不安だったり...。
+		こちらも同じく AlterCheck などを使ってズレが発生させないようなそもそもの仕組み作りが大切ですが、それができない場合や、その仕組みを導入する以前に既にズレがある場合に
+		SchemaSyncCheck を使ってチェックすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/altercheck.html">AlterCheck</a></div>
+	<p>
+		本番DBは運用していますので直接接続はできませんし、接続すべきではないでしょう。この場合は、本番DBのスキーマ構造だけを DBMS の機能を使ってダンプしてテスト環境に復元して
+		SchemaSyncCheck を使うと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#continualcheck">this - 本番DBの継続的チェック</a></div>
+
+	<h2 id="howto">利用方法</h2>
+	<p>
+		この機能は、オプションです。まずは、documentDefinitionMap.dfprop の schemaSyncCheckMap
+		で同期チェック対象スキーマの情報を設定します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#schemasynccheckmap">dfprop - schemaSyncCheckMap</a></div>
+<pre><span class="codetitle">e.g. schemaSyncCheckMapの仕様 @documentDefinitionMap.dfprop</span><code>
+; schemaSyncCheckMap = <span class="keyword">map:</span>{
+    ; url = [connection url] <span class="comment"># デフォルト: databaseInfoMap.dfpropのものと同じ</span>
+    ; catalog = [catalog (database name)] <span class="comment"># デフォルト: url から自動判別される</span>
+    ; schema = [schema] <span class="comment"># デフォルト: 設定なし (スキーマの概念のないDBMSでは空指定)</span>
+    ; user = [user] <span class="comment"># 必須</span>
+    ; password = [password] <span class="comment"># デフォルト: 設定なし</span>
+}
+</code></pre>
+	<p>
+		そして、Manageタスクで
+		schema-sync-check を実行すると<span class="frm">(@since 0.9.9.7B)</span>、チェック処理が行われるようになります。
+	</p>
+	<div class="relatedpage"><a href="../manage/index.html">Manageタスク</a></div>
+<pre><span class="codetitle">e.g. Manageタスクで SchemaSyncCheck の実行 (シェル) @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh schema-sync-check
+
+ or
+
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh   <span class="comment">// Enter, and then select the number</span>
+</code></pre>
+	<p>
+		もし、同期されていない(構造に違いがある)場合はManageタスクがエラーで中断し、[DBFluteクライアント]/output/doc
+		配下に sync-check-result.html <span class="frm">(@since 0.9.9.7F)</span> という形式の名前で差分が出力されます。
+	</p>
+	<div class="inucolumn">
+		<h4>0.9.9.7B より前ではDocタスクにて</h4>
+		<p>
+			0.9.9.7B より前のバージョンでは、Manageタスクでの実行ではなく、
+			プロパティの設定を有効にしてDocタスクを実行すると SchemaSyncCheck が実行されました。
+		</p>
+	</div>
+	<h3 id="diff">スキーマ差分の確認</h3>
+	<p>
+		previous が同期チェック対象スキーマで、schemaSyncCheckMap にて定義されているものとなります。
+		next は、databaseInfoMap.dfprop で定義したメインとして接続しているスキーマです。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>previous</dt><dd>schemaSyncCheckMapで定義したスキーマ</dd>
+		<dt>next</dt><dd>databaseInfoMap.dfpropで定義したスキーマ <span class="frm">※こちらが正しいと想定</span></dd>
+	</dl>
+	<p>
+		例えば、"Add Table" は、schemaSyncCheckMapで定義したスキーマに "そのテーブルを追加すべし"
+		という意味になります。<span class="frm">(databaseInfoMap.dfpropの方が正しいのであれば)</span>
+	</p>
+	<p>
+		同期チェックの仕様は、HistoryHTMLでの差分抽出ロジックと(制限も含めて)同じです。
+	</p>
+	<div class="relatedpage"><a href="./historyhtml.html">HistoryHTML</a></div>
+
+	<h2 id="continualcheck">本番DBの継続的チェック</h2>
+	<h3 id="prepareenv">あらかじめやりやすいように環境を</h3>
+	<p>
+		DBを長く運用していくのであれば、継続してチェックしていく土台を作っておくと良いでしょう。
+	</p>
+	<ol>
+		<li>本番DBのDDLをダンプ (データなし、構造だけ) <span class="frm">※ほとんどのDBMSでこの機能があるはず</span></li>
+		<li>ローカルにて、そのDDLを流して本番DBと同じ構造を持つスキーマを作る  <span class="frm">※開発用スキーマとは別に</span></li>
+		<li>開発用スキーマと、そのスキーマを SchemaSyncCheck!</li>
+	</ol>
+	<p>
+		この流れを、あらかじめやりやすいように環境を作っておきましょう。
+	</p>
+	<h3 id="replaceschemable">もし、ReplaceSchemaで実行できるDDLなら</h3>
+	<p>
+		本番DBでのDDLダンプとローカルでの復元はDBMSによってやり方が変わるので、楽にできるのであれば特に問題はありませんが、
+		そのDDLが ReplaceSchema で素直に実行できるものであれば、同期チェック用のスキーマ (syncdb) を作成する ReplaceSchema
+		を用意しておくとよいでしょう。
+	</p>
+	<ol>
+		<li>playsql配下に syncdb ディレクトリを作って、そこに本番DBを復元できるDDLを配置</li>
+		<li>dfprop配下に syncdb ディレクトリを作って、そこに syncdb 用のdfpropを配置</li>
+		<li>DBFluteクライアント配下に syncdb 用の ReplaceSchema のスクリプトを作る</li>
+	</ol>
+<pre><span class="codetitle">e.g. 同期チェック用のスキーマ syncdb を構築するための環境作り @Directory</span><code>
+dbflute_exampledb <span class="comment">// DBFluteクライアント (ここでは exampledb スキーマ)</span>
+ |-dfprop
+ |  |-<span class="point">syncdb</span> <span class="comment">// syncdbスキーマ用のdfprop (+を付けて差分オーバーライドがオススメ)</span>
+ |  |  |-<span class="point">databaseInfoMap+.dfprop</span>
+ |  |  |-<span class="point">replaceSchemaDefinitionMap+.dfprop</span>
+ |  |
+ |  |-databaseInfoMap.dfprop <span class="comment">// こっちはもともとある開発スキーマ用のdfprop</span>
+ |  |-replaceSchemaDefinitionMap.dfprop
+ |  |-<span class="abbreviation">...</span>
+ |-<span class="abbreviation">...</span>
+ |-playsql
+ |  |-data
+ |  |  |-<span class="abbreviation">...</span>
+ |  |
+ |  |-<span class="point">syncdb</span> <span class="comment">// syncdbスキーマ用のReplaceSchemaのディレクトリ</span>
+ |  |  |-replace-schema-00-system.sql
+ |  |  |-<span class="point">replace-schema-99-syncdb.sql</span> <span class="comment">// 本番DBを復元できるDDL</span>
+ |  |
+ |  |-replace-schema-00-system.sql
+ |  |-replace-schema-10-basic.sql <span class="comment">// こっちはもともとある開発スキーマ用のDDL</span>
+ |
+ |-_project.bat
+ |-_project.sh
+ |-<span class="abbreviation">...</span>
+ |-<span class="point">syncdb-replace-schema.bat</span>
+ |-<span class="point">syncdb-replace-schema.sh</span>
+</code></pre>
+	<p>
+		databaseInfoMap+.dfprop と replaceSchemaDefinitionMap+.dfprop
+		は、差分オーバーライドで syncdb 用に内容を変更します。
+	</p>
+	<p>
+		databaseInfoMap+.dfprop には、syncdb用のDB接続情報を設定します。もし、そのDDLを実行するのにシステム権限が必要ならば、システムユーザ(rootなど)を設定しましょう
+	</p>
+<pre><span class="codetitle">e.g. ExampleDBの同期チェック用のスキーマ examplesyncdb への接続 (MySQL) @databaseInfoMap+.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; url = jdbc:mysql://localhost:3306/<span class="point">examplesyncdb</span>?characterEncoding=UTF-8
+    ; user = examplesyncdb
+    ; password = examplesyncdb
+}
+</code></pre>
+	<p>
+		replaceSchemaDefinitionMap+.dfprop には、ReplaceSchemaで playsql/syncdb ディレクトリが利用されるような設定をします。
+	</p>
+<pre><span class="codetitle">e.g. ReplaceSchemaのディレクトリを syncdb に @replaceSchemaDefinitionMap+.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; playSqlDirectory = <span class="point">playsql/syncdb</span>
+}
+</code></pre>
+	<p>
+		syncdb用のスクリプトでは、dfprop/syncdb 配下の dfprop がタスク実行時に利用されるようにするために、環境変数 DBFLUTE_ENVIRONMENT_TYPE を syncdb に設定します。
+	</p>
+<pre><span class="codetitle">e.g. DBFLUTE_ENVIRONMENT_TYPE に syncdb を設定 (bat) @syncdb-replace-schema.bat</span><code>
+@echo off
+
+setlocal
+%~d0
+cd %~p0
+call _project.bat
+
+<span class="point">set DBFLUTE_ENVIRONMENT_TYPE=syncdb</span>
+
+echo /nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+echo ...Calling the ReplaceSchema task
+echo nnnnnnnnnn/
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. DBFLUTE_ENVIRONMENT_TYPE に syncdb を設定 (shell) @syncdb-replace-schema.sh</span><code>
+#!/bin/bash
+
+cd `dirname $0`
+. _project.sh
+
+<span class="point">export DBFLUTE_ENVIRONMENT_TYPE=syncdb</span>
+
+echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+echo "...Calling the ReplaceSchema task"
+echo "nnnnnnnnnn/"
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		replace-schema-99-syncdb.sql には、ダンプしたDDLの内容をそのまま転記します。
+	</p>
+	<p>
+		この状態で、syncdb-replace-schema.bat(sh)を叩くと、syncdbスキーマ (例だと examplesyncdb)
+		が本番DBと同じ構成で作成されます。まあ本番に限らず、とにかく replace-schema-99-syncdb.sql に DDL
+		を転記して叩けば、そのDDLが syncdb スキーマに反映されるという感じです。
+	</p>
+	<p>
+		もし、ReplaceSchema管理しづらい形式のものであれば、DBMSのやり方に沿って手動復元します。
+		その方が簡単な場合もあるので、無理にReplaceSchema管理にする必要もありません。
+	</p>
+	<h3 id="syncdbsetting">syncdbと比較するSchemaSyncCheck設定</h3>
+	<p>
+		documentDefinitionMap+.dfprop <span class="frm">(これは dfprop ディレクトリ直下の dfprop です)</span>
+		にて、開発用スキーマとsyncdbスキーマと比較する SchemaSyncCheck の設定をします。
+	</p>
+<pre><span class="codetitle">e.g. syncdbと比較するSchemaSyncCheck設定 @documentDefinitionMap.dfprop</span><code>
+; schemaSyncCheckMap = <span class="keyword">map:</span>{
+    ; url = jdbc:mysql://localhost:3306/<span class="point">examplesyncdb</span>?characterEncoding=UTF-8
+    ; schema =
+    ; user = examplesyncdb
+    ; password = examplesyncdb
+    ; isSuppressCraftDiff = <span class="keyword">true</span>
+}
+</code></pre>
+	<p>
+		この設定は、他の挙動に影響を与えるものではありませんので、固定的に設定しておいてもOKです。
+	</p>
+	<p>
+		ここでは本番のDDLだけをダンプすることを前提としているので、CraftDiffが有効になっているとデータの差分が出てしまいます。
+		isSuppressCraftDiff <span class="frm">(@since 1.0.5G)</span> を設定して CraftDiff を抑制するようにしています。
+		サポートされていないバージョンの場合は、CraftDiffによるチェック以外の差分がないことを目視すればOKです。
+		<span class="frm">(CraftDiffも比較もしたいのであれば、対象のデータだけを抽出するような形にしなければなりません)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/projectfit/craftdiff/index.html">CraftDiff</a></div>
+	<p>
+		ということで、定期的にチェックするための土台が整いました。そろそろチェックしてみたいと思ったら、syncdbを作成してManageタスクを叩いて SchemaSyncCheck
+		を実行してみましょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

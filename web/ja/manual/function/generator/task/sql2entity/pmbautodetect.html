@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ParameterBean,自動判別" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ParameterBeanの自動判別 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ParameterBeanの自動判別</h1>
+	<p>
+		ParameterBeanのプロパティの自動判別や代理判定メソッドについてのページです。
+	</p>
+	<div class="relatedpage"><a href="./parameterbean.html">ParameterBean</a></div>
+	${indexlist}
+
+	<h2 id="autodetect">プロパティ項目の自動判別</h2>
+	<h3 id="autodetectmark">自動判別マーク</h3>
+	<p>
+		プロパティ項目をIFコメントやバインド変数コメントなどから(ある程度の精度で)自動判別することが可能です。
+		プロパティ項目の指定と同じくSQLの行コメント形式 "--" にて、"!!AutoDetect!!"
+		と指定すると、バインド変数コメントとそのテスト値からプロパティ名とプログラム型を導出します<span class="frm">(@since 0.9.8.0)</span>。
+		例えば、"/*pmb.memberId*/3" といったバインド変数コメントがSQLの中に存在する場合は、テスト値の "3"
+		という値から型を推測し、"-- !!Integer memberId!!" と明示的に指定するのと同じ扱いになります。
+	</p>
+<pre><span class="codetitle">e.g. プロパティ項目を自動判別 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="keyword">and</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span>
+</code></pre>
+	<h3 id="detectrule">プロパティの基本ルール</h3>
+	<p>
+		判別対象となるプロパティの基本ルールは以下の通りです。
+	</p>
+	<ul>
+		<li>バインド変数コメントでテスト値を持っているもの</li>
+		<li>IFコメントで比較値で型が判別できるもの(できそうなもの) <span class="frm">(@since 0.9.8.4)</span></li>
+		<li>FORコメントでカレント変数がバインド変数コメントで利用され判別できるもの <span class="frm">(@since 0.9.8.4)</span></li>
+		<li>プロパティのパス指定が "pmb." で始まること</li>
+		<li>プロパティのパス指定がネストしていないこと <span class="frm">("pmb.foo" は OK, "pmb.foo.bar" は対象外)</span></li>
+		<li>(バインド変数コメントであれば)テスト値を持っていること</li>
+	</ul>
+	<p>
+		厳密にどこまでが判別対象となるかは若干の曖昧さがあります。
+		実際にやってみて判別されていないものがあれば、同時に明示的なプロパティの指定もするという流れが良いでしょう。
+	</p>
+	<dl class="textlist">
+		<dt>明示的なプロパティの同時利用</dt>
+		<dd>
+			明示的なプロパティ指定も同時に利用できます。同じ名前のプロパティが双方に存在した場合は、明示的に指定されたものが(オプションも含めて)優先されます。
+			自動判別の結果が要件に合わない場合(プログラム型やオプションなど)において、明示的な指定で上書きして調整します。
+		</dd>
+		<dt>予約プロパティ名は対象外</dt>
+		<dd>
+			DBFluteで予約されているプロパティ名は対象外です(そもそも利用してはいけません)。
+			例えば、"outsideSqlPath", "entityType", "fetchSize", "pageStartIndex", "pageEndIndex"
+			など、ParameterBean のインターフェースやスーパークラスで利用されているプロパティです。
+		</dd>
+	</dl>
+	<h3 id="typederiving">プログラム型の導出</h3>
+	<p>
+		プログラム型はバインド変数コメントならテスト値、IFコメントなら比較値から導出されます。
+	</p>
+	<p>
+		導出ロジックは以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>Integer</dt><dd>数値リテラルで Integer.MAX_VALUE 以下の値</dd>
+		<dt>Long</dt><dd>数値リテラルで Integer.MAX_VALUE を超える値 <span class="frm">※Longにするならテスト値はどでかい値に</span></dd>
+		<dt>BigDecimal</dt><dd>数値リテラルで "." (ドット) が含まれる値</dd>
+		<dt>Date</dt>
+		<dd>
+			dateリテラル、もしくは、クォート値で日付型としてパースできて時分秒ミリ秒が全て0の値
+		</dd>
+		<dd>
+			例えば、以下のような形式。
+			<ul class="supplementlist">
+				<li>/*pmb.fooDate*/date '2011-01-28'</li>
+				<li>/*pmb.fooDate*/'2011-01-28 00:00:00'</li>
+			</ul>
+		</dd>
+		<dt>Timestamp</dt>
+		<dd>
+			timestampリテラル、もしくは、クォート値で日付型としてパースできてDateと判別されなかった値
+		</dd>
+		<dd>
+			例えば、以下のような形式。
+			<ul class="supplementlist">
+				<li>/*pmb.fooDatetime*/timestamp '2011-01-28'</li>
+				<li>/*pmb.fooDatetime*/'2011-01-28 12:34:56'</li>
+			</ul>
+		</dd>
+		<dt>Time</dt>
+		<dd>
+			timeリテラル、もしくは、クォート値で時刻型としてパースできる値
+		</dd>
+		<dd>
+			例えば、以下のような形式。
+			<ul class="supplementlist">
+				<li>/*pmb.fooTime*/time '12:34:56'</li>
+				<li>/*pmb.fooTime*/'12:34:56'</li>
+			</ul>
+		</dd>
+		<dt>List&lt;&gt;</dt>
+		<dd>
+			('foo', 'bar') といった形式の値。要素型は一番目の要素を元に他の型と同じように判別されるが、文字列型と数値型に限られる。
+			<span class="frm">※CDef型を利用するような場合は、明示的宣言で調整すると良いでしょう</span>
+		</dd>
+		<dd>
+			例えば、以下のような形式。
+			<ul class="supplementlist">
+				<li>/*pmb.fooList*/('foo', 'bar')</li>
+				<li>/*pmb.fooList*/(2, 5)</li>
+			</ul>
+		</dd>
+		<dt>String</dt>
+		<dd>
+			他の型に判別されなかった場合
+		</dd>
+	</dl>
+	<p>
+		導出された型が要件に一致しない場合は、明示的なプロパティ指定で定義を上書き(そのプロパティだけは自動判別に頼らない)、
+		もしくは、参照カラムのオプションを利用して型調整を行います。
+	</p>
+	<div class="detailpage"><a href="#typeadjustment">this - 参照カラムのオプションによる型調整</a></div>
+	<h3 id="optionderiving">オプションの導出</h3>
+	<p>
+		一部のオプションはテスト値から判別されます。
+	</p>
+	<dl class="keymainlist">
+		<dt>likePrefix</dt><dd>クォート値で最後に "%" がある値</dd>
+		<dt>likeSuffix</dt><dd>クォート値で最初に "%" がある値</dd>
+		<dt>likeContain</dt><dd>クォート値で最初と最後に "%" がある値</dd>
+		<dt>like</dt><dd>クォート値でどこかに "%" があり、一致の方向が特定できない値</dd>
+	</dl>
+	<p>
+		テスト値で導出されないオプションは、バインド変数コメントの中で直接オプション指定をすることで利用できます。
+		また、テスト値で導出できるオプションであっても、ここでの明示的オプション指定がある場合はそれが優先されます。
+		オプションの仕様は、通常のオプション指定のものと全く同じです。
+	</p>
+	<div class="relatedpage"><a href="#option">this - ParameterBeanのオプション</a></div>
+<pre><span class="codetitle">e.g. 自動判別にて、バインド変数コメントでオプション指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate:fromDate*/</span><span class="literal">'2011-01-30'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate:toDate*/</span><span class="literal">'2011-01-31'</span>
+   <span class="keyword">and</span> MEMBER_STATUS_CODE <span class="keyword">like</span> <span class="comment">/*pmb.memberStatusCode:cls(MemberStatus)*/</span><span class="literal">'FML'</span>
+</code></pre>
+	<p>
+		同じプロパティに対して複数のバインド変数コメントがある場合は、どれか一つにオプションが指定されていればそれが有効になります。
+		(また、それぞれ別のオプションを指定している場合は、最後に評価されたオプションが有効になります)
+	</p>
+	<h3 id="typeadjustment">参照カラムのオプションによる型調整</h3>
+	<p>
+		バインド変数コメントに参照カラムのオプション、ref オプションを指定した場合は、
+		テスト値から導出したプロパティのプログラム型に代わり、参照カラムに対応するプログラム型が強制的に利用されます。
+		導出された型が業務に合致しない場合はこのオプションを利用して調整すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#reference">this - 参照カラムのオプション</a></div>
+<pre><span class="codetitle">e.g. 参照カラムのオプションで自動判別された型を調整 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId:ref(MEMBER)*/</span><span class="literal">3</span>
+</code></pre>
+	<p>
+		リスト型に対して ref オプションを指定した場合は、リストの要素型が参照カラムのプログラム型になります。
+		さらにそのとき、参照カラムが区分値に関連付いている場合は、対応する CDef
+		の区分値クラスの型が要素型になります。
+		(つまり、区分値カラムのリスト型の場合は積極的に ref オプションを利用すると良いでしょう)
+	</p>
+<pre><span class="codetitle">e.g. 区分値カラムのリスト型には参照カラムのオプションを指定して CDef のリストに @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCodeList:ref(MEMBER)*/</span>(<span class="literal">'FML'</span>)
+</code></pre>
+	<h3 id="commentoption">プロパティのコメントは？</h3>
+	<p>
+		自動判別にするとプロパティのコメントを書く場所がなくなってしまいます。
+		代わりに、バインド変数コメントにコメントのオプションを付与することができます。
+	</p>
+<pre><span class="codetitle">e.g. 区分値カラムのリスト型には参照カラムのオプションを指定して CDef のリストに @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="comment">/*pmb.memberId:<span class="point">comment(指定すると一件検索になる)</span>*/</span><span class="literal">3</span>
+</code></pre>
+	<p>
+		ただし、ここはSQL文の中なので、あまり書き過ぎると見づらいでしょう。この方法で大量のコメントを書くのはあまりお奨めではありません。
+		コメントを重視するようであれば、自動判別は利用せず明示的に指定した方が可読性は良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./pmbpropoption.html#propcomment">ParameterBeanのプロパティオプション - プロパティのコメント</a></div>
+	<h3 id="propertyadjustment">明示的宣言と併用して微調整</h3>
+	<p>
+		自動判別されたプロパティが想定外の方に認識されてしまったり、そもそもプロパティが認識されていないというような場合は、自動判別のルールを見直してみましょう。
+		それでも、どうにもならない場合は、明示的宣言と併用して微調整すると良いでしょう。<span class="frm">(自動判別は完璧ではない)</span>
+	</p>
+<pre><span class="codetitle">e.g. 明示的宣言と併用して微調整 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+<span class="comment">-- !!String memberName!!</span>
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="supplement">補助機能である</h3>
+	<p>
+		多くのケースにてこの自動判別機能が利用できると想定されます。ただし、ご覧の通りある程度の曖昧さを許容する仕様となっており、
+		項目指定コストを軽減するための(あくまで)補助的な機能と位置付けられています。
+		(一方で、ParameterBeanのプロパティ項目がベタっとSQLの上部の一覧記述されることは、それはそれでドキュメント的な役割があるため、
+		それを重視するケースにおいてはこの自動判別機能を遠慮なく利用しないでも良いでしょう)
+	</p>
+
+	<h2 id="alternatebool">代理判定メソッドの自動判別</h2>
+	<p>
+		外だしSQLで複雑な条件での分岐がどうしても必要なとき、IFコメントの中で複雑な条件を書くよりも、ParameterBeanのExクラスに
+		<em class="keyword">代理判定メソッド</em>
+		を作成して、IFコメントではそのメソッドを単に呼び出すやり方が推奨されています。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/pmcomment.html#alternatebool">パラメータコメント - 複雑な条件はメソッド化</a></div>
+	<p>
+		通常、その代理判定メソッドの作成するときは、IFコメントで代理判定メソッドを指定した後、Sql2EntityでParameterBeanを自動生成し、Exクラスに手動で作成します。
+		メソッドの定義で名前を間違えたり、そもそも定義するのを忘れたりすれば、当然実行時に "メソッドがない例外" となります。
+	</p>
+	<p>
+		プロパティ項目の自動判別機能を利用している場合(自動判別マークを指定している場合)は、
+		IFコメントで指定された代理判定メソッドが自動判別され、ParameterBeanのBsクラスに
+		abstract メソッドとして定義されます<span class="frm">(@since 0.9.8.2)</span>。
+		つまり、自動生成された瞬間いきなりコンパイルエラーになり、定義漏れがなくなるのはもちろん、メソッド名を間違えるということもなくなります。
+		また、Exクラスの実装で @Override アノテーションをしっかり指定していれば、
+		IFコメント側で代理判定メソッドの名前を変更したときも古いメソッドがコンパイルエラーで検知できます。
+	</p>
+<pre><span class="codetitle">e.g. IFコメントで代理判定メソッドを指定 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!<span class="point">AutoDetect</span>!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.<span class="point">existsPurchase()</span>*/</span>
+ <span class="keyword">and exists</span> (<span class="keyword">select</span> PURCHASE_ID
+             <span class="keyword">from</span> PURCHASE
+             <span class="abbreviation">...</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ParameterBeanのBsクラスにて代理判定メソッドのテンプレート @Java</span><code>
+<span class="comment">// この抽象メソッドは自動生成され、</span>
+<span class="comment">// 自動生成直後はExクラスでコンパイルエラー</span>
+<span class="keyword">public abstract boolean</span> existsPurchase();
+</code></pre>
+<pre><span class="codetitle">e.g. ParameterBeanのExクラスにて代理判定メソッドを実装 @Java</span><code>
+<span class="comment">// コンパイルエラーの赤い波線にカーソル合わせて</span>
+<span class="comment">// ctrl + 1 -&gt; enter で実装メソッド補完 (Eclipse)</span>
+<span class="attribute">@Override</span>
+<span class="keyword">public boolean</span> existsPurchase() {
+    <span class="keyword">return</span> (_purchaseCount != <span class="keyword">null</span> || _purchasePrice != <span class="keyword">null</span>) && <span class="abbreviation">...</span>;
+}
+</code></pre>
+	<p>
+		この機能は、プロパティ項目の自動判別機能の付加要素としての提供となります。
+	</p>
+	<div class="relatedpage"><a href="#autodetect">this - プロパティ項目の自動判別</a></div>
+	<p>
+		自動判別対象となるのは、<em class="keyword">/*IF pmb.foo()*/</em> というシンプルな形式のboolean型メソッドです。
+	</p>
+	<ul>
+		<li>引数のないメソッドであること</li>
+		<li>条件が一つであること(ANDやORは不可)</li>
+		<li>否定演算子はあってもよい <span class="frm">e.g. /*IF !pmb.foo()*/</span></li>
+	</ul>
+	<p>
+		逆に明確に自動判別の対象外となる状況は以下の通りです。
+	</p>
+	<ul>
+		<li>ネストした呼び出しは対象外 <span class="frm">e.g. /*IF pmb.foo().bar()*/</span></li>
+		<li>比較式があるものは対象外 <span class="frm">e.g. /*IF pmb.foo() == true*/</span></li>
+		<li>予約された名前のメソッドは対象外 <span class="frm">e.g. /*IF isPaging()*/</span></li>
+		<li>定義されたプロパティ名のメソッドは対象外 <span class="frm">e.g. /*IF getMemberName()*/, /*IF isMemberName()*/</span></li>
+	</ul>
+	<p>
+		ただし、普段は細かいルールを意識する必要はあまりないでしょう。自然に書いていればOKです。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

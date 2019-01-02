@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 0.9.3 to 0.9.4 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 0.9.3 to 0.9.4</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3>AccessContextで「Anonymous」を廃止</h3>
+	<p>
+		共通カラムの機能を利用していて、以下のようにAccessContextをスレッド上での初期化をInterceptorやFilterなどで処理している場合はこの話は無関係です。
+	</p>
+<pre><code>AccessContext context = new AccessContext();
+context.setAccessTimestamp(accessTimestamp);
+context.setAccessUser(accessUser);
+context.setAccessProcess(accessProcess);
+AccessContext.setAccessContextOnThread(context);</code></pre>
+	<p>
+		上記の処理がされてない状態で共通カラムの自動設定処理が実行された場合に、AccessUserやAccessProcessなどで「Anonymous」という文字列がデフォルト値になっていましたが、
+		これは業務的に意味のないものなので廃止しました(今後は例外がthrowされます)。共通カラムを利用する場合は必ず事前にAccessContextを初期化して下さい。
+		(日付だけはデフォルト値(現在日時)が存在します)
+	</p>
+	<p>
+		これにより、AccessContextを初期化しているつもりで実はしてなくって「Anonymous」が登録されてしまっているようなバグ(かなり気付きにくいバグ)が例外として検知されるようになります。
+	</p>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<h3>PrefixSearch/LikeSearchで一致方向を指定したら自動エスケープ</h3>
+	<p>
+		PrefixSearch/LikeSearchで一致方向を指定された場合は自動でエスケープ処理を入れるようにしました。
+		エスケープ文字はDBFluteがサポートしている全てのDBで試しているパイプライン「|」です。
+		(DBFluteの曖昧検索のエスケープ処理は、指定された値の中に含まれているエスケープ文字もエスケープするため、エスケープ文字が何であるかは意識する必要はありません)
+	</p>
+	<h4>PrefixSearch</h4>
+	<p>
+		PrefixSearchは、それだけで前方一致と決定しているので自動でエスケープされます。
+	</p>
+	<h4>LikeSearch</h4>
+	<p>
+		LikeSearchは、LikeSearchOptionでlikePrefix()/likeContain()/likeSuffix()いずれかを呼び出したら自動でエスケープされます。
+		その後escapeByXxx()を呼び出す必要はありません。実装済みのプログラムなどで既にescapeByXxx()が呼び出されていても動作は全く問題ありません。
+		その場合はエスケープ文字を明示的に指定していることになり、特に移行する必要もありません。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

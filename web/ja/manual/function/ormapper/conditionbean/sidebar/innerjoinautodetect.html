@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,allowInnerJoinAutoDetect,内部結合" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>InnerJoinAutoDetect | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>InnerJoinAutoDetect</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		left outer join でも inner join でも結果が変わらない結合を自動で判別して、inner joinにします。
+	</p>
+<pre><span class="codetitle">e.g. InnerJoinAutoDetect を使った ConditionBean による検索 @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID, dfloc.MEMBER_NAME, <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="point">inner join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">left outer join</span> MEMBER_SECURITY dfrel_1 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">left outer join</span> MEMBER_SERVICE dfrel_2 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="point">inner join</span> MEMBER_WITHDRAWAL dfrel_3 <span class="keyword">on</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> dfrel_3.WITHDRAWAL_DATETIME &gt;= <span class="literal">'2014-08-08'</span>
+</code></pre>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		そもそも ConditionBean は、外部結合(left outer join)的な挙動を基本にしています。
+		そこには明確なポリシーがあり、内部結合(inner join)はパフォーマンス考慮のための手段と捉えています。
+	</p>
+	<div class="detailpage"><a href="../query/relation.html#joinway">結合方式の基本は外部結合</a></div>
+	<p>
+		InnerJoinAutoDetectは、手動の (Manual)InnerJoin とは別に、InnerJoin
+		可能な結合、つまり外部結合である必要のない外部結合を自動判別する機能です<span class="frm">(@since 0.9.8.8)</span>。
+	</p>
+	<div class="relatedpage"><a href="../query/manualinnerjoin.html">(Manual)InnerJoin</a></div>
+
+	<h2 id="detectlogic">判別ロジック</h2>
+	<p>
+		大きく二つのアプローチがあります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>構造的アプローチ</dt><dd>NotNullのカラムでFK制約のあるリレーション</dd>
+		<dt>検索条件アプローチ</dt><dd>where句で絞り込み条件として利用されているリレーション</dd>
+	</dl>
+	<p>
+		ポイントとしては、相手(関連テーブル)側のデータが存在しないレコードが、確実に検索対象から外れてもいいのかどうかを判断することです。
+	</p>
+	<h3 id="structural">構造的アプローチ</h3>
+	<p>
+		NotNullのカラムでFK制約のあるリレーションは、InlineView や OnClause
+		で結合する前に絞り込みが発生していない限りは、相手側のデータは必ず存在します。
+	</p>
+<pre><span class="codetitle">e.g. InnerJoinAutoDetect 構造的アプローチ @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID, dfloc.MEMBER_NAME, <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="point">inner join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		ただし、AdditionalForeignKey (疑似FK) によるリレーションは対象外です。DBMS側でFK制約がないのであれば、不整合なリレーションが発生する可能性があるからです。
+		物理的なFK制約が存在していることが前提です。
+	</p>
+	<h3 id="whereused">検索条件アプローチ</h3>
+	<p>
+		(一部例外を除き) 相手側のカラムで where 句で絞り込み条件が指定されていれば、相手側のデータは必ず存在します。
+	</p>
+<pre><span class="codetitle">e.g. InnerJoinAutoDetect 検索条件アプローチ @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID, dfloc.MEMBER_NAME, <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_SECURITY dfrel_1 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="keyword">left outer join</span> MEMBER_SERVICE dfrel_2 <span class="keyword">on</span> <span class="abbreviation">...</span>
+    <span class="point">inner join</span> MEMBER_WITHDRAWAL dfrel_3 <span class="keyword">on</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> dfrel_3.WITHDRAWAL_DATETIME &gt;= <span class="literal">'2014-08-08'</span>
+</code></pre>
+	<p>
+		絞り込み条件を指定していれば、自然と null のレコードは除外されます。
+		つまり、結合して相手が存在しないレコードは絞り込まれるので、inner join でも結果は変わりません。
+	</p>
+	<p>
+		ただし、その条件が、IsNull や coalesce() など null のデータを対象にする条件の場合は、判断の要素には含まれません。
+		また、OrScopeQueryで指定された絞り込み条件は、確実に相手側が存在するレコードだけを対象にすることが保証されないため、判断の要素には含まれません。
+		さらに、InlineView や OnClause の絞り込み条件は判断の要素には含まれません。
+	</p>
+	<h3 id="safetylogic">安全寄りのロジック</h3>
+	<p>
+		その他、AdditionalForeignKey の OverRelation を利用しているリレーションなど、判断がとても複雑になるケースにおいては、判断を諦めて inner join にはしません。
+		100% inner join にしてもOK、という判断が下せない限りは、left outer join を保ちます。
+	</p>
+
+	<h2 id="dbfluteconfig">一律の設定</h2>
+	<p>
+		1.0.3からはデフォルトで、全ての ConditionBean が InnerJoinAutoDetect になっています。 
+	</p>
+	<p>
+		それ以前のバージョンでは littleAdjustmentMap.dfprop の isInnerJoinAutoDetect
+		を true にすることで、全ての ConditionBean で InnerJoinAutoDetect を有効にすることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#isinnerjoinautodetect">dfprop - isInnerJoinAutoDetect</a></div>
+	<div class="inucolumn">
+		<h3 id="bydefault">1.0.3からはデフォルトで有効</h3>
+		<p>
+			それまでは、ConditionBeanのメソッド呼び出しによるオプション、もしくは、dfpropによるオプションでしたが、
+			1.0.3からは DBFlute のデフォルトとして有効になっています。
+		</p>
+		<p>
+			(jflute確認ですが)実業務での実績が複数あること、その中の一つは300テーブルを越える大規模なシステムであること、
+			DBFlute内でのテストケースが十分に揃っていること、これらの要因から DBFlute のデフォルト機能として十分な品質に達していると判断しました。
+		</p>
+		<p>
+			また、この機能はとても魅力的なもので(少なくともjfluteはそう思っています)、
+			left outer join によるパフォーマンス劣化は多くのO/Rマッパーの悩みの一つで、
+			それが(多くのケースで)未然に防がれるというのは、システムの安定稼働につながるからです。
+			(大抵、そこが問題になるのはリリースしてからデータ量が多くなってきてから)
+		</p>
+		<p>
+			この機能を無効にしたい場合は、littleAdjustmentMap.dfprop の isInnerJoinAutoDetect
+			を false にします。この検索だけ無効にしたい、という場合は、ConditionBean の suppressInnerJoinAutoDetect()
+			を呼び出すことで、その検索だけ無効になります。
+		</p>
+		<div class="relatedpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#isinnerjoinautodetect">dfprop - isInnerJoinAutoDetect</a></div>
+	</div>
+	<div class="inucolumn">
+		<h3 id="frombeginning">1.0.2以前：リリース前なら一律 <span class="frm">@until 1.0.2</span></h3>
+		<p>
+			DBMSによっては left outer join がパフォーマンスのネックになることがあります。
+			DB側で自動判別してくれればとは思ってしまいますが、なかなかそうなってくれないこともあります。
+		</p>
+		<p>
+			そのアプリケーションがリリース前、つまり、運用開始前なのであれば、一律の設定で InnerJoin を自動判別させるようにすると良いでしょう。
+			幾つかのパフォーマンス問題が未然に防げればそれに越したことはありません。
+		</p>
+		<p>
+			未然に防がれてしまうと、実はDBFluteとしては、InnerJoinAutoDetect という機能がうれしいのかどうか、
+			どれほど効果がある機能なのか、ツールとしての価値がわかりにくくなってしまい、プロモーションがやりづらいのですが...まあそれは仕方のないことでしょう。
+		</p>
+		<p>
+			また、この機能がどれほど正確に作られているのか!?
+			それが利用側としては不安に思うところでしょう。概要でも述べていますが、ちょっとでも不安要素がある場合は inner join
+			にはしていません。「100% inner join でOK」という確証がある場合のみ、と安全側に寄せたロジックにしています。
+			この機能に関するテストケースも、他の機能よりもかなり多めに用意して確認をしています。
+			また、この機能を一律の設定で有効にした、テーブルの数が200以上規模の開発で利用されていて運用できているのを少なくともjfluteは知っています。
+		</p>
+	</div>
+
+	<h2 id="detailspec">細かい仕様について</h2>
+	<h3 id="unionsubquery">Union や SubQuery では</h3>
+	<p>
+		Union や SubQuery などの ConditionBean でも InnerJoinAutoDetect になります。
+		ただし、リレーションの判別処理はそれぞれ独立しているため、例えばメインの select で inner join
+		になったリレーションも、Union 側の select ではそのようになるとは限りません。
+	</p>
+	<h3 id="nestedrelation">ネストしたリレーションでは</h3>
+	<p>
+		ネストしたリレーションが "検索条件アプローチ" で内部結合対象となった場合、そのリレーションを辿る途中のリレーションも内部結合となります。
+		これは、SQLの文法的にそのように判断しても問題ないためです。
+		<span class="frm">(A, B, C と結合していて、C のカラムで絞り込みをしていれば A と B も内部結合)</span>
+	</p>
+	<p>
+		ただし、ネストしたリレーションが "構造的アプローチ"
+		で内部結合対象であっても、そこまで辿る途中のリレーションが一つでも外部結合であれば、そのリレーションは特に内部結合の候補にはなりませんし、
+		そこまで辿る途中のリレーションはそのままです。これは、SQL文法的にこのケースで内部結合にすると、基点テーブルの件数が変わってしまうためです。
+		<span class="frm">(A, B, C と結合していて、B と C が構造的に内部結合対象であっても、A と B が外部結合であれば A, B, C 全て外部結合)</span>
+	</p>
+	<h3 id="asonerelation">1:必ず1リレーションでは</h3>
+	<p>
+		例えば会員と会員セキュリティのような、絶対に相手が存在する 1:必ず1 の関係であっても、これは構造的アプローチによる内部結合の候補にはなりません。
+		相手が絶対に存在するカージナリティかどうかというのは、DBMSの制約ではなく業務的な制約なので、スキーマのメタデータには含まれません。
+		つまり、DBFluteとしては、1:必ず1なのかどうかが判断できないのです。
+	</p>
+	<div class="inucolumn">
+		<h3 id="mainlywhere">内部結合したいのは主には検索条件アプローチ</h3>
+		<p>
+			dfprop で 1:必ず1 を指定するという機能もありません。
+			よって、会員と会員セキュリティを自動で内部結合にすることはありません。
+		</p>
+		<p>
+			これは追加するか迷ったところではありますが、もしDB変更で 1:必ず1 ではなくなった場合に、dfprop
+			の設定だけが置き去りにされると、それは大変なデグレとなってしまいます(しかも、とても気付きにくいデグレに)。
+		</p>
+		<p>
+			また、パフォーマンス問題で内部結合で解決したケースというのは、どちらかというと検索条件アプローチの方でした。
+			相手側のカラムで絞り込み条件を指定すると、PostgreSQLやMySQLなどで遅い実行計画になる現象が報告されたことがありました。
+			検索結果は変わりませんが内部結合にすると速くなるのです。
+			(また、不思議なのは、バインド変数をやめて埋め込みにすると外部結合のままでも速くなると)
+		</p>
+		<p>
+			そういうことからも、構造的アプローチの方はどちらかといえば効用的には二番手のアプローチなので、
+			無理に会員と会員セキュリティを自動で内部結合にすることはしていません。
+			どうしてもというときは、(あまりお奨めではありませんが) (Manual)InnerJoin を利用します。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

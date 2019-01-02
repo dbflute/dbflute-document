@@ -1,0 +1,513 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ParameterBean,オプション,Option" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ParameterBeanのプロパティオプション | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ParameterBeanのプロパティオプション</h1>
+	<p>
+		曖昧検索や日付範囲など、ParameterBeanのプロパティに付けるオプションについてのページです。
+	</p>
+	<div class="relatedpage"><a href="./parameterbean.html">ParameterBean</a></div>
+	${indexlist}
+
+	<h2 id="overview">プロパティオプションの概要</h2>
+	<p>
+		プロパティのオプションは必須ではありませんが、利用できるものは積極的に利用しましょう。
+	</p>
+	<dl class="longkeymainlist">
+		<dt><a href="#likesearch">LikeSearch条件のオプション</a></dt><dd>:like, :likeContain, :likePrefix, ... <span class="frm">※もしくは自動判別</span></dd>
+		<dt><a href="#datefromto">DateFromTo条件のオプション</a></dt><dd>:fromDate, :toDate, :fromDate(option), ...</dd>
+		<dt><a href="#classification">区分値条件のオプション</a></dt><dd>:ref(MEMBER.MEMBER_STATUS_CODE), ref(MEMBER)</dd>
+		<dt><a href="#refcolumn">参照カラムのオプション</a></dt><dd>:ref(MEMBER.MEMBER_STATUS_CODE), ref(MEMBER)</dd>
+		<dt><a href="#propcomment">プロパティのコメント</a></dt><dd>-- !!...!! // ..., :comment(...)</dd>
+	</dl>
+
+	<h2 id="howto">プロパティオプションの付け方</h2>
+	<p>
+		オプションをどこに付けるかは、自動判別か明示的宣言かで大きく分かれます。
+	</p>
+	<dl class="keymainlist">
+		<dt>自動判別プロパティ</dt><dd>バインド変数コメントに付与 <span class="frm">※一部、テスト値から自動判別</span></dd>
+		<dt>明示的宣言のプロパティ</dt><dd>宣言部分に付与</dd>
+	</dl>
+	<p>
+		いずれにせよ、プロパティ名の後ろに ":" (コロン) を付けて、それに続いて指定します。
+	</p>
+<pre><span class="codetitle">e.g. 自動判別の場合のオプション付与 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER
+ <span class="keyword">where</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span> <span class="comment">-- テスト値の "%" の場所で決まる</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate:<span class="point">fromDate</span>*/</span><span class="literal">'2013-10-20'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate:<span class="point">toDate</span>*/</span><span class="literal">'2013-11-01'</span>
+   <span class="keyword">and</span> MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCode:<span class="point">ref(MEMBER)</span>*/</span><span class="literal">'WDL'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 明示的宣言の場合のオプション付与 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberId!!</span>                     <span class="point">// プロパティのコメントはここに書く</span>
+<span class="comment">-- !!String memberName:</span><span class="point">likeContain</span><span class="comment">!!</span>       <span class="point">// 会員名称で部分一致</span>
+<span class="comment">-- !!Date fromFormalizedDate:<span class="point">fromDate</span>!!</span>    <span class="point">// 正式会員日時でfrom検索</span>
+<span class="comment">-- !!Date toFormalizedDate:<span class="point">toDate</span>!!</span>        <span class="point">// 正式会員日時でto検索</span>
+<span class="comment">-- !!String memberStatusCode:<span class="point">ref(MEMBER)</span>!!</span> <span class="point">// 会員ステータスの等値</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER
+ <span class="keyword">where</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate*/</span><span class="literal">'2013-10-20'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate*/</span><span class="literal">'2013-11-01'</span>
+   <span class="keyword">and</span> MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCode*/</span><span class="literal">'WDL'</span>
+</code></pre>
+
+	<!-- _/_/_/_/_/ -->
+	<!-- LikeSearch -->
+	<!-- _/_/_/_/_/ -->
+	<h2 id="likesearch">LikeSearch条件のオプション</h2>
+	<p>
+		外だしSQLでも "LikeSearch条件" を利用できます。
+		検索条件の中でも曖昧検索の条件はちょっと特別な存在です。一致の方向やエスケープ処理の考慮などの要素があります。
+		ParameterBeanのオプションとして指定することで、それら処理を自動で解決することができます。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/likesearchcondition/index.html">現場フィット - LikeSearch条件</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wl.html#likesearchmatchdirection">LikeSearchMatchDirection (LikeSearch条件の一致の方向)</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wl.html#likesearchescape">LikeSearchEscape (LikeSearch条件のエスケープ)</a></div>
+	<h3 id="basiclikesearch">LikeSearch条件の基本</h3>
+	<p>
+		自動判別の場合は、テスト値にワイルドカード "%" が入っていれば LikeSearch になります。ワイルドカード "%"
+		の位置によって、前方一致か部分一致かが決まります。
+	</p>
+	<div class="relatedpage"><a href="./pmbautodetect.html#optionderiving">ParameterBeanの自動判別 - オプションの導出</a></div>
+	<p>
+		プロパティ定義のプロパティ名の後ろに ":[like-search-option]"
+		と追加することで、ParameterBeanでLikeSearch条件を指定することができます。
+		文字列型のプロパティを利用するバインド変数コメントと埋め込み変数コメントに対して有効です。
+		(like-search オプションと呼びます)
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/pmcomment.html#bindvariable">バインド変数コメント</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/pmcomment.html#embeddedvariable">埋め込み変数コメント</a></div>
+	<p>
+		利用できるオプションは以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>like</dt><dd>(プログラム上で)LikeSearchOptionを指定 '%fo%oo%'</dd>
+		<dt>likePrefix</dt><dd>固定でエスケープ付きの前方一致 'foo%'</dd>
+		<dt>likeContain</dt><dd>固定でエスケープ付きの部分一致 '%foo%'</dd>
+		<dt>likeSuffix</dt><dd>固定でエスケープ付きの後方一致 '%foo'</dd>
+	</dl>
+<pre><span class="codetitle">e.g. 会員名で固定でエスケープ付きの部分一致 (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="point">'%foo%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名で固定でエスケープ付きの部分一致 (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberName:</span><span class="point">likeContain</span><span class="comment">!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'foo'</span>
+</code></pre>
+	<p>
+		"like" 指定は、動的に一致の方向を変える要件がある場合に有効です。一致の方向が固定の場合は、"likePrefix"
+		や "likeContain" などの固定の指定がお奨めです。
+	</p>
+	<h3 id="likeprefix">Example: 固定でエスケープ付きの前方一致</h3>
+<pre><span class="codetitle">e.g. 会員名でエスケープ付きの前方一致検索 (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME like <span class="comment">/*pmb.memberName*/</span><span class="point">'foo%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名でエスケープ付きの前方一致検索 (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberName:</span><span class="point">likePrefix</span><span class="comment">!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME like <span class="comment">/*pmb.memberName*/</span><span class="literal">'foo'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. likePrefix指定：会員名が 'S' で始まっていること(エスケープ付き) @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.<span class="point">setMemberName_PrefixSearch</span>(<span class="literal">"S"</span>);
+</code></pre>
+	<h3 id="likesearchoption">Example: LikeSearchOptionを指定</h3>
+<pre><span class="codetitle">e.g. 会員名でLikeSearchOptionの利用 (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME like <span class="comment">/*pmb.memberName*/</span><span class="point">'%f%oo%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名でLikeSearchOptionの利用 (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberName:</span><span class="point">like</span><span class="comment">!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME like <span class="comment">/*pmb.memberName*/</span><span class="literal">'foo'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. like指定：会員名が 'S' で始まっていること(エスケープ付き) @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.<span class="point">setMemberName_LikeSearch</span>(<span class="literal">"S"</span>, <span class="keyword">new</span> LikeSearchOption().likePrefix());
+</code></pre>
+	<h3 id="miscspec">細かい補足仕様</h3>
+	<dl class="textlist">
+		<dt>LikeSearchOptionのスコープ</dt>
+		<dd>
+			ConditionBeanで利用する LikeSearchOption と同じクラスですが、ここで利用出来るのは <em class="keyword">一致の方向の指定</em> と
+			<em class="keyword">エスケープ処理のOFF</em> だけです。その他の機能(メソッド)は利用できません。
+			<div class="relatedpage"><a href="../../../ormapper/runtime/likesearchoption.html">DBFluteランタイム - LikeSearchOption</a></div>
+		</dd>
+		<dt>エスケープ処理の仕様</dt>
+		<dd>
+			ConditionBeanのエスケープ処理と同じ仕様です。
+			<div class="detailpage"><a href="../../../ormapper/conditionbean/query/likesearch/escape.html">ConditionBean - Escape</a></div>
+		</dd>
+		<dt>テスト値の中のワイルドカード</dt>
+		<dd>
+			明示的宣言の場合は、バインド変数コメントのテスト値の中にワイルドカードがあってもなくても関係ありません。
+			一方で、自動判別の場合は、バインド変数コメントのテスト値のワイルドカードが一致の方向の判断要素となります。
+		</dd>
+		<dt>オプションの適用法則</dt>
+		<dd>
+			文字列型のプロパティだけでなく、ネストしたプロパティに反映させることを前提にリスト型やDTO型などのプロパティにも指定できます。
+			<div class="detailpage"><a href="../../../ormapper/outsidesql/pmcomment.html#bindlikesearch">バインド変数コメント - LikeSearch条件のオプション</a></div>
+		</dd>
+		<dt>オプションを利用しない(外だしSQLでの)曖昧検索</dt>
+		<dd>
+			オプションを利用しなくても曖昧検索は可能ですが、エスケープ処理の考慮漏れなどが発生するリスクがありますので、
+			オプションを利用するやり方をお奨めします。
+		</dd>
+	</dl>
+
+	<!-- _/_/_/_/_/ -->
+	<!-- DateFromTo -->
+	<!-- _/_/_/_/_/ -->
+	<h2 id="datefromto">DateFromTo条件のオプション</h2>
+	<p>
+		外だしSQLでも "DateFromTo条件" を利用できます。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/datefromto/index.html">現場フィット - 日付範囲の条件指定を定型化(安全に)</a></div>
+	<h3 id="datefromtobasic">DateFromToの基本</h3>
+	<p>
+		プロパティ定義のプロパティ名の後ろに ":[from-to-option]"
+		と追加することで、ParameterBeanにてFromTo条件を指定することができます。(from-to オプションと呼びます)
+	</p>
+	<dl class="keymainlist">
+		<dt>fromDate</dt><dd>DateFromTo条件 (from に対応)</dd>
+		<dt>toDate</dt><dd>DateFromTo条件 (to に対応)</dd>
+		<dt>fromDate(option)</dt><dd>FromToOption指定の条件 (from に対応) <span class="frm">@since 0.9.9.2C</span></dd>
+		<dt>toDate(option)</dt><dd>FromToOption指定の条件 (to に対応) <span class="frm">@since 0.9.9.2C</span></dd>
+	</dl>
+	<p>
+		よく利用される DateFromTo をデフォルトとし、それ以外の範囲条件を指定する場合は (option) を付与して
+		FromToOption で明示的に指定することで柔軟な範囲条件が表現できます。
+	</p>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して日付範囲で検索 (26日から29日まで) (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate:<span class="point">fromDate</span>*/</span><span class="literal">'...'</span>
+ <span class="keyword">  and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate:<span class="point">toDate</span>*/</span><span class="literal">'...'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して日付範囲で検索 (26日から29日まで) (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!Date fromFormalizedDate:<span class="point">fromDate</span>!!</span>
+<span class="comment">-- !!Date toFormalizedDate:<span class="point">toDate</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate*/</span><span class="literal">'...'</span>
+ <span class="keyword">  and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate*/</span><span class="literal">'...'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して日付範囲で検索 (26日から29日まで) @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.<span class="point">setFromFormalizedDate_FromDate</span>(toDate(<span class="literal">"2009-10-26 12:34:56"</span>));
+pmb.<span class="point">setToFormalizedDate_ToDate</span>(toDate(<span class="literal">"2009-10-29 12:34:56"</span>));
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して日付範囲で検索 (26日から29日まで) @DisplaySQL</span><code>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2009-10-26 00:00:00'</span>
+ <span class="keyword">  and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2009-10-30 00:00:00'</span>
+</code></pre>
+	<h3 id="fromtooption">FromToOptionの指定</h3>
+	<p>
+		FromToOption の明示的指定の場合は、第二引数に FromToOption が指定できるようになります。
+	</p>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して年月範囲で検索 (10月から12月まで) (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate:<span class="point">fromDate(option)</span>*/</span><span class="literal">'...'</span>
+ <span class="keyword">  and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate:<span class="point">toDate(option)</span>*/</span><span class="literal">'...'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して年月範囲で検索 (10月から12月まで) (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!Date fromFormalizedDate:<span class="point">fromDate(option)</span>!!</span>
+<span class="comment">-- !!Date toFormalizedDate:<span class="point">toDate(option)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate*/</span><span class="literal">'...'</span>
+ <span class="keyword">  and</span> FORMALIZED_DATETIME &lt; <span class="comment">/*pmb.toFormalizedDate*/</span><span class="literal">'...'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して年月範囲で検索 (10月から12月まで) @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+FromToOption option = <span class="keyword">new</span> FromToOption().<span class="point">compareAsMonth()</span>;
+pmb.<span class="point">setFromFormalizedDate_FromDate</span>(toDate(<span class="literal">"2009-10-03"</span>), option);
+pmb.<span class="point">setToFormalizedDate_ToDate</span>(toDate(<span class="literal">"2009-12-14"</span>), option);
+</code></pre>
+<pre><span class="codetitle">e.g. 正式会員になった日時に対して年月範囲で検索 (10月から12月まで) @DisplaySQL</span><code>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2009-10-01 00:00:00'</span>
+ <span class="keyword">  and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2010-01-01 00:00:00'</span>
+</code></pre>
+
+	<!-- _/_/_/_/_/_/_/ -->
+	<!-- Classification -->
+	<!-- _/_/_/_/_/_/_/ -->
+	<h2 id="classification">区分値条件のオプション</h2>
+	<p>
+		外だしSQLでも "区分値" を利用できます。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+	<h3 id="basicclassification">区分値条件の基本</h3>
+	<p>
+		対応する区分値を ":cls([classification-name])" (cls オプションと呼びます) にて指定すると、ParameterBeanに区分値メソッドが生成されます。
+	</p>
+<pre><span class="codetitle">e.g. paymentCompleteFlg を Flg に関連付け (プロパティの自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> PAYMENT_COMPLETE_FLG = <span class="comment">/*pmb.paymentCompleteFlg:<span class="point">cls(Flg)</span>*/</span><span class="literal">0</span>
+</code></pre>
+<pre><span class="codetitle">e.g. paymentCompleteFlg を Flg に関連付け (プロパティの明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String paymentCompleteFlg:<span class="point">cls(Flg)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> PAYMENT_COMPLETE_FLG = <span class="comment">/*pmb.paymentCompleteFlg*/</span><span class="literal">0</span>
+</code></pre>
+	<h3 id="listclassification">リスト型の区分値</h3>
+	<p>
+		リスト型に関しては、区分値を関連付けても区分値メソッドは生成されませんので、少なくとも cls オプションを付ける意味はありません。
+		代わりにリストの要素型を対応する CDef の区分値クラスにして、CDef を使って複数の区分値要素を指定するようにすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#cdefpkg">this - プログラム型のパッケージ解決 - CDefのパッケージ解決</a></div>
+<pre><span class="codetitle">e.g. memberStatusCodeを複数指定するためにリスト型のプロパティを指定 (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!List&lt;<span class="point">$$CDef$$.MemberStatus</span>&gt; statusList!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_STATUS_CODE <span class="keyword">in</span> <span class="comment">/*pmb.statusList*/</span>(<span class="literal">'FML'</span>)
+</code></pre>
+	<p>
+		CDef型のプロパティを自動判別することはできないので、この場合は明示的宣言をお奨めします。
+		<span class="frm">(厳密にはできなくないのですが、バインド変数コメントの宣言がごちゃごちゃしてしまってあまり見た目がよくないので)</span>
+	</p>
+	<h3 id="fixedclassification">固定の区分値</h3>
+	<p>
+		固定の区分値を条件値にするような場合は、cls オプションで区分要素まで指定することで固定の区分値を指定することができます<span class="frm">(@since 0.9.9.0D)</span>。
+		これを利用することで、外だしSQLの中で区分値をハードコードする必要がなくなり、タイプミスによる区分値コードの間違いの心配はなくなります。
+		ハードコードよりも少し書くことが多くなりますが、安全性を優先するならば積極的に利用した方が良いでしょう。
+	</p>
+	<p>
+		普通に区分値を関連付けてプログラム上で固定値を設定しても同じことが実現できますが、
+		固定の区分値を利用することでプログラム上での値の設定は必要はなくなり、さらに外だしSQL上でその固定値が何なのか判断することができるためSQLの可読性を保つことができます。
+		また、固定値であるため、ParameterBeanではこのプロパティに対する設定メソッド(Setter)は生成されません。
+	</p>
+<pre><span class="codetitle">e.g. paymentCompleteFlg の True を固定に関連付け (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> PAYMENT_COMPLETE_FLG = <span class="comment">/*pmb.paymentCompleteTrue:<span class="point">cls(Flg.True)</span>*/</span><span class="literal">0</span>
+</code></pre>
+<pre><span class="codetitle">e.g. paymentCompleteFlg の True を固定に関連付け (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String paymentCompleteTrue:<span class="point">cls(Flg.True)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> PAYMENT_COMPLETE_FLG = <span class="comment">/*pmb.paymentCompleteTrue*/</span><span class="literal">0</span>
+</code></pre>
+	<p>
+		InScope に対して固定の(複数の)区分値を指定することもできます。区分要素を "," で追加します。
+	</p>
+<pre><span class="codetitle">e.g. memberStatusCode で Formalized と Provisional を固定に関連付け @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!List&lt;String&gt; validStatusList:<span class="point">cls(MemberStatus.Formalized, Provisional)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_STATUS_CODE <span class="keyword">in</span> <span class="comment">/*pmb.validStatusList*/</span>(<span class="literal">'FML'</span>)
+</code></pre>
+	<h3 id="refclassification">参照カラムによる区分値の関連付け</h3>
+	<p>
+		clsオプションではなく、参照カラムのオプションでも、区分値を関連付けることができます。
+	</p>
+	<p>
+		対応するカラムを参照カラムのオプション ":ref([table-name].[column-name])" にて指定すると、ParameterBean
+		にて区分値メソッドが利用できます。対応するカラムが区分値であれば、この紐付けから自動的に区分値が認識されます。(ref オプションと呼びます)
+	</p>
+	<div class="relatedpage"><a href="#refcolumn">this - 参照カラムのオプション</a></div>
+	<p>
+		また、プロパティ名と対応するカラム名が、FlexibleName (大文字小文字、アンダースコアを無視) として一致する場合は、カラム名の指定は省略できます。
+	</p>
+<pre><span class="codetitle">e.g. memberStatusCodeを会員ステータス(区分値)に関連付け (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCode:<span class="point">ref(MEMBER)</span>*/</span><span class="literal">'FML'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. memberStatusCodeを会員ステータス(区分値)に関連付け (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberStatusCode:<span class="point">ref(MEMBER)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_STATUS_CODE = <span class="comment">/*pmb.memberStatusCode*/</span><span class="literal">'FML'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員ステータス(区分値)が正式会員であること(検索条件) @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.<span class="point">setMemberStatusCode_Formalized()</span>;
+</code></pre>
+	<p>
+		区分値は、何かしらのカラムに関連付いているはずなので、実は ref オプションを使う方がドキュメント上のメリットがある分だけ得です。
+		(ただし、"固定の区分値" においては必ず cls オプションを使う必要があります)
+	</p>
+
+	<!-- _/_/_/_/_/_/_/_/ -->
+	<!-- Column Reference -->
+	<!-- _/_/_/_/_/_/_/_/ -->
+	<h2 id="refcolumn">参照カラムのオプション</h2>
+	<h3 id="basicreference">参照カラムの基本</h3>
+	<p>
+		ParameterBeanのプロパティの "参照カラム" を定義して、プロパティのJavaDocコメントなどでカラムの情報を利用することができます。
+		そのプロパティがどのカラムに対するパラメータなのか、実装しながら情報を得ることができます。
+		また、参照カラムの区分値の設定も継承されるので、同時に <em class="keyword">区分値の紐付けオプション</em>
+		にも、<em class="keyword">自動判別プロパティにプログラム型ヒント</em> にもなります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>ドキュメントの継承</dt><dd>JavaDocコメントに、参照カラムのコメントも</dd>
+		<dt><a href="#classification">区分値設定の継承</a></dt><dd>参照カラムの区分値の設定をそのまま継承</dd>
+		<dt><a href="./pmbautodetect.html#typeadjustment">自動判別の型ヒント</a></dt><dd>自動判別プロパティのプログラム型判別のヒントに</dd>
+	</dl>
+	<p>
+		プロパティ定義のプロパティ名の後ろに ":ref([table-name].[column-name])"
+		と追加することで、そのプロパティの参照カラムを定義できます。(ref オプションと呼びます)
+	</p>
+<pre><span class="codetitle">e.g. 会員名称を参照するプロパティ (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME = <span class="comment">/*pmb.name:<span class="point">ref(MEMBER.MEMBER_NAME)</span>*/</span><span class="literal">'S%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称を参照するプロパティ (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String name:<span class="point">ref(MEMBER.MEMBER_NAME)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME = <span class="comment">/*pmb.name*/</span><span class="literal">'S%'</span>
+</code></pre>
+	<p>
+		プロパティ名とカラム名を FlexibleName (大文字小文字、アンダースコア区別せず) として同名になるのであれば、":ref([table-name])"
+		というようにカラム名は省略できます。リスト型のプロパティでプロパティ名が List で終わっている場合は、最後の List
+		を除去した名前で比較されます<span class="frm">(@since 0.9.8.0)</span>。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wf.html#flexiblename">FlexibleName</a></div>
+<pre><span class="codetitle">e.g. プロパティと参照カラムが同名の場合 (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME = <span class="comment">/*pmb.memberName:<span class="point">ref(MEMBER)</span>*/</span><span class="literal">'S%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. プロパティと参照カラムが同名の場合 (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberName:<span class="point">ref(MEMBER)</span>!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME = <span class="comment">/*pmb.memberName*/</span><span class="literal">'S%'</span>
+</code></pre>
+	<h3 id="refwithoption">他のオプションと併用する場合</h3>
+	<p>
+		他のオプションと組み合わせる場合は、オプション表記の中で "|"
+		を区切り文字として利用することで、複数のオプションが指定できます。
+	</p>
+<pre><span class="codetitle">e.g. 他のオプションと併用する場合 (fromDate と ref オプション) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String fromBirthdate:<span class="point">fromDate|ref(MEMBER.BIRTHDATE)</span>!!</span>
+</code></pre>
+	<h3 id="shortchar">ShortCharHandlingで必要</h3>
+	<p>
+		この機能は、基本的にカラム情報の参照などによるささやかな実装支援のためのものですが、ShortCharHandling
+		の機能をParameterBeanで利用する場合には、このオプションが必須となります。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/deprecatedfit/shortcharhandling/index.html">現場フィット - char型の桁数不足の取扱い</a></div>
+
+	<!-- _/_/_/_/_/_/_/_/ -->
+	<!-- Property Comment -->
+	<!-- _/_/_/_/_/_/_/_/ -->
+	<h2 id="propcomment">プロパティのコメント</h2>
+	<h3 id="commentifdefinition">プロパティ宣言のときのコメント</h3>
+	<p>
+		それぞれのプロパティにコメントを付けることができます。
+		決まった形式でコメントを書くことで、単に外だしSQL上で業務的な意味がわかりやすくなるというだけでなく、自動生成された ParameterBean
+		のプロパティのメソッドの JavaDoc コメントにそのコメントに転記され、実装しながらそのコメントを読むことができます。
+		特に利用方法が特殊なものには、積極的にコメントを書いていくと他の人が見たときにわかりやすくなります。
+		<span class="frm">@since 0.9.8.4</span>
+	</p>
+	<p>
+		プロパティ項目の宣言の後に、"//" というマークの後に一行コメントを書きます。
+	</p>
+<pre><span class="codetitle">e.g. プロパティにコメントを書く @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberId!!</span>   <span class="point">// それぞれのプロパティの説明や補足などを書く</span>
+<span class="comment">-- !!String memberName!!</span> <span class="point">// このように書いておけば JavaDoc で読める</span>
+<span class="comment">-- !!Date birthdate!!</span>    <span class="point">// なのでJavaDocで利用できない文字は使えない</span>
+<span class="comment">-- !!String statusCode!!</span> <span class="point">// スラスラ(//)ってなんか Java っぽい</span>
+select <span class="abbreviation">...</span>
+  from <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="commentifautodetect">プロパティ自動判別のときのコメント</h3>
+	<p>
+		プロパティの自動判別を利用した場合は、同じ行に <em class="mark">-- //</em>
+		形式で書くとコメントとみなされます。こちら、ぜひ積極的に活用して、後から見た人がパラメーターのことで迷わないようにしましょう。 
+	</p>
+	<div class="relatedpage"><a href="./pmbautodetect.html">プロパティの自動判別</a></div>
+<pre><span class="codetitle">e.g. 自動判別されるプロパティにコメントを書く @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+select <span class="abbreviation">...</span>
+  from <span class="abbreviation">...</span>
+ where MEMBER_ID = <span class="comment">/*pmb.memberId*/3</span> -- <span class="comment">//</span> <span class="point">ここにコメントを書く</span>
+</code></pre>
+	<p>
+		内部的には、こういう風に書いているのと同じです。
+	</p>
+<pre><span class="codetitle">e.g. 自動判別されるプロパティにコメントを書く @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+select <span class="abbreviation">...</span>
+  from <span class="abbreviation">...</span>
+ where MEMBER_ID = <span class="comment">/*pmb.memberId:<span class="point">comment(ここにコメントを書く)</span>*/3</span>
+</code></pre>
+	<p>
+		CustomizeEntityの検索カラムでも同じようなことができます。合わせて利用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./customizeentity.html#columncomment">CustomizeEntity - 検索カラムのコメント</a></div>
+
+	<h2 id="collabo">同時に二つ以上のオプションを指定する</h2>
+	<p>
+		連結文字として "|" を使うことで、二つ以上のオプションを指定できます。
+	</p>
+<pre><span class="codetitle">e.g. 他のオプションと併用する場合 (fromDate と ref オプション) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String fromBirthdate:<span class="point">fromDate|ref(MEMBER.BIRTHDATE)</span>!!</span>
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

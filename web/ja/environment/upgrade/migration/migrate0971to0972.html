@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 0.9.7.1 to 0.9.7.2 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 0.9.7.1 to 0.9.7.2</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3 id="notequal">非等値の演算子が "!=" から "&lt;&gt;" へ</h3>
+	<p>
+		ConditionBeanで発行されるSQLの非等値の演算子が、"!=" からSQLの標準である "&lt;&gt;"
+		に変わりました。この変更での問題は想定されませんが、万が一、元に戻したい場合は、littleAdjustmentMap.dfprop
+		にて isMakeConditionQueryNotEqualAsStandard を false に設定して下さい。
+	</p>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<h3 id="selectentity">条件なしの一件検索は例外</h3>
+	<p>
+		Behaviorの selectEntity(CB) において、絞り込み条件の全くない ConditionBean
+		を指定したときに、明示的な例外が発生するようになりました。ConditionBean
+		の一件検索は、一つ以上の where 句に入る条件、もしくは、fetchFirst(1) が必ず必要です。
+		(外だしSQL以外の)他の一件検索も同様です。
+	</p>
+<pre><span class="codetitle">e.g. selectEntityで条件なし (例外) {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+<span class="attribute">memberBhv</span>.selectEntity(cb); <span class="comment">// exception</span>
+</code></pre>
+<pre><span class="codetitle">e.g. selectEntityで無効な条件設定で条件なし (例外) {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberId_Equal(<span class="literal">null</span>);
+<span class="attribute">memberBhv</span>.selectEntity(cb); <span class="comment">// exception</span>
+</code></pre>
+<pre><span class="codetitle">e.g. selectEntityで有効な条件設定で条件なし (正常動作) {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberId_Equal(<span class="literal">3</span>);
+<span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectEntity(cb);
+</code></pre>
+<pre><span class="codetitle">e.g. selectEntityで最初の一件だけをフェッチ (正常動作) {MEMBER} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.fetchFirst(<span class="literal">1</span>);
+<span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectEntity(cb);
+</code></pre>
+	<p>
+		これは改善点で、そもそも条件のない ConditionBean を指定するなどして、selectEntity()
+		の実行で複数件の結果が戻ったときは明示的な例外になっていましたが(フェッチの段階でのチェックなのでこれもできるだけ早い段階での検知としていますが)、
+		さらに今回の修正により、検索に入る前にチェックが掛かるようになり、より早い段階での例外による検知が可能になりました。例えば、1000
+		万件のテーブルに対する selectEntity() で間違って無効な条件が入って全件検索になってしまう場合に、長いSQLが戻ってくる前に例外になります。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

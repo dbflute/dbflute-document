@@ -1,0 +1,650 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,業務的なone-to-one,fixedCondition,有効期間" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>業務的one-to-one (BizOneToOne) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>業務的one-to-one</h1>
+	${indexlist}
+
+	<h2 id="about">業務的one-to-oneとは？</h2>
+	<p>
+		構造的には one-to-many でも、(業務的な)固定の条件を加えることによって one-to-one
+		として扱うことのできるリレーションのことです。biz-one-to-one(びずわんとぅわん)とも表現します。
+	</p>
+	<h3 id="forexample">例えば、現在の住所</h3>
+	<p>
+		ExampleDBでは、会員と会員住所情報の関係が該当します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/maihamadb.html">MaihamaDB</a></div>
+<pre><span class="codetitle">e.g. 会員テーブルと会員住所テーブルのデータのExample (2014/10/14時点) @Java</span><code>
+| 会員          | | 会員住所                       |
+| 1: Stojkovic | | 茂原: 2004-11-02 - 2007-01-13 |
+| 1: Stojkovic | | 市原: 2007-01-14 - 2011-07-21 |
+| 1: Stojkovic | | 長柄: 2011-07-21 - 2016-07-31 | <span class="comment">// ここ現在</span>
+| 1: Stojkovic | | 鴨川: 2016-08-01 - 9999-12-31 | <span class="comment">// 引っ越し予定</span>
+| 2: Savicevic | | 東金: 2002-02-22 - 2011-11-16 |
+| 2: Savicevic | | 館山: 2011-11-17 - 9999-12-31 | <span class="comment">// ここ現在</span>
+| <span class="abbreviation">...</span>          | | <span class="abbreviation">...</span>                           |
+</code></pre>
+	<p>
+		物理的には one-to-many でも、<em class="keyword">業務的には会員と現在の会員住所でone-to-one</em>
+		として扱う、というようなパターンのカージナリティを <em class="keyword">業務的one-to-one</em> と呼んでいます。
+	</p>
+	<p>
+		有効期間を指定することで、現在住所という概念のビューと結合することができます。
+	</p>
+<pre><span class="codetitle">e.g. 業務的one-to-oneの検索SQL {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+<span class="keyword">select</span> MEMBER.*
+     , MEMBER_ADDRESS.* <span class="comment">-- ONE member has ONE address at the date</span>
+  <span class="keyword">from</span> MEMBER
+    <span class="keyword">left outer join</span> MEMBER_ADDRESS
+      <span class="keyword">on</span> MEMBER.MEMBER_ID = MEMBER_ADDRESS.MEMBER_ID
+     <span class="keyword">and</span> MEMBER_ADDRESS.VALID_BEGIN_DATE &lt;= <span class="literal">'2014-10-14'</span>
+     <span class="keyword">and</span> MEMBER_ADDRESS.VALID_END_DATE &gt;= <span class="literal">'2014-10-14'</span>
+</code></pre>
+	<h3 id="problem">間違えそうだし、変更もつらい</h3>
+	<p>
+		結合条件で書けば済みますが、バグの温床になりやすいところでもあります。
+		複数の箇所でこれを書くことになるので、誰か一人くらい比較条件のイコール(=)が抜けたり、条件が片方落ちたりってやりそうです。
+		さらに、つらいところが、テストデータの精度によってはそれなりにうまく動いてしまうので、バグの発見に時間がかかってしまうところです。
+	</p>
+	<p>
+		また、DB変更でその固定条件が変わったとき、この固定条件を複数の箇所で書かれていると、その影響範囲の特定が至難の業となります。
+		もともと、staticに決まったものでありますから、その固定条件自体を一元管理したいものです。
+	</p>
+	<h3 id="noauto">自動解決はできない</h3>
+	<p>
+		このリレーションは、一般にリレーショナルデータベースの仕組みとしては表現されないもので(制約を掛けることはできない)、
+		固定の条件を加えることでそのようなリレーションになるというのは人(ドキュメント)しか知りません。
+		よって、自動生成ツールなどでこのリレーションを利用した処理を自動生成しようと思っても判断ができないため、
+		(アプリケーションとしては)静的な構造であるにも関わらず、ディベロッパーはこの join 句への固定条件を常に意識して実装する必要があります。
+	</p>
+
+	<h2 id="solution">リレーションを定義して定型利用</h2>
+	<p>
+		そういった特徴から、DBFluteでもデフォルトではこの業務的one-to-oneに対して何もアプローチできませんが、
+		静的な構造であることに変わりはないため、その構造の情報をプロパティにて定義することで、通常のリレーションと同じように扱えるようにします。
+		一度設定してしまえば、アプリではこの join 句での(業務的な)固定条件を意識せずにリレーションを利用できるようになり、
+		<em class="keyword">ディベロッパーへの統一した実装、かつ、安全性の提供</em> にもなります。(で通常のリレーションと同じように扱える)
+	</p>
+	<p>
+		(プロパティで設定して再自動生成すると)以下のような実装ができるようになり、実行すると join
+		句には指定された固定条件が自動的に付与され、one-to-oneとして扱うことができるようになります。
+	</p>
+<pre><span class="codetitle">e.g. 業務的one-to-oneを利用したConditionBeanの検索 {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.<span class="point">setupSelect_MemberAddressAsValid</span>(targetDate);
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="keyword">for</span> (Member member : memberList) {
+    MemberAddress address = member.<span class="point">getMemberAddressAsValid</span>();
+}
+</code></pre>
+
+	<h2 id="setting">業務的one-to-oneの設定(dfprop)</h2>
+	<p>
+		additionalForeignKeyMap.dfprop を利用して、リレーションを定義すると共に、固定条件 fixedCondition
+		を指定することで、業務的one-to-oneのリレーションを定義することができます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/additionalforeignkey/index.html#fixedcondition">additionalForeignKeyMap.dfprop - fixedCondition</a></div>
+<pre><span class="codetitle">e.g. 会員から会員住所情報への有効期間条件付きのFK @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+         <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+     <span class="keyword">and</span> <span class="attribute">$$foreignAlias$$</span>.VALID_END_DATE &gt;= <span class="comment">/*targetDate(Date)*/</span>null
+        ; fixedSuffix = AsValid
+        ; comment = <span class="comment">relation of valid address for the specified target date</span> 
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		fixedConditionのインデントがそのままSQLに反映されます。
+		二つ目の条件の and を上記のExampleコードの位置で書けば(半角空白が5つ)、SQL上で綺麗に並びます。
+	</p>
+	<p>
+		commentの内容は、JavaDocに反映されます。
+		必須ではありませんが、業務的な一行コメントを入れておくとディベロッパーの迷いも消えるでしょう。
+	</p>
+	<h3 id="fixedparameter">区分値を利用した固定パラメーター</h3>
+	<p>
+		固定条件に固定のパラメーターを利用する場合、そのまま値をハードコードすることもできますが、それがもし区分値であるならば <em class="keyword">埋め込み区分値コメント</em>
+		を使って区分値参照ができます。これを使えば、間違った区分値を使ってしまう恐れがなくなります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/additionalforeignkey/index.html#fixedcondition">additionalForeignKeyMap.dfprop - fixedCondition</a></div>
+<pre><span class="codetitle">e.g. 埋め込み区分値コメントを利用、正式会員 @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+        <span class="abbreviation">...</span>
+        ; fixedCondition =
+ <span class="attribute">$$localAlias$$</span>.MEMBER_STATUS_CODE = <span class="comment">/*$cls(MemberStatus.Formalized)*/</span>null
+        <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="dynamicparameter">引数指定の動的パラメーター</h3>
+	<p>
+		固定条件に動的なパラメーター(引数)が必要な場合は、<em class="keyword">バインド変数コメント</em> が利用できます。ConditionBean
+		のリレーション関連のメソッドにおいて、メソッドの引数にて条件値を指定できるようになります(指定する必要があります)。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/additionalforeignkey/index.html#fixedcondition">additionalForeignKeyMap.dfprop - fixedCondition</a></div>
+<pre><span class="codetitle">e.g. バインド変数コメントを利用、targetDateという名前のDate型 @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_AS_VALID = <span class="keyword">map:</span>{
+        <span class="abbreviation">...</span>
+        ; fixedCondition =
+         <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE &lt;= <span class="comment">/*targetDate(Date)*/</span>null
+     <span class="keyword">and</span> <span class="attribute">$$foreignAlias$$</span>.VALID_END_DATE &gt;= <span class="comment">/*targetDate(Date)*/</span>null
+        <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. バインド変数を指定する SetupSelect {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberAddressAsValid(<span class="point">targetDate</span>);
+</code></pre>
+	<p>
+		パラメーターの型で、CDefを利用することもできます。
+	</p>
+<pre><span class="codetitle">e.g. memberStatus という変数名でCDef.MemberStatus型のバインド変数 @additionalForeignKeyMap.dfprop</span><code>
+<span class="attribute">$$foreignAlias$$</span>.MEMBER_STATUS_CODE &lt;= <span class="comment">/*memberStatus($$CDef$$.MemberStatus)*/</span>null
+</code></pre>
+	<h3 id="referrer">一方通行のリレーション</h3>
+	<p>
+		この業務的one-to-oneは、一方通行のリレーションであり、ここで設定した one-to-one
+		としての逆参照のメソッドは自動生成されません(会員住所情報から会員への参照)。通常、one-to-manyの関係のあるテーブル間で利用することが想定されるため、
+		逆参照のメソッドは(one-to-manyとして)既にある、という状態なので実装上の支障はありません。
+	</p>
+	<div class="inucolumn">
+		<h3 id="timing">設定のタイミング</h3>
+		<p>
+			このリレーションは、DB設計が固まった時点(DBFluteで自動生成ができる時点)で、どこに業務的one-to-oneが存在するのか洗い出すことができます。
+			また、DB設計の成果として少なくともドキュメント上に洗い出されてなければなりません。
+			つまり、このリレーションの(DBFluteプロパティにおける)定義は最初のDBFluteのセットアップ直後のタイミングで設定することができるため、
+			実装時に必要になった時にではなく、<em class="keyword">最初から設定された状態でディベロッパーに横展開</em>
+			することをお奨めします。
+			(RDBとして未解決なデータ構造をディベロッパーに未解決のまま渡すではなく、少なくともDBFluteとして解決されている状態で横展開)
+		</p>
+	</div>
+
+	<h2 id="dynamicimpl">動的パラメーター利用時の実装</h2>
+	<h3 id="basicrelation">SetupSelect と Query</h3>
+	<p>
+		パラメーターがあるとき、SetupSelect と Query を両方利用する場合は、必ず両方に同じ値を指定します。
+		もし、違う値を指定してしまった場合は、最後に設定された値が有効になります(内部的には上書きをしているだけ)。
+	</p>
+<pre><span class="codetitle">e.g. パラメーターを指定する SetupSelect と Query {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberAddressAsValid(<span class="point">targetDate</span>);
+cb.query().queryMemberAddressAsValid(<span class="point">targetDate</span>).setAddress_<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		そのような仕様のため、一つのリレーションで "2007/01/01の会員住所" と "2008/01/01の会員住所"
+		を同時に取り扱うことはできません。そのような場合は、fixedSuffix
+		だけを変えた別のリレーションを(業務的に意味のある名前で)定義することをお奨めします。
+	</p>
+	<h3 id="specifycolumn">SpecifyColumn</h3>
+	<p>
+		パラメーターがあるとき、SpecifyColumn のリレーションを辿る Specify(Relation)
+		では既に SetupSelect で条件値が指定されていることが前提となるため、条件値の指定は不要です(そもそも引数が存在しない)。
+	</p>
+<pre><span class="codetitle">e.g. パラメーターを利用したリレーションの SpecifyColumn {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberAddressAsValid(targetDate);
+cb.specify().<span class="point">specifyMemberAddressAsValid()</span>.columnAddress();
+</code></pre>
+	<p>
+		一方で、パラメーター指定(引数)ありの Specify(Relation) のメソッドも存在します<span class="frm">(@since 1.0.4F)</span>。
+		ここで SetupSelect と同じ値を入れても特に問題はありません。(こちらのメソッドは、ColumnQuery や DerivedReferrer
+		などのカラム指定で利用するときのためのメソッドです)
+	</p>
+<pre><span class="codetitle">e.g. パラメーターを指定したリレーションの Specify(Relation) {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberAddressAsValid(targetDate);
+cb.specify().<span class="point">specifyMemberAddressAsValid(targetDate)</span>.columnAddress();
+</code></pre>
+	<h3 id="columnquery">ColumnQuery</h3>
+	<p>
+		パラメーターがあるとき、ColumnQuery では、パラメーター指定ありの Specify(Relation)
+		を利用します。<span class="frm">@since 1.0.4F</span>
+	</p>
+<pre><span class="codetitle">e.g. ColumnQueryでパラメーターを指定したリレーションの Specify(Relation)  {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+<span class="keyword">final</span> Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.columnQuery(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().columnBirthdate();
+    }
+}).lessThan(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">specifyMemberAddressAsValid(targetDate)</span>.columnValidBeginDate();
+    }
+});
+</code></pre>
+	<p>
+		パラメーターを指定できる Specify(Relation) のメソッドがないDBFluteバージョン<span class="frm">(@until 1.0.4D)</span>の場合は、外側で
+		Query(Relation) を使ってパラメーターを指定して補完します。
+	</p>
+<pre><span class="codetitle">e.g. ColumnQueryでパラメーターなし Specify(Relation) を外側で補完  {MEMBER, MEMBER_ADDRESS} @Java</span><code>
+Date targetDate = <span class="abbreviation">...</span>;
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">queryMemberAddressAsValid(targetDate)</span>;
+cb.columnQuery(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().columnBirthdate();
+    }
+}).lessThan(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">specifyMemberAddressAsValid()</span>.columnValidBeginDate();
+    }
+});
+</code></pre>
+	<h3 id="derivedreferrer">DrivedReferrer</h3>
+	<p>
+		パラメーターがあるとき、(Specify)DrivedReferrer や (Query)DrivedReferrer では、パラメーター指定ありの Specify(Relation)
+		を利用します。<span class="frm">@since 1.0.4F</span>
+	</p>
+<pre><span class="codetitle">e.g. (Specify)DrivedReferrer でパラメーターを指定したリレーションの Specify(Relation) @Java</span><code>
+<span class="keyword">final</span> Date targetDate = <span class="abbreviation">...</span>;
+MemberStatusCB cb = <span class="keyword">new</span> MemberStatusCB();
+cb.specify().derivedMemberList().max(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        subCB.specify().<span class="point">specifyMemberAddressAsValid(targetDate)</span>.columnValidBeginDate();
+    }
+}, MemberStatus.ALIAS_<span class="abbreviation">...</span>);
+</code></pre>
+	<p>
+		パラメーターを指定できる Specify(Relation) のメソッドがないDBFluteバージョン<span class="frm">(@until 1.0.4D)</span>の場合は、Query(Relation)
+		を使ってパラメーターを指定して補完します。
+	</p>
+<pre><span class="codetitle">e.g. (Specify)DrivedReferrer でパラメーターなし Specify(Relation) @Java</span><code>
+<span class="keyword">final</span> Date targetDate = <span class="abbreviation">...</span>;
+MemberStatusCB cb = <span class="keyword">new</span> MemberStatusCB();
+cb.specify().derivedMemberList().max(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        subCB.specify().<span class="point">specifyMemberAddressAsValid()</span>.columnValidBeginDate();
+        subCB.query().<span class="point">queryMemberAddressAsValid(targetDate)</span>;
+    }
+}, MemberStatus.ALIAS_<span class="abbreviation">...</span>);
+</code></pre>
+
+	<h2 id="over">別リレーションのカラム利用</h2>
+	<h3 id="overrelation">OverRelation</h3>
+	<p>
+		該当リレーションとは別のリレーションを経由したテーブルのカラムを fixedCondition
+		の条件で利用することができます。これを FixedCondition の <em class="keyword">OverRelation</em>
+		と呼びます。<span class="frm">@since 0.9.7.5</span>
+	</p>
+	<p>
+		例えば、会員と会員住所情報の業務的one-to-oneにおける fixedCondition
+		の中で、会員ステータスのカラムや会員退会情報のカラムを利用することができます。
+		主に有効日時を利用した場合において、プログラムから与える一律の日時(現在日時など)ではなく、別リレーションのテーブルで保持する日時を利用する場合に有効です。
+	</p>
+	<p>
+		fixedCondition の定義の中で、alias 名変数として、<em class="keyword">$$over([テーブル名表現].[リレーション名])$$</em>
+		と記述することで、該当するリレーションを探して alias 名として自動解決します。
+	</p>
+	<dl class="textlist">
+		<dt>テーブル名</dt>
+		<dd>
+			参照元テーブルと利用カラムのテーブルを両方参照できるポイントとなるテーブル(ポイントテーブル)。
+			<ul class="supplementlist">
+				<li>A. 該当の業務的one-to-oneの参照元テーブル(Local)</li>
+				<li>B. 該当の業務的one-to-oneの参照先テーブル(Foreign)</li>
+				<li>C. 参照元テーブルを参照するテーブル(Referrer)</li>
+				<li>D. 参照元テーブルを参照するテーブルを参照するテーブル(無限階層のReferrer)</li>
+			</ul>
+			"A" の場合は固定で <em class="keyword">$localTable</em>、"B" の場合は <em class="keyword">$foreignTable</em>
+			と指定する(それぞれ決められたワードの前に "$" マーク)。それ以外の場合(Refererr)はテーブル名そのままを指定する。
+		</dd>
+		<dt>リレーション名</dt>
+		<dd>
+			指定されたテーブルが参照する、条件に利用したいカラムを持つテーブル(Foreign)へのリレーション。
+			リレーション名はEntityのプロパティ名に相当し、"." (ドット)区切りで無限階層にリレーションを辿ることができる。また、SetupSelect
+			や Query されていないリレーションは、自動で Query(Relation) される。
+		</dd>
+		<dd>
+			<span class="frm">※(別の)業務的one-to-oneのリレーションを辿ることはできない(機能制限)</span>
+		</dd>
+		<dd>
+			<span class="frm">※利用したいカラムを持っているテーブルが "C" の場合は省略可能(指定の必要がないため：後述)</span>
+		</dd>
+	</dl>
+	<h3 id="localforeigntable">LocalテーブルのForeignテーブル</h3>
+	<p>
+		例えば、会員と会員住所情報の業務的one-to-oneの固定条件に、会員退会情報の退会日時を利用したい場合は、テーブル名は
+		$localTable、リレーション名は memberWithdrawalAsOne と指定します。
+	</p>
+<pre><span class="codetitle">e.g. 参照元テーブルの Foreign テーブルのカラムを利用 @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+         <span class="abbreviation">...</span>
+     <span class="keyword">and</span> <span class="attribute">$$foreignAlias$$</span>.VALID_BEGIN_DATE
+       &gt;= <span class="point">$$over($localTable.memberWithdrawalAsOne)$$</span>.WITHDRAWAL_DATETIME
+        ; fixedSuffix = AsValid
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="foreignforeigntable">ForeignテーブルのForeignテーブル</h3>
+	<p>
+		例えば、会員と会員ログイン情報との関係で、会員ログイン情報経由の会員ステータスの表示順が 2
+		のときに業務的one-to-oneになるとしたら、テーブル名は $foreignTable、リレーション名は memberStatus
+		と指定します。SQLでは、Foreignテーブルがインラインビューになり、その中で結合をして該当カラムを利用できるようにします。ゆえに、解決される alias
+		名は、Foreignテーブルと同じものになります。
+	</p>
+<pre><span class="codetitle">e.g. ForeignテーブルのForeignテーブルのカラムを利用 @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_LOGIN_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_LOGIN
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+     <span class="point">$$over($foreignTable.memberStatus)$$</span>.DISPLAY_ORDER = 2
+        ; fixedSuffix = AsValid
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ForeignテーブルのForeignテーブルのカラムを利用する時のSQL @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> (<span class="keyword">select</span> dffixedbase.*, <span class="point">dffixedjoin_0_0.DISPLAY_ORDER</span>
+                       <span class="keyword">from</span> MEMBER_LOGIN dffixedbase
+                         <span class="keyword">left outer join</span> MEMBER_STATUS dffixedjoin_0_0 <span class="abbreviation">...</span>
+                    ) dfrel_4
+      <span class="keyword">on</span> dfloc.MEMBER_ID = dfrel_4.MEMBER_ID
+     <span class="keyword">and</span> <span class="point">dfrel_4</span>.DISPLAY_ORDER = 2
+</code></pre>
+	<p>
+		結合条件の中で、インラインビューの中に含めることができるとDBFluteに自動判別されたものは、インラインビューに展開されます。
+		これにより、ビューマージが発生しないDBMSにおけるパフォーマンス劣化が予防されます。
+		<span class="frm">@since 1.0.5A</span>
+	</p>
+<pre><span class="codetitle">e.g. ForeignテーブルのForeignテーブルの自動判別によるインライン展開 @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> (<span class="keyword">select</span> dffixedbase.*, <span class="point">dffixedjoin_0_0.DISPLAY_ORDER</span>
+                       <span class="keyword">from</span> MEMBER_LOGIN dffixedbase
+                         <span class="keyword">left outer join</span> MEMBER_STATUS dffixedjoin_0_0 <span class="abbreviation">...</span>
+                      <span class="keyword">where</span> <span class="point">dffixedjoin_0_0</span>.DISPLAY_ORDER = 2
+                    ) dfrel_4
+      <span class="keyword">on</span> dfloc.MEMBER_ID = dfrel_4.MEMBER_ID
+</code></pre>
+	<h3 id="foreigncolumnalias">Foreignテーブルのカラムの別名</h3>
+	<p>
+		もし、Foreignテーブルのカラムの中に該当のカラムと同名のものが存在する場合は、名前が曖昧になるので、
+		そのときは over() の第二引数に該当のカラム名を指定することで、alias 名変数の後に続くカラムを任意の alias
+		名で指定できるようになります。インラインビューの中では select 句で as を使って alias 名が宣言されます。
+	</p>
+<pre><span class="codetitle">e.g. ForeignテーブルのForeignテーブルのカラムを alias 名で扱う @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_LOGIN_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_LOGIN
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+<span class="attribute">$$over($localTable.memberStatus)$$</span>.DISPLAY_ORDER
+    = <span class="point">$$over($foreignTable.memberStatus, DISPLAY_ORDER)$$</span>.STATUS_ORDER
+        ; fixedSuffix = AsValid
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 参照先テーブルの Foreign テーブルのカラムを alias 名で扱うときのSQL @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> (<span class="keyword">select</span> <span class="abbreviation">...</span>, <span class="abbreviation">...</span>DISPLAY_ORDER <span class="keyword">as</span> <span class="point">STATUS_ORDER</span>
+                       <span class="keyword">from</span> MEMBER_LOGIN dffixedbase
+                         <span class="keyword">left outer join</span> MEMBER_STATUS dffixedjoin_0_0 <span class="abbreviation">...</span>
+                    ) dfrel_4
+      <span class="keyword">on</span> dfloc.MEMBER_ID = dfrel_4.MEMBER_ID
+     <span class="keyword">and</span> dfrel_0.DISPLAY_ORDER = dfrel_4.STATUS_ORDER
+</code></pre>
+	<h3 id="fixedbasetable">基点テーブル限定パターン</h3>
+	<p>
+		指定されたテーブルが、Localテーブルではなく、そのテーブルを参照したテーブル(Referrer)、
+		もしくは、そのテーブル(Referrer)を参照するテーブルである場合は、該当の業務的one-to-oneのリレーションを利用するときの
+		ConditionBean の基点テーブルは、その Referrer テーブル自身、もしくは、そのテーブルを参照するさらなる
+		Referrer テーブル(無限階層)に限られます。
+		(もし、そうでないテーブルを基点にしてその業務的one-to-oneを利用すると、エリアス名が解決できないためSQL上でエラーになります)
+	</p>
+	<p>
+		Localテーブルを参照したテーブル自体(Referrer)のカラムを利用する場合は、リレーション名を省略します。
+		(省略記法は、この場合のみ利用可能です)
+	</p>
+<pre><span class="codetitle">e.g. Referrer テーブルのカラムを利用 (基点は PURCHASE 前提)  @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+     <span class="abbreviation">...</span>END_DATE &gt;= <span class="point">$$over(PURCHASE)$$</span>.PURCHASE_DATETIME
+        ; fixedSuffix = AsValid
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Referrer の Foreign テーブルのカラムを利用 (基点は PURCHASE 前提)  @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_ADDRESS_VALID = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_ADDRESS
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+     <span class="abbreviation">...</span>END_DATE &gt;= <span class="point">$$over(PURCHASE.product.productStatus)$$</span>.UPDATE_DATETIME
+        ; fixedSuffix = AsValid
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		一つの業務的one-to-oneに対して、(OverRelationでない)バインド変数利用と基点テーブル限定パターンを両方使う必要がある場合は、fixedSuffix
+		を変えて、それぞれ専用のリレーションにすると良いでしょう。例えば、バインド変数利用は(お約束通りの) AsValid
+		で、基点テーブル限定パターンは By[カラム名表現] など。
+	</p>
+	<h3 id="resolvejoin">結合の自動解決</h3>
+	<p>
+		指定されたリレーションが SetupSelect や Query で指定されていない場合は、そのリレーションまで自動的に
+		Query(Relation) されます。(SQL上の join 句は自動で解決されます)
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/query/relation.html">ConditionBean - Query(Relation)</a></div>
+	<h3 id="multiplerelationname">リレーション名のきまぐれ</h3>
+	<p>
+		リレーション名は、同じテーブルに対して複数FKになる場合に、単なるテーブル名のキャメルケースではなくなりますのでご注意下さい(特に後から二つ目のFKが追加された場合)。
+		例えば、会員が複数の会員ステータス参照のカラムを持っていた場合は、それぞれ memberStatusByFooCode、memberStatusByBarCode
+		というように By[FKカラム] が後ろに付与されます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/entity/relation.html">Entity間のリレーションのタイプ</a></div>
+
+	<h2 id="derivedonetoone">導出的one-to-one</h2>
+	<h3 id="whatisderivedmanytoone">導出的one-to-oneって？</h3>
+	<p>
+		何かしら導出した値に一致するレコード(導出レコード)に対する業務的one-to-one(導出的one-to-one)を利用することもできます。
+		例えば、会員を検索する際、同時に会員の最終ログインの情報も取得したい場合など。(会員IDとログイン日時でユニークであることが前提)
+	</p>
+	<h3 id="derivedmanytoonedfprop">fixedConditionで相関サブクエリ</h3>
+	<p>
+		最終ログイン日時だけが欲しいなら (Specify)DerivedReferrer で取得できますが、最終ログインのレコードがまるごと欲しい場合は、それでは取得することはできません。
+		"最終ログインのレコード" に対して業務的one-to-oneのリレーションを設定して SetupSelect(Relation) する必要があります。
+		そのリレーションは、固定条件(fixedCondition)で相関サブクエリを利用することで実現できます。
+	</p>
+<pre><span class="codetitle">e.g. 最終ログインのレコードに対する業務的one-to-one(導出的one-to-one) @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_LOGING_LATEST = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_LOGIN
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+<span class="attribute">$$foreignAlias$$</span>.LOGIN_DATETIME = (<span class="attribute">$$sqbegin$$</span>
+<span class="keyword">select</span> max(login.LOGIN_DATETIME)
+  <span class="keyword">from</span> MEMBER_LOGIN login
+ <span class="keyword">where</span> login.MEMBER_ID = <span class="attribute">$$foreignAlias$$</span>.MEMBER_ID
+)<span class="attribute">$$sqend$$</span>
+        ; fixedSuffix = AsLatest
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		このようにすると、SQLでは left outer join の on 句の条件の中に相関サブクエリが展開され、最終ログインのレコードを取得できます。
+	</p>
+	<h3 id="derivedmanytooneinline">インラインビューで実現することもできる</h3>
+	<p>
+		ただし、このSQLが文法上許されない DBMS も存在します(例えば、Oracle とか PostgreSQL など)。
+		その場合は、この相関サブクエリの固定条件がインラインビューに展開されるように設定することで回避できます。
+		fixedInline を true にすることでインラインビューに展開されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#derivedonetoone">DBMSごとの取扱い - Oracle - 導出的one-to-one</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/postgresql/index.html#derivedonetoone">DBMSごとの取扱い - PostgreSQL - 導出的one-to-one</a></div>
+<pre><span class="codetitle">e.g. 最終ログインのレコードに対する業務的one-to-one(導出的one-to-one) @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_MEMBER_MEMBER_LOGING_LATEST = <span class="keyword">map:</span>{
+        ; localTableName  = MEMBER    ; foreignTableName  = MEMBER_LOGIN
+        ; localColumnName = MEMBER_ID ; foreignColumnName = MEMBER_ID
+        ; fixedCondition =
+<span class="attribute">$$foreignAlias$$</span>.LOGIN_DATETIME = (<span class="attribute">$$sqbegin$$</span>
+<span class="keyword">select</span> max(login.LOGIN_DATETIME)
+  <span class="keyword">from</span> MEMBER_LOGIN login
+ <span class="keyword">where</span> login.MEMBER_ID = <span class="attribute">$$foreignAlias$$</span>.MEMBER_ID
+)<span class="attribute">$$sqend$$</span>
+        ; fixedSuffix = AsLatest
+        ; <span class="point">fixedInline</span> = <span class="keyword">true</span>
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		インラインビューでも文法上許されないDBMSの場合は、この機能は利用できません。
+	</p>
+
+	<h2 id="manytoone">業務的many-to-one</h2>
+	<h3 id="whatisbizmanytoone">業務的many-to-oneって？</h3>
+	<p>
+		業務的one-to-oneではなく、業務的many-to-oneです。とある条件を入れることによって many-to-one
+		の関係になるようなリレーションを示します。本来、複数のテーブルに分かれるべき情報が一つのテーブルにまとまって入っているような構造で発生しやすいです。
+	</p>
+<pre><span class="codetitle">e.g. 業務的many-to-oneのデータ @Model</span><code>
+PK_ID, GENERAL_ID, TARGET_TYPE
+ + = = = = = = = = = +
+ |  1  |  1  |  SEA  |
+ |  2  |  1  |  SEA  |
+ |  3  |  2  |  SEA  |
+ |  4  |  3  |  SEA  |
+ | - - - - - - - - - |
+ |  5  |  1  |  LND  |
+ |  6  |  2  |  LND  |
+ + = = = = = = = = = +
+</code></pre>
+	<ul>
+		<li>PK_ID {1,2,3,4} の GENERAL_ID {1,1,2,3} は、SEA_IDを示す</li>
+		<li>PK_ID {5,6} の GENERAL_ID {1,2} は、LAND_IDを示す</li>
+		<li>TARGET_TYPE次第で、そのIDの指し示すテーブルが変わるのが特徴 (FK制約は貼れない)</li>
+	</ul>
+	<h3 id="bizmanytoonedfprop">fixedConditionでmany-to-oneに</h3>
+	<p>
+		業務的one-to-one比べてあまり発生頻度は多くないと想定されますが、いざ必要になったときは、
+		業務的one-to-oneと同様に、fixedConditionを使ってリレーションを作り上げることができます。
+		<span class="frm">(ExampleDBで合致するテーブルがないので、FOOとBARを例にします)</span>
+	</p>
+<pre><span class="codetitle">e.g. 自テーブルの種別を固定にして業務的many-to-one @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_FOO_BAR = <span class="keyword">map:</span>{
+        ; localTableName  = FOO    ; foreignTableName  = BAR
+        ; localColumnName = GENERAL_ID ; foreignColumnName = BAR_ID
+        ; fixedCondition = <span class="attribute">$$localAlias$$</span>.FOO_TYPE = <span class="comment">/*$cls(FooType.Bar)*/</span>null
+        ; fixedSuffix = AsBar
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		ただしこの場合、FOOからBARへの関連は作成されますが、BARからFOOへの逆参照は作成されません。
+		業務的one-to-oneの場合はそれ自体が逆参照と言えるので(FK参照の逆として)、BARからFOOへの逆参照は必要ありませんでしたが、
+		業務的many-to-oneはそれ自体がFK参照の代わりとなるので、BARからFOOを many
+		として扱える逆参照が欲しくなります。その場合は、fixedReferrerプロパティをtrueにすることで逆参照が作成されます<span class="frm">@since 0.9.9.7A</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/behavior/select/loadreferrer.html">Behavior - LoadReferrer</a></div>
+<pre><span class="codetitle">e.g. 関連テーブルの種別を固定にして業務的many-to-one @additionalForeignKeyMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; FK_FOO_BAR = <span class="keyword">map:</span>{
+        ; localTableName  = FOO    ; foreignTableName  = BAR
+        ; localColumnName = GENERAL_ID ; foreignColumnName = BAR_ID
+        ; fixedCondition = <span class="attribute">$$localAlias$$</span>.FOO_TYPE = <span class="comment">/*$cls(BarType.Foo)*/</span>null
+        ; fixedSuffix = AsBar
+        ; <span class="point">fixedReferrer</span> = <span class="keyword">true</span>
+        ; comment = <span class="abbreviation">...</span>
+    }
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		このようにすることで、BAR側で ExistsReferrer や LoadReferrer などが利用できます。
+		相関条件には固定条件(fixedCondition)が付与されます。
+	</p>
+
+	<h2 id="schemahtml">SchemaHTMLでの表示</h2>
+	<p>
+		Docタスクで自動生成される SchemaHTML
+		では、設定された業務的one-to-oneのリレーションも表示されます。
+		他のFK制約によるリレーションとは見た目の表現が少し違い、区別が付くようになっています。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/doc/schemahtml.html#tablecolumn">SchemaHTML - テーブル一覧・カラム情報</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、実際に会員と会員住所情報の業務的one-to-oneを設定して、テストケースの中で利用しています。
+		(他のほとんどのExampleでも同様に利用されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+
+	<div class="inucolumn">
+		<h2 id="hasslide">講演会でのスライド資料</h2>
+		<p>
+			参考までに。
+		</p>
+		<div class="detailpage"><a href="http://www.slideshare.net/jflute/clubdb2-xmas2014-bizonetoone">業務的one-to-oneというカージナリティ | SlideShare</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

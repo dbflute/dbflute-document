@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Spring Framework,DataSource,Transaction" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Spring Frameworkの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Spring Frameworkの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="shortvaluemainlist">
+		<dt>対応バージョン</dt><dd>Spring Framework 2.5.x 以上</dd>
+		<dt>basicInfoMap.dfprop</dt><dd>targetContainer を spring に設定</dd>
+	</dl>
+
+	<h2 id="diconfig">DI設定JavaConfig</h2>
+	<h3 id="diconfiggen">JavaConfigの自動生成</h3>
+	<p>
+		1.1.x (Java8版) からは、DBFluteのコンポーネントをDI設定として JavaConfig がデフォルトで自動生成されます。
+		<span class="frm">(targetContainer が spring であれば)</span>
+	</p>
+	<p>
+		allcommon配下に生成されます。
+	</p>
+<pre><span class="codetitle">e.g. 自動生成される JavaConfig のパッケージ @Directory</span><code>
+[APP ROOT]
+ |-allcommon
+ |  |-DBCurrent.java
+ |  |-<span class="point">DBFluteBeansJavaConfig.java</span>
+ |  |-DBFluteConfig.java
+ |  |-<span class="abbreviation">...</span>
+ |-bsbhv
+ |-bsentity
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="diconfigreg">自動登録されるためのアノテーション</h3>
+	<p>
+		DBFluteBeansJavaConfig は、@Configuration と @ComponentScan
+		が付与されているので、DBFluteの自動生成パッケージが Spring のスキャン対象であれば、自動的に登録されます。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute-example/dbflute-example-on-springboot/blob/5cf04a0f3d6f72b752393dd7e6bd41d668a2474d/src/main/java/org/docksidestage/dbflute/allcommon/DBFluteBeansJavaConfig.java">DBFluteBeansJavaConfig.java | Github</a></div>
+<pre><span class="codetitle">e.g. 自動生成される JavaConfig, つまり DBFluteBeansJavaConfig.java @Java</span><code>
+<span class="point">@Configuration</span>
+<span class="subpoint">@ComponentScan</span>(value=<span class="literal">"org.docksidestage.dbflute.exbhv"</span>, lazyInit=<span class="keyword">true</span>)
+<span class="keyword">public class</span> DBFluteBeansJavaConfig {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Autowired
+    <span class="keyword">protected</span> ApplicationContext <span class="attribute">_container</span>;
+
+    @Resource(name=<span class="literal">"dataSource"</span>)
+    <span class="keyword">protected</span> DataSource <span class="attribute">_dataSource</span>; <span class="comment">// name basis here for multiple DB</span>
+
+    <span class="comment">// ===================================================================================
+    //                                                                   Runtime Component
+    //                                                                   =================</span>
+    @Bean(name=<span class="literal">"introduction"</span>)
+    <span class="keyword">public</span> DBFluteInitializer createDBFluteInitializer() { <span class="comment">// no lazy for initialize-only component</span>
+        <span class="keyword">return new</span> org.docksidestage.dbflute.allcommon.DBFluteInitializer(<span class="attribute">_dataSource</span>);
+    }
+
+    @Bean(name=<span class="literal">"invokerAssistant"</span>)
+    @Lazy
+    <span class="keyword">public</span> InvokerAssistant createImplementedInvokerAssistant() {
+        ImplementedInvokerAssistant assistant = newImplementedInvokerAssistant();
+        assistant.setDataSource(<span class="attribute">_dataSource</span>);
+        <span class="keyword">return</span> assistant;
+    }
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="difile">DI設定xmlファイル</h2>
+	<h3 id="difilegen">dbfluteBeans.xml の自動生成</h3>
+	<p>
+		1.0.x (Java6版) までは、DBFluteのコンポーネントをDI設定として xml がデフォルトで自動生成されます。
+		<span class="frm">(targetContainer が spring であれば)</span>
+	</p>
+	<p>
+		DBFluteは、Generateタスクにて DBFluteのコンポーネントが登録されている <em class="keyword">dbfluteBeans.xml</em>
+		を自動生成します。主には、Behavior と allcommon のクラスが登録されています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html#disetting">Generate - DI設定ファイルも自動生成</a></div>
+	<h3 id="difilereg">dbfluteBeans.xml の登録</h3>
+	<p>
+		この dbfluteBeans.xml が <em class="keyword">アプリケーションのDI設定ファイルから参照されるように設定</em>
+		することで、アプリケーションのコンポーネントからDBFluteのコンポーネント(主にBehavior)が利用できるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/injection.html#spring">セットアップ - DI環境の調整</a></div>
+<pre><span class="codetitle">e.g. beanRefContext.xml にて dbfluteBeans.xml を参照 @beanRefContext.xml</span><code>
+&lt;beans>
+    &lt;bean id="context" class="<span class="abbreviation">...</span>support.ClassPathXmlApplicationContext"&gt;
+        &lt;constructor-arg&gt;
+            &lt;list&gt;
+                <span class="point">&lt;value&gt;dbfluteBeans.xml&lt;/value&gt;</span>
+                &lt;value&gt;jdbcBeans.xml&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/constructor-arg&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+	<h3 id="filename">dbfluteBeans.xml の名前を変更したい場合</h3>
+	<p>
+		DBFluteプロパティ dependencyInjectionMap.dfprop の dbfluteBeansFileName
+		プロパティに、独自のファイル名を指定して再自動生成して下さい。(古いファイルは手動で削除)
+	</p>
+	<div class="detailpage"><a href="../../dfprop/dependencyinjection/index.html#dbflutebeansfilename">dfprop - dbfluteBeansFileName</a></div>
+
+	<h2 id="datasource">DataSourceの連携</h2>
+	<h3 id="datasourcename">dataSourceというコンポーネント名</h3>
+	<p>
+		JavaConfig, xml 共に、デフォルトでは <em class="bigmark">dataSource</em> というコンポーネント名を想定してDIをしています。
+		DBFluteが、その DataSource から Connection を取得してDB接続します。
+	</p>
+	<h3 id="nondatasource">dataSourceという名前でない場合</h3>
+	<p>
+		アプリケーションで管理する DataSource のコンポーネント名が違う名前の場合は、
+		DataSource への参照を適切なものに変更してあげる必要があります。
+		<span class="frm">(自動生成された JavaConfig や xml は、直接エディタで修正しても再自動生成時に上書きされますので意味がありません)</span>
+	</p>
+	<p>
+		DBFluteプロパティ dependencyInjectionMap.dfprop の dbfluteBeansDataSourceName
+		プロパティに、DataSourceの独自のコンポーネント名を指定して再自動生成して下さい。
+	</p>
+	<div class="detailpage"><a href="../../dfprop/dependencyinjection/index.html#dbflutebeansdatasourcename">dfprop - dbfluteBeansDataSourceName</a></div>
+	<p>
+		複数DB対応のときは、よく利用することになるでしょう。
+	</p>
+
+	<h2 id="transaction">トランザクションの連携</h2>
+	<p>
+		DBFluteは、Spring で DI できる DataSource から、SQLのたびに Connection
+		を取得しているだけなので、特に何も対策をしなければトランザクションはかかりませんが...
+	</p>
+	<h3 id="txauto">自動連携されるDBCP</h3>
+	<p>
+		DBFluteが認識している DBCP であれば、Spring の "スレッドトランザクション" 機構と自動的に連携し、トランザクションが効くようになります。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wt.html#threadtransaction">スレッドトランザクション</a></div>
+	<p>
+		以下の DataSource であれば、設定なしでトランザクションが効きます。
+	</p>
+	<dl class="keymainlist">
+		<dt>commons-DBCP</dt><dd>org.apache.commons.dbcp. パッケージ</dd>
+		<dt>Tomcat-DBCP</dt><dd>org.apache.tomcat.jdbc.pool. パッケージ</dd>
+		<dt>commons-DBCP2</dt><dd>org.apache.commons.dbcp2. パッケージ <span class="frm">(@since 1.1.8)</span></dd>
+		<dt>HikariCP</dt><dd>com.zaxxer.hikari. パッケージ <span class="frm">(@since 1.1.8)</span></dd>
+	</dl>
+	<p>
+		allcommonに自動生成される DBFluteInitializer の needsSpringTransactionalDataSource()
+		にて判定されています。利用しているDBCPが対象かどうか？どのような仕組みになっているか？などなどコードを確認してみると良いでしょう。
+		<span class="frm">(相当、ベタベタなやり方です)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/index.html#dbfluteinitializer">allcommon - DBFluteInitializer</a></div>
+<pre><span class="codetitle">e.g. DBFluteInitializer の needsSpringTransactionalDataSource(), 1.1.8 のとき @Java</span><code>
+<span class="keyword">protected boolean</span> needsSpringTransactionalDataSource(String dataSourceFqcn) {
+    <span class="keyword">return</span> dataSourceFqcn.startsWith(<span class="literal">"org.apache.commons.dbcp."</span>)
+        || dataSourceFqcn.startsWith(<span class="literal">"org.apache.commons.dbcp2."</span>)
+        || dataSourceFqcn.startsWith(<span class="literal">"org.apache.tomcat.jdbc.pool."</span>)
+        || dataSourceFqcn.startsWith(<span class="literal">"com.zaxxer.hikari."</span>);
+}
+</code></pre>
+	<p>
+		ただ、この自動連携の仕組みは、DBFlute の DataSourceHandler を使って実現されています。
+		もし、アプリで DBFluteConfig 経由で独自の DataSourceHandler
+		を設定したときは、自動連携の仕組みが上書きされますので、設定する DataSourceHandler
+		は、デフォルトのものと同じ機能を持つ必要があります。<span class="frm">(アプリで明示的に設定された方が優先されるため)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#datasourcehandler">DBFluteConfig - dataSourceHandler</a></div>
+	<h3 id="txmanual">手動でDBCPと連携させる</h3>
+	<p>
+		自動的に連携されないDBCPを利用されている場合は、何かしら対策をする必要があります。
+		幾つかのやり方があります。
+	</p>
+	<dl class="textlist">
+		<dt>A. DBFluteInitialiezrをオーバーライド</dt>
+		<dd>
+			littleAdjustmentMap.dfprop の extendedDBFluteInitializerClass を使って、DBFluteInitializer
+			の継承クラスを登録することができます。needsSpringTransactionalDataSource()をオーバーライドして、認識させると良いでしょう。
+			<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/index.html#dbfluteinitializer">allcommon - DBFluteInitializer</a></div>
+		</dd>
+		<dt>B. DataSourceHandlerを設定</dt>
+		<dd>
+			DBFluteConfig で、独自の DataSourceHandler を設定して、連携させると良いでしょう。
+			<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#datasourcehandler">DBFluteConfig - dataSourceHandler</a></div>
+		</dd>
+		<dt>C. TransactionAwareDataSourceProxyを使う</dt>
+		<dd>
+			アプリ側のDataSource本体の設定で、TransactionAwareDataSourceProxyを使うと良いでしょう。
+		</dd>
+	</dl>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		Spring Framework を使ったExample実装 <em class="keyword">dbflute-example-on-springboot</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+	<p>
+		ただ、Exampleとしてあまり整備が追いついていないので、プルリクを募集しています。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20171123/pullreqreqsboot">dbflute-example-on-springbootのプルリクリクエスト | jfluteの日記</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

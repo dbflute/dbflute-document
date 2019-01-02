@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Ant,DB変更" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DB変更が発生したら | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DB変更が発生したら</h1>
+	${indexlist}
+
+	<h2 id="answer">DB変更が発生したら何をする？</h2>
+	<p>
+		DB変更が発生したときのDBFluteタスク実行の流れは以下のようになります。
+		アーキテクト(つまり誰か一人の人)が中心となって、ディベロッパーと連携をとりながら以下の作業を行っていきます。
+	</p>
+	<h3 id="reps">1. ReplaceSchemaでDBスキーマ再作成 (+ AlterCheck)</h3>
+	<p>
+		ERDツールでDDL文を再生成した後、それを使ってDBスキーマ(ローカルDB)の再作成を行います。
+		マスタデータやテストデータにも影響がある場合は、エクセルデータも修正します。
+	</p>
+	<div class="relatedpage"><a href="./replaceschema/index.html">ReplaceSchema</a></div>
+	<p>
+		運用後のDB変更であれば、AlterCheck も活用すると良いでしょう。(タイミングは任意です)
+	</p>
+	<div class="relatedpage"><a href="./replaceschema/livingdbmigration.html">運用後のDB変更</a></div>
+	<h3 id="jdbc">2. JDBCタスクでメタデータを更新</h3>
+	<p>
+		DBスキーマが最新になったので、DBFluteが保持しているメタデータを最新のものに更新します。
+	</p>
+	<div class="relatedpage"><a href="./jdbc/index.html">JDBCタスク</a></div>
+	<h3 id="doc">3. Docタスクで最新版のドキュメントを自動生成</h3>
+	<p>
+		SchemaHTML や HistoryHTML などを再自動生成します。
+	</p>
+	<div class="relatedpage"><a href="./doc/index.html">Docタスク</a></div>
+	<h3 id="gen">4. Generateタスクで最新版のクラスを自動生成</h3>
+	<p>
+		Entity や ConditionBean などを再自動生成し、DB変更の影響範囲、つまり、コンパイルエラーになる箇所を修正します。
+		業務的な影響範囲は、アーキテクト自身がバージョン管理システムにコミットする前に直すか、
+		コミットしてからディベロッパーに直してもらうかはポリシー次第、もしくは、状況次第です。
+	</p>
+	<div class="relatedpage"><a href="./generate/index.html">Generateタスク</a></div>
+	<h3 id="otest">5. OutsideSqlTestで外だしSQLの影響範囲の検知と修正</h3>
+	<p>
+		SQLの文法レベルで露骨に影響するものに関しては、ここでタスクエラーとなるので、そのエラー内容をみて影響範囲を修正します。
+		あまりに影響範囲が多い場合、アーキテクト自身がバージョン管理システムにコミットする前に全てを直すか、
+		エラーが発生する状態のままコミットしてディベロッパーに直してもらうかはポリシー次第、もしくは、状況次第です。
+	</p>
+	<div class="relatedpage"><a href="./outsidesqltest/index.html">OutsideSqlTestタスク</a></div>
+	<p>
+		OutsideSqlTestタスクは、Sql2Entityタスクでの実行対象外のSQLも対象となるので、
+		(次の)Sql2Entityタスクだけをやっていればいいというわけではありません。
+	</p>
+	<h3 id="sql2en">6. Sql2Entityで外だしSQL構成の影響範囲の検知と修正</h3>
+	<p>
+		SQLの結果構成(select句)や検索条件に影響するものに関しては、CustomizeEntity や Parameterbean
+		の再自動生成をして、DB変更の影響範囲、つまり、コンパイルエラーになる箇所を修正します。
+		業務的な影響範囲は、アーキテクト自身がバージョン管理システムにコミットする前に直すか、
+		コミットしてからディベロッパーに直してもらうかはポリシー次第、もしくは、状況次第です。
+	</p>
+	<div class="relatedpage"><a href="./sql2entity/index.html">Sql2Entityタスク</a></div>
+	<p>
+		ReplaceSchemaのDDL、エクセルデータ、Docタスクの SchemaHTML や
+		HistoryHTML、Generateで自動生成されたクラス、OutsideSqlTestで直した外だしSQL、Sql2Entityで
+		自動生成されたクラスなど、もろもろをバージョン管理システムへコミットします。
+	</p>
+	<h3 id="unittest">7. 自動単体テスト(JUnit)を全て実行</h3>
+	<p>
+		JUnit(など)で作成した自動単体テストを全て実行して、グリーンになることを確認します。
+		業務的な影響範囲でアーキテクト自身が直し切れない場合は、ディベロッパーに直してもらうことも考慮します。
+	</p>
+	<h3 id="commit">8. 割り切ったもの以外の修正が終わったらコミット</h3>
+	<p>
+		アーキテクトだけでは直し切れない修正がある場合は、コミット後にディベロッパーにその旨をしっかり通知して直してもらいます。
+		ディベロッパーから修正報告があって、JUnitの単体テストなどが全て通るようになったらDB変更完了です。
+	</p>
+	<h3 id="update">9. ディベロッパーはバージョン管理システムから最新を</h3>
+	<p>
+		ディベロッパーはバージョン管理システムから最新のリソース(DDLやエクセルデータやソースファイルなど)を更新します。
+		ローカルDBだけは最新にはなっていないので(DB自体はバージョン管理システムで管理しないので)、ReplaceSchemaを叩きます。
+	</p>
+	<p>
+		割り切られた修正があれば、それぞれ自分が担当する修正を行いアーキテクトに報告をします。
+	</p>
+	<p>
+		これにてDB変更完了です。
+	</p>
+
+	<h2 id="renewal">一括で実行するタスク</h2>
+	<p>
+		DB変更が発生したらやるべきDBFluteタスクをまとめて実行するタスクがあります。
+	</p>
+	<div class="detailpage"><a href="./manage/index.html#renewal">Renewalタスク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

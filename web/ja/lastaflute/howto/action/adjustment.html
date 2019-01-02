@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>ActionやJSONの微調整 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ActionやJSONの微調整</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="actionadjustment">ActionAdjustmentProvider</h2>
+	<p>
+		Actionクラスにまつわる色々な挙動を "統一的に" 調整できます。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>強制404ルーティング対象の指定</dt><dd>isForced404NotFoundRouting()</dd>
+		<dt>強制ルーティング除外の指定</dt><dd>isForcedRoutingExcept()</dd>
+		<dt>強制ルーティング対象の指定</dt><dd>isForcedRoutingTarget()</dd>
+		<dt>Actionマッピングの調整</dt><dd>customizeActionMappingRequestPath()</dd>
+		<dt>後ろの/不足リダイレクト抑制</dt><dd>isSuppressTrailingSlashRedirect()</dd>
+		<dt>ルーティング対象なしを404にする？</dt><dd>isNoRoutingRequestAs404NotFound()</dd>
+		<dt>HTMLパスのフィルタ</dt><dd>filterHtmlPath()</dd>
+		<dt>HTMLパス探しのリトライ</dt><dd>prepareHtmlRetryWordList()</dd>
+		<dt>配列パラメータの上限</dt><dd>provideIndexedPropertySizeLimit()</dd>
+		<dt>Formのマッピングを調整</dt><dd>adjustFormMapping()</dd>
+		<dt>ValidatorのConfigを調整</dt><dd>adjustValidatorConfig()</dd>
+		<dt>ActionResponseの直前調整</dt><dd>adjustActionResponseJustBefore()</dd>
+		<dt>レスポンスの反映処理を調整</dt><dd>adjustResponseReflecting()</dd>
+		<dt>業務例外のハンドリングを調整</dt><dd>adjustApplicationExceptionHandling()</dd>
+		<dt>ActionのInOutのログを出力する？</dt><dd>isUseInOutLogging()</dd>
+		<dt>InOutのログを調整する？</dt><dd>adjustInOutLogging()</dd>
+	</dl>
+	<p>
+		Exampleテンプレートとして、MaihamaActionAdjustmentProvider
+		が用意されていますので、そのProviderクラスを直せば有効になります。
+		<span class="frm">(AssistantDirector で登録されています)</span>
+	</p>
+	<h3 id="forced404notfoundrouting">強制404ルーティング対象の指定</h3>
+	<p>
+		TODO jflute もうこのURL来たらダメとか、SwaggerUIとかを指定する想定
+	</p>
+	<h3 id="forcedroutingexcept">強制ルーティング除外の指定</h3>
+	<p>
+		TODO jflute JS/APIひとまとめパターンで/api以外は受け付けないというようなとき
+	</p>
+	<h3 id="forcedroutingtarget">強制ルーティング対象の指定</h3>
+	<p>
+		TODO jflute .pdf とか拡張子で終わってるURLもActionで受けたいとき、わりと使う
+	</p>
+	<h3 id="actionmapping">Actionマッピングの調整</h3>
+	<p>
+		例えば、/jflute/product/list/ というようなURLで、一つ目の要素はユーザ名なのでマッピング判定には含めず、/product/list/
+		だけで Action を探しに行きたいとき、などに有効です。
+	</p>
+<pre><span class="codetitle">e.g. /jflute/product/list/ なら /product/list/ で戻す @Java</span><code>
+<span class="keyword">public class</span> MaihamaActionAdjustmentProvider <span class="keyword">implements</span> ActionAdjustmentProvider {
+    <span class="abbreviation">...</span>
+    @Override
+    <span class="keyword">public</span> String customizeActionMappingRequestPath(String requestPath) {
+        <span class="keyword">return</span> <span class="abbreviation">...</span> <span class="comment">// 先頭の要素を抜いたものを戻す</span> 
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		JSON API で URL にバージョンを入れるような場合<span class="frm">(e.g. /api/v1/...)</span>、このメソッドでバージョンを抜き出して filter
+		し、抜き出したバージョンはリクエスト属性に入れるなりして Action に引き継いで利用するとよいでしょう。
+	</p>
+	<h3 id="trailingslashredirect">後ろの'/'不足リダイレクト抑制</h3>
+	<p>
+		TODO jflute 後ろに'/'がなくてもリダイレクトをしないようにしたければ
+	</p>
+	<h3 id="noroutingrequestas404notfound">ルーティング対象なしを404にする？</h3>
+	<p>
+		TODO jflute Java以外にリソースがなく、404の制御もこちらでやりたい場合など
+	</p>
+	<h3 id="htmlpathfilter">HTMLパスのフィルタ</h3>
+	<p>
+		TODO jflute HTMLファイルのパスをフィルター、UserAgent見て携帯向けにhookするとか
+	</p>
+	<h3 id="htmlretryword">HTMLパス探しのリトライ</h3>
+	<p>
+		TODO jflute HTMLファイルがなかったときのリトライ調整、これも携帯向けとかで
+	</p>
+	<h3 id="indexedlimit">配列パラメータの上限</h3>
+	<p>
+		TODO jflute リクエストパラメーターの sea[0] の 0 の上限、デフォルトは200くらい
+	</p>
+	<h3 id="formmapping">Formのマッピングを調整</h3>
+	<p>
+		TODO jflute Eclipse Collections とか、定義されてないパラメーターあったらエラーとか
+	</p>
+	<h3 id="responsejustbefore">ActionResponseの直前調整</h3>
+	<p>
+		TODO jflute 一律、レスポンスHTTPヘッダーに何かを入れるなら
+	</p>
+	<h3 id="responsereflecting">レスポンスの反映処理を調整</h3>
+	<p>
+		ResponseReflectingOptionで、レスポンスの反映処理などを調整できます。
+	</p>
+	<ul>
+		<li>レスポンスのHtmlBeanのバリデーションエラーを例外出さずに警告ログに</li>
+		<li>レスポンスのHtmlBeanのバリデーションエラーを完全に抑制</li>
+		<li>レスポンスのJsonResultのバリデーションエラーを例外出さずに警告ログに</li>
+		<li>レスポンスのJsonResultのバリデーションエラーを完全に抑制</li>
+	</ul>
+	<h3 id="validatorconfig">ValidatorのConfigを調整</h3>
+	<p>
+		TODO jflute Eclipse Collections とか、対応されていない型をバリデーション対象にするとか
+	</p>
+	<h3 id="appexhandling">業務例外のハンドリングを調整</h3>
+	<p>
+		ApplicationExceptionOptionで、業務例外の扱いを調整できます。
+	</p>
+	<ul>
+		<li>強制的に通知ログを抑制したい業務例外を指定できる</li>
+	</ul>
+	<div class="relatedpage"><a href="../architect/exceptionhandling.html#bizhandling">業務例外ハンドリング (アプリ例外)</a></div>
+	<h3 id="inoutlogging">ActionのInOutのログを出力する？</h3>
+	<p>
+		トラブル対応のときのために、本番環境でもActionのリクエストとレスポンスの内容を残しておきたい場合は、
+		LastaFluteにてそれら情報を専用のログファイルに出力することができます<span class="frm">(@since LastaFlute-1.0.0)</span>。
+		<span class="frm">(もちろん、若干のパフォーマンス劣化が発生する可能性があるので、不要であればやらないほうが良いです)</span>
+	</p>
+	<div class="detailpage"><a href="./logging/inoutlog.html">リクエストの全記録、InOutログ</a></div>
+
+	<h2 id="jsonresource">JsonResourceProvider</h2>
+	<p>
+		JSONにまつわる色々な挙動を "統一的に" 調整できます。
+	</p>
+	<p>
+		Exampleテンプレートとして、MaihamaJsonResourceProvider
+		が用意されていますので、そのProviderクラスを直せば有効になります。
+		<span class="frm">(AssistantDirector で登録されています)</span>
+	</p>
+	<dl class="longkeymainlist">
+		<dt>nullの項目を出力しない？</dt><dd>isNullsSuppressed()</dd>
+		<dt>改行入りのJSONを出力する？</dt><dd>isPrettyPrintSuppressed()</dd>
+		<dt>JSONマッピングを調整</dt><dd>provideMappingOption()</dd>
+	</dl>
+	<h3 id="nullssuppressed">JSONでnullの項目を出力しない？</h3>
+	<p>
+		省略したいときはtrue。
+	</p>
+	<h3 id="prettyprint">改行入りのJSONを出力する？</h3>
+	<p>
+		デフォルトでは、ローカル開発環境では改行入り、本番では改行なしになっています。
+	</p>
+	<p>
+		もし、本番でも改行入りにしたいときはtrue。
+	</p>
+	<h3 id="jsonmapping">JSONマッピングを調整</h3>
+	<p>
+		TODO jflute スネークケースとか、Eclipse Collections とか
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

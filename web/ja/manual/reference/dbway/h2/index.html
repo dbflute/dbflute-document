@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,H2 Database,取扱い,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>H2 Databaseの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>H2 Databaseの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>H2 1.0.x 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>あり</dd>
+		<dt>(同梱)JDBCドライバ</dt><dd>h2-1.2.x.jar</dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+	<p>
+		JDBCドライバは随時(そのときの最新バージョンに)アップグレードしていきます。
+	</p>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">データベース接続設定の仕様 (Embeddedの場合) @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = org.h2.Driver
+    ; url      = jdbc:h2:file:../src/main/resources/[...]/[dbname]
+    ; schema   = [SCHEMA]
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はそもそも対応する概念がないため設定不要</li>
+		<li>schema は独自のスキーマを利用しない限りは PUBLIC と指定</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-spring-exampleの場合 {dbname=exampledb,schema=PUBLIC} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = org.h2.Driver
+    ; url      = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+    ; schema   = PUBLIC
+    ; user     = sa
+    ; password = 
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>CHAR, VARCHAR, CLOB, TEXT</dd>
+		<dt>java.lang.Integer</dt><dd>INT, TINYINT, SMALLINT, {NUMERIC(1-9, 0)}</dd>
+		<dt>java.lang.Long</dt><dd>BIGINT, IDENTITY, {NUMERIC(10-18, 0)}</dd>
+		<dt>java.math.BigDecimal</dt><dd>DOUBLE, REAL, NUMERIC(n, m)</dd>
+		<dt>java.util.Date</dt><dd>DATE</dd>
+		<dt>java.sql.Time</dt><dd>TIME</dd>
+		<dt>java.sql.Timestamp</dt><dd>TIMESTAMP</dd>
+		<dt>java.lang.Boolean</dt><dd>BOOL</dd>
+		<dt>byte[]</dt><dd>BLOB, BINARY</dd>
+	</dl>
+	<h3 id="automapping">自動マッピング</h3>
+	<p>
+		NUMERIC に関しては、自動マッピング機能が利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/typemapping/automapping.html">現場フィット - TypeMapping-AutoMapping</a></div>
+	<h3 id="unsupportedtype">未サポートのデータ型</h3>
+	<dl class="keymainlist">
+		<dt>VARCHAR(_IGNORE_CASE)</dt><dd>どうやって利用する？...<em class="keyword">*未検証</em></dd>
+		<dt>UUID</dt><dd>byte[]にマッピングされるが...<em class="keyword">*未検証</em></dd>
+		<dt>ARRAY</dt><dd>一応普通の文字列としてin、outはできるが...<em class="keyword">*未検証</em></dd>
+		<dt>OTHER</dt><dd>一応16進数の文字列としてin, outはできるが...<em class="keyword">*未検証</em></dd>
+	</dl>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">シーケンス</em> と <em class="keyword">Identity</em> のどちらかを利用します。
+	</p>
+	<p>
+		Identity情報はメタデータから取得できるので、設定なしで利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#isincrementsequencetodatamax">ReplaceSchema - データ登録 - シーケンス値の調整</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">limit</em>、<em class="keyword">offset</em> を利用します。
+	</p>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="point">limit</span> <span class="literal">20</span> <span class="point">offset</span> <span class="literal">80</span>
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="point">limit</span> <span class="comment">/*$pmb.fetchSize*/</span><span class="literal">20</span> <span class="point">offset</span> <span class="comment">/*$pmb.pageStartIndex*/</span><span class="literal">80</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>offset や limit ではバインド変数が利用できないので、埋め込み変数("$" を付与)を利用すること</li>
+	</ul>
+	<p>
+		TypedParameterBean における ManualPaging の自動判別ロジックは、"limit" かつ "offset"
+		という文字列が含まれること、もしくは、"limit" かつ "pmb.fetchSize" という文字列が含まれることです。
+		("pmb.fetchSize" だけは大文字小文字は区別し、他は区別せず)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">for update</em> を利用します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+ <span class="point">for update</span>
+</code></pre>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		H2 Databaseのストアドプロシージャに関する全てが <em class="keyword">未検証</em> です。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<p>
+		H2 Databaseに関しては特になし
+	</p>
+
+	<h2 id="originaluse">DBMS独自の利用方法</h2>
+	<h3 id="additionalschema">別スキーマの利用</h3>
+	<p>
+		別スキーマのテーブルを自動生成でき...<em class="keyword">*未検証</em>
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherschema">別スキーマ(OtherSchema)</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		H2 Database を使ったExample実装 <em class="keyword">dbflute-spring-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="supplement">H2 Database補足資料</h2>
+	<h3>Identity設定</h3>
+<pre><span class="codetitle">e.g. Identity設定 {MEMBERのMEMBER_IDにIdentity} @DDL</span><code>
+<span class="keyword">create table</span> MEMBER (
+    MEMBER_ID <span class="dbtype">INTEGER</span> <span class="attribute">IDENTITY NOT NULL PRIMARY KEY</span>,
+    MEMBER_NAME <span class="dbtype">VARCHAR(200)</span> <span class="attribute">NOT NULL</span>,
+    ...
+) ;
+</code></pre>
+	<h3>発行された連番を insert 実行後に取得</h3>
+<pre><span class="codetitle">e.g. 発行された連番を insert 実行後に取得 @SQL</span><code>
+<span class="keyword">CALL</span> IDENTITY()
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

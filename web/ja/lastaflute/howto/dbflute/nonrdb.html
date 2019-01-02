@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>RDBなしのとき...DBFluteは？ | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>RDBなしのとき...DBFluteは？</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="dbfluterole">そのときのDBFluteの役割</h3>
+	<p>
+		RDBにアクセスしないアプリで LastaFlute を使う時は、DBFluteは以下のような扱いになります。
+	</p>
+	<dl class="keymainlist">
+		<dt>Runtime</dt><dd>LastaFluteやMailFluteがライブラリとして使う</dd>
+		<dt>FreeGen</dt><dd>LastaFluteでふんだんに使っているのでガンガン使う</dd>
+		<dt>JDBC</dt><dd>DocのためにJDBCが必要、ただしちょっと一工夫必要 (後述)</dd>
+		<dt>Doc</dt><dd>PropertiesHTMLを生成するために使う</dd>
+	</dl>
+	<p>
+		なので、DBFlute Runtime も DBFlute Client も DBFlute Engine も一通り必要であることには変わりません。
+	</p>
+	<p>
+		ただ、JDBC, Docタスクを叩くためにちょっとだけ一工夫が必要です。
+	</p>
+	<h3 id="dbflutetask">叩くDBFluteタスク</h3>
+	<p>
+		JDBC(21), Doc(22), FreeGen(12) を叩きます。
+	</p>
+<pre><span class="codetitle">e.g. jdbc, doc, freegen @Command</span><code>
+<span class="abbreviation">...</span>$ manage.sh 21,22,12
+</code></pre>
+	<p>
+		FreeGen はディベロッパーがよく叩きますが、JDBC, Doc は叩くタイミングがありません。
+		普段はクラスの自動生成のタイミングで自然と叩かれますが、それがないので明示的に誰かが思いついて叩かないといけません。
+		思いつきましょう。
+	</p>
+
+	<h2 id="fordoc">Docタスクのための一工夫</h2>
+	<p>
+		RDBがない状態でDocタスクを叩くために、ちょっと一工夫が必要です。
+	</p>
+	<h3 id="basicinfomap">basicInfoMap.dfprop</h3>
+	<p>
+		database を H2 database にします。<span class="frm">(ダミースキーマのために)</span>
+	</p>
+<pre><span class="codetitle">e.g. set h2 to database @basicInfoMap.dfprop</span><code>
+    ; database = h2
+</code></pre>
+	<h3 id="databaseinfomap">databaseInfoMap.dfprop</h3>
+	<p>
+		インメモリのダミースキーマ (dummydb) を定義します。
+	</p>
+<pre><span class="codetitle">e.g. set h2 to database settings @databaseInfoMap.dfprop</span><code>
+    ; driver   = org.h2.Driver
+    ; url      = jdbc:h2:mem:dummydb
+    ; schema   = 
+    ; user     = dummydb
+    ; password = dummydb
+</code></pre>
+	<h3 id="additionaltablemap">additionalTableMap.dfprop</h3>
+	<p>
+		ダミーテーブルをひとつだけ additionalTable として定義します。
+	</p>
+	<p>
+		additionalTableMap.dfprop を作成して...
+	</p>
+<pre><span class="codetitle">e.g. make additionalTableMap.dfprop in dfprop @Directory</span><code>
+dfprop
+ |-<span class="point">additionalTableMap.dfprop</span>
+ |-basicInfoMap.dfprop
+ |-databaseInfoMap.dfprop
+</code></pre>
+	<p>
+		以下の内容を記載します。<span class="frm">(JDBCタスクは、テーブルが一つ必要なため)</span>
+	</p>
+<pre><span class="codetitle">e.g. define dummy table @additionalTableMap.dfprop</span><code>
+<span class="comment"># /---------------------------------------------------------------------------
+# additionalTableMap: (NotRequired - Default map:{})
+# 
+# This property is valid at only JDBC task.
+# You should use this when JDBC can not provide table information
+# and when you have no table but call stored procedures only.
+# 
+# The element 'columnMap' is only required in table elements. 
+# The element 'type' is only required in column elements. 
+# 
+# Specification:
+# map: {
+#     [table-name] = map:{
+#         columnMap = map:{
+#             [column-name] = map:{
+#                 type = [column JDBC type] ; dbType = [column DB type]
+#                 ; required = [true or false] ; size = [column size]
+#                 ; primaryKey = [true or false] ; pkName = [PK constraint name]
+#                 ; autoIncrement = [true or false]
+#                 ; default = [default value] ; comment = [column comment]
+#             }
+#         }
+#         ; comment = [table comment]
+#     }
+# }
+# 
+# *The line that starts with '#' means comment-out.
+#</span>
+map:{
+    ; <span class="point">DUMMY_MEMBER</span> = map:{
+        ; columnMap = map:{
+            ; DUMMY_ID = map:{
+                ; type = INTEGER ; dbType = INTEGER
+                ; required = true ; primaryKey = true ; autoIncrement = true
+            }
+            ; DUMMY_NAME = map:{ type = VARCHAR ; required = true ; size = 123 }
+            ; DUMMY_DATE = map:{ type = DATE }
+        }
+    }
+}
+<span class="comment"># ----------------/
+#
+# *Refer to typeMappingMap.dfprop for JDBC type reference.</span>
+</code></pre>
+	<h3 id="variousempty">その他いろいろ空っぽに</h3>
+	<p>
+		必須ではありませんが、何か入ってると動かない可能性もあるので空っぽにしておきましょう。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>classificationDefinitionMap.dfprop</dt><dd>map:{} に</dd>
+		<dt>classificationDeploymentMap.dfprop</dt><dd>map:{} に</dd>
+		<dt>commonColumnMap.dfprop</dt><dd>map:{} に</dd>
+		<dt>playsqlディレクトリ</dt><dd>ディレクトリだけにして.gitkeep</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

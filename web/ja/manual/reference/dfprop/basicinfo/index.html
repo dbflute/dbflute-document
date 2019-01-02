@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,basicInfoMap.dfprop,DIコンテナ,データベース,パッケージ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>basicInfoMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>basicInfoMap</h1>
+	${indexlist}
+
+	<h2 id="about">basicInfoMapとは？</h2>
+	<p>
+		自動生成する上で最も基本的なアプリケーション情報の設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の basicInfoMap.dfprop という名前のテキストファイルです。必須のプロパティであり、ほとんどの項目は
+		<em class="keyword">自動生成する前に設定されること</em> を前提としています。
+	</p>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々なkey-value形式のプロパティを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="database">database (*)</h3>
+	<p>
+		データベースの種類。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>mysql, postgresql, oracle, db2, mssql, h2, derby</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"mssql" はSQLServerのことを示す</li>
+				<li>SQLiteは "sqlite" と指定(但し、準サポート)</li>
+				<li>MS Accessは "msaccess" と指定(但し、準サポート)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="targetlanguage">targetLanguage (*)</h3>
+	<p>
+		自動生成するクラスの言語。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>java, csharp</dd>
+	</dl>
+	<h3 id="targetcontainer">targetContainer (*)</h3>
+	<p>
+		DBFluteが利用するDIコンテナの種類。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>seasar, spring, guice, lucy</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基本的にアプリケーションで利用するDIコンテナと同じものを指定</li>
+				<li>DBFlute.NETでは "seasar" のみ有効</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet">DBFlute.NET</a></div>
+	<h3 id="packagebase">packageBase (*)</h3>
+	<p>
+		DBFluteが自動生成するクラスの基底となるパッケージ。
+	</p>
+	<p>
+		指定されたパッケージが実際に存在していなくても、ディレクトリの階層構造は自動で作成されます。
+	</p>
+<pre><span class="codetitle">e.g. "com.example.dbflute" と指定した場合 @Package</span><code>
+com.example.dbflute
+ |-allcommon
+ |-bsbhv
+ |-bsentity
+ |-cbean
+ |-exbhv
+ |-exentity
+</code></pre>
+	<p>
+		習慣として、<em class="keyword">[アプリケーションのルートパッケージ].dbflute</em>
+		パッケージをお奨めします。但し、複数DB対応でアプリケーションのルートパッケージがDB間で同一の場合は、例えば
+		<em class="keyword">[アプリケーションのルートパッケージ].dbflute.[クライアントプロジェクト名 or スキーマ名]</em>
+		というように明示的に分けると良いでしょう。
+	</p>
+	<h3 id="generateoutputdirectory">generateOutputDirectory</h3>
+	<p>
+		DBFluteが自動生成するクラスの出力先ディレクトリ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteクライアントからの相対パス</dd>
+		<dt>デフォルト</dt><dd>../src/main/java</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFlute.NETではデフォルトは "../source"</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet/index.html">DBFlute.NET</a></div>
+	<h3 id="resourceoutputdirectory">resourceOutputDirectory</h3>
+	<p>
+		DBFluteが自動生成するリソース(DI設定ファイルなど)の出力先ディレクトリ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>"generateOutputDirectory" プロパティからの相対パス</dd>
+		<dt>デフォルト</dt><dd>../resources (../src/main/resources)</dd>
+	</dl>
+	<p>
+		設定ファイル不要DIコンテナなど、環境によってはこのプロパティは利用されません。
+	</p>
+	<h3 id="istablenamecamelcase">isTableNameCamelCase</h3>
+	<p>
+		テーブル名の規約がキャメルケースか否か。例えば、テーブル名が "MemberStatus"
+		なら true。テーブル名が "MEMBER_STATUS" もしくは "member_status" なら false。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="iscolumnnamecamelcase">isColumnNameCamelCase</h3>
+	<p>
+		カラム名の規約がキャメルケースか否か。例えば、カラム名が "MemberName"
+		なら true。"MEMBER_NAME" もしくは "member_name" なら false。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="projectprefix">projectPrefix</h3>
+	<p>
+		自動生成されるクラスのクラス名の prefix。
+	</p>
+	<p>
+		例えば "Ld" と指定した場合は "LdMember" というように全てのクラスに付与されます。但し、インナークラスはその限りではありません。
+		また、<em class="keyword">DI設定ファイル上のコンポーネント名にも付与</em>
+		されますので(その場合、先頭文字は小文字になる)、コンポーネント名でDIするときは、この prefix を意識する必要があります。
+		<span class="frm">(Seasarの場合、allcommonのコンポーネント名には prefix が付きません。Lasta Diでは付きます)</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>任意の文字列 (先頭が大文字であること)</dd>
+		<dt>デフォルト</dt><dd>なし (Prefixなし)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基本的には二文字から三文字くらいの文字列を想定</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		主に、プロジェクトで規約がある場合や複数DB対応時に役に立ちます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb">現場フィット - 複数DB</a></div>
+	<h3 id="allcommonprefix">allcommonPrefix</h3>
+	<p>
+		自動生成されるクラスの allcommon パッケージ配下のクラス名の prefix。
+	</p>
+	<p>
+		例えば "Ma" と指定した場合は "MaCDef" というように allcommon のクラスに付与されます。但し、インナークラスはその限りではありません。
+		また、<em class="keyword">DI設定ファイル上のコンポーネント名にも付与</em>
+		されますので(その場合、先頭文字は小文字になる)、コンポーネント名でDIするときは、この prefix を意識する必要があります。
+		<span class="frm">(Seasarの場合、コンポーネント名には prefix が付きません。Lasta Diでは付きます)</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>任意の文字列 (先頭が大文字であること)</dd>
+		<dt>デフォルト</dt><dd>なし (Prefixなし)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基本的には二文字から三文字くらいの文字列を想定</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		主に、複数DB対応時に役に立ちます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb">現場フィット - 複数DB</a></div>
+	<h3 id="classauthor">classAuthor</h3>
+	<p>
+		自動生成されるクラスの "author" (@authorタグの文字列)。
+	</p>
+	<p>
+		主に、プロジェクトで規約がある場合に役に立ちます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>任意の文字列 (authorの値に適していること)</dd>
+		<dt>デフォルト</dt><dd>DBFlute(AutoGenerator)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFlute.NETではこのプロパティは利用されない</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet/index.html">DBFlute.NET</a></div>
+	<p>
+		再自動生成時の変更は Exクラス には反映されないので注意。その場合は手動(ツールでの一括置換など)で修正するようにして下さい。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/we.html#exclass">Exクラス</a></div>
+	<h3 id="sourcefileencoding">sourceFileEncoding</h3>
+	<p>
+		自動生成されるソースファイルのエンコーディング。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>エンコーディング名 (Javaで認識できるもの)</dd>
+		<dt>デフォルト</dt><dd>UTF-8</dd>
+	</dl>
+	<p>
+		例えば、プロジェクトにおいてソースファイルを Shift_JIS
+		で扱っている場合などに有効です。但し、DBFlute自身のテスト環境において全てのソースファイルは
+		UTF-8 で取り扱っていることもあり、デフォルトのままがお奨めです。
+	</p>
+	<h3 id="sourcecodelineseparator">sourceCodeLineSeparator <span class="frm">@since 1.0.3</span></h3>
+	<p>
+		自動生成されるソースコードの改行コード。(LF or CRLF) <span class="frm">@since 1.0.3</span>
+	</p>
+	<p>
+		デフォルトでは、テンプレートの改行がそのまま残ります。基本的に LF <span class="frm">(@since 1.0.4J)</span> で統一されています。
+		また、DBFlute内部のプログラムで改行を含んだ文字列(JavaDocなど)を出力する場合もCRLFで出力します。
+	</p>
+	<p>
+		このプロパティで LF を指定すると、テンプレートの改行コードに関わらず出力されるもの全てが LF
+		となります。出力時に、CRLF を LF に変換します。
+	</p>
+	<p>
+		また、CRLFを明示的に指定した場合は、テンプレートの改行に関わらず CRLF
+		となります。デフォルトとほとんど出力結果は変わりませんが、テンプレートの改行コードが変換されたり、FreeGen
+		などでテンプレートを自前で用意して改行コードをLFにしたりしても、CRLFに強制的に変換されます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>LF or CRLF</dd>
+		<dt>デフォルト</dt><dd>なし (テンプレートの改行そのまま、基本的にCRLF)</dd>
+	</dl>
+	<h3 id="applicationbehaviormap">applicationBehaviorMap</h3>
+	<p>
+		アプリごとのBehavior、<em class="keyword">ApplicationBehavior</em> の利用に関する設定を指定します。
+	</p>
+	<p>
+		この設定が有効なときは、DBFlute全体がアプリケーション対応のための動きをするようになります。
+		例えば、Generateタスクではアプリ対応のBehaviorを自動生成し、Sql2Entityタスクではアプリ対応のCustomizeEntityを自動生成します。
+		他のプロパティとの関連が複雑なため、厳密な設定を心がけるようにして下さい。(必ず概念を先に理解してから利用すること)
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/applicationbehavior/index.html">現場フィット - アプリごとのBehavior</a></div>
+	<h4 id="isapplicationbehaviorproject">isApplicationBehaviorProject</h4>
+	<p>
+		ApplicationBehavior のためのプロジェクトであるかどうかを指定します。
+	</p>
+	<p>
+		このプロパティが true のときは、Generateタスクでは、アプリ対応の Behavior
+		とそのためのDI設定ファイルのみが自動生成されます。また、そのときの自動生成されるクラスの設定は、
+		通常の自動生成で利用するのと同様に、他のDBFluteプロパティのプロパティ値が利用されます。
+		例えば、自動生成されるアプリ対応の Behavior のパッケージには、この isApplicationBehaviorProject が true
+		のときに評価対象になっている basicInfoMap.dfprop の packageBase が適用されます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h4 id="libraryprojectpackagebase">libraryProjectPackageBase</h4>
+	<p>
+		ライブラリプロジェクト側の(DBFluteの自動生成クラスの)基底パッケージ(packageBase)を指定します。アプリ対応の Behavior
+		の基底パッケージと違う場合にのみ設定をします。(同じパッケージで自動生成するなら設定は不要)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>パッケージ</dd>
+		<dt>デフォルト</dt><dd>アプリのものと同じ</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>アプリ側で作成する外だしSQLは、このパッケージのものに従うこと</li>
+				<li>packageBaseであることに注意 (behaviorのパッケージではない)</li>
+				<li>isApplicationBehaviorProjectが false のときはこのプロパティは利用されない</li>
+			</ul>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. ApplicationBehaviorの有効化(パッケージを別にする場合) @basicInfoMap.dfprop</span><code>
+; <span class="attribute">applicationBehaviorMap</span> = <span class="keyword">map:</span>{
+    ; <span class="attribute">isApplicationBehaviorProject</span> = <span class="literal">true</span>
+    ; <span class="attribute">libraryProjectPackageBase</span> = <span class="point">com.example.dbflute.postgresql</span>
+}
+</code></pre>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

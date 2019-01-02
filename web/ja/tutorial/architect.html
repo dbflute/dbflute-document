@@ -1,0 +1,401 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,アーキテクト,Architect,チュートリアル,Tutorial,使い方,ドキュメント" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>アーキテクトのためのチュートリアル | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>アーキテクトのためのチュートリアル</h1>
+	<p>
+		アーキテクトが DBFlute を扱う上での必要なノウハウや開発時にやるべきことをまとめたページです。
+	</p>
+	${indexlist}
+
+	<h2 id="style">アーキテクトの実装スタイル</h2>
+	<h3 id="twoenvironment">六つのトップエントリ</h3>
+	<dl class="longkeymainlist">
+		<dt><a href="../introduction/index.html">DBFluteの紹介</a></dt><dd>まず最初はこちら</dd>
+		<dt><a href="../environment/index.html">DBFluteの環境</a></dt><dd><a href="../environment/setup/index.html">初回セットアップ</a>、<a href="../environment/upgrade/index.html">アップグレード</a>、<a href="../environment/changelog/index.html">ChangeLog</a> など</dd>
+		<dt><a href="../manual/function/generator/index.html">自動生成ツールとしてのDBFlute</a></dt><dd>自動生成の玄関、<a href="../manual/function/generator/task/index.html">DBFluteタスク</a>、<a href="../manual/function/generator/client/index.html">DBFluteクライアント</a> など</dd>
+		<dt><a href="../manual/function/ormapper/index.html">O/RマッパーとしてのDBFlute</a></dt><dd><a href="../manual/function/ormapper/behavior/index.html">Behavior</a>, <a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a>, <a href="../manual/function/ormapper/entity/index.html">Entity</a>, <a href="../manual/function/ormapper/outsidesql/index.html">OutsideSql</a> など</dd>
+		<dt><a href="../manual/reference/dbway/index.html">DBMSごとの取扱い</a></dt><dd><a href="../manual/reference/dbway/mysql/index.html">MySQL</a>, <a href="../manual/reference/dbway/postgresql/index.html">PostgreSQL</a>, <a href="../manual/reference/dbway/oracle/index.html">Oracle</a>, <a href="../manual/reference/dbway/db2/index.html">DB2</a>, <a href="../manual/reference/dbway/sqlserver/index.html">SQLServer</a> など</dd>
+		<dt><a href="../manual/reference/dfprop/index.html">DBFluteプロパティ</a></dt><dd>DBFluteの設定、たくさんの dfprop と環境ごと切り替えなど</a></dd>
+	</dl>
+	<h3 id="twoenvironment">四つの環境構築</h3>
+	<dl class="valuemainlist">
+		<dt>初回セットアップ</dt><dd><a href="../environment/setup/index.html">DBFluteのセットアップ</a> <span class="frm">*最初の第一歩</span></dd>
+		<dt>アップグレード</dt><dd><a href="../environment/upgrade/index.html">DBFluteのアップグレード</a> <span class="frm">*バージョンを上げよう</span></dd>
+		<dt>EMecha</dt><dd><a href="../manual/function/helper/emecha/index.html">EMecha (Eclipse Plugin)</a> <span class="frm">*とりあえず全員インストール</span></dd>
+		<dt>Maven</dt><dd><a href="../manual/function/helper/maven/index.html">Maven (Maven Plugin)</a> <span class="frm">*玄人向け</span></dd>
+	</dl>
+	<h3 id="bigonereps">一つの大仕事</h3>
+	<dl class="valuemainlist">
+		<dt>DB環境構築の自動化</dt><dd><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a> <span class="frm">*テーブル作成＆テストデータ登録</span></dd>
+	</dl>
+	<h3 id="twoweapon">二つのやり方</h3>
+	<dl class="valuemainlist">
+		<dt>よくあるSQL</dt><dd><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> <span class="frm">*タイプセーフ＆目的指向</span></dd>
+		<dt>ちょいムズSQL</dt><dd><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL(OutsideSql)</a> <span class="frm">*2Way-SQL</span></dd>
+	</dl>
+	<h3 id="threeclass">三つのクラス</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/ormapper/entity/index.html">Entity</a></dt>
+		<dd>データ(レコード)を格納</dd>
+		<dt><a href="../manual/function/ormapper/behavior/index.html">Behavior</a></dt>
+		<dd>DBアクセスの入り口 <span class="frm">(DIコンポーネント)</span></dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a></dt>
+		<dd>検索条件の組み立て</dd>
+	</dl>
+	<h3 id="sixtask">七つのDBFluteタスク</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></dt>
+		<dd><a href="../manual/function/generator/task/replaceschema/createtable.html">テーブル作成</a> ＆ <a href="../manual/function/generator/task/replaceschema/loaddata.html">データ登録</a> ＆ <a href="../manual/function/generator/task/replaceschema/takefinally.html">データ整合性チェック</a> <span class="frm">※DB環境構築の自動化</span></dd>
+		<dt><a href="../manual/function/generator/task/jdbc/index.html">JDBC</a></dt>
+		<dd>DBからメタデータを取得 <span class="frm">※自動生成する前に</span></dd>
+		<dt><a href="../manual/function/generator/task/doc/index.html">Doc</a></dt>
+		<dd>ドキュメントを自動生成 (<a href="../manual/function/generator/task/doc/schemahtml.html">SchemaHTML</a>, <a href="../manual/function/generator/task/doc/historyhtml.html">HistoryHTML</a>) <span class="frm">※JDBC叩いてから</span></dd>
+		<dt><a href="../manual/function/generator/task/generate/index.html">Generate</a></dt>
+		<dd>Entityクラス(など)を自動生成 <span class="frm">※JDBC叩いてから</span></dd>
+		<dt><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entity</a></dt>
+		<dd>外だしSQLの<a href="../manual/function/generator/task/sql2entity/customizeentity.html">Entity</a>, <a href="../manual/function/generator/task/sql2entity/parameterbean.html">ParameterBean</a>を自動生成 <span class="frm">※外だしSQL書いたら</span></dd>
+		<dt><a href="../manual/function/generator/task/outsidesqltest/index.html">OutsideSqlTest</a></dt>
+		<dd>外だしSQL(OutsideSql)を<a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2WaySQL</a>として一括実行 <span class="frm">※SQLの一括チェック</span></dd>
+		<dt><a href="../manual/function/generator/task/manage/index.html">Manage</a></dt>
+		<dd>様々なDBFlute管理タスクを実行 <span class="frm">※本当に様々</span></dd>
+	</dl>
+	<h3 id="fivegenbafit">五つの現場フィット</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/genbafit/implfit/index.html">アプリ実装の全体最適</a></dt>
+		<dd><a href="../manual/function/genbafit/implfit/commoncolumn/index.html">共通カラム</a>、<a href="../manual/function/genbafit/implfit/classification/index.html">区分値</a>、<a href="../manual/function/genbafit/implfit/bizonetoone/index.html">業務的one-to-one</a>、<a href="../manual/function/genbafit/implfit/exclusivecontrol/index.html">排他制御</a>、<a href="../manual/function/genbafit/implfit/whererecycle/index.html">Where句</a> など</dd>
+		<dt><a href="../manual/function/genbafit/projectfit/index.html">プロジェクト構成対応</a></dt>
+		<dd><a href="../manual/function/genbafit/projectfit/multipledb/index.html">追加スキーマ (AdditionalSchema)</a>、<a href="../manual/function/genbafit/projectfit/multipledb/index.html">複数DB</a>、<a href="../manual/function/genbafit/projectfit/applicationoutsidesql/index.html">アプリ外だしSQL</a> など</dd>
+		<dt><a href="../manual/function/genbafit/runtimefit/index.html">実行時共通要件の実現</a></dt>
+		<dd><a href="../manual/function/genbafit/runtimefit/sequencecache/index.html">シーケンスキャッシュ</a>、<a href="../manual/function/genbafit/runtimefit/sqlloghandler/index.html">SQLログの取得</a>、<a href="../manual/function/genbafit/runtimefit/exceptionhandling/index.html">例外ハンドリング</a> など</dd>
+		<dt><a href="../manual/function/genbafit/dbflutefit/index.html">DBFlute利用のサポート</a></dt>
+		<dd>外だしSQLのタイトル、自動生成後の自動更新など</dd>
+		<dt><a href="../manual/function/genbafit/deprecatedfit/index.html">非推奨な構造フォロー</a></dt>
+		<dd><a href="../manual/function/genbafit/deprecatedfit/nonprimarykeyinsert/index.html">PKのないinsert</a>、<a href="../manual/function/genbafit/deprecatedfit/compoundprimarykey/index.html">複合主キーの対策</a> など</dd>
+	</dl>
+	<h3 id="eighttalent">八つのタレントたち</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/generator/task/doc/schemahtml.html">SchemaHTML</a></dt>
+		<dd>なんとかHTML御三家、自動生成されるテーブル定義ドキュメント</dd>
+		<dt><a href="../manual/function/generator/task/doc/historyhtml.html">HistoryHTML</a></dt>
+		<dd>DB差分御三家、なんとかHTML御三家 自動生成されるDB変更履歴</dd>
+		<dt><a href="../manual/function/generator/task/doc/schemasynccheck.html">SchemaSyncCheck</a></dt>
+		<dd>DB差分御三家、DBスキーマ同期チェック <span class="frm">※とあるDBとDBの差分チェック</span></dd>
+		<dt><a href="../manual/function/generator/task/replaceschema/altercheck.html">AlterCheck</a></dt>
+		<dd>DB差分御三家、alter文の整合性チェック <span class="frm">※前のDB + alter = 最新create</span></dd>
+		<dt><a href="../manual/function/genbafit/projectfit/craftdiff/index.html">CraftDiff</a></dt>
+		<dd>手作り差分チェック、DB差分の項目を独自のSQLで自由に拡張</dd>
+		<dt><a href="../manual/function/generator/task/doc/loaddatareverse.html">LoadDataReverse</a></dt>
+		<dd>DB上のデータをエクセルへダンプ、ReplaceSchemaデータと連携</dd>
+		<dt><a href="../manual/function/generator/task/doc/propertieshtml.html">PropertiesHTML</a></dt>
+		<dd>なんとかHTML御三家、propertiesファイルの差分チェック</dd>
+		<dt><a href="../manual/function/genbafit/implfit/procedurecall/index.html">ProcedureCall</a></dt>
+		<dd>ストアドプロシージャもタイプセーフ呼び出し</dd>
+	</dl>
+	<h3 id="ninedwarf">九つの小人たち</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/ormapper/runtime/allcommon/dbfluteconfig.html">DBFluteConfig</a></dt>
+		<dd>DBFluteのランタイムに関する微調整コンフィグ(設定)</dd>
+		<dt><a href="../manual/topic/programming/completion/camelcase.html">キャメルケースコード補完</a></dt>
+		<dd>キャメルケースの大文字部分を狙い打つ！ <span class="frm">※ConditionBeanでは必須!?</span></dd>
+		<dt><a href="../tutorial/handson/index.html">サロゲートキーと複合主キー</a></dt>
+		<dd>サロゲートキーつけてナチュラルキーには複合ユニーク制約</dd>
+		<dt><a href="../manual/topic/programming/dbaccess/pagingselect.html">ページング検索</a></dt>
+		<dd>そもそもページング検索とは？できる限りの分析</dd>
+		<dt><a href="../manual/topic/friends/eclipse/formatter.html">Eclipseフォーマッター</a></dt>
+		<dd>コードフォーマット、Eclipseのデフォルトフォーマット定義は使わない</dd>
+		<dt><a href="../manual/reference/dbway/oracle/oraclearraystruct.html">Oracle配列・構造体</a></dt>
+		<dd>がんばりすぎ</dd>
+		<dt><a href="../manual/reference/diway/seasar/index.html">DIコンテナごとの取扱い</a></dt>
+		<dd>SeasarとDBFluteのコラボレーション</dd>
+		<dt><a href="../manual/topic/office/feedback.html">フィードバック</a></dt>
+		<dd>質問だってフィードバック！ <span class="frm">※わからなければ、気軽にMLで聞いてください</span></dd>
+		<dt><a href="../tutorial/handson/index.html">DBFluteハンズオン</a></dt>
+		<dd>DBFluteとJavaプログラミングを同時に学べるハンズオン教材</dd>
+	</dl>
+
+	<h2 id="knowledge">必要なノウハウ</h2>
+	<p>
+		アーキテクトは、実装部分だけでなくDBFluteの環境周りや設定周りなど全体を把握する必要があります。
+		DBFluteを探っている人、これから使う人、問わずに必要なノウハウを得るためのエントリです。
+	</p>
+	<ul>
+		<li><a href="#concept">DBFluteの概念・役割</a></li>
+		<li><a href="#infra">DBFluteのインフラ情報</a></li>
+		<li><a href="#generator">自動生成ツールとしてのDBFlute</a></li>
+		<li><a href="#ormapper">O/RマッパーとしてのDBFlute</a></li>
+		<li><a href="#dbway">DBMSごとの取扱い</a></li>
+		<li><a href="#dfprop">DBFluteプロパティ</a></li>
+	</ul>
+	<h3 id="concept">DBFluteの概念・役割</h3>
+	<p>
+		開発の効率化のためにDBFlute利用を推進する、提案されてきたDBFlute利用の許可判断をするなどの場合、
+		直接は利用(実装)しないとしてもある程度の "概念と役割" を理解しておく必要があります。
+	</p>
+	<div class="detailpage"><a href="../introduction/index.html">DBFluteの紹介</a></div>
+	<h3 id="infra">DBFluteのインフラ情報</h3>
+	<p>
+		DBFluteを採用することが可能なのか？インフラ的な視点を事前に把握しておくことが大事です。
+		DBFluteを使う場合に最適な環境は？という視点からも把握しておくことは大事です。
+	</p>
+	<div class="detailpage"><a href="../environment/index.html">DBFluteの環境</a></div>
+	<h3 id="generator">自動生成ツールとしてのDBFlute</h3>
+	<p>
+		DBFluteと触れ合うとき、一番最初に出会うのは自動生成ツールとしてのDBFluteです。
+		DBFluteはO/Rマッパでもありながら、自動生成ツールそのものと言えます。
+	</p>
+	<div class="detailpage"><a href="../manual/function/generator/index.html">自動生成ツールとしてのDBFlute</a></div>
+	<h3 id="ormapper">O/RマッパーとしてのDBFlute</h3>
+	<p>
+		DBFluteのメインの部分です。どのようなアーキテクチャなのか？どのように実装するのか？
+		ディベロッパーへの横展開のためにも、O/RマッパーとしてのDBFluteを把握する必要があります。
+	</p>
+	<div class="detailpage"><a href="../manual/function/ormapper/index.html">O/RマッパーとしてのDBFlute</a></div>
+	<p>
+		また、ディベロッパー視点からのDBFluteを知ることが、"O/RマッパーとしてのDBFlute"
+		を知ることの近道でもあります。(ディベロッパーのための)チュートリアルに必ず目を通しておきましょう。
+	</p>
+	<div class="detailpage"><a href="./developer.html">ディベロッパーのためのチュートリアル</a></div>
+	<h3 id="dbway">DBMSごとの取扱い</h3>
+	<p>
+		DBMSによって扱いに若干の違いが生まれます。利用するDBMSのページに目を通しておきましょう。
+	</p>
+	<div class="detailpage"><a href="../manual/reference/dbway/index.html">DBMSごとの取扱い</a></div>
+	<h3 id="dfprop">DBFluteプロパティ</h3>
+	<p>
+		最適なDBFluteプロパティを設定することで、その現場にフィットしたDBFluteにすることができます。
+		また、環境ごとに dfprop を差し替えることもできます(結合環境用の ReplaceSchema など)。
+	</p>
+	<div class="detailpage"><a href="../manual/reference/dfprop/index.html">DBFluteプロパティ</a></div>
+	<p>
+		デフォルトfalseだが、ほとんどtrueでOKのプロパティに関する特集コラムがあります。
+	</p>
+	<div class="detailpage"><a href="#almosttrue">this - デフォルトfalseだが、ほとんどtrueでOKのプロパティ</a></div>
+
+	<h2 id="action">開発時にやるべきこと</h2>
+	<p>
+		アーキテクトが開発時にやるべきことは以下の通りです。
+	</p>
+	<ul>
+		<li><a href="#policy">DBFluteの利用ポリシー決め</a></li>
+		<li><a href="#replaceschema">ReplaceSchemaの利用有無</a></li>
+		<li><a href="#setup">DBFluteのセットアップ</a></li>
+		<li><a href="#totalopt">全体最適化のための設定</a></li>
+		<li><a href="#developer">ディベロッパーへの横展開</a></li>
+		<li><a href="#dbchange">DB変更時の再自動生成</a></li>
+		<li><a href="#upgrade">DBFluteのアップグレード</a></li>
+	</ul>
+	<h3 id="policy">DBFluteの利用ポリシー決め</h3>
+	<p>
+		"DBFluteをどう使うか？"、"作業が発生したときに誰がどう行うか？"
+		事前に決められるものは決めておきましょう。この後の項目の内容を参考に開発がスムーズに進むようにポリシーを考えてみて下さい。
+	</p>
+	<h3 id="replaceschema">ReplaceSchemaの利用有無</h3>
+	<p>
+		大きな判断の一つとして、ReplaceSchemaを利用するかどうか？というのがあります。
+		DB変更への耐性を強くするのであれば、利用を強く推奨します。
+		DB変更を迅速にディベロッパーの開発用ローカルDBに反映させるために、ReplaceSchemaが役に立つでしょう。
+	</p>
+	<div class="detailpage"><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></div>
+	<p>
+		特にテストデータの管理は重要です。DBFluteは "DB変更に強い" を特徴としていますが、
+		プログラムだけがDB変更に強くても足りないと考えていて、<em class="keyword">テストデータもDB変更に強くないと実際にはDB変更のコストは高いまま</em>
+		です。テストデータの管理が曖昧で散在していると、いざDB変更したときにテストデータを修正する手間が膨大になってしまいます。
+		ReplaceSchemaのようなツールを使って、	<em class="keyword">しっかりテストデータも管理しておくことで本当に意味でDB変更に強い</em>
+		と言えるでしょう。
+	</p>
+	<div class="detailpage"><a href="../manual/topic/dbdesign/testdata.html">トピック - テストデータ</a></div>
+	<p>
+		ReplaceSchemaの情報は、<em class="keyword">Alto DBFlute</em> でも大きく取り上げられています。
+	</p>
+	<div class="detailpage"><a href="./altodbflute.html">Alto DBFlute</a></div>
+	<h3 id="setup">DBFluteのセットアップ</h3>
+	<p>
+		DBFluteのセットアップは一つのプロジェクトに付き一回だけ行います。
+		開発が始まる前のDB設計がおおよそ固まった時点で行い、生成されたクラスを "バージョン管理システム"
+		(SVNなど)に登録をしてディベロッパーが利用できるようにします。
+	</p>
+	<div class="detailpage"><a href="../environment/setup/index.html">DBFluteのセットアップ</a></div>
+	<h3 id="totalopt">全体最適のための設定</h3>
+	<p>
+		DBFluteは全体最適を行う様々な <em class="keyword">現場フィットな機能</em>
+		があります。プロジェクト要件と機能が一致するのであれば、事前にしっかりと設定をしてディベロッパーに横展開することお奨めします。
+	</p>
+	<div class="detailpage"><a href="../manual/function/genbafit/index.html">現場フィット</a></div>
+	<p>
+		設定した後は、ディベロッパーの実装に影響のあるものはしっかりと周知します。例えば
+		"共通カラムは自動設定されるので insert や update のときに気にしなくていいですよ" とか "区分値を設定したのでこういうメソッド使って下さいね"
+		などなど。そういった情報はメールや口頭で伝えるだけでなく、いつでも参照できるようにプロジェクト内の <em class="keyword">情報共有システム</em>
+		(Wikiなど)に掲載しておくと良いでしょう。
+	</p>
+	<h3 id="developer">ディベロッパーへの横展開</h3>
+	<p>
+		DBFluteに限ったことではないですが、開発が本格化する前にディベロッパーに実装スキルを習得してもらう必要があります。
+		"各自勉強しておくように" というのも悪くはありませんが、<em class="keyword">勉強会などでディベロッパーたちがスキルを共有</em>
+		できるような形にしておくことで、スキル習得の効率も上がりますし、開発が始まってからの
+		<em class="keyword">ディベロッパー同士の情報交換によるスキル向上</em> も望めます。
+	</p>
+	<p>
+		<em class="keyword">ディベロッパーのためのチュートリアル</em>
+		というページを用意していますので、ディベロッパーには必ず(一度は)このページを読んでもらうようにして下さい。
+		調べ物をするときのエントリページにもなりますので、ブラウザのブックマークに登録してもらうと良いでしょう。
+	</p>
+	<div class="detailpage"><a href="./developer.html">ディベロッパーのためのチュートリアル</a></div>
+	<h3 id="dbchange">DB変更時の再自動生成</h3>
+	<p>
+		DB変更が発生したら、もろもろ再自動生成します。
+	</p>
+	<div class="detailpage"><a href="../manual/function/generator/task/dbchange.html">DB変更が発生したら</a></div>
+	<h3 id="upgrade">DBFluteのアップグレード</h3>
+	<p>
+		新しいDBFluteがリリースされたときに、DBFluteをアップグレードするか否かの決定とアップグレード作業をする必要があります。
+		<em class="keyword">移行時の注意</em> を必ず読んでスムーズに最新版のDBFluteをディベロッパーが利用できるようにしましょう。
+	</p>
+	<div class="detailpage"><a href="../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+
+	<h2 id="column">特集コラム</h2>
+	<div class="inucolumn">
+		<h3 id="almosttrue">デフォルトfalseだが、ほとんどtrueでOKのプロパティ</h3>
+		<p>
+			DBFluteとしては、どうしてもデフォルトで true
+			にしづらいプロパティがあります。万が一のケースでトラブりやすいと考えられるものです。
+			レアケースはいえ true にできないもの。
+		</p>
+		<p>
+			例えば、区分値において、区分値解決メソッドとCDef型の引数のメソッドがあれば、ネイティヴ型のメソッドは既に不要なものです。
+			ですが、DBFluteの区分値定義に存在していなくてDB上にだけ存在する "隠れ区分値"
+			のようなものがあった場合(別システムで利用されるとか)、そして、そのアプリでもその値が検索したり設定したりするようなことがある場合、ネイティヴ型のメソッドがないと扱うことができません。
+			そんなことまずあり得ないと思われますが、万が一そういう現場があるかもしれないと考えると true にできないのです。
+		</p>
+		<p>
+			感覚値ですが9割以上の現場で問答無用でネイティヴ型のメソッドは削除して良いでしょう。
+			そういった感じのプロパティをここで幾つか特集したいと思います。(本当にOKか確認はしましょう)
+		</p>
+		<dl class="textlist">
+			<dt>区分値のネイティヴ型のメソッドの削除と例外検知</dt>
+			<dd>
+				隠れ区分値がなければ。<span class="frm">(そもそもそんな区分値があるとややこしい)</span>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#isforceclassificationsetting">littleAdjustmentMap.dfprop - isForceClassificationSetting</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#ischeckselectedclassification">littleAdjustmentMap.dfprop - isCheckSelectedClassification</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/classificationdefinition/index.html#ischeckimplicitset">littleAdjustmentMap.dfprop - isCheckImplicitSet</a></div>
+			</dd>
+			<dt>空文字は null に変換して登録・更新</dt>
+			<dd>
+				空文字に意味を持たせないで良いのであれば。<span class="frm">(そもそも持たせるとややこしい)</span>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#isentityconvertemptystringtonull">littleAdjustmentMap.dfprop - isEntityConvertEmptyStringToNull</a></div>
+			</dd>
+			<dt>別名(和名)の設定やDBコメントの扱い</dt>
+			<dd>
+				DBコメントの中に、どういう形式で別名(和名)を含めるかを確認して設定しましょう。
+				isEntityJavaDocDbCommentValid に関しては、別名の設定に関わらず、とりあえず true にして自動生成してコンパイルエラーがなければOKという感じです。<span class="frm">(ぜひDBコメントは活用したい)</span>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#aliasdelimiterindbcomment">documentDefinitionMap.dfprop - aliasDelimiterInDbComment</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#isdbcommentonaliasbasis">documentDefinitionMap.dfprop - isDbCommentOnAliasBasis</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#isentityjavadocdbcommentvalid">documentDefinitionMap.dfprop - isEntityJavaDocDbCommentValid</a></div>
+			</dd>
+			<dt>外だしSQLのコメントは必須に</dt>
+			<dd>
+				OutsideSqlTestタスクで、外だしSQLのコメントの有無をチェックできます。<span class="frm">(コメント必須)</span>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isrequiredsqltitle">outsideSqlDefinitionMap.dfprop - isRequiredSqlTitle</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isrequiredsqldescription">outsideSqlDefinitionMap.dfprop - isRequiredSqlDescription</a></div>
+			</dd>
+			<dt>ストアドプロシージャを使うのであれば</dt>
+			<dd>
+				プロシージャ使うならとりあえず設定するでOK。<span class="frm">(実際に使ってみて何かあれば微調整で良い)</span>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#ischeckprocedurediff">documentDefinitionMap.dfprop - isCheckProcedureDiff</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isgenerateprocedureparameterbean">outsideSqlDefinitionMap.dfprop - isGenerateProcedureParameterBean</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isgenerateprocedurecustomizeentity">outsideSqlDefinitionMap.dfprop - isGenerateProcedureCustomizeEntity</a></div>
+			</dd>
+			<dt>DBMSの挙動に関わらずテーブル名を大文字に</dt>
+			<dd>
+				主に MySQL にて、"テーブル名大文字小文字区別なしモード" にするとメタデータが小文字になってしまうので。
+				<span class="frm">(もちろんもともと小文字でいいのなら関係ないですが、もし、ERDなどドキュメントが大文字なのであれば、SchemaHTML 上のテーブル名も合わせて大文字にしたいので)</span>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#istabledispnameuppercase">littleAdjustmentMap.dfprop - isTableDispNameUpperCase</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#istablesqlnameuppercase">littleAdjustmentMap.dfprop - isTableSqlNameUpperCase</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#iscolumnsqlnameuppercase">littleAdjustmentMap.dfprop - isColumnSqlNameUpperCase</a></div>
+			</dd>
+		</dl>
+	</div>
+	<div class="inucolumn">
+		<h3 id="entityset">EntityとDTOとの詰め替えは地道に</h3>
+		<h4>あえて強く言います</h4>
+		<p>
+			検索したEntityのデータを画面用のDTOに詰め替えする時や、またはその逆の時など、リフレクションでプロパティ名が同じ項目の値を自動で詰め替えしてくれるツールが世の中に多くありますが...
+			<em class="keyword">DBFluteとの相性は最悪で、決して使うべきではありません</em>。<span class="frm">(Beanなんとかとか)</span>
+		</p>
+		<p>
+			と、ちょっとあえて強く言いましたが、DBFluteでは全くオススメしません。なぜでしょうか？
+		</p>
+		<h4>リフレクション詰め替えとの相性は最悪</h4>
+		<p>
+			DBFluteは、DB変更に強いをテーマにしていますが、もしリフレクションでの詰め替えをやってしまうと、その影響範囲がコンパイルでは検知できなくなります。
+			名前が変わったりカラムが削除されたりしても、本当に影響があるのかどうかは実際に画面を動かしてみて、その項目の値を目視するまではわからないのです。
+		</p>
+		<p>
+			画面DTOを作成して詰め替えをするのはとても良いことです。JSPなどから直接 Entity
+			を参照してしまうと、それこそコンパイルセーフの恩恵に預かれません。	逆にいうと、画面DTOまで作っておきながらリフレクションで詰め替えるのは本末転倒とも言えます。
+		</p>
+		<p>
+			完全に DBFlute のポリシーと反する機能であることがわかります。
+		</p>
+		<h4>予期せぬトラブルのオンパレード</h4>
+		<p>
+			また、DBFluteに限らず、このリフレクションを使ったやり方が多くのトラブルを生み出してきたのを見てきました。
+			項目名に処理が依存するということは、コンパイルセーフなJavaの中にメタプログラミングが紛れ込んでるとも言えます。
+			その気軽なメタプログラミングの扱いが、予期せぬ失敗を生み出すことがあります。
+			しかも、そのトラブルはとても原因を特定しづらく、デバッグに非常に時間がかかりやすいものであることが多いです。
+		</p>
+		<p>
+			さらには、カラムの利用状況を調べたいとおもうときに、Eclipseでいう "ctrl + shift + G"
+			による呼び出しプログラムの検索が効かなくなります。これは地味ながら何気につらいことです。誰がそのカラムを get したり set
+			したりしているのかがとてもわかりにくくなります。
+		</p>
+		<h4>費用対効果で考えると...地道が一番</h4>
+		<p>
+			昨今のIDE(Eclipseなど)ではメソッドの補完などが充実していて、例えばキャメルケースのコード補完などを使ってリズムよく書いていけば、ベタに書いたとしてもさほど書くコストは発生しません。
+		</p>
+		<div class="relatedpage"><a href="../manual/topic/programming/completion/camelcase.html">キャメルケースコード補完</a></div>
+		<p>
+			目の前の数分のコストをケチって、将来のややこしいバグを生み出す可能性をプログラムに埋め込むのは、あまり得策とは思えないのです。
+			DB項目を画面にマッピングする処理というのは、業務の根幹のロジックですから、そのはしっかりと書きたいところです。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

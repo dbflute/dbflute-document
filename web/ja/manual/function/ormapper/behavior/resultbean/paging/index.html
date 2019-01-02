@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,PagingResultBean,ページングの結果" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>PagingResultBean | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>PagingResultBean</h1>
+	${indexlist}
+
+	<h2 id="about">PagingResultBeanとは？</h2>
+	<p>
+		DBFluteにおけるページング検索で戻されるリスト型の結果オブジェクトです。
+	</p>
+	<div class="relatedpage"><a href="../../../../genbafit/implfit/pagingselect/index.html">現場フィット - ページング検索</a></div>
+	<p>
+		会話上では、<em class="keyword">ぺーじんぐりざるとびーん</em> と表現します。
+	</p>
+	<h3 id="extends">ListResultBeanを継承</h3>
+	<p>
+		ListResultBean を継承しているため、同様の特徴(例えば、java.util.Listの実装クラスであること)を持っています。
+		(そのまま for 文でループさせることができます)
+	</p>
+	<div class="relatedpage"><a href="../list/index.html">ListResultBean</a></div>
+<pre><span class="codetitle">e.g. PageRange の利用 {rangeSize=5,fillLimit=true} @Java</span><code>
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+<span class="keyword">for</span> (Member member : memberPage) { <span class="comment">// そのままリストとして扱える</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		PagingResultBean であることで変わる ListResultBean の特徴は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>allRecordCount</dt>
+		<dd>ページングなし総レコード数 <span class="frm">(size()と同値ではない)</span></dd>
+		<dt>selectedList</dt>
+		<dd>ページング実データ</dd>
+	</dl>
+	<h3 id="saveresult">ページング結果の保持</h3>
+	<p>
+		ページング検索の結果に関する情報を保持しています。具体的には、"ページングなし総レコード数"、"ページング実データ"
+		など。さらに、これらを利用して別の情報(総ページ数など)を導出する計算処理を備えています。
+	</p>
+
+	<h2 id="basic">基本的なプロパティと計算ロジック</h2>
+	<p>
+		基本的なプロパティと計算ロジック(メソッド)は以下の通りです。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>tableDbName</dt><dd>検索の基点となったテーブルの名前 <span class="frm">(ListResultBeanより継承)</span></dd>
+		<dt>allRecordCount</dt><dd>ページングなし総レコード数 <span class="frm">(ListResultBeanより継承)</span></dd>
+		<dt>selectedList</dt><dd>ページング実データ <span class="frm">(ListResultBeanより継承)</span></dd>
+		<dt>orderByClause</dt><dd>検索時のソート情報 <span class="frm">(ListResultBeanより継承)</span></dd>
+		<dt>pageSize</dt><dd>1 ページあたりのレコード数 <span class="frm">(検索条件で指定された値)</span></dd>
+		<dt>currentPageNumber</dt><dd>現在のページ番号 <span class="frm">(検索条件で指定された値)</span></dd>
+		<dt>allPageCount</dt><dd>総ページ数 <span class="frm">(計算)</span></dd>
+		<dt>isExistPrePage()</dt><dd>前のページが存在するか否か <span class="frm">(計算)</span></dd>
+		<dt>isExistNextPage()</dt><dd>次のページが存在するか否か <span class="frm">(計算)</span></dd>
+		<dt>prePageNumber</dt><dd>前のページ番号 <span class="frm">(存在しない場合は例外)</span> <span class="frm">(計算)</span></dd>
+		<dt>nextPageNumber</dt><dd>次のページ番号 <span class="frm">(存在しない場合は例外)</span> <span class="frm">(計算)</span></dd>
+		<dt>currentStartRecordNumber</dt><dd>現在ページの最初のレコード番号 <span class="frm">(計算)</span></dd>
+		<dt>currentEndRecordNumber</dt><dd>現在ページの最後のレコード番号 <span class="frm">(計算)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. PagingResultBean の基本機能の利用 @Java</span><code>
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+<span class="keyword">int</span> allRecordCount = memberPage.<span class="point">getAllRecordCount()</span>;
+<span class="keyword">int</span> allPageCount = memberPage.<span class="point">getAllPageCount()</span>;
+if (memberPage.<span class="point">isExistPrePage()</span>) {
+    <span class="keyword">int</span> prePageNumber = memberPage.<span class="point">getPrePageNumber()</span>;
+}
+if (memberPage.<span class="point">isExistNextPage()</span>) {
+    <span class="keyword">int</span> nextPageNumber = memberPage.<span class="point">getNextPageNumber()</span>;
+}
+</code></pre>
+
+	<h2 id="pagenumberlink">ページ番号リンク</h2>
+	<p>
+		ページ番号リンクに関する幾つかの方式に対応した計算ロジックを備えています。
+	</p>
+	<h3 id="pagegroup">PageGroup</h3>
+	<p>
+		ページングナビゲーションのページ番号リンクの表示方式の一つで、<em class="keyword">あるまとまった単位の複数ページを一つのグループ</em>
+		として定義し、現在表示しているページが所属しているグループのリンクが表示されるようにする方式です。
+		例えば、10 ページを一つのグループとした場合で、1 ページ目から 10
+		ページ目までのどのページを表示していても、ページ番号リンクの表示は変わりません(1 から 10 ページ目までのリンクが表示される)。
+	</p>
+	<p>
+		"前へ" は、"前のページへのリンク" なのか、"前のグループの最後のページへのリンク"
+		なのか、どちらを意味するものなのかを業務仕様的に明確にする必要があります("次へ"
+		も同様)。どちらか片方だけをサポートするパターンと、(リンク文言を工夫して)両方のリンクを別々に作成するパターンがあります。
+	</p>
+<pre><span class="codetitle">e.g. PageGroup の表示 {10 ページを一つのグループ,現在 9 ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 1 2 3 4 5 6 7 8</span> <span class="point">9</span> <span class="attribute">10 次へ</span>
+</code></pre>
+<pre><span class="codetitle">e.g. PageGroup の表示 {10 ページを一つのグループ,現在 3 ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 1 2</span> <span class="point">3</span> <span class="attribute">4 5 6 7 8 9 10 次へ</span>
+</code></pre>
+<pre><span class="codetitle">e.g. PageGroup の表示 {10 ページを一つのグループ,現在 12 ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 11</span> <span class="point">12</span> <span class="attribute">12 13 14 15 16 17 18 19 20 次へ</span>
+</code></pre>
+	<p>
+		pageGroupSize を指定し、その後で pageGroup() を呼び出すことで、グループに関する計算ロジックを利用することができます。
+		業務仕様と実装上の利便性を考慮して、必要なメソッドを利用します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>buildPageNumberLinkList()</dt><dd>グループのページ番号リンク情報のリストを作成</dd>
+		<dt>createPageNumberList()</dt><dd>グループのページ番号の(単なる数値の)リストを作成</dd>
+		<dt>createPageNumberArray()</dt><dd>グループのページ番号の(単なる数値の)配列を作成</dd>
+		<dt>isExistPrePageGroup()</dt><dd>前のグループが存在するか否か</dd>
+		<dt>isExistNextPageGroup()</dt><dd>次のグループが存在するか否か</dd>
+		<dt>preGroupNearestPageNumber</dt><dd>前のグループの直近の(最後の)ページ番号 <span class="frm">(存在しない場合は例外)</span></dd>
+		<dt>nextGroupNearestPageNumber</dt><dd>次のグループの直近の(最初の)ページ番号 <span class="frm">(存在しない場合は例外)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. PageGroup の利用 {groupSize=10} @Java</span><code>
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+memberPage.<span class="point">setPageGroupSize</span>(<span class="literal">10</span>);
+List&lt;PageNumberLink&gt; linkList = memberPage.<span class="point">pageGroup()</span>.<span class="point">buildPageNumberLinkList</span>(<span class="keyword">new</span> PageNumberLinkSetupper&lt;PageNumberLink&gt;() {
+    <span class="keyword">public</span> PageNumberLink setup(<span class="keyword">int</span> pageNumberElement, <span class="keyword">boolean</span> current) {
+        String href = <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="keyword">new</span> PageNumberLink().initialize(pageNumberElement, current, href);
+    }
+}
+List&lt;Integer&gt; numberList = memberPage.<span class="point">pageGroup()</span>.<span class="point">createPageNumberList()</span>;
+if (memberPage.pageGroup().<span class="point">isExistPrePageGroup()</span>) {
+    <span class="keyword">int</span> preNum = memberPage.pageGroup().<span class="point">getPreGroupNearPageNumber()</span>;
+}
+if (memberPage.pageGroup().<span class="point">isExistNextPageGroup()</span>) {
+    <span class="keyword">int</span> nextNum = memberPage.pageGroup().<span class="point">getNextGroupNearPageNumber()</span>;
+}
+</code></pre>
+	<div class="detailpage"><a href="#pagenumberlink">this - PageNumberLink</a></map></div>
+	<h3 id="pagerange">PageRange</h3>
+	<p>
+		ページングナビゲーションのページ番号リンクの表示方式の一つで、<em class="keyword">前後 n ページのリンクが表示</em>
+		されるようにする方式です。ロジックが単純で、GUIユーザも理解しやすいのが特徴です。
+	</p>
+	<p>
+		"前へ" は、"前のページへのリンク" なのか、"Range 外の前のページへのリンク"
+		なのか、どちらを意味するものなのかを業務仕様的に明確にする必要があります("次へ"
+		も同様)。どちらか片方だけをサポートするパターンと、(リンク文言を工夫して)両方のリンクを別々に作成するパターンがあります。
+	</p>
+<pre><span class="codetitle">e.g. PageRange の表示 {前後 5 ページを表示,現在 8 ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 3 4 5 6 7</span> <span class="point">8</span> <span class="attribute">9 10 11 12 13 次へ</span>
+</code></pre>
+<pre><span class="codetitle">e.g. PageRange の表示 {前後 5 ページを表示,現在 3 ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 1 2</span> <span class="point">3</span> <span class="attribute">4 5 6 7 8 次へ</span>
+</code></pre>
+	<p>
+		pageRangeSize を指定し、その後で pageRange() を呼び出すことで、Range
+		に関する計算ロジックを利用することができます。業務仕様と実装上の利便性を考慮して、必要なメソッドを利用します。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>buildPageNumberLinkList()</dt><dd>Range のページ番号リンク情報のリストを作成</dd>
+		<dt>createPageNumberList()</dt><dd>Range のページ番号の(単なる数値の)リストを作成</dd>
+		<dt>createPageNumberArray()</dt><dd>Range のページ番号の(単なる数値の)配列を作成</dd>
+		<dt>isExistPrePageRange()</dt><dd>前の Range が存在するか否か <span class="frm">(前のRange外にページがあるか否か)</span></dd>
+		<dt>isExistNextPageRange()</dt><dd>次の Range が存在するか否か <span class="frm">(次のRange外にページがあるか否か)</span></dd>
+		<dt>preRangeNearestPageNumber</dt><dd>前の Range の直近の(最後の)ページ番号 <span class="frm">(存在しない場合は例外)</span></dd>
+		<dt>nextRangeNearestPageNumber</dt><dd>次の Range の直近の(最初の)ページ番号 <span class="frm">(存在しない場合は例外)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. PageRange の利用 {rangeSize=5} @Java</span><code>
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+memberPage.<span class="point">setPageRangeSize</span>(<span class="literal">5</span>);
+List&lt;PageNumberLink&gt; linkList = memberPage.<span class="point">pageRange()</span>.<span class="point">buildPageNumberLinkList</span>(<span class="keyword">new</span> PageNumberLinkSetupper&lt;PageNumberLink&gt;() {
+    <span class="keyword">public</span> PageNumberLink setup(<span class="keyword">int</span> pageNumberElement, <span class="keyword">boolean</span> current) {
+        String href = <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="keyword">new</span> PageNumberLink().initialize(pageNumberElement, current, href);
+    }
+}
+List&lt;Integer&gt; numberList = memberPage.<span class="point">pageRange()</span>.<span class="point">createPageNumberList()</span>;
+if (memberPage.pageRange().<span class="point">isExistPrePageRange()</span>) {
+    <span class="keyword">int</span> preNum = memberPage.pageRange().<span class="point">getPreRangeNearPageNumber()</span>;
+}
+if (memberPage.pageRange().<span class="point">isExistNextPageRange()</span>) {
+    <span class="keyword">int</span> nextNum = memberPage.pageRange().<span class="point">getNextRangeNearPageNumber()</span>;
+}
+</code></pre>
+	<p>
+		PageNumberLink は DBFlute が提供しているページ番号リンク情報のクラスです。
+	</p>
+	<div class="detailpage"><a href="#pagenumberlink">this - PageNumberLink</a></map></div>
+	<h4>fillLimit オプション</h4>
+	<p>
+		前後 n ページという条件に加えて、<em class="keyword">デザイン的な左右のバランスを整えるために不足ページ分を反対側の表示で埋める</em>
+		オプションがあります。例えば、前後 5 ページを表示する場合で、現在 3 ページ目を表示しているときは、8 ページ目まででなく 11
+		ページ目(表示しなかったページ数 3 を足している)まで表示されるようになり、リンク数が固定されます。
+		(但し、そもそも総ページ数が少ない場合は、その分リンク数は少なくなります)
+	</p>
+<pre><span class="codetitle">e.g. PageRange の表示 {前後5ページを表示(fillLimit),現在3ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 1 2</span> <span class="point">3</span> <span class="attribute">4 5 6 7 8 9 10 11 次へ</span>
+</code></pre>
+	<p>
+		PageRangeOption に pageRangeSize と fillLimit を指定し、その後で pageRange()
+		を呼び出すことで、fillLimit を利用した Range に関する計算ロジックを利用することができます。
+	</p>
+<pre><span class="codetitle">e.g. PageRange の利用 {rangeSize=5,fillLimit=true} @Java</span><code>
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+PageRangeOption option = new PageRangeOption();
+option.setPageRangeSize(<span class="literal">5</span>);
+option.<span class="point">setFillLimit</span>(<span class="keyword">true</span>);
+memberPage.setPageRangeOption(option);
+List&lt;Integer&gt; numberList = memberPage.pageRange().createPageNumberList();
+<span class="keyword">boolean</span> existsPre = memberPage.<span class="point">pageRange()</span>.<span class="point">isExistPrePageRange()</span>;
+<span class="keyword">boolean</span> existsNext = memberPage.<span class="point">pageRange()</span>.<span class="point">isExistNextPageRange()</span>;
+</code></pre>
+	<h3 id="pagenumberlink">PageNumberLink</h3>
+	<p>
+		PageGroup, PageRange 共に、buildPageNumberLinkList() を利用することでページングナビゲーションのリンク情報を持った DTO
+		を生成することができます。PageNumberLink は DBFlute が提供しているシンプルな DTO
+		です。プロパティが足りない場合は、このクラスを継承した独自のクラスを指定すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. PageRange で PageNumberLink を生成 {rangeSize=5} @Java</span><code>
+PagingResultBean&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+memberPage.setPageRangeSize(<span class="literal">5</span>);
+List&lt;PageNumberLink&gt; linkList = memberPage.pageRange().<span class="point">buildPageNumberLinkList</span>(<span class="keyword">new</span> PageNumberLinkSetupper&lt;PageNumberLink&gt;() {
+    <span class="keyword">public</span> PageNumberLink setup(<span class="keyword">int</span> pageNumberElement, <span class="keyword">boolean</span> current) {
+        String href = <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="keyword">new</span> PageNumberLink().initialize(pageNumberElement, current, href);
+    }
+}
+</code></pre>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

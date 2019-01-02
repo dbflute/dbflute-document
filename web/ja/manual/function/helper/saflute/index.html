@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFlute</h1>
+	<p>
+		<em class="keyword">ぜひ、LastaFlute をお使いください！</em>
+	</p>
+	<div class="detailpage"><a href="../../../../lastaflute/index.html">LastaFluteトップページ</a></div>
+	${indexlist}
+
+	<h2 id="about">SAFluteとは？</h2>
+	<p>
+		DBFluteを使って、<em class="keyword">リーンスタートアップ、インクリメンタル開発</em>
+		をターゲットに、SAStruts を最適化した拡張モジュール <span class="frm">(+ 開発スタイル)</span> です。
+	</p>
+	<h3 id="concept">SAFluteのコンセプト</h3>
+	<p>
+		インクリメンタル開発では、業務の変更が激しく、DB変更だけでなく画面構成の変更なども頻繁に発生します。
+		そして、そもそも <em class="keyword">フェーズごとに適した実装ポリシーが変化</em> していきます。
+	</p>
+	<p>
+		そのような変化を受け入れるための細かいケアをしています。
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20130826/saflute">外部サイト - SAFlute始めました</a></div>
+	<dl class="textlist">
+		<dt>ソースコードを読むことが多いため、探しやすく</dt>
+		<dd>
+			ドキュメントを書く時間があまりないため、ソースコードを読んで仕様(挙動)を確認することが多くあります。
+			例えばひとつ、SAStrutsのいわゆる "IndexActionだらけ" にならないように、ActionやJSPに探しやすい名前を付けられるようにしています。
+			<span class="frm">(同時に、規約ベースマッピングによる統一性のメリットも享受)</span>
+		</dd>
+		<dd>
+			また、既に作成された画面を動かして、挙動を確認することが多くあります。
+			デバッグログにて、どんなActionクラスやJSPが動いたのかを見つけやすいように出力しています。
+		</dd>
+		<dt>気付いたらよくデグレってるので、変更を検知しやすく</dt>
+		<dd>
+			業務も変わりプログラムも変更しまくっていると、気付いたらよくデグレっています。
+			例えばひとつ、Actionクラスの return 値で指定する画面遷移をタイプセーフにし、DBFluteのDB変更耐性と同じようなメリットをWeb側でも享受できるようにしています。
+		</dd>
+		<dd>
+			特にリファクタリングは、継続的に求められるスキルです。
+			ディベロッパーのリファクタリング力のアップもさることながら、できる限り影響範囲を特定しやすいような構成にしておくことが大切です。
+		</dd>
+		<dt>という感じで細かくケア</dt>
+		<dd>
+			SAFlute自体も、リーンスタートアップ、インクリメンタル開発の現場で、リーンスタートアップ、インクリメンタルに開発されました。
+			こういった現場のニーズをとらえながら、細かく細かく現場のスピードを高めるケアを追加しておきました。
+		</dd>
+		<dd>
+			"仕組み" でディベロッパーが業務に集中できるようにすることが最大の目的です。
+			実際に機能を見ていくとその特徴がわかるかと思います。
+		</dd>
+	</dl>
+	<h3 id="conceptmap">Actionさんマップ</h3>
+	<p>
+		Actionクラスとその仲間たちです。
+	</p>
+	<p class="imgbox">図 : SAFlute - Actionさんマップ
+		<a href="../../../../data/model/saflute/saflute-Action-view.png" title="SAFlute - Actionさんマップ"><img src="../../../../data/model/saflute/saflute-Action-view.png" alt="SAFlute - Actionさんマップ" width="550" height="440" /></a>
+	</p>
+
+	<h3 id="conceptmap">アーキテクチャ概念マップ</h3>
+	<p>
+		SAFluteの全体アーキテクチャのビューです。
+	</p>
+	<p class="imgbox">図 : SAFlute - アーキテクチャ概念マップ
+		<a href="../../../../data/model/saflute/saflute-Architecture-view.png" title="SAFlute - アーキテクチャ概念マップ"><img src="../../../../data/model/saflute/saflute-Architecture-view.png" alt="SAFlute - アーキテクチャ概念マップ" width="550" height="440" /></a>
+	</p>
+
+	<h2 id="function">SAFluteの機能</h2>
+	<h3 id="twotrigger">最初の二つのきっかけ <span class="frm">(Name & Typesafe)</span></h3>
+	<p>
+		SAFluteには、様々な最適化が施されていますが、実装を始めた最初の二つのきっかけがあります。
+	</p>
+	<div class="relatedpage"><a href="./twotrigger.html">SAFluteの二つのきっかけ</a></div>
+	<dl class="longkeymainlist">
+		<dt><a href="./twotrigger.html#nameidentity">Action, JSP Name Identity</a></dt><dd>ActionクラスやJSPファイルの名前を識別しやすく</dd>
+		<dt><a href="./twotrigger.html#typesafereturn">Action TypeSafe Return</a></dt><dd>Actionの@Executeメソッドの戻り値をタイプセーフに</dd>
+	</dl>
+	<h3 id="selfincremental">SAFlute自らインクリメンタル開発 <span class="frm">(ActionCallback, ...)</span></h3>
+	<p>
+		二つのきっかけから全ては始まり、Web側は時代の流れとともに新たな思想も生まれ、SAFluteのコンセプトにフィットした現場からはどんどんニーズが出てきました。
+	</p>
+	<dl class="longkeymainlist">
+		<dt><a href="./jsonhandling.html">Action Json Handling</a></dt><dd>JSONでのやり取りをオブジェクト型で</dd>
+		<dt><a href="./actioncallback.html">Action Callback</a></dt><dd>前後処理をInterceptorではなくActionで</dd>
+		<dt><a href="./loginhandling.html">Login Handling</a></dt><dd>ログイン処理にログインチェック処理、権限チェックなど</dd>
+		<dt><a href="./i18n.html">Internationalization (i18n)</a></dt><dd>国際化対応(LocaleやTimezone)</dd>
+	</dl>
+	<h3 id="morerequired">インクリメンタル開発で外せない機能たち <span class="frm">(Prop, Logging, ...)</span></h3>
+	<p>
+		そして、インクリメンタル開発では外せない機能も明確になりました。
+	</p>
+	<dl class="longkeymainlist">
+		<dt><a href="./objsafeprop.html">Objective Typesafe Properties</a></dt><dd>継承できてタイプセーフなProperties</dd>
+		<dt><a href="./friendlylogging.html">Friendly Logging</a></dt><dd>ぜひ見たいと思うようなログ</dd>
+	</dl>
+	<h3 id="moredbflute">欠かせないDBFluteの機能たち <span class="frm">(LReverse, UTFlute, ...)</h3>
+	<p>
+		また、SAFluteの機能というわけではありませんが、インクリメンタル開発では欠かせないDBFluteの機能を使うことが前提となっています。
+	</p>
+	<dl class="textlist">
+		<dt>循環テストデータ運用</dt>
+		<dd>
+			テストデータを手動で準備していくことが困難なため、LoadDataReverseを使って既に動く画面からReplaceSchemaのデータを作成していきます。
+			<span class="frm">(もちろん、手動での微調整もやりつつ)</span>
+			<div class="relatedpage"><a href="../../generator/task/doc/loaddatareverse.html">LoadDataReverse</a></div>
+		</dd>
+		<dt>UTFluteでお手軽テスト</dt>
+		<dd>
+			業務変更が多く、テストケースの実装やメンテもなかなか困難であるため、凝ったテストはなかなか書けません。
+			手軽にモックできて手軽に実装できる UTFlute を使っています。
+			<div class="relatedpage"><a href="../utflute/index.html">UTFlute</a></div>
+		</dd>
+		<dd>
+			さらに、UTFluteを使って費用対効果の高い横断的なテストを作成するとよいでしょう。
+			<span class="frm">(PolicyStoryを使って、ソースコードの一括チェックなど)</span>
+		</dd>
+	</dl>
+	<div class="inucolumn">
+		<h3 id="livingtogether">SAStrutsと半同棲の三ヶ月</h3>
+		<p>
+			SAStrutsとDBFluteの構成で、少人数でのリーン・スタートアップのサービス構築において生まれました。
+			基本思想と構成は、既に運用実績のあるアーキテクチャと言えます。
+		</p>
+		<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20130302/1362151960">外部サイト - SAStrutsと半同棲の三ヶ月</a></div>
+	</div>
+
+	<h2 id="environment">SAFluteの環境</h2>
+	<h3 id="projstructure">SAFluteのプロジェクト構成</h3>
+	<p>
+		では、実務的なプロジェクト構成の説明に入ります。
+	</p>
+	<div class="detailpage"><a href="./projstructure.html">SAFluteのプロジェクト構成</a></div>
+	<div class="relatedpage"><a href="./howto/builddeploy.html">SAFluteでビルドデプロイするやり方</a></div>
+	<h3 id="pkgstructure">SAFluteのパッケージ構成</h3>
+	<p>
+		そして、パッケージ構成も見てみましょう。
+	</p>
+	<div class="detailpage"><a href="./pkgstructure.html">SAFluteのパッケージ構成</a></div>
+	<h3 id="assistantdirector">とにかく大事なAssistantDirector</h3>
+	<p>
+		現場にフィットさせるために、拡張ポイントを用意しています。
+	</p>
+	<div class="detailpage"><a href="./assistantdirector.html">SAFluteのAssistantDirector</a></div>
+	<h3 id="distribution">配布はソースコードだけ</h3>
+	<p>
+		jarファイルとしては提供されてはおらず、ソースコードだけが公開されており、自由に閲覧・取り込み・拡張ができるようになっています。"SAFluteリポジトリ"
+		にて公開されていて、gitクライアントがあれば誰でもチェックアウト可能です。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute-session/memorable-saflute">外部サイト - SAFluteリポジトリのページ</a></div>
+	<p>
+		"Maihama" プロジェクトというExample実装があります。
+		Example実装も含めてSAFluteと言えるので、一緒にチェックアウトしておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute-session/memorable-saflute">外部サイト - Maihamaリポジトリのページ</a></div>
+	<p>
+		詳しくは、SAFluteのプロジェクト直下に INTRO_ja.txt がありますのでそちらをご覧下さい。さらに、それぞれのプロジェクトに README_ja.txt もあります。 
+	</p>
+	<h3 id="saflutetemplate">SAFlute Template</h3>
+	<p>
+		有志の方が作ってくださっている、SAFluteの環境構築のための Eclipse
+		プラグインがあります。それを使う事で、SAFlute環境を手っ取り早く作ることができます。
+	</p>
+	<div class="detailpage"><a href="./saflute_template.html">SAFlute Template</a></div>
+
+	<h2 id="doclink">ドキュメントリンク</h2>
+	<dl class="textlist">
+		<dt>Actionクラスの実装</dt>
+		<dd><a href="./twotrigger.html#nameidentity">Action, JSP Name Identity</a> <span class="frm">※ActionクラスとJSP名を検索しやすく</span></dd>
+		<dd><a href="./twotrigger.html#typesafereturn">Action TypeSafe Return</a> <span class="frm">※Actionの戻り値をタイプセーフに</span></dd>
+		<dd><a href="./urlmapping.html">SAFluteのURLマッピング</a> <span class="frm">※URLマッピングのルールについて</span></dd>
+		<dd><a href="./jsonhandling.html">SAFluteのJSONハンドリング</a> <span class="frm">※JSONでのやり取りをオブジェクト型で</span></dd>
+		<dd><a href="./currentdate.html">SAFluteの現在日時</a> <span class="frm">※現在日時の取り方、細工の仕方</span></dd>
+		<dd><a href="./howto/addproperty.html">SAFluteでプロパティを追加するやり方</a> <span class="frm">※xxx_config.properties や xxx_env.properties</span></dd>
+		<dt>アーキテクチャ</dt>
+		<dd><a href="./actioncallback.html">Action Callback</a> <span class="frm">※前後処理をInterceptorではなくActionで</span></dd>
+		<dd><a href="./objsafeprop.html">SAFluteのタイプセーフProperties (Objective Typesafe Properties)</a> <span class="frm">※propertiesの話</span></dd>
+		<dd><a href="./friendlylogging.html">ログにこだわるSAFlute (Friendly Logging)</a> <span class="frm">※見たいと思うようなログ</span></dd>
+		<dd><a href="./loginhandling.html">SAFluteのログイン周り (Login Handling)</a> <span class="frm">※xxx_config.properties や xxx_env.properties</span></dd>
+		<dd><a href="./i18n.html">SAFluteの国際化対応 (i18n)</a> <span class="frm">※国際化対応(LocaleやTimezone)</span></dd>
+		<dd><a href="./asynchronous.html">SAFluteで非同期処理 (Async)</a> <span class="frm">※非同期処理の実行</span></dd>
+		<dd><a href="./assistantdirector.html">SAFluteのAssistantDirector</a> <span class="frm">※現場フィットさせる拡張ポイント</span></dd>
+		<dt>プロジェクト環境</dt>
+		<dd><a href="./projstructure.html">SAFluteのプロジェクト構成</a> <span class="frm">※Mavenの環境なども</span></dd>
+		<dd><a href="./pkgstructure.html">SAFluteのパッケージ構成</a> <span class="frm">※スマートデプロイの話とか</span></dd>
+		<dd><a href="./howto/builddeploy.html">SAFluteでビルドデプロイするやり方</a> <span class="frm">※新しいデプロイ環境のつくり方なども</span></dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

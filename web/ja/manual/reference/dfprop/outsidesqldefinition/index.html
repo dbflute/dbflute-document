@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,outsideSqlDefinitionMap.dfprop,OutsideSql,Procedure,ParameterBean,外だしSQL,プロシージャ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>outsideSqlMap (outsideSqlDefinitionMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>outsideSqlMap</h1>
+	<p>
+		Java6版までは、outsideSqlDefinitionMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">outsideSqlMapとは？</h2>
+	<p>
+		外だしSQLについての設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の outsideSqlMap.dfprop <span class="frm">(outsideSqlDefinitionMap.dfprop)</span> という名前のテキストファイルです。主に Sql2Entityタスク にて参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/index.html">SQL2Entityタスク</a></div>
+	<h3 id="generateprocedure">プロシージャ対応クラスの自動生成</h3>
+	<p>
+		以下のプロパティで、プロシージャ対応のParameterBeanを自動生成するか否かを指定できます。
+	</p>
+	<ul>
+		<li><a href="#isgenerateprocedureparameterbean">isGenerateProcedureParameterBean</a></li>
+	</ul>
+	<h3 id="targetprocedure">自動生成対象プロシージャの調整</h3>
+	<p>
+		以下のプロパティで、どのプロシージャを自動生成対象とするか調整できます。
+	</p>
+	<ul>
+		<li><a href="#targetprocedurecataloglist">targetProcedureCatalogList</a></li>
+		<li><a href="#targetprocedureschemalist">targetProcedureSchemaList</a></li>
+		<li><a href="#targetprocedurenamelist">targetProcedureNameList</a></li>
+	</ul>
+	<p>
+		これらプロパティを複合して利用する場合は、AND条件として判定されます。
+	</p>
+	<p>
+		これらプロパティが利用できるかどうかは、DBMS(JDBCドライバ)に依存します。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/index.html">DBMSごとの取扱い</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々な key-value 形式のプロパティを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<h3 id="isgenerateprocedureparameterbean">isGenerateProcedureParameterBean</h3>
+	<p>
+		プロシージャ対応の ParameterBean を自動生成するか否かを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>プロシージャをアプリから呼び出すかどうか不明のため、デフォルトは false</li>
+				<li>指定されたスキーマで認識できる全てのプロシージャを対象とする(別途、設定あり)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isgenerateprocedurecustomizeentity">isGenerateProcedureCustomizeEntity</h3>
+	<p>
+		プロシージャが戻す ResultSet 対応の CustomizeEntity を自動生成するか否かを指定します。
+		このプロパティを true に設定すると、Sql2Entityタスクにおいて、実際にプロシージャが実行されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#resultsethandling">Sql2Entity - ProcedurePmb - ResultSetの取扱い</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>プロシージャを(気軽に)実行しても大丈夫なのかどうか不明のため、デフォルトは false</li>
+				<li>指定されたスキーマで認識できる全てのプロシージャを対象とする(別途、設定あり)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="targetprocedurecataloglist">targetProcedureCatalogList</h3>
+	<p>
+		自動生成対象とするプロシージャのカタログを指定します。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#catalog">カタログ(Catalog)</a></div>
+<pre><span class="codetitle">targetProcedureCatalogListの仕様 @outsideSqlDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; targetProcedureCatalogList = <span class="keyword">list:</span>{[catalog-list]}
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カタログ名のリスト</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>isGenerateProcedureParameterBeanを有効にしている場合のみ有効</li>
+				<li>前方一致: "prefix:前方一致させる文字列" という形式で指定</li>
+				<li>後方一致: "suffix:後方一致させる文字列" という形式で指定</li>
+				<li>中間一致: "contain:中間一致させる文字列" という形式で指定</li>
+				<li>"無名のカタログ" を指定する場合は、$$DEFAULT$$ と指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		カタログの概念は、DBMSによって違うので注意。
+	</p>
+	<div class="relatedword"><a href="../../dbway/index.html">DBMSごとの取扱い</a></div>
+	<h3 id="targetprocedureschemalist">targetProcedureSchemaList</h3>
+	<p>
+		自動生成対象とするプロシージャのスキーマを指定します。
+	</p>
+<pre><span class="codetitle">targetProcedureSchemaListの仕様 @outsideSqlDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; targetProcedureSchemaList = <span class="keyword">list:</span>{[schema-list]}
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>スキーマ名のリスト</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>基本的に、targetProcedureCatalogListと同様の補足</li>
+				<li>"無名のスキーマ" を指定する場合は、$$DEFAULT$$ と指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		スキーマの概念は、DBMSによって違うので注意。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/index.html">DBMSごとの取扱い</a></div>
+	<h3 id="targetprocedurenamelist">targetProcedureNameList</h3>
+	<p>
+		自動生成対象とするプロシージャの名前を指定します。
+	</p>
+<pre><span class="codetitle">targetProcedureNameListの仕様 @outsideSqlDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; targetProcedureNameList = <span class="keyword">list:</span>{[name-list]}
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>プロシージャ名のリスト</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>targetProcedureCatalogListと同様の補足</li>
+				<li>フルネームのプロシージャ名も指定可能 <em class="keyword">e.g. [スキーマ名].[プロシージャ名]</em></li>
+				<li>"無名のカタログやスキーマ" の指定はできない。$$DEFAULT$$.[プロシージャ名] は不可</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		Oracleのデータベースリンク先のプロシージャの ProcedurePmb
+		を自動生成対象にする場合も、このプロパティが利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/oracle/index.html#dblinkprocedure">Oracleの取扱い - データベースリンク先のプロシージャ</a></div>
+	<h3 id="executionmetaprocedurenamelist">executionMetaProcedureNameList</h3>
+	<p>
+		プロシージャの ResultSet のメタデータを取得する(isGenerateProcedureCustomizeEntityの対象とする)プロシージャの名前を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#resultsethandling">Sql2Entity - ProcedurePmb - ResultSetの取扱い</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>プロシージャ名のリスト</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+	<p>
+		指定の仕方は、targetProcedureNameList プロパティと同様です。
+	</p>
+	<div class="relatedpage"><a href="#targetprocedurenamelist">this - targetProcedureNameList</a></div>
+	<h3 id="proceduresynonymhandlingtype">procedureSynonymHandlingType</h3>
+	<p>
+		プロシージャ参照のシノニムも自動生成対象とするか否か、対象とする際のタイプを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>NONE (対象外)、INCLUDE (対象)、SWITCH (プロシージャ参照のシノニムのみ対象）</dd>
+		<dt>デフォルト</dt><dd>NONE</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>シノニムの自動生成設定が有効になっている場合のみ有効</li>
+				<li>シノニムをサポートしているDBMSのみ有効</li>
+				<li>INCLUDEで、別スキーマ同名ならメインスキーマ優先、同スキーマ同名ならプロシージャを優先</li>
+				<li>DBリンク経由のシノニムはサポート対象外</li>
+				<li>パッケージプロシージャ参照のシノニムはサポート対象外</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#proceduresynonym">Sql2Entity - プロシージャ参照のシノニムも自動生成</a></div>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/synonymgeneration/index.html">現場フィット - シノニムの自動生成</a></div>
+	<div class="relatedpage"><a href="../../dbway/index.html">DBMSごとの取扱い</a></div>
+	<h3 id="isrequiredsqltitle">isRequiredSqlTitle</h3>
+	<p>
+		外だしSQLの "SQLのタイトル" を書くことを強制するか否かを指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/outsidesql/genbafit/outsidesqltitle/index.html">(外だしSQL)現場フィット - 外だしSQLのタイトル</a></div>
+	<p>
+		また、このプロパティを有効に設定して、タイトルが書かれていない外だしSQLが存在すると、OutsideSqlTestタスクのチェックで検知できます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>EMechaデフォルト "SQL title here." も "書かれていない" として検知される <span class="frm">(@since 1.0.4D)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isrequiredsqldescription">isRequiredSqlDescription</h3>
+	<p>
+		外だしSQLの "SQLの説明" を書くことを強制するか否かを指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/outsidesql/genbafit/outsidesqldescription/index.html">(外だしSQL)現場フィット - 外だしSQLの説明</a></div>
+	<p>
+		また、このプロパティを有効に設定して、説明が書かれていない外だしSQLが存在すると、OutsideSqlTestタスクのチェックで検知できます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>EMechaデフォルト "SQL Description here." も "書かれていない" として検知される <span class="frm">(@since 1.0.4D)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="sqlfileencoding">sqlFileEncoding</h3>
+	<p>
+		外だしSQLのSQLファイルのエンコーディングを指定します。外だしSQLの実装でSQLファイルを作成するときは、必ずここで指定されたエンコーディングで作成する必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/howto.html#sqlfileencoding">外だしSQLの使い方 - エンコーディング</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>エンコーディング (Javaで認識できるもの)</dd>
+		<dt>デフォルト</dt><dd>UTF-8</dd>
+	</dl>
+	<h3 id="sqldirectory">sqlDirectory</h3>
+	<p>
+		外だしSQLのSQLファイルが配置されているディレクトリを相対パスで指定します。ここに指定したディレクトリ配下から、外だしSQLファイルを探します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/index.html#refsql">Sql2Entity - 外だしSQLを参照</a></div>
+	<p>
+		SQLファイルが配置場所が、デフォルトの設定とは違う場合に有効です。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteクライアントディレクトリからの相対パス</dd>
+		<dt>デフォルト</dt><dd>*Sql2Entityのページを参照</dd>
+	</dl>
+	<p>
+		アプリケーション外だしSQLを利用している場合は、このプロパティはDBFluteのライブラリプロジェクトのみのためのプロパティとなります。
+		その場合、アプリケーションごとに固有のSQLファイルが配置場所が別途プロパティにて定義されます。
+	</p>
+	<div class="relatedpage"><a href="#applicationoutsidesqlmap">this - applicationOutsideSqlMap</a></div>
+	<h3 id="sql2entityoutputdirectory">sql2EntityOutputDirectory</h3>
+	<p>
+		Sql2Entityで自動生成するクラスの出力先ディレクトリを指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteクライアントディレクトリからの相対パス</dd>
+		<dt>デフォルト</dt><dd>Generateタスクの出力先と同じ</dd>
+	</dl>
+	<p>
+		アプリケーション外だしSQLを利用している場合は、このプロパティはDBFluteのライブラリプロジェクトのみのためのプロパティとなります。
+		その場合、アプリケーションごとに固有の出力先ディレクトリが別途プロパティにて定義されます。
+	</p>
+	<div class="relatedpage"><a href="#applicationoutsidesqlmap">this - applicationOutsideSqlMap</a></div>
+	<h3 id="applicationoutsidesqlmap">applicationOutsideSqlMap</h3>
+	<p>
+		外だしSQLと外だしSQLから自動生成されるクラス(CustomizeEntityやParameterBeanなど)をDBFluteの自動生成ディレクトリではなく、
+		別アプリケーションの中で管理するためにアプリケーション情報を指定します。<span class="frm">@since 0.9.8.2</span>
+	</p>
+	<p>
+		DBFluteが Genearte で自動生成するクラスをライブラリプロジェクトとして管理し、それを参照するアプリケーションが複数存在して、
+		かつ、外だしSQLが多く実装されそうな場合に有効です。そのアプリ専用の外だしSQLがそのアプリ内で閉じて管理されることになります。
+	</p>
+	<p>
+		アプリケーション情報を指定すると、そのアプリの中で定義された外だしSQLが Sql2Entity
+		や OutsideSqlTest などの対象となり、また、自動生成されるクラスもそのアプリ配下に出力されます。
+		(同時に、通常どおりにDBFluteの自動生成ディレクトリに配置するやり方も有効です)
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/applicationoutsidesql/index.html">現場フィット - アプリケーション外だしSQL</a></div>
+<pre><span class="codetitle">e.g. applicationOutsideSqlMapの仕様 @outsideSqlDefinitionMap.dfprop</span><code>
+; applicationOutsideSqlMap = <span class="keyword">map:</span>{
+    ; [path relative to app project] = <span class="keyword">map:</span>{
+        ; sqlDirectory = [path] <span class="comment"># デフォルト: src/main/java|resources</span>
+        ; sql2EntityOutputDirectory = [path] <span class="comment"># デフォルト: src/main/java</span>
+    }
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt>
+		<dd>map型プロパティの中に、map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>Mapのキーは、DBFluteクライアントからのパス <span class="frm">e.g. ../../app1</span></li>
+				<li>sqlDirectory は、Mapのキーとして指定されたアプリルートからのパス <span class="frm">e.g. src/main/resource</span></li>
+				<li>sql2EntityOutputDirectory は、Mapのキーとして指定されたアプリルートからのパス <span class="frm">e.g. src/main/java</span></li>
+			</ul>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. web1とweb2プロジェクトを対象に (ディレクトリはデフォルト設定) @outsideSqlDefinitionMap.dfprop</span><code>
+; applicationOutsideSqlMap = <span class="keyword">map:</span>{
+    ; ../../web1 = <span class="keyword">map:</span>{
+        <span class="comment">#; sqlDirectory = src/main/resources</span>
+        <span class="comment">#; sql2EntityOutputDirectory = src/main/java</span>
+    }
+    ; ../../web2 = <span class="keyword">map:</span>{
+        <span class="comment">#; sqlDirectory = src/main/resources</span>
+        <span class="comment">#; sql2EntityOutputDirectory = src/main/java</span>
+    }
+}
+</code></pre>
+	<h3 id="sqlpackage">sqlPackage</h3>
+	<p>
+		SQLファイルが配置されている基底のパッケージを指定します。ここに指定したパッケージ配下から、外だしSQLファイルを探します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/index.html#refsql">Sql2Entity - 外だしSQLを参照</a></div>
+	<p>
+		基本的に、一つのプロジェクトに一つのDBFluteクライアントしかない場合は、このプロパティを設定する必要はありません。
+		一つのプロジェクトに二つのDBFluteクライアントが存在する場合に、別のDBの方のSQLファイルを読み込まないようにするために利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>パッケージ名 ($$PACKAGE_BASE$$ が利用可能)</dd>
+		<dt>デフォルト</dt><dd>なし (sqlDirectory配下の全てのパッケージが対象)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>$$PACKAGE_BASE$$ は、basicInfoMap.dfpropの packageBase と解釈される</li>
+				<li>複数クライアントでの衝突回避目的であれば、基本的に $$PACKAGE_BASE$$ でよい</li>
+				<li>BehaviorQueryPathの利用は、指定されたパッケージ配下の "exbhv" にて (詳細後述)</li>
+				<li>指定されたパッケージのディレクトリは必ず存在する必要</li>
+				<li>DBFluteConfigの同名のコンフィグのデフォルト値となって適用される</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		BehaviorQueryPath を利用する場合は(これがDBFluteとしてメインのやり方)、指定されたパッケージ配下に "exbhv"
+		パッケージを作成し、その配下に外だしSQLを配置します(その配下がBehaviorQueryPathの管理下となる)。
+		例えば foo.bar と指定した場合、MemberBhv_selectSimpleMember.sql
+		は、foo.bar.exbhv パッケージ に作成します。
+	</p>
+	<p>
+		アプリケーション外だしSQLを利用している場合でも、このプロパティは全てのプロジェクトで共通です。
+		例えば foo.bar と指定した場合、DBFluteのライブラリプロジェクトでもアプリケーションでも foo.bar
+		配下に外だしSQLを配置する必要があります。(それぞれにディレクトリが存在する必要があります)
+	</p>
+	<div class="relatedpage"><a href="#applicationoutsidesqlmap">this - applicationOutsideSqlMap</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

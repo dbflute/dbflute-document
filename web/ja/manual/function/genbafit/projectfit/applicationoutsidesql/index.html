@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,アプリケーション外だしSQL,ApplicationOutsideSql,大規模" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>アプリごとの外だしSQL | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>アプリごとの外だしSQL</h1>
+	${indexlist}
+
+	<h2 id="sqlwhere">外だしSQLのゆくえは？</h2>
+	<p>
+		例えば、以下のような複数プロジェクト構成の開発があるとします。
+	</p>
+	<dl class="keymainlist">
+		<dt>dblib</dt><dd>DBFluteの自動生成クラス、DB周りのロジック <span class="frm">(ライブラリ扱い)</span></dd>
+		<dt>web1</dt><dd>コンシューマ向けのWEBサイト</dd>
+		<dt>web2</dt><dd>コンシューマ向けの携帯用WEBサイト <span class="frm">(別会社に発注)</span></dd>
+		<dt>web3</dt><dd>管理用WEBサイト <span class="frm">(海外に発注)</span></dd>
+		<dt>batch</dt><dd>バッチプロジェクト</dd>
+		<dt>web4</dt><dd>さらに別のコンシューマ向けのWEBサイト <span class="frm">(海外に発注)</span></dd>
+	</dl>
+	<p>
+		外だしSQLは、デフォルト設定ではGenerateタスクで自動生成されるテーブル対応のクラスと同じプロジェクト内で管理されます。
+		この例の場合は、dblib プロジェクトに外だしSQLが配置され、そこから自動生成されるクラス(CustomizeEntity
+		や ParameterBean など)もそこに生成されることが前提となっています。
+	</p>
+	<p>
+		しかし、このような複数のアプリケーションがある構成の場合、
+		ある特定のアプリしか利用しない外だしSQLを共通のプロジェクトに配置するというちょっと違和感のある状態になる可能性があります。
+		また、そもそも組織上の問題やインフラ的な制約でライブラリプロジェクトへの修正が許されない、もしくは、あまりそうすべきではないという状況もあるでしょう。
+	</p>
+	<p>
+		もちろん、DBFluteは ConditionBean を提供しているため、外だしSQLが山のように大量に作成されることはあまりなく、10 から 20
+		程度の外だしSQLであれば、一元管理という意味合いも兼ねてライブラリプロジェクトの中で作成するやり方で十分なことが多いでしょう。
+		外だしSQLは、アプリケーションの肝となる複雑で神経質にならなければならないロジックになりがちで、ConditionBean
+		よりも一元管理の利点の比重が高くなります。
+		とはいえ、それを超えるような量の外だしSQLが想定されるようなプロジェクトであれば、
+		やはりアプリケーションごとに外だしSQLを管理したいと考えるものです。
+	</p>
+
+	<h2 id="solution">アプリ内に外だしSQLを配置</h2>
+	<p>
+		そこで、DBFluteでは外だしSQLをアプリごとに管理できるような仕組みがあります。
+		outsideSqlDefinitionMap.dfprop の applicationOutsideSqlMap にて、web1 や web2
+		への(DBFluteクライアントからの相対)パスを定義することで利用できます。<span class="frm">@since 0.9.8.2</span>
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#applicationoutsidesqlmap">dfprop - applicationOutsideSqlMap</a></div>
+<pre><span class="codetitle">e.g. web1とweb2プロジェクトを対象に (ディレクトリはデフォルト設定) @outsideSqlDefinitionMap.dfprop</span><code>
+; applicationOutsideSqlMap = <span class="keyword">map:</span>{
+    ; ../../web1 = <span class="keyword">map:</span>{
+        <span class="comment">#; sqlDirectory = src/main/resources</span>
+        <span class="comment">#; sql2EntityOutputDirectory = src/main/java</span>
+    }
+    ; ../../web2 = <span class="keyword">map:</span>{
+        <span class="comment">#; sqlDirectory = src/main/resources</span>
+        <span class="comment">#; sql2EntityOutputDirectory = src/main/java</span>
+    }
+}
+</code></pre>
+	<p>
+		これを <em class="keyword">アプリケーション外だしSQL(ApplicationOutsideSql)</em> と呼びます。
+	</p>
+	<p>
+		例えば、web1 のプロジェクト内に外だしSQLを作成し、Sql2Entityを実行するとその外だしSQLに対応する CustomizeEntity
+		や ParameterBean が、同じ web1 のプロジェクト内に自動生成されます。当然、それらクラスは web2
+		からは参照できない形となりますし、ライブラリプロジェクトに対する修正など一切が入りません。
+	</p>
+	<p>
+		一方で、本当に web1 や web2 などの複数のアプリから再利用される外だしSQLは、今まで通りのやり方で管理することも同時に可能です。
+		再利用される外だしSQLとアプリ固有の外だしSQLを明確に分けて管理することができます。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationOutsideSqlの自動生成クラス(と外だしSQLの配置) {MEMBER} @Directory</span><code>
+dblib <span class="comment">// DB関連のライブラリプロジェクト</span>
+ |-src/main/java
+ |  |-com.example.dblib.dbflute.bsbhv
+ |     |-BsMemberBhv.java
+ |  |-com.example.dblib.dbflute.exbhv
+ |     |-MemberBhv.java
+ |-src/main/resource
+    |-com.example.dblib.dbflute.exbhv
+       |-MemberBhv_selectCommon.sql <span class="comment">// システム全体で共通の外だしSQL定義</span>
+web1
+ |-src/main/java
+ |  |-com.example.dblib.dbflute.bsentity.customize
+ |  |  |-BsAppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Bsクラス)</span>
+ |  |-com.example.dblib.dbflute.exentity.customize
+ |  |  |-AppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Exクラス)</span>
+ |-src/main/resources
+    |-com.example.dblib.dbflute.exbhv
+       |-MemberBhv_selectAppOriginal.sql <span class="comment">// アプリ固有の外だしSQL</span>
+web2
+ |-src/main/java
+ |  |-com.example.dblib.dbflute.bsentity.customize
+ |  |  |-BsAppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Bsクラス)</span>
+ |  |-com.example.dblib.dbflute.exentity.customize
+ |  |  |-AppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Exクラス)</span>
+ |-src/main/resources
+    |-com.example.dblib.dbflute.exbhv
+       |-MemberBhv_selectAppOriginal.sql <span class="comment">// アプリ固有の外だしSQL</span>
+</code></pre>
+	<p>
+		また、dblib プロジェクトの外だしSQLに加えて web1 や web2 の外だしSQLも同時に OutsideSqlTest
+		の対象にもなりますし、SchemaHTML でも双方の外だしSQLが表示されるので、一元管理という視点のアプローチも失ってはいません。
+	</p>
+
+	<h2 id="supplement">細かい補足</h2>
+	<h3 id="typedpmb">TypedParameterBean の利用がお奨め</h3>
+	<p>
+		BehaviorのBsクラスに定義される BehaviorQueryPath(static final の定義) は、アプリ固有の外だしSQLのものは含まれません。
+		この機能のコンセプトを考慮すると、Sql2Entityの実行でライブラリプロジェクトのクラスに修正が入るようなことは避けた方が良いと考えられています。
+		よって、外だしSQLは基本的に TypedParameterBean 経由で呼び出すことが強く推奨されます。
+	</p>
+	<p>
+		<span class="frm">※いずれにせよ、TypedParameterBean は推奨されています</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+
+	<h2 id="bhvap">アプリごとのBehaviorは？</h2>
+	<p>
+		このアプリケーション外だしSQLの利点を包含し、さらにはアプリケーションギャップにも対応できる、
+		アプリごとのBehavior(ApplicationBehavior)という機能が別途独立して存在します。
+		ですが、そちらは若干設定や仕組みが大げさになるため、
+		一部のメリットは割り切ってもっと気軽に利用できるアプローチがこのアプリケーション外だしSQLと言えます。
+	</p>
+	<div class="relatedpage"><a href="../applicationbehavior/index.html">現場フィット - アプリごとのBehavior</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-guice-example と dbflute-sqlap-example にて、実際にアプリごとの外だしSQLを利用しています。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

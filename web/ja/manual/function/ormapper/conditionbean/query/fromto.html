@@ -1,0 +1,488 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,FromTo,範囲条件,範囲検索" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>日時の汎用的なFromTo条件 (FromTo) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>日時の汎用的なFromTo条件</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		日時の汎用的なFromTo条件を設定します。FromTo は、絞り込み条件を表す ConditionKey です。
+	</p>
+	<div class="relatedpage"><a href="../about.html#conditionkey">ConditionBeanについて - ConditionKeyとは？</a></div>
+	<p>
+		内部的に GreaterEqual や LessThan などを利用して日時の範囲条件(foo から bar まで)を表現することができます。
+		FromTo を利用しないと実現できない検索はありません。業務上よく利用される条件の組み合わせを汎用的に実現したものです。
+	</p>
+	<p>
+		会話上では、<em class="keyword">ふろむとぅ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		query() の後、<em class="keyword">set[date-column-name]_FromTo()</em>
+		を呼び出し、第一引数に from に相当する条件値、第二引数に to に相当する条件値、第三引数に FromToOption (必須)を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../runtime/fromtooption.html">DBFluteランタイム - FromToOption</a></div>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. FromTo条件の実装手順 (Eclipseでコード補完) {FORMALIZED_DATETIME} @Java</span><code>
+LocalDateTime fromDate = <span class="abbreviation">...</span>
+LocalDateTime toDate = <span class="abbreviation">...</span>
+cb.q <span class="comment">// .q と打って enter</span>
+--
+
+cb.query()
+--
+
+<span class="comment">// 1. .set まで打つとカラム選択</span>
+<span class="comment">// 2. FD (FormalizedDatetime) でカラム確定</span>
+<span class="comment">// 3. FT (FromTo) で enter</span>
+cb.query().setFDFT
+--
+
+<span class="comment">// メソッドが補完されて、第一引数の "fromDate" が選択状態に</span>
+<span class="comment">// tabで移動して 第三引数の "opLambda" を選択状態にして...</span>
+cb.query().<span class="point">setFormalizedDatetime_FromTo</span>(fromDate, toDate, opLambda);
+--
+
+<span class="comment">// cbLambdaの部分で、_li (補完テンプレートが有効なら)</span>
+cb.query().<span class="point">setFormalizedDatetime_FromTo</span>(fromDate, toDate, <span class="subpoint">_li</span>);
+--
+
+<span class="comment">// Lambda引数名は op (option) に、比較オプションを指定</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsMonth()</span>);
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+<pre><span class="codetitle">e.g. FromTo条件の実装手順 (Eclipseでコード補完) {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span>
+Date toDate = <span class="abbreviation">...</span>
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .set まで打つとカラム選択</span>
+<span class="comment">// 2. FD (FormalizedDatetime) でカラム確定</span>
+<span class="comment">// 3. FT (FromTo) で enter</span>
+cb.query().setFDFT
+--
+cb.query().<span class="point">setFormalizedDatetime_FromTo</span>(fromDate, toDate, option);
+--
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="keyword">new</span> FromToOption().<span class="point">compareAsMonth()</span>);
+</code></pre>
+
+	<h2 id="pattern">パターンの比較条件</h2>
+	<p>
+		指定された条件値の精度を調整して、パターン化された範囲条件を組み立てることができます。
+		これらの機能でなくても同じことはできますが、日付操作のちょっとしたバグの抑制や方式の統一に有効です。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>compareAsDate()</dt><dd>日付による範囲条件 (yyyy/MM/dd)</dd>
+		<dt>compareAsMonth()</dt><dd>年月による範囲条件 (yyyy/MM)</dd>
+		<dt>compareAsYear()</dt><dd>年による範囲条件 (yyyy)</dd>
+		<dt>compareAsHour()</dt><dd>日付+時による範囲条件 (yyyy/MM/dd HH)</dd>
+		<dt>compareAsQuarterOfYear()</dt><dd>四半期による範囲条件 (デフォルトは1,4,7,10)</dd>
+		<dt>compareAsWeek()</dt><dd>週による範囲条件 (デフォルトは日曜始まり)</dd>
+	</dl>
+	<h3 id="date">日付による範囲条件 (yyyy/MM/dd)</h3>
+	<p>
+		<em class="keyword">compareAsDate()</em>
+		を呼び出すと、時分秒は考慮せずに指定された条件値の日付の範囲内であるかどうかを判定する条件を組み立てます。
+		指定された toDate の条件値の時分秒が幾つであろうと、次の日に進めて LessThan
+		を利用し、該当の日のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の時分秒は切り捨てられます)
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/datefromto/index.html">現場フィット - 日付範囲の条件指定を定型化(安全に)</a></div>
+<pre><span class="codetitle">e.g. 日付で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/10 08:24:53</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/16 14:36:29</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsDate()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 日付で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/04/10 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2007/04/17 00:00:00'</span>
+</code></pre>
+	<h4>一日の始まりが朝5時とか</h4>
+	<p>
+		もし、一日の始まりを朝5時とかにしたければ、beginDay_...()と組み合わせると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#adjustbegin">this - 始まりの基準を調整</a></div>
+	<h4>今日とか昨日とか</h4>
+	<p>
+		もし、現在日時を fromDate と toDate に指定すれば、"今日" という範囲条件になります。
+		from と to で同じインスタンスを日付を指定も特に問題はありません。(調整されるのは内部でコピー生成された日付インスタンスなので)
+	</p>
+<pre><span class="codetitle">e.g. "今日" で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/09 21:10:53</span>
+cb.query().setFormalizedDatetime_FromTo(<span class="point">currentDate</span>, <span class="point">currentDate</span>
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsDate());
+<span class="comment">// -&gt; today (2012/12/09) is target</span>
+</code></pre>
+	<p>
+		もし、"昨日" という範囲条件にしたければ、moveTo...()と組み合わせると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#movetoscope">this - スコープを移動</a></div>
+<pre><span class="codetitle">e.g. "昨日" で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/09 21:10:53</span>
+cb.query().setFormalizedDatetime_FromTo(currentDate, currentDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsDate().<span class="point">moveToScope</span>(<span class="literal">-1</span>));
+<span class="comment">// -&gt; yesterday (2012/12/08) is target</span>
+</code></pre>
+	<h3 id="month">年月による範囲条件 (yyyy/MM)</h3>
+	<p>
+		<em class="keyword">compareAsMonth()</em>
+		を呼び出すと、日および時分秒は考慮せずに指定された条件値の日付の範囲内であるかどうかを判定する条件が組み立てられます。
+		指定された toDate の条件値の日および時分秒が幾つであろうと、次の月の最初の日に進めて LessThan
+		を利用し、該当の月のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の日および時分秒は切り捨てられます)
+	</p>
+<pre><span class="codetitle">e.g. 月で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/10 08:24:53</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/16 14:36:29</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsMonth()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 月で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/04/01 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2007/05/01 00:00:00'</span>
+</code></pre>
+	<h3 id="year">年による範囲条件 (yyyy)</h3>
+	<p>
+		<em class="keyword">compareAsYear()</em>
+		を呼び出すと、月日および時分秒は考慮せずに指定された条件値の日付の範囲内であるかどうかを判定する条件が組み立てられます。
+		指定された toDate の条件値の月日および時分秒が幾つであろうと、次の年の最初の日に進めて LessThan
+		を利用し、該当の年のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の月日および時分秒は切り捨てられます)
+	</p>
+<pre><span class="codetitle">e.g. 年で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/10 08:24:53</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/16 14:36:29</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsYear()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 年で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/01/01 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2008/01/01 00:00:00'</span>
+</code></pre>
+	<p>
+		もし、年を4月始まりとかにしたければ、beginYear_...()と組み合わせると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#adjustbegin">this - 始まりの基準を調整</a></div>
+	<h3 id="hour">日付+時による範囲条件 (yyyy/MM/dd HH)</h3>
+	<p>
+		<em class="keyword">compareAsHour()</em>
+		を呼び出すと、分秒は考慮せずに指定された条件値の日付と時間(hour)の範囲内であるかどうかを判定する条件を組み立てます。
+		指定された toDate の条件値の分秒が幾つであろうと、次の時間(hour)に進めて LessThan
+		を利用し、該当の時間(hour)のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の分秒は切り捨てられます)
+	</p>
+<pre><span class="codetitle">e.g. 日付と時間(hour)で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/10 08:24:53</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2007/04/16 14:36:29</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsHour()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 日付と時間(hour)で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/04/10 08:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2007/04/16 15:00:00'</span>
+</code></pre>
+	<h3 id="quarterofyear">四半期による範囲条件 (デフォルトは1,4,7,10)</h3>
+	<p>
+		<em class="keyword">compareAsQuaterOfYear()</em>
+		を呼び出すと、日付と時分秒は考慮せずに指定された条件値の年月を含む期(四半期の期)の範囲内であるかどうかを判定する条件を組み立てます。
+		指定された toDate の条件値の日付と時分秒が幾つであろうと、次の四半期の最初の日時に進めて LessThan
+		を利用し、該当の四半期のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の日付と時分秒は切り捨てられ、月もその四半期の最初の月になります)
+	</p>
+<pre><span class="codetitle">e.g. 四半期(1,4,7,10)で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2007/01/10 08:24:53</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2007/05/16 14:36:29</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsQuaterOfYear()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 四半期(1,4,7,10)で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/01/01 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2007/07/01 00:00:00'</span>
+</code></pre>
+	<p>
+		デフォルトでは、"1,4,7,10" という区切りになっていますが、
+		もし "2,5,8,11" という区切りとかにしたければ、beginYear_...()と組み合わせると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#adjustbegin">this - 始まりの基準を調整</a></div>
+	<h3 id="week">週による範囲条件 (デフォルトは日曜始まり)</h3>
+	<p>
+		<em class="keyword">compareAsWeek()</em>
+		を呼び出すと、時分秒は考慮せずに指定された条件値の日付を含む週の範囲内であるかどうかを判定する条件を組み立てます。
+		指定された toDate の条件値の時分秒が幾つであろうと、次の週の最初の日時に進めて LessThan
+		を利用し、該当の週のデータが完全に含まれるように自動的に調整されます。
+		(同時に fromDate の時分秒は切り捨てられ、日付もその週の最初の日になります)
+	</p>
+<pre><span class="codetitle">e.g. 週(日曜始まり)で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date fromDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/10 08:24:53 (Monday)</span>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/20 14:36:29 (Thursday)</span>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">compareAsWeek()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 週(日曜始まり)で FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2012/12/09 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2012/12/23 00:00:00'</span>
+</code></pre>
+	<h4>週の始まりが月曜とか</h4>
+	<p>
+		デフォルトでは、日曜始まりになっていますが、
+		もし月曜始まりとかにしたければ、beginWeek_...()と組み合わせると良いでしょう。
+		また、そもそも週の始まりという概念は一般的に曖昧なものなので、デフォルトと同じ日曜始まりであっても、
+		明示的に週の始まりが何曜日なのかを指定しておくのも良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#adjustbegin">this - 始まりの基準を調整</a></div>
+	<h4>今週とか先週とか</h4>
+	<p>
+		もし、現在日時を fromDate と toDate に指定すれば、"今週" という範囲条件になります。
+		from と to で同じインスタンスを日付を指定も特に問題はありません。(調整されるのは内部でコピー生成された日付インスタンスなので)
+	</p>
+<pre><span class="codetitle">e.g. "こんしゅう" で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/12 21:10:53</span>
+cb.query().setFormalizedDatetime_FromTo(<span class="point">currentDate</span>, <span class="point">currentDate</span>
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsWeek());
+<span class="comment">// -&gt; this week (2012/12/09 - 15) are target</span>
+</code></pre>
+	<p>
+		もし、"先週" という範囲条件にしたければ、moveTo...()と組み合わせると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#movetoscope">this - スコープを移動</a></div>
+<pre><span class="codetitle">e.g. "先週" で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/12 21:10:53</span>
+cb.query().setFormalizedDatetime_FromTo(currentDate, currentDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsWeek().<span class="point">moveToScope</span>(<span class="literal">-1</span>));
+<span class="comment">// -&gt; last week (2012/12/02 - 08) are target</span>
+</code></pre>
+	<h3 id="adjustbegin">始まりの基準を調整</h3>
+	<p>
+		例えば、年の始まりを 4月からにして範囲条件したいというとき、FromToOptionにその4月始まりの基準を指定して、スライドした範囲条件にすることができます。
+	</p>
+<pre><span class="codetitle">e.g. 2007年度の FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date targetYear = <span class="abbreviation">...</span> <span class="comment">// 2007/01/01</span>
+cb.query().setFormalizedDatetime_FromTo(targetYear, targetYear
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsYear().<span class="point">beginYear_Month04_April()</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 2007年度の FromTo {FORMALIZED_DATETIME} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">where</span> FORMALIZED_DATETIME &gt;= <span class="literal">'2007/04/01 00:00:00'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME &lt; <span class="literal">'2008/04/01 00:00:00'</span>
+</code></pre>
+	<p>
+		様々な、単位で基準の調整が用意されています。
+	</p>
+	<dl class="textlist">
+		<dt>beginDay_Hour(dayBeginHour)</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>一日の始まりを調整 (朝6時からなど)</li>
+				<li>dayBeginHourはint型で時間指定(1-23)。Date型指定は、そのDateのHour部分が設定される</li>
+				<li>beginDay_PreviousHour() で "前日の夜22時から" という設定もできる</li>
+				<li>日付を意識する全ての範囲条件パターンと組み合わせての利用が想定される</li>
+			</ul>
+		</dd>
+		<dt>beginMonth_Day(monthBeginDay)</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>月の始まりを調整 (3日からなど)</li>
+				<li>monthBeginDayはint型で日付指定(1-31)。Date型指定は、そのDateのDay部分が設定される</li>
+				<li>beginMonth_PreviousDay() で "前月の25日から" という設定もできる</li>
+				<li>compareAsYear(), compareAsQuarterOfYear(), compareAsMonth() と組み合わせての利用が想定される</li>
+			</ul>
+		</dd>
+		<dt>beginYear_Month(yearBeginMonth)</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>年の始まりを調整 (4月からなど)</li>
+				<li>yearBeginMonthはint型で日付指定(1-12)。Date型指定は、そのDateのMonth部分が設定される</li>
+				<li>beginYear_PreviousMonth() で "前年の11月から" という設定もできる</li>
+				<li>beginYear_Month01_January() というようにメソッド名解決もできる</li>
+				<li>compareAsYear(), compareAsQuarterOfYear() と組み合わせての利用が想定される</li>
+			</ul>
+		</dd>
+		<dt>beginWeek_DayOfWeek(weekBeginDayOfWeek)</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>週の始まりを調整 (月曜からなど)</li>
+				<li>weekBeginDayOfWeekはDate型で、そのDateが示す日の曜日が設定される</li>
+				<li>beginWeek_DayOfWeek2nd_Monday() というようにメソッド名解決の方が実用的である</li>
+				<li>compareAsWeek() と組み合わせての利用が想定される</li>
+				<li>一応デフォルトは日曜だが、わかりやすさのために必ず明示的に指定する方がいい</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		何かの集計処理をするときなど、通常の日付や時間の区切りではなく、業務的な区切りで範囲条件するときに有効です。
+		同時に組み合わせることもでき、極端な話、年の始まりが "3月4日朝5時から" というのも可能です。
+	</p>
+	<h3 id="movetoscope">スコープを移動</h3>
+	<p>
+		今日や今週ではなく昨日や先週を範囲条件にしたい場合、現在日時を手動で調整すれば実現できますが、
+		moveToScope()メソッドを使うことで簡単に範囲条件を移動させることができます。
+	</p>
+	<p>
+		例えば、"今日" という条件になっているFromToに moveToScope(-1)
+		と指定すれば "昨日" という条件になります。もし、"今週" という条件になっている場合は "先週" になります。
+		moveToScope() は、そのとき指定されている Scope (Date, Year, Week, ...)
+		に合わせて指定された数の分だけ移動します。
+	</p>
+<pre><span class="codetitle">e.g. "昨日" で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/09 21:10:53</span>
+cb.query().setFormalizedDatetime_FromTo(currentDate, currentDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsDate().<span class="point">moveToScope</span>(<span class="literal">-1</span>));
+<span class="comment">// -&gt; yesterday (2012/12/08) is target</span>
+</code></pre>
+<pre><span class="codetitle">e.g. "先週" で FromTo {FORMALIZED_DATETIME} @Java</span><code>
+Date currentDate = <span class="abbreviation">...</span> <span class="comment">// 2012/12/12 21:10:53</span>
+cb.query().setFormalizedDatetime_FromTo(currentDate, currentDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsWeek().<span class="point">moveToScope</span>(<span class="literal">-1</span>));
+<span class="comment">// -&gt; last week (2012/12/02 - 08) are target</span>
+</code></pre>
+	<p>
+		ただし、二週間の範囲条件だとしても、+1 や -1 で移動するのは一週間です。
+		<span class="frm">(範囲条件の範囲の分、移動する方がいいかも...と後から思っています)</span>
+	</p>
+
+	<h2 id="manual">手動で比較条件を調整</h2>
+	<p>
+		用意されているパターンの比較条件に合致しない場合は、手動で比較条件を調整することができます。
+	</p>
+	<p>
+		何もオプションが設定されていない FromToOption を指定した場合は、指定された条件値そのままに対して、単なる GreaterEqual と LessEqual
+		を利用した範囲検索になります。Equal を Than に変えたい場合は、greaterThan(), lessThan() を呼び出すことで変更できます。
+	</p>
+<pre><span class="codetitle">e.g. from を GreaterThan に変更して FromTo {FORMALIZED_DATETIME} @Java</span><code>
+cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.<span class="point">greaterThan()</span>);
+</code></pre>
+	<p>
+		さらに、FromToOption には日付を操作する幾つかの便利メソッドが用意されています。
+		これらを活用して、業務にフィットする FromTo 条件を作り上げると良いでしょう。
+	</p>
+	<dl class="textlist">
+		<dt>fromPattern[Hour/Day/Month/...]Just()</dt>
+		<dd>fromDate を、その時間や日や月などの始まりの瞬間にして比較</dd>
+		<dd>例えば、fromPatternDayJust() であれば fromDate は時分秒ミリ秒が切り捨てられる</dd>
+		<dt>toPatternNext[Hour/Day/Month/...]Just()</dt>
+		<dd>toDate を、その時間や日や月などの次の始まりの瞬間にして比較</dd>
+		<dd>例えば、toPatternNextDayJust() であれば toDate は次の日に移動して時分秒ミリ秒が切り捨てられる</dd>
+	</dl>
+
+	<h2 id="orisnull">もしくは null</h2>
+	<p>
+		例えば、"1969年までに生まれた、もしくは null" というような条件を設定できます。
+		不明な値(null)を業務的に小さい方に含めたり、はたまた大きい方に含めたりする場合に有効です。
+	</p>
+<pre><span class="codetitle">e.g. fromDate を LessThan に変更して FromTo {BIRTHDATE} @Java</span><code>
+Date toDate = <span class="abbreviation">...</span> <span class="comment">// 1969/01/01</span>
+cb.query().setBirthdate_FromTo(<span class="keyword">null</span>, toDate
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsYear().<span class="point">orIsNull()</span>);
+
+<span class="comment">// e.g. (BIRTHDATE < '1970-01-01' or BIRTHDATE is null)</span>
+</code></pre>
+	<p>
+		OrScopeQuery を使っても同じことは実現できますが、こちらの方がすっきり書けます。また、OrScopeQuery
+		は、AndPart の中でさらに OrScopeQuery
+		をネストさせることができないため、AndPart 内でこういった or 条件を利用する必要がある場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="./orscopequery.html">OrScopeQuery</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>nullの指定 <span class="frm">*1.1.x (Java8版)</span></dt>
+		<dd>
+			ConditionBeanの基本仕様と同じく例外になります。
+		</dd>
+		<dd>
+			ただ、片方だけ null にして "fromだけ" もしくは "toだけ"
+			の条件にしたいことも想定されるので、そのときは <em class="mark">op.allowOneSide()</em> を呼び出すと、片方だけ null
+			が許されて、nullの方は条件が無効になります。
+		</dd>
+		<dt>nullの指定 <span class="frm">*1.0.x (Java6版)</span></dt>
+		<dd>
+			引数の fromDate と toDate が両方とも null
+			の場合は、その条件は無効となります。片方だけが null
+			の場合はもう一つの条件だけが有効になります。
+		</dd>
+		<dt>同カラムに対する複数条件の指定</dt>
+		<dd>内部的に、GreaterEqual や LessThan など、別のメソッドを呼び出しているだけなので、その利用した条件の仕様通りです。</dd>
+		<dt>同カラムに対する同じ条件値での複数指定</dt>
+		<dd>内部的に、GreaterEqual や LessThan など、別のメソッドを呼び出しているだけなので、その利用した条件の仕様通りです。</dd>
+	</dl>
+	<h3 id="argumenttype">条件値の型は java.util.Date <span class="frm">*1.0.x (Java6版)</span></h3>
+	<p>
+		プロパティの型が java.sql.Timestamp であっても、引数の条件値の型は java.util.Date
+		です。java.sql.Timestamp は java.util.Date の継承クラスなので特に問題ありません。
+	</p>
+	<h3 id="argumentplain">条件値の日付の値はそのまま <span class="frm">*1.0.x (Java6版)</span></h3>
+	<p>
+		内部での日付調整があっても、条件値として指定した日付オブジェクトの値はそのままです。
+		内部では新たに日付オブジェクトを作成して利用しています。
+	</p>
+	<h3 id="optionreuse">指定されたオプションの再利用 <span class="frm">*1.0.x (Java6版)</span></h3>
+	<p>
+		FromToOption はスレッドセーフではありませんが、同じスレッド内であれば別のカラムに再利用することはできます。
+		全く同じオプションで、別のカラムも曖昧検索する場合に利用できます。
+	</p>
+
+	<h2 id="supported">サポートされる型</h2>
+	<ul>
+		<li>Date 全般 <span class="frm">(DateやTimestampなど)</span></li>
+	</ul>
+	<p>
+		数値の FromTo は、RangeOf という別の名前で用意されています。
+		ただ、数値の方は日付ほど業務上の特殊なパターンが存在しないため、シンプルなものとなっております。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,RangeOf,範囲条件,範囲検索" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>数値の汎用的な範囲条件 (RangeOf) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>数値の汎用的な範囲条件</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		数値の汎用的な範囲条件を設定します。RangeOf は、絞り込み条件を表す ConditionKey です。
+	</p>
+	<div class="relatedpage"><a href="../about.html#conditionkey">ConditionBeanについて - ConditionKeyとは？</a></div>
+	<p>
+		内部的に GreaterEqual や LessThan などを利用して数値の範囲条件(foo から bar まで)を表現することができます。
+		RangeOf を利用しないと実現できない検索はありません。業務上よく利用される条件の組み合わせを汎用的に実現したものです。
+	</p>
+	<p>
+		会話上では、<em class="keyword">れんじおぶ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">set[number-column-name]_RangeOf()</em>
+		を呼び出し、第一引数に min に相当する条件値、第二引数に max に相当する条件値、第三引数に RangeOfOption (必須)を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../runtime/fromtooption.html">DBFluteランタイム - FromToOption</a></div>
+<pre><span class="codetitle">e.g. RangeOf条件の実装手順 (Eclipseでコード補完) {PURCHASE_PRICE} @Java</span><code>
+Integer minValue = <span class="abbreviation">...</span> <span class="comment">// e.g. 3</span>
+Integer maxValue = <span class="abbreviation">...</span> <span class="comment">// e.g. 7</span>
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .set まで打つとカラム選択</span>
+<span class="comment">// 2. PP (PurchasePrice) でカラム確定</span>
+<span class="comment">// 3. RO (RangeOf) で enter</span>
+cb.query().setPPRO
+--
+cb.query().<span class="point">setPurchasePrice_RangeOf</span>(minValue, maxValue, option);
+--
+cb.query().setPurchasePrice_RangeOf(minValue, maxValue, <span class="keyword">new</span> RnageOfOption());
+
+<span class="comment">// e.g. PURCHASE_PRICE &gt;= 3 and PURCHASE_PRICE &lt;= 7</span>
+</code></pre>
+	<div class="inucolumn">
+		<h3>FromToほどリッチじゃない</h3>
+		<p>
+			日付の範囲条件 FromTo ほどリッチな機能ではありません。
+			数値に関してはあまりパターンが見当たらないからです。
+			あったとしても、数値だとプログラム上でも扱いやすいので、あまり DBFlute
+			で提供する意味が無さそうで。
+		</p>
+		<div class="relatedpage"><a href="./fromto.html">日付の汎用的なFromTo条件</a></div>
+		<p>
+			ただ、将来的に実装すると役に立ちそうなパターンがあれば、この機能に付け足していくつもりです。
+			今は単に、範囲条件が一行で書けるというのと、"もしくは null"
+			の条件が書けるというだけの "ほんのちょい便利機能" という位置付けです。
+		</p>
+	</div>
+
+	<h2 id="pattern">パターンの比較条件</h2>
+	<p>
+		特にパターンによる比較条件ははありません。
+	</p>
+
+	<h2 id="manual">手動で比較条件を調整</h2>
+	<p>
+		用意されているパターンの比較条件に合致しない場合は、手動で比較条件を調整することができます。
+	</p>
+	<p>
+		何もオプションが設定されていない RangeOfOption を指定した場合は、指定された条件値そのままに対して、単なる GreaterEqual と LessEqual
+		を利用した範囲検索になります。Equal を Than に変えたい場合は、greaterThan(), lessThan() を呼び出すことで変更できます。
+	</p>
+<pre><span class="codetitle">e.g. min を GreaterThan に変更して RangeOf {PURCHASE_PRICE} @Java</span><code>
+cb.query().setPurchasePrice_RangeOf(minValue, maxValue
+        , <span class="keyword">new</span> RangeOfOption().<span class="point">greaterThan()</span>);
+</code></pre>
+	<p>
+		それだけです。
+	</p>
+
+	<h2 id="orisnull">もしくは null</h2>
+	<p>
+		例えば、"30歳未満、もしくは null" というような条件を設定できます。
+		不明な値(null)を業務的に小さい方に含めたり、はたまた大きい方に含めたりする場合に有効です。
+	</p>
+<pre><span class="codetitle">e.g. min を LessThan に変更して RangeOf {MEMBER_AGE} @Java</span><code>
+cb.query().setMemberAge_RangeOf(<span class="keyword">null</span>, <span class="literal">30</span>
+        , <span class="keyword">new</span> RangeOfOption().lessThan().<span class="point">orIsNull()</span>);
+
+<span class="comment">// e.g. (MEMBER_AGE &lt;= 30 or MEMBER_AGE is null)</span>
+</code></pre>
+	<p>
+		OrScopeQuery を使っても同じことは実現できますが、こちらの方がすっきり書けます。また、OrScopeQuery
+		は、AndPart の中でさらに OrScopeQuery
+		をネストさせることができないため、AndPart 内でこういった or 条件を利用する必要がある場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="./orscopequery.html">OrScopeQuery</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>nullの指定</dt>
+		<dd>
+			引数の minValue と maxValue が両方とも null
+			の場合は、その条件は無効となります。片方だけが null
+			の場合はもう一つの条件だけが有効になります。
+		</dd>
+		<dt>同カラムに対する複数条件の指定</dt>
+		<dd>内部的に、GreaterEqual や LessThan など、別のメソッドを呼び出しているだけなので、その利用した条件の仕様通りです。</dd>
+		<dt>同カラムに対する同じ条件値での複数指定</dt>
+		<dd>内部的に、GreaterEqual や LessThan など、別のメソッドを呼び出しているだけなので、その利用した条件の仕様通りです。</dd>
+	</dl>
+	<h3 id="optionreuse">指定されたオプションの再利用</h3>
+	<p>
+		RangeOfOption はスレッドセーフではありませんが、同じスレッド内であれば別のカラムに再利用することはできます。
+		全く同じオプションで、別のカラムも曖昧検索する場合に利用できます。
+	</p>
+
+	<h2 id="supported">サポートされる型</h2>
+	<ul>
+		<li>数値全般 <span class="frm">(IntegerやLongなど)</span></li>
+	</ul>
+	<p>
+		日付の RangeOf は、FromTo という別の名前で用意されています。
+		日付の方は数値よりも業務上の特殊なパターンが存在するため、リッチなものとなっております。
+	</p>
+	<div class="relatedpage"><a href="./fromto.html">日付の汎用的なFromTo条件</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

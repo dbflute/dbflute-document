@@ -1,0 +1,912 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,schemaPolicyMap.dfprop" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>schemaPolicyMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>schemaPolicyMap</h1>
+	<p>
+		SchemaPolicyCheck で利用する schemaPolicyMap.dfprop に関するページです。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/schemapolicy/index.html">DB設計のチェックスタイル (SchemaPolicyCheck)</a></div>
+	<p>
+		このページは、DBFlute-1.1.2 以降を前提としています。
+		<span class="frm">(1.1.1 は機能が少ないため、SchemaPolicyCheckをしっかり使うなら 1.1.2 以降へのアップグレードをオススメします)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">schemaPolicyMapとは？</h2>
+	<p>
+		SchemaPolicyCheck のためのポリシーを設定する dfprop です<span class="frm">(@since 1.1.1)</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/schemapolicy/index.html">DB設計のチェックスタイル (SchemaPolicyCheck)</a></div>
+	<h3 id="executiontiming">チェックのタイミング</h3>
+	<p>
+		この dfprop ファイルに設定が追加されると、Docタスクの最後に SchemaPolicyCheck が実行されます。
+		自動生成をしていれば、自然とチェックがかかるようになっています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/index.html">Docタスク</a></div>
+	<p>
+		また、replaceSchemaMap.dfprop の isCheckSchemaPolicyInReps を true にすると、ReplaceSchema の DDL (CreateSchema) 実行直後に実行されます。
+		早い段階でチェックを検知するのに有効です。
+		<span class="frm">(AdditionalSchemaのテーブルなど、ReplaceSchemaの時点ではチェックしづらいものは除外されますが、ほとんどのポリシーが実施されます)</span>
+	</p>
+	<div class="relatedpage"><a href="../replaceschemadefinition/index.html#ischeckschemapolicyinreps">replaceSchemaMap.dfprop - isCheckSchemaPolicyInReps</a></div>
+	<h3 id="violationexists">チェックに引っかかったら？</h3>
+	<p>
+		Docタスクがエラーで終了します。チェック結果が例外メッセージに書いてあります。
+	</p>
+	<p>
+		例外メッセージ内のカテゴリ内訳です。
+	</p>
+	<dl class="keymainlist">
+		<dt>[Advice]</dt><dd>自然言語によるアドバイス</dd>
+		<dt>[Schema Policy]</dt><dd>定義されているすべてのポリシー</dd>
+		<dt>[Violation]</dt><dd>ポリシー違反の結果 <span class="frm">(ここに注目！)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. _FLGカラムのデータ型は BOOLEAN のはずなのに、INTEGERだったとき @Console</span><code>
+org.dbflute.exception.DfSchemaPolicyCheckViolationException: Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+The schema policy has been violated.
+
+<span class="keyword">[Advice]</span>
+Make sure your violating schema (ERD and DDL).
+And after that, execute renewal (or regenerate) again.
+(tips: The schema policy is on schemaPolicyMap.dfprop)
+
+<span class="keyword">[Schema Policy]</span>
+tableExceptList: []
+tableTargetList: []
+columnExceptMap: {}
+isMainSchemaOnly: false
+wholeMap: {themeList=[uniqueTableAlias, sameColumnAliasIfSameColumnName, sameColumnDbTypeIfSameColumnName, sameColumnSizeIfSameColumnName, sameColumnNameIfSameColumnAlias]}
+tableMap:
+  themeList: [hasPK, upperCaseBasis, identityIfPureIDPK]
+  statementList:
+    if tableName is $$ALL$$ then fkName is prefix:FK_$$table$$
+columnMap:
+  themeList: [upperCaseBasis]
+  statementList:
+    if columnName is suffix:_FLAG then bad
+    if columnName is suffix:_FLG then notNull
+    <span class="subpoint">if columnName is suffix:_FLG then dbType is BOOLEAN</span>
+    if columnName is suffix:_FLG then classification
+
+<span class="keyword">[Violation]</span>
+column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
+ |-<span class="point">but INTEGER</span>: (会員ログイン)MEMBER_LOGIN.(モバイルログインフラグ)MOBILE_LOGIN_FLG INTEGER(10) (NotNull)
+ |-but INTEGER: (購入)PURCHASE.(支払完了フラグ)PAYMENT_COMPLETE_FLG INTEGER(10) (NotNull)
+ +-but INTEGER: (サービスランク)SERVICE_RANK.(新規受け入れ可能フラグ)NEW_ACCEPTABLE_FLG INTEGER(10) (NotNull)
+* * * * * * * * * */
+</code></pre>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、JDBC型とプログラム型の関連を key-value 形式で定義します。
+	</p>
+<pre><span class="codetitle">schemaPolicyMapの仕様 @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class=""localvar"">tableExceptList</span> = <span class="keyword">list:</span>{ [table-hints for exccept] }
+    ; <span class=""localvar"">tableTargetList</span> = <span class="keyword">list:</span>{ [table-hints for target] }
+    ; <span class=""localvar"">columnExceptMap</span> = <span class="keyword">map:</span>{
+        ; [table-hint] = <span class="keyword">list:</span>{ [column-hints for exccept] }
+    }
+    ; <span class=""localvar"">isMainSchemaOnly</span> = [true or false]
+
+    ; <span class=""localvar"">wholeMap</span> = <span class="keyword">map:</span>{
+        ; <span class=""localvar"">themeList</span> = <span class="keyword">list:</span>{ [themes] }
+    }
+    ; <span class=""localvar"">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class=""localvar"">themeList</span> = <span class="keyword">list:</span>{ [themes] }
+        ; <span class=""localvar"">statementList</span> = <span class="keyword">list:</span>{ [statements] }
+    }
+    ; <span class=""localvar"">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class=""localvar"">themeList</span> = <span class="keyword">list:</span>{ [themes] }
+        ; <span class=""localvar"">statementList</span> = <span class="keyword">list:</span>{ [statements] }
+    }
+}
+</code></pre>
+	<p>
+		<em class="bigmark">theme</em> は、DBFlute側が提供するお決まりのパターンポリシーです。例えば、tableMap にて upperCaseBasis
+		とすれば、テーブル名は大文字であることがチェックされます。
+	</p>
+	<p>
+		<em class="bigmark">statement</em> は、アプリ側が独自に設定するポリシーです。"もし...だったら、これは...である"
+		というような形式で指定します。
+	</p>
+<pre><span class="codetitle">e.g. カラム名が _FLG で終わっていたら、データ型は INTEGER であること @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ <span class="abbreviation">...</span> }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="point">if columnName is suffix:_FLG then dbType is INTEGER</span>
+        }
+    }
+}
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="tableexceptlist">tableExceptList</h3>
+	<p>
+		チェックの除外テーブルのリスト。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名のlist型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (除外するものなし)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>tableTargetList の指定がされている場合は無効 (target優先)</li>
+				<li>前方一致: "prefix:前方一致させる文字列" という形式で指定</li>
+				<li>後方一致: "suffix:後方一致させる文字列" という形式で指定</li>
+				<li>部分一致: "contain:部分一致させる文字列" という形式で指定</li>
+				<li>正規表現: "pattern:マッチさせる正規表現文字列" という形式で指定</li>
+				<li>正規表現を除き、大文字小文字の区別なし (ただし実体と合わせることを推奨)</li>
+				<li>複数指定時は、and 条件として扱われる (e.g. Aでもない、Bでもない)</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		基本的な使い方は、databaseInfoMap.dfprop の tableExceptList と似ています。
+	</p>
+	<div class="relatedpage"><a href="../databaseinfo/index.html#tableexceptlist">databaseInfoMap.dfprop - tableExceptList</a></div>
+	<h3 id="tabletargetlist">tableTargetList</h3>
+	<p>
+		チェックの対象テーブルのリスト。(特に指定がなければ全テーブルが対象)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名のlist型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (全テーブルが対象)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定方法は、基本的に <a href="#tableexceptlist">tableExceptList</a> と同じ</li>
+				<li>複数指定時は、and 条件として扱われる (A もしくは B)</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		基本的な使い方は、databaseInfoMap.dfprop の tableTargetList と似ています。
+	</p>
+	<div class="relatedpage"><a href="../databaseinfo/index.html#tabletargetlist">databaseInfoMap.dfprop - tableExceptList</a></div>
+	<h3 id="columnexcecptmap">columnExcecptMap</h3>
+	<p>
+		チェックの除外カラムのリスト。(テーブル名とカラム名で指定なのでmap)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名とカラム名のmap型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (全てのカラムが対象)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル名の指定では、<a href="#tableexceptlist">tableExceptList</a> のように prefix: などが使える</li>
+				<li>カラム名リストの指定方法は、基本的に <a href="#tableexceptlist">tableExceptList</a> と同じ</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		基本的な使い方は、databaseInfoMap.dfprop の columnExcecptMap と似ていますが、若干違う部分があります。
+		例えば、テーブル名での prefix: などの利用可否が違います<span class="frm">(@now 1.1.2)</span>。
+	</p>
+	<div class="relatedpage"><a href="../databaseinfo/index.html#columnexceptmap">databaseInfoMap.dfprop - columnExceptMap</a></div>
+	<h3 id="ismainschemaonly">isMainSchemaOnly</h3>
+	<p>
+		チェックの対象が、メインスキーマだけかどうか？ (AdditionalSchemaを除外するかどうか？)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名とカラム名のmap型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (全てのカラムが対象)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル名の指定では、<a href="#tableexceptlist">tableExceptList</a> のように prefix: などが使える</li>
+				<li>カラム名リストの指定方法は、基本的に <a href="#tableexceptlist">tableExceptList</a> と同じ</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		AdditionalSchema のテーブルも一緒にチェックされます。
+		もし、スキーマごとにポリシーが違うとチェックがやりづらいので、メインスキーマだけに絞ることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<p>
+		それぞれの AdditionalSchema に独自のポリシーを設定することはできないため、
+		AdditionalSchema のテーブルのポリシーチェックは、別途そのスキーマ専用のDBFluteクライアントを用意すると良いでしょう。
+	</p>
+	<h3 id="wholemap">wholeMap</h3>
+	<p>
+		スキーマ全体に対するポリシー。themeList だけが利用できます。(statementListは不可)
+	</p>
+	<div class="relatedpage"><a href="#wholetheme">this - wholeMap.themeList</a></div>
+	<div class="relatedpage"><a href="#wholestatement">this - wholeMap.statementList</a></div>
+<pre><span class="codetitle">e.g. テーブルの別名がユニーク、カラム名が同じならカラムの別名も同じ @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; <span class="localvar">wholeMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ uniqueTableAlias ; sameColumnAliasIfSameColumnName }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="tablemap">tableMap</h3>
+	<p>
+		テーブルに対するポリシー。
+	</p>
+	<div class="relatedpage"><a href="#tabletheme">this - tableMap.themeList</a></div>
+	<div class="relatedpage"><a href="#tablestatement">this - tableMap.statementList</a></div>
+<pre><span class="codetitle">e.g. テーブルに対するポリシー、別名がユニークとか、FKの名前がFK_とか @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ hasPK ; upperCaseBasis ; identityIfPureIDPK }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> tableName <span class="keyword">is</span> <span class="attribute">$$ALL$$</span> <span class="keyword">then</span> fkName <span class="keyword">is</span> <span class="attribute">prefix:</span>FK_<span class="attribute">$$table$$</span>
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h2 id="columnmap">columnMap</h2>
+	<p>
+		カラムに対するポリシー。
+	</p>
+	<div class="relatedpage"><a href="#columntheme">this - columnMap.themeList</a></div>
+	<div class="relatedpage"><a href="#columnstatement">this - columnMap.statementList</a></div>
+<pre><span class="codetitle">e.g. カラムに対するポリシー、大文字とか、_FLG は NotNull とか @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ upperCaseBasis }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> notNull
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="wholetheme">wholeMap.<em class="smallmark">themeList</em></h2>
+	<p>
+		利用できる theme は以下の通りです。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>uniqueTableAlias</dt><dd>テーブルの別名がユニークである</dd>
+		<dt>sameColumnAliasIfSameColumnName</dt><dd>カラム名が同じならカラムの別名も同じ</dd>
+		<dt>sameColumnDbTypeIfSameColumnName</dt><dd>カラム名が同じならカラムのデータ型も同じ</dd>
+		<dt>sameColumnSizeIfSameColumnName</dt><dd>カラム名が同じならカラムのサイズも同じ</dd>
+		<dt>sameColumnNameIfSameColumnAlias</dt><dd>カラムの別名が同じならカラム名も同じ</dd>
+	</dl>
+	<p>
+		そもそも別名が定義されていないテーブルやカラムは比較対象になりません。
+		別名の必須チェックなどは、別途 tableMap や columnMap の statement にて表現すると良いでしょう。
+	</p>
+	<h2 id="wholestatement">wholeMap.<em class="smallmark">statementList</em></h2>
+	<p>
+		wholeMap で statementList は利用できません。
+	</p>
+
+	<h2 id="tabletheme">tableMap.<em class="smallmark">themeList</em></h2>
+	<p>
+		利用できる theme は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>hasPK</dt><dd>全てのテーブルがPKを持っている</dd>
+		<dt>upperCaseBasis</dt><dd>テーブル名は大文字 <span class="frm">(SQL上の名前で判定)</span></dd>
+		<dt>lowerCaseBasis</dt><dd>テーブル名は小文字 <span class="frm">(SQL上の名前で判定)</span></dd>
+		<dt>identityIfPureIDPK</dt><dd>FKではない ID で終わる単一PKカラムにはIdentityが付与される</dd>
+		<dt>sequenceIfPureIDPK</dt><dd>FKではない ID で終わる単一PKカラムにはsequenceが付与される</dd>
+		<dt>hasCommonColumn</dt><dd>共通カラムを持っている</dd>
+		<dt>hasAlias</dt><dd>別名がある <span class="frm">(DBコメントの一部を別名として認識する設定が前提)</span></dd>
+		<dt>hasComment</dt><dd>コメントがある (別名部分を除く)</dd>
+	</dl>
+	<p>
+		upperCaseBasis, lowerCaseBasis の大文字小文字判定では、DBFluteが管理するSQL上のテーブル名 (ConditionBeanのSQLで利用)
+		の大文字小文字ルールを利用します。例えば、upperCaseBasis をポリシーにしたとき、DBMSのメタデータが小文字であっても、littleAdjustmentMap.dfprop
+		にて isTableSqlNameUpperCase が true に設定されていればセーフです。
+	</p>
+	<p>
+		identityIfPureIDPK は、Sequence では効果ありません。
+		また、テーブル除外設定はできないので、除外したいテーブルがある場合は statement の方で実現します。
+	</p>
+	<div class="relatedpage"><a href="#insteadofidentity">this - identityIfPureIDPKでテーブル除外</a></div>
+	<p>
+		sequenceIfPureIDPK は、DBFluteとしてでテーブルとシーケンスが紐付いているかどうかをチェックします。
+		<span class="frm">(sequenceMap.dfpropで紐付けるか、自動で紐付くPostgreSQLのserial型か)</span>
+	</p>
+	<p>
+		hasCommonColumn は、共通カラムのすべてのカラムを持っていればOKです。
+	</p>
+	<p>
+		hasAlias は、documentMap.dfprop の aliasDelimiterInDbComment が設定されていることが前提です。
+		<span class="frm">(DBFluteには、DBコメントの中の一部文字列を別名として扱う機能があります)</span>
+	</p>
+	<p>
+		hasComment は、別名設定がされていれば、DBコメントから別名の除いた部分だけで比較されます。
+	</p>
+
+	<h2 id="tablestatement">tableMap.<em class="smallmark">statementList</em></h2>
+	<h3 id="tablestatementifsubject">if の主語 <span class="frm">(of table)</span></h3>
+	<p>
+		利用できる statement の if の主語は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>tableName</dt><dd>テーブル名 <span class="frm">($$変数$$あり)</span></dd>
+		<dt>alias</dt><dd>テーブルの別名(和名) <span class="frm">($$変数$$あり)</span></dd>
+		<dt>firstDate</dt><dd>テーブルの登録日<span class="frm">(*A)</span> <span class="frm">e.g. if firstDate is after:2018/05/03</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>pk_columnName</dt><dd>PKのカラム名 <span class="frm">e.g. if pk_columnName is prefix:SEA_</span> <span class="frm">@since 1.1.9</span></dd>
+		<dt>pk_dbType</dt><dd>PKのデータ型 <span class="frm">e.g. if pk_dbType is CHAR</span></dd>
+		<dt>pk_size</dt><dd>PKのデータサイズ、小数点はカンマ空白<span class="frm">(*B)</span> <span class="frm">e.g. if pk_size is 3</span></dd>
+		<dt>pk_dbType_with_size</dt><dd>PKのデータ型サイズ付き <span class="frm">e.g. if pk_dbType_with_size is CHAR(3)</span></dd>
+	</dl>
+	<p>
+		<span class="frm">(*A): HistoryHTMLのテーブル追加履歴から判断。履歴が存在しないものは未来の日付として扱われ、after: ですべてヒットする。
+		運用途中から "これから追加されるテーブルだけにチェックをかける" というような使い方を想定しているので、利用方法は限定されている。
+		例えば、"before:" や "is not" は使えない。</span>
+	</p>
+	<p>
+		<span class="frm">(*B): 例えば、decimal型とかであれば、"8, 3" となる e.g. pk_size is 8, 3</span>
+	</p>
+	<h3 id="tablestatementifdolvar">if の $$変数$$ <span class="frm">(of table)</span></h3>
+	<p>
+		then の中で $$変数$$ と書くことで、その値を利用可能 (e.g. $$comment$$はコメント):
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>$$table$$</dt><dd>$$tableName$$ と同じ <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$tableName$$</dt><dd>alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$comment$$</dt><dd>tableName, alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+	</dl>
+	<p>
+		※逆に、$$定義されていない名前$$ が指定されていた場合はエラーになります。<span class="frm">@since 1.1.9</span>
+	</p>
+	<h3 id="tablestatementthentheme">then の "isなし" 表現 <span class="frm">(of table)</span></h3>
+	<p>
+		利用できる statement の then の <em class="keyword">isなし</em> 表現は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>bad</dt><dd>もうそれダメ <span class="frm">e.g. if ... is ... then bad</span></dd>
+		<dt>hasPK</dt><dd>PKを持っているはず <span class="frm">e.g. ... then hasPK</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>upperCaseBasis</dt><dd>テーブル名が大文字 <span class="frm">e.g. ... then upperCaseBasis</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>lowerCaseBasis</dt><dd>テーブル名が小文字 <span class="frm">e.g. ... then lowerCaseBasis</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>identityIfPureIDPK</dt><dd>FKでない ID で終わる単一PKならIdentityが付与される <span class="frm">@since 1.1.8</span></dd>
+		<dt>sequenceIfPureIDPK</dt><dd>FKでない ID で終わる単一PKならSequenceが付与される <span class="frm">@since 1.1.9</span></dd>
+		<dt>hasCommonColumn</dt><dd>共通カラムを持っているはず <span class="frm">e.g. ... then hasCommonColumn</span></dd>
+		<dt>hasAlias</dt><dd>別名がある <span class="frm">e.g. ... then hasAlias</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>hasComment</dt><dd>コメントがある (別名部分を除く) <span class="frm">e.g. ... then hasComment</span> <span class="frm">@since 1.1.8</span></dd>
+	</dl>
+	<h3 id="tablestatementthenitemvalue">then の "isあり" 表現  <span class="frm">(of table)</span></h3>
+	<p>
+		利用できる statement の then の <em class="keyword">isあり</em> 表現は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>tableName</dt><dd>テーブル名 <span class="frm">($$変数$$あり)</span></dd>
+		<dt>alias</dt><dd>テーブルの別名(和名) <span class="frm">($$変数$$あり)</span></dd>
+		<dt>comment</dt><dd>テーブルのDBコメント(別名抜き) <span class="frm">e.g. then comment is contain:sea</span></dd>
+		<dt>pkName</dt><dd>PK制約の名前 <span class="frm">e.g. then pkName is prefix:PK_</span> <span class="frm">($$変数$$あり)</span></dd>
+		<dt>fkName</dt><dd>FK制約の名前 <span class="frm">e.g. then fkName is prefix:FK_</span> <span class="frm">($$変数$$あり)</span></dd>
+		<dt>uniqueName</dt><dd>UQ制約の名前 <span class="frm">e.g. then uniqueName is prefix:UQ_</span> <span class="frm">($$変数$$あり)</span></dd>
+		<dt>indexName</dt><dd>インデックの名前 <span class="frm">e.g. then indexName is prefix:IX_</span> <span class="frm">($$変数$$あり)</span></dd>
+		<dt>pk_columnName</dt><dd>PKのカラム名 <span class="frm">e.g. then pk_columnName is suffix:_CODE</span></dd>
+		<dt>pk_dbType</dt><dd>PKのデータ型 <span class="frm">e.g. then pk_dbType is CHAR</span></dd>
+		<dt>pk_size</dt><dd>PKのデータサイズ、小数点はカンマ空白<span class="frm">(*A)</span> <span class="frm">e.g. then pk_size is 3</span></dd>
+		<dt>pk_dbType_with_size</dt><dd>PKのデータ型サイズ付き <span class="frm">e.g. then pk_dbType_with_size is CHAR(3)</span></dd>
+	</dl>
+	<ul>
+		<li><span class="frm">(*A): 例えば、decimal型とかであれば、"8, 3" となる e.g. pk_size is 8, 3</span></li>
+	</ul>
+	<h3 id="tablestatementthendolvar">then の $$変数$$ <span class="frm">(of table)</span></h3>
+	<p>
+		then の中で $$変数$$ と書くことで、その値を利用可能 (e.g. $$table$$はテーブル名):
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>$$table$$</dt><dd>$$tableName$$ とまったく同じ</dd>
+		<dt>$$tableName$$</dt><dd>pkName, fkName, uniqueName, indexName, alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$comment$$</dt><dd>tableName, alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+	</dl>
+	<p>
+		※逆に、$$定義されていない名前$$ が指定されていた場合はエラーになります。<span class="frm">@since 1.1.9</span>
+	</p>
+	<h3 id="tablestatementnot">否定表現 (not) <span class="frm">(of table)</span></h3>
+	<p>
+		notが使えるパターンは以下の通りです。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>if の is not</dt><dd>e.g. if tableName is <em class="mark">not</em> prefix:CLS_ then ...</dd>
+		<dt>then の not ...</dt><dd>e.g. if ... then <em class="mark">not</em> hasCommonColumn</dd>
+		<dt>then の is not</dt><dd>e.g. if ... then pkName is <em class="mark">not</em> prefix:KP_</dd>
+	</dl>
+	<h3 id="tablestatementandor">かつ、もしくは (and/or) <span class="frm">(of table)</span></h3>
+	<p>
+		大きく二つに分かれます。
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt>文章の連結</dt><dd>e.g. if tableName is prefix:CLS_ <em class="mark">and</em> pk_dbType is CHAR then ...</dd>
+		<dt>値の連結</dt><dd>e.g. if tableName is prefix:CLS_ <em class="mark">and</em> suffix:_STATUS then ...</dd>
+	</dl>
+	<ul>
+		<li>文章の連結と値の連結を組み合わせて使うこともできる</li>
+		<li>文章の連結の中で、and と or を混ぜて使うことはできない (and なら全部 and)</li>
+		<li>値の連結の中で、and と or を混ぜて使うことはできない (and なら全部 and)</li>
+		<li>文章の連結は and で、値の連結は or とかは大丈夫 (逆も同じ)</li>
+	</ul>
+	<h3 id="tablestatementnotandor">not と and/or の組み合わせ <span class="frm">(of table)</span></h3>
+	<p>
+		文章の連結の場合は、特にそれぞれの文章で独立した not になるので、特に迷うことはないでしょう。
+	</p>
+	<p>
+		値の連結 の and/or と not の組み合わせた場合は、<em class="bigmark">is not (連結条件)</em>
+		というように、括弧 "()" で囲われているようなイメージで、連結条件だけで先に評価された後に not の評価がされます。
+	</p>
+	<dl class="textlist">
+		<dt>例えば、"is not SEA and LAND"</dt>
+		<dd><em class="keyword">(SEAかつLANDにヒットするもの) ではないもの</em> となる。</dd>
+		<dd>
+			SEAかつLANDというものは存在し得ないので、"絶対に0件ヒットになるの逆" となり全件ヒットになるので、この表現は意味がない。
+			prefix:, suffix:, contain: を複合的に使って絞り込むようにヒットさせたもの、ではないものをヒットさせるのが通常の使い方となる。
+		</dd>
+		<dd>
+			<dl class="textlist">
+				<dt>"is not prefix:SEA_ and suffix:_LAND"</dt>
+				<dd><em class="keyword">(SEA_で始まり、かつ、_LANDで終わるもの) ではないもの</em></dd>
+				<dt>"is not contain:SEA and contain:_LAND"</dt>
+				<dd><em class="keyword">(SEAを含み、かつ、LANDも含むもの) ではないもの</em></dd>
+			</dl>
+		</dd>
+		<dt>例えば、"is not SEA or LAND"</dt>
+		<dd><em class="keyword">(SEAもしくはLANDにヒットするもの) ではないもの</em> となる。</dd>
+		<dd>
+			この場合、SEAとLANDを単純に除外したと言える。よく使われる想定のパターンである。
+		</dd>
+		<dd>
+			<dl class="textlist">
+				<dt>"is not prefix:SEA_ or prefix:_LAND"</dt>
+				<dd><em class="keyword">(SEA_で始まる、もしくは、LAND_で終わるもの) ではないもの</em></dd>
+				<dt>"is not contain:SEA or contain:LAND"</dt>
+				<dd><em class="keyword">(SEAを含み、もしくは、LANDも含むもの) ではないもの</em></dd>
+			</dl>
+		</dd>
+	</dl>
+	<h3 id="tablestatementsupplement">補足コメント (期待値など) <span class="frm">(of table)</span></h3>
+	<p>
+		期待値などの補足を、statement自体に含めてコメントすることができます。すると、エラーになったときに一緒に表示されます。
+		<span class="frm">(普通のdfpropのコメントだと、エラーでは表示されない)</span>
+	</p>
+	<p>
+		then の後に続いて "=&gt;" を付けて、その右側に自然言語でコメントを書きます。
+	</p>
+<pre><span class="codetitle">e.g. statementの補足コメント @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> tableName <span class="keyword">is</span> <span class="attribute">suffix:</span>_ID <span class="keyword">then</span> bad <span class="point">=&gt; カラムっぽいテーブル名ダメ</span>
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="columntheme">columnMap.<em class="smallmark">themeList</em></h2>
+	<p>
+		利用できる theme は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>upperCaseBasis</dt><dd>カラム名は大文字 <span class="frm">(SQL上の名前で判定)</span></dd>
+		<dt>lowerCaseBasis</dt><dd>カラム名は小文字 <span class="frm">(SQL上の名前で判定)</span></dd>
+		<dt>hasAlias</dt><dd>別名がある <span class="frm">(DBコメントの一部を別名として認識する設定が前提)</span></dd>
+		<dt>hasComment</dt><dd>コメントがある (別名部分を除く)</dd>
+	</dl>
+	<p>
+		<span class="frm">(tableMapの方とほぼ同じ)</span>
+		upperCaseBasis, lowerCaseBasis の大文字小文字判定では、DBFluteが管理するSQL上のカラム名 (ConditionBeanのSQLで利用)
+		の大文字小文字ルールを利用します。例えば、upperCaseBasis をポリシーにしたとき、DBMSのメタデータが小文字であっても、littleAdjustmentMap.dfprop
+		にて isColumnSqlNameUpperCase が true に設定されていればセーフです。
+	</p>
+	<p>
+		<span class="frm">(tableMapの方とほぼ同じ)</span>
+		hasAlias は、documentMap.dfprop の aliasDelimiterInDbComment が設定されていることが前提です。
+		<span class="frm">(DBFluteには、DBコメントの中の一部文字列を別名として扱う機能があります)</span>
+	</p>
+	<p>
+		<span class="frm">(tableMapの方とほぼ同じ)</span>
+		hasComment は、別名設定がされていれば、DBコメントから別名の除いた部分だけで比較されます。
+	</p>
+
+	<h2 id="columnstatement">column's <em class="smallmark">statementList</em></h2>
+	<h3 id="columnstatementifsubject">if の主語 <span class="frm">(of column)</span></h3>
+	<p>
+		利用できる statement の if の主語は以下の通りです。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>tableName</dt><dd>テーブル名 <span class="frm">e.g. if tableName is prefix:CLS_</span></dd>
+		<dt>column</dt><dd>カラムの特性(*後述) <span class="frm">e.g. if column is notNull</span></dd>
+		<dt>columnName</dt><dd>カラム名 <span class="frm">($$変数$$あり)</span></dd>
+		<dt>tableColumnName</dt><dd>テーブルカラム名<span class="frm">(*A)</span> <span class="frm">($$変数$$あり)</span></dd>
+		<dt>alias</dt><dd>カラムの別名 <span class="frm">($$変数$$あり)</span></dd>
+		<dt>dbType</dt><dd>カラムのデータ型 <span class="frm">e.g. if dbType is CHAR</span></dd>
+		<dt>size</dt><dd>カラムのデータサイズ、小数点はカンマ空白<span class="frm">(*B)</span> <span class="frm">e.g. if size is 3</span></dd>
+		<dt>dbType_with_size</dt><dd>カラムのデータ型サイズ付き <span class="frm">e.g. if dbType_with_size is CHAR(3)</span></dd>
+		<dt>firstDate</dt><dd>カラムの登録日<span class="frm">(*C)</span> <span class="frm">e.g. if firstDate is after:2018/05/03</span> <span class="frm">@since 1.1.8</span></dd>
+	</dl>
+	<p>
+		<span class="frm">(*A): テーブル名とカラム名をドットつないだ名前 e.g. MEMBER.MEMBER_NAME</span>
+	</p>
+	<p>
+		<span class="frm">(*B): 例えば、decimal型とかであれば、"8, 3" となる e.g. pk_size is 8, 3</span>
+	</p>
+	<p>
+		<span class="frm">(*C): HistoryHTMLのテーブル追加履歴から判断。履歴が存在しないものは未来の日付として扱われ、after: ですべてヒットする。
+		運用途中から "これから追加されるカラムだけにチェックをかける" というような使い方を想定しているので、利用方法は限定されている。
+		例えば、"before:" や "is not" は使えない。テーブル追加時に最初から存在するカラムは、テーブルの登録日が利用される。</span>
+	</p>
+	<h3 id="columnstatementifdolvar">if の $$変数$$ <span class="frm">(of column)</span></h3>
+	<p>
+		if の中で $$変数$$ と書くことで、その値を利用できます。(e.g. $$table$$はテーブル名)
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>$$table$$</dt><dd>$$tableName$$とまったく同じ <span class="frm">@since 1.1.8</span></dd>
+		<dt>$$tableName$$</dt><dd>columnName, tableColumnName にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$tableAlias$$</dt><dd>alias にて利用可能 <span class="frm">@since 1.1.8</span></dd>
+		<dt>$$comment$$</dt><dd>columnName, tableColumnName, alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$column$$</dt><dd>$$columnName$$とまったく同じ <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$columnName$$</dt><dd>alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+	</dl>
+	<p>
+		※逆に、$$定義されていない名前$$ が指定されていた場合はエラーになります。<span class="frm">@since 1.1.9</span>
+	</p>
+	<h3 id="columnstatementthentheme">then の "isなし" 表現 <span class="frm">(of column)</span></h3>
+	<p>
+		利用できる statement の then の <em class="keyword">isなし</em> 表現の "基本的なもの" は以下の通りです。 
+	</p>
+	<dl class="keymainlist">
+		<dt>notNull</dt><dd>NotNull制約 <span class="frm">e.g. then notNull</span></dd>
+		<dt>identity</dt><dd>identityカラム(連番) <span class="frm">e.g. then identity</span></dd>
+		<dt>pk</dt><dd>PK制約 <span class="frm">e.g. then pk</span></dd>
+		<dt>singlePK</dt><dd>単一カラムのPK制約 <span class="frm">e.g. then singlePK</span> <span class="frm">@since 1.1.9</span></dd>
+		<dt>fk</dt><dd>FK制約 <span class="frm">e.g. then fk</span></dd>
+		<dt>unique</dt><dd>UQ制約 <span class="frm">e.g. then unique</span></dd>
+		<dt>index</dt><dd>インデックス <span class="frm">e.g. then index</span></dd>
+		<dt>classification</dt><dd>区分値 <span class="frm">e.g. then classification</span></dd>
+		<dt>upperCaseBasis</dt><dd>カラム名が大文字 <span class="frm">e.g. then upperCaseBasis</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>lowerCaseBasis</dt><dd>カラム名が小文字 <span class="frm">e.g. then lowerCaseBasis</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>hasAlias</dt><dd>別名がある <span class="frm">e.g. then hasAlias</span> <span class="frm">@since 1.1.8</span></dd>
+		<dt>hasComment</dt><dd>コメントがある (別名部分を除く) <span class="frm">e.g. then hasComment</span> <span class="frm">@since 1.1.8</span></dd>
+	</dl>
+	<p>
+		加えて、他のテーブルのカラムと比較をするような横断的なものがあります。<span class="frm">@since 1.1.8</span>
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>sameColumnAliasIfSameColumnName</dt><dd>同じカラム名なら、別名は同じ <span class="frm">@since 1.1.8</span></dd>
+		<dt>sameColumnDbTypeIfSameColumnName</dt><dd>同じカラム名なら、データ型は同じ <span class="frm">@since 1.1.8</span></dd>
+		<dt>sameColumnSizeIfSameColumnName</dt><dd>同じカラム名なら、サイズは同じ <span class="frm">@since 1.1.8</span></dd>
+		<dt>sameColumnNameIfSameColumnAlias</dt><dd>同じ別名なら、カラム名は同じ <span class="frm">@since 1.1.8</span></dd>
+	</dl>
+	<p>
+		この場合、比較対象の相手カラムに対しても、if で指定された条件で対象カラムかどうかの判定されます。
+	</p>
+	<h3 id="columnstatementthenitemvalue">then の "isあり" 表現 <span class="frm">(of column)</span></h3>
+	<p>
+		利用できる statement の then の <em class="keyword">isあり</em> 表現は以下の通りです。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>tableName</dt><dd>テーブル名 <span class="frm">e.g. then tableName is prefix:CLS_</span></dd>
+		<dt>column</dt><dd>カラムの特性(*後述) <span class="frm">e.g. then column is notNull</span></dd>
+		<dt>columnName</dt><dd>カラム名 <span class="frm">($$変数$$あり)</span></dd>
+		<dt>tableColumnName</dt><dd>テーブルカラム名<span class="frm">(*B)</span> <span class="frm">($$変数$$あり)</span></dd>
+		<dt>alias</dt><dd>カラムの別名 <span class="frm">($$変数$$あり)</span></dd>
+		<dt>dbType</dt><dd>カラムのデータ型 <span class="frm">e.g. then dbType is CHAR</span></dd>
+		<dt>size</dt><dd>カラムのデータサイズ、小数点はカンマ空白<span class="frm">(*C)</span> <span class="frm">e.g. then size is 3</span></dd>
+		<dt>dbType_with_size</dt><dd>カラムのデータ型サイズ付き <span class="frm">e.g. then dbType_with_size is CHAR(3)</span></dd>
+		<dt>comment</dt><dd>カラムのDBコメント(別名抜き) <span class="frm">e.g. then comment is contain:sea</span></dd>
+	</dl>
+	<p>
+		<span class="frm">(*B): テーブル名とカラム名をドットつないだ名前 e.g. MEMBER.MEMBER_NAME</span>
+	</p>
+	<p>
+		<span class="frm">(*C): 例えば、decimal型とかであれば、"8, 3" となる e.g. pk_size is 8, 3</span>
+	</p>
+	<h3 id="columnstatementthendolvar">then の $$変数$$ <span class="frm">(of column)</span></h3>
+	<p>
+		then の中で $$変数$$ と書くことで、その値を利用できます。(e.g. $$table$$はテーブル名)
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>$$table$$</dt><dd>$$tableName$$ とまったく同じ <span class="frm">@since 1.1.8</span></dd>
+		<dt>$$tableName$$</dt><dd>columnName, tableColumnName にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$tableAlias$$</dt><dd>alias にて利用可能 <span class="frm">@since 1.1.8</span></dd>
+		<dt>$$comment$$</dt><dd>columnName, tableColumnName, alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$column$$</dt><dd>$$columnName$$とまったく同じ <span class="frm">@since 1.1.9</span></dd>
+		<dt>$$columnName$$</dt><dd>alias にて利用可能 <span class="frm">@since 1.1.9</span></dd>
+	</dl>
+	<p>
+		※逆に、$$定義されていない名前$$ が指定されていた場合はエラーになります。<span class="frm">@since 1.1.9</span>
+	</p>
+	<h3 id="columnstatementcolumnis">カラムの特性 (column is) <span class="frm">(of column)</span></h3>
+	<p>
+		if column is ... や then ... や then column is ... で使える表現は以下の通りです。 
+	</p>
+	<dl class="keymainlist">
+		<dt>notNull</dt><dd>NotNull制約 <span class="frm">e.g. if column is notNull</span></dd>
+		<dt>identity</dt><dd>identityカラム(連番) <span class="frm">e.g. if column is identity</span></dd>
+		<dt>pk</dt><dd>PK制約 <span class="frm">e.g. if column is pk</span></dd>
+		<dt>singlePK</dt><dd>単一カラムのPK制約 <span class="frm">e.g. then singlePK</span> <span class="frm">@since 1.1.9</span></dd>
+		<dt>fk</dt><dd>FK制約 <span class="frm">e.g. if column is fk</span></dd>
+		<dt>unique</dt><dd>UQ制約 <span class="frm">e.g. if column is unique</span></dd>
+		<dt>index</dt><dd>インデックス <span class="frm">e.g. if column is index</span></dd>
+		<dt>classification</dt><dd>区分値 <span class="frm">e.g. if column is classification</span></dd>
+	</dl>
+	<h3 id="columnstatementnot">否定表現 (not) <span class="frm">(of column)</span></h3>
+	<p>
+		tableMapの方とまったく同じです。
+	</p>
+	<h3 id="columnstatementandor">かつ、もしくは (and/or) <span class="frm">(of column)</span></h3>
+	<p>
+		tableMapの方とまったく同じです。
+	</p>
+	<h3 id="columnstatementnotandor">not と and/or の組み合わせ <span class="frm">(of column)</span></h3>
+	<p>
+		tableMapの方とまったく同じです。
+	</p>
+	<h3 id="columnstatementsupplement">補足コメント (期待値など) <span class="frm">(of column)</span></h3>
+	<p>
+		tableMapの方とまったく同じです。
+	</p>
+
+	<h2 id="migration">運用途中からの導入</h2>
+	<h3 id="migfirstdate">これから追加するテーブルやカラムだけチェック</h3>
+	<p>
+		運用途中から SchemaPolicyCheck を導入する場合、"既存のテーブルはなかなか修正できないけど、これから追加するテーブルはチェックしたい"
+		ということになります。
+	</p>
+	<p>
+		そこで、statement の if で利用できる firstDate を使うと良いでしょう。
+		<em class="keyword">指定された日付以降に追加されたテーブルやカラムはチェックする</em> という条件が書けます。
+	</p>
+<pre><span class="codetitle">e.g. firstDateを使って、これから追加されるテーブルだけチェック @schemaPolicyMap.dfprop</span><code>
+<span class="comment"># 2018/05/04より未来に追加されたテーブルは、FK制約名は FK_[テーブル名] で始まること</span>
+; <span class="keyword">if</span> <span class="point">firstDate</span> <span class="keyword">is</span> <span class="attribute">after:</span><span class="literal">2018/05/04</span> <span class="keyword">then</span> fkName <span class="keyword">is</span> <span class="attribute">prefix:</span>FK_<span class="attribute">$$table$$</span>
+</code></pre>
+	<h3 id="migstatementthen">一部のテーブルだけピンポイントで除外する</h3>
+	<p>
+		どうしても直せない一部のテーブルは、tableExceptListで完全に除外してしまうか、statement の if で除外してしまうと良いでしょう。
+		できるだけ後者で実現する方が他のチェックが掛かるので望ましいですが、あまりに複雑になってしまうと良くないので数が少なければ割り切って前者でも良いでしょう。
+	</p>
+	<p>
+		(themeListの) theme は絞り込み条件が書けませんが、同じチェックが statement の then の theme
+		で指定できるものもあるので、statement方式に移行することで一部のものだけ除外を実現できます。と良いでしょう。 
+	</p>
+
+	<h2 id="example">Example</h2>
+	<h3 id="simpleexample">シンプルなポリシーのExample</h3>
+<pre><span class="codetitle">e.g. シンプルなポリシー @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+
+    ; <span class="localvar">wholeMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ uniqueTableAlias ; sameColumnAliasIfSameColumnName }
+    }
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ hasPK ; upperCaseBasis ; identityIfPureIDPK }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> tableName <span class="keyword">is</span> <span class="attribute">$$ALL$$</span> <span class="keyword">then</span> fkName <span class="keyword">is</span> <span class="attribute">prefix:</span>FK_<span class="attribute">$$table$$</span>
+        }
+    }
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ upperCaseBasis }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLAG <span class="keyword">then</span> bad
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> notNull
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> dbType is INTEGER
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> classification
+        }
+    }
+}
+</code></pre>
+	<h3 id="hyperexample">ハイパーなポリシーのExample</h3>
+	<p>
+		かなり突っ込んだハイパーなポリシーのExampleです。
+	</p>
+	<p>
+		まるごとコピーしてから、現場にフィットするように修正しると良いでしょう。
+		ただし、いくつかの設定がMySQLに依存していますので、その部分は利用しているDBMSに合わせましょう。
+	</p>
+<pre><span class="codetitle">e.g. ハイパーなポリシー @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># ドキュメントへのリンクとか、dfpropに書いておくといいんじゃないかと</span>
+    <span class="comment"># _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment"># document is here:</span>
+    <span class="comment"># http://dbflute.seasar.org/ja/manual/reference/dfprop/schemapolicy/</span>
+    <span class="comment"># _/_/_/_/_/_/_/_/_/_/</span>
+
+    ; tableExceptList = <span class="keyword">list:{}</span>
+    ; tableTargetList = <span class="keyword">list:{}</span>
+    ; columnExceptMap = <span class="keyword">map:</span>{}
+    ; isMainSchemaOnly = <span class="keyword">false</span>
+
+    ; <span class="localvar">wholeMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{
+            ; uniqueTableAlias
+            ; sameColumnAliasIfSameColumnName
+            ; sameColumnDbTypeIfSameColumnName
+            ; sameColumnSizeIfSameColumnName
+            ; sameColumnNameIfSameColumnAlias
+        }
+    }
+
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{
+            ; hasPK
+            ; hasAlias
+            ; hasComment
+            ; upperCaseBasis
+            ; identityIfPureIDPK
+        }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            <span class="comment">## 共通カラム ##</span>
+            # もし、"区分値テーブルは共通カラムがない" とかであれば、ALLじゃなくてprefixなどで絞り込み
+            ; if tableName is <span class="attribute">$$ALL$$</span> then hasCommonColumn => 区分値のテーブルも含めて共通カラムは必須
+
+            <span class="comment">## 制約 (e.g. PK, FK) ##</span>
+            <span class="comment"># _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+            <span class="comment"># 例えば FK なら、FK_[テーブル名]_[FKカラム名 or 相手のテーブル名]</span>
+            ; if tableName is <span class="attribute">$$ALL$$</span> then fkName is <span class="attribute">prefix:</span>FK_<span class="attribute">$$table$$</span>
+
+            <span class="comment"># MySQL では FK も INDEX に含まれるため、INDEX名も同様のチェックが必要</span>
+            ; if tableName is <span class="attribute">$$ALL$$</span> then indexName is <span class="attribute">prefix:</span>IX_<span class="attribute">$$table$$</span> or <span class="attribute">prefix:</span>FK_<span class="attribute">$$table$$</span>
+
+            <span class="comment"># ERDツールによっては、PK制約名を付けづらいケースもあるかも (なら諦めるもアリ)</span>
+            ; if tableName is <span class="attribute">$$ALL$$</span> then pkName is <span class="attribute">prefix:</span>PK_<span class="attribute">$$table$$</span>
+
+            <span class="comment"># UQ制約名の付け方は、色々なパターンがありそう</span>
+            ; if tableName is <span class="attribute">$$ALL$$</span> then uniqueName is <span class="attribute">prefix:</span>UQ_<span class="attribute">$$table$$</span>
+            <span class="comment"># _/_/_/_/_/_/_/_/_/_/</span>
+
+            <span class="comment">## 区分値テーブル ##</span>
+            <span class="comment"># CLS_で始まるテーブルを区分値テーブルとしていることが前提。
+            # コード値をchar(3)だけにするか、色々なサイズも許すか、それによってチェックするかしないかも変わりそう。
+            # 限定できるなら、char(2) or char(3) というように or でつなげることもできる。</span>
+            ; if tableName is <span class="attribute">prefix:</span>CLS_ then pk_dbType_with_size is char(3)
+
+            <span class="comment">## コメント ##</span>
+            ; if alias is <span class="attribute">$$tableName$$</span> then bad => 論理名がテーブル名と同じじゃダメ
+            ; if alias is <span class="attribute">$$comment$$</span> then bad => コメントが論理名と同じじゃダメ
+            ; if tableName is <span class="attribute">$$comment$$</span> then bad => コメントがテーブル名と同じじゃダメ
+        }
+    }
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; themeList = list:{
+            ; hasAlias
+            <span class="comment"># 全カラムコメント必須はさすがにつらいと思うのでコメントアウト。
+            # いやいや、コメントは必ず入れよう！というのであれば、ぜひコメントアウト解除で！</span>
+            <span class="comment">#; hasComment</span>
+            ; upperCaseBasis
+        }
+        ; statementList = list:{
+            <span class="comment">## IDカラム ##</span>
+            <span class="comment"># _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+            ; if columnName is <span class="attribute">suffix:</span>_ID then alias is <span class="attribute">pattern:</span>.+ID(\(.+\))?$ => IDカラムなら論理名は "なんとかID" にしよう
+            ; if columnName is not <span class="attribute">suffix:</span>_ID then alias is not <span class="attribute">suffix:</span>ID => IDカラムじゃないのに、"なんとかID" という論理名なの？
+
+            <span class="comment"># IDカラムを数値だけにするか、文字列もOKか、現場によってポリシー変わりそう</span>
+            ; if columnName is <span class="attribute">suffix:</span>_ID then dbType is bigint or int or bigint unsigned or int unsigned => IDカラムは数値で！
+
+            ; if columnName is <span class="attribute">$$table$$</span>_ID then alias is <span class="attribute">$$tableAlias$$</span>ID => カラム名が[テーブル名]_IDなのであれば、論理名も[テーブル論理名ID]にしよう
+            ; if alias is <span class="attribute">$$tableAlias$$</span>ID then columnName is <span class="attribute">$$table$$</span>_ID => 論理名が[テーブル論理名ID]なのであれば、カラム名も[テーブル名]_IDにしよう
+            <span class="comment"># _/_/_/_/_/_/_/_/_/_/</span>
+
+            <span class="comment">## NOカラム ##</span>
+            ; if columnName is <span class="attribute">suffix:</span>_NO then alias is <span class="attribute">suffix:</span>番号 or suffix:NO => NOカラムなら論理名は "なんとか番号" とか "なんとかNO" にしよう
+            ; if columnName is not <span class="attribute">suffix:</span>_NO then alias is not suffix:番号 and not <span class="attribute">suffix:</span>NO => NOカラムじゃないのに、"なんとか番号" とか "なんとかNO" という論理名なの？
+
+            <span class="comment">## CODEカラム ##</span>
+            ; if columnName is <span class="attribute">suffix:</span>_CODE then alias is <span class="attribute">suffix:</span>コード => CODEカラムなら論理名は "なんとかコード" にしよう
+            ; if columnName is not <span class="attribute">suffix:</span>_CODE then alias is not <span class="attribute">suffix:</span>コード => CODEカラムじゃないのに、"なんとかコード" という論理名なの？
+            ; if tableName is <span class="attribute">prefix:</span>CLS_ and column is pk then classification => 区分値テーブルだったら、PKは区分値カラムのはず (dfpropを確認しよう)
+            ; if columnName is <span class="attribute">suffix:</span>_CD then bad => _CODE に統一
+
+            <span class="comment">## FLGカラム ##</span>
+            <span class="comment"># _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+            ; if columnName is <span class="attribute">suffix:</span>_FLG then alias is <span class="attribute">suffix:</span>フラグ => FLGカラムなら論理名は "なんとかフラグ" にしよう
+            ; if columnName is not <span class="attribute">suffix:</span>_FLG then alias is not <span class="attribute">suffix:</span>フラグ => FLGカラムじゃないのに、"なんとかフラグ" という論理名なの？
+
+            <span class="comment"># MySQLのメタデータとしては、boolean は bit になる</span>
+            ; if columnName is <span class="attribute">suffix:</span>_FLG then dbType is bit
+
+            ; if columnName is <span class="attribute">suffix:</span>_FLG then column is notNull => nullのフラグはやめよー
+            ; if columnName is <span class="attribute">suffix:</span>_FLAG then bad => _FLG に統一
+            <span class="comment"># _/_/_/_/_/_/_/_/_/_/</span>
+
+            <span class="comment">## DATEカラム ##</span>
+            ; if columnName is <span class="attribute">suffix:</span>_DATE then alias is <span class="attribute">suffix:</span>日 => DATEカラム(時分秒のない日付)なら論理名は "なんとか日" にしよう
+            ; if columnName is not <span class="attribute">suffix:</span>_DATE then alias is not <span class="attribute">suffix:</span>日 => DATEカラム(時分秒のない日付)じゃないのに、"なんとか日" という論理名なの？
+            ; if columnName is <span class="attribute">suffix:</span>_DATE then dbType is date => なんとか_DATEなら、日付ということで date に
+
+            <span class="comment">## DATETIMEカラム ##</span>
+            ; if columnName is <span class="attribute">suffix:</span>_DATETIME then alias is <span class="attribute">suffix:</span>日時 => DATETIMEカラムなら論理名は "なんとか日時" にしよう
+            ; if columnName is not <span class="attribute">suffix:</span>_DATETIME then alias is not <span class="attribute">suffix:</span>日時 => DATETIMEカラムじゃないのに、"なんとか日時" という論理名なの？
+            ; if columnName is <span class="attribute">suffix:</span>_DATETIME then dbType is datetime => なんとか_DATETIMEなら、日時ということで datetime に
+
+            <span class="comment">## コメント ##</span>
+            ; if alias is <span class="attribute">$$columnName$$</span> and columnName is not <span class="attribute">pattern:</span>(URL|UUID|CUID) then bad => 論理名がカラム名が同じなのはダメ。ただ、URLとかはしょうがないので not pattern に列挙
+            ; if alias is <span class="attribute">$$comment$$</span> then bad => コメントが論理名と同じなのはダメ
+            ; if columnName is <span class="attribute">$$comment$$</span> then bad => コメントがカラム名と同じなのはダメ
+
+            <span class="comment"># 区分値カラムの扱い方は、色々なパターンがありそう</span>
+            ; if columnName is <span class="attribute">suffix:</span>_TYPE then bad => "_TYPE" で終わるカラム名なら、"_TYPE_CODE" にして区分値テーブルで表現しよう
+
+            <span class="comment">## NGワード ##</span>
+            <span class="comment"># 表記ゆれとか曖昧な表現とかをチェックしたいなら、ここで bad, bad</span>
+            ; if alias is <span class="attribute">contain:</span>名称 then bad => 「名」で統一
+            ; if alias is <span class="attribute">pattern:</span>.*[^名]カナ.* then bad => 「カナ」は「名カナ」にしてください。
+            ; if alias is <span class="attribute">pattern:</span>(.*ユーザ[^ー].*|.*ユーザ) then bad => 「ユーザ」は、「ユーザー」で統一してください。
+        }
+    }
+}
+</code></pre>
+	<h3 id="insteadofidentity">identityIfPureIDPK で除外テーブル</h3>
+	<p>
+		備え付けの theme は使わず、column.statement で細かく設定すればテーブル除外ありの identityIfPureIDPK
+		を実現することができます。
+	</p>
+<pre><span class="codetitle">e.g. identityIfPureIDPK をテーブル除外 @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{
+            <span class="comment"># unused here, see check it by column.statement to except specified tables</span> 
+            <span class="comment">#; identityIfPureIDPK</span>
+        }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            <span class="abbreviation">...</span>
+        }
+    }
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{ upperCaseBasis }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            <span class="comment"># ID column</span>
+            <span class="point">; if tableName is not prefix:MST_ and column is pk and columnName is suffix:_ID and column is not fk then identity => instead of identityIfPureIDPK</span>
+
+            <span class="abbreviation">...</span>
+        }
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

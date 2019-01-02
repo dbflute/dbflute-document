@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,NullsFirst/Last,order by,nulls first, nulls last,nullを先に,nullを後に" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>NullsFirst/Last | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>NullsFirst/Last</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		null のデータを先に並べるか後に並べるかを設定します。
+	</p>
+	<p>
+		SQLにおいて order by で指定されたカラムに null があり得る場合に、null
+		のデータが先に並ぶか後に並ぶか、DBMSに依存します。その仕様に依存した実装をしていると、DBMSの移行をする際のトラブルになります。
+		また、そもそも使っているDBMSの仕様がどっちなのかをいちいち調べて、とするのも無駄な作業です。
+		アプリ側で、null を先(or 後)に並べるようにと明示的な指定ができるのが一番です。
+	</p>
+	<p>
+		DBFluteでは、nulls first 構文を使って解決します。但し、この構文を使っていないDBMS(例えば、MySQL, DB2, SQLServerなど)では、case when
+		構文をつかって実現します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../reference/dbway/mysql/index.html#nullsfirstlast">DBMSごとの取扱い - MySQL - NullsFirst/Last</a></div>
+	<p>
+		必ず OrderBy と組み合わせて指定します。Nullableカラムでソートする場合は必ず指定しましょう。
+	</p>
+	<div class="relatedpage"><a href="#nullable">Nullableカラムには必ず</a></div>
+	<p>
+		会話上では、<em class="keyword">ぬるずふぁーすと/らすと</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		まずは、OrderBy のメソッド呼び出しの直後に続けて、withNulls[First or Last]() を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 昇順のOrderByでnullを先に並べる実装手順 (Eclipseでコード補完) {BIRTHDATE} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().addOrderBy_Birthdate_Asc().wi <span class="comment">// .wi まで打ってメソッドを選択</span>
+--
+cb.query().addOrderBy_Birthdate_Asc().<span class="point">withNullsFirst()</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 生年月日の昇順で null を先に並べる {PostgreSQL} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">order by</span> dfloc.BIRTHDATE <span class="keyword">asc</span> <span class="point">nulls first</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 生年月日の昇順で null を先に並べる {MySQL} @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="point">case when</span> dfloc.BIRTHDATE <span class="keyword">is not null</span> <span class="point">then</span> <span class="literal">1</span> <span class="point">else</span> <span class="literal">0</span> <span class="point">end</span> <span class="keyword">asc</span>, dfloc.BIRTHDATE <span class="keyword">asc</span>
+</code></pre>
+	<h3 id="specifiedderived">SpecifiedDerivedOrderBy との組み合わせ</h3>
+	<p>
+		SpecifiedDerivedOrderBy に対しても利用することができます。導出カラムは関数の仕様として、データ存在しない場合に null
+		になるケースが想定されますので、DerivedReferrerOption で coalesce を利用していない場合は、NullsFirst/Last が必要になる場面が多いと想定されます。
+	</p>
+	<div class="relatedpage"><a href="./specifiedderivedorderby.html">SpecifiedDerivedOrderBy</a></div>
+<pre><span class="codetitle">e.g. 最終ログイン日時の昇順で、ログインしたことない人を後に並べる @Java</span><code>
+<span class="abbreviation">...</span>
+cb.query().addSpecifiedDerivedOrderBy_Asc(Member.ALIAS_latest<span class="abbreviation">...</span>).<span class="point">withNullsLast()</span>;
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<p>
+		NullsFirst/Last は、直前の OrderBy に対してのみ適用されます。
+	</p>
+	<h3 id="unioncasewhen">UnionQuery と case when</h3>
+	<p>
+		case when 構文を使って実現するDBMSで、かつ、union を利用した時の order by 句に case when
+		構文が許されないDBMS(例えば、DB2, SQLServerなど)においては、UnionQuery を使った時の NullsFirst/Last はサポートされません。
+	</p>
+	<div class="relatedpage"><a href="../../../../../reference/dbway/db2/index.html#nullsfirstlast">DBMSごとの取扱い - DB2 - NullsFirst/Lastの実現</a></div>
+	<h3 id="afterorderby">必ず OrderBy の後に</h3>
+	<p>
+		OrderBy のメソッド呼び出し直後以外のタイミングでは呼び出してはいけません。
+	</p>
+	<h3 id="severalcall">同カラムに対する複数回呼び出し</h3>
+	<p>
+		一つのカラムに対して、NullsFirst/Last を複数回呼び出しても上書きされるだけです。
+	</p>
+
+	<h2 id="supported">サポートされる型</h2>
+	<p>
+		全ての型に対してサポートされます。
+	</p>
+	<p>
+		NotNull のカラムでも利用できますが、業務的な意味はありません。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="nullable">Nullableカラムには必ず</h2>
+		<p>
+			一番、やってはいけないのが、ソートキーが null
+			があり得る(Nullable)カラムであることを見逃して、実装を終えてしまうことです。
+			業務で null が先に並んで欲しい場面は少ないように考えられますが、たまたまそういうDBMSを使っていたとして、
+			リリース後に実務のデータが入ったときに初めてユーザからの通知で判明する、というような状況が発生するとややこしい話になります。
+		</p>
+		<p>
+			そもそも業務仕様として "データなし(null)" のレコードをどっちに並べるかは明確にする必要があります。
+			もし仕様で明確かされていないのであれば、NullsFirst/Last を使って実装する前に、仕様を正す方が先でしょう。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFluteの国際化対応 (i18n) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteの国際化対応 (i18n)</h1>
+	<p>
+		SAFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">国際化対応の概要</h2>
+	<p>
+		様々なアプリの要件に合わせた Locale と Timezone の管理ができるようになっています。
+	</p>
+	<p>
+		TODO jflute 書き途中
+	</p>
+
+	<h2 id="provider">AssistantDirector で Provider 実装</h2>
+	<h3 id="localeprovider">UserLocaleProcessProvider</h3>
+	<p>
+		以下のインターフェースを実装して、AssistantDirector にて登録をします。
+	</p>
+<pre><span class="codetitle">UserLocaleProcessProviderインターフェース @Java</span><code>
+/**
+ * The provider of user locale process for current request.
+ * @author jflute
+ */
+public interface UserLocaleProcessProvider {
+
+    /**
+     * Does it accept cookie locale? (prevails over session)
+     * @return The determination, true or false.
+     */
+    boolean isAcceptCookieLocale();
+
+    /**
+     * Find business locale. (prevails over cookie)
+     * @param executeMeta The meta of action execution which you can get the calling method. (NotNull)
+     * @param requestManager The manager of request to find your locale. (NotNull)
+     * @return The found locale by your business rule. (NullAllowed: if null, not found)
+     */
+    Locale findBusinessLocale(ActionExecuteMeta executeMeta, RequestManager requestManager);
+
+    /**
+     * Get the requested locale. (for when not found in session or cookie)
+     * @param requestManager The manager of request to find your time-zone. (NotNull)
+     * @return The locale as default by your business rule. (NullAllowed: if null, requested client locale)
+     */
+    Locale getRequestedLocale(RequestManager requestManager);
+
+    /**
+     * Get the fall-back locale. (for no locale everywhere)
+     * @return The fixed instance of locale, might be cached. (NullAllowed: if null, server locale)
+     */
+    Locale getFallbackLocale();
+}
+</code></pre>
+	<h3 id="timezoneprovider">UserTimeZoneProcessProvider</h3>
+	<p>
+		以下のインターフェースを実装して、AssistantDirector にて登録をします。
+	</p>
+<pre><span class="codetitle">UserTimeZoneProcessProviderインターフェース @Java</span><code>
+/**
+ * The provider of user time-zone process for current request.
+ * @author jflute
+ */
+public interface UserTimeZoneProcessProvider {
+
+    /**
+     * Does it use time-zone handling? <br />
+     * The time-zone handling is option (not related to Struts) so you need to choose.
+     * @return The determination, true or false.
+     */
+    boolean isUseTimeZoneHandling();
+
+    /**
+     * Does it accept cookie time-zone? (prevails over session)
+     * @return The determination, true or false.
+     */
+    boolean isAcceptCookieTimeZone();
+
+    /**
+     * Find business time-zone. (prevails over cookie)
+     * @param executeMeta The meta of action execution which you can get the calling method. (NotNull)
+     * @param requestManager The manager of request to find your time-zone. (NotNull)
+     * @return The found time-zone by your business rule. (NullAllowed: if null, not found)
+     */
+    TimeZone findBusinessTimeZone(ActionExecuteMeta executeMeta, RequestManager requestManager);
+
+    /**
+     * Get the requested time-zone. (for when not found in session or cookie) <br />
+     * Unfortunately we cannot get time-zone from request, provider needs to provide the default time-zone
+     * @param requestManager The manager of request to find your time-zone. (NotNull)
+     * @return The time-zone as default by your business rule. (NotNull)
+     */
+    TimeZone getRequestedTimeZone(RequestManager requestManager);
+
+    /**
+     * Get the fall-back time-zone. (for no time-zone everywhere)
+     * @return The fixed instance of time-zone, might be cached. (NullAllowed: if null, server time-zone)
+     */
+    TimeZone getFallbackTimeZone();
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,sidebar" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>CB - Sidebar | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>CB - Sidebar</h1>
+	${indexlist}
+
+	<h2 id="linklist">リンクの一覧</h2>
+	<dl class="textlist">
+		<dt>検索全体に関する調整</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>更新ロック (各種DBMSの構文を利用) : <a href="./sidebar/lockforupdate.html">LockForUpdate</a> - <span class="frm">cb.lockForUpdate()</span></li>
+				<li>InnerJoinの自動判別 (チューニング用) : <a href="./innerjoinautodetect.html">InnerJoinAutoDetect</a> - <span class="frm">cb.allowInnerJoinAutoDetect()</span></li>
+				<li>JDBCパラメータの指定 (queryTimeoutなど) : <a href="./sidebar/statementconfig.html#querytimeout">StatementConfig</a> - <span class="frm">cb.configure(...)</span></li>
+				<li>DBMS依存の機能 (ロックや全文検索など) : <a href="../../genbafit/implfit/databasedependency/index.html">DatabaseDependency</a></li>
+				<li>無効な条件のチェック (無効な条件があったら例外) : <a href="./checkinvalidquery.html">CheckInvalidQuery</a> - <span class="frm">cb.checkInvalidQuery()</span></li>
+			</ul>
+			<dl class="hierarchylist">
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd>※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<dt><a href="./emptystringquery.html">EmptyStringQuery</a></dt>
+						<dd>空文字条件の許可 (空文字を有効な値として扱う)</dd>
+						<dt><a href="./checksafetyresult.html">CheckSafetyResult</a></dt>
+						<dd>安全件数のチェック (指定件数以上なら例外)</dd>
+						<dt><a href="./disablerelationmappingcache.html">DisableRelationMappingCache</a></dt>
+						<dd>関連テーブルのインスタンスキャッシュを無効化 (まず不要な機能)</dd>
+						<dt><a href="./embedcondition.html">EmbedCondition</a></dt>
+						<dd>バインド変数なし埋め込み条件 (危険要注意)</dd>
+						<dt><a href="./pagingselectandquerysplit.html">PagingSelectAndQuerySplit</a></dt>
+						<dd>ページング検索でselect句とwhere句を分割実行</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

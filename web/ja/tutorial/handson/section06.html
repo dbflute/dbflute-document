@@ -1,0 +1,604 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 6 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 6</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、ハンズオンの続きです。
+	</p>
+	<div class="relatedpage"><a href="./section05.html">(ひとつまえ) ハンズオンセクション 5</a></div>
+	<p>
+		"デバッグログ設定と別名(和名)の利用" を学んでいきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		<em class="keyword">src/main/java</em> 配下に org.docksidestage.handson.<em class="mark">logic.HandsOn06Logic</em>
+		クラスを作成してください。この時点では空っぽで構いません。また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+
+	<h2 id="debuglog">デバッグログ設定 <span class="frm">(Lasta Di なら)</span></h2>
+	<p>
+		DIコンテナが Lasta Di であれば、logback になっています。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20151010">ハンズオンニュース - Lasta Di に変更</a></div>
+	<p>
+		既に何度もデバッグログにはお世話になっているかと思います。
+		Eclipse (or IntelliJ) のコンソールにはDBFluteの検索処理のログが出力されていたかと思います。
+		これは、既に src/main/resources 配下に logback.xml が(最初から)配置されているからです。ここでは簡単ではありますが、この設定ファイルを修正すると出力されるログが変更されることを学びましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/debuglog/index.html">現場フィット - デバッグログ</a></div>
+	<p>
+		試しに、logback.xml の org.dbflute の logger タグをコメントアウトして、今まで作った任意のテストを実行し、コンソールのログを確認してみてください。変化があるはずです。
+		変化を確認したら、元に戻してもう一度テストを実行して確認しましょう。<span class="frm">(元に戻さないとログが出なくなっちゃいますよぅ)</span>
+	</p>
+
+	<h2 id="debuglog">デバッグログ設定 <span class="frm">(Seasarのままなら)</span></h2>
+	<p>
+		DIコンテナが Seasar のままであれば、logj4 になっています。
+	</p>
+	<div class="relatedpage"><a href="./news.html#20151010">ハンズオンニュース - Lasta Di に変更</a></div>
+	<p>
+		既に何度もデバッグログにはお世話になっているかと思います。
+		Eclipse (or IntelliJ) のコンソールにはDBFluteの検索処理のログが出力されていたかと思います。
+		これは、既に src/test/resources 配下に log4j.properties (もしくは、src/main/resources に logback.xml)
+		が(最初から)配置されているからです。ここでは簡単ではありますが、この設定ファイルを修正すると出力されるログが変更されることを学びましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/debuglog/index.html">現場フィット - デバッグログ</a></div>
+	<p>
+		試しに、log4j.properties の log4j.logger.org.seasar を "#"
+		でコメントアウトして、今まで作った任意のテストを実行し、コンソールのログを確認してみてください。変化があるはずです。
+		変化を確認したら、元に戻してもう一度テストを実行して確認しましょう。
+	</p>
+	<p>
+		また、log4j.appender.console.layout.ConversionPattern を "%d [%t]-%-5p - %m%n"
+		に変更してみてください。変化を確認したら、元に戻してもう一度テストを実行して確認しましょう。
+	</p>
+
+	<h2 id="aliasdef">別名(和名)の利用 <span class="frm">(+ Logic作成)</span></h2>
+	<h3 id="checkdbcomment">DBコメントの確認</h3>
+	<p>
+		replace-schema-10-basic.sql をご覧ください。
+		たくさんのDBコメントが定義されています。そして、DBコメントには、そのテーブルやカラムの別名(和名)と説明が "別名 : 説明"
+		という形式で記載されています。まず、SchemaHTML を開いて、DBコメントがその形式であることを確認してください。<span class="frm">(全てのコメントが必ずこの形式とは限りません)</span>
+	</p>
+	<h3 id="makelogic">ロジックを作りながら確認</h3>
+	<p>
+		それでは唐突ですが、JavaDoc上にDBコメントがあるかどうかを確認するために実装してみましょう。
+		以下のロジックを作成してテストしてみてください。実装しながら、それぞれのカラムに対応するメソッドの
+		JavaDoc コメントを確認してみてください。特に別名は表示されていないはずです。
+	</p>
+	<dl class="textlist">
+		<dt>ロジックのメソッド</dt>
+		<dd>List&lt;Member&gt; selectSuffixMemberList(String suffix)</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定された suffix で会員名称を後方一致検索</li>
+				<li>会員名称の昇順で並べる</li>
+				<li>suffixが無効な値なら例外: IllegalArgumentException</li>
+				<li>会員名称、生年月日、正式会員日時をログに出す <span class="frm">(Slf4j or CommonsLogging)</span></li>
+				<li>そのログのログレベル、INFO/DEBUGどちらがいいか考えて実装してみましょう <span class="frm">(この先ずっと同じ)</span></li>
+				<li>このメソッドは、他の人が呼び出すことを想定して public にしましょう <span class="frm">(この先ずっと同じ)</span></li>
+			</ul>
+		</dd>
+		<dt>対応テストメソッド</dt>
+		<dd>test_selectSuffixMemberList_指定したsuffixで検索されること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>suffix は "vic" で</li>
+				<li>テストメソッド名通りのアサート</li>
+				<li>テストが成り立っていることも(できる範囲で)アサート <span class="frm">(今後ずっとそう)</span></li>
+			</ul>
+		</dd>
+		<dd>test_selectSuffixMemberList_suffixが無効な値なら例外が発生すること()</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>無効な値とは、nullと空文字とトリムして空文字になる値</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="howtologic">ロジックの作り方はこのように</h3>
+	<p>
+		ちなみに、今回からエクササイズをより実践に近いもので行います。
+	</p>
+	<ol>
+		<li>ロジッククラスにメソッドを定義して実装 (BehaviorはDIを利用)</li>
+		<li>(Eclipseであれば) <em class="bigmark">ctrl + 9</em> で対応するテストクラスを自動生成 (src/test/java に)</li>
+		<li>(IntelliJであれば) <em class="bigmark">shift + command + T</em> で対応するテストクラスを自動生成 (src/test/java に)</li>
+		<li>テストメソッドを実装してロジックを検証</li>
+	</ol>
+	<div class="relatedpage"><a href="../../manual/topic/programming/shortcut/uttestcut.html">単体テストショートカット</a></div>
+	<p>
+		ロジッククラスでの Behavior の宣言は、以下のようにします。<span class="frm">(講師によるDIのお話あり)</span>
+	</p>
+<pre><span class="codetitle">e.g. ロジッククラスでの Behavior の宣言 @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn06Logic {
+
+    @Resource
+    <span class="keyword">private</span> MemberBhv <span class="atrribute">memberBhv</span>;
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		テストクラスでのロジックの利用方法は、以下のようにします。
+	</p>
+<pre><span class="codetitle">e.g. テストクラスでロジッククラスを生成して利用 @Java</span><code>
+<span class="keyword">public void</span> test_<span class="abbreviation">...</span>() {
+    <span class="comment">// ## Arrange ##</span>
+    HandsOn06Logic logic = <span class="keyword">new</span> HandsOn06Logic();
+    inject(logic);
+    
+    <span class="comment">// ## Act ##</span>
+    <span class="abbreviation">...</span> = logic.select<span class="abbreviation">...</span>();
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		DBFluteハンズオンでは、UTFluteを使っています。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/helper/utflute/index.html">UTFlute</a></div>
+	<div class="inucolumn">
+		<h3 id="exceptionmessage">例外メッセージを意識してみよう</h3>
+		<p>
+			本番環境で実行させる想定の src/main/java のクラスを作るようにもなってきましたし、例外ハンドリングもしっかりとデバッグ時を意識しながら実装しましょう。
+		</p>
+		<p>
+			ぜひ、こちらのブログもお読みください。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20170804/explossloss">例外メッセージ、敬語で満足でもロスロスパターン | jfluteの日記</a></div>
+		<p>
+			<em class="keyword">デバッグ時に嬉しいメッセージってどんなメッセージ？</em>
+			を考え続けることが大切です。
+		</p>
+	</div>
+	<h3 id="dfpropsetting">DBFluteプロパティの設定</h3>
+	<p>
+		DBMSには別名を定義する領域が存在しないため、DBコメントに無理矢理含めています。
+		なので、そのままだと、別名を別名して扱うことはできず、あくまでDBコメントの文字列の一部という扱いしかできません。
+		そこで...
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/aliasdefinition/index.html">現場フィット - 別名(和名)の定義</a></div>
+	<p>
+		それでは、ドキュメントに関するDBFluteプロパティ、DBFluteクライアントの dfprop/documentMap.dfprop
+		を開いて、以下のプロパティを設定してみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>aliasDelimiterInDbComment</dt>
+		<dd>DBコメント内の別名と説明の区切り(デリミタ)を表す文字</dd>
+		<dd>設定する値 => : <span class="frm">(コロン)</span></dd>
+		<dt>isDbCommentOnAliasBasis</dt>
+		<dd>DBコメントの基本が別名か否か (デリミタがない場合にそれは別名なのかどうか)</dd>
+		<dd>設定する値 => true</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../manual/reference/dfprop/documentdefinition/index.html">documentMap.dfprop</a></div>
+	<div class="inucolumn">
+		<h3 id="dfpropcomment">dfpropのひな形コメントを使おう</h3>
+		<p>
+			よく使われるプロパティは、dfpropファイルの中にすでにコメント付きのひな形があります。
+			それをそのまま活用しましょう。
+		</p>
+<pre><span class="codetitle">e.g. コメント付きのDBFluteプロパティ(aliasDelimiterInDbComment)のひな形 @documentMap.dfprop</span><code>
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o aliasDelimiterInDbComment: (NotRequired - Default '')
+    #  If the alias exists in its DB comment like as follows:
+    #    member name : The name of member's full name
+    #  you can use the alias in DBFlute world, java-doc, SchemaHTML...
+    #  DB comment which does not have the delimiter is not treated
+    #  as alias, treated as description (real comment).
+    #  But you can change it by 'isDbCommentOnAliasBasis'.
+    #
+    #; aliasDelimiterInDbComment = : <span class="point">// ここのコメントを外して利用しましょう</span>
+    # - - - - - - - - - -/</span>
+</code></pre>
+	</div>
+	<h3 id="genereatedoc">再自動生成して確認</h3>
+	<p>
+		DBFluteプロパティの設定が終わったら、Docタスク、そして、Generateタスクを実行してみてください。
+		SchemaHTML、および、それぞれのカラムに対応するメソッドの JavaDoc コメントに変化があるはずです。
+	</p>
+	<div class="inucolumn">
+		<h3 id="completiondoc">メソッド補完時のJavaDoc表示</h3>
+		<p>
+			IntelliJのみなさん、デフォルトではメソッド補完時に JavaDoc は表示されないので、
+			補完中に control+J を押してみてください。これをぜひ習慣化しましょう。
+		</p>
+		<p>
+			Eclipseの場合は、デフォルトでメソッド補完時に JavaDoc
+			がぴょいぴょいでますので、無視せずに着目しましょう。有益な情報が入っているかもしれませんよ。
+		</p>
+	</div>
+	<div class="inucolumn">
+		<h3 id="stopgetselect">getであんまり検索したくない</h3>
+		<p>
+			ハンズオンでは、Logicの検索メソッドの名前は、select...() になっています。データを取得するからget？ではありません。
+			検索している、探している、ということを意識したいのです。
+		</p>
+		<p>
+			こういった考えでやっていますので、ぜひいちどお読みくださいませ。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20151020/stopgetselect">単純な話、getであんまり検索したくない | jfluteの日記</a></div>
+	</div>
+
+	<h2 id="dfpropmisc">DBFluteプロパティあれこれ</h2>
+	<h3 id="uppercase">ちょっと大文字にしてみましょうか</h3>
+	<p>
+		ハンズオンのMySQLでは、SQL上で大文字小文字を区別しないで済むような設定がされています。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/dbway/mysql/index.html#ignorecase">MySQLの取扱い - ケース区別なしのススメ</a></div>
+	<p>
+		内部的には、テーブル名を全て小文字で管理することによって実現されています。
+		よって、DBFluteが取得するメタデータなどが小文字になっています(SchemaHTMLやCBで実行されたSQLなど)。
+		これを、大文字にするという地味な機能が用意されています。以下のプロパティ(littleAdjustmentMap.dfprop)を設定して再自動生成して確認してみてください。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute管理上ではテーブル名を大文字に @littleAdjustmentMap.dfprop</span><code>
+; isTableDispNameUpperCase = <span class="keyword">true</span>
+</code></pre>
+<pre><span class="codetitle">e.g. DBFluteで発行するSQLのテーブル名やカラム名を大文字に @littleAdjustmentMap.dfprop</span><code>
+; isTableSqlNameUpperCase = <span class="keyword">true</span>
+; isColumnSqlNameUpperCase = <span class="keyword">true</span>
+</code></pre>
+	<p>
+		そもそもテーブル名やカラム名を大文字とするか小文字とするかは、文化や組織によって異なるものです。
+		どちらが良いという話ではなく、ERDなどのドキュメントと合わせるための地味機能と捉えてください。
+		<span class="frm">(とはいえ、小文字にするプロパティは用意されてないのですが...)</span>
+	</p>
+	<p>
+		ハンズオンでは、これらプロパティを true
+		に設定して、再自動生成してそれぞれ大文字になっていることを確認してみましょう。
+	</p>
+	<h3 id="emptystring">空文字をDBに入れたくない</h3>
+	<p>
+		DB上の空文字は、地味にトラブルを引き起こす可能性があります。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+	<p>
+		次のセクションから、登録や更新処理を行います。
+		この時点で、DBに空文字が入らないように施策を打っておきます。
+		以下のプロパティ (littleAdjustmentMap.dfprop) を設定して再自動生成しておきましょう。
+	</p>
+<pre><span class="codetitle">e.g. Entityにセットされた空文字をnullに変換 @littleAdjustmentMap.dfprop</span><code>
+; isEntityConvertEmptyStringToNull = <span class="keyword">true</span>
+</code></pre>
+	<p>
+		特に動作確認のためのエクササイズは用意していませんが、自動生成されたクラスの差分を見て、何が変わったのかだけ確認しておきましょう。
+		<span class="frm">(非常に単純な実装になっています)</span>
+	</p>
+
+	<h2 id="upgradedbflute">DBFluteを最新版にしよう</h2>
+	<h3 id="confirmmyver">利用バージョンの確認</h3>
+	<p>
+		まず、自分がハンズオンで利用しているDBFluteのバージョンを確認してみましょう。
+	</p>
+	<dl class="lolongvaluemainlist">
+		<dt>バージョンの確認</dt><dd>DBFlute Engine のディレクトリ名 (mydbflute/dbflute-1.x.x)</dd>
+	</dl>
+	<p>
+		<span class="frm">※pom.xml に定義されている DBFlute Runtime と、DBFlute Engine
+		のバージョンは、設定ミスなどをしていなければ、この時点で必ず一致しているはずです。(一致していなければ、そもそも問題です)</span>
+	</p>
+	<h3 id="confirmlatest">最新版バージョンの確認</h3>
+	<p>
+		オフィシャルページを見てみましょう。
+	</p>
+	<div class="detailpage"><a href="../../environment/newest.html">DBFluteの最新バージョン</a></div>
+	<h3 id="ifoldver">もしバージョンが古ければ</h3>
+	<p>
+		もし、(パッチ関係なく)バージョンが古ければ、アップグレードしてみましょう。
+	</p>
+	<div class="detailpage"><a href="../../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+	<h3 id="ifpatchexists">すでに最新だけどパッチがあれば</h3>
+	<p>
+		すでに最新バージョンを使っていても、パッチが存在していれば、パッチを当ててみましょう。
+	</p>
+	<div class="detailpage"><a href="../../environment/upgrade/index.html#patch">DBFluteのアップグレード - DBFlute Engineのパッチ</a></div>
+	<p>
+		こういった環境的な作業も、DBFluteを使う上で大事なエクササイズです。
+	</p>
+
+	<h2 id="introdecomment">DBコメントを充実させましょう！</h2>
+	<h3 id="studydecomment">デコメントを知ろう</h3>
+	<p>
+		まず、こちらのページをじっくりお読みください。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/generator/intro/decomment.html">Decomment (でこめんと) on Intro</a></div>
+	<p>
+		もし、DBFluteのバージョンが古ければ<span class="frm">(1.1.6より前だったら)</span>、いますぐ最新にしてみましょう。
+	</p>
+	<div class="relatedpage"><a href="../../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+	<h3 id="letsdecomment">デコメントしてみよう</h3>
+	<p>
+		それでは、Intro経由で、いくつかのテーブルやカラムに対して <em class="keyword">すごく適当に</em> デコメントしてみましょう。
+		また、同時にブラウザを二つ <span class="frm">(タブを二つでもOKかも)</span> 起動して、同じカラムのコメントを修正してコンフリクトも発生させてみてください。
+	</p>
+	<p>
+		想定通り、pieceファイルが作成されていることを確認しましょう。
+		<span class="frm">(もし、git環境があればコミットしてみましょう。実運用では、それぞれのトピックブランチでのコミットを想定しています)</span>
+	</p>
+	<p>
+		また、この時点では、ブラウザで直接 SchemaHTML を開いたときは、今回修正・追加したデコメントはまだ反映されていません。
+		それも確認しておきましょう。
+	</p>
+	<h3 id="letspickup">Docを叩いてピックアップ</h3>
+	<p>
+		今度は、Docタスクを叩いてみましょう。
+	</p>
+	<p>
+		想定通り、pieceファイルは削除され、pickupファイルが作成されていることを確認しましょう。
+		<span class="frm">(もし、git環境があればコミットしてみましょう。実運用では、DB変更専用のブランチでのコミットを想定しています)</span>
+	</p>
+	<p>
+		そして、ブラウザで直接 SchemaHTML を開いて、反映されていることを確認しましょう。
+	</p>
+	<h3 id="resolveconflict">コンフリクトを直すデコメントを</h3>
+	<p>
+		最後に、コンフリクトを直すデコメントをしておきましょう。
+		<span class="frm">(もし、git環境があれば、これもコミット)</span>
+	</p>
+	<h3 id="writeyourdecomment">本気のデコメントをしてみましょう <span class="frm">(三つ)</span></h3>
+	<p>
+		さて、あなたが... <em class="keyword">こう書いてあったらいいのに！</em> と思う、<em class="mark">価値のあるDBコメントを三つ</em> デコメントで登録してみましょう。
+		<span class="frm">(もし、git環境があれば、これもコミット)</span>
+	</p>
+	<p>
+		何が書いてあったらディベロッパー(自分)は嬉しいのか？じっくり考えてみましょう。
+	</p>
+	<div class="inucolumn">
+		<h3 id="howtodbcomment">どんなDBコメントを書いたらいいの？</h3>
+		<p>
+			ぜひブログを参考に。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20170628/letsdbcomment">コードにコメント書くのにDBにコメント書かないの？ | jfluteの日記</a></div>
+		<p>
+			このように、SchemaHTML経由 (Intro経由) で、DBコメントを "みんな" で追加できますので、実務でもどんどん使っていきましょう。
+		</p>
+	</div>
+
+	<h2 id="schemapolicy">DB設計のレビューを自動化しよう！</h2>
+	<h3 id="studyschemapolicy">SchemaPolicyCheckを知ろう</h3>
+	<p>
+		まず、こちらのページをじっくりお読みください。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/schemapolicy/index.html">DB設計のチェックスタイル (SchemaPolicyCheck)</a></div>
+	<p>
+		エクササイズとして、実際にDB設計ポリシーを作って、チェックしてみましょう。
+	</p>
+	<h3 id="makeschemapolicydfprop">schemaPolicyMap.dfpropの作成</h3>
+	<p>
+		まず、[DBFluteクライアント]/dfprop配下に、schemaPolicyMap.dfprop という名前のテキストファイル (UTF-8) を作成します。
+	</p>
+	<p>
+		そして、以下の内容をまるごとコピーして、schemaPolicyMap.dfprop に貼り付けましょう。
+	</p>
+<pre><span class="codetitle">ハンズオンで使う schemaPolicyMap.dfprop のひながた @schemaPolicyMap.dfprop</span><code>
+<span class="comment"># /---------------------------------------------------------------------------
+# schemaPolicyMap: (Default map:{})
+#
+# The definition of schema policy.
+# You can check your schema as the policy.
+# The table and column names are treated as case insensitive.
+#
+# Example:
+# map:{
+#     ; tableExceptList = list:{}
+#     ; tableTargetList = list:{}
+#     ; columnExceptMap = map:{}
+#     ; isMainSchemaOnly = false
+#     
+#     ; wholeMap = map:{
+#         ; themeList = list:{ uniqueTableAlias ; sameColumnAliasIfSameColumnName }
+#     }
+#     ; tableMap = map:{
+#         ; themeList = list:{ hasPK ; upperCaseBasis ; identityIfPureIDPK }
+#         ; statementList = list:{
+#             ; if tableName is $$ALL$$ then fkName is prefix:FK_$$table$$
+#         }
+#     }
+#     ; columnMap = map:{
+#         ; themeList = list:{ upperCaseBasis }
+#         ; statementList = list:{
+#             ; if columnName is suffix:_FLAG then bad
+#             ; if columnName is suffix:_FLG then notNull
+#             ; if columnName is suffix:_FLG then dbType is INTEGER 
+#             ; if columnName is suffix:_FLG then classification 
+#         }
+#     }
+# }
+#
+# *The line that starts with '#' means comment-out.
+#</span>
+<span class="keyword">map:</span>{
+    ; tableExceptList = <span class="keyword">list:</span>{}
+    ; tableTargetList = <span class="keyword">list:</span>{}
+    ; columnExceptMap = <span class="keyword">map:</span>{}
+    ; isMainSchemaOnly = <span class="keyword">false</span>
+
+    ; <span class="localvar">wholeMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{}
+    }
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{}
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+        }
+    }
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{}
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> notNull
+        }
+    }
+}
+<span class="comment"># ----------------/</span>
+
+</code></pre>
+	<p>
+		ポリシーが一つだけ設定されています: "フラグカラムにはNotNull制約がつけよう"
+	</p>
+	<h3 id="takeviolation">わざとチェックに引っかかってみましょう</h3>
+	<p>
+		まず、Docタスク <span class="frm">(manage の 22)</span> を実行してみてください。maihamadbには、NotNull制約の付いていない _FLG
+		のカラムはありませんので、問題なく成功します。ログを見て、チェックが有効になっていることだけを確認してみましょう。
+	</p>
+	<p>
+		そして、[DBFluteクライアント]/playsql/replace-schema-10-basic.sqlファイルを <em class="keyword">一時的に</em>
+		修正して、PURCHASEテーブルの PAYMENT_COMPLETE_FLGカラムの NotNull制約を外し、ReplaceSchema <span class="frm">(manage の 0)</span> を実行します。
+		<span class="frm">(この時点で、DB上でNotNull制約が外れた状態になります)</span>
+	</p>
+<pre><span class="codetitle">PAYMENT_COMPLETE_FLG の NotNull制約を外す @SQL</span><code>
+PAYMENT_COMPLETE_FLG INTEGER NOT NULL COMME...,
+  |
+  v
+PAYMENT_COMPLETE_FLG INTEGER COMME...,
+</code></pre>
+	<p>
+		その状態で、JDBCタスク <span class="frm">(manage の 21)</span> と Docタスク <span class="frm">(manage の 22)</span> を実行してみましょう。
+		<span class="frm">(Docタスクは、DBを直接見るのではなく、抽出されたメタデータを見るので、ReplaceSchemaの後はJDBCが必要です)</span>
+	</p>
+	<p>
+		Docタスクにて例外が発生し、SchemaPolicyCheckの violation がログに表示されているはずなので、確認してみましょう。
+	</p>
+	<h3 id="revertviolation">元に戻しましょう</h3>
+	<p>
+		確認できたら、replace-schema-10-basic.sqlを元に戻して、ReplaceSchema, JDBC,
+		Docタスクを実行して、また正常に終了することを確認しましょう。
+	</p>
+	<h3 id="makeyourpolicy">本気のポリシーを作ってみましょう</h3>
+	<p>
+		さて、あなたが... <em class="keyword">これはチェックしたいなぁ</em> と思う、<em class="mark">価値のあるポリシーを三つ</em> 定義してみましょう。
+		そのポリシーの背景、理由、思いなど、ぜひ一緒にコメント (or <em class="smallmark">補足コメント</em>) で書いておきましょう。
+	</p>
+	<p>
+		もし、ハンズオンで使っている maihamadb がそのポリシーに合わないようであれば、firstDateを使って新規テーブルだけに適用されるようにしてみましょう。
+	</p>
+	<p>
+		既存のDBでもうまく調整してフィットさせることができます。ぜひ現場でも活用していきましょう。
+	</p>
+	<div class="inucolumn">
+	<h3 id="realfirstdate">firstDateが効かない!?場合は</h3>
+		<p>
+			<em class="mark">DBFlute-1.1.8 patch 2018/06/23</em>
+		</p>
+		<p>
+			ハンズオンで利用している DBFlute Engine が、セクション１の時点でこのバージョンよりも古い場合は、firstDateを使っても既存テーブルが対象になってしまいます。
+			厳密には、一番の最初の自動生成時のテーブルが対象になってしまいます。テーブル作成履歴が存在しないためです。
+			<span class="frm">(それ以降に作成したテーブルであれば対象外になりますが、ハンズオンのこの時点ではテーブルを作成するエクササイズは一つもありません)</span>
+		</p>
+		<p>
+			この時点では、同セクションのアップグレードのエクササイズをやっているはずなので、このバージョンよりも新しくなっているはずです。
+			<span class="frm">(不安であれば、念のため確認してみましょう。最新になっていなければ、そのエクササイズを先にやりましょう)</span>
+		</p>
+		<p>
+			もし、HistoryHTML が存在しない、もしくは、HistoryHTML
+			が存在していたとしても、セクション１で作成したときのテーブル追加の履歴がない場合は、履歴を再作成してみましょう。
+		</p>
+		<div class="detailpage"><a href="../../manual/function/generator/task/doc/historyhtml.html">HistoryHTML</a></div>
+		<p>
+			以下のファイルを削除して、JDBCタスクならびにDocタスクを実行してみてください。
+		</p>
+		<dl class="lolongvaluemainlist">
+			<dt>SchemaXML</dt><dd>DBFlute Client の schema/project-schema-maihamadb.xml</dd>
+			<dt>HistoryDiffMap</dt><dd>DBFlute Client の schema/project-history-maihamadb.diffmap</dd>
+		</dl>
+		<p>
+			HistoryHTMLを見てみてください。テーブル作成の履歴が追加されているはずです。
+			ただ、セクション１の時点とセクション６の時点で日付が離れている場合は、HistoryHTMLの日付は厳密には間違いとなります。
+			気持ち悪いと思う場合は、project-history-maihamadb.diffmap
+			を直接テキストエディターで開いて日付部分を修正してDocタスクを実行し直せば、つじつまを合わせることができます。
+		</p>
+		<p>
+			さて、この履歴の日付がテーブル作成日付ということで、firstDateでの比較日付になりますので、それに合わせて条件を設定すると良いでしょう。
+		</p>
+		<p>
+			<span class="frm">※一つ注意、ハンズオンではこの時点で、"履歴が存在していない、もしくは、大した履歴じゃない"
+			ということで、無理やり履歴を作成し直しましたが、実務ですでに価値のある履歴が存在している場合は、この方法は利用できません。
+			ただ、少し大変かもしれませんが、diffmapを直接修正することでつじつまを合わせることはできるので、どうしても必要になったら試してみると良いでしょう。
+			(ただし、diffmapを壊さないように気をつけましょう)</span>
+		</p>
+	</div>
+
+	<h2 id="onwebflute">WebアプリでのDBFluteを知ろう</h2>
+	<p>
+		さて、だいぶ DBFlute の実装に慣れてきたところで...
+	</p>
+	<ul>
+		<li>Webアプリの中でDBFluteがどのように活用されるのか？</li>
+		<li>Webフレームワークと連携するDBFluteの機能とは？</li>
+	</ul>
+	<p>
+		これらに着目して、<em class="keyword">Webアプリのクラスを実装しながら</em> DBFluteに触れてみましょう。
+		"サーバーサイドHTML" と "JSON API" のActionをそれぞれ作って実際に動かしてみましょう。<span class="frm">(なぞるだけのハンズオンなので、難易度は低いです)</span>
+	</p>
+	<dl class="valuemainlist">
+		<dt>サーバーサイドHTML</dt><dd><a href="http://dbflute.seasar.org/ja/lastaflute/howto/action/makeashtml.html">Actionの作り方 (HTMLスタイル)</a></dd>
+		<dt>JSON API</dt><dd><a href="http://dbflute.seasar.org/ja/lastaflute/howto/action/makeasjson.html">Actionの作り方 (JSONスタイル)</a></dd>
+	</dl>
+	<p>
+		業務で使うWebフレームワークと違っていても、DBFluteの役割を学ぶことがここでの大きな目的です。
+		他のフレームワークでも、<em class="keyword">ちゃんと連携すれば同じことができる</em>
+		ということを知り、自身のプロジェクトでうまく応用しておきましょう。
+	</p>
+	<p>
+		DBFluteのハンズオンのプロジェクトを修正するものではないので、どこにcloneするか？どこにimportするか？など環境は自由です。
+		単にcloneするだけでもいいですし、forkしても良いでしょう。
+		(Eclipseであれば)DBFluteハンズオンと同じworkspaceに入れても良いでしょう。
+	</p>
+	<p>
+		終わったら、セクション６のLogicクラスのどこかに、doneしたことがわかるようにコメントしておきましょう。
+		その中で、DBFluteのどんな機能が印象に残ったか？書いて頂けると嬉しいです。
+	</p>
+
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		<em class="keyword">設定系のエクササイズも飛ばさず学んでみたでしょうか？</em>
+	</p>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section07.html">ハンズオンセクション 7</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

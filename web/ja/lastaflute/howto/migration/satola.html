@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,リーンスタートアップ" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteとSAFluteとの違い | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteとSAFluteとの違い</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="sameconcept">コンセプトは同じ</h2>
+	<p>
+		Javaで始めるリーンスタートアップのためのフレームワーク、ここは同じ。
+	</p>
+	<h3 id="">要は...</h3>
+	<dl class="shoshortkeymainlist">
+		<dt>SAFlute</dt><dd>あくまでSeasar/SAStrutsの拡張、ソースのみ提供でユーザーの自由に</dd>
+		<dt>LastaFlute</dt><dd>DBFluteスタイルで最適化したAll-in-Oneフレームワーク、jar提供メンテナンス</dd>
+	</dl>
+
+	<h2 id="java8seasar">Seasar を Java8 でフォーク</h2>
+	<dl class="keymainlist">
+		<dt>徹底したスリム化</dt><dd>使わない機能削減、依存ライブラリ削減(依存jarを少なくシンプルに)</dd>
+		<dt>デバッグしやすいように</dt><dd>コンテナ内で発生したエラーのメッセージをDBFlute風に</dd>
+		<dt>OGNL改めJS</dt><dd>OGNLの代わりにJava同梱のNashornのJavaScriptエンジンを利用</dd>
+		<dt>Java8 でコンパイル</dt><dd>少し速くなるかなぁ...</dd>
+		<dt>ホットデプロイはそのまま</dt><dd>欠かせないホットデプロイは変わらず利用できるように</dd>
+	</dl>
+
+	<h2 id="java8sastruts">SAStruts を Java8 でフォーク</h2>
+	<dl class="keymainlist">
+		<dt>Struts1外し</dt><dd>一番のネックだった Struts1 への依存のない SAStruts を</dd>
+		<dt>commonsへの依存最小限</dt><dd>古いcommonsへの依存を外し、アプリで最新版使えるように</dd>
+		<dt>内部フォワードしない</dt><dd>フォワードせずとも綺麗なURLを実現</dd>
+		<dt>設定ファイル削減</dt><dd>定型化された設定を組み込んで、アプリで管理する設定をシンプルに</dd>
+		<dt>シンプルなコード</dt><dd>RequestからActionが呼ばれるまでの道のりできるだけシンプルに</dd>
+		<dt>Hibernate Validator</dt><dd>バリデーションに Hibernate Validator を使う</dd>
+		<dt>Java8 でコンパイル</dt><dd>少し速くなるかなぁ...</dd>
+		<dt>規約ベースはそのまま</dt><dd>欠かせない規約ベースURLマッピングは変わらず利用できるように</dd>
+	</dl>
+
+	<h2 id="java8sastruts">SAFlute を Java8 で組み直した</h2>
+	<dl class="keymainlist">
+		<dt>Lambdaを使って改善</dt><dd>SAStrutsに引きづられることなく、書きやすいActionに</dd>
+		<dt>統合して一枚岩に</dt><dd>拡張の拡張で複雑になってたところを、もろもろ統合してシンプルに</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,テーブル作成,create table,スキーマ作成,CreateSchema,replace-schema.sql" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>システムユーザでの実行 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>システムユーザでの実行</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		通常、ReplaceSchemaは "スキーマ(もしくはデータベース)インスタンスやDBユーザ自体は既に作成されていること" を前提としています。
+		例えば、ディベロッパーがローカルに開発用DB環境を構築しようとしたときに以下の手順を踏みます：
+	</p>
+	<div class="relatedpage"><a href="./index.html">ReplaceSchema</a></div>
+	<ul>
+		<li>A. DBをインストール</li>
+		<li>B. DBツール(システムユーザ)でユーザとスキーマの作成</li>
+		<li>C. ReplaceSchemaの実行(テーブルなどが作成される)</li>
+	</ul>
+	<p>
+		この手順の "B" のステップを、DBFluteに "システムユーザの接続情報" 
+		と "システムユーザで実行するDDL"	を定義することで、ReplaceSchemaの中で実行することが可能です。
+	</p>
+
+	<h2 id="systeminfo">システムユーザの接続情報</h2>
+	<p>
+		replaceSchemaDefinitionMap.dfprop の additionalUserMap にて、システムユーザを定義します。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#additionalusermap">dfprop - additionalUserMap</a></div>
+<pre><span class="codetitle">e.g. additionalUserMapの定義("system" という名前の定義) @replaceSchemaDefinitionMap.dfprop</span><code>
+; additionalUserMap = <span class="keyword">map:</span>{
+    ; system = <span class="keyword">map:</span>{
+        <span class="comment">#; url = ...</span>
+        ; user = system
+        ; password = orcl
+    }
+}
+</code></pre>
+	<p>
+		接続URLがアプリユーザの接続情報と変わる場合は "url" も指定します。
+	</p>
+	<h3 id="pwdfile">パスワードファイルの利用</h3>
+	<p>
+		システムユーザのパスワードをディベロッパー間で統一できない場合は、
+		バージョン管理システムではコミットしない(SVN-Ignoreなど)外だしのパスワードファイルを作成して、
+		それぞれの環境ごとにパスワードを設定することができます。<span class="frm">@since 0.9.8.5</span>
+	</p>
+	<p>
+		additionalUserMap の password では、<em class="keyword">df:dfprop/</em>
+		に続けてパスワードファイル名を指定します。
+	</p>
+<pre><span class="codetitle">e.g. パスワードファイルを指定 @replaceSchemaDefinitionMap.dfprop</span><code>
+; additionalUserMap = <span class="keyword">map:</span>{
+    ; system = <span class="keyword">map:</span>{
+        <span class="comment">#; url = ...</span>
+        ; user = system
+        ; password = <span class="point">df:dfprop/system-password.txt</span>
+    }
+}
+</code></pre>
+	<p>
+		"DBFluteクライアント/dfprop" 配下に指定したパスワードファイルを作成し、中身はパスワード文字列のみを記述します。
+		パスワードファイルのファイル名は任意です。このファイルは、バージョン管理システムではコミットしない設定(SVN-Ignoreなど)にしておきます。
+		このようにすることで、環境ごとに異なるパスワードを設定することができます。
+	</p>
+<pre><span class="codetitle">e.g. パスワードファイルを作成 @Directory</span><code>
+DBFluteクライアント
+ |-dfprop
+    |-xxx.dfprop
+    |-<span class="point">system-password.txt</span>
+</code></pre>
+	<p>
+		指定されたファイルが存在しない場合は、例外となります。<span class="frm">@since 0.9.8.7 ※それ以前は password を設定しないのと同じ</span>
+	</p>
+	<p>
+		明示的に(ファイルが存在しない場合の)デフォルトパスワードを設定することもできます。
+		多くの人のパスワードが統一的だが一部の人だけ違う、というような場合に有効です。
+		明示的なデフォルトパスワードは、パスワードファイルの定義の後にパイプライン "|" を付けてその後に記述します。
+	</p>
+<pre><span class="codetitle">e.g. パスワードファイルがない場合のデフォルトパスワード(orcl)を指定 @replaceSchemaDefinitionMap.dfprop</span><code>
+; additionalUserMap = <span class="keyword">map:</span>{
+    ; system = <span class="keyword">map:</span>{
+        <span class="comment">#; url = ...</span>
+        ; user = system
+        ; password = df:dfprop/system-password.txt|<span class="point">orcl</span>
+    }
+}
+</code></pre>
+	<p>
+		空パスワードをデフォルトパスワードにしたい場合は、"|" だけ後ろに付けて空っぽにします。
+	</p>
+<pre><span class="codetitle">e.g. パスワードファイルがない場合は空パスワードを指定 @replaceSchemaDefinitionMap.dfprop</span><code>
+; additionalUserMap = <span class="keyword">map:</span>{
+    ; system = <span class="keyword">map:</span>{
+        <span class="comment">#; url = ...</span>
+        ; user = system
+        ; password = df:dfprop/system-password.txt|
+    }
+}
+</code></pre>
+
+	<h2 id="systemddl">システムユーザで実行するDDL</h2>
+	<h3 id="changeuser">実行ユーザの一時的切り替え</h3>
+	<p>
+		通常 ReplaceSchema は、databaseInfoMap.dfprop にて定義されたユーザで実行されます。
+	</p>
+	<p>
+		スキーマ作成のDDLにおいて、
+		<em class="keyword">-- #df:changeUser([システムユーザ情報の名前])#</em>
+		というSQLコメントを定義することで、ReplaceSchemaの中で一時的にシステムユーザに切り替えることが可能です。
+		"システムユーザ情報の名前" は additionalUserMap にて定義されたものとなります。
+	</p>
+	<div class="relatedpage"><a href="./createtable.html">ReplaceSchema - スキーマ作成</a></div>
+<pre><span class="codetitle">e.g. システムユーザに切り替え("system" という名前の定義を利用) @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="keyword">create user</span> ...;
+<span class="keyword">grant</span> ...;
+</code></pre>
+	<p>
+		以下の条件で実行ユーザが元のユーザに戻ります：
+	</p>
+	<ul>
+		<li>該当のSQLファイルが終了する</li>
+		<li><em class="keyword">-- #df:backToMainUser()#</em> が指定される</li>
+	</ul>
+	<p>
+		基本的には、システムユーザで実行するDDLだけを定義する個別のSQLファイルを用意して、
+		アプリユーザで実行するSQLファイルと別にすることをお奨めします。
+	</p>
+<pre><span class="codetitle">e.g. システムユーザ用のSQLを分ける @playsql</span><code>
+playsql
+ |-<span class="point">replace-schema-00-system.sql</span>
+ |-replace-schema-10-basic.sql
+ |-replace-schema-20-view.sql
+ |-...
+</code></pre>
+	<h3 id="checkuser">アプリユーザの存在チェック</h3>
+	<h4 id="checkuserbasic">checkUser() の基本</h4>
+	<p>
+		ReplaceSchemaを実行する度にアプリユーザを作成するのではなく、既にユーザが存在する場合は以降の "システムユーザで実行するSQL"
+		を実行しないで続行するようにします。ユーザを作成するDDLの定義箇所で <em class="keyword">-- #df:checkUser()#</em>
+		というSQLコメントを定義することで、そのユーザが既に存在する場合に以降のシステムユーザでの実行を無効になります。
+	</p>
+<pre><span class="codetitle">e.g. ユーザが既に存在する場合は権限付与は実行しない (Oracle) @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="comment">-- #df:checkUser()#</span>
+<span class="keyword">create user</span> /*$dfprop.mainUser*/ <span class="keyword">identified by</span> /*$dfprop.mainPassword*/;
+
+<span class="keyword">grant connect to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant resource to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant create view to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant create synonym to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant create database link to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant create public database link to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant create materialized view to</span> /*$dfprop.mainUser*/;
+</code></pre>
+	<p>
+		ユーザ名やパスワードなどは、変数のフィルタ機能を利用して指定すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./createtable.html#filtervariables">スキーマ作成 - 変数のフィルタ</a></div>
+	<h4 id="checkuserpurpose">checkUser() の目的指定</h4>
+	<p>
+		<em class="keyword">-- #df:checkUser([目的, 目的, ...])#</em> という形式で、明示的にチェックの目的を指定することができます<span class="frm">(@since 0.9.8.8)</span>。
+		このようにすることで、スキーマはもともと存在していてユーザだけを新しく作成するというような場合に、DBFluteが自動でその状況を判断して、
+		システムユーザでの実行後に自動で(その前にスキップされた)スキーマ初期化処理が再実行されます。
+		つまり、目的がわかることで、DBFluteがそういった微調整を自動で判断して行うことができるようになります。
+	</p>
+<pre><span class="codetitle">e.g. ユーザだけを作成するパターンが存在する (MySQL) @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="comment">-- #df:checkUser(mainSchema)#</span>
+<span class="keyword">create database</span> /*$dfprop.mainCatalog*/;
+
+<span class="comment">-- #df:reviveUser()#</span>
+<span class="comment">-- #df:checkUser(mainUser, grant)#</span>
+<span class="keyword">grant all privileges on</span> /*$dfprop.mainCatalog*/.*
+  <span class="keyword">to</span> /*$dfprop.mainUser*/@localhost <span class="keyword">identified by</span> '/*$dfprop.mainPassword*/';
+
+<span class="keyword">flush privileges</span>;
+</code></pre>
+	<h4 id="checkusersupplement">checkUser() の補足</h4>
+	<p>
+		この "checkUser" 機能は、単に該当SQLの実行が失敗するか否かだけを判定して、そのユーザでのそれ以降でのSQLの実行するかどうかを決めているので、
+		他の目的で同じような挙動をしたい場合があるならば、この機能をそのまま利用することができます。
+	</p>
+	<p>
+		また、ユーザを drop して再作成することはできません。なぜなら、ユーザが既に存在する場合は ReplaceSchema
+		自身が既にそのユーザで接続をしているからです。DBMSによって挙動は変わる可能性はありますが、基本的に接続中にセッションがあるユーザは
+		drop できません。一度作ったユーザは以降の ReplaceSchema 実行時もそのまま利用することを前提としています。
+	</p>
+	<h3 id="reviveuser">アプリユーザが存在していても実行したいDDL</h3>
+	<p>
+		アプリユーザが既に存在していも、常にシステムユーザで実行したい(する必要がある)DDLがある場合は、
+		<em class="keyword">-- #df:reviveUser()#</em>
+		というSQLコメントが定義することで、それ以降のSQLを再度システムユーザで実行することができます。
+	</p>
+<pre><span class="codetitle">e.g. ユーザが既に存在する場合でも実行したいSQLがある場合 @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="comment">-- #df:checkUser(mainSchema, mainUser)#</span>
+<span class="keyword">create user</span> /*$dfprop.mainUser*/ <span class="keyword">identified by</span> /*$dfprop.mainPassword*/;
+
+<span class="keyword">grant connect to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant resource to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant create view to</span> /*$dfprop.mainUser*/;
+<span class="abbreviation">...</span>
+
+<span class="comment">-- #df:reviveUser()#</span>
+<span class="comment">-- #df:checkUser(grant)#</span>
+<span class="keyword">grant SELECT on</span> /*$nextSchema*/.VENDOR_NEXT_SCHEMA <span class="keyword">to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant SELECT on</span> /*$nextSchema*/.VENDOR_NEXT_SCHEMA_STATUS <span class="keyword">to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant SELECT on</span> /*$nextSchema*/.VENDOR_NEXT_SCHEMA_SECRET_AUTH <span class="keyword">to</span> /*$dfprop.mainUser*/;
+<span class="abbreviation">...</span>
+<span class="keyword">grant EXECUTE on</span> /*$nextSchema*/.FN_NEXT_SYNONYM_SAME_NAME <span class="keyword">to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant EXECUTE on</span> /*$nextSchema*/.NEXT_PKG <span class="keyword">to</span> /*$dfprop.mainUser*/;
+<span class="keyword">grant EXECUTE on</span> /*$nextSchema*/.VD_NEXT_SYNONYM_PROCEDURE <span class="keyword">to</span> /*$dfprop.mainUser*/;
+</code></pre>
+	<p>
+		再度システムユーザで実行する場合も、"checkUser" 機能が利用出来ます。
+		例えば、最初の権限付与が失敗したら、それ以降の権限付与のSQLは実行しないというような挙動にできます。
+	</p>
+	<p>
+		主に、サブスキーマ(サブデータベース)のオブジェクトに対する権限などに有効です。
+		例えば、サブスキーマのオブジェクトが再作成された場合に(例えばサブスキーマのReplaceSchemaを実行するなど)、
+		メインスキーマ自体は何も変わっていなくても、メインユーザの権限がなくなっている可能性があります(DBMSによって挙動が違う可能性あり)。
+	</p>
+	<h3 id="repsenvtype">環境ごとの実行チェック</h3>
+	<p>
+		システムユーザで実行するDDLは、環境によっては実行したくない(する必要がない)ということが想定されます。
+		例えば、ディベロッパーのローカル開発環境構築の手間を省くための "ユーザ作成SQL"
+		は、既にユーザなどの環境が整っている(かもしれない)結合テスト環境や(最初のリリース時の)本番環境では実行したくありません。
+	</p>
+	<p>
+		"環境ごとの実行チェック" 機能を併用して、例えば "ut" の場合のみ実行されるようにできます。
+	</p>
+	<div class="relatedpage"><a href="./createtable.html#repsenvtype">環境ごとの実行チェック</a></div>
+<pre><span class="codetitle">e.g. システムユーザに切り替え("system" という名前の定義を利用) @replace-schema-xxx.sql</span><code>
+<span class="comment">-- #df:checkEnv(ut)#</span>
+
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="keyword">create user</span> ...;
+<span class="keyword">grant</span> ...;
+</code></pre>
+
+	<h2 id="sqlexample">ユーザ作成SQLのExample</h2>
+	<h3 id="mysqlexample">MySQL</h3>
+	<p>
+		例えば、MySQLで開発用のユーザとスキーマ(データベース)を作成する場合は、以下のようになります。
+		<span class="frm">(0.9.8.8 以前であれば、checkUserの引数は指定は削除すること)</span>
+	</p>
+<pre><span class="codetitle">e.g. MySQLでのユーザ作成SQL (ut環境のみで動作するように指定) @replace-schema-00-system.sql</span><code>
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="comment">-- #df:checkUser(mainSchema)#</span>
+<span class="keyword">create database</span> <span class="comment">/*$dfprop.mainCatalog*/</span>;
+
+<span class="comment">-- #df:reviveUser()#</span>
+<span class="comment">-- #df:checkUser(mainUser, grant)#</span>
+<span class="keyword">grant all privileges on</span> <span class="comment">/*$dfprop.mainCatalog*/</span>.*
+  <span class="keyword">to</span> <span class="comment">/*$dfprop.mainUser*/</span>@localhost <span class="keyword">identified by</span> '<span class="comment">/*$dfprop.mainPassword*/</span>';
+
+<span class="keyword">flush privileges</span>;
+</code></pre>
+	<p>
+		上記内容のSQLファイル "replace-schema-00-system.sql" を以下からダウンロードできます。
+	</p>
+	<p>
+		<a href="http://dbflute.sandbox.seasar.org/download/misc/settings/reps-00-system-for-mysql.zip">reps-00-system-for-mysql.zip</a>
+	</p>
+	<h3 id="oracleexample">Oracle</h3>
+<pre><span class="codetitle">e.g. Oracleでのユーザ作成SQL (ut環境のみで動作するように指定) @replace-schema-00-system.sql</span><code>
+<span class="comment">-- #df:changeUser(system)#</span>
+<span class="comment">-- #df:checkUser(mainSchema, mainUser)#</span>
+<span class="keyword">create user</span> <span class="comment">/*$dfprop.mainUser*/</span> <span class="keyword">identified by</span> <span class="comment">/*$dfprop.mainPassword*/</span>;
+
+<span class="comment">-- #df:reviveUser()#</span>
+<span class="comment">-- #df:checkUser(grant)#</span>
+<span class="keyword">grant connect to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+<span class="keyword">grant resource to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+<span class="keyword">grant create view to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+<span class="keyword">grant create synonym to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+<span class="keyword">grant create database link to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+<span class="keyword">grant create public database link to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+<span class="keyword">grant create materialized view to</span> <span class="comment">/*$dfprop.mainUser*/</span>;
+</code></pre>
+
+	<h2 id="notsystem">サブスキーマのユーザでの利用(非推奨)</h2>
+	<p>
+		この機能は、特にシステムユーザでなくても利用可能な機能です。例えば、サブスキーマのユーザに切り替えで実行するようなことも可能です。
+		但し、この機能はあまりそういう利用方法を想定していません。なぜなら、サブスキーマに関してはサブスキーマ側で "ReplaceSchema"
+		環境を構築して(DBFluteクライアントをもう一つ用意して)構成管理をする方が管理しやすいからです。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

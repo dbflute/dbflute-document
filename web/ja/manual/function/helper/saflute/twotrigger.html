@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFluteの二つのきっかけ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteの二つのきっかけ</h1>
+	<p>
+		SAFluteの基本となる特徴について。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">SAFluteが生まれたきっかけ</h2>
+	<p>
+		SAFluteには、様々な最適化が施されていますが、実装を始めた最初の二つのきっかけがあります。
+	</p>
+	<dl class="longkeymainlist">
+		<dt><a href="#nameidentity">Action, JSP Name Identity</a></dt><dd>ActionクラスやJSPファイルの名前を識別しやすく</dd>
+		<dt><a href="#typesafereturn">Action TypeSafe Return</a></dt><dd>Actionの@Executeメソッドの戻り値をタイプセーフに</dd>
+	</dl>
+
+	<h2 id="nameidentity">Action/JSP Name Identity</h2>
+	<h3 id="actionname">アクションクラス名に一工夫</h3>
+	<p>
+		いわゆる IndexAction だらけ問題に対応しています。(ListActionだらけ、AddActionだらけ)
+	</p>
+	<p>
+		ぱっと見たいActionクラスがあっても、ctrl + shift + R (リソースの検索)
+		をしたときに、大量の IndexAction や ListAction
+		の前に立ち尽くしてしまう問題です。通常のSAStrutsにおけるクラス名とURLのマッピングルールは以下の通りです。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>member.ListAction</dt><dd>/member/list/</dd>
+		<dt>login.IndexAction</dt><dd>/login/</dd>
+	</dl>
+	<p>
+		できれば、MemberListAction でも /member/list/
+		にマッピングしたいと。そうすればクラス名による検索がしやすくなります。ただそのままでは /member/memberList/
+		というURLになってしまいます。
+	</p>
+	<p>
+		SAFluteでは、パッケージ名をクラス名のプレフィックスとして付与して識別性を高められます。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>member.MemberListAction</dt><dd>/member/list/</dd>
+		<dt>login.LoginIndexAction</dt><dd>/login/</dd>
+	</dl>
+	<p>
+		<span class="frm">※例えば、/member/purchase/list/ であば MemberPurchaseListAction となる</span>
+	</p>
+	<div class="relatedpage"><a href="./urlmapping.html">SAFluteのURLマッピング</a></div>
+	<h3 id="jspname">JSPファイル名でも同じように</h3>
+	<p>
+		これは、JSPでも同じような拡張がされています。
+	</p>
+	<p>
+		s:form や s:link でaction属性やhref属性を省略した場合のマッピングは以下の通りです。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>member.MemberListAction</dt><dd>/view/member/member_list.jsp</dd>
+		<dt>login.LoginIndexAction</dt><dd>/view/login/login_index.jsp (or login.jsp)</dd>
+	</dl>
+	<p>
+		<span class="frm">※例えば、/view/member/purchase/member_purchase_list.jsp であば MemberPurchaseListAction となる</span>
+	</p>
+	<h3 id="compatiblename">通常のやり方と互換性があり</h3>
+	<p>
+		もちろん、以前のようなシンプルなクラス名やファイル名でも動きます。
+		単にマッピングの対象となるクラスが増えただけであり、既に通常のSAStruts構成のアプリにも適用しやすくなっています。
+	</p>
+
+	<h2 id="typesafereturn">Action TypeSafe Return</h2>
+	<h3 id="gogotypesafe">タイプセーフな戻り値指定</h3>
+	<p>
+		Actionクラスの@Executeのメソッドの戻り値をタイプセーフに実装できます。
+	</p>
+	<p>
+		通常のSAStrutsにおける return の実装は以下の通りです。
+	</p>
+<pre><span class="codetitle">e.g. 通常のSAStrutsにおける return の実装 @Java</span><code>
+
+<span class="comment">// JSPファイル名を指定してフォワード</span>
+<span class="keyword">return</span> <span class="literal">"list.jsp"</span>;
+
+<span class="comment">// URL (Actionクラス) を指定してリダイレクト</span>
+<span class="keyword">return</span> <span class="literal">"/edit/"</span> + listForm.<span class="attribute">memberId</span> + <span class="literal">"/?redirect=true"</span>;
+</code></pre>
+	<p>
+		これが、SAFluteでは以下のように実装できます。
+	</p>
+<pre><span class="codetitle">e.g. SAFluteにおける return の実装 @Java</span><code>
+
+<span class="comment">// "pa" で補完すればJSPの候補が出てくるので選ぶだけ</span>
+<span class="keyword">return</span> <span class="attribute">path_Member_MemberListJsp</span>;
+
+<span class="comment">// "redi" で補完して redirect メソッドにClassクラスでアクション指定</span>
+<span class="keyword">return</span> redirectById(MemberEditAction.<span class="keyword">class</span>, listForm.<span class="attribute">memberId</span>);
+</code></pre>
+	<h3 id="freegenjsp">FreeGenでJSPのパス定義を自動生成</h3>
+	<p>
+		JSPの path_Xxx の定義は、DBFlute の FreeGen と言われる機能で自動生成されます。JSPファイルを作成したら(作り途中でもOK)、manage.bat(sh)を叩いて
+		12 番を選びます。すると、Actionクラスの return 部分で pa で ctrl + space で補完すれば選択できます。
+	</p>
+	<h3 id="redirectclass">redirectメソッドでClassクラス指定</h3>
+	<p>
+		redirectXxx()メソッドは、Actionのスーパークラスに用意されています。redirectById()
+		だけでなく、GETパラメーターを追加できるメソッドなど色々用意されています。XxxActon.class
+		で指定できるので、リンク切れはありませんし、ctrl + クリック (F3)
+		で遷移先のActionのプログラムをすぐに見ることができます。
+	</p>
+	<h3 id="goodsafe">間違えにくく、変更に強く、追跡しやすい</h3>
+	<p>
+		タイプセーフにすることで打ち間違えなく実装できるのと同時に、画面構造の変更などが発生したときに影響範囲を検知しやすくなります。
+		また、ctrl + クリック (F3) や ctrl + shift + G (呼び出し側の検索) と組み合わせることで、処理の追跡がしやすくなります。
+	</p>
+	<p>
+		実は、この改善は、アクションクラス名の識別性の向上が前提となっています。例えば、いくらタイプセーフでも、ListAction.class
+		では、どの ListAction にリダイレクトするのかどうかがさっぱりわかりませんので。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,embedCondition,埋め込み変数" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>EmbedCondition | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>EmbedCondition</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		アーキテクト向けの機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wa.html#architect">Architect (アーキテクト)</a></div>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		指定されたカラムの絞り込み条件をバインド変数を使わない条件にします。
+	</p>
+	<p>
+		万が一でも、使いたくない機能です。ですが、ごくごく稀に、バインド変数を使わないで条件値をSQLに埋め込むとパフォーマンスが向上する、というような状況があります。
+		オプティマイザの理論としては、そういうことがあって当然ではあるのですが、業務上それに関わった問題に直面することは多くはないでしょう。
+		その万が一のために、そういうときのために、ConditionBeanの絞り込み条件において、カラム指定でバインド変数を使わずに条件値をSQLに埋め込むことができます。
+		その条件値が、アプリのユーザ入力値で文字列型の場合は、SQLインジェクションに要注意です。
+	</p>
+	<p>
+		ディベロッパー向けに思えますが、アーキテクトへの相談無しに利用してはいけません。そういう意味で、"アーキテクト向けの機能" と謳っています。
+	</p>
+	<h3 id="twoedgedsword">諸刃の剣</h3>
+	<p>
+		TwoEdgedSword 認定のされた機能です。自分を斬りつけて最も痛い思いをする可能性のある機能です。
+		埋め込む条件値が、アプリのユーザ入力値で文字列型の場合は、必ず別の方法でのSQLインジェクション対策を行って下さい。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		embedCondition() を呼び出し、第一引数に埋め込み対象のカラム、第二引数に条件値をクォートするかどうかを指定します。
+	</p>
+<pre><span class="codetitle">e.g. EmbedConditionの実装 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+<span class="abbreviation">...</span> <span class="comment">// もろもろの条件などを設定</span>
+
+Set&lt;ColumnInfo&gt; plainSet = <span class="keyword">new</span> HashSet&lt;ColumnInfo&gt;();
+plainSet.add(MemberDbm.getInstance().columnMemberId()); <span class="comment">// 数値型</span>
+cb.<span class="point">embedCondition</span>(plainSet, <span class="literal">false</span>) <span class="comment">// クォートしない場合</span>
+
+Set&lt;ColumnInfo&gt; quotedSet = <span class="keyword">new</span> HashSet&lt;ColumnInfo&gt;();
+quotedSet.add(MemberDbm.getInstance().columnMemberName()); <span class="comment">// 文字列型</span>
+quotedSet.add(MemberDbm.getInstance().columnBirthdate()); <span class="comment">// 日付型</span>
+cb.<span class="point">embedCondition</span>(quotedSet, <span class="literal">true</span>) <span class="comment">// クォートする場合</span>
+
+<span class="abbreviation">...</span> = <span class="literal">memberBhv</span>.selectList(cb); <span class="comment">// 指定されたカラムの条件値は埋め込まれる</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>引数の指定</dt>
+		<dd>
+			引数の embeddedColumnInfoSet は必須(nullであってはいけない)です。
+			また、null 要素も許されません。
+		</dd>
+		<dt>null 要素</dt>
+		<dd>null 要素は許されません</dd>
+		<dt>ColumnInfo は DBMeta のもの</dt>
+		<dd>ColumnInfoのインスタンスは DBMeta から取得したものである必要があります。</dd>
+	</dl>
+	<h3 id="emptyset">空セットは全条件埋め込み</h3>
+	<p>
+		空セットを指定した場合は、全条件が埋め込みとなります。
+	</p>
+	<h3 id="nameonly">カラム名だけで判定</h3>
+	<p>
+		カラム名だけで判定します。よって、別テーブル同名カラムの条件がそれぞれある場合、両方に適用されます。
+	</p>
+	<h3 id="timing">呼び出しタイミング</h3>
+	<p>
+		実行時に評価されるので、いつ設定しても構いません。(習慣的に、条件設定後で、実行する直前)
+	</p>
+	<h3 id="deprecated">非推奨メソッド</h3>
+	<p>
+		deprecated になっています。将来的に削除されるわけではありませんが、"安易に使ってくれるな" ということを示します。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

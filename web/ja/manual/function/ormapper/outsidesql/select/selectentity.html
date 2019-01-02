@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,selectEntity,一件検索,nullあり" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)selectEntity() | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)selectEntity()</h1>
+	<p>
+		"外だしSQLの使い方" を既に読んでいることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../howto.html">外だしSQLの使い方</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">外だしSQLで null を戻す可能性のある一件検索</em>
+		をします。検索結果が存在する場合としない場合で業務的な処理を分岐させる必要があるような場合に利用します。
+	</p>
+	<p>
+		検索結果が存在しなかったら例外になってもいい(それは何かの間違い、もしくは、すれ違いによる削除)、という場合は、このメソッドではなく
+		selectEntityWithDeletedCheck() を利用して下さい。 
+	</p>
+	<div class="relatedpage"><a href="./selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck()</a></div>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)せれくとえんてぃてぃ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="methodcall">メソッドの呼び出し <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		outsideSql() の後、<em class="keyword">selectEntity()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().selEn <span class="comment">// .selEn と打って enter</span>
+--
+<span class="comment">// 戻り値は OptionaEntity なので、ConditionBeanの selectEntity() と同じように、</span>
+<span class="comment">// ifPresent(), alwaysPresent(), orElseTranslatingThrow() などを利用</span>
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">selectEntity</span>(pmb);
+</code></pre>
+	<p>
+		メソッドはオーバーロードで "定型呼び出し形式" と "フリースタイル形式" と二つあります。
+	</p>
+	<h3 id="methodcall10x">メソッドの呼び出し <span class="frm">※1.0.x (Java6版)</span></h3>
+	<p>
+		outsideSql() の後、<em class="keyword">entityHandling()</em> を呼び出し、その後
+		<em class="keyword">selectEntity()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().en <span class="comment">// .en と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">entityHandling()</span>.selE <span class="comment">// .selE と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().entityHandling().<span class="point">selectEntity</span>(pmb);
+</code></pre>
+	<h3 id="typedcall">定型呼び出し形式</h3>
+	<p>
+		TypedParameterBean を引数に受け取ります。(null は許可されません)
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+	<p>
+		CustomizeEntityマーク、および、ParameterBeanマークが定義されていることで TypedParameterBean
+		の定型呼び出しが利用できます。この場合、ページング検索やカーソル検索に型付けされたSQLも含まれます。
+	</p>
+	<h3 id="freestyle">フリースタイル形式</h3>
+	<p>
+		パス、パラメータ(ParameterBean)、戻り値Entityの型の三つの要素を引数に受け取ります。 
+		それぞれフリースタイル形式の基本仕様と全く同じです。
+	</p>
+	<div class="relatedpage"><a href="../howto.html#freestylebasic">外だしSQLの使い方 - フリースタイル基本仕様</a></div>
+	<h3 id="resulttype">検索結果の受け取り</h3>
+	<p>
+		検索結果は、TypedParameterBean に関連付けられている Entity 型、もしくは、第三引数で指定した Entity
+		型のインスタンスを戻り値として受け取ります。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索の実装 @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.setMemberId(<span class="literal">3</span>);
+SimpleMember member = 
+    <span class="attribute">memberBhv</span>.outsideSql().<span class="point">selectEntity</span>(pmb);
+<span class="keyword">if</span> (member != null) { 
+    <span class="abbreviation">...</span> <span class="comment">// 存在した場合の処理</span>
+} <span class="keyword">else</span> {
+    <span class="abbreviation">...</span> <span class="comment">// 存在しなかった場合の処理</span>
+}
+</code></pre>
+
+	<h2 id="scalar">スカラ型で受け取る</h2>
+	<p>
+		SQL上の select 句のカラムを一つにして、検索結果を String や Integer
+		などのスカラ値(スカラ型)のリストで受け取ることも可能です。TypedParameterBean
+		ではCustomizeEntityマークに加えて scalar オプションを付与します。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/customizeentity.html#scalar">CustomizeEntity - ScalarHandling</a></div>
+	<p>
+		検索件数の取得 "select count(*)" や最大値の取得 "select max(xxx)" などにおいて有効です。
+	</p>
+<pre><span class="codetitle">e.g. スカラ型のオプションを指定 {MemberBhv_selectMemberCount.sql} @SQL-File</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="comment">-- +scalar+</span>
+<span class="keyword">select</span> count(*)
+  <span class="keyword">from</span> MEMBER
+</code></pre>
+<pre><span class="codetitle">e.g. 文字列のスカラ値のリストを検索 @Java</span><code>
+MemberCountPmb pmb = <span class="keyword">new</span> MemberCountPmb();
+Integer count = 
+    <span class="attribute">memberBhv</span>.outsideSql().<span class="point">selectEntity</span>(pmb)
+</code></pre>
+	<p>
+		スカラ値での検索においても、検索結果がない場合の扱いについては全く同じです。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="whyhandling">なぜ、一歩手順が多いの？</h2>
+		<p>
+			こちら、1.0.x (Java6版) での話です。1.1.x では結局フラットにしました...
+		</p>
+		<p>
+			selectList()とは並ばず、entityHandling()って一歩進めないといけない外だしSQLの一件検索。
+			なぜかと言うと、ズバリ、(作者の経験上)実務的に外だしSQLのほとんどがリスト検索になりやすいと判断したからです。DBFluteには強力な
+			ConditionBean があるため、特に一件検索はほとんどCBで実装できることが多いためです。その分、外だしSQLのリスト検索は outsideSql()
+			の後に、唯一の "s" で始まるメソッドしてコード補完しやすくなっています。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

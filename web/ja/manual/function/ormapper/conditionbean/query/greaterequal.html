@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,greaterEqual,大なりイコール" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>GreaterEqual | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>GreaterEqual</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		大なりイコール条件(&gt;=)を設定します。GreaterEqual は、絞り込み条件を表す ConditionKey です。
+	</p>
+	<div class="relatedpage"><a href="../about.html#conditionkey">ConditionBeanについて - ConditionKeyとは？</a></div>
+	<p>
+		会話上では、<em class="keyword">ぐれーたぁいこーる</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">set[column-name]_GreaterEqual()</em>
+		を呼び出し、条件値を指定します。
+	</p>
+<pre><span class="codetitle">e.g. GreaterEqual条件の実装手順 (Eclipseでコード補完) {MEMBER_ID} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .set まで打つとカラム選択</span>
+<span class="comment">// 2. MI (MemberId) でカラム確定</span>
+<span class="comment">// 3. GE (GreaterEqual) で enter</span>
+cb.query().setMIGE
+--
+cb.query().<span class="point">setMemberId_GreaterEqual</span>(memberId);
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<p>
+		以下項目、全て Equal と同じ仕様となります。
+	</p>
+	<div class="relatedpage"><a href="./equal.html">絞り込み条件 - Equal</a></div>
+	<ul>
+		<li>nullや空文字の指定</li>
+		<li>同カラムに対する複数条件の指定</li>
+		<li>同カラムに対する同じ条件値での複数指定</li>
+		<li>大文字小文字の区別</li>
+		<li>char型でサイズ不足の値</li>
+	</ul>
+
+	<h2 id="supported">サポートされる型</h2>
+	<p>
+		GreaterThan と同じです。
+	</p>
+	<div class="relatedpage"><a href="./greaterthan.html">絞り込み条件 - GreaterThan</a></div>
+
+	<h2 id="classification">区分値の場合は利用不可</h2>
+	<p>
+		GreaterThan と同じです。
+	</p>
+	<div class="relatedpage"><a href="./greaterthan.html">絞り込み条件 - GreaterThan</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,MailFlute,メール送信,メールテンプレート" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>MailFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>MailFlute</h1>
+	<p>
+		DBFluteプロジェクトが提供するライブラリ MailFlute のページ。
+	</p>
+	${indexlist}
+
+	<h2 id="about">MailFluteとは？</h2>
+	<p>
+		MailFlute は、メールテンプレート機能を備えたシンプルなメール送信ライブラリです。
+	</p>
+	<p>
+		DBFlute の FreeGen と組み合わせて利用することで、タイプセーフでメールパラメーターを指定できる、堅いツールになります。
+		DBFluteライクなメール送信ライブラリと言えるでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>1. メールテンプレートを書く</dt><dd>パラメータコメント形式でテンプレートを作成、拡張子は.dfmail</dd>
+		<dt>2. FreeGenを叩く</dt><dd>FreeGenがメールテンプレートを読み込んで、クラスを自動生成</dd>
+		<dt>3. タイプセーフ実装</dt><dd>自動生成されたクラスを使って、タイプセーフにメール送信の実装</dd>
+	</dl>
+	<h3 id="architecture">MailFluteのアーキテクチャ</h3>
+	<p class="imgbox">
+		<a href="../../../../../data/model/helper/mailflute/mailflute-architecture-map.png" title="MailFlute Architecture"><img src="../../../../../data/model/helper/mailflute/mailflute-architecture-map.png" alt="MailFlute Architecture" width="550" height="380" /></a>
+	</p>
+	<h3 id="lastaeg">LastaFluteでの利用例</h3>
+	<p>
+		LastaFluteとの組み合わせが、MailFlute利用の典型例となります。<span class="frm">(ドキュメントも、それを前提に)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../lastaflute/howto/architecture/typesafemail.html">LastaFlute Typesafe Mail</a></div>
+	<p>
+		まず、src/main/resources/mail配下に、dfmailのメールテンプレートを書きます。
+		外だしSQLに非常によく似たパラメータコメント形式 (pmfile形式) で書きます。
+	</p>
+<pre><span class="codetitle">e.g. 新しい会員の登録を想定したメールテンプレート @welcome_member.dfmail</span><code>
+<span class="comment">/*
+ [New Member's Registration]
+ The member will be formalized after click.
+*/</span>
+<span class="attribute">subject:</span> Welcome to your sign up, <span class="comment">/*pmb.memberName*/</span>
+<span class="attribute">&gt;&gt;&gt;</span>
+Hello, <span class="comment">/*pmb.memberName*/</span>
+
+How are you?
+<span class="comment">/*IF pmb.birthdate != null*/</span>
+Wonderful birthdate! <span class="comment">/*pmb.birthdate*/</span>
+<span class="comment">/*END*/</span>
+
+Delivery Address: <span class="comment">/*pmb.address:orElse('none')*/</span>
+
+Thanks
+</code></pre>
+	<p>
+		そして、FreeGenを叩き...
+	</p>
+<pre><span class="codetitle">e.g. Manageで 12 (freegen) を叩く @Command</span><code>
+<span class="abbreviation">...</span>$ sh manage.sh <span class="literal">12</span>
+</code></pre>
+	<p>
+		mylasta.mail配下に自動生成されたクラスで実装します。
+		クラス名は、テンプレートファイルをキャメルケースにしたものになります。<span class="frm">(welcome_member.dfmail なら WelcomeMemberPostcard)</span>
+	</p>
+<pre><span class="codetitle">e.g. 自動生成されたクラスで実装 @Java</span><code>
+<span class="point">WelcomeMemberPostcard</span>.droppedInto(<span class="localvar">postbox</span>, <span class="localvar">postcard</span> -&gt; {
+    <span class="localvar">postcard</span>.setFrom(<span class="literal">"from@example.com"</span>, <span class="attribute">LABELS_OFFICE_MAIL</span>);
+    <span class="localvar">postcard</span>.addTo(<span class="literal">"to@example.com"</span>);
+    <span class="localvar">postcard</span>.<span class="subpoint">setMemberName</span>(<span class="literal">"sea"</span>);
+    <span class="localvar">postcard</span>.<span class="subpoint">setBirthdate</span>(birthdate);
+    <span class="localvar">postcard</span>.addReplyTo(<span class="literal">"replyto@example.com"</span>);
+});
+</code></pre>
+
+	<h2 id="mailtemplate">メールテンプレート</h2>
+	<p>
+		拡張子は .dfmail で、パラメーターコメント形式で書きます。
+	</p>
+	<h3 id="bodymeta">Body Meta</h3>
+	<p>
+		コメントや subject など、メールBodyのメタ情報 (Body Meta) を <em class="mark">&gt;&gt;&gt;</em> 区切りで定義します。
+	</p>
+	<dl class="keymainlist">
+		<dt>*HeaderComment</dt><dd>メールに関する開発用コメント、タイトルと説明がある</dd>
+		<dt>*Title</dt><dd>メールを一行で要約する開発用コメント、[...]形式で書く</dd>
+		<dt>*Description</dt><dd>メールを自由に説明する開発用コメント、Titleの下に書く</dd>
+		<dt>*subject:</dt><dd>メールの件名、文言の中で動的パラメーターが利用できる</dd>
+		<dt>option:</dt><dd>メールのオプション、HTMLメールも飛ばすなら option: +html</dd>
+		<dt>-- !![type] [name]!!</dt><dd>自動判別できないプロパティを明示的宣言をして自動生成</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Body Meta の属性が勢ぞろい @welcome_member.dfmail</span><code>
+<span class="comment">/*
+ [New Member's Registration]
+ The member will be formalized after click.
+*/</span>
+<span class="attribute">subject:</span> Welcome to your sign up, <span class="comment">/*pmb.memberName*/</span>
+<span class="attribute">option:</span> +html
+<span class="attribute">-- !!</span>List&lt;Integer&gt; <span class="attribute">seaList!!</span>
+<span class="point">&gt;&gt;&gt;</span>
+Hello, <span class="comment">/*pmb.memberName*/</span>
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="headercomment">ヘッダーコメント <span class="frm">(タイトル、説明)</span></h3>
+	<p>
+		Title や Description は必須です。メールテンプレートには必ずタイトルと説明を入れます。
+		形式も決まっています。必ず <em class="mark">/* [タイトル] 説明 */</em> という形式でないと、FreeGenも実行時もエラーで落ちます。
+	</p>
+<pre><span class="codetitle">e.g. ヘッダーコメントの形式 @dfmail</span><code>
+<span class="point">/*
+ [タイトル]
+ 説明
+*/</span>
+<span class="attribute">subject:</span> <span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		タイトルと説明は、あくまで開発用コメントで、実装に送信されるメールの件名(subject)とは別です。
+	</p>
+	<h3 id="subject">subject: <span class="frm">(メールの件名)</span></h3>
+	<p>
+		さて、こちらは実際にメールされて受信者が目にするメールの件名です。
+	</p>
+	<p>
+		件名の中でも、パラメータコメントを使うことができます。
+	</p>
+<pre><span class="codetitle">e.g. 件名の中で、パラメータコメント @dfmail</span><code>
+<span class="comment">/*
+ [タイトル]
+ 説明
+*/</span>
+<span class="attribute">subject: Hello, <span class="point">/*pmb.memberName*/</span>. How are you?
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="option">option: <span class="frm">(メールのオプション)</span></h3>
+	<dl class="textlist">
+		<dt>option: +html</dt>
+		<dd>
+			HTMLメールも飛ばすときに、Plainテキスト側のテンプレートの option: に指定します。
+		</dd>
+		<dd>
+			もし、Plainテキストのテンプレートファイルの welcome_member.dfmail
+			だとしたら、HTMLメールのテンプレートファイルは、同じディレクトリに welcome_member<em class="bigmark">_html</em>.dfmail
+			となります。
+		</dd>
+		<dd>
+			HTMLメールのテンプレートファイルには、ヘッダーを付与できません。<span class="frm">(一行目から本文を書きます)</span>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. HTMLメールのテンプレートファイルの置き場所 @Directory</span><code>
+src/main/resources
+ |-mail
+ |  |-member
+ |  |  |-<span class="point">welcome_member_html.dfmail</span> <span class="comment">// HTML text</span>
+ |  |  |-welcome_member.dfmail      <span class="comment">// plain text</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="nodetectprop">自動判別できないプロパティの宣言</h3>
+	<p>
+		外だしSQLのSql2Entityと同じような感じで、自動判別できないプロパティが存在するので、その場合は明示的に宣言をします。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/parameterbean.html#basicspec">Sql2Entity - ParameterBeanの基本仕様</a></div>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/pmbautodetect.html">Sql2Entity - ParameterBeanの自動判別</a></div>
+<pre><span class="codetitle">e.g. 自動判別できないプロパティの宣言 @dfmail</span><code>
+<span class="abbreviation">...</span>
+<span class="attribute">subject:</span> Welcome to your sign up, <span class="comment">/*pmb.memberName*/</span>
+<span class="point">-- !!List&lt;Integer&gt; seaList!!</span>
+<span class="attribute">&gt;&gt;&gt;</span>
+Hello, <span class="comment">/*pmb.memberName*/</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		FORコメントで使うプロパティが代表的な例です。
+	</p>
+	<div class="relatedpage"><a href="#loopbeans">this - メール上で表データを表現</a></div>
+	<h3 id="pmcomment">パラメータコメント <span class="frm">(外だしSQLライク)</span></h3>
+	<p>
+		DBFluteの外だしSQLと同じようなパラメータコメントが使えます。<span class="frm">(同じようなというか、DBFluteのクラスをそのまま使っています)</span>
+	</p>
+	<div class="relatedpage"><a href="../../ormapper/outsidesql/pmcomment.html">パラメータコメント</a></div>
+	<p>
+		SQLとは用途が違うので、若干使い方が変わります。
+	</p>
+	<ul>
+		<li>バインド変数コメントのテスト値は不要 <span class="frm">e.g. /*pmb.sea*/</span></li>
+		<li>埋め込み変数コメントとバインド変数コメントに違いはない <span class="frm">(埋め込みは使わなくてOK)</span></li>
+		<li>SQLに特化した機能は使うことはない <span class="frm">(LikeSearchとか)</span></li>
+		<li>空文字は空文字のままキープされる <span class="frm">(外だしSQLのParameterBeanは空文字をnull扱いしている)</span></li>
+	</ul>
+	<h3 id="orelse">orElseオプション</h3>
+	<p>
+		さらに、MailFluteでは、バインド変数コメントで値が null だったときのデフォルト値を入れることができるようになっています。
+		プロパティのオプションで orElse('xxx') を利用します。  
+	</p>
+<pre><span class="codetitle">e.g. 値が null だったといのデフォルト値、memberNameがなければ Unknown と表示 @dfmail</span><code>
+<span class="abbreviation">...</span>
+Hello, <span class="comment">/*pmb.memberName:</span><span class="point">orElse('Unknown')</span><span class="comment">*/</span>
+</code></pre>
+
+	<h2 id="loopbeans">メール上で表データを表現</h2>
+	<p>
+		メールで表データのようなものを表示したい場合は、Beanを回すFORループを使います。
+	</p>
+	<ul>
+		<li>1. テンプレートに List&lt;XxxBean&gt; の宣言をする</li>
+		<li>2. XxxBean を Postcard と同じパッケージに作る</li>
+		<li>3. テンプレートで、FORコメントでXxxBeanをループさせる</li>
+	</ul>
+	<p>
+		※特に Bean をという名前である必要はありません。
+	</p>
+	<p>
+		例えば、<span class="frm">(src/main/resources/mail/sea配下に)</span> sea.dfmail というメールテンプレートで、SeaRowBean という表の一行を表すBeanクラスを使うとしたら...
+	</p>
+	<h3 id="loopbeansdeflist">1. テンプレートに List&lt;XxxBean&gt; の宣言をする</h3>
+	<p>
+		List&lt;SeaRowBean&gt; 型で、リストのプロパティを宣言します。<span class="frm">(そして、FreeGen)</span>
+	</p>
+<pre><span class="codetitle">e.g. SeaRowBean のリストを引数のプロパティとして宣言 @sea.dfmail</span><code>
+<span class="comment">/*
+ [Welcome to Sea]
+ to sea's guest
+*/</span>
+<span class="attribute">subject:</span> <span class="abbreviation">...</span>
+<span class="point">-- !!List&lt;SeaRowBean&gt; seaList!!</span>
+<span class="attribute">&gt;&gt;&gt;</span>
+Hello,
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="loopbeansmakebean">2. SeaRowBean を Postcard と同じパッケージに作る</h3>
+	<p>
+		SeaRowBean を SeaPostcard の隣に作ります。<span class="frm">(postcard が bean を import なしで参照するため)</span>
+	</p>
+<pre><span class="codetitle">e.g. メールで使うBeanクラスの置き場所 @Directory</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-mylasta
+ |  |  |-mail
+ |  |  |  |-sea
+ |  |  |  |  |-SeaPostcard.java <span class="comment">// 自動生成されたPostcard</span>
+ |  |  |  |  |-<span class="point">SeaRowBean.java</span>  <span class="comment">// 自分で作ったBeanクラス</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		<em class="keyword">※メールの中で使うBeanは、publicフィールドではなく getter/setter でプロパティ定義します。</em>
+		<span class="frm">(DBFluteのロジックを使っているので、DBFluteのポリシーになっています)</span>
+	</p>
+<pre><span class="codetitle">e.g. メールで使うBeanクラスはgetter/setter @Java</span><code>
+<span class="abbreviation">...</span>
+<span class="keyword">public</span> String getShowName() {
+    <span class="keyword">return</span> <span class="attribute">showName</span>;
+}
+<span class="keyword">public</span> String getStage() {
+    <span class="keyword">return</span> <span class="attribute">stage</span>;
+}
+</code></pre>
+	<h3 id="loopbeansforcomment">3. テンプレートで、FORコメントでXxxBeanをループさせる</h3>
+	<p>
+		FORコメントで seaList をループさせて、それぞれのプロパティを利用します。
+	</p>
+	<div class="relatedpage"><a href="../../ormapper/outsidesql/pmcomment.html#forcomment">パラメータコメント - FORコメント</a></div>
+<pre><span class="codetitle">e.g. FORコメントでBeanをループ、ここでは単なるカンマ区切りで @sea.dfmail</span><code>
+Hello,
+
+<span class="comment">/*FOR pmb.seaList*/</span>
+<span class="comment">/*#current.showName*/, /*#current.stage*/</span>
+<span class="comment">/*END*/</span>
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="async">非同期でメール送信</h2>
+	<h3 id="asyncoverview">非同期メールのおおまかな概要</h3>
+	<p>
+		MailFluteには、非同期でメール送信するオプションが用意されています。
+		そのオプションが指定されると、メールの送信処理だけが非同期になります。
+		<span class="frm">(厳密には、テンプレート読み込みと、メッセージ文字列の作成などの準備処理は同期的で、最後の送信処理だけ非同期)</span>
+	</p>
+	<p>
+		MailFlute自体は、非同期の処理自体は持っていないので、必ず利用しているフレームワークが提供します。
+		よって、MailFluteのオプションを利用しているフレームワークがどのように利用するかで実装や挙動が変わります。
+		例えば、LastaFluteとの組み合わせであれば、LastaFlute の AsyncManager が、メールの非同期の実装となっています。
+		<span class="frm">(LastaFlute の Example で、すでにその連携のための実装がされています)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../lastaflute/howto/architecture/typesafemail.html#deliverydepartment">DeliveryDepartmentでもっと細かく</a></div>
+	<p>
+		ここでは、LastaFluteとの組み合わせのときの例で説明します。
+	</p>
+	<h3 id="asynconeorall">明示的に非同期？デフォルトで非同期？</h3>
+	<p>
+		非同期戦略は、大きく二つに分かれます。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>明示的に非同期</dt><dd>メール送信する側で明示的に非同期を指定する</dd>
+		<dt>デフォルトで非同期</dt><dd>仕組みで暗黙的に非同期を指定して、メール送信する側では意識しない</dd>
+	</dl>
+	<p>
+		すべてのメールが非同期で送信でOKというのであれば、デフォルトで非同期にしてしまいましょう。
+	</p>
+	<p>
+		LastaFlute の Example (harbor, maihamaなど) では、最初からデフォルトで非同期になっています。
+		なので、LastaFlute の Example でスタートアップしたときは、asyncのオプションのことを気にする必要性がありません。
+	</p>
+	<h3 id="laasyncexplicitly">LastaFluteで明示的に非同期メール</h3>
+	<p>
+		非同期でメールを送信するオプションが用意されています。例えば、LastaFluteでは Postcard に async()
+		というメソッドがあり、それを呼ぶと非同期になります。
+		<span class="frm">(ただ、LastaFlute の Example では、デフォルトで非同期になっているので、その仕組みを外してなければ、このメソッドを呼び出す必要はありません)</span>
+	</p>
+<pre><span class="codetitle">e.g. LastaFluteでのPostcardにおける async() の実装 @Java</span><code>
+<span class="point">WelcomeMemberPostcard</span>.droppedInto(<span class="localvar">postbox</span>, <span class="localvar">postcard</span> -&gt; {
+    <span class="localvar">postcard</span>.setFrom(<span class="literal">"from@example.com"</span>, <span class="attribute">LABELS_OFFICE_MAIL</span>);
+    <span class="localvar">postcard</span>.addTo(<span class="literal">"to@example.com"</span>);
+    <span class="localvar">postcard</span>.setMemberName(<span class="literal">"sea"</span>);
+    <span class="localvar">postcard</span>.setBirthdate(birthdate);
+    <span class="localvar">postcard</span>.<span class="point">async()</span>;
+});
+</code></pre>
+	<h3 id="laasyncimplicitly">LastaFluteでデフォルトで非同期メール</h3>
+	<p>
+		LastaFlute の Example ではこちらになっています。もう、メール送信側のプログラムでは何も気にせずメール送信しても、非同期で送信されます。
+	</p>
+	<p>
+		ただし、メール送信に失敗しても例外は非同期スレッドの中で処理されますから、呼び出し側のトランザクションをロールバックすることはできません。
+		<span class="frm">(その必要性がないことが前提です。そして、多くの場合において、その必要性がないことを想定しています)</span>
+	</p>
+
+	<h2 id="unittest">UTFlute で UnitTest</h2>
+	<p>
+		UTFlute <span class="frm">(for LastaFlute)</span> を使っていれば、メール送信のテストがしやすくなります。
+	</p>
+	<h3 id="reservemailassertion">reserveMailAssertion() でアサート予約</h3>
+	<p>
+		Actの実行をする前に、reserveMailAssertion() でアサート予約をしておきます。
+		すると、UnitTestが終わる直前に予約したアサートが実行されます。メール本文に対するチェックが可能です。
+	</p>
+<pre><span class="codetitle">e.g. UnitTestでメール送信のアサート @Java</span><code>
+<span class="comment">// ## Arrange ##</span>
+SeaAction <span class="localvar">action</span> = <span class="keyword">new</span> SeaAction(); <span class="comment">// メールを飛ばしているAction</span>
+inject(<span class="localvar">action</span>);
+<span class="point">reserveMailAssertion</span>(<span class="localvar">mailData</span> -&gt; {
+    <span class="comment">// SeaPostcardのメールが飛んでるはず、そして、メール本文にseaが含まれているはず</span>
+    <span class="localvar">mailData</span>.<span class="subpoint">required</span>(SeaPostcard.<span class="keyword">class</span>).forEach(<span class="localvar">message</span> -&gt; {
+        <span class="localvar">message</span>.<span class="subpoint">assertPlainTextContains</span>(<span class="literal">"sea"</span>);
+    });
+});
+
+<span class="comment">// ## Act ##</span>
+JsonResponse<String> <span class="localvar">response</span> = <span class="localvar">action</span>.index(); <span class="comment">// ここでメールを飛ばしているはず</span>
+
+<span class="comment">// ## Assert ##</span>
+<span class="comment">// (もうここでは、メールに関するアサートは特になし)</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		メール送信が非同期(Async)になっていても利用できます。
+		<span class="frm">(asyncされるのはメールの送信処理だけであって、アプリで送信を行ったこと自体は記録され、メール本文も保持されているので問題なく利用できる)</span>
+	</p>
+	<p>
+		<em class="mark">mailData.required(...class)</em> にて、指定した Postcard のメールが飛んでいることをアサートしています。
+		そして、そのメールで送信したメッセージが送信回数分が戻り値として取得できます。
+	</p>
+	<p>
+		<em class="mark">message.assertPlainTextContains("...")</em> にて、メール本文に対するアサートができます。
+		様々なメソッドが用意されているので、業務的なアサートを適度にやっていくと良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>required...()</dt><dd>存在することをチェックしながら、その値を戻り値で取得</dd>
+		<dt>assert...Contains()</dt><dd>そのテキストに、指定された文字列が存在するはず</dd>
+	</dl>
+	<h3 id="assertionpolicy">メールをどのくらいアサートするか？</h3>
+	<p>
+		やり始めたらキリがないものですが、少なくとも "適切な状態で送られたかどうか？"
+		そして "重要な動的項目が想定通りメール本文にあるか？" などをチェックすると良いでしょう。
+	</p>
+	<p>
+		バインド変数コメントは値がnullならエラーになり、IFコメントも文法エラーで実行時に厳しくチェックされ、メール送信処理が行われたことを保証するだけでもチェックの効果は高いです。
+		メールは変なのが飛んでもしまうと業務上の後始末が大変なので、UnitTestに割ける時間が少なくても、最低限のチェックだけでもしておきたいものです。
+	</p>
+
+	<h2 id="codereadinghint">コードリーディングのヒント</h2>
+	<h3 id="postoffice">郵便局のストーリーを思い浮かべて</h3>
+	<p>
+		MailFluteでは、コードレベルでの拡張ポイントが多く用意されています。
+		コードの概要を知っておくと拡張がしやすくなるでしょう。
+	</p>
+	<p>
+		MailFluteは、郵便局をテーマにクラスデザインがされています。
+	</p>
+	<dl class="keymainlist">
+		<dt>Postcard</dt><dd>はがき: 一通メールの表現</dd>
+		<dt>PostOffice</dt><dd>郵便局: メール送信の手続きをもろもろ行う</dd>
+		<dt>DeliveryDepartment</dt><dd>配達部署: 駐車場(接続Provider)と人事(諸々Factory)を保持</dd>
+		<dt>PostalPersonnel</dt><dd>人事の人: 諸々のクラスのFactory</dd>
+		<dt>Receptionist</dt><dd>受付の人: メールテンプレートをファイルから読み込んだり</dd>
+		<dt>Proofreader</dt><dd>文章校正の人: メールのパラメーターコメントを解釈して書き換える</dd>
+		<dt>PostalParkingLot</dt><dd>駐車場: 郵便バイク(SMTPサーバーへの接続)を複数保持</dd>
+		<dt>PostalMotorbike</dt><dd>郵便バイク: 一つのSMTPサーバーへの接続</dd>
+		<dt>Postie</dt><dd>郵便配達員: メールを実際に送信する</dd>
+	</dl>
+	<ol>
+		<li>はがきが、郵便局に送られてきて...</li>
+		<li>配達部署の人事が、受付と文章校正の人を連れてきて...</li>
+		<li>受付が、受付業務(テンプレートの読み込みなど)を行い...</li>
+		<li>文章校正が、校正業務(パラメーターコメントの解釈など)を行い...</li>
+		<li>配達部署の駐車場(複数の接続保持)にある郵便バイク(一つの接続)を用意して...</li>
+		<li>配達部署の人事が、そのバイクに合う郵便配達員を連れてきて...</li>
+		<li>郵便配達員にはがきを配達させる</li>
+	</ol>
+	<p>
+		無理矢理ですがやってしまいました。<span class="frm">(実際の郵便局で文章校正されたらたまげるでしょう)</span>
+	</p>
+	<p>
+		ちなみに、LastaFluteでは、Postbox (郵便ポスト) というクラスも付け加えられています。
+		郵便ポストから郵便局にはがきが送られるようになっています。<span class="frm">(ディベロッパーは、PostboxにPostcardを投函します)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../lastaflute/howto/architecture/typesafemail.html">LastaFlute Typesafe Mail</a></div>
+	<h3 id="officeflow">郵便局の配達の流れ</h3>
+	<p>
+		このようになっています。当てはめながら読んでみてください。
+	</p>
+<pre><span class="codetitle">e.g. PostOffice@deliver() @Java</span><code>
+<span class="keyword">protected final</span> SMailDeliveryDepartment <span class="attribute">deliveryDepartment</span>;
+
+<span class="keyword">public</span> PostOffice(SMailDeliveryDepartment <span class="localvar">deliveryDepartment</span>) {
+    <span class="keyword">if</span> (<span class="localvar">deliveryDepartment</span> == <span class="keyword">null</span>) {
+        <span class="keyword">throw new</span> IllegalArgumentException("The argument 'deliveryDepartment' should not be null.");
+    }
+    <span class="keyword">this</span>.<span class="attribute">deliveryDepartment</span> = <span class="localvar">deliveryDepartment</span>;
+}
+
+<span class="keyword">public void</span> deliver(Postcard <span class="localvar">postcard</span>) {
+    <span class="localvar">postcard</span>.officeCheck();
+
+    <span class="keyword">final</span> SMailReceptionist <span class="localvar">receptionist</span> = fetchReceptionist(<span class="localvar">postcard</span>);
+    <span class="localvar">receptionist</span>.accept(<span class="localvar">postcard</span>); <span class="comment">// make body text (may be from body file)</span>
+
+    proofreadIfNeeds(<span class="localvar">postcard</span>); <span class="comment">// make complete text</span>
+
+    <span class="keyword">final</span> SMailPostalMotorbike <span class="localvar">motorbike</span> = fetchMotorbike(<span class="localvar">postcard</span>);
+    <span class="keyword">final</span> SMailPostie <span class="localvar">postie</span> = fetchPostie(<span class="localvar">postcard</span>, <span class="localvar">motorbike</span>);
+    <span class="localvar">postie</span>.deliver(<span class="localvar">postcard</span>);
+}
+</code></pre>
+	<h3 id="deliverydepartment">郵便局の大元、DeliveryDepartment</h3>
+	<p>
+		PostOffice (郵便局) のコンストラクタでは、必ず DeliveryDepartment (配達部署)
+		を受け取るようにしています。つまり、"配達部署" が郵便局の仕事を決定付ける大きな役割を持っています。
+	</p>
+	<p>
+		そして、DeliveryDepartment (配達部署) のコンストラクタでは、必ず PostalParkingLot (駐車場)
+		と PostalPersonnel (人事) を受け取るようにしています。
+	</p>
+<pre><span class="codetitle">e.g. SMailDeliveryDepartment constructor @Java</span><code>
+<span class="keyword">public</span> SMailDeliveryDepartment(SMailPostalParkingLot parkingLot, SMailPostalPersonnel personnel) {
+    assertArgumentNotNull("parkingLot", parkingLot);
+    assertArgumentNotNull("personnel", personnel);
+    <span class="keyword">this</span>.<span class="attribute">parkingLot</span> = parkingLot;
+    <span class="keyword">this</span>.<span class="attribute">personnel</span> = personnel;
+}
+</code></pre>
+	<p>
+		PostalParkingLot (駐車場) は、SMTPへの接続を司る PostalMotorbike (郵便バイク)
+		を保持していますし、PostalPersonnel (人事) は、受付や文章校正に郵便配達員を決定しています。
+	</p>
+	<p>
+		つまり、どのような PostalParkingLot (駐車場) と PostalPersonnel (人事)
+		を用意するか次第で、PostOffice (郵便局) の挙動をいかようにでも変更することができるのです。
+	</p>
+	<p>
+		例えば、LastaFluteでは、この DeliveryDepartment (配達部署) を生成する Creator
+		をアプリで用意して、それぞれのアプリにフィットした郵便局を構築できるようにしています。
+	</p>
+	<div class="relatedpage"><a href="../../../../lastaflute/howto/architecture/typesafemail.html#deliverydepartment">LastaFlute Typesafe Mail - DeliveryDepartmentでもっと細かく</a></div>
+	<h3 id="postalpersonnel">配達業務の支配者、PostalPersonnel</h3>
+	<p>
+		PostalPersonnel (人事) は、配達業務を司る人たちを決定します。つまり、どのように配達を行うのか？自由自在です。
+	</p>
+	<p>
+		特に、PostalPersonnel (人事) インターフェースの実装クラスである、DogmaticPostalPersonnel (独善的な人事)
+		には、様々な業務変更ポイントが用意されています。
+	</p>
+<pre><span class="codetitle">e.g. SMailDogmaticPostalPersonnel constructor @Java</span><code>
+<span class="keyword">public</span> SMailDogmaticPostalPersonnel() {
+    <span class="attribute">receptionist</span> = createReceptionist();
+    <span class="attribute">proofreader</span> = createProofreader();
+    <span class="attribute">cancelFilter</span> = createCancelFilter();
+    <span class="attribute">addressFilter</span> = createAddressFilter();
+    <span class="attribute">subjectFilter</span> = createSubjectFilter();
+    <span class="attribute">bodyTextFilter</span> = createBodyTextFilter();
+    <span class="attribute">asyncStrategy</span> = createAsyncStrategy();
+    <span class="attribute">retryStrategy</span> = createRetryStrategy();
+    <span class="attribute">labelStrategy</span> = createLabelStrategy();
+    <span class="attribute">loggingStrategy</span> = createLoggingStrategy();
+    <span class="attribute">mailHeaderStrategy</span> = createMailHeaderStrategy();
+    <span class="attribute">internetAddressCreator</span> = createInternetAddressCreator();
+}
+</code></pre>
+	<p>
+		createメソッドをオーバーライドすることで、受付や文章校正の拡張も去ることながら、様々な Filter や Strategy などを拡張することができます。
+	</p>
+	<p>
+		実際に、LastaFlute の DeliveryDepartment (配達部署) の Creator ([App]MailDeliveryDepartmentCreator) では、DogmaticPostalPersonnel (独善的な人事)
+		の生成時に、createSubjectFilter() や createAsyncStrategy() などがオーバーライドされ、LastaFluteとしての振舞いを実現しています。
+		<span class="frm">(テスト時は件名に[Test]が付与されたり、非同期実行ができるようにしたりなど)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../lastaflute/howto/architecture/typesafemail.html#deliverydepartment">LastaFlute Typesafe Mail - DeliveryDepartmentでもっと細かく</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

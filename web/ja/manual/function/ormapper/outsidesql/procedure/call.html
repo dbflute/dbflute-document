@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,コール,call,プロシージャコール,プロシージャ,ストアドプロシージャ,ストアドファンクション" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)call() | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)call()</h1>
+	${indexlist}
+
+	<h2 id="overview">call()</h2>
+	<p>
+		プロシージャを実行します。プロシージャ対応のParameterBean、<em class="keyword">ProcedurePmb</em>
+		を引数に取り、対応するプロシージャを実行します。OUTパラメータ(プロシージャリターンも含む)に対応しています。
+	</p>
+	<p>
+		会話上では、<em class="keyword">こーる</em> もしくは <em class="keyword">ぷろしーじゃこーる</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="procedurepmb">ProcedurePmbを自動生成</h3>
+	<p>
+		引数は一つだけで、Sql2Entityで自動生成した ProcedurePmb を指定します(自動生成はオプション)。
+		このパラメータ一つで、どのプロシージャを呼び出すか、プロシージャへ渡すパラメータ、プロシージャから受け取る値、全てを表現します。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+	<h3 id="methodcall">メソッドの呼び出し</h3>
+	<p>
+		outsideSql() の後、<em class="keyword">call()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().ca <span class="comment">// .ca と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">call</span>(pmb);
+<span class="comment">// あらかじめ補完される引数の名前に合わせておくとスムーズに</span>
+</code></pre>
+	<p>
+		厳密には、プロシージャはテーブルとは関連付いていないため、どの Behavior
+		を利用しても呼び出せます。しかしながら、そのプロシージャの処理としてメインとなっているテーブルの Behavior
+		を習慣的に利用することをお奨めします。
+	</p>
+	<h3 id="procedurename">どのプロシージャを呼び出すか</h3>
+	<p>
+		ProcedurePmb が対応するプロシージャの名前を保持しているので、指定するだけでプロシージャを呼び出せます。
+	</p>
+<pre><span class="codetitle">e.g. プロシージャの呼び出し {SP_FOO_PROCプロシージャ} @Java</span><code>
+SpFooProcPmb <span class="point">pmb</span> = <span class="keyword">new</span> SpFooProcPmb();
+<span class="attribute">memberBhv</span>.outsideSql().call(<span class="point">pmb</span>);
+</code></pre>
+	<h3 id="procedureparameter">プロシージャへ渡すパラメータ</h3>
+	<p>
+		INパラメータ、INOUTパラメータを、ProcedurePmb に設定します。
+	</p>
+<pre><span class="codetitle">e.g. INパラメータの指定 {SP_FOO_PROCプロシージャ} @Java</span><code>
+SpFooProcPmb pmb = <span class="keyword">new</span> SpFooProcPmb();
+pmb.<span class="point">setBarParam</span>(<span class="literal">3</span>); <span class="comment">// INパラメータ</span>
+<span class="attribute">memberBhv</span>.outsideSql().call(pmb);
+</code></pre>
+	<h3 id="procedurereturn">プロシージャから受け取る値</h3>
+	<p>
+		OUTパラメータやプロシージャリターン値を受け取る場合は、呼び出し後に ProcedurePmb
+		インスタンスからそれら値を受け取ります。
+	</p>
+<pre><span class="codetitle">e.g. OUTパラメータの受け取り {SP_FOO_PROCプロシージャ} @Java</span><code>
+SpFooProcPmb pmb = <span class="keyword">new</span> SpFooProcPmb();
+<span class="attribute">memberBhv</span>.outsideSql().call(pmb);
+String donOutParam = pmb.<span class="point">getDonParam()</span>; <span class="comment">// OUTパラメータの受け取り</span>
+Integer ret = pmb.<span class="point">getReturnValue()</span>; <span class="comment">// プロシージャリターン値の受け取り</span>
+</code></pre>
+	<h4>ResultSet の受け取り</h4>
+	<p>
+		ResultSet (結果セット)を受け取る場合も、同じく ProcedurePmb のプロパティとして受け取ります。
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/procedurepmb.html#resultsethandling">Sql2Entity - ProcedurePmb - ResultSetの取扱い</a></div>
+	<h3 id="dbway">DBMSごとの取扱い</h3>
+	<p>
+		DBMSへの依存が強い領域ですので、DBMSごとの取扱いを必ずご確認下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dbway/index.html">DBMSごとの取扱い</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

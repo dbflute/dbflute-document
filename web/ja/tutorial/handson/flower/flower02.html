@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>模範解答的なセクション 2 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>模範解答的なセクション 2</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteハンズオン、セクション 2 の模範解答的な実装です。
+	</p>
+	<div class="relatedpage"><a href="../section02.html">ハンズオンセクション 2</a></div>
+	<p>
+		正解は一つではありませんので、あくまで "的な" というところで、参考までに。
+	</p>
+
+	<h2 id="stakeholder">このセクションでの登場人物</h2>
+<pre><span class="codetitle">e.g. このセクションでの登場人物 @Directory</span><code>
+dbflute-hands-on
+ |-src/test/java
+ |  |-org.docksidestage.handson
+ |  |  |-exercise
+ |  |  |  |-<span class="spotlight"><span class="point">HandsOn02Test.java</span></span>
+ |  |  |
+ |  |  |-unit
+ |-src/main/java
+ |-<span class="abbreviation">...</span>
+ |-dbflute_maihamadb
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-playsql
+ |  |  |-data
+ |  |  |  |-common
+ |  |  |  |  |-xls
+ |  |  |  |     |-<span class="subpoint">10-master.xls</span>
+ |  |  |  |-ut
+ |  |  |  |  |-xls
+ |  |  |  |     |-<span class="subpoint">20-member.xls</span>
+ |  |  |  |     |-<span class="subpoint">30-product.xls</span>
+ |  |  |  |     |-<span class="subpoint">defaultValueMap.dataprop</span>
+ |-<span class="abbreviation">...</span>
+ |-mydbflute
+ <span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="flowerimpl">模範解答的な実装</h2>
+<pre><span class="codetitle">e.g. 模範解答的な実装やってみた @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    @Resource
+    <span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
+
+    <span class="comment">/**
+     * テストデータが存在すること
+     */</span>
+    <span class="keyword">public void</span> test_existsTestData() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        <span class="comment">// ## Act ##</span>
+        <span class="keyword">int</span> count = <span class="attribute">memberBhv</span>.selectCount(<span class="localvar">cb</span> -&gt; {});
+
+        <span class="comment">// ## Assert ##</span>
+        assertTrue(count > <span class="literal">0</span>);
+    }
+
+    <span class="comment">/**
+     * 会員名称がSで始まる会員を検索 (これはタイトル、この中にも要件が含まれている)
+     * o 会員名称の昇順で並べる (これは実装要件、Arrange でこの通りに実装すること)
+     * o (検索結果の)会員名称がSで始まっていることをアサート (これはアサート要件、Assert でこの通りに実装すること)
+     * o 該当テストデータがない、条件間違い、などで検索結果０件による素通りgreenにならないように (今後ずっと同じ)
+     */</span>
+    <span class="keyword">public void</span> test_1() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        String prefix = <span class="literal">"S"</span>;
+
+        <span class="comment">// ## Act ##</span>
+        ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.query().setMemberName_LikeSearch(prefix, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likePrefix());
+            <span class="localvar">cb</span>.query().addOrderBy_MemberName_Asc();
+        });
+
+        <span class="comment">// ## Assert ##</span>
+        assertHasAnyElement(memberList);
+        memberList.forEach(member -&gt; {
+            String memberName = member.getMemberName();
+            log(<span class="literal">"memberName: {}"</span>, memberName); <span class="comment">// yon can use Slf4j-like placeholder</span>
+            assertTrue(memberName.startsWith(prefix));
+        });
+    }
+
+    <span class="comment">/**
+     * 会員IDが1の会員を検索
+     * o 一件検索として検索すること
+     * o 会員IDが 1 であることをアサート
+     */</span>
+    <span class="keyword">public void</span> test_2() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        <span class="comment">// ## Act ##</span>
+        <span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> -&gt; <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).alwaysPresent(member -&gt; {
+            <span class="comment">// ## Assert ##</span>
+            Integer memberId = member.getMemberId();
+            log(<span class="literal">"memberId: {}"</span>, memberId);
+            assertEquals(<span class="literal">1</span>, memberId);
+        });
+    }
+
+    <span class="comment">/**
+     * 生年月日がない会員を検索
+     * - 更新日時の降順で並べる
+     * - 生年月日がないことをアサート
+     */</span>
+    <span class="keyword">public void</span> test_3() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        <span class="comment">// ## Act ##</span>
+        ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.query().setBirthdate_IsNull();
+            <span class="localvar">cb</span>.query().addOrderBy_UpdateDatetime_Desc();
+        });
+
+        <span class="comment">// ## Assert ##</span>
+        assertHasAnyElement(memberList);
+        memberList.forEach(member -&gt; {
+            LocalDate birthdate = member.getBirthdate();
+            log(member.getMemberName(), birthdate); <span class="comment">// comma-separated if no template string</span>
+            assertNull(birthdate);
+        });
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

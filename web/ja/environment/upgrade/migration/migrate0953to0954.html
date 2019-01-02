@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 0.9.5.3 to 0.9.5.4 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 0.9.5.3 to 0.9.5.4</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3>同梱するJDBCドライバの整理(Oracle, DB2)</h3>
+	<p>
+		OracleのJDBCドライバ「ojdbc5.jar」およびDB2のJDBCドライバ「db2jcc.jar」がこのバージョンから同梱されないようになりました。
+		DBFluteの構造とこれらJDBCドライバの構造が相性が悪いため、ユーザが明示的にJDBCドライバを取得してきて、
+		DBFluteモジュールに配置する方が良いと考えました。
+	</p>
+	<h4>JDBCドライバの整理について補足</h4>
+	<p>
+		JDK-5.0と6.0ではJDBCのインターフェースが微妙に違うなど(その他もろもろ)の原因で、
+		JDBCドライバ固定だと実行できる環境が限られてしまうような場合は、
+		ユーザが明示的にJDBCドライバを取得して配置する方式を取っていく方針です。
+	</p>
+	<h3>DBFluteモジュール内のライブラリの位置を移動</h3>
+	<p>
+		「dbflute-0.x.x.x/lib/forExecute」が「dbflute-0.x.x.x/lib」に変更されました。
+	</p>
+	<p>
+		通常の利用では意識する必要は全くありませんが、万が一、DBFluteモジュールの構造に依存した拡張スクリプトなどを
+		書かれている場合は注意して下さい。
+	</p>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<p>
+		特になし
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

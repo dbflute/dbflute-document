@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,selectByPKValue,主キーによる一件検索,nullなし,すれ違い,排他制御,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectByPKValueWithDeletedCheck(pk) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectByPKValueWithDeletedCheck(pk)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">PK値で null を戻さない一件検索</em>
+		をします。検索結果が存在しない場合は明示的な例外が発生するので、検索結果がないという状況が業務的にあり得ない(条件設定のバグ、データ不整合など)、
+		もしくは、その状況は業務的なすれ違いなので排他制御の仕組みで一律の処理を行う、というようなときに利用します。
+	</p>
+	<p>
+		DeletedCheck の Deleted は、別の人(プロセス)のすれ違いによる削除のことを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+	<p>
+		検索結果が存在しなかったら業務的に正常な処理を行う、という場合は、このメソッドではなく selectByPKValue() を利用して下さい。 
+	</p>
+	<div class="relatedpage"><a href="./selectbypkvalue.html">selectByPKValue()</a></div>
+	<p>
+		会話上では、<em class="keyword">せれくとばいぴーけーばりゅーうぃずでりーでぃっどちぇっく</em>
+		と表現します。もしくは <em class="keyword">nullを戻さないせれくとばいぴーけーばりゅー</em>
+		と表現します。といいつつ長いので、どちらかというと <em class="keyword">nullを戻さないばいぴーけー</em> という方が通じやすく呼びやすいかもしれません。
+	</p>
+	<h3 id="light">ささやかなメソッド</h3>
+	<p>
+		PK値での検索に向いていそうでいながら、関連テーブルの取得とか、その他ConditionBeanによるオプションが使えないので、
+		非常にシンプルな一件検索でしか利用できないのも事実です。ささやかな便利メソッドと考えてよいでしょう。
+	</p>
+	<p>
+		複合主キーの場合は、PK値の指定漏れが発生しないメソッドとして活用できますが、
+		ConditionBean自体にもPK値を等値条件として受け取るメソッドが用意されており、そこまでこのメソッドの存在感を高めるものにはなりません。
+	</p>
+	<div class="relatedpage"><a href="../../conditionbean/various/primarykeyabstraction.html#equal">CB - PrimaryKeyAbstraction - PKの等値条件</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">selectByPKValueWithDeletedCheck()</em>
+		を呼び出し、PKの値を指定します。
+	</p>
+<pre><span class="codetitle">e.g. selectByPKValueWithDeletedCheck()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selBPKVW <span class="comment">// .selBPKVW と打って enter</span>
+--
+<span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectByPKValueWithDeletedCheck(cb)</span>;
+--
+Member member = <span class="attribute">memberBhv</span>.selectByPKValueWithDeletedCheck(cb);
+<span class="abbreviation">...</span> = member.getMemberId(); <span class="comment">// member は null でない</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		selectByPKValue()と同じです。
+	</p>
+	<div class="detailpage"><a href="./selectbypkvalue.html">selectByPKValue(pk)</a></div>
+	<h3 id="result">戻り値</h3>
+	<p>
+		selectEntityWithDeletedCheck(cb) と同じです。
+	</p>
+	<div class="detailpage"><a href="./selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck(cb)</a></div>
+	<h3 id="exception">例外</h3>
+	<p>
+		selectEntityWithDeletedCheck(cb) と同じです。
+	</p>
+	<div class="detailpage"><a href="./selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck(cb)</a></div>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		selectList() と同じような要領となります。
+	</p>
+	<div class="detailpage"><a href="./selectlist.html#override">selectList(cb) - オーバーライド</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

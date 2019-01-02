@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,EMecha,イーメカ,インストール,Install" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>EMechaのインストール | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>EMechaのインストール</h1>
+	<p>
+		Eclipseプラグインである EMecha のインストールに関してのページです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">EMecha</a></div>
+	<div class="relatedpage"><a href="../../../../environment/setup/emecha.html">EMechaによるセットアップ</a></div>
+	<div class="relatedpage"><a href="../../../../introduction/altodbflute.html#setup">Alto DBFlute - DBFluteのセットアップ</a></div>
+	${indexlist}
+
+	<h2 id="procedure">インストール手順 <span class="frm">※Java8 (Eclipse-4.4)</span></h2>
+	<p>
+		Java8のDBFlute利用している方、Eclipse-4.4 以降を利用されている方はこちら。
+	</p>
+	<h3 id="deleteold">1. 古い EMecha と ResourceSynchronizer を削除</h3>
+	<p>
+		すでに Java6,7 用の EMecha が Eclipse にインストールされている場合は、そちらを削除します。
+		念のため、eclipseをまるごとバックアップしておくとよいでしょう。
+	</p>
+	<p>
+		Help - Install New Software... の What is already installed?
+		から、EMecha と ResourceSynchronizer を Uninstall します。
+	</p>
+	<p>
+		ResourceSynchronizerも削除するのは、新しい EMecha に同等の機能 (EMSynchronizer)
+		が搭載されているため不要になるからです。<span class="frm">(ResourceSynchronizerを参考にさせて頂いています。素晴らしい機能が公開されていることに感謝、ありがとうございます)</span>
+	</p>
+	<h3 id="download">2. EMecha をダウンロード</h3>
+	<p>
+		そして、EMechaのリリースページから、最新版の DBFlute-EMecha.zip をダウンロードします。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-emecha/dbflute-emecha-eclipse/releases">EMecha - Releases | Github</a></div>
+	<h3 id="download">3. EMecha をdropinsに配置</h3>
+	<p>
+		そして、Eclipse の dropins ディレクトリに解凍します。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/friends/eclipse/index.html#pluginstall">Eclipse - プラグインのインストール</a></div>
+<pre><span class="codetitle">e.g. Seasarを使っている場合の UTFlute の dependency 設定 @Directory</span><code>
+eclipse <span class="comment">// Eclipse本体のディレクトリ</span>
+ |-configuration
+ |-dropins
+ |  |-<span class="point">DBFlute-EMecha</span> <span class="comment">// ☆ここに解凍</span>
+ |  |   |-eclipse
+ |  |      |-features
+ |  |      |  |-org.dbflute.emecha.feature_0.6.1...jar
+ |  |      |-plugins
+ |  |         |-org.dbflute.emecha_0.6.1...jar
+ |  |         |-org.dbflute.emecha...._0.6.1...jar
+ |  |         |-...
+ |  |
+ |  |-...
+ |-features
+ |-plugins
+ |-Eclipse.app
+ |-...
+</code></pre>
+	<p>
+		したら、Eclipseを再起動し、Eclipse の preferences (workspaceの設定)
+		で、EMechaという項目があればOKです。
+	</p>
+	<h3 id="afterthat6">その後...</h3>
+	<p>
+		新しい EMecha では、DBFluteのセットアップやアップグレードの機能がなくなっています。
+		DBFluteのダウンロードやセットアップは Maven や DBFlute Intro
+		が主流となり、アップグレードはDBFlute自体がその機能を持つようになったからです。 
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/maven.html">Mavenによるセットアップ</a></div>
+	<div class="relatedpage"><a href="../../../../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+	<p>
+		新しい EMecha は、実装や設定など DBFlute
+		を利用するときの支援に特化し、今までのバージョンにはない高度な機能を追求していきます。
+	</p>
+	<h3 id="updatesite">EMechaの更新サイト</h3>
+	<p>
+		更新サイトもあります。(更新サイトの登録では、"EMecha" と名付けると良いでしょう)
+	</p>
+	<dl class="valuemainlist">
+		<dt>更新サイトのURL</dt><dd><a href="https://dbflute-emecha.github.io/eclipse-updates">https://dbflute-emecha.github.io/eclipse-updates</a></dd>
+	</dl>
+
+	<h2 id="procedure6">インストール手順 <span class="frm">※Java6 (Eclipse-3.7)</span></h2>
+	<p>
+		Java6のDBFlute利用している方、Eclipse-3.7 を利用されている方はこちら。
+	</p>
+	<h3 id="updatesite6">更新サイトの登録</h3>
+	<p>
+		更新サイトに以下サイトを登録(名前は "Seasar Eclipse 3.3" など)します。
+	</p>
+	<dl class="valuemainlist">
+		<dt>更新サイトのURL</dt><dd><a href="http://eclipse.seasar.org/updates/3.3">http://eclipse.seasar.org/updates/3.3</a></dd>
+	</dl>
+	<h3 id="install6">インストール</h3>
+	<p>
+		登録したサイトからEMechaを選択してインストールします。
+		グループ化を解除せずに(デフォルト設定のまま)インストールすることを推奨します。
+	</p>
+	<h3 id="afterthat6">その後...</h3>
+	<dl class="longkeymainlist">
+		<dt><a href="./newclient/index.html">DBFluteクライアントの新規作成</a></dt>
+		<dd>DBFluteの初回環境構築</dd>
+		<dt><a href="./upgrade/index.html">DBFluteのアップグレード</a></dt>
+		<dd>DBFluteを最新バージョンにアップグレード</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

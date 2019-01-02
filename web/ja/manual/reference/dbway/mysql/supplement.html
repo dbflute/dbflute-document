@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,MySQL,補足資料" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>MySQLの補足資料 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>MySQLの補足資料</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteとは直接は無関係ながらも関わりの深い、MySQLに関する補足資料です。
+		厳密な仕様はDBMSのオフィシャルドキュメントの通りではありますが、ここでは簡易な資料としてまとめています。
+	</p>
+	<div class="relatedpage"><a href="./index.html">MySQLの取扱い</a></div>
+
+	<h2 id="sql">SQL周り</h2>
+	<h3 id="fulltextsearch">全文検索</h3>
+	<p>
+		MyISAM もしくは "Tritonn + Senna" において全文検索ができます。
+	</p>
+<pre><span class="codetitle">e.g. foo という文字列が含まれる会員名称を全文検索 @SQL</span><code>
+<span class="point">match</span>(MEMBER_NAME) <span class="keyword">against</span> (<span class="literal">'foo'</span> <span class="keyword">in boolean mode</span>)
+</code></pre>
+	<p>
+		DBFluteでは、この構文が ConditionBean で利用できます。
+	</p>
+	<div class="relatedpage"><a href="./index.html#fulltextsearch">ConditionBeanで全文検索</a></div>
+	<h3 id="updatesubquery">更新時のサブクエリでの制限</h3>
+	<p>
+		update 文の where 句のサブクエリにて更新対象のテーブルを参照できないという制限があります。
+		また、delete 文も同じです。DBFlute の queryUpdate(), queryDelete() では、その制限により ConditionBean
+		の条件で指定できない機能が存在します。
+	</p>
+	<div class="relatedpage"><a href="./index.html#queryupdate">QueryUpdate/Deleteの実現</a></div>
+
+	<h2 id="function">SQL関数</h2>
+	<h3 id="currentdate">現在日付</h3>
+	<dl class="keymainlist">
+		<dt>current_date()</dt><dd>yyyy-MM-dd</dd>
+		<dt>current_time()</dt><dd>HH:mm:ss</dd>
+		<dt>current_timestamp()</dt><dd>yyyy-MM-dd HH:mm:ss</dd>
+		<dt>now()</dt><dd>current_timestamp() と同じ</dd>
+	</dl>
+	<h3 id="coalesce">null の場合のデフォルト値</h3>
+	<p>
+		coalesce() 関数を利用することで、対象値が null の場合のデフォルト値を設定することができます。
+	</p>
+<pre><span class="codetitle">e.g. 購入数量の平均値が null の場合は 0 にする @SQL</span><code>
+<span class="point">coalesce</span>(avg(PURCHASE_COUNT), <span class="literal">0</span>)
+</code></pre>
+	<ul class="codeoutro">
+		<li>デフォルト値の部分はバインド変数が適用できます</li>
+	</ul>
+	<p>
+		DBFluteでは、ConditionBeanのSQL関数フィルタの coalesce() にてこれを利用しています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/functionfilter.html#coalesce">CB - SQL関数フィルタ - coalesce()</a></div>
+	<h3 id="round">数値の丸め</h3>
+	<p>
+		round() 関数を利用することで数値の丸めができます。厳密な丸め仕様はMySQLの仕様に依存します。
+	</p>
+<pre><span class="codetitle">e.g. 購入数量の平均値の小数点を丸める @SQL</span><code>
+<span class="point">round</span>(avg(PURCHASE_COUNT), <span class="literal">0</span>)
+</code></pre>
+	<ul class="codeoutro">
+		<li>数値の部分はバインド変数が適用できます</li>
+	</ul>
+	<p>
+		DBFluteでは、ConditionBeanのSQL関数フィルタの round() にてこれを利用しています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/functionfilter.html#round">CB - SQL関数フィルタ - round()</a></div>
+	<h3 id="truncate">数値の切り捨て</h3>
+	<p>
+		truncate() 関数を利用することで数値の切り捨てができます。
+	</p>
+<pre><span class="codetitle">e.g. 購入数量の平均値の小数点を切り捨て @SQL</span><code>
+<span class="point">truncate</span>(avg(PURCHASE_COUNT), <span class="literal">0</span>)
+</code></pre>
+	<ul class="codeoutro">
+		<li>数値の部分はバインド変数が適用できます</li>
+	</ul>
+	<p>
+		DBFluteでは、ConditionBeanのSQL関数フィルタの trunc() にてこれを利用しています。メソッドは trunc()
+		ですが、内部的に truncate() として解決されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/functionfilter.html#trunc">CB - SQL関数フィルタ - trunc()</a></div>
+	<h3 id="dateformat">日付のフォーマット</h3>
+	<p>
+		date_format() 関数を利用することでフォーマットすることができます。
+	</p>
+<pre><span class="codetitle">e.g. 更新日時を yyyy/MM/dd 形式でフォーマット @SQL</span><code>
+<span class="point">date_format</span>(UPDATE_DATETIME, <span class="literal">'%Y/%m/%d'</span>)
+</code></pre>
+	<h3 id="datetrunc">日付の切り捨て</h3>
+	<p>
+		素直にはできないので、様々な関数を組み合わせて実現します。実現方法は一つに限りません。
+	</p>
+<pre><span class="codetitle">e.g. 更新日時の時分秒ミリ秒を切り捨てて日付に @SQL</span><code>
+cast(substring(UPDATE_DATETIME, <span class="literal">1</span>, <span class="literal">10</span>) as <span class="dbtype">date</span>)
+</code></pre>
+<pre><span class="codetitle">e.g. 更新日時の日と時分秒ミリ秒を切り捨てて日付に (月初めになる) @SQL</span><code>
+cast(concat(substring(UPDATE_DATETIME, <span class="literal">1</span>, <span class="literal">10</span>), <span class="literal">'-01'</span>) as <span class="dbtype">date</span>)
+</code></pre>
+	<p>
+		DBFluteでは、ConditionBeanのSQL関数フィルタの日付の切り捨てにてこれを利用しています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/functionfilter.html#datetrunc">CB - SQL関数フィルタ - 日付の切り捨て</a></div>
+	<h3 id="dateadd">日付の加算・減算</h3>
+	<p>
+		date_add() 関数を利用することで加算と減算ができます。
+	</p>
+<pre><span class="codetitle">e.g. 更新日時を一日進める @SQL</span><code>
+<span class="point">date_add</span>(UPDATE_DATETIME, interval <span class="literal">1</span> day)
+</code></pre>
+	<ul class="codeoutro">
+		<li>数値の部分はバインド変数が適用できます</li>
+		<li>マイナス値を指定すると減算になります</li>
+		<li>day の他に、year, month, hour などが指定できます</li>
+	</ul>
+	<p>
+		DBFluteでは、ConditionBeanのSQL関数フィルタの日付の加算にてこれを利用しています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/functionfilter.html#dateadd">CB - SQL関数フィルタ - 日付の加算</a></div>
+
+	<h2 id="table">テーブル定義</h2>
+	<h3 id="identitysetting">Identity設定</h3>
+<pre><span class="codetitle">e.g. Identity設定 {MEMBER_IDにIdentity} @SQL</span><code>
+<span class="keyword">create table</span> MEMBER (
+    MEMBER_ID <span class="dbtype">INTEGER</span> <span class="attribute">AUTO_INCREMENT NOT NULL</span>,
+    MEMBER_NAME <span class="dbtype">VARCHAR(200)</span> <span class="attribute">NOT NULL</span>,
+    ...
+)
+</code></pre>
+	<h3 id="tablecomment">テーブルコメントの設定</h3>
+	<p>
+		テーブルやカラムのコメントは、comment on ではなく create table
+		に設定します。最大文字数は、テーブルは 60 文字、カラムは (約!?) 255 文字です。
+	</p>
+<pre><span class="codetitle">e.g. テーブルやカラムのコメントを設定 @SQL</span><code>
+<span class="keyword">CREATE TABLE</span> PURCHASE(
+    PURCHASE_ID <span class="dbtype">BIGINT</span> <span class="attribute">AUTO_INCREMENT NOT NULL COMMENT</span> '購入ID: 連番',
+    MEMBER_ID <span class="dbtype">INTEGER</span> <span class="attribute">NOT NULL COMMENT</span> '会員ID: 会員を参照するID。'
+    PURCHASE_COUNT <span class="dbtype">INTEGER</span> <span class="attribute">NOT NULL COMMENT</span> '購入数量: 購入した商品の（一回の購入における）数量。',
+    <span class="abbreviation">...</span>
+) <span class="attribute">COMMENT</span>='一つの商品に対する一回の購入を表現する。
+一回の購入で一つの商品を複数個買うこともある。' ;
+</code></pre>
+	<h3 id="uniquefeature">ユニーク制約の特徴</h3>
+	<p>
+		NotNull の FOO カラムと、そうでない BAR カラム
+		で複合ユニーク制約を付けた場合、"A と null" と "A と null"
+		の二つのレコードは登録できます。つまり、この場合の二つの null はそれぞれ別の値として扱われます。
+	</p>
+	<p>
+		<span class="frm">※試しに、会員の生年月日とバージョンNOに複合ユニーク制約を付けてもExampleのテストデータは正常に登録された</span>
+	</p>
+	<h3 id="insertedidentity">発行された連番を insert 実行後に取得</h3>
+	<p>
+		同じトランザクション内での実行が前提です。トランザクション外で実行しても正常な値は取得されません。
+		ゆえに MyISAM では利用できません。
+	</p>
+<pre><span class="codetitle">e.g. 発行された連番を insert 実行後に取得 @SQL</span><code>
+<span class="keyword">select</span> last_insert_id();
+</code></pre>
+	<p>
+		DBFluteでは、Behavior の insert() の処理の中で、このSQLを内部的に発行して採番された値を Entity
+		に格納しています。デバッグログにもこのSQLが表示されます。
+	</p>
+	<div class="relatedpage"><a href="./index.html#autoincrement">MySQLの取扱い - 主キーでの自動採番</a></div>
+
+	<h2 id="env">環境周り</h2>
+	<h3 id="storageengine">ストレージエンジンの設定</h3>
+	<p>
+		例えば、(デフォルトのストレージエンジンとして) InnoDB を利用する場合以下のように設定します。
+	</p>
+	<div class="relatedpage"><a href="./index.html#engine">MySQLのストレージエンジンに注意</a></div>
+<pre><span class="codetitle">e.g. ストレージエンジンを InnoDB に設定 @my.cnf</span><code>
+[mysqld]
+default-table-type=<span class="literal">InnoDB</span>
+</code></pre>
+	<h3 id="ignorecase">テーブル名のケース区別なし管理</h3>
+	<p>
+		MySQLは、Linux や Windows などの環境ごとに、テーブル名やカラム名のSQL上での大文字小文字の識別に違いがあります。
+		例えば、Linux では大文字小文字を区別し、Windows では区別しません。
+	</p>
+	<p>
+		これにより、開発は Windows で大文字小文字区別せずにSQLを書いていて、いざ結合テストなどでサーバの Linux
+		で動かしたときにSQLが動かない、というような状況が発生する可能性があります。
+	</p>
+	<p>
+		環境に依存せず大文字小文字を区別しないようにするためには、my.cnf(ini) に以下のような設定をします。
+	</p>
+<pre><span class="codetitle">e.g. SQLでのテーブル名やカラム名の大文字小文字を区別しない設定 @my.cnf</span><code>
+[mysqld]
+lower_case_table_names=1
+</code></pre>
+	<p>
+		このようにするとMySQL内部では全て小文字で管理されるようになり、SQL文での大文字で書かれたテーブル名やカラム名が実行時に小文字に変換されて処理されます。
+	</p>
+	<p>
+		ただし、元の大文字小文字が判別できなくなってしまうため、その判別がどこかしらの処理で必要になるような場合は、この設定は適切ではありません。
+		MySQLの中での管理が全て小文字になるため、MySQLからテーブル名やカラム名をメタ情報として取得すると、全て小文字になっています。
+		例えばキャメルケースでテーブル名を表現しているような場合、DBFlute のような自動生成ツールで、MemberStatus
+		が全て Memberstatus となってしまい、動作に問題はありませんが見づらくなります。そういうときは、この
+		"lower_case_table_names" の別の値も検討する必要があるかもしれません。 
+	</p>
+	<h3 id="isolationsetting">トランザクション分離レベルの設定</h3>
+	<p>
+		MySQLではトランザクション分離レベルはデフォルトで "Repeatable Read" になっていますが、
+		他のデータベースのデフォルトである "Read Committed" に合わせたい場合があります。
+	</p>
+<pre><span class="codetitle">e.g. トランザクション分離レベルをRead-Committedに設定 @my.cnf</span><code>
+[mysqld]
+transaction-isolation=<span class="literal">Read-Committed</span>
+</code></pre>
+	<h3 id="charsetsetting">キャラセットの設定</h3>
+<pre><span class="codetitle">e.g. キャラセットを "UTF-8" に設定 @my.cnf</span><code>
+[mysqld]
+default-character-set=<span class="literal">utf8</span>
+</code></pre>
+	<h3 id="sqlmode">SQLモード</h3>
+	<p>
+		SQLのデフォルト挙動を微調整するための様々な設定が存在します。
+	</p>
+	<p>
+		例えば、MySQL は以下のような group by 句に存在しないカラムを select
+		句に指定してもエラーになりません。(他のDBMSでは大抵はしっかりとエラーになる)
+	</p>
+<pre><span class="codetitle">e.g. 解決できないカラムがある group by のSQL {SQLモードを指定すればエラーにできる} @SQL</span><code>
+<span class="keyword">select</span> MEMBER_STATUS_CODE, <span class="point">MEMBER_NAME</span>
+  <span class="keyword">from</span> MEMBER
+ <span class="keyword">group by</span> MEMBER_STATUS_CODE;
+</code></pre>
+	<p>
+		こういった "安全ではない割り切り" が多数存在します。SQLモードを設定することでそれらをしっかり実行時エラーにすることが可能です。
+		SQLモードの設定は、my.cnf(ini) に以下のように設定することが可能です。カンマ区切りで複数指定が可能です。但し、"a, b"
+		というように空白を一つ開けるのは不可なので注意して下さい("a,b" と指定すること)。
+	</p>
+<pre><span class="codetitle">e.g. SQLモードの設定 {SQLモードを指定することによりエラーになる} @my.cnf</span><code>
+[mysqld]
+sql_mode=<span class="literal">"ONLY_FULL_GROUP_BY,STRICT_ALL_TABLES,PIPES_AS_CONCAT,ANSI_QUOTES,NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"</span>
+</code></pre>
+	<p>
+		DBFluteであれば、型の解決などは自動生成時点で担保されるため、あまり厳密にせずとも問題は発生しにくいですが、
+		それでも設定しておいた方が良いと思われる代表的なSQLモードを挙げておきます。
+	</p>
+	<dl class="keymainlist">
+		<dt>ONLY_FULL_GROUP_BY</dt><dd>間違ったGroupByがちゃんとエラーになる</dd>
+		<dt>PIPES_AS_CONCAT</dt><dd>SQL上の文字列連結で '||' が利用可能になる</dd>
+		<dt>ANSI_QUOTES</dt><dd>ダブルクォーテーションがバッククォートと同様の識別子となる</dd>
+	</dl>
+	<h3 id="delimiterdata">デリミタデータの取得</h3>
+	<p>
+		テーブルのデータをデリミタデータ(TSVやCSVなど)として出力するコマンドがあります。
+	</p>
+<pre><span class="codetitle">e.g. キャラセットを "UTF-8" に設定 @SQL</span><code>
+<span class="keyword">select</span> * <span class="keyword">from</span> MEMBER
+<span class="keyword">into outfile</span> <span class="literal">"/tmp/MEMBER.tsv"</span>
+<span class="keyword">fields terminated by</span> <span class="literal">'\t'</span>
+<span class="keyword">enclosed by</span> <span class="literal">'"'</span>;
+</code></pre>
+	<p>
+		データの中のダブルクォーテーションは、バックスラッシュ "\" でエスケープされ、改行の前にも "\"
+		が付与されます。よって、DBFlute の ReplaceSchema のデータ登録のための TSV
+		を作成する場合は、convertValueMap.dataprop でこれらをうまく置換して仕様を合わせる必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/loadtsv.html#convertvaluemap">データ登録(TSV) - 値のコンバート設定(dataprop)</a></div>
+<pre><span class="codetitle">e.g. 実際に試してデータ登録したときの設定 (足りない可能性もある) @convertValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$LINE$$</span> = <span class="keyword">map:</span>{
+        ; \\\\ = \\
+        ; \\" = ""
+    }
+    ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{
+        ; \N = 
+        ; <span class="attribute">$$empty$$</span> = <span class="attribute">$$empty$$</span>
+        ; <span class="attribute">contain:</span>\\\n = \n
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

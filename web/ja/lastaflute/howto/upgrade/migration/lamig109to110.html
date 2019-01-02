@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,Tutorial,Deveploer,Architect" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/lasub.css";</style>
+	<title>LastaFlute移行 1.0.9 to 1.1.0 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute移行 1.0.9 to 1.1.0</h1>
+	${indexlist}
+
+	<h2 id="swaggeraction">SwaggerAction で独立オプション</h2>
+	<p>
+		(swaggerを使っていない方には無関係です。app.SwaggerAction.java はありますか？)
+	</p>
+	<p>
+		SwaggerAction の json() にて、switchMappingOption() を呼ぶようにしてください。
+	</p>
+<pre><span class="codetitle">e.g. SwaggerAction@json(), use switchMappingOption() @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;Map&lt;String, Object&gt;&gt; json() {
+    verifySwaggerAllowed();
+    Map&lt;String, Object&gt; <span class="localvar">swaggerMap</span> = <span class="keyword">new</span> SwaggerGenerator().generateSwaggerMap(<span class="localvar">op</span> -&gt; {});
+    <span class="keyword">return</span> asJson(<span class="localvar">swaggerMap</span>).switchMappingOption(<span class="localvar">op</span> -&gt; {}); <span class="comment">// not to depend on application settings</span>
+}
+</code></pre>
+	<p>
+		アプリケーションで独自に設定したJSONのマッピングオプションに依存しないようにします。
+		特に独自に設定しているオプションがなければほとんど問題は発生しないものですが、安全のためにしっかり読んでおきましょう。
+	</p>
+
+	<h2 id="swaggerui3">swagger-ui を 2.x から 3.x にアップ</h2>
+	<p>
+		(swaggerを使っていない方には無関係です。依存関係に swagger-ui はありますか？)
+	</p>
+	<p>
+		Lasta Doc.jar-0.3.4 より、swagger-ui の 3.x を推奨しています。2.x
+		でもある程度は動くかもしれませんが、動かない点があっても対応はしていきません。
+		ぜひ 3.x にアップグレードしましょう。
+	</p>
+<pre><span class="codetitle">e.g. swagger-ui version in Maven settings @pom.xml</span><code>
+<span class="comment">// 最新版をインターネットで探して設定しましょう</span>
+&lt;swagger.ui.version&gt;<span class="point">3.19.0</span>&lt;/swagger.ui.version&gt;
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

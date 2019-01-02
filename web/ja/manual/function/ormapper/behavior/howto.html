@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,使い方,HowTo,実装方法,利用方法,実装手順" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Behaviorについて | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Behaviorの使い方</h1>
+	${indexlist}
+
+	<h2 id="instance">Behaviorインスタンスの取得</h2>
+	<p>
+		Behaviorは、DIコンテナ上の(シングルトン)コンポーネントとして管理されていますので、Behaviorインスタンスは
+		<em class="keyword">DIコンテナから取得</em> します。
+		アプリで明示的にインスタンスを生成することは、(テストでモックを作るとか以外には)基本的にありません。
+	</p>
+	<p>
+		DIの仕方は、DIコンテナに依存しますので、利用されているDIコンテナのページをご覧下さい。
+	</p>
+	<div class="detailpage"><a href="../../../reference/diway/index.html#bhvdi">DIコンテナごとの取扱い - DIの方法 (Behavior)</a></div>
+	<h3 id="behaviorselector">BehaviorSelectorの利用</h3>
+	<p>
+		もう一つ、Behaviorインスタンスを取得する方法として BehaviorSelector
+		があります。同じくDIコンテナで管理されているコンポーネントで、Behaviorインスタンスを型で取得するメソッドや、テーブル名から取得するメソッドが利用できます。
+	</p>
+	<p>
+		通常は、あまり利用する必要はありませんが、BehaviorSelectorインスタンス一つで、全ての Behavior
+		のインスタンスを取得できるため、一つのクラスであまりにも多くのBehaviorを必要とするような場合や(プロパティ定義だらけ)、
+		DI管理でないクラスに渡してBehaviorを利用してもらう場合などに利用できます。また、BehaviorSelectorはインターフェースなので、
+		型による自動インジェクションが効かないDIコンテナにおいて、プロパティ名(の間違いなど)を意識せずにBehaviorインスタンスを取得する方法としても利用できます。
+	</p>
+	<div class="detailpage"><a href="../runtime/behaviorselector.html">DBFluteランタイム - BehaviorSelector</a></div>
+
+	<h2 id="procedure">実装手順</h2>
+	<p>
+		インスタンスを取得したら、後はそれぞれのメソッドを呼び出して使うのみです。
+		ConditionBeanによる検索や、登録・更新・削除、外だしSQLの実行など、全てのDBアクセスはBehaviorを経由します。
+		それぞれのメソッド仕様を確認して利用するようにして下さい。
+	</p>
+	<div class="detailpage"><a href="./index.html#function">Behaviorの機能</a></div>	
+
+	<h2 id="basicspec">基本仕様</h2>
+	<dl class="textlist">
+		<dt>マルチスレッド対応</dt>
+		<dd>
+			(DIコンテナ上のコンポーネントとして扱っている限り)スレッドセーフです。
+		</dd>
+		<dt>ライフサイクル</dt>
+		<dd>
+			DIコンテナ上のシングルトンコンポーネントなので、DIコンテナのライフサイクルと同じです。
+		</dd>
+	</dl>
+
+	<h2 id="completion">コード補完を駆使して実装</h2>
+	<p>
+		Behaviorのメソッドをコード補完を使って呼び出しましょう。
+		メソッド名を一字一句丁寧に打ち込むというようなことはやらずに、<em class="keyword">メソッドの先頭の文字を打ち込んでメソッド候補を補完</em>
+		して、利用したいメソッドを選んで実装していくようにします。ここでは Eclipse を基本として説明します。
+	</p>
+	<h3 id="firstchar">先頭文字を覚えておくのが大事</h3>
+	<p>
+		Behaviorには多くの内部メソッドも存在しますが、publicメソッドの先頭文字に関しては、コード補完の検索ノイズにならないように注意して設定されています。
+		先頭文字さえ覚えておけば、あとはディベロッパーに必要なBehaviorのメソッドだけでの補完になるため、とても探しやすくなります。
+	</p>
+	<dl class="keymainlist">
+		<dt>検索</dt><dd><em class="keyword">s</em> (S) <span class="frm">(selectEntity(), selectList(), ...)</span></dd>
+		<dt>LoadReferrer</dt><dd><em class="keyword">l</em> (L) <span class="frm">(load...())</span></dd>
+		<dt>一件登録</dt><dd><em class="keyword">i</em> (I) <span class="frm">(insert(), insertOrUpdate(), ...)</span></dd>
+		<dt>一件更新</dt><dd><em class="keyword">u</em> (U) <span class="frm">(update(), updateNonstrict())</span></dd>
+		<dt>一件削除</dt><dd><em class="keyword">d</em> (D) <span class="frm">(delete(), deleteNonstrict(), ...)</span></dd>
+		<dt>バッチ更新(系)</dt><dd><em class="keyword">b</em> (B) <span class="frm">(batchInsert(), batchUpdate(), ...)</span></dd>
+		<dt>クエリ更新(系)</dt><dd><em class="keyword">q</em> (Q) <span class="frm">(queryUpdate(), queryDelete())</span></dd>
+	</dl>
+	<h3 id="camelcase">キャメルケースコード補完</h3>
+	<p>
+		ConditionBeanのページで紹介しているキャメルケースコード補完がこちらでも応用できます。
+	</p>
+	<div class="relatedpage"><a href="../conditionbean/howto.html#camelcase">ConditionBean - キャメルケースコード補完</a></div>
+	<div class="relatedpage"><a href="../../../topic/programming/completion/camelcase.html">Topic - キャメルケースコード補完</a></div>
+	<p>
+		例えば、selectList() であれば、<em class="keyword">.sL</em> とだけ打って enter
+		すれば、補完できます。(左手で s を打った後にShiftを押すのをリズムが悪く感じるのであれば、<em class="keyword">selL</em>
+		でも良いでしょう。)
+	</p>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (キャメルケースコード補完) @Java</span><code>
+memberBhv.<span class="point">sL</span> <span class="comment">// ".sL" とだけ打って enter</span>
+ <span class="attribute">to</span>
+memberBhv.<span class="point">selectList(cb)</span>; <span class="comment">// 変数(名)の選択状態になる (最後にセミコロン)</span>
+</code></pre>
+	<h3 id="autoresult">戻り値の抽出</h3>
+	<p>
+		特に Behavior では戻り値を意識するメソッドが多いですが、その戻り値の型をいちいち覚えて律儀に書くのではなく、
+		先に処理を呼び出してから、戻り値を魔法のように呼び出しましょう。戻り値の型を覚えてなくても実装ができるようになります。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (戻り値の抽出) @Java</span><code>
+memberBhv.selectList(cb); <span class="comment">// セミコロンの右側にカーソル置いて(ctrl(or command) + 2 and L)</span>
+ <span class="attribute">to</span>
+<span class="point">ListResultBean&lt;Member&gt; memberList</span> = memberBhv.selectList(cb); <span class="comment">// 変数(名)の選択状態になる</span>
+</code></pre>
+	<h3 id="tonextline">次の行へ行く</h3>
+	<p>
+		変数名も調整して、さあ次の行に行って続きの処理を実装したいと思ったときに、そのまま enter
+		すると、今度は戻り値の型の調整のためにカーソルが別のところへ行って、何度 enter を押せば良いのかわからなくなったり(連打して改行し過ぎてしまったり)、
+		調整モードから抜けた状態でつい enter すると、カーソルのある場所から改行されてしまい、モチベーションが下がってしまいます。
+	</p>
+	<p>
+		そこで、<em class="keyword">shift + enter</em>。(前の行での)カーソルの場所に関わらず、次の行に改行してくれます。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (次の行へ行く) @Java</span><code>
+List&lt;Member&gt; memberList = member<span class="abbreviation">...</span>; <span class="comment">// この行のどこにいても shift + enter</span>
+ <span class="attribute">to</span>
+List&lt;Member&gt; memberList = member<span class="abbreviation">...</span>;
+    <span class="comment">// もう、あなたはこの行に (かつ、新たな行が作成される)</span>
+</code></pre>
+	<h3 id="foreach">一気にfor文を</h3>
+	<p>
+		リスト系の戻り値を扱う場合において、for文はこのままの勢いで補完してしまいましょう。
+	</p>
+	<p>
+		<em class="keyword">fore</em> とまで打って、ctrl + space、そして、その瞬間 enter。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (一気にfor文を) @Java</span><code>
+List&lt;Member&gt; memberList = member<span class="abbreviation">...</span>;
+<span class="point">fore</span> <span class="comment">// この行にいる状態で、"fore" と打って、ctrl + space、そして、その瞬間 enter！</span>
+ <span class="attribute">to</span>
+List&lt;Member&gt; memberList = member<span class="abbreviation">...</span>;
+<span class="keyword">for</span> (Member member : memberList) { <span class="comment">// 変数名もOKなら、すぐに shift + enter！</span>
+            
+}
+</code></pre>
+	<p>
+		実装中のクラスで、"fore" で始まるクラスやメソッドが補完対象になっていると、それだけではユニークになりません(知らずに enter
+		すると、補完候補の一番上のクラスが補完されるだけで一瞬頭が真っ白になります)。その時は、驚かずに "forea"
+		くらいまで書くと良いでしょう。(DBFlute内部のプログラミングでは、ForeignInfo
+		というクラスを利用していると危険な目に合うことがあります)
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

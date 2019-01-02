@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,概念,Behaviorとは" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Behaviorについて Top | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Behaviorについて</h1>
+	${indexlist}
+
+	<h2 id="about">Behaviorとは？</h2>
+	<p>
+		<em class="keyword">全てのDBアクセスの処理を司るクラス</em>
+		です。ConditionBean、外だしSQL、プロシージャ問わず、検索・更新などの処理は必ず Behavior
+		から実行します。一つのテーブルに付き、一つのBehaviorクラスが存在し、DIコンポーネントとして利用します。
+	</p>
+	<p>
+		名前の由来は、"データの振舞いを表現するクラス"
+		ということから来ていますが、実装上はそういったことはあまり気にせず、単に
+		<em class="keyword">DBアクセスの実行クラス</em> という認識で問題ありません。
+	</p>
+	<h3 id="abbreviation">省略表記</h3>
+	<p>
+		<em class="keyword">Bhv</em> (びへぶ)と略して表現されることがあります。主にクラス名などで利用されます。
+	</p>
+	<h3 id="autogenerate">自動生成される</h3>
+	<p>
+		Behaviorのクラスは、全てGenerateタスクにて自動生成されます。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/generate/index.html">Generateタスク</a></div>
+	<h3 id="classname">Behaviorのクラス名</h3>
+	<p>
+		<em class="keyword">[Entityの名前] + Bhv</em> という形式です。例えば、MEMBER なら MemberBhv。
+	</p>
+	<div class="relatedpage"><a href="../entity/index.html">Entity</a></div>
+
+	<h2 id="structure">Behaviorの構造</h2>
+	<p>
+		全ての(自動生成される)Behaviorは、AbstractBehaviorWritable もしくは、AbstractBehaviorReadable
+		クラスを継承していて、それら経由で、BehaviorWritable および、BehaviorReadable インターフェースを実装しています。
+	</p>
+	<p>
+		読み取り専用のテーブル(PKの存在しないテーブル)は、XxxWritable を実装しません。
+	</p>
+<pre><span class="codetitle">e.g. BehaviorのBsクラスの宣言(PKあり) {BeMemberBhv} @Java</span><code>
+<span class="keyword">public class</span> BsMemberBhv <span class="keyword">extends</span> AbstractBehaviorWritable {
+</code></pre>
+<pre><span class="codetitle">e.g. AbstractBehaviorWritableの宣言 @Java</span><code>
+<span class="keyword">public abstract class</span> AbstractBehaviorWritable
+    <span class="keyword">extends</span> AbstractBehaviorReadable <span class="keyword">implements</span> BehaviorWritable {
+</code></pre>
+<pre><span class="codetitle">e.g. AbstractBehaviorReadableの宣言 @Java</span><code>
+<span class="keyword">public abstract class</span> AbstractBehaviorReadable <span class="keyword">implements</span> BehaviorReadable {
+</code></pre>
+	<h3 id="elementlist">Behavior要素の一覧</h3>
+	<p>
+		TODO jflute now writing
+	</p>
+	<dl class="keymainlist">
+		<!-- <dt>関連テーブルの取得</dt><dd>setupSelect...: この後(必要であれば)、with...<span class="frm">(唯一の se 始まり)</span></dd> -->
+	</dl>
+	<p>
+		※具体的な使い方や機能の一覧に関しては、<em class="keyword">Behaviorの使い方</em>
+		および <em class="keyword">Behaviorの機能</em> を参考に。
+	</p>
+	<div class="relatedpage"><a href="./howto.html">Behaviorの使い方</a></div>
+	<div class="relatedpage"><a href="./index.html#function">Behaviorの機能</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

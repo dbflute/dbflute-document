@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,selectEntity,一件検索,nullあり,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectEntity(cb) (一件検索) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectEntity(cb)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">ConditionBean で一件検索</em>
+		をします。検索結果が存在する場合としない場合で業務的な処理を分岐させる必要があるような場合に利用します。
+	</p>
+	<div class="detailpage"><a href="./selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck()</a></div>
+	<p>
+		会話上では、<em class="keyword">せれくとえんてぃてぃ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		Behaviorの <em class="keyword">selectEntity()</em>
+		を呼び出し、ConditionBeanを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. selectEntity()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selEn <span class="comment">// .selEn と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "cbLambda" が選択状態に</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectEntity</span>(cbLambda);
+--
+
+<span class="comment">// cbLambdaの部分で、_ll (補完テンプレートが有効なら)</span>
+<span class="attribute">memberBhv</span>.selectEntity(<span class="subpoint">_ll</span>);
+--
+
+<span class="comment">// Lambda引数名はcbにして...</span>
+<span class="attribute">memberBhv</span>..selectEntity((<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+})
+--
+
+<span class="comment">// セミコロン ';' を打って ctrl+2, L で戻り値補完</span>
+OptionalEntity&lt;Member&gt; <span class="localvar">optEntity</span> = <span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+});
+
+ <span class="keyword">or</span>
+
+<span class="comment">// もしくは、"一発処理でOKスタイル" で</span>
+<span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+}).<span class="subpoint">ifPresent</span>(<span class="localvar">member</span> -&gt; { <span class="comment">// 業務上必ず存在するなら alwaysPresent() でもOK</span>
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.get<span class="abbreviation">...</span>
+}).orElse(() -&gt; { <span class="comment">// なかったときの処理、必要であれば</span>
+    <span class="abbreviation">...</span>
+});;
+
+ <span class="keyword">or</span>
+
+<span class="comment">// もしくは、例外翻訳して取り出し</span>
+Member <span class="localvar">member</span> = <span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+}).<span class="subpoint">orElseTranslatingThrow</span>(<span class="localvar">cause</span> -&gt; { <span class="comment">// CBの例外(SQL入り)</span>
+    <span class="keyword">return new</span> MyOriginalException(<span class="literal">"my message"</span>, <span class="localvar">cause</span>); <span class="comment">// 例外の翻訳</span>
+});
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+<pre><span class="codetitle">e.g. selectEntity()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selE <span class="comment">// .selE と打って enter</span>
+--
+<span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectEntity(cb)</span>;
+--
+Member member = <span class="attribute">memberBhv</span>.selectEntity(cb);
+<span class="keyword">if</span> (member != null) { 
+    <span class="abbreviation">...</span> <span class="comment">// 存在した場合の処理</span>
+} <span class="keyword">else</span> {
+    <span class="abbreviation">...</span> <span class="comment">// 存在しなかった場合の処理</span>
+}
+</code></pre>
+
+	<div class="inucolumn">
+		<h2 id="java8">Java8 なら OptionalEntity</h2>
+		<h3 id="optionalhandling">OptionalEntityの使い方</h3>
+		<p>
+			Java8であれば<span class="frm">(1.0.xでもisCompatibleBeforeJava8をfalseにしていれば)</span>、
+			selectEntity()の戻り値は OptionalEntity となります。Java8で導入された Optional を Entity に適用したものです。
+		</p>
+		<p>
+			DBFlute独自のクラスではありますが、Optionalと同じメソッド持ち、Entityならではの便利なメソッドが追加されています。
+			また、わかりやすい例外ハンドリングのために、NoSuchElementException の代わりに EntityAlreadyDeletedException が発生します。
+		</p>
+		<p>
+			スタイルごとにうまく使い分けるとよいでしょう。
+		</p>
+		<dl class="keymainlist">
+			<dt>一発処理でOKスタイル</dt><dd>その場で利用しておしまいなケース</dd>
+			<dt>なんども登場スタイル</dt><dd>そのあと何度も利用するようなケース</dd>
+			<dt>みんなで勢ぞろいスタイル</dt><dd>入り乱れて利用するようなケース</dd>
+			<dt>トラディショナルスタイル</dt><dd>いざとなったら or 迷って手が止まるくらいだったら</dd>
+			<dt>スタイル入りみだれスタイル</dt><dd>その名の通り <span class="frm">(selectEntity()だとあまりないかも...主に関連テーブルにて)</span></dd>
+		</dl>
+<pre><span class="codetitle">e.g. OptionalEntityの使い方 @Java</span><code>
+<span class="comment">// 戻り値は OptionalEntity だが、単純に受け取るのではなく...</span>
+<span class="comment">OptionalEntity&lt;Member&gt; entity = memberBhv.selectEntity(cb); // 一件検索</span>
+<span class="abbreviation">...</span>
+
+<span class="comment">// - - - - - - - - - - - - - - - - - - 一発処理でOKスタイル！</span>
+<span class="comment">// (その場で利用しておしまいなケース)</span>
+<span class="comment">//</span>
+
+<span class="comment">// 業務的に必ず存在するなら (なければ例外)</span>
+<span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">alwaysPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId();
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+});
+
+<span class="comment">// 存在しないこともあるなら (なければ素通り)</span>
+<span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">ifPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId();
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+});
+
+<span class="comment">// 存在しないこともあって、"あり、なし" で分岐したいなら</span>
+<span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">ifPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId();
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+}).<span class="point">orElse</span>(() <span class="keyword">-&gt;</span> {
+    <span class="comment">// 存在しないときの処理をする</span>
+});
+
+<span class="comment">// ちなみに、複数条件のConditionBeanと合わせるとこんなイメージ</span>
+<span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> { <span class="comment">// 名前が 'S' で始める一番若い会員</span>
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, op <span class="keyword">-&gt;</span> op.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc().withNullsLast();
+    <span class="localvar">cb</span>.fetchFirst(<span class="literal">1</span>);
+}).<span class="point">alwaysPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> { <span class="comment">// 最後の括弧の後からドット(.)と打って続ける</span>
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId();
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+});
+
+<span class="comment">// そのまま他のBeanに詰め替えて戻すなら</span>
+<span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">map</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="keyword">return new</span> MemberWebBean(<span class="localvar">member</span>);
+}); <span class="comment">// map()の戻り値は、OptionalThing&lt;MemberWebBean&gt;</span>
+<span class="abbreviation">...</span>
+
+<span class="comment">// - - - - - - - - - - - - - - - - - - なんども登場スタイル！</span>
+<span class="comment">// (そのあと何度も利用するようなケース)</span>
+<span class="comment">//</span>
+
+<span class="comment">// 業務的に必ず存在して、そのあと何度も登場するなら (なければ例外)</span>
+Member <span class="localvar">member</span> = <span class="attribute">memberBhv</span>.selectEntity(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="abbreviation">...</span>).<span class="point">get()</span>;
+<span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId();
+<span class="abbreviation">...</span>
+<span class="keyword">if</span> (<span class="abbreviation">...</span>) {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+}
+<span class="abbreviation">...</span>
+<span class="attribute">seaLogic</span>.land(<span class="localvar">member</span>.getBirthdate());
+<span class="keyword">if</span> (<span class="localvar">member</span>.isMemberStatusCodeFormalized()) {
+    <span class="abbreviation">...</span>
+} <span class="keyword">else</span> {
+    <span class="keyword">for</span> (<span class="abbreviation">...</span>) {
+        <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberAccount();
+    }
+}
+<span class="abbreviation">...</span>
+
+<span class="comment">// 存在しないこともあって、そのあと何度も登場するなら</span>
+<span class="comment">// (Optionalのメソッドを二回以上呼ぶなら、Optionalのまま変数で受けとる)</span>
+OptionalEntity&lt;Member&gt; <span class="localvar">entity</span> = <span class="attribute">memberBhv</span>.selectEntity(cb <span class="keyword">-&gt;</span> <span class="abbreviation">...</span>);
+<span class="localvar">entity</span>.<span class="point">ifPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId()
+});
+<span class="abbreviation">...</span>
+<span class="attribute">seaLogic</span>.land(<span class="abbreviation">...</span>);
+<span class="localvar">entity</span>.<span class="point">ifPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getBirthdate();
+}).<span class="point">orElse</span>(() <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span>
+});
+<span class="abbreviation">...</span>
+
+<span class="comment">// - - - - - - - - - - - - - - - - - - みんなで勢ぞろいスタイル！</span>
+<span class="comment">// (入り乱れて利用するようなケース)</span>
+<span class="comment">//</span>
+
+<span class="comment">// 業務的に必ず存在するものは、get()で取っちゃって</span>
+<span class="comment">// 存在しないこともあるものは、Optionalのまま取っちゃって</span>
+Member <span class="localvar">member</span> = <span class="attribute">memberBhv</span>.selectEntity(cb <span class="keyword">-&gt;</span> <span class="abbreviation">...</span>).<span class="point">get()</span>;
+Product <span class="localvar">product</span> = <span class="attribute">productBhv</span>.selectEntity(cb <span class="keyword">-&gt;</span> <span class="abbreviation">...</span>).<span class="point">get()</span>;
+OptionalEntity&lt;MemberAddress&gt; <span class="localvar">optAddress</span> = <span class="attribute">memberAddressBhv</span>.sel<span class="abbreviation">...</span>;
+
+<span class="comment">// いりみだれー</span>
+LocalDate <span class="localvar">birthdate</span> = <span class="localvar">member</span>.getBirthdate();
+String <span class="localvar">productName</span> = product.getProductName();
+<span class="keyword">if</span> (<span class="localvar">birthdate</span> != null && <span class="localvar">product</span>.isProductStatusCodeOnSale()) {
+    <span class="localvar">optAddress</span>.<span class="point">ifPresent</span>(<span class="localvar">address</span> <span class="keyword">-&gt;</span> {
+        <span class="attribute">seaLogic</span>.land(<span class="localvar">productName</span>, <span class="localvar">address</span>);
+    }).<span class="point">orElse</span>(() <span class="keyword">-&gt;</span> {
+        <span class="attribute">seaLogic</span>.iks(<span class="localvar">birthdate</span>, <span class="localvar">productName</span>);
+    });
+} <span class="keyword">else</span> {
+    <span class="localvar">optAddress</span>.<span class="point">ifPresent</span>(<span class="localvar">address</span> <span class="keyword">-&gt;</span> {
+        <span class="attribute">seaLogic</span>.amphi(<span class="localvar">productName</span>, <span class="localvar">address</span>);
+    });
+    <span class="attribute">seaLogic</span>.miraco(<span class="localvar">member</span>.getFormalizedDatetime());
+}
+<span class="abbreviation">...</span>
+
+<span class="comment">// - - - - - - - - - - - - - - - - - - トラディショナルスタイル！</span>
+<span class="comment">// (いざとなったら or 迷って手が止まるくらいだったら)</span>
+<span class="comment">//</span>
+
+<span class="comment">// 存在しないこともあって、"あり、なし" で分岐したり</span>
+<span class="comment">// (Optionalのメソッドを二回以上呼ぶならやっぱり変数で受け取る)</span>
+OptionalEntity&lt;Member&gt; <span class="localvar">entity</span> = <span class="attribute">memberBhv</span>.selectEntity(cb <span class="keyword">-&gt;</span> <span class="abbreviation">...</span>);
+<span class="keyword">if</span> (<span class="localvar">entity</span>.<span class="point">isPresent()</span>) {
+    Member <span class="localvar">member</span> = <span class="localvar">entity</span>.<span class="point">get</span>();
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberId();
+    <span class="abbreviation">...</span> = <span class="localvar">member</span>.getMemberName();
+} <span class="keyword">else</span> {
+    <span class="comment">// 存在しないときの処理をここで</span>
+}
+
+<span class="comment">// 業務的に必ず存在して、単に中のEntityを取り出すなら (なければ例外)</span>
+<span class="comment">// (他のメソッドにがそのままEntity渡す必要があるときなど)</span>
+Member <span class="localvar">member</span> = <span class="localvar">entity</span>.<span class="point">get()</span>;
+<span class="attribute">seaLogic</span>.land(<span class="localvar">member</span>); <span class="comment">// Entityで受け取って、nullを受け付けないなら</span>
+
+<span class="comment">// 存在しないかもしれなくって、単に中のEntityを取り出すなら (なければnull)</span>
+<span class="comment">// (他のメソッドにnullありのEntity渡す必要があるとき)</span>
+Member <span class="localvar">member</span> = <span class="localvar">entity</span>.<span class="point">orElse(null)</span>;
+<span class="attribute">seaLogic</span>.land(<span class="localvar">member</span>); <span class="comment">// Entityで受け取って、null分岐を中でやっているなら</span>
+</code></pre>
+		<h3 id="optionalname">OptionalEntityの変数名は？</h3>
+		<p>
+			OptionalEntityの変数名に迷います。
+		</p>
+		<p>
+			ctrl+2->Lで補完すると、そのまま entity となります。
+			さすがにアバウト過ぎるということで optMember
+			とかにするかもしれません。optMember の方がユニーク性が高くなり、関連テーブルの OptionalEntity
+			が出てきたときに区別がしやすくなりますが、補完では全く支援されないのでわりと面倒かもしれません。
+			毎度毎度、区別の必要になるわけでもないのでなおさらなので、とりあえずは entity
+			でいいのかもしれません。必要になったら、変数名を選択して ctrl+1->Enter で Rename すればいいかと。
+		</p>
+		<p>
+			ちなみに、これは基点テーブルでの話です。関連テーブルでは少しニュアンスが違うでしょう。
+		</p>
+		<div class="relatedpage"><a href="../../conditionbean/setupselect/index.html#relationoptname">さすがに関連テーブルのOptionalの変数名は...</a></div>
+		<h3 id="onetimeokstyle">すぐに使って終わりなら一発処理でOKスタイル</h3>
+		<p>
+			そもそも Optional を使うときは、あまり変数に受け取られなくてもいいように実装する方がよいでしょう。
+			一発処理でおしまいなら、selectEntity()の戻り値でそのままコールバックスタイルに実装した方が世話ないです。
+			これを <em class="keyword">一発処理でOKスタイル</em> と呼びます。
+		</p>
+<pre><span class="codetitle">e.g. 一発処理でOKスタイルなら @Java</span><code>
+<span class="comment">// 業務的に必ず存在することが前提で、一発処理でOKスタイル (なければ例外)</span>
+memberBhv.selectEntity(cb).<span class="point">alwaysPresent</span>(member <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = member.getMemberId();
+    <span class="abbreviation">...</span> = member.getMemberName();
+});
+
+<span class="comment">// 存在しないこともあって、一発処理でOKスタイル (なければ素通り)</span>
+memberBhv.selectEntity(cb).<span class="point">ifPresent</span>(member <span class="keyword">-&gt;</span> {
+    <span class="abbreviation">...</span> = member.getMemberId();
+    <span class="abbreviation">...</span> = member.getMemberName();
+});
+</code></pre>
+		<p>
+			ただ、<em class="keyword">なんども登場スタイル</em> や <em class="keyword">みんなで勢ぞろいスタイル</em>
+			においては、業務的に存在するものは普通に get()
+			してしまえばいいですが、存在しないこともあるものは Optional
+			のまま受け取る必要がありそうです。みんなで勢ぞろいするときは optMember など区別できる名前にしないとですね。
+		</p>
+		<p>
+			これは関連テーブルでも同じようなことが言えます。
+		</p>
+		<div class="relatedpage"><a href="../../conditionbean/setupselect/index.html#onetimeokstyle">すぐに詰め替えるなら一発処理でOKスタイル</a></div>
+		<h3 id="withdeletedcheck">selectEntityWithDeletedCheck()もあるよ</h3>
+		<p>
+			ただ、絶対に存在することが前提の検索であれば、今まで通り selectEntityWithDeletedCheck(cb)
+			を使うこともできます。その方が Optional
+			のことは考えずに済みますし、可読性としても絶対に存在することが前提であることが一目瞭然で読み手にすぐに伝わります。
+		</p>
+		<p>
+			selectEntityWithDeletedCheck() をうまく活用していきましょう。
+		</p>
+		<div class="relatedpage"><a href="./selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck()</a></div>
+<pre><span class="codetitle">e.g. selectEntityWithDeletedCheck()を使ったら @Java</span><code>
+<span class="comment">// 業務的に必ず存在するなら (なければ例外)</span>
+Member member = memberBhv.<span class="point">selectEntityWithDeletedCheck</span>(cb); <span class="comment">// 一件検索</span>
+
+<span class="comment">// ここに来たときは絶対に存在している</span>
+<span class="abbreviation">...</span> = member.getMemberId();
+<span class="abbreviation">...</span> = member.getMemberName();
+</code></pre>
+	</div>
+	<h3 id="relationoptional">リレーションもOptional</h3>
+	<p>
+		基点テーブルだけでなく、関連テーブルもOptionalとなります。
+	</p>
+	<div class="detailpage"><a href="../../conditionbean/setupselect/index.html#java8">Java8 ならリレーションも Optional</a></div>
+	<h3 id="onjava8">DBFlute on Java8</h3>
+	<p>
+		"DBFlute on Java8" ページ作りました。
+	</p>
+	<div class="detailpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルの ConditionBean となります。<span class="frm">(1.1.xよりコールバック)</span>
+	</p>
+	<p>
+		ConditionBeanが必ず存在することが前提であるため、nullを指定した場合は例外発生します。
+		検索条件がない検索をする場合でも、必ずConditionBeanのインスタンスが必要です。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		該当のBehaviorに対応するテーブルの Entity となります。
+	</p>
+	<p>
+		検索結果が一件もない場合は、null となります。
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>絞り込み条件が存在しなかった場合</dt>
+		<dd>org.seasar.dbflute.exception.SelectEntityConditionNotFoundException</dd>
+		<dd>
+			この例外は、指定された ConditionBean に絞り込み条件が存在しない場合に例外となります。Query
+			で絞り込み条件が設定されている、もしくは FetchFirst
+			で 1 が設定されている必要があります。
+			<div class="relatedpage"><a href="../../conditionbean/sidebar/fetchfirst.html">ConditionBean - FirstFirst</a></div>
+		</dd>
+		<dd>
+			"条件忘れ" や "外部から渡されたデータが予期せぬ null" の場合に、全件検索を未然に防ぎます。
+			たとえテスト環境だとしても、例えば100万件以上のテーブルに全件検索してしまうと処理がなかなか戻ってきませんので、
+			事前のチェックで比較的早い段階で例外になり検知することができます。
+		</dd>
+		<dt>検索結果が複数件の場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityDuplicatedException</dd>
+		<dd>
+			この例外は、複数件(二件以上)の場合に発生します。一件検索は、必ず結果が一件になる絞り込み条件を前提としています。
+			その際、全てのデータを取得はせず、二件目がフェッチされた瞬間に例外になるため、比較的早い段階で例外になり検知することができます。
+		</dd>
+	</dl>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		selectList() と同じような要領となります。
+	</p>
+	<div class="detailpage"><a href="./selectlist.html#override">selectList(cb) - オーバーライド</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

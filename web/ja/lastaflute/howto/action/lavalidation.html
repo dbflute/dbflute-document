@@ -1,0 +1,632 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>見通しのValidation | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>見通しのValidation</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="howto">Validationの実装方法</h2>
+	<p>
+		<em class="keyword">アノテーションを付けて、validate() を呼びます。</em>
+	</p>
+
+	<h2 id="formannotation">1. Form,Bodyにアノテーション</h2>
+	<h3 id="hibernate">Hibernate Validator</h3>
+	<p>
+		Form, Body クラスに、Hibernate Validator のアノテーションを付けます。
+	</p>
+	<div class="detailpage"><a href="http://hibernate.org/validator/">Hibernate Validator | Hibernate</a></div>
+<pre><span class="codetitle">e.g. Hibernate validator annotation in Form class @Java</span><code>
+<span class="keyword">public class</span> SeaLandForm {
+
+    <span class="point">@Length(max = 10)</span>
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+}
+</code></pre>
+	<h3 id="required">必須チェックは @Required</h3>
+	<p>
+		必須チェックに関しては、LastaFlute で Required アノテーションを用意しています。
+		String や Integer など型を意識せずに利用できるアノテーションです。
+		<span class="frm">(StringだからNotEmpty, IntegerだからNotNullなどと型ごとに使い分けなくてもいいように)</span>
+	</p>
+<pre><span class="codetitle">e.g. Required annotation in Form class @Java</span><code>
+<span class="keyword">public class</span> SeaLandForm {
+
+    <span class="point">@Required</span>
+    @Length(max = 10)
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+}
+</code></pre>
+	<p>
+		ルールは以下の通り。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>String</dt><dd>NotBlank と同じ、nullと空文字と空白はダメ</dd>
+		<dt>Integer など</dt><dd>NotNull と同じ <span class="frm">(必ず Wrapper 型 である Integer や Long を使いましょう)</span></dd>
+		<dt>LocalDate など</dt><dd>NotNull と同じ <span class="frm">(必ず Java8 から導入された LocalDate などを使いましょう)</span></dd>
+		<dt>Boolean</dt><dd>NotNull と同じ <span class="frm">(必ず Wrapper 型である Boolean を使いましょう)</span></dd>
+		<dt>List や Map など</dt><dd>NotEmpty と同じ、null や空リストはダメ、<em class="keyword">一件以上の要素が必要</em></dd>
+		<dt>Primitive型</dt><dd><em class="bigmark">効かない</em> <span class="frm">(0がsetされたのか、setされなくて0なのか区別が付かない)</span></dd>
+	</dl>
+	<p>
+		全体的に <em class="keyword">プロパティの型にはWrapper型を使う</em> というポリシーでよいでしょう。
+	</p>
+	<div class="relatedpage"><a href="#dontuseprimitive">this - 気をつけて！int や boolean の @Required</a></div>
+	<h3 id="clienterror">システム項目は groups=ClientError.class</h3>
+	<p>
+		例えば、hiddenフィールドに保持しておいたIDやバージョン番号など、ユーザー入力ではないシステム項目は、
+		アノテーションの属性として <em class="mark">groups=ClientError.class</em> を指定するとよいでしょう。
+	</p>
+<pre><span class="codetitle">e.g. Required annotation in Form class @Java</span><code>
+<span class="keyword">public class</span> SeaLandForm {
+
+    @Required(<span class="point">groups=ClientError.class</span>)
+    <span class="keyword">public</span> Integer <span class="attribute">memberId</span>;
+
+    @Required
+    @Length(max = 10)
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+
+    <span class="abbreviation">...</span>
+
+    @Required(<span class="point">groups=ClientError.class</span>)
+    <span class="keyword">public</span> Long <span class="attribute">versionNo</span>;
+}
+</code></pre>
+	<p>
+		これらの値が不正であれば、ユーザーの操作によるものではなくクライアントアプリのバグ <span class="frm">(もしくは、ユーザーのいたずら)</span> と考えられるので、
+		ユーザー向けメッセージではなく、<em class="mark">400 Bad Request</em> が戻ります。サーバー側ではINFOでログに残ります。
+		Assertの代わりのようなものと言えるでしょう
+	</p>
+	<p>
+		Eclipse でDBFlute補完テンプレートを入れていれば、<em class="mark">_lavcli</em> で補完できます。
+	</p>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html#ifeclipse">IDE, もし Eclipse なら...</a></div>
+<pre><span class="codetitle">e.g. completion of ClientError.class annotation @Java</span><code>
+@Required(<span class="point">_lavc...</span>) <span class="comment">// 丸括弧の中にカーソルを合わせて _lavcli で補完すると...</span>
+<span class="keyword">public</span> Integer <span class="attribute">memberId</span>;
+--
+@Required(<span class="point">groups=ClientError.class</span>) <span class="comment">// どん！</span>
+<span class="keyword">public</span> Integer <span class="attribute">memberId</span>;
+</code></pre>
+	<h3 id="validnested">ネストのプロパティは @Valid</h3>
+	<p>
+		<em class="keyword">ネストしているクラスの中のアノテーションも有効にしたいときは、@Valid を付けます</em>
+	</p>
+<pre><span class="codetitle">e.g. how to validate nested class @Java</span><code>
+<span class="keyword">public class</span> SeaLandForm {
+
+    <span class="point">@Valid</span>
+    <span class="keyword">public</span> PiariElement <span class="attribute">piari</span>;
+
+    <span class="point">@Valid</span>
+    <span class="keyword">public</span> List&lt;BonvoElement&gt; <span class="attribute">bonvos</span>;
+
+    <span class="keyword">public static class</span> PiariElement {
+
+        <span class="subpoint">@Required</span>
+        <span class="keyword">public</span> String <span class="attribute">dstore</span>;
+    }
+
+    <span class="keyword">public static class</span> BonvoElement {
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
+		ちなみに、再利用しないネストクラスは、Form や Body のインナークラスでの定義をオススメしています。
+		独立している必要もなく、見通しをよくするためにと。戻りの JsonResult も同じです。
+	</p>
+
+	<h2 id="validatemethod">2. Action で validate() を呼ぶ</h2>
+	<h3 id="methodcall">メソッド呼び出し方式です！</h3>
+	<p>
+		Actionクラスで <em class="mark">validate()</em>
+		メソッドを呼ぶと、アノテーションの通りにバリデーションされます。
+	</p>
+<pre><span class="codetitle">e.g. validate() in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandJsp</span>);
+    });
+    <span class="abbreviation">...</span>
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandJsp</span>); 
+}
+</code></pre>
+	<dl class="shoshortkeymainlist">
+		<dt>第一引数</dt><dd>アノテーションが付与されている Form もしくは Body</dd>
+		<dt>第二引数</dt><dd>アノテーションではできないバリデーションを実装 <span class="frm">(後述)</span></dd>
+		<dt>第三引数</dt><dd>バリデーションエラーになったときのResponse処理 <span class="frm">(いまの画面に戻すことがほとんど)</span></dd>
+	</dl>
+	<h3 id="validateapi">JsonResponse なら validateApi()</h3>
+	<p>
+		JsonResponseの場合は、<em class="mark">validateApi()</em> の方を使います。
+		こちらは第三引数がなく、バリデーションエラーは ApiFailureHook#handleValidationError() で、統一的なResponse処理がされます。
+	</p>
+	<div class="relatedpage"><a href="./lajsonapi.html#apifailurehook">忘れられないApiFailureHook</a></div>
+	<h3 id="switchtoapi">そもそも全部 JsonResponse なら</h3>
+	<p>
+		もし、そのアプリがJSON APIサーバーで全部 JsonResponse というときは、BaseAction が implements しているインターフェースを LaValidatableApi
+		に変更すると、validate() 自体が JsonResponse 用のメソッドになります。<span class="frm">(これは一番最初に決めましょう)</span>
+	</p>
+
+	<h2 id="morevalidation">3. Lambdaで、もっとValidation</h2>
+	<h3 id="correlationdb">相関チェック、DB検索が必要なチェック</h3>
+	<p>
+		アノテーションではできないようなバリデーション <span class="frm">(相関チェック、DB検索が必要なチェック)</span> をする場合は、第二引数の Lambda で実装します。
+		そのとき、メッセージは messages のタイプセーフな add メソッドを使って指定します。
+	</p>
+<pre><span class="codetitle">e.g. more validation in Lambda @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="subpoint">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {
+        <span class="keyword">if</span> (<span class="localvar">form</span>.<span class="attribute">sea</span> != <span class="keyword">null</span> && <span class="localvar">form</span>.<span class="attribute">land</span> != <span class="keyword">null</span>) {
+            <span class="keyword">if</span> (<span class="localvar">form</span>.<span class="attribute">sea</span>.length() &gt; <span class="localvar">form</span>.<span class="attribute">land</span>.length()) {
+                <span class="localvar">messages</span>.<span class="point">addErrorsSeaLand</span>(<span class="literal">"sea"</span>);
+            }
+        }
+    }, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandJsp</span>);
+    });
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		エラーメッセージを追加する場合は、[App]_message.properties に追加して FreeGen を叩きます。
+	</p>
+	<div class="detailpage"><a href="#adjustmessage">エラーメッセージを調整</a></div>
+	<h3 id="morevalidatemethod">moreValidate() のススメ</h3>
+	<p>
+		ちょっとせまっくるしいので、<em class="mark">moreValidate()</em> メソッドに出すとよいでしょう。
+	</p>
+<pre><span class="codetitle">e.g. moreValidate() @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, SeaLandForm <span class="localvar">form</span>) {
+    <span class="subpoint">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; <span class="point">moreValidate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span>), () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Sea_SeaLandHtml</span>);
+    });
+    <span class="abbreviation">...</span>
+}
+
+<span class="keyword">private void</span> <span class="subpoint">moreValidate</span>(SeaLandForm <span class="localvar">form</span>, HarborMessages <span class="localvar">messages</span>) {
+    <span class="keyword">if</span> (<span class="localvar">form</span>.<span class="attribute">sea</span> != <span class="keyword">null</span> && <span class="localvar">form</span>.<span class="attribute">land</span> != <span class="keyword">null</span>) {
+        <span class="keyword">if</span> (<span class="localvar">form</span>.<span class="attribute">sea</span>.length() &gt; <span class="localvar">form</span>.<span class="attribute">land</span>.length()) {
+            <span class="localvar">messages</span>.addErrorsSeaLand(<span class="literal">"sea"</span>);
+        }
+    }
+}
+</code></pre>
+	<h3 id="alwayscalled">アノテーションでエラーがあっても呼ばれる</h3>
+	<p>
+		アノテーションの方でバリデーションエラーが発生しても、第二引数の moreValidation の Lambda は必ず呼び出されます。
+		なので、必須項目でも必須チェックに引っかかって null になっているかもしれないので、<em class="keyword">実際に値が入っていたら</em>、というチェックロジックの前提条件のための分岐を入れましょう。
+	</p>
+<pre><span class="codetitle">e.g. null check for more validation @Java</span><code>
+<span class="keyword">private void</span> moreValidate(SeaLandForm <span class="localvar">form</span>, HarborMessages <span class="localvar">messages</span>) {
+    <span class="keyword">if</span> (<span class="point">form.sea != null && form.land != null</span>) { <span class="comment">// チェックロジックの前提条件</span>
+        <span class="keyword">if</span> (<span class="localvar">form</span>.<span class="attribute">sea</span>.length() &gt; <span class="localvar">form</span>.<span class="attribute">land</span>.length()) { <span class="comment">// チェックロジック本体</span>
+            <span class="localvar">messages</span>.addErrorsSeaLand(<span class="literal">"sea"</span>);
+        }
+    }
+}
+</code></pre>
+	<p>
+		<em class="keyword">なぜ、アノテーションの方でバリデーションエラーがあったときに処理を止めないのか？</em>
+	</p>
+	<p>
+		これにはれっきとして理由があります。
+	</p>
+	<p>
+		ユーザーから見た時に... <em class="keyword">一回ですべてのバリデーションエラーが表示されず、修正したらまた別のエラーが表示される</em>
+		というのを避けたいからです。<em class="mark">二段階バリデーション</em> と呼んでいます。
+	</p>
+	<p>
+		また違うエラーが出てくるのかなぁ？ <span class="frm">(いつになったら終わるんだろう...)</span> という気持ちにさせるため、あまり良いUIとは言えないと考えています。
+		パスワードなど再表示で消える項目があるとなおさらストレス大です。
+		ボタンを押してチェックを掛けたからには、できるだけすべての項目に対するチェックが掛かった方が良いと考え、実装上は少し面倒かもですが、それを踏まえてこのようにしています。
+	</p>
+	<p>
+		また、アノテーションの定義とプログラムによるバリデーションの実装では若干距離があるので<span class="frm">(チェックロジックを別のクラスに切り出すことも十分ありえますし...)</span>、
+		<em class="keyword">アノテーションの有無を意識せず、プログラムによるバリデーションが成り立つように独立性を保った実装</em>
+		をしておいたほうがミスは少ないだろうという考えます。"後から必須項目じゃなくなって @Required 外したら落ちる"
+		というデグレがないように<span class="frm">(開発時のミスよりも変更時のミスのほうが業務インパクトは大きいもの)</span>。
+	</p>
+	<p>
+		そしてまた、他のフレームワークのやり方を見ても、相関チェックをする前に null チェックを入れるのは、わりと当たり前のようにされているので、そこまで抵抗がないだろうという判断もあります。
+		例えば、SpringMVC では、アノテーションのエラーは BindingResult に蓄積されるだけで処理は続行され、プログラムによるバリデーションをするときには同じように存在チェックが必要となります。
+	</p>
+	<p>
+		そもそも、Hibernate Validator がそのような思想で作られているようにも感じます。<span class="frm">(後述する AssertTrue のところでも、この話に関する話題がありますので参考に)</span>
+	</p>
+	<div class="relatedpage"><a href="http://qiita.com/kenhori/items/4534f548bbee5bfb6064">Spring MVCにおけるフォームバリデーションの適用事例【前編】 | Qiita</a></div>
+	<p>
+		<span class="frm">※本来、アノテーションによるバリデーションと、プログラムによるバリデーションで分けて実装するのではなく、
+		項目ごとに両方を一気に実装できる仕組みがある方が良いと思いますが、Java文法上それはできないのが残念です。</span>
+	</p>
+	<h3 id="correlativebyanno">ちなみに、アノテーションで相関チェックもできる!?</h3>
+	<p>
+		Hibernate Validator を使っているので、Hibernate Validator の機能がそのまま使えます。
+		LastaFluteで特に制限もかけていません。
+	</p>
+	<p>
+		DB検索を必要としない相関チェックであれば、Form や Body に AssertTrue
+		アノテーションを付与したチェックするメソッドを定義すれば、Actionの中でやらなくても同じことが実現できます。
+	</p>
+<pre><span class="codetitle">e.g. correlative validator by annotation @Java</span><code>
+<span class="keyword">public class</span> SeaForm {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Length(max = <span class="literal">10</span>)
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+
+    <span class="keyword">public</span> CDef.ProductStatus <span class="attribute">productStatus</span>;
+
+    <span class="abbreviation">...</span>
+
+    <span class="comment">// ===================================================================================
+    //                                                                          Validation
+    //                                                                          ==========</span>
+    <span class="comment">// AssertTrueで、独自のエラーメッセージを設定する。
+    // must be true と表示されても嬉しくないので、メッセージの指定は実質的に必要。
+    // (ただ、クライアントエラーにするときは、メッセージはあまり気にしなくてもいい)
+    // この場合、ユーザーメッセージは、productNameToStatus という名前のプロパティに紐付けられる。</span>
+    <span class="point">@AssertTrue</span>(message = FortressMessages.<span class="attribute">ERRORS_PRODUCT_NAME_THEN_ONSALE</span>)
+    <span class="keyword">public boolean</span> isProductNameToStatus() { <span class="comment">// is 始まりじゃないと呼ばれないよ</span>
+        <span class="keyword">if</span> (<span class="attribute">productName</span> == <span class="keyword">null</span>) {
+            <span class="keyword">return true</span>;
+        }
+        <span class="keyword">if</span> (<span class="attribute">productName</span>.equals(<span class="literal">"sea"</span>)) {
+            <span class="comment">// sea と入力されてたら、販売中ステータスじゃないとダメ</span>
+            <span class="comment">// (通常ありえないけど、Exampleなのででたらめ)</span>
+            <span class="keyword">return</span> CDef.ProductStatus.<span class="attribute">OnSaleProduction</span>.equals(<span class="attribute">productStatus</span>);
+        } <span class="keyword">else</span> {
+            <span class="keyword">return true</span>; <span class="comment">// 他の入力値であれば特に相関関係は無し (という仕様)</span>
+        }
+    }
+
+    <span class="comment">// クライアントエラーのときは、メッセージは指定しなくてもOKなのでこんな感じかな</span>
+    <span class="comment">//@AssertTrue(groups = ClientError.class)</span>
+    <span class="comment">//public boolean ...</span>
+}
+</code></pre>
+	<p>
+		とはいえ、これを推奨しているかというと、別にそうではありません。それはズバリ...
+	</p>
+	<h4>覚えるコストとバラバラを避けたい</h4>
+	<p>
+		<em class="keyword">何種類も手段を覚えないといけないのを避けたい</em>
+	</p>
+	<p>
+		というところです。DB検索が必要なバリデーションには使えないですし、DIもできず、Assist や Logic
+		など呼べないので、moreValidate() がなくなることはありません。
+		<span class="frm">(厳密にはDIできないわけじゃないので、FormやBodyではDIをしないポリシーを前提として)</span>
+	</p>
+	<p>
+		AssertTrue方式でも再利用ができるわけではないので<span class="frm">(*A)</span>、であれば、相関チェックなどロジカルなバリデーションは moreValidate() に寄せた方が良いだろう、と考えられるのです。
+		<span class="frm">(*A: 厳密には、Form や Body 自体を再利用すれば再利用になりますが、それもレアケースであろうと)</span>
+	</p>
+	<p>
+		あと、AssertTrue方式だと、メッセージの中の動的変数を活用できません。
+		また、とあるプロパティ項目へのメッセージの紐付けもできません<span class="frm">(isメソッドのプロパティ名に関連付けられる)</span>。あまり致命的ではないかもしれませんが、moreValidate() の方がメッセージの自由度が高いのは確かです。
+	</p>
+	<h4>とは言え、AssertTrue方式もメリットがある</h4>
+	<p>
+		一方で、後述する "レスポンスデータのバリデーション" の相関バリデーションの実装方法に、AssertTrue方式が活用できます。
+		レスポンスのときはロジカルなバリデーションをする領域を定めていませんので、統一的な実装のためのわかりやすい一つの手段になります。
+		そちらで使うのであれば、リクエストのバリデーションでも同じように使っていく方がわかりやすいかもしれません。
+	</p>
+	<p>
+		また、やはり単項目バリデーションのアノテーションと相関バリデーションが同じクラスの中に一緒に入っているというのが可読性をもたらすのは確かです。
+		<span class="frm">(ただし、すべて一緒になるわけではないですが)</span>
+	</p>
+	<div class="relatedpage"><a href="#responsevalidation">this - 番外. レスポンスデータのバリデーション</a></div>
+	<p>
+		それらメリットを重視するのであれば、"リクエストもレスポンスもDB検索やDIを必要としない相関バリデーションならAssertTrue方式" というようなポリシーでも良いでしょう。
+		そのときは、moreValidate() は、基本的に Behavior や Assist などのDIコンポーネントを必要とするバリデーションだけに使うというニュアンスになります。
+	</p>
+	<p>
+		先ほどの "覚えるコストとバラバラを避けたい"
+		の心配は、ディベロッパーのフレームワークに対するリテラシーと、開発チームの統一性に対する姿勢に対するものなので、そこに不安がないのであれば積極的に使っていっても良いでしょう。
+	</p>
+	<h4>やはり、nullチェックはどのみち必要</h4>
+	<p>
+		ちなみに、先ほどの Example にて、productName に @Required や @NotNull
+		が付いていてエラーになったとしても、isProductNameToStatus() メソッドは呼び出されます。
+	</p>
+	<p>
+		なので、どのみち productName の null チェックは必要です。
+		全体的な思想として他のバリデーションの結果に依存しないようにロジックを積み重ねていく思想があるように感じていますので、
+		先ほど話題にした、moreValidate() が呼ばれるようにした理由につながります。
+	</p>
+	<div class="relatedpage"><a href="#alwayscalled">this - アノテーションでエラーがあっても呼ばれる</a></div>
+
+	<h2 id="adjustmessage">エラーメッセージを調整</h2>
+	<p>
+		LastaFluteでは、src/main/resources の [app]_message.properties にて管理しています。
+		UTF-8で読み込んでいるので、日本語をユニコードエスケープする必要はありません。
+	</p>
+	<div class="detailpage"><a href="./usermessages.html">ユーザーメッセージ (UserMessages)</a></div>
+<pre><span class="codetitle">e.g. validation error and application exception message @[app]_message.properties</span><code>
+constraints.Required.message                = <span class="literal">is required</span>
+constraints.TypeAny.message                 = <span class="literal">should be {propertyType}</span>
+constraints.TypeInteger.message             = <span class="literal">should be number</span>
+
+<span class="abbreviation">...</span>
+
+errors.login.failure=<span class="literal">could not login</span>
+errors.app.illegal.transition=<span class="literal">retry because of illegal transition</span>
+errors.app.db.already.deleted=<span class="literal">others might be deleted, so retry</span>
+</code></pre>
+	<p>
+		継承関係を持っているので、マルチプロジェクトでもプロジェクト間で再利用もできますし、オーバーライドを活用してプロジェクトごとに微調整することもできます。
+	</p>
+<pre><span class="codetitle">e.g. リファレンス実装のMaihamaプロジェクトでのProperties継承構造 @Directory</span><code>
+maihama-common
+ |-src/main/resources
+    |-maihama_message.properties <span class="comment">// 共通のメッセージリソース</span>
+
+maihama-dockside
+ |-src/main/resources
+ |  |-dockside_message.properties <span class="comment">// アプリ固有のメッセージリソース</span>
+</code></pre>
+
+	<h2 id="responsevalidation">番外. レスポンスデータのバリデーション</h2>
+	<p>
+		レスポンスにバリデーション？と思われるかもしれませんが、これは外部に出力するデータの整合性を自分でチェックするためのバリデーションです。
+		なので、自分たちのロジックを確実なものにするためのチェックとなりますので、少しニュアンスが違いますし、今まであまりない概念の実装ですが、実際にやってみると非常に安心感があって便利です。
+	</p>
+	<h3 id="responsehowto">レスポンスのバリデーション方法</h3>
+	<p>
+		asHtml()で登録する <em class="mark">HtmlBean</em> や、asJson() の引数に指定する <em class="mark">JsonResult</em>
+		にも、@Required などの Validatorアノテーションを付けます。
+	</p>
+	<p>
+		付けておくと Action の処理が終わった直後にアノテーションが評価されて、バリデーションエラーになった場合は、システム例外(サーバーの不具合)として処理が中断します。
+		本当は不整合なデータを外部に戻してしまっているのに、なんとなく動いてしまっていた、なんことを防ぐことができます。
+	</p>
+	<p>
+		<span class="frm">(この後、JsonResultを中心に説明しますが、HtmlBeanでも同様です)</span>
+	</p>
+	<h3 id="responsealsolastadoc">LastaDocに載るのでフロント側に伝えやすい</h3>
+	<p>
+		付けておくと、単なるサーバー側のバグチェックだけでなく、LastaDoc にアノテーションが表示されるので、
+		フロント側のディベロッパーに項目の特性を自然と伝えることができます。
+	</p>
+	<div class="relatedpage"><a href="../dbflute/lastadoc.html">LastaDoc</a></div>
+<pre><span class="codetitle">e.g. Required annotation in JSON result class @Java</span><code>
+<span class="keyword">public class</span> SeaLandResult {
+
+    <span class="subpoint">@Required</span>
+    <span class="keyword">public</span> Integer <span class="attribute">memberId</span>;
+
+    <span class="subpoint">@Required</span>
+    <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. asJson() in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaLandResult&gt; index() {
+    <span class="abbreviation">...</span>
+    SeaLandResult <span class="localvar">result</span> = <span class="abbreviation">...</span>
+    <span class="keyword">return</span> asJson(<span class="localvar">result</span>); <span class="comment">// validated in this method</span>
+}
+</code></pre>
+	<p>
+		これはユーザー入力でもなければクライアントエラーでもなく、サーバーのバグやデータ不備なので、エラーが発生したらシステムエラー
+		<em class="mark">(500 Server Error)</em> です。Form や Body の ClientError と同様、Assertの代わりのようなものです。
+		なので、こちらではメッセージ調整は発生しません。
+	</p>
+	<p>
+		凝り過ぎてもつらいので、例えば <em class="keyword">Required だけチェックする</em>
+		というような割り切りがオススメです。フロントサイドのディベロッパーと相談してみましょう。
+	</p>
+	<h3 id="responsegrouping">同じ JsonResult でも groups でバリデーションを分岐</h3>
+	<p>
+		同じ JSON Result でも、状況によってバリデーションの内容が異なる場合は、Hibernate Validator の
+		groups の機能を使うとよいでしょう。
+	</p>
+	<p>
+		例えば、mysticId はデフォルトのときに必須、Landが指定されたら onemanDate
+		の方が必須<span class="frm">(そのときは、mysticIdは必須ではない)</span>、というようなときは以下のようになります。
+	</p>
+<pre><span class="codetitle">e.g. groups in JSON Result @Java</span><code>
+@Required
+<span class="keyword">public</span> Integer <span class="attribute">mysticId</span>;
+
+@Required(<span class="attribute">groups</span>=<span class="point">Land.class</span>)
+<span class="keyword">public</span> LocalDate <span class="attribute">onemanDate</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. asJson() with groups in action @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaLandResult&gt; index() {
+    <span class="abbreviation">...</span>
+    SeaLandResult <span class="localvar">result</span> = <span class="abbreviation">...</span>
+    <span class="keyword">boolean</span> <span class="localvar">land</span> = <span class="abbreviation">...</span>
+    <span class="keyword">return</span> asJson(<span class="localvar">result</span>).<span class="point">groupValidator</span>(<span class="localvar">land</span> ? Land.<span class="keyword">class</span> : <span class="keyword">null</span>);
+}
+</code></pre>
+	<h3 id="responsecorrelative">JsonResult の相関バリデーション</h3>
+	<p>
+		レスポンスのバリデーションは、必ずすべての整合性をチェックする義務はなく、凝りすぎるとキリがないので相関バリデーションまでやるかはプロジェクトポリシーで要検討です。
+	</p>
+	<p>
+		ただ、もし相関バリデーションも入れておきたいというのであれば、AssertTrue方式を利用することができます。
+		これは、すでに通常の Form や Body のバリデーションのところで話題になった方式です。
+	</p>
+	<div class="relatedpage"><a href="#correlativebyanno">this - ちなみに、アノテーションで相関チェックもできる!?</a></div>
+	<p>
+		このように実装します。
+	</p>
+<pre><span class="codetitle">e.g. correlative validator by annotation for response @Java</span><code>
+<span class="keyword">public class</span> SeaResult {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+
+    <span class="keyword">public</span> CDef.ProductStatus <span class="attribute">productStatus</span>;
+
+    <span class="abbreviation">...</span>
+
+    <span class="comment">// ===================================================================================
+    //                                                                          Validation
+    //                                                                          ==========</span>
+    <span class="comment">// レスポンスのバリデーションなので、ユーザーメッセージは気にしなくてもいい。</span>
+    <span class="point">@AssertTrue</span>
+    <span class="keyword">public boolean</span> isProductNameToStatus() { <span class="comment">// is 始まりじゃないと呼ばれないよ</span>
+        <span class="keyword">if</span> (<span class="attribute">productName</span> == <span class="keyword">null</span>) {
+            <span class="keyword">return true</span>;
+        }
+        <span class="keyword">if</span> (<span class="attribute">productName</span>.equals(<span class="literal">"sea"</span>)) {
+            <span class="comment">// sea と入力されてたら、販売中ステータスじゃないとダメ</span>
+            <span class="comment">// (通常ありえないけど、Exampleなのででたらめ)</span>
+            <span class="keyword">return</span> CDef.ProductStatus.<span class="attribute">OnSaleProduction</span>.equals(<span class="attribute">productStatus</span>);
+        } else {
+            <span class="keyword">return true</span>; <span class="comment">// 他の入力値であれば特に相関関係は無し (という仕様)</span>
+        }
+    }
+}
+</code></pre>
+	<h3 id="responseexceptproduction">本番ではチェックしない、とか、警告だけとか</h3>
+	<p>
+		TODO jflute
+	</p>
+
+	<h2 id="bigcheck">三大チェックポイント</h2>
+	<h3 id="dontuseprimitive">気をつけて！int や boolean の @Required</h3>
+	<p>
+		Primitive型を使うと、setされたのかされてないのかが区別付かないため、@Required
+		が効きません。
+	</p>
+<pre><span class="codetitle">e.g. don't use primitive, use wrapper type @Java</span><code>
+<span class="keyword">public class</span> SeaLandBean {
+
+    @Required
+    <span class="comment">//public int piari; *Bad</span>
+    <span class="keyword">public</span> <span class="point">Integer</span> <span class="attribute">piari</span>; <span class="comment">// Good</span>
+
+    @Required
+    <span class="comment">//public boolean bonvo; *Bad</span>
+    <span class="keyword">public</span> <span class="point">Boolean</span> <span class="attribute">bonvo</span>; <span class="comment">// Good</span>
+}
+</code></pre>
+	<p>
+		特に、Boolean などはついつい boolean を使いたくなるので注意です。
+	</p>
+	<p>
+		全体的に <em class="keyword">プロパティの型にはWrapper型を使う</em> というポリシーでよいでしょう。
+	</p>
+	<h3 id="dontforgetvalid">忘れないで！ネストBean には @Valid</h3>
+	<p>
+		ネストした Bean には @Valid を定義し忘れないようにしましょう。
+	</p>
+<pre><span class="codetitle">e.g. don't forget @Valid annotation for nested bean @Java</span><code>
+<span class="keyword">public class</span> SeaLandBean {
+
+    @Required
+    <span class="point">@Valid</span>
+    <span class="keyword">public</span> PiariElement <span class="attribute">piari</span>;
+
+    <span class="point">@Valid</span>
+    <span class="keyword">public</span> List&lt;BonvoElement&gt; <span class="attribute">bonvos</span>;
+
+    <span class="keyword">public static class</span> PiariElement {
+
+        <span class="subpoint">@Required</span>
+        <span class="keyword">public</span> String <span class="attribute">dstore</span>;
+    }
+
+    <span class="keyword">public static class</span> BonvoElement {
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<h3 id="rememberlistrequired">思い出して！List の @Required は一件以上</h3>
+	<p>
+		List に @Required を付けると、空リストでバリデーションエラーになります。
+		もし、"空リストでもOK だが null はあり得ない" とかであれば、<em class="mark">@NotNull</em> を付けましょう。 
+	</p>
+<pre><span class="codetitle">e.g. List @Valid annotation for nested bean @Java</span><code>
+<span class="keyword">public class</span> SeaLandBean {
+
+    <span class="point">@NotNull</span>
+    @Valid
+    <span class="keyword">public</span> List&lt;PiariElement&gt; <span class="attribute">piaris</span>; <span class="comment">// (NotNull, EmptyAllowed)</span>
+
+    <span class="point">@Required</span>
+    @Valid
+    <span class="keyword">public</span> List&lt;BonvoElement&gt; <span class="attribute">bonvos</span>; <span class="comment">// (NotNull, NotEmpty)</span>
+
+    <span class="keyword">public static class</span> PiariElement {
+
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">dstore</span>;
+    }
+
+    <span class="keyword">public static class</span> BonvoElement {
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+
+	<h2 id="professional">プロフェッショナルバリデーション</h2>
+	<p>
+		TODO jflute バリデーション内で検索したデータを使い回し、バリデーションエラー時にリダイレクト、独自のアノテーションとか
+	</p>
+	<dl class="textlist">
+		<dt>バリデーション内で検索したデータを使い回し</dt>
+		<dd>messages.saveSuccessAttribute() で、ValidationSuccess@getAttribute()</dd>
+		<dt>バリデーションエラー時にリダイレクト</dt>
+		<dd>普通に、redirect()</dd>
+		<dd>errors 情報をセッションに入れるときは、redirect(...).saveErrorsToSession();</dd>
+		<dt>独自のアノテーション</dt>
+		<dd>Hibernate Validator のやり方そのまま</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

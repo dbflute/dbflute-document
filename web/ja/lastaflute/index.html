@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development,リーンスタートアップ,インクリメンタル開発" />
+	<style type="text/css" title="currentStyle">@import "../../css/lasub.css";</style>
+	<title>LastaFlute (Javaでリーンスタートアップ) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute</h1>
+	<p>
+		Japanese page here.
+	</p>
+	<div class="relatedpage"><a href="../../lastaflute/index.html">English Page of LastaFlute</a></div>
+	<p>
+		<span class="frm">
+		[Lasta News] *2015/11/27<br />
+		アーキテクチャ概念マップ作りました: <a href="./tutorial/laimpl.html#architecture">アーキテクチャ概念マップ</a>
+		</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">LastaFluteとは？</h2>
+	<p>
+		Typesafe Web Framework for LeAn STArtup with DBFlute and Java8
+	</p>
+	<p>
+		<em class="keyword">リーンスタートアップ & インクリメンタル開発</em> のための、Java8前提のWebフレームワークです。
+	</p>
+	<h3 id="rhythmspeed"><em class="mark">リズム＆スピード</em>プログラミング</h3>
+	<p>
+		スタートアップは、<em class="keyword">Trial & Error</em>
+		の繰り返しのため、身軽な開発環境が求められる。
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark">ホットデプロイ</em></dt><dd>再起動せずに、Actionクラスを修正してすぐに確認できる</dd>
+		<dt><em class="mark">起動が速い</em></dt><dd>再起動が必要になっても、ハイスピードの再起動</dd>
+	</dl>
+	<p>
+		&nbsp;
+	</p>
+	<p>
+		.........................................................<em class="keyword">思考のリズムを止めない！は、スピード</em> になる
+	</p>
+	<h3 id="adaptable"><em class="mark">変化できる</em>プログラミング</h3>
+	<p>
+		スタートアップは、<em class="keyword">要求の変化</em> の繰り返しのため、安全な仕組みが求められる。
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark">徹底したタイプセーフ</em></dt><dd>タイプセーフなAction実装、そして、ConditionBean</dd>
+		<dt><em class="mark">攻めのDB変更</em></dt><dd>DBFluteフルパワー、そして、FreeGen</dd>
+		<dt><em class="mark">化け物のようなログ</em></dt><dd>困ったときに見たくなるようなログ</dd>
+	</dl>
+	<p>
+		&nbsp;
+	</p>
+	<p>
+		.........................................................<em class="keyword">安全！は、スピード</em> になる
+	</p>
+	<h3 id="naturally"><em class="mark">自然とそうなる</em>プログラミング</h3>
+	<p>
+		スタートアップは、<em class="keyword">人的リソースも変化</em> の繰り返しのため、自然の力が求められる。
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark">規約ベースAction</em></dt><dd>URL = クラス名 + メソッド名: URLからクラスが探しやすい</dd>
+		<dt><em class="mark">少ない選択肢</em></dt><dd>不要な選択肢を省き、できる限り実装のブレを少なく</dd>
+		<dt><em class="mark">デフォルトセット</em></dt><dd>一通り揃っている開発環境、コンフィグの仕組みからメールまで</dd>
+	</dl>
+	<p>
+		&nbsp;
+	</p>
+	<p>
+		.........................................................<em class="keyword">迷わない！は、スピード</em> になる
+	</p>
+	<h3 id="cast">LastaFluteのキャスト</h3>
+	<p class="imgbox">
+		<a href="../../data/model/lastaflute/lastaflute-cast-view.png" title="LastaFluteのキャスト"><img src="../../data/model/lastaflute/lastaflute-cast-view.png" alt="LastaFluteのキャスト" width="550" height="380" /></a>
+	</p>
+	<h3 id="repository">LastaFluteのリポジトリ <span class="frm">(License, Fork情報など)</span></h3>
+	<p>
+		ソースコードは、Githubにあります。License や Fork の情報などもこちらに記載されています。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute">Github - LastaFlute</a></div>
+	<h3 id="saflute">Seasar や SAFlute を御存知の方へ</h3>
+	<p>
+		LastaFlute と SAFlute の違いを簡単にまとめています。
+	</p>
+	<div class="relatedpage"><a href="./howto/migration/s2tola.html">LastafluteとSeasarとの違い</a></div>
+	<div class="relatedpage"><a href="./howto/migration/satola.html">LastafluteとSAFluteとの違い</a></div>
+	<div class="inucolumn">
+		<h3 id="professional">プロのための道具</h3>
+		<p>
+			LastaFluteは、決して万人向けのツールではありません。
+			問題解決のために必死に壁を乗り越えようとする <em class="keyword">プロのための道具</em> として存在しています。
+		</p>
+		<p>
+			それゆえ、敷居は少し高いです。<span class="frm">(逆に、LastaFluteがこれらのスキルアップのきっかけになれば幸いです)</span>
+		</p>
+		<dl class="keymainlist">
+			<dt>コードリーディング</dt><dd>フレームワークのソースが読めること</dd>
+			<dt>Java8プログラミング</dt><dd>Java8のコードが読め書きできること</dd>
+			<dt>DBFluteパワー</dt><dd>DBFluteを使いこなせること</dd>
+		</dl>
+		<p>
+			作られた経緯はこちらスライド資料にて。参考までに。
+		</p>
+		<div class="detailpage"><a href="https://speakerdeck.com/jflute/lastaflute-first-impact/">LastaFluteの誕生 | SpeakerDeck</a></div>
+	</div>
+	<h3 id="breakbeforelasta">Lastaライフの前に、ちょっとBreak</h3>
+	<p class="imgbox">
+		<img src="../../image/scenery/lastaflute/brick_lasta.jpg" alt="Brick Lasta" width="550" height="380" />
+	</p>
+
+	<h2 id="lacode">LastaFluteのコード</h2>
+	<p>
+		LastaFluteのポリシーを反映し、Actionクラスに様々な工夫が施されています。
+	</p>
+	<div class="relatedpage"><a href="./howto/action/index.html">LastaFluteのAction</a></div>
+	<h3 id="bigconvention">Mapping Convention</h3>
+	<dl class="valuemainlist">
+		<dt>Request URL</dt><dd><em class="mark">Action</em> class + <em class="mark">Execute</em> method</dd>
+	</dl>
+	<h3 id="pkgconvention">Package Convention</h3>
+	<dl class="valuemainlist">
+		<dt>Application Package</dt><dd>[your domain].app <span class="frm">e.g. org.docksidestage.app</span></dd>
+		<dt>Web Package</dt><dd>[Application Root].web <span class="frm">e.g. org.docksidestage.app.web</span></dd>
+		<dt>Action's Package</dt><dd>*you can use Action's prefix package</dd>
+	</dl>
+	<h3 id="htmlresponse">Example for HTML response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as HTML response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+                        , ProductSearchForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; (), () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    PagingResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    List&lt;ProductRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">page</span>.mappingList(<span class="localvar">product</span> -&gt; {
+        <span class="keyword">return</span> mappingToBean(<span class="localvar">product</span>);
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>).renderWith(<span class="localvar">data</span> -&gt; {
+        <span class="localvar">data</span>.register(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        registerPagingNavi(<span class="localvar">data</span>, <span class="localvar">page</span>, <span class="localvar">form</span>);
+    });
+}
+</code></pre>
+	<h3 id="jsonresponse">Example for JSON response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as JSON response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    validate(<span class="localvar">body</span>, <span class="localvar">messages</span> -&gt; {});
+    ListResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    SearchPagingBean&lt;ProductRowBean&gt; <span class="localvar">bean</span> = createPagingBean(page);
+    <span class="keyword">return</span> asJson(<span class="localvar">bean</span>);
+}
+</code></pre>
+	
+	<h2 id="quicktrial">LastaFluteを動かしてみよう</h2>
+	<p>
+		Quick Trial のための Example が用意されています。
+	</p>
+	<h3 id="singletrial">サクッとシングルプロジェクト</h3>
+	<p>
+		シンプルに小さく、全貌を見たいのなら...
+	</p>
+	<ol>
+		<li><em class="smallmark">git clone</em> <a href="https://github.com/lastaflute/lastaflute-example-harbor">https://github.com/lastaflute/lastaflute-example-harbor.git</a></li>
+		<li><em class="mark">*ReplaceSchema</em> でテストDBを用意: dbflute_maihamadb/manage.sh(bat) の 0 番</li>
+		<li>Eclipse や IntelliJ などを使って、Mavenプロジェクトとして Java8 でコンパイル</li>
+		<li>HarborBootクラス (org.docksidestage.boot) の <em class="mark">*main()</em> メソッドを実行</li>
+		<li>ブラウザで <a href="http://localhost:8090/harbor">http://localhost:8090/harbor</a> にアクセス (user:Pixy, pass:sea でログイン)</li>
+	</ol>
+<pre><span class="codetitle">e.g. Quick Trial の ReplaceSchema @Java</span><code>
+<span class="comment">// manageを叩いて、表示されたメニューから ReplaceSchema (0番) を選ぶ</span>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> <span class="point">manage.sh</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Quick Trial の main() メソッド @Java</span><code>
+<span class="keyword">public class</span> HarborBoot {
+
+    <span class="keyword">public static void</span> main(String[] <span class="localvar">args</span>) {
+        <span class="keyword">new</span> JettyBoot(<span class="literal">8090</span>, <span class="literal">"/harbor"</span>).asDevelopment().bootAwait();
+    }
+}
+</code></pre>
+	<h3 id="multitrial">しっかりマルチプロジェクト</h3>
+	<p>
+		実践を想定したしっかり構成を見たいのなら...
+	</p>
+	<p>
+		<a href="https://github.com/lastaflute/lastaflute-example-maihama">https://github.com/lastaflute/lastaflute-example-maihama.git</a>
+	</p>
+
+	<h2 id="newproject">LastaFluteで新プロジェクト</h2>
+	<p>
+		まず、大きく二つ...シングルプロジェクト？マルチプロジェクト？
+	</p>
+	<h3 id="single">シングルプロジェクトなら</h3>
+	<p>
+		まず、Quick Trial の lastaflute-example-harbor を clone して画面を起動します。
+		そして、StartupTest の domain と serviceName を修正して実行すると、harbor を元に新しいプロジェクトが作成されます。
+	</p>
+	<div class="detailpage"><a href="./howto/startup/single.html">Startup as Single Project</a></div>
+	<h3 id="multi">マルチプロジェクトなら</h3>
+	<p>
+		まず、Quick Trial の lastaflute-example-maihama を clone して画面を起動します。
+		そして、StartupTest の domain と serviceName と appName を修正して実行すると、maihama を元に新しいプロジェクトが作成されます。
+	</p>
+	<div class="detailpage"><a href="./howto/startup/multi.html">Startup as Multi Project</a></div>
+
+	<h2 id="letsimpl">☆ LastaFluteで実装してみよう ☆</h2>
+	<h3 id="impltutorial">LastaFluteの実装チュートリアル</h3>
+	<p>
+		これから実装を始める人、実装しながら迷った人、そのためのページ。
+	</p>
+	<div class="detailpage"><a href="./tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<p>
+		実装で迷ったら、ここから探しましょう。ぜひブックマークを！
+	</p>
+	<h3 id="breakbeforeimpl">実装前に、ちょっとBreak</h3>
+	<p class="imgbox">
+		<img src="../../image/scenery/lastaflute/grate_lasta.jpg" alt="Grate Lasta" width="550" height="380" />
+	</p>
+
+	<h2 id="thanksfriends">Thanks, Friends</h2>
+	<p>
+		公開許可を頂いている、LastaFluteの実績です。
+	</p>
+	<dl class="keymainlist">
+		<dt><em class="mark"><a href="https://atparty.jp/">アットパーティー</a></em></dt><dd>宴会・パーティー予約サイト <span class="frm">(JSON APIスタイル)</span></dd>
+		<dt><em class="mark"><a href="http://p.unext.jp/">U-NEXT＜ユーネクスト＞</a></em></dt><dd>映画,ドラマ,アニメ・・ 日本最大級の動画配信 <span class="frm">(JSON APIスタイル)</span></dd>
+		<dt><em class="mark"><a href="https://clock-it.com/">Clock It</a></em></dt><dd>タスク管理＆タイムマネジメントサービス <span class="frm">(SAFluteからLastaに移行)</span></dd>
+		<dt><em class="mark"><a href="http://fess.codelibs.org/">Fess</a></em></dt><dd>オープンソース全文検索サーバー <span class="frm">(fess10よりLasta)</span></dd>
+	</dl>
+	<p>
+		Lasta Di だけの利用もあります。
+	</p>
+	<dl class="longkeymainlist">
+		<dt><em class="mark"><a href="https://github.com/codelibs/elasticsearch-river-web">Elasticsearch River Web</a></em></dt><dd>Web Crawler for Elasticsearch</dd>
+		<dt><em class="mark"><a href="https://github.com/codelibs/s2robot">S2Robot</a></em></dt><dd>Web/FileSystem Crawler Library</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="${contextRoot}/ja/lastaflute/index.html">LastaFluteトップページ</a>
+			<ul>
+				<li><a href="${contextRoot}/ja/lastaflute/index.html#about">LastaFluteとは？</a></li>
+				<li><a href="${contextRoot}/ja/lastaflute/index.html#lacode">LastaFluteのコード</a></li>
+				<li class="upper-space"><a href="${contextRoot}/ja/lastaflute/index.html#quicktrial">動かしてみよう</a></li>
+				<li><a href="${contextRoot}/ja/lastaflute/index.html#newproject">新プロジェクト</a></li>
+				<li><a href="https://github.com/lastaflute/lastaflute">LastaFlute | Github</a></li>
+			</ul>
+		</li>
+		<li><a href="${contextRoot}/ja/lastaflute/tutorial/laimpl.html">LastaFlute実装チュートリアル</a>
+			<ul>
+				<li><a href="${contextRoot}/ja/lastaflute/tutorial/laimpl.html#style">実装スタイル</a></li>
+				<li><a href="${contextRoot}/ja/lastaflute/tutorial/laimpl.html#prepare">まず準備</a></li>
+				<li class="upper-space"><a href="${contextRoot}/ja/lastaflute/tutorial/laimpl.html#acquaintanceship">ディベロッパーの心得</a></li>
+				<li><a href="${contextRoot}/ja/lastaflute/tutorial/laimpl.html#tenclause">ディベロッパーの十か条</a></li>
+				<li><a href="${contextRoot}/ja/lastaflute/tutorial/laimplfaq.html">LastaFluteの実装FAQ</a></li>
+			</ul>
+		</li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

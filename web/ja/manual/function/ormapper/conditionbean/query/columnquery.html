@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,ColumnQuery,カラム同士の比較,カラムを指定" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ColumnQuery | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ColumnQuery</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		カラム同士の比較の絞り込み条件を設定します。(where FOO_ID = BAR_ID)
+	</p>
+	<p>
+		Query による絞り込み条件は、基本的にアプリから条件値を設定するものですが、ColumnQuery
+		は条件値は設定せずに、あるカラムと別のあるカラムの比較をします。カラム同士が業務的なつながりを持っているような場合に有効です。
+	</p>
+	<p>
+		会話上では、<em class="keyword">からむくえり</em> と表現します。
+	</p>
+	<h3 id="flexiblity">柔軟な利用方法</h3>
+	<p>
+		カラム、というのに、その場のサブクエリで作り出した疑似のカラム、導出カラムも含みます。これにより、ColumnQuery
+		は非常に柔軟な利用方法が可能な機能となっています。
+	</p>
+	<div class="relatedpage"><a href="#derivedreferrer">子テーブルの導出カラム</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		ConditionBean の <em class="keyword">columnQuery()</em>
+		を呼び出し、左辺のカラムを指定するコールバックを引数に設定し、続けて greaterEqual()
+		などの比較条件メソッドを呼び出して、今度は右辺のカラムを指定するコールバックを引数に設定します。
+		必要であれば、さらに続けて右辺カラムの演算調整が必要であれば演算メソッドを呼び出します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. ColumnQueryの実装手順 (Eclipseでコード補完) {BIRTHDATE &lt; FORMALIZED_DATETIME} @Java</span><code>
+cb.coQ <span class="comment">// .coQ と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "colCBLambda" が選択状態に</span>
+cb.<span class="point">columnQuery</span>(colCBLambda)
+--
+
+<span class="comment">// colCBLambdaの部分で、_li (補完テンプレートが有効なら)</span>
+cb.columnQuery(<span class="point">_li</span>)
+--
+
+<span class="comment">// Lambda引数名はcolCBにして...</span>
+<span class="comment">// Expression Style (一行スタイル) で SpecifyColumn を</span>
+cb.columnQuery(colCB -> colCB.specify().col<span class="abbreviation">...</span>)
+--
+
+<span class="comment">// 左辺のカラム BIRTHDATE を指定</span>
+cb.columnQuery(colCB -> colCB.specify().<span class="point">columnBirthdate()</span>)
+--
+
+<span class="comment">// 続けて、比較条件 .leT (lessThan) と打って enter</span>
+cb.columnQuery(colCB -> colCB.specify().columnBirthdate())
+        .leT
+--
+
+<span class="comment">// 同じ要領で今度は右辺のカラム FORMALIZED_DATETIME を指定</span>
+cb.columnQuery(colCB -&gt; colCB.specify().columnBirthdate())
+        .<span class="subpoint">lessThan</span>(colCB -&gt; colCB.specify().<span class="point">columnFormalizedDatetime()</span>)
+</code></pre>
+	<p>
+		SQL上では、指定された左辺と右辺のカラムを比較する条件が展開されます。
+	</p>
+	<div class="relatedpage"><a href="#usablecondition">this - 利用できる比較条件</a></div>
+	<p>
+		Lambdaの形式は、Expression Style (一行スタイル) でも Block Style (複数行スタイル)
+		でもどちらでも良いですが、Eclipse だと "Lambdaのネストの中での Block Style とメソッドチェーン"
+		が相性が悪いため、ドキュメントとしては Expression Style をメインに書いています。
+	</p>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html#escapeclipse">DBFlute on Java8 - Eclipseのご乱心に注意</a></div>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+<pre><span class="codetitle">e.g. 生まれてから正式会員になった会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> dfloc.<span class="point">BIRTHDATE</span> &lt; dfloc.<span class="point">FORMALIZED_DATETIME</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ColumnQueryの実装手順 (Eclipseでコード補完) {BIRTHDATE &lt; FORMALIZED_DATETIME} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.coQ <span class="comment">// .coQ と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "leftSpecifyQuery" が選択状態に</span>
+cb.<span class="point">columnQuery</span>(leftSpecifyQuery)
+--
+
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+cb.columnQuery(<span class="point">new </span>)
+--
+
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.columnQuery(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+--
+
+<span class="comment">// ctrl (or command) + D で不要な空行やTODOコメントを消して</span>
+<span class="comment">// SpecifyColumn を使って左辺のカラムを指定</span>
+cb.columnQuery(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate()</span>;
+    }
+}).leT <span class="comment">// 続けて、比較条件 .leT (lessThan) と打って enter</span>
+--
+
+<span class="comment">// 同じ要領で今度は右辺のカラムを指定</span>
+cb.columnQuery(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate()</span>;
+    }
+}).<span class="point">lessThan</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnFormalizedDatetime()</span>;
+    }
+}); <span class="comment">// 必要に応じて、右辺の演算メソッドを呼び出す e.g. ...}).plus(3)</span>
+</code></pre>
+	<h3 id="relation">関連テーブルのカラム</h3>
+	<p>
+		関連テーブル(many-to-one, one-to-one)のカラムも利用できます。
+	</p>
+<pre><span class="codetitle">e.g. 会員セキュリティ情報の更新日時と退会日時が同じ会員 @Java</span><code>
+<span class="abbreviation">...</span>
+cb.columnQuery(colCB -&gt; colCB.specify().<span class="point">specifyMemberSecurity()</span>.columnUpdateDatetime())
+        .equal(colCB -&gt; colCB.specify().<span class="point">specifyMemberWithdrawal()</span>.columnWithdrawalDatetime());
+</code></pre>
+	<p>
+		但し、バインド変数付きの biz-one-to-one のテーブルに関しては、あらかじめ SetupSelect(BizOneToOne) もしくは
+		Query(BizOneToOne) で固定条件(fixedCondition)を成立させている必要があります。
+	</p>
+	<div class="relatedpage"><a href="../setupselect/bizonetoone.html">SetupSelect(BizOneToOne)</a></div>
+	<div class="relatedpage"><a href="./bizonetoone.html">Query(BizOneToOne)</a></div>
+<pre><span class="codetitle">e.g. (有効な)会員住所情報の更新日時と退会日時が同じ会員 @Java</span><code>
+<span class="abbreviation">...</span>
+cb.query().<span class="point">queryMemberAddressAsValid</span>(currentDate());
+cb.columnQuery(colCB -&gt; colCB.specify().<span class="point">specifyMemberAddressAsValid()</span>
+                                       .columnUpdateDatetime())
+        .equal(colCB -&gt; colCB.specify().specifyMemberWithdrawal()
+                                       .columnWithdrawalDatetime());
+</code></pre>
+	<h3 id="derivedreferrer">子テーブルの導出カラム</h3>
+	<h4 id="specifyderivedreferrer">(Specify)DerivedReferrer の利用</h4>
+	<p>
+		子テーブルの導出カラムも利用できます。SpecifyQuery の中で (Specify)DerivedReferrer
+		をエリアス名を null 固定で指定します。(左辺、右辺両方で利用できます)
+	</p>
+	<div class="relatedpage"><a href="../specify/derivedreferrer.html">(Specify)DerivedReferrer</a></div>
+<pre><span class="codetitle">e.g. 生まれる前、もしくは生まれた瞬間に(支払済み)購入をしたことのある会員 @Java</span><code>
+<span class="abbreviation">...</span>
+cb.columnQuery(colCB -&gt; colCB.specify().columnBirthdate())
+    .lessEqual(colCB -&gt; {
+        colCB.specify().<span class="point">derivedPurchase()</span>.min(purchaseCB -&gt; {
+            purchaseCB.specify().<span class="point">columnPurchaseDatetime()</span>;
+            purchaseCB.query().setPaymentCompleteFlg_Equal_True();
+        }, <span class="keyword">null</span>); <span class="comment">// エリアス名は利用しないので null 固定</span>
+    });
+</code></pre>
+<pre><span class="codetitle">e.g. 生まれる前、もしくは、生まれた瞬間に(支払済み)購入をしたことのある会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> dfloc.BIRTHDATE &lt;= (<span class="keyword">select</span> min(sub1loc.PURCHASE_DATETIME)
+                             <span class="keyword">from</span> PURCHASE sub1loc 
+                            <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+                              <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">1</span>
+       )
+
+</code></pre>
+	<h4 id="percategory">カテゴリごとの最大値や平均値との比較</h4>
+	<p>
+		導出カラムの利用を応用すると、カテゴリごとの最大値や平均値との比較条件が実現できます。Specify(Relation)
+		で辿ったカテゴリテーブルから、自分方向のリレーションに戻って DerivedReferrer をします。
+	</p>
+<pre><span class="codetitle">e.g. サービスランクごとの平均ポイント数よりも多いポイント数を持っている会員 @Java</span><code>
+<span class="abbreviation">...</span>
+cb.columnQuery(colCB -&gt; colCB.specify().specifyMemberServiceAsOne().columnPointCount())
+  .greaterThan(colCB -&gt; {
+      colCB.specify().specifyMemberServiceAsOne()
+                     .specifyServiceRank()
+                     .<span class="point">derivedMemberService()</span>.avg(serviceCB -&gt; {
+          serviceCB.specify().columnPointCount();
+      }, <span class="keyword">null</span>, op -&gt; op.coalesce(<span class="literal">0</span>));
+  });
+</code></pre>
+<pre><span class="codetitle">e.g. サービスランクごとの平均ポイント数よりも多いポイント数を持っている会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="keyword">left outer join</span> MEMBER_SERVICE dfrel_3 <span class="keyword">on</span> dfloc.MEMBER_ID = dfrel_3.MEMBER_ID
+    <span class="keyword">left outer join</span> SERVICE_RANK dfrel_3_1 <span class="keyword">on</span> dfrel_3.SERVICE_RANK_CODE = dfrel_3_1.SERVICE_RANK_CODE 
+ <span class="keyword">where</span> dfrel_3.POINT_COUNT &gt; (<span class="keyword">select</span> coalesce(avg(sub1loc.POINT_COUNT), <span class="literal">0</span>)
+                                <span class="keyword">from</span> MEMBER_SERVICE sub1loc 
+                               <span class="keyword">where</span> sub1loc.SERVICE_RANK_CODE = dfrel_3_1.SERVICE_RANK_CODE
+       )
+</code></pre>
+	<h3 id="derivedbase">基点テーブルの導出カラム</h3>
+	<p>
+		基点テーブルの導出カラム(ScalarConditionのような感じで)の指定はサポートされていません。<span class="frm">@review</span>
+	</p>
+	<p>
+		例えば、一番若い会員を検索、というような同じカラム同士で、とあるカラムとそのカラムの導出値を比較するようなパターンであれば、ScalarConditionを利用してください。
+	</p>
+	<div class="relatedpage"><a href="./scalarcondition.html">ScalarCondition</a></div>
+	<h3 id="adjustment">右辺カラムの演算調整 <span class="frm">(数値型カラム)</span></h3>
+	<p>
+		右辺カラムの演算調整をすることができます。単純なカラム同士の比較ではなく、<em class="keyword">あるカラムと別のあるカラムに 1 を足したものを比較</em>
+		という条件が設定できます。ただし、数値型のカラムに限ります。
+	</p>
+	<p>
+		右辺カラムの指定の後に続けて、演算メソッドを呼び出し、演算値を引数に設定します。
+	</p>
+	<div class="relatedpage"><a href="#usablecalculation">this - 利用できる演算調整</a></div>
+<pre><span class="codetitle">e.g. 支払済み購入最小価格が、会員IDに 500 を掛けて 1 足したものよりも小さい会員 @Java</span><code>
+cb.columnQuery(colCB -&gt; {
+    colCB.specify().derivedPurchaseList().min(purchaseCB -&gt; {
+        purchaseCB.specify().columnPurchasePrice();
+        purchaseCB.query().setPaymentCompleteFlg_Equal_True();
+    }, <span class="keyword">null</span>, op -&gt; op.coalesce(<span class="literal">0</span>)); <span class="comment">// 購入のない会員も含むため</span>
+}).lessThan(colCB -&gt; colCB.specify().columnMemberId())
+  .<span class="point">multiply</span>(<span class="literal">500</span>).<span class="point">plus</span>(<span class="literal">1</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 支払済み購入最小価格が、会員IDに 500 を掛けて 1 足したものよりも小さい会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> (<span class="keyword">select</span> coalesce(min(sub1loc.PURCHASE_PRICE), <span class="literal">0</span>)
+          <span class="keyword">from</span> PURCHASE sub1loc 
+         <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+           <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">1</span>
+       ) &lt; (dfloc.MEMBER_ID * <span class="literal">500</span>) + <span class="literal">1</span>
+</code></pre>
+	<h3 id="funcfilter">右辺カラムをSQL関数でフィルタ <span class="frm">(数値や日付型など)</span></h3>
+	<p>
+		演算だけでなく、SQL関数を利用して変換(フィルタ)することができます<span class="frm">(@since 0.9.8.6)</span>。
+	</p>
+	<p>
+		右辺カラムの指定の後に続けて、convert() メソッドを呼び出し、ColumnConversionOption で変換処理を指定します。
+		フィルタ処理の仕様は (Specify)DerivedReferrer の場合と同様で、時分秒ミリ秒を切り取ったり(truncXxx())、日付を進めたり(addXxx())できます。
+	</p>
+	<div class="detailpage"><a href="../specify/derivedreferrer.html#funcfilter">(Specify)DerivedReferrer - 導出値をSQL関数でフィルタ</a></div>
+<pre><span class="codetitle">e.g. 右辺カラムの日時に対して、時分秒ミリ秒を切り取って 1 日進める @Java</span><code>
+cb.columnQuery(colCB -&gt; colCB.specify().columnBirthdate())
+  .greaterThan(colCB -&gt; colCB.specify().columnFormalizedDatetime())
+  .<span class="point">convert</span>(op -&gt; op.truncTime().addDay(<span class="literal">1</span>));
+</code></pre>
+	<p>
+		演算とフィルタは組み合わせて利用することができます。(指定された順序に処理される)
+	</p>
+	<h3 id="leftadjust">左辺カラムの演算やフィルタも <span class="frm">(数値や日付型など)</span></h3>
+	<p>
+		右辺だけではなく左辺のカラムに対しても演算やSQL関数フィルタが利用できます<span class="frm">(@since 0.9.8.6)</span>。
+	</p>
+	<p>
+		右辺カラムの指定の後に続けて、left() メソッドを呼び出した後に続けて演算処理やフィルタ処理を指定すると、それら指定は左辺カラムに対して処理されます。
+		その後、right() を呼び出して続けて右辺のための処理を指定できます。(つまり、単にデフォルトが右辺カラムになっている)
+	</p>
+<pre><span class="codetitle">e.g. 左辺カラムは 1 を足して、右辺カラムは 2 を引く @Java</span><code>
+<span class="abbreviation">...</span>
+cb.columnQuery(colCB -&gt; colCB.specify().specifyMemberServiceAsOne().columnPointCount())
+  .greaterThan(colCB -&gt; {
+      colCB.specify().specifyMemberServiceAsOne()
+                     .specifyServiceRank()
+                     .<span class="point">derivedMemberService()</span>
+                     .avg(serviceCB -&gt; {
+                         serviceCB.specify().columnPointCount();
+                     }, <span class="keyword">null</span>, op -&gt; op.coalesce(<span class="literal">0</span>));
+  }).<span class="point">left</span>().plus(<span class="literal">1</span>).<span class="point">right</span>().minus(<span class="literal">2</span>);
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>引数の指定</dt><dd>引数の SpecifyQuery、演算調整の演算値、共に必須です。</dd>
+		<dt>サブクエリのConditionBean</dt>
+		<dd>
+			サブクエリの ConditionBean は、導出カラムの指定だけに利用するものです。
+			SetupSelect や OrderBy, Query など必要のない機能は呼び出してはいけません。
+		</dd>
+		<dt>OnClause や InlineView では不可</dt>
+		<dd>OnClause や InlineView の中の条件に利用することはできません。</dd>
+	</dl>
+	<div class="relatedpage"><a href="./onclause.html">OnClause</a></div>
+	<div class="relatedpage"><a href="./inlineview.html">InlineView</a></div>
+	<h3 id="usablecondition">利用できる比較条件</h3>
+	<p>
+		利用できる比較条件は、以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>equal()</dt><dd>等値</dd>
+		<dt>notEqual()</dt><dd>非等値</dd>
+		<dt>greaterThan()</dt><dd>大なり</dd>
+		<dt>lessThan()</dt><dd>小なり</dd>
+		<dt>greaterEqual()</dt><dd>大なりイコール</dd>
+		<dt>lessEqual()</dt><dd>小なりイコール</dd>
+	</dl>
+	<h3 id="usablecalculation">利用できる演算調整</h3>
+	<p>
+		利用できる演算調整は、以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>plus()</dt><dd>足し算 (数値のみ)</dd>
+		<dt>minus()</dt><dd>引き算 (数値のみ)</dd>
+		<dt>multiply()</dt><dd>掛け算 (数値のみ)</dd>
+		<dt>divide()</dt><dd>割り算 (数値のみ)</dd>
+	</dl>
+
+	<div class="inucolumn">
+		<h2 id="buffer">拡張バッファのある機能</h2>
+		<p>
+			ColumnQuery は、自由度が高いインターフェースのため、将来的な拡張バッファのある機能です。
+			今後のバージョンで機能拡張の可能性が高い機能です。
+			特にサブクエリ系との連携には、まだ見ぬ宝石が埋もれているかもしれません。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

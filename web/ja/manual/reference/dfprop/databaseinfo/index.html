@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,databaseInfoMap.dfprop,DB接続,JDBCドライバ,パスワード" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>databaseInfoMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>databaseInfoMap</h1>
+	${indexlist}
+
+	<h2 id="about">databaseInfoMapとは？</h2>
+	<p>
+		スキーマのメタ情報を取得する上での接続情報や細かい設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の databaseInfoMap.dfprop という名前のテキストファイルです。必須のプロパティであり、特に接続情報に関しては
+		"自動生成する前に" 設定されることを前提としています。
+	</p>
+	<p>
+		DBMSによって設定の仕方や設定値などが様々に変わってくるので注意。
+	</p>
+	<div class="relatedpage"><a href="../../dbway">DBMSごとの取扱い</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々な key-value 形式のプロパティを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="driver">driver (*)</h3>
+	<p>
+		JDBCドライバのクラス名(FQCN)。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wf.html#fqcn">FQCN</a></div>
+	<h3 id="url">url (*)</h3>
+	<p>
+		接続URL。
+	</p>
+	<h3 id="catalog">catalog</h3>
+	<p>
+		接続カタログ(データベース)。接続URLから自動判別される DBMS
+		においては、空指定(定義なし)が許されます。サポートされている DBMS では基本的に自動判別されます。主に、サポートされない
+		DBMS で DBFlute を利用する際に初めて指定が必要になるプロパティと想定されています。
+	</p>
+	<h3 id="schema">schema</h3>
+	<p>
+		接続スキーマ。追加スキーマを取り扱っている場合は、このスキーマがメインスキーマとなります。
+		空指定が意味のあるスキーマを表現する場合や(publicスキーマなど)、スキーマの概念を持たないDBMSの場合は、空指定(定義なし)が許されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<h3 id="user">user (*)</h3>
+	<p>
+		接続ユーザ。
+	</p>
+	<h3 id="password">password</h3>
+	<p>
+		接続ユーザの対応する接続パスワード。
+	</p>
+	<p>
+		replaceSchemaDefinitionMap.dfprop の additionalUserMap の password
+		と同様の外だしのパスワードファイルを利用することもできます<span class="frm">(@since 0.9.9.8)</span>。
+		この外だしファイルの機能は、url や user でも利用できます。
+	</p>
+	<div class="relatedpage"><a href="../replaceschemadefinition/index.html#additionalusermap">replaceSchemaDefinitionMap.dfprop - additionalUserMap</a></div>
+	<h3 id="propertiesmap">propertiesMap</h3>
+	<p>
+		JDBCドライバの接続プロパティ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型の任意の key-value</dd>
+		<dt>デフォルト</dt><dd>なし (設定するものなし)</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Oracleでシノニムを扱う場合 @databaseInfoMap.dfprop</span><code>
+; propertiesMap = <span class="keyword">map:</span>{includeSynonyms=true}
+</code></pre>
+	<h3 id="variousmap">variousMap</h3>
+	<p>
+		その他様々なプロパティ。
+	</p>
+	<ul>
+		<li><a href="#objecttypetargetlist">objectTypeTargetList</a></li>
+		<li><a href="#tableexceptlist">tableExceptList</a></li>
+		<li><a href="#tabletargetlist">tableTargetList</a></li>
+		<li><a href="#columnexceptmap">columnExceptMap</a></li>
+		<li><a href="#additionalschemamap">additionalSchemaMap</a></li>
+	</ul>
+	<h3 id="objecttypetargetlist">objectTypeTargetList</h3>
+	<p>
+		自動生成対象のオブジェクトのリスト。(variousMapの中のプロパティ)
+	</p>
+	<p>
+		そもそもDBFluteでは、ビューやシノニムなども、テーブルと同じように扱うことができます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>TABLE, VIEW, SYNONYM, ALIASなどのリスト型プロパティ</dd>
+		<dt>デフォルト</dt><dd>TABLE, VIEW</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>TABLEやVIEWなどの基本項目以外はDBMSによっては変わってくるので注意。例えば、Oracleのシノニムを扱いたい場合は
+				"SYNONYM" を追加すること(同時に propertiesMap の設定も忘れずに)。
+				</li>
+				<li>Oracleのマテリアライズドビューは "VIEW" に含まれる</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#propertiesmap">propertiesMap</a></div>
+<pre><span class="codetitle">e.g. Oracleのシノニムも自動生成したい場合 @databaseInfoMap.dfprop</span><code>
+; variousMap = <span class="keyword">map:</span>{
+    ; objectTypeTargetList = <span class="keyword">list:</span>{TABLE ; VIEW ; SYNONYM}
+}
+</code></pre>
+	<p>
+		このプロパティは、メインスキーマのみに対する設定となります。
+		追加スキーマに関しては追加スキーマの設定の中で独自に指定します。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<p>
+		ReplaceSchemaのスキーマ初期化やSql2Entityのプロシージャシノニムの自動生成にも影響するプロパティです。
+		ただ、ReplaceSchemaでは、replaceSchemaDefinitionMap.dfprop
+		にて設定を上書きすることができます<span class="frm">(@since 0.9.8.2)</span>。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html">ReplaceSchema - スキーマ初期化</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html#proceduresynonym">Sql2Entity - プロシージャシノニム</a></div>
+	<div class="relatedpage"><a href="../replaceschemadefinition/index.html#objecttypetargetlist">ReplaceSchema の objectTypeTargetList</a></div>
+	<h3 id="tableexceptlist">tableExceptList</h3>
+	<p>
+		自動生成対象から除外するテーブルのリスト。(variousMapの中のプロパティ)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名のlist型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (除外するものなし)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>tableTargetList の指定がされている場合は無効 (target優先)</li>
+				<li>前方一致: "prefix:前方一致させる文字列" という形式で指定</li>
+				<li>後方一致: "suffix:後方一致させる文字列" という形式で指定</li>
+				<li>部分一致: "contain:部分一致させる文字列" という形式で指定</li>
+				<li>正規表現: "pattern:マッチさせる正規表現文字列" という形式で指定 <span class="frm">@since 1.1.2</span></li>
+				<li>正規表現を除き、大文字小文字の区別なし (ただし実体と合わせることを推奨)</li>
+				<li>複数指定時は、and 条件として扱われる (e.g. Aでもない、Bでもない)</li>
+				<li>Generateのみで除外: "[テーブル名]@gen" という形式で指定(詳細後述) <span class="frm">@since 0.9.8.2</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#tabletargetlist">tableTargetList</a></div>
+<pre><span class="codetitle">e.g. "MST_" で始まるテーブルと "_HIST" で終わるテーブルを除外したい場合 @databaseInfoMap.dfprop</span><code>
+; variousMap = <span class="keyword">map:</span>{
+    ; tableExceptList = <span class="keyword">list:</span>{<span class="attribute">prefix:</span>MST_ ; <span class="attribute">suffix:</span>_HIST}
+}
+</code></pre>
+	<p>
+		このプロパティは、メインスキーマのみに対する設定となります。
+		また、テーブルだけでなく objectTypeTargetList で指定した他のオブジェクトも含まれます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<p>
+		ここでいう除外とは、"メタデータを取得しない" という意味になります。
+		よって、自動生成対象にもならなければ、SchemaHTML や HistoryHTML などのドキュメント生成処理においても対象外となります。
+		ただし、ReplaceSchema に関しては、このプロパティは無視されるため、スキーマ初期化などでは除外されたテーブルも削除されます。
+	</p>
+	<p>
+		一方で、SchemaHTML や HistoryHTML
+		はとても利便性の高い機能であり、アプリとして利用しないもののドキュメントでは参照したいという状況も十分想定されるため、
+		"クラスの自動生成においてのみ除外する" という指定もできます。除外テーブルの指定において suffix として <em class="mark">@gen</em>
+		を付与することで、その指定に該当するテーブルはドキュメント上 (Docタスク) では参照できつつも、クラスの自動生成 (Generateタスク) では除外されるようになります。
+		<span class="frm">@since 0.9.8.2</span>
+	</p>
+<pre><span class="codetitle">e.g. "MST_" で始まるテーブルは Generate のみで除外したい場合 @databaseInfoMap.dfprop</span><code>
+; variousMap = <span class="keyword">map:</span>{
+    ; tableExceptList = <span class="keyword">list:</span>{<span class="attribute">prefix:</span>MST_<span class="point">@gen</span>}
+}
+</code></pre>
+	<h3 id="tabletargetlist">tableTargetList</h3>
+	<p>
+		自動生成対象を指定するテーブルのリスト。(variousMapの中のプロパティ)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名のlist型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (全テーブルが自動生成対象: tableExceptList 次第)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>指定方法は、基本的に tableExceptList と同じ</li>
+				<li>ただし、Generateのみ指定はこちらでは利用できない</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#tableexceptlist">tableExceptList</a></div>
+<pre><span class="codetitle">e.g. "MST_" で始まるテーブルのみ対象にしたい場合 @databaseInfoMap.dfprop</span><code>
+; variousMap = <span class="keyword">map:</span>{
+    ; tableTargetList = <span class="keyword">list:</span>{<span class="attribute">prefix:</span>MST_}
+}
+</code></pre>
+	<p>
+		このプロパティは、メインスキーマのみに対する設定となります。
+		また、テーブルだけでなく objectTypeTargetList で指定した他のオブジェクトも含まれます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<p>
+		SchemaHTML や ReplaceSchema などの別の処理への影響は、tableExceptList と同じです。
+	</p>
+	<h3 id="columnexceptmap">columnExceptMap</h3>
+	<p>
+		自動生成対象から除外するカラムのリスト。(variousMapの中のプロパティ)
+	</p>
+	<p>
+		アプリケーションからは検索も更新(insert, update)も何もしないカラムがある場合に役に立ちます。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名とカラム名のmap型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (全てのカラムが自動生成対象)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル名の指定は、大文字小文字の区別なしの完全一致</li>
+				<li>カラム名リストの指定方法は、基本的に <a href="#tableexceptlist">tableExceptList</a>と同じ</li>
+			</ul>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. "GENMAI.OTHER_SYSTEM_USED_NAME" というカラムを除外したい場合 @databaseInfoMap.dfprop</span><code>
+; variousMap = <span class="keyword">map:</span>{
+    ; columnExceptMap = <span class="keyword">map</span>:{
+        ; GENMAI = list:{OTHER_SYSTEM_USED_NAME}
+    }
+}
+</code></pre>
+	<p>
+		このプロパティは、メインスキーマのみに対する設定となります。
+	</p>
+	<h3 id="additionalschemamap">additionalSchemaMap</h3>
+	<p>
+		自動生成対象に含める別スキーマの情報を設定。(variousMapの中のプロパティ)
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<p>
+		スキーマをサポートしていないDBMSでは無効です。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>スキーマ情報のmap型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (メインスキーマのみ自動生成対象)</dd>
+	</dl>
+<pre><span class="codetitle"> additionalSchemaMapの仕様 @databaseInfoMap.dfprop</span><code>
+variousMap = <span class="keyword">map:</span>{
+    additionalSchemaMap = <span class="keyword">map:</span>{
+        ; [schema-name] = <span class="keyword">map:</span>{
+            ; objectTypeTargetList = <span class="keyword">list:</span>{[objectTypeTargetList]}
+            ; tableExceptList = <span class="keyword">list:</span>{[tableExceptList]}
+            ; tableTargetList = <span class="keyword">list:</span>{[tableTargetList]}
+            ; columnExceptMap = <span class="keyword">map:</span>{[columnExceptMap]}
+            ; isSuppressCommonColumn = [<span class="keyword">true</span> or <span class="keyword">false</span>(default)]
+            ; isSuppressProcedure = [<span class="keyword">true</span> or <span class="keyword">false</span>(default)]
+        }
+    }
+}
+</code></pre>
+	<p>
+		ConditionBean で発行されるSQLにおいて、別スキーマのテーブルは "[スキーマ名].[テーブル名]"
+		という形式で表現されます。よって、ConditionBean ではスキーマ名の修飾を意識する必要はありません。(但し、外だしSQLでは意識する必要あり)
+	</p>
+	<p>
+		<em class="keyword">ReplaceSchema のスキーマ初期化には影響しません</em>。初期化されるのはメインスキーマのものだけです。
+		別スキーマのテーブルを削除する機能はReplaceSchemaで別途用意されています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/initializeschema.html#additionaldrop">ReplaceSchema - 別スキーマのテーブル削除</a></div>
+	<p>
+		<em class="keyword">Sql2Entity のプロシージャの自動生成には影響します</em>。
+		アプリで別スキーマのプロシージャを利用する場合は、ここでそのスキーマを設定することで利用できるようになります。
+	</p>
+	<p>
+		別スキーマのシーケンスを利用する場合は、実はここでの設定とは関係なく、sequenceDefinitionMap.dfprop
+		にて、スキーマ名を修飾したシーケンス名を指定することで利用できます。
+	</p>
+	<div class="relatedpage"><a href="../sequencedefinition/index.html">sequenceDefinitionMap.dfprop</a></div>
+	<h4>schema-name</h4>
+	<p>
+		自動生成対象とするスキーマ名(追加スキーマ)を指定します。
+	</p>
+	<p>
+		別カタログ(別データベース)のスキーマを指定する場合は、"[カタログ名].[スキーマ名]"
+		という形式で指定します。このようにすると、ConditionBean で発行されるSQLのテーブル名の修飾は、"[カタログ名].[スキーマ名].[テーブル名]"
+		という形式になります。MySQL のようにスキーマの概念のないDBMSで、別カタログを直接利用したい場合は、"[カタログ名].$$NoNameSchema$$"
+		という形式で指定します(DBFluteの内部的には無名のスキーマとして取り扱われます)。この場合は、テーブル名の修飾は、"[カタログ名].[テーブル名]"
+		となります。
+	</p>
+	<h4>objectTypeTargetList</h4>
+	<p>
+		追加スキーマ専用の objectTypeTargetList となります。
+	</p>
+	<h4>tableExceptList</h4>
+	<p>
+		追加スキーマ専用の tableExceptList となります。
+	</p>
+	<h4>tableTargetList</h4>
+	<p>
+		追加スキーマ専用の tableTargetList となります。
+	</p>
+	<h4>columnExceptMap</h4>
+	<p>
+		追加スキーマ専用の columnExceptMap となります。
+	</p>
+	<h4>isSuppressCommonColumn</h4>
+	<p>
+		追加スキーマのテーブルに対する共通カラム(CommonColumn)の設定の反映を抑制するか否か。
+		例えば、<em class="keyword">共通カラム(CommonColumn)の仕様がメインスキーマのものと違う</em>
+		場合は true にします。
+	</p>
+	<h4>isSuppressProcedure</h4>
+	<p>
+		追加スキーマのプロシージャクラス(ProcedurePmb)のの自動生成を抑制するか否か。
+		(メインスキーマのプロシージャが有効になっている状態で)追加スキーマのプロシージャをアプリから全く利用しないのであれば true
+		にします。但し、このプロパティを利用しなくても、プロシージャクラスの自動生成対象のスキーマの取捨選択は、outsideSqlDefinitionMap.dfprop
+		にて調整することも可能です。
+	</p>
+	<div class="relatedpage"><a href="../outsidesqldefinition/index.html">outsideSqlDefinitionMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. "NEXTEXAMPLEDB" というスキーマを利用したい場合 @databaseInfoMap.dfprop</span><code>
+variousMap = <span class="keyword">map:</span>{
+    additionalSchemaMap = <span class="keyword">map:</span>{
+        ; NEXTEXAMPLEDB = <span class="keyword">map:</span>{
+            ; objectTypeTargetList=<span class="keyword">list:</span>{TABLE ; VIEW ; SYNONYM}
+            <span class="comment"># You can comment out these properties if defaults fit your project.</span>
+            <span class="comment">#; tableExceptList=list:{}</span>
+            <span class="comment">#; tableTargetList=list:{}</span>
+            <span class="comment">#; columnExceptMap=map:{}</span>
+            <span class="comment">#; isSuppressCommonColumn=false</span>
+            <span class="comment">#; isSuppressProcedure=false</span>
+        }
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,MyselfInScope,自分自身の回避的サブクエリで絞り込み" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ScalarCondition | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>MyselfInScope</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		自分自身のテーブルのサブクエリで絞り込みます。
+	</p>
+	<p>
+		ほとんどの場合において、この機能は意味を成しません。基本的には、サブクエリを利用しなくてもメインのクエリの方の where
+		句で同じ条件を指定すれば同じ結果を求めることができるからです。この機能の存在意義は、とある状況における回避的な策と言えます。
+	</p>
+	<p>
+		例えば、CLOB が含まれるテーブルで union を利用する場合で、CLOB の union を文法的に許さない DBMS
+		の場合に、この MyselfInScope で union の絞り込み条件をサブクエリにすることで回避することができます。
+		(この場合、InScope で利用する関連カラムは PK カラム)
+	</p>
+	<p>
+		また、とある会員と同じ会員ステータスの会員を検索するというような場合、通常は会員ステータスのテーブルを経由して ExistsReferrer
+		で実装しますが、マスタテーブルが省略されているようなDB設計においてはそれが利用できないため、この MyselfInScope
+		を使って会員ステータスコード経由で同じ検索を実現します。(この場合、InScope で利用する関連カラムは会員ステータスコード)
+	</p>
+	<p>
+		会話上では、<em class="keyword">まいせるふいんすこーぷ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">myselfInScope()</em>
+		を呼び出し、SubQuery のコールバック実装を引数に指定します。
+		SubQuery の中で SpecifyColumn を指定しなければデフォルトで PK カラム、SpecifyColumn
+		が指定された場合は(指定は一つのみ)、その指定されたカラムが関連カラムとなります。
+	</p>
+	<div class="relatedpage"><a href="./specifycolumn.html#onlyonecolumn">SpecifyColumn - 他の機能から間借りされる</a></div>
+<pre><span class="codetitle">e.g. MyselfInScopeの実装手順 (Eclipseでコード補完) {MEMBER, BIRTHDATE} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .sc まで打つと比較条件選択</span>
+<span class="comment">// 2. myI で enter</span>
+cb.query().myI
+--
+
+<span class="comment">// メソッドが補完されて、引数の "subQuery" が選択状態に</span>
+cb.query().<span class="point">myselfInScope(subQuery)</span>
+--
+
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+cb.query().myselfInScope(<span class="point">new </span>)
+--
+
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.query().myselfInScope(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+--
+
+<span class="comment">// ctrl (or command) + D で不要な空行やTODOコメントを消して</span>
+<span class="comment">// 関連カラムと絞り込み条件を指定</span>
+cb.query().myselfInScope(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        <span class="comment">//subCB.specify().column...()</span> <span class="comment">// 指定がなければ PK カラム</span>
+        subCB.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 絞り込み条件</span>
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. MyselfInScopeを使って正式会員(のレコード)を取得 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> dfloc.MEMBER_ID = (<span class="keyword">select</span> sub1loc.MEMBER_ID
+                            <span class="keyword">from</span> MEMBER sub1loc
+                           <span class="keyword">where</span> sub1loc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+       )
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>引数の指定</dt><dd>引数の SubQuery は必須です。</dd>
+		<dt>関連カラムの指定はなし or 一つ</dt>
+		<dd>
+			SpecifyColumn での関連カラムの指定は、指定なし(PKカラム)か必ず一つだけです。
+			指定があり過ぎる場合は例外です。
+		</dd>
+		<dt>サブクエリのConditionBean</dt>
+		<dd>
+			サブクエリの ConditionBean は、関連カラムと絞り込み条件だけの指定に利用するものです。
+			SetupSelect や OrderBy などサブクエリとして必要のない機能は呼び出してはいけません。
+		</dd>
+	</dl>
+
+	<h2 id="supported">サポートされるテーブル</h2>
+	<p>
+		基点テーブルが単一の主キーである必要があります。(複合主キーはNG)
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

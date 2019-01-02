@@ -1,0 +1,394 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,includeQueryMap.dfprop,ソース量,コンパイル遅い" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>conditionBeanMap (includeQueryMap) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>conditionBeanMap</h1>
+	<p>
+		Java6版までは、includeQueryMap という名前でした。<span class="frm">(古い名前でも動きます)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="about">conditionBeanMapとは？</h2>
+	<p>
+		ConditionBeanに生成する検索のためのメソッド cb.query().set[column]_[condition-key](...)
+		を取捨選択(生成するかしないか)するためのDBFluteプロパティ。
+	</p>
+	<p>
+		DBFluteクライアントの dfprop
+		配下の conditionBeanMap.dfprop <span class="frm">(includeQueryMap.dfprop)</span> という名前のテキストファイルです。主に Generateタスク にて参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/genbafit/includequery/index.html">(CB)現場フィット - 条件メソッドの取捨選択</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#conditionkey">ConditionKey</a></div>
+	<p>
+		例えば、"日付のNotEqual" など、ほとんど利用しない条件は出力するだけソース量の無駄使い(コンパイルスピードに影響)なので、
+		出力しないようにしたい場合などに利用してください。
+		もし、アプリケーション全体で文字列型カラムに対して大なり小なり(&gt;、&lt;)の条件を付与することが絶対にないのであれば、String型の
+		"GreaterThan, LessThan, GreaterEqual, LessEqual"
+		を全て空指定すると効果が高いでしょう。間違った条件の付与を抑制するという面でも効果があります。
+	</p>
+	<p>
+		このプロパティは TwoEdgedSword 扱いです。<em class="keyword">厳重注意のもと</em> 利用して下さい。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、メソッドとそれに対するテーブルとカラムのマッピングを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">conditionBeanMapの仕様 @conditionBeanMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [property-type] = <span class="keyword">map:</span>{
+        ; [condition-key] = <span class="keyword">map:</span>{ [table-name] = list:{[column-name] ; <span class="abbreviation">...</span>} }
+    ; ...
+}
+</code></pre>
+	<p>
+		String、Number、Date の 3 種類の型に対して、それぞれ生成するメソッドを指定することができます。
+		このプロパティに定義した内容は、次のルールで ConditionBean に反映されます。
+	</p>
+	<dl class="textlist">
+		<dt>A. ConditionKey 自体が指定されていない</dt>
+		<dd>
+			全てのテーブルのカラムにおいて、その ConditionKey のメソッドは生成される。
+			生成設定がされていない(デフォルトの挙動の)状態と言える。
+		</dd>
+		<dt>B. ConditionKey にテーブルとカラムが指定されている</dt>
+		<dd>
+			該当カラムに対してのみ、その ConditionKey のメソッドが生成される。
+		</dd>
+		<dt>C. ConditionKey に何のテーブルも指定されていない</dt>
+		<dd>
+			全てのカラムにおいて、その ConditionKey のメソッドは生成されない。
+		</dd>
+		<dt>D. 除外指定の ConditionKey にテーブルとカラムが指定されている</dt>
+		<dd>
+			"A" の場合でも該当カラムのその ConditionKey のメソッドは生成されない。ただし、"B" や "C"
+			のように生成設定が明示的に指定されている場合は、該当カラムのおいてはこの除外指定は影響しない。
+			("D" は、"A, B, C" に対する追加事象)
+		</dd>
+	</dl>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+
+	<h3 id="propertytype">property-type (*)</h3>
+	<p>
+		プロパティ型を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt>
+		<dd>String, Number, Date, OrderBy<span class="frm">(@since 1.0.5B)</span>, Relation<span class="frm">(@since 1.0.5G)</span>, Myself<span class="frm">(@since 1.0.5B)</span></dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>String, Number, Dateと、データ型ごとに指定できる</li>
+				<li>OrderByは、データ型ごとではなくひとまとまりである</li>
+				<li>OrderByは、ConditionKeyとして Asc, Desc が指定できる</li>
+				<li>Relationは、ExistsReferrer, InScopeRelation などが指定できる</li>
+				<li>Relationは、カラムの指定が意味をなさないのでカラム指定はしない</li>
+				<li>Myselfは、InlineView<span class="frm">(@since 1.0.5G)</span>, ScalarCondition などが指定できる</li>
+				<li>Myselfは、カラムの指定が意味をなさないのでカラム指定はしない</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="conditionkey">condition-key (*)</h3>
+	<p>
+		生成対象の ConditionKey を指定します。
+	</p>
+	<p>
+		それぞれ先頭に "!" を付けると除外指定となります。また、"%" を付けると除外指定された中からの復活指定となります<span class="frm">(@since 1.0.5B)</span>。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt>
+		<dd>
+			NotEqual, GreaterThan, LessThan, GreaterEqual, LessEqual,
+			InScope, NotInScope, PrefixSearch, LikeSearch, NotLikeSearch,
+			EmptyString, FromTo, DateFromTo<span class="frm">(@since 0.9.7.5)</span>,
+			RangeOf<span class="frm">(@since 0.9.9.2C)</span>,
+			IsNull<span class="frm">(@since 1.0.5G)</span>,
+			IsNullOrEmpty<span class="frm">(@since 1.0.5G)</span>,
+			IsNotNull<span class="frm">(@since 1.0.5G)</span>
+		</dd>
+		<dd>
+			Asc, Desc <span class="frm">※OrderByで利用可能 (@since 1.0.5B)</span>
+		</dd>
+		<dd>
+			ScalarCondition, MyselfDerived, MyselfExists, MyselfInScope <span class="frm">※Myselfで利用可能 (@since 1.0.5B)</span>
+		</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>Equalは指定不可 (必ず生成される)</li>
+				<li>PrefixSearch, LikeSearch, NotLikeSearch, EmptyString は文字列型専用</li>
+				<li>FromTo, DateFromTo は日付型専用</li>
+				<li>RangeOf は数値型専用</li>
+				<li>EmptyStringは、別プロパティにて空文字条件が有効になっていることが前提。Equal、NotEqual
+					が対象となり、それらメソッドの定義とは独立した設定となる。
+					(例えば、NotEqual自体が無効になっていても、EmptyStringが有効であれば、EmptyStringのNotEqualメソッドは生成される)
+				</li>
+				<li>Asc, Desc は OrderBy 専用</li>
+				<li>ScalarCondition, MyselfDerived などは Myself 専用</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		依存関係のある演算子の指定は注意が必要です。例えば、FromTo の生成を完全に抑制した場合、DateFromTo
+		のメソッドではコンパイルエラーが発生します(依存しているため)。LikeSearch と PrefixSearch も同様です。
+	</p>
+	<h3 id="tablename">table-name</h3>
+	<p>
+		対象とするテーブル名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>(自動生成対象)テーブルの名前 or $$ALL$$</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>$$ALL$$ の場合は、対象カラムが存在する全てのテーブルに対して有効に</li>
+				<li>prefix:, suffix:などを使って曖昧検索もできる <span class="frm">e.g. suffix:_STATUS</span> <span class="frm">(@since 1.0.5B)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="column-name">column-name</h3>
+	<p>
+		対象とするカラム名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラムの名前 or $$CommonColumn$$ or $$VersionNo$$</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>$$CommonColumn$$ の場合は、共通カラム全てを指定したことになる</li>
+				<li>$$VersionNo$$ の場合は、バージョン番号カラムを指定したことになる</li>
+				<li><em class="keyword">prefix:</em>, <em class="keyword">suffix:</em> などを使って曖昧検索もできる <span class="frm">e.g. suffix:_ORDER</span> <span class="frm">(@since 1.0.5B)</span></li>
+				<li><em class="keyword">type:</em> を使ってデータ型(JDBC型)による検索もできる <span class="frm">e.g. type:CLOB</span> <span class="frm">(@since 1.0.5B)</span></li>
+				<li>プロパティ型が Myself のときは空っぽでOK <span class="frm">(指定するものがないため)</span> <span class="frm">(@since 1.0.5B)</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		type: を使ったJDBC型指定は、ConditionKeyでの除外指定と組み合わせて、例えば「テキスト型に対するInScopeやNotEqualを抑制する」のに使うとよいでしょう。
+	</p>
+
+	<h2 id="example">Example</h2>
+	<h3 id="egincludeexclude">e.g. 含める、除外する</h3>
+<pre><span class="codetitle">e.g. 文字列型カラムの大なり小なり比較を生成しない設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; String = <span class="keyword">map:</span>{
+        ; GreaterThan = <span class="keyword">map:</span>{}
+        ; LessThan = <span class="keyword">map:</span>{}
+        ; GreaterEqual = <span class="keyword">map:</span>{}
+        ; LessEqual = <span class="keyword">map:</span>{}
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 特定のテーブルのカラムに対してのみ生成する設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; String = <span class="keyword">map:</span>{
+        ; GreaterThan = <span class="keyword">map:</span>{ MEMBER = <span class="keyword">list:</span>{ MEMBER_ACCOUNT } }
+        ; LessThan = <span class="keyword">map:</span>{
+            ; PRODUCT = <span class="keyword">list:</span>{ PRODUCT_NAME ; PRODUCT_HANDLE_CODE }
+        }
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 文字列型の共通カラムの多くのメソッドを生成しない設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; String = <span class="keyword">map:</span>{
+        ; !NotEqual = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !GreaterThan = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !LessThan = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !GreaterEqual = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !LessEqual = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !InScope = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !NotInScope = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !PrefixSearch = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !LikeSearch = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+        ; !NotLikeSearch = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$CommonColumn$$</span> } }
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. VERSION_NO の多くのメソッドを生成しない設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; Number = map:{
+        ; !GreaterThan = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$VersionNo$$</span> } }
+        ; !LessThan = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$VersionNo$$</span> } }
+        ; !GreaterEqual = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$VersionNo$$</span> } }
+        ; !LessEqual = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$VersionNo$$</span> } }
+        ; !InScope = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$VersionNo$$</span> } }
+        ; !NotInScope = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="keyword">list:</span>{ <span class="attribute">$$VersionNo$$</span> } }
+    }
+}
+</code></pre>
+	<h3 id="egcolumndriven">e.g. カラムドリブンで指定 <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		もし、商品テーブルの REGULAR_PRICE は等値以外では絶対に使わないぞっ、というか使ってもらっちゃ困る、というときがあったら...
+		<span class="frm">@since 1.0.5G</span>
+	</p>
+<pre><span class="codetitle">e.g. 商品テーブルの REGULAR_PRICE は等値以外では使わないぞというときの設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; $Product = map:{
+        ; REGULAR_PRICE(Number) = <span class="keyword">list:</span>{}
+    }
+}
+</code></pre>
+	<p>
+		というか、REGULAR_PRICE は OrderBy でも使わないぞっ、というときがあったら...
+	</p>
+<pre><span class="codetitle">e.g. さらに REGULAR_PRICE は OrderBy でも使わないぞというときの設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; $Product = map:{
+        ; REGULAR_PRICE(Number) = <span class="keyword">list:</span>{}
+        ; REGULAR_PRICE(OrderBy) = <span class="keyword">list:</span>{}
+    }
+}
+</code></pre>
+	<p>
+		そしてさらに、PRODUCT_HANDLE_CODE では曖昧検索は使わないぞっ、というときがあったら...
+	</p>
+<pre><span class="codetitle">e.g. さらに REGULAR_PRICE は OrderBy でも使わないぞというときの設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; $Product = map:{
+        ; REGULAR_PRICE(Number) = <span class="keyword">list:</span>{}
+        ; REGULAR_PRICE(OrderBy) = <span class="keyword">list:</span>{}
+        ; PRODUCT_HANDLE_CODE(String) = <span class="keyword">list:</span>{
+            ; !PrefixSearch ; !LikeSearch ; !NotLikeSearch
+        }
+    }
+}
+</code></pre>
+	<h3 id="tablecls">e.g. テーブル区分値のスーパースリム化 <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		例えば、全てのテーブル区分値のテーブル名が CLS_ で始まっていて、CLS_FOO だと以下のようなカラム構成になっているとして...
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>FOO_CODE</dt><dd>codeに相当。主キーなので、DBFlute内部で色々と使う可能性がある</dd>
+		<dt>FOO_NAME</dt><dd>nameに相当。絞り込み条件やソート条件で使うようなことはない</dd>
+		<dt>FOO_ALIAS</dt><dd>aliasに相当。絞り込み条件やソート条件で使うようなことはない</dd>
+		<dt>DISPLAY_ORDER</dt><dd>ソートで使う。降順で並べることはない</dd>
+		<dt>COMMENT</dt><dd>commentに相当。絞り込み条件やソート条件で使うようなことは絶対にない</dd>
+	</dl>
+	<p>
+		まずは、classificationDefinitionMap.dfpropにて、isSuppressDBAccessClass を true にします。
+		もし、Behaviorが必要なテーブル区分値があったら、その区分値だけ false にします。
+	</p>
+<pre><span class="codetitle">e.g. Foo区分値のBehaviorを生成しない @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; Foo = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{
+            ; topComment=<span class="abbreviation">...</span>; codeType=String
+            <span class="point">; isSuppressDBAccessClass = true</span>
+        }
+        <span class="abbreviation">...</span>
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	そして、ほとんどの絞り込み条件とソート条件を外します。DISPLAY_ORDERは Desc だけを抑制しています。さらに、InlineView
+	も抑制しているので、CIQクラスが生成されません。
+<pre><span class="codetitle">e.g. テーブル区分値のスーパースリム化の設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; $<span class="attribute">prefix:</span>CLS_ = <span class="keyword">map:</span>{
+        ; <span class="attribute">suffix:</span>_CODE(String) = <span class="keyword">list:</span>{}
+        ; <span class="attribute">suffix:</span>_NAME(String) = <span class="keyword">list:</span>{}
+        ; <span class="attribute">suffix:</span>_NAME(OrderBy) = <span class="keyword">list:</span>{}
+        ; <span class="attribute">suffix:</span>_ALIAS(String) = <span class="keyword">list:</span>{}
+        ; <span class="attribute">suffix:</span>_ALIAS(OrderBy) = <span class="keyword">list:</span>{}
+        ; DISPLAY_ORDER(Number) = <span class="keyword">list:</span>{}
+        ; DISPLAY_ORDER(OrderBy) = <span class="keyword">list:</span>{ !Desc }
+        ; <span class="attribute">suffix:</span>_COMMENT(String) = <span class="keyword">list:</span>{}
+        ; <span class="attribute">suffix:</span>_COMMENT(OrderBy) = <span class="keyword">list:</span>{}
+    }
+    ; Relation = <span class="keyword">map:</span>{
+        ; !ExistsReferrer = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !InScopeRelation = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !DerivedReferrer = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !SpecifiedDerivedOrderBy = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+    }
+    ; Myself = <span class="keyword">map:</span>{
+        ; !InlineView = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !ScalarCondition = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !MyselfDerived = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !MyselfExists = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !MyselfInScope = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+    }
+}
+</code></pre>
+	<p>
+		もし、とある区分値だけ DISPLAY_ORDER で降順を使う、というような場合は、OrderByのプロパティ型にて復活指定を追加します。
+		<span class="frm">(わりと多くの区分値で使うのであれば、そもそも除外指定の方を削除しましょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. CLS_BAR だけは DISPLAY_ORDER で降順ソートする設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; OrderBy = <span class="keyword">map:</span>{
+        ; %Desc = <span class="keyword">map:</span>{ CLS_BAR = <span class="keyword">list:</span>{ DISPLAY_ORDER } }
+    }
+    ; $<span class="attribute">prefix:</span>CLS_ = <span class="keyword">map:</span>{
+        <span class="abbreviation">...</span>
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		もし、とある区分値だけ DerivedReferrer を使う、というような場合は、Relationのプロパティ型にて復活指定を追加します。
+		<span class="frm">(わりと多くの区分値で使うのであれば、そもそも除外指定の方を削除しましょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. CLS_BAR だけは DerivedReferrer する設定例 @includeQueryMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; Relation = <span class="keyword">map:</span>{
+        ; !ExistsReferrer = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !InScopeRelation = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !DerivedReferrer = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; !SpecifiedDerivedOrderBy = <span class="keyword">map:</span>{ <span class="attribute">prefix:</span>CLS_ = <span class="keyword">list:</span>{} }
+        ; %DerivedReferrer = <span class="keyword">map:</span>{ CLS_BAR = list:{} }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

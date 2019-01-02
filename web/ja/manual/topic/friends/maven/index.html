@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Maven" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Friends - Maven | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Friends - Maven</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、同時に利用するととても便利なライブラリを紹介します。
+	</p>
+	${indexlist}
+
+	<h2 id="overview">DBFlute と Maven</h2>
+	<p>
+		DBFluteは、利用上において特に Maven に依存してはいません。ですが、DBFlute の利用を支援する Maven DBFlute Plugin
+		が存在し、また幾つかの DBFlute Example は Maven でクラスパスを管理されています。
+	</p>
+	<p>
+		DBFluteランタイムの jar ファイルは、Maven リポジトリで公開されているため、アプリケーションで Maven
+		を利用している場合、DBFluteランタイム dependency に定義するだけで利用することができます。
+		また、DBFluteランタイム自体のプロジェクトの管理も Maven で管理されています(ただし、DBFluteモジュールは Maven 管理ではない)。
+	</p>
+
+	<h2 id="supplement">Maven補足資料</h2>
+	<h3 id="m2repo">M2_REPOの設定</h3>
+	<p>
+		Mavenコマンドから M2_REPO を設定することができます。ただし、追加後は Eclipse を再起動する必要があります。
+	</p>
+<pre><span class="codetitle">e.g. カレントディレクトリのワークスペースに M2_REPO を追加 @Command</span><code>
+<span class="keyword">mvn</span> -Declipse.workspace=. eclipse:add-maven-repo
+</code></pre>
+	<p>
+		既に M2_REPO 登録されている状態でのこのコマンドを叩いても無視されるだけです。例えば、Eclipseに M2Eclipse
+		プラグインが入っている場合は、M2_REPO は既に登録されている可能性があります。
+	</p>
+	<h3 id="eclipse">Eclipseプロジェクトの作成</h3>
+	<p>
+		Mavenコマンドから Eclipse プロジェクトを作成することができます。プロジェクト直下に pom.xml
+		を配置し、(コマンドのカレントディレクトリを pom.xml と同じ場所にして) eclipse:eclipse
+		ゴールを実行すると、その pom.xml の設定通りの .project, .classpath ファイルが自動生成されます。
+		ただし、作成後は Eclipse の該当プロジェクトをリフレッシュ(F5)する必要があります。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseプロジェクトを作成 @Command</span><code>
+<span class="keyword">mvn</span> eclipse:eclipse
+</code></pre>
+	<h4 id="sourcedl">ソースコードのダウンロードの有無</h4>
+	<p>
+		Eclipse のソースコードをダウンロードするか否かを pom.xml に定義しておくことができます。
+	</p>
+<pre><span class="codetitle">e.g. ソースコードをダウンロード有無の設定 @pom.xml</span><code>
+<span class="abbreviation">...</span>
+      &lt;plugin&gt;
+        &lt;groupId&gt;<span class="literal">org.apache.maven.plugins</span>&lt;/groupId&gt;
+        &lt;artifactId&gt;<span class="literal">maven-eclipse-plugin</span>&lt;/artifactId&gt;
+        &lt;version&gt;<span class="literal">2.8</span>&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;workspace&gt;<span class="literal">${basedir}/..</span>&lt;/workspace&gt;
+          &lt;<span class="point">downloadSources</span>&gt;<span class="literal">true</span>&lt;/<span class="point">downloadSources</span>&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+<span class="abbreviation">...</span>
+</code></pre>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 L | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 L</h1>
+	<p>
+		"L" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="likesearch" class="dicword">LikeSearch (曖昧検索)</h2>
+	<p>
+		DBFluteでは、曖昧検索のこと、もしくは、その検索を提供する機能のことを示します。
+	</p>
+	<div class="detailpage"><a href="../../../topic/programming/dbaccess/likesearch.html">DBアクセス - 曖昧検索</a></div>
+
+	<h2 id="likesearchcondition" class="dicword">LikeSearchCondition (LikeSearch条件)</h2>
+	<p>
+		DBFluteでは、曖昧検索の条件を設定する機能、もしくは、その条件自体のことを示します。
+	</p>
+	<div class="detailpage"><a href="../../../topic/programming/dbaccess/likesearch.html">DBアクセス - 曖昧検索</a></div>
+
+	<h2 id="likesearchmatchdirection" class="dicword">LikeSearchMatchDirection (LikeSearch条件の一致の方向)</h2>
+	<p>
+		DBFluteでは、LikeSearch条件における、曖昧に一致させる方向のことを示します。例えば、"A で始まる"
+		という条件の場合は、"前方一致" と呼び、"B で終わる" という条件の場合は、"後方一致" と呼びます。
+	</p>
+	<div class="relatedword"><a href="./wp.html#prefixsearch">前方一致</a></div>
+	<div class="relatedword"><a href="./ws.html#suffixsearch">後方一致</a></div>
+	<div class="relatedword"><a href="./wc.html#containsearch">部分一致</a></div>
+
+	<h2 id="likesearchescape" class="dicword">LikeSearchEscape (LikeSearch条件のエスケープ)</h2>
+	<p>
+		DBFluteでは、LikeSearch条件におけるワイルドカードやエスケープ文字自体をエスケープするエスケープ処理のことを示します。
+	</p>
+	<div class="detailpage"><a href="../../../topic/programming/dbaccess/likesearch.html#escape">DBアクセス - 曖昧検索 - エスケープ</a></div>
+
+	<h2 id="limit" class="dicword">limit <span class="frm">for Paging</span></h2>
+	<p>
+		DBFluteでは、主にページング検索における絞りこみの "件数" を示します。例えば、81-100件目を取得する際の limit 値は 20
+		となります。その絞り込みを実現するための処理を "limit処理" と呼んでいます。
+	</p>
+	<div class="relatedword"><a href="./wo.html#offset">offset</a></div>	
+
+	<h2 id="ludia" class="dicword">Ludia</h2>
+	<p>
+		PostgreSQLに全文検索機能を追加する拡張モジュールです。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/postgresql/index.html#fulltextsearch">PostgreSQL - ConditionBeanで全文検索</a></div>
+	<div class="relatedword"><a href="./wf.html#fulltextsearch">FullTextSearch (全文検索)</a></div>
+	<div class="relatedword"><a href="./ws.html#senna">Senna</a></div>
+
+	<h2 id="loopthrough" class="dicword">LoopThrough (ループスルー) <span class="frm">for Cursor</span></h2>
+	<p>
+		ページング処理におけるカーソルスキップの実現方法の一つで、カーソルをループさせて読み込み対象外レコードを単純に読み飛ばす方法のことを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/programming/dbaccess/pagingselect.html#cursorskip">DBアクセス - ページング検索 - カーソルスキップ</a></div>	
+	<div class="relatedword"><a href="./wp.html#pointershift">PointerShift (ポインタシフト)</a></div>	
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,JDBC,メタデータ,メタ情報,スキーマ情報,ログ,Log,コンソール,console,dbflute.log" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>JDBCタスクのログ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>JDBCタスクのログ</h1>
+	${indexlist}
+
+	<h2 id="about">ログの活用</h2>
+	<p>
+		正常終了したか異常終了したかだけを気にしていれば、JDBCタスクのログを意識することはあまりないでしょう。
+		メタデータとして取得したテーブルの一覧が表示されるので、それが見当違いのテーブル(別のスキーマのテーブルとか、全く見知らぬテーブルとか)でなければ問題ありません。
+	</p>
+	<p>
+		ただ、ちょっと特殊な状況で挙動を期待通りでないような場合にログを見て分析をすることがあります。
+		問題解決するためにメーリングリストなどにフィードバックをする際はこのログの提示が重要です。
+	</p>
+	<div class="relatedpage"><a href="../index.html#log">DBFluteタスク - タスク実行ログ</a></div>
+
+	<h2 id="example">ログのExample</h2>
+	<p>
+		例えば、以下のようなログが出力されます。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-spring-example のJDBCタスクのログ (日付など一部省略) @Console</span><code>
+<span class="abbreviation">...</span>$ sh jdbc.sh
+/nnnnnnnnnnnnnnnnnnnnn
+Execute the JDBC task.
+nnnnnnnnnn/
+Buildfile: ../mydbflute/dbflute-0.9.8.1/build-torque.xml
+
+jdbc:
+     [echo] +-----------------------------------------------+
+     [echo] |                                               |
+     [echo] | Generating XML from JDBC connection !         |
+     [echo] |                                               |
+     [echo] +-----------------------------------------------+
+     [echo]  
+     [echo] +-------------------------------------------------------------------------------+
+     [echo] contextProperties = build.properties
+     [echo] environmentType   = 
+     [echo] +-----------------+
+  [df-jdbc] <span class="abbreviation">...</span>276 INFO  - ...Using contextProperties: build.properties
+  [df-jdbc] <span class="abbreviation">...</span>322 INFO  - [Build-Properties]: size=1
+  [df-jdbc] <span class="abbreviation">...</span>322 INFO  -   torque.project = exampledb
+  [df-jdbc] <span class="abbreviation">...</span>324 INFO  - 
+  [df-jdbc] <span class="abbreviation">...</span>372 INFO  - ...Creating data source:
+  [df-jdbc] <span class="abbreviation">...</span>373 INFO  -   driver = org.h2.Driver
+  [df-jdbc] <span class="abbreviation">...</span>374 INFO  -   url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+  [df-jdbc] <span class="abbreviation">...</span>374 INFO  -   user   = sa
+  [df-jdbc] <span class="abbreviation">...</span>396 INFO  - ...Connecting to the database:
+  [df-jdbc] <span class="abbreviation">...</span>164 INFO  -   product = H2 1.3.150 (2011-01-28)
+  [df-jdbc] <span class="abbreviation">...</span>166 INFO  -   driver  = H2 JDBC Driver 1.3.150 (2011-01-28) for JDBC 3.0
+  [df-jdbc] <span class="abbreviation">...</span>166 INFO  - 
+  [df-jdbc] <span class="abbreviation">...</span>167 INFO  - ...Starting to process JDBC to SchemaXML
+  [df-jdbc] <span class="abbreviation">...</span>167 INFO  - ...Loading previous schema (schema diff process)
+  [df-jdbc] <span class="abbreviation">...</span>206 INFO  - ...Resolving XML by database.dtd in same package
+  [df-jdbc] <span class="abbreviation">...</span>402 INFO  - ...Instantiate DB-driver
+  [df-jdbc] <span class="abbreviation">...</span>404 INFO  - ...Getting DB-connection
+  [df-jdbc] <span class="abbreviation">...</span>405 INFO  - ...Getting DB-meta-data
+  [df-jdbc] <span class="abbreviation">...</span>406 INFO  - ...Getting tables:
+  [df-jdbc] <span class="abbreviation">...</span>408 INFO  -   schema = {EXAMPLEDB.PUBLIC as main}
+  [df-jdbc] <span class="abbreviation">...</span>408 INFO  -   types  = [TABLE, VIEW]
+  [df-jdbc] <span class="abbreviation">...</span>456 INFO  - 
+  [df-jdbc] <span class="abbreviation">...</span>456 INFO  - $ /= = = = = = = = = = = = = = = = = = = = = = = = = =
+  [df-jdbc] <span class="abbreviation">...</span>457 INFO  - $ [Table List]
+  [df-jdbc] <span class="abbreviation">...</span>458 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER(TABLE) // 会員: 会員登録時にInsertされる。...
+  [df-jdbc] <span class="abbreviation">...</span>515 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER_ADDRESS(TABLE) // 会員住所情報: 有効期間による履歴管理
+  [df-jdbc] <span class="abbreviation">...</span>531 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER_LOGIN(TABLE) // 会員ログイン: ログインの度にInsertされる
+  [df-jdbc] <span class="abbreviation">...</span>636 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER_SECURITY(TABLE) // 会員セキュリティ情報: 
+  [df-jdbc] <span class="abbreviation">...</span>649 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER_SERVICE(TABLE) // 会員サービス: 会員のサービス情報(ポイントサービスなど)
+  [df-jdbc] <span class="abbreviation">...</span>659 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER_STATUS(TABLE) // 会員ステータス: 固定の区分値
+  [df-jdbc] <span class="abbreviation">...</span>693 INFO  - $ EXAMPLEDB.PUBLIC.MEMBER_WITHDRAWAL(TABLE) // 会員退会情報: 退会するとInsertされる
+  [df-jdbc] <span class="abbreviation">...</span>704 INFO  - $ EXAMPLEDB.PUBLIC.PRODUCT(TABLE) // 商品: 
+  [df-jdbc] <span class="abbreviation">...</span>712 INFO  - $ EXAMPLEDB.PUBLIC.PRODUCT_CATEGORY(TABLE) // 商品カテゴリ: 
+  [df-jdbc] <span class="abbreviation">...</span>719 INFO  - $ EXAMPLEDB.PUBLIC.PRODUCT_STATUS(TABLE) // 商品ステータス: 
+  [df-jdbc] <span class="abbreviation">...</span>728 INFO  - $ EXAMPLEDB.PUBLIC.PURCHASE(TABLE) // 購入: 購入の度ににInsertされる
+  [df-jdbc] <span class="abbreviation">...</span>750 INFO  - $ EXAMPLEDB.PUBLIC.REGION(TABLE)
+  [df-jdbc] <span class="abbreviation">...</span>760 INFO  - $ EXAMPLEDB.PUBLIC.SERVICE_RANK(TABLE) // サービスランク: 会員のサービスランク(プラチナ、ゴールドなど)
+  [df-jdbc] <span class="abbreviation">...</span>773 INFO  - $ EXAMPLEDB.PUBLIC.VENDOR_$_DOLLAR(TABLE)
+  [df-jdbc] <span class="abbreviation">...</span>781 INFO  - $ EXAMPLEDB.PUBLIC.VENDOR_CHECK(TABLE)
+  [df-jdbc] <span class="abbreviation">...</span>791 INFO  - $ EXAMPLEDB.PUBLIC.WITHDRAWAL_REASON(TABLE)
+  [df-jdbc] <span class="abbreviation">...</span>800 INFO  - $ EXAMPLEDB.PUBLIC.SUMMARY_PRODUCT(VIEW)
+  [df-jdbc] <span class="abbreviation">...</span>808 INFO  - $ EXAMPLEDB.PUBLIC.SUMMARY_WITHDRAWAL(VIEW)
+  [df-jdbc] <span class="abbreviation">...</span>814 INFO  - $ 
+  [df-jdbc] <span class="abbreviation">...</span>814 INFO  - $ [Table Count]
+  [df-jdbc] <span class="abbreviation">...</span>814 INFO  - $ 18
+  [df-jdbc] <span class="abbreviation">...</span>815 INFO  - $ = = = = = = = = = =/
+  [df-jdbc] <span class="abbreviation">...</span>815 INFO  - 
+  [df-jdbc] <span class="abbreviation">...</span>817 INFO  - ...Serializing XML:
+  [df-jdbc] <span class="abbreviation">...</span>817 INFO  -   filePath = ./schema/project-schema-exampledb.xml
+  [df-jdbc] <span class="abbreviation">...</span>817 INFO  -   encoding = UTF-8
+  [df-jdbc] <span class="abbreviation">...</span>889 INFO  - ...Loading next schema (schema diff process)
+  [df-jdbc] <span class="abbreviation">...</span>891 INFO  - ...Resolving XML by database.dtd in same package
+  [df-jdbc] <span class="abbreviation">...</span>955 INFO  -   -> same as previous
+  [df-jdbc] <span class="abbreviation">...</span>956 INFO  - ...closeReally()
+  [df-jdbc] <span class="abbreviation">...</span>013 INFO  - 
+  [df-jdbc] 
+  [df-jdbc] _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+  [df-jdbc] [Task End]: 00m01s656ms
+  [df-jdbc] 
+  [df-jdbc]   DBFLUTE_CLIENT: {exampledb}
+  [df-jdbc]     database  = h2 (H2 1.3.150 (2011-01-28))
+  [df-jdbc]     language  = java
+  [df-jdbc]     container = spring
+  [df-jdbc]     package   = com.example.dbflute.spring.dbflute
+  [df-jdbc] 
+  [df-jdbc]   DBFLUTE_ENVIRONMENT_TYPE: {df:default}
+  [df-jdbc]     driver = org.h2.Driver
+  [df-jdbc]     url    = jdbc:h2:file:../src/main/resources/exampledb/exampledb
+  [df-jdbc]     schema = {EXAMPLEDB.PUBLIC as main}
+  [df-jdbc]     user   = sa
+  [df-jdbc]     props  = {}
+  [df-jdbc]     additionalSchema = 
+  [df-jdbc]     dataLoadingType  = ut
+  [df-jdbc]     refreshProject   = dbflute-spring-example
+  [df-jdbc] _/_/_/_/_/_/_/_/_/_/ {JDBC}
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

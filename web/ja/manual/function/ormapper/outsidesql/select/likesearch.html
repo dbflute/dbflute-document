@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,曖昧検索,Like検索,LikeSearch,LikeSearch条件" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)LikeSearch | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)LikeSearch</h1>
+	<p>
+		"外だしSQLの使い方" を既に読んでいることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../howto.html">外だしSQLの使い方</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">外だしSQLでLikeSearch条件を使った検索(曖昧検索)</em>
+		をします。DBFluteにおけるLikeSearch条件(曖昧検索)とはどのようなものか？について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/likesearchcondition/index.html">現場フィット - LikeSearch条件</a></div>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)らいくさーち(条件)</em> と表現します。
+	</p>
+
+	<h2 id="outsidelike">外だしSQLでの曖昧検索</h2>
+	<p>
+		外だしSQLにおける曖昧検索は、<em class="keyword">ParameterBean のオプション機能</em> を利用して実装します。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/pmbpropoption.html#likesearch">ParameterBean - 曖昧検索のオプション</a></div>
+<pre><span class="codetitle">e.g. 会員名で固定でエスケープ付きの部分一致 (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="point">'%foo%'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名で固定でエスケープ付きの部分一致 (明示的宣言) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String memberName:</span><span class="point">likeContain</span><span class="comment">!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'foo'</span>
+</code></pre>
+	<div class="inucolumn">
+		<h3>固定なら別の方法でもできるが...</h3>
+		<p>
+			一致の方向が固定なのであれば、<em class="keyword">実は ParameterBean
+			のオプション機能を利用しなくても実現はできますが、エスケープ処理が施されないため推奨されません</em>。
+		</p>
+<pre><span class="codetitle">e.g. オプションなしでの外だしSQLの曖昧検索 @OutsideSql</span><code>
+where MEMBER_NAME like /*pmb.memberName*/'testValue' || '%'
+</code></pre>
+		<p>
+			このようにしておくと、文字列連結の演算子とワイルドカードはテスト値として判定されないので、
+			指定されたパラメータにワイルドカードがくっ付いて前方一致になります。この場合、さらに後ろに escape
+			構文を付与しても、指定されたパラメータの中にエスケープ文字を埋め込む処理を別途自前でする必要があります。		
+		</p>
+<pre><span class="codetitle">e.g. escape文字を指定しても埋め込み処理をしなければ無意味 @OutsideSql</span><code>
+where MEMBER_NAME like /*pmb.memberName*/'testValue' || '%' escape '|'
+</code></pre>
+		<p>
+			さらに、SQL上ので文字列連結の演算子は、DBMS依存です。演算子が "+" だったり、"||"
+			ではあってもデフォルトでは利用不可になっていたりする可能性があります。 
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

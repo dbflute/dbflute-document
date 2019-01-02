@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,シーケンスキャッシュ,SequenceCache,シーケンスのパフォーマンス,insertのパフォーマンス" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>SQLログの取得 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SQLログの取得</h1>
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteで実行されたSQLは、全てデバッグログに表示用SQLとして出力されますが、
+		そのログをアプリで取得することができます。
+		例えば、本番環境において操作ログの一環として実行されたSQLをログに残すというような場合、
+		(ログレベルはデバッグはOFFの状態でも)取得したログを操作ログ専用のファイルに出力するというようなことができます。
+	</p>
+	<p>
+		ただ、表示用SQLだけを取得して単にログに出力したいのであれば、Log4j で QLog
+		クラスで出力されるログだけを有効にする設定をすれば、表示用SQLだけログに出力するという要件は実現できます。
+		ただし、それだと小回りが利きにくいため、細かい制御をするに場合はこの "SQLログの取得" が有効です。
+	</p>
+	<div class="relatedpage"><a href="../../implfit/debuglog/index.html#sqlexeclog">DBFluteのSQL実行ログ</a></div>
+
+	<h2 id="howto">基本的な使い方</h2>
+	<h3 id="sqlloghandler">SqlLogHandler</h3>
+	<p>
+		SQLログを取り扱うコールバック、SqlLogHandler をスレッドローカルに登録することで、SQL実行直前のタイミングでSQLログを取得することができます。
+	</p>
+<pre><span class="codetitle">e.g. SqlLogHandlerの基本的な使い方 @Java</span><code>
+CallbackContext.setSqlLogHandlerOnThread(<span class="keyword">new</span> SqlLogHandler() {
+    <span class="keyword">public void</span> handle(SqlLogInfo sqlLogInfo) {
+        <span class="comment">// you can handle the SQL here</span>
+        String executedSql = sqlLogInfo.getExecutedSql();
+        Object[] bindArgs = sqlLogInfo.getBindArgs();
+        Class&lt;?&gt;[] bindArgs = sqlLogInfo.getBindArgTypes();
+        String displaySql = sqlLogInfo.getDisplaySql();
+    }
+});
+
+<span class="keyword">try</span>> {
+    memberBhv.selectList(cb); <span class="comment">// called it back (first)</span>
+    memberBhv.update(member); <span class="comment">// called it back (second)</span>
+} <span class="keyword">finally</span> {
+    CallbackContext.clearSqlLogHandlerOnThread();
+}
+</code></pre>
+	<p>
+		個別個別のDBアクセス処理に対して SqlLogHandler
+		を設定するというのはあまり想定されません。実務的には、共通部分で SqlLogHandler
+		を設定し、全てのリクエストで実行されるSQLを記録するなどの使い方が想定されます。
+	</p>
+	<div class="relatedpage"><a href="#casestudy">this - ケースごとの使い方</a></div>
+	<h3 id="sqlloginfo">SqlLogInfoの属性</h3>
+	<p>
+		SqlLogInfoの属性は以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>executedSql</dt><dd>実行されたSQL。バインド変数部分は "?" はてなに</dd>
+		<dt>args</dt><dd>バインド変数の値の配列。</dd>
+		<dt>argTypes</dt><dd>バインド変数の値の型の配列。</dd>
+		<dt>displaySql</dt><dd>表示用SQL。デバッグログに出力されているものと同じ</dd>
+	</dl>
+	<p>
+		displaySql は、getDisplaySql()
+		の最初の呼び出しで生成されます。その後の呼び出しではキャッシュされた文字列が戻ります<span class="frm">(@since 0.9.9.4A)</span>。
+		これは、displaySql を利用しない場合に無駄な文字列生成コストを発生させないためです。
+		ログレベルがデバッグだったりなど、別の機能で既に displaySql の文字列が存在する場合は、最初からキャッシュされています。
+	</p>
+	<h3 id="oldversion">旧バージョンにおいて</h3>
+	<p>
+		0.9.9.0B より前のバージョンでは setSqlLogHandlerOnThread() メソッドがないため、CallbackContext
+		を new して、setCallbackContextOnThread() を利用します。
+	</p>
+	<p>
+		0.9.9.4A より前のバージョンではコールバックの引数が SqlLogInfo
+		ではなく、SqlLogInfoの属性がそのまま引数となっています。アップグレード時にはコンパイルエラーとして検知されます。
+	</p>
+
+	<h2 id="casestudy">ケースごとの使い方</h2>
+	<h3 id="allway">リクエストで実行される全てのSQLを記録</h3>
+	<p>
+		実務的には、リクエスト処理で実行されたSQL(例外になったものも含む)を全て取得して記録に残すというような要件が想定されます。
+		その場合は、SqlLogHandler を設定する処理をリクエストの入り口で実行される Interceptor
+		などで実装すると良いでしょう。SqlLogHandler
+		はSQLが実行される直前にコールバックされますので、当然実行エラー(になる予定の)のSQLでもコールバックされます。
+	</p>
+<pre><span class="codetitle">e.g. SqlLogHandler を Interceptor で登録し、全てのSQLを記録 @Java</span><code>
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    <span class="keyword">if</span> (CallbackContext.isExistSqlLogHandlerOnThread()) {
+        <span class="comment">// 既に設定されていたら何もしないで次へ</span>
+        <span class="comment">// (二度呼び出しされたときのために念のため)</span>
+        <span class="keyword">return</span> invocation.proceed();
+    }
+    CallbackContext.setSqlLogHandlerOnThread(<span class="keyword">new</span> SqlLogHandler() {
+        <span class="keyword">public void</span> handle(SqlLogInfo sqlLogInfo) {
+            <span class="comment">// ログに出力するなり好きなように</span>
+            <span class="abbreviation">...</span>
+        }
+    });
+
+    <span class="keyword">try</span>> {
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">finally</span> {
+        <span class="comment">// 最後はしっかりクリアすること (必須)</span>
+        CallbackContext.clearSqlLogHandlerOnThread();
+    }
+}
+</code></pre>
+	<p>
+		コールバックされるたびにつどつど処理するのではなく、そのリクエストのSQLをまとめて一気に処理したい場合は、
+		コールバックでは一旦リストなどにSQLを登録して保持しておいて、リクエストが終わった後(例外時も含む)にまとめて記録すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. リクエストが終わった後にまとめて記録 @Java</span><code>
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    <span class="abbreviation">...</span> <span class="comment">// 既に設定されていたらのチェック</span>
+
+    <span class="keyword">final</span> List&lt;String&gt; sqlList = new ArrayList&lt;String&gt;(); 
+    CallbackContext.setSqlLogHandlerOnThread(<span class="keyword">new</span> SqlLogHandler() {
+        <span class="keyword">public void</span> handle(SqlLogInfo sqlLogInfo) {
+            sqlList.add(displaySql);
+        }
+    });
+
+    <span class="keyword">try</span>> {
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">finally</span> {
+        <span class="comment">// 最後はしっかりクリアすること (必須)</span>
+        CallbackContext.clearSqlLogHandlerOnThread();
+
+        <span class="keyword">for</span> (String displaySql : sqlList) {
+            <span class="comment">// ログに出力するなり煮るなり</span>
+        }
+        <span class="comment">// 厳密には、このSQLログの処理で例外が発生した場合に、</span>
+        <span class="comment">// どういったリカバリをするか検討する必要がある。</span>
+        <span class="comment">// (例えば、警告ログだけ出力してSQLログの例外は無視するとか)</span>
+    }
+}
+</code></pre>
+	<p>
+		つどつど記録するか、まとめて記録するかは、パフォーマンス要件や記録処理のトランザクションなどの仕組み上の都合などが絡むため、
+		そのときの要件に合わせて実装すると良いでしょう。
+	</p>
+	<dl class="textlist">
+		<dt>つどつど記録</dt>
+		<dd>
+			途中で finally コードも処理できないレベルのシステム中断が発生しても、そこまでの記録は残る。
+			また、実装は非常に簡単になる。ただし、つどつど処理となるため、パフォーマンス上の問題が発生しやすい。
+		</dd>
+		<dt>まとめて記録</dt>
+		<dd>
+			一つのリクエストに付き記録処理が必ず一つとなるので、パフォーマンス上の問題やトランザクションなど記録処理の仕組みの都合などは比較的回避しやすいと想定される。
+			ただし、途中で finally コードも処理できないレベルのシステム中断が発生した場合には何も残らない。
+		</dd>
+		<dd>
+			また、一つのリクエストでSQLを(例えば)10万回以上実行するような処理があった場合、10万のSQLが一時的にリストに登録されるため、メモリを圧迫する可能性がある。
+		</dd>
+	</dl>
+	<h3 id="exceptionway">例外中断したリクエストのSQLを記録</h3>
+	<p>
+		例外で中断したリクエストで実行されたSQLだけを記録したい場合は、
+		コールバックでは一旦リストなどにSQLを登録して保持しておいて、例外が発生したときにだけ記録すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. 例外中断したリクエストのSQLを記録 (Interceptor利用) @Java</span><code>
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    <span class="abbreviation">...</span> <span class="comment">// 既に設定されていたらのチェック</span>
+
+    <span class="keyword">final</span> List&lt;String&gt; sqlList = new ArrayList&lt;String&gt;(); 
+    CallbackContext.setSqlLogHandlerOnThread(<span class="keyword">new</span> SqlLogHandler() {
+        <span class="keyword">public void</span> handle(SqlLogInfo sqlLogInfo) {
+            sqlList.add(sqlLogInfo.getDisplaySql());
+        }
+    });
+    CallbackContext.setCallbackContextOnThread(context);
+
+    <span class="keyword">try</span>> {
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">catch</span> (Exception e) {
+        <span class="keyword">for</span> (String displaySql : sqlList) {
+            <span class="comment">// ログに出力するなり煮るなり</span>
+        }
+        <span class="comment">// 厳密には、このSQLログの処理で例外が発生した場合に、</span>
+        <span class="comment">// どういったリカバリをするか検討する必要がある。</span>
+        <span class="comment">// (例えば、警告ログだけ出力してSQLログの例外は無視するとか)</span>
+        <span class="keyword">throw</span> e;
+    } <span class="keyword">finally</span> {
+        <span class="comment">// 最後はしっかりクリアすること (必須)</span>
+        CallbackContext.clearSqlLogHandlerOnThread();
+    }
+}
+</code></pre>
+	<h3 id="updateway">更新系のSQLだけを記録</h3>
+	<p>
+		検索は除外して更新系のSQLだけを記録したい場合は、内部的なクラスを利用することにはなってしまいますが、BehaviorCommand
+		クラスにて判定ができます。
+	</p>
+	<p>
+		ResourceContext.behaviorCommand().isSelect() が false
+		であれば更新系となります。insert() や update() などに加え、queryUpdate() や 外だしSQLの execute()
+		も含まれます。ただし、この判定メソッドはもともとこの機能のために用意されたものではないので、業務で利用する場合はしっかりとテストを行う必要があります。
+	</p>
+<pre><span class="codetitle">e.g. 更新系のSQLだけを記録 (Interceptor利用) @Java</span><code>
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    <span class="abbreviation">...</span> <span class="comment">// 既に設定されていたらのチェック</span>
+
+    CallbackContext.setSqlLogHandlerOnThread(<span class="keyword">new</span> SqlLogHandler() {
+        <span class="keyword">public void</span> handle(SqlLogInfo sqlLogInfo) {
+            if (!ResourceContext.behaviorCommand().isSelect()) {
+                <span class="comment">// ログに出力するなり好きなように</span>
+                <span class="abbreviation">...</span>
+            }
+        }
+    });
+
+    <span class="keyword">try</span>> {
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">finally</span> {
+        <span class="comment">// 最後はしっかりクリアすること (必須)</span>
+        CallbackContext.clearSqlLogHandlerOnThread();
+    }
+}
+</code></pre>
+	<p>
+		この ResourceContext と BehaviorCommand は、DBFluteランタイムの内部的なクラスと言えます。
+		よって、これらクラスは DBFlute のバージョンが変わればインターフェースや挙動が変わる可能性がありますので、
+		自動テスト(JUnitなど)としていつでも検証できる環境を整えておくことが推奨されます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

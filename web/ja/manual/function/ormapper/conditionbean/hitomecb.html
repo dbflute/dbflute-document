@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>ひとめでConditionBean | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ひとめでConditionBean</h1>
+	<div class="relatedpage"><a href="../../../../../manual/function/ormapper/conditionbean/hitomecb.html">to English Page</a></div>
+	${indexlist}
+
+	<h2 id="function">ConditionBeanの機能</h2>
+	<h3 id="select">データの取得</h3>
+<pre><span class="codetitle">データの取得 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+
+<span class="comment">// &lt;&lt;&lt; SetupSelect(Relation), SpecifyColumn &gt;&gt;&gt;</span>
+cb.setupSelect_MemberStatus(); <span class="comment">// many-to-oneテーブルの取得</span>
+cb.specify().specifyMemberStatus().columnMemberStatusName(); <span class="comment">// 特定カラムだけ</span>
+cb.setupSelect_MemberSecurityAsOne(); <span class="comment">// one-to-oneの取得</span>
+cb.setupSelect_MemberServiceAsOne().withServiceRank(); <span class="comment">// ネストしたテーブルの取得</span>
+cb.setupSelect_MemberAddress(currentDate); <span class="comment">// 業務的one-to-oneの取得</span>
+
+<span class="comment">// &lt;&lt;&lt; (Specify)DerivedReferrer &gt;&gt;&gt;</span>
+<span class="comment">// 子テーブルの導出カラムを取得 (相関サブクエリ)</span>
+<span class="comment">//  e.g. PCからの最終ログイン日時を取得</span>
+cb.specify().<span class="point">derivedMemberLoginList()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+    <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+        subCB.specify().<span class="point">columnLoginDatetime()</span>;
+        subCB.query().setMobileLoginFlg_Equal_False();
+    }
+}, <span class="point">Member.ALIAS_latestLoginDatetime</span>); <span class="comment">// EMechaあれば ctrl + 1 で自動生成</span>
+<span class="comment">// 必要に応じて、導出カラムをSQL関数で微調整</span>
+<span class="comment">//}, Member.ALI..., new <span class="point">DerivedReferrerOption()</span>.coalesce("1192-01-01"));</span>
+
+<span class="comment">// &lt;&lt;&lt; LoadReferrer &gt;&gt;&gt; ※これは検索の後</span>
+<span class="comment">// 子テーブルのデータを取得する (one-to-many)</span>
+<span class="comment">//  e.g. それぞれの会員に紐付く購入データを、購入日時の降順で検索(Load)</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb); <span class="comment">// リスト検索</span>
+<span class="attribute">memberBhv</span>.<span class="point">loadPurchaseList</span>(memberList, <span class="keyword">new</span> ConditionBeanSetupper&lt;Pu<span class="abbreviation">...</span>CB&gt;() {
+    <span class="keyword">public void</span> setup(PurchaseCB cb) {
+        cb.query().addOrderBy_PurchaseDatetime_Desc();
+    }
+});
+<span class="comment">// 子テーブルの子テーブルも取得する場合は、LoadReferrerOptionを使う</span>
+<span class="comment">//LoadReferrerOption&lt;MemberCB, Member&gt; option
+<span class="comment">//        = new <span class="point">LoadReferrerOption</span>&lt;MemberCB, Member&gt;();</span>
+<span class="comment">//option.setConditionBeanSetupper(...);</span>
+<span class="comment">//option.setEntityListSetupper(...);</span>
+<span class="comment">//memberBhv.loadPurchaseList(memberList, <span class="point">option</span>);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="query">データの絞り込み</h3>
+<pre><span class="codetitle">データの絞り込み @Java</span><code>
+<span class="abbreviation">...</span>
+
+<span class="comment">// 等値 (=)</span>
+cb.query().setMemberId_Equal(<span class="literal">1</span>);
+cb.query().setMemberStatusCode_Equal_正式会員(); <span class="comment">// 区分値</span>
+
+<span class="comment">// 非等値 (&lt;&gt;)</span>
+cb.query().setMemberId_NotEqual(<span class="literal">1</span>);
+cb.query().setMemberStatusCode_NotEqual_正式会員(<span class="literal">1</span>); <span class="comment">// 区分値</span>
+
+<span class="comment">// 大なり小なり (&gt;&lt;)</span>
+cb.query().setMemberId_GreaterThan(<span class="literal">3</span>); <span class="comment">// 大なり (&gt;)</span>
+cb.query().setMemberId_LessThan(<span class="literal">3</span>); <span class="comment">// 小なり (&lt;)</span>
+cb.query().setMemberId_GreaterEqual(<span class="literal">3</span>); <span class="comment">// 大なりイコール (&gt;=)</span>
+cb.query().setMemberId_LessEqual(<span class="literal">3</span>); <span class="comment">// 小なりイコール (&lt;=)</span>
+
+<span class="comment">// 対象値の列挙 (in ('a', 'b'))</span>
+cb.query().setMemberId_InScope(memberIdList);
+cb.query().setMemberStatusCode_InScope_AsMemberStatus(cdefList);<span class="comment">区分値</span>
+<span class="comment">// not in (...) なら</span>
+<span class="comment">//cb.query().setMemberId_NotInScope(...)</span>
+
+<span class="comment">// 曖昧検索 (自動エスケープ付き)</span>
+cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>); <span class="comment">// 前方一致 (like 'S%' escape '|')</span>
+cb.query().setMemberName_LikeSearch(<span class="literal">"vi"</span>
+    , <span class="keyword">new</span> LikeSearchOption().likeContain()); <span class="comment">// オプションでいろいろ</span>
+<span class="comment">// to かつ vi が含まれてる</span>
+cb.query().setMemberName_LikeSearch(<span class="literal">"to vi"</span>
+    , <span class="keyword">new</span> LikeSearchOption().likeContain().splitByBlank());
+<span class="comment">// to もしくは viが含まれてる</span>
+cb.query().setMemberName_LikeSearch(<span class="literal">"to vi"</span>
+    , <span class="keyword">new</span> LikeSearchOption().likeContain().splitByBlank().asOrSplit());
+<span class="comment">// not like なら</span>
+<span class="comment">//cb.query().setMemberName_NotLikeSearch(...)</span>
+
+<span class="comment">// nullとかnullじゃないとか</span>
+cb.query().setBirthdate_IsNull();
+cb.query().setBirthdate_IsNotNull();
+cb.query().setMemo_IsNullOrEmpty();
+
+<span class="comment">// 日付の定型的なFromTo条件</span>
+<span class="comment">//  e.g. 10月 から 12月 (まるごと含む) まで</span>
+Date fromMonth = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/10/01"</span>).getDate();
+Date toMonth = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/12/01"</span>).getDate();
+cb.query().setFormalizedDatetime_FromTo(fromMonth, toMonth
+        , <span class="keyword">new</span> FromToOption().compareAsMonth()); <span class="comment">// オプションでいろいろ</span>
+
+<span class="comment">// FromToで、"もしくはnull" 条件</span>
+<span class="comment">//  e.g. 2005年 (まるごと含む) まで</span>
+Date toYear = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/01/01"</span>).getDate();
+cb.query().setFormalizedDatetime_FromTo(<span class="keyword">null</span>, toYear
+        , <span class="keyword">new</span> FromToOption().compareAsYear().orIsNull());
+
+<span class="comment">// よく使うDateFromTo条件</span>
+<span class="comment">//  e.g. 10/1 から 10/3 (まるごと含む) まで ※要は compareAsDate()</span>
+Date fromDate = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/10/01"</span>).getDate();
+Date toDate = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/10/03"</span>).getDate();
+cb.query().setFormalizedDatetime_DateFromTo(fromDate, toDate);
+
+<span class="comment">// 数値の定型的なRangeOf条件</span>
+<span class="comment">//  e.g. 30 から 70 まで、もしくは null</span>
+cb.query().setMemberAge_RangeOf(30, 70, <span class="keyword">new</span> RnageOfOption().orIsNull());
+
+<span class="comment">// &lt;&lt;&lt; ExistsReferrer &gt;&gt;&gt;</span>
+<span class="comment">// 子テーブルの条件で絞り込み (exists (select ...))</span>
+<span class="comment">//  e.g. 2000円以上の購入をしたことのある会員</span>
+cb.query().<span class="point">existsPurchaseList</span>(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+    }
+});
+<span class="comment">// not exists なら</span>
+<span class="comment">// cb.query().notExistsPurchaseList(...)</span>
+
+<span class="comment">// &lt;&lt;&lt; InScopeRelation &gt;&gt;&gt;</span>
+<span class="comment">// existsじゃなくてinScopeで絞り込み (in (select ...))</span>
+<span class="comment">//  e.g. 2000円以上の購入をしたことのある会員</span>
+cb.query().<span class="point">inScopePurchaseList</span>(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+    }
+});
+<span class="comment">// not in (...)</span>
+<span class="comment">// cb.query().notInScopePurchaseList(...)</span>
+
+<span class="comment">// &lt;&lt;&lt; (Query)DerivedReferrer &gt;&gt;&gt;</span>
+<span class="comment">// 子テーブルの導出カラムで絞り込み (相関サブクエリ)</span>
+<span class="comment">//  e.g. 支払い済み購入の最大購入価格が2000円以上である会員</span>
+cb.query().<span class="point">derivedPurchaseList()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.specify().<span class="point">columnPurchasePrice()</span>;
+        subCB.query().setPaymentCompleteFlg_Equal_True();
+    }
+}).<span class="point">greaterEqual</span>(<span class="literal">2000</span>);
+<span class="comment">// 必要に応じて、導出カラムをSQL関数で微調整</span>
+<span class="comment">//}, new <span class="point">DerivedReferrerOption()</span>.coalesce(0)).greaterEqual(...);</span>
+
+<span class="comment">// &lt;&lt;&lt; ScalarCondition &gt;&gt;&gt;</span>
+<span class="comment">// 自分自身の導出値との比較で絞り込み (普通のサブクエリ)</span>
+<span class="comment">//  e.g. 一番若い正式会員の生年月日と同じ生年月日を持つ会員</span>
+cb.query().<span class="point">scalar_Equal()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        subCB.specify().<span class="point">columnBirthdate()</span>;
+        subCB.query().setMemberStatusCode_Equal_Formalized();
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; ScalarConditionPartitionBy &gt;&gt;&gt;</span>
+<span class="comment">// カテゴリーごとの自分自身の導出値との比較で絞り込み (相関サブクエリ)</span>
+<span class="comment">//  e.g. それぞれの会員ステータスごとに一番若い会員</span>
+cb.query().<span class="point">scalar_Equal()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        subCB.specify().<span class="point">columnBirthdate()</span>;
+    }
+}).<span class="point">partitionBy</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnMemberStatusCode()</span>;
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; MyselfInScope &gt;&gt;&gt;</span>
+<span class="comment">// 自分自身の回避的サブクエリで絞り込み (限定的回避策)</span>
+cb.query().myselfInScope(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        <span class="comment">//subCB.specify().column...()</span> <span class="comment">// 指定がなければ PK カラム</span>
+        subCB.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 絞り込み条件</span>
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; ColumnQuery &gt;&gt;&gt;</span>
+<span class="comment">// カラム同士の比較で絞り込み</span>
+<span class="comment">//  e.g. 生年月日が正式会員日時よりも昔である会員</span>
+cb.<span class="point">columnQuery</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate()</span>;
+    }
+}).<span class="point">lessThan</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnFormalizedDatetime()</span>;
+    }
+});
+<span class="comment">// 必要に応じて、右辺(もしくは左辺)のカラムをSQL関数で微調整</span>
+<span class="comment">//}).convert(new <span class="point">ColumnConversionOption</span>().truncTime().addDay(7));</span>
+
+<span class="comment">// &lt;&lt;&lt; OrScopeQuery &gt;&gt;&gt;</span>
+<span class="comment">// or条件 (デフォルトはand条件)</span>
+<span class="comment">//  e.g. 会員名称が "S" もしくは "J" で始まる、もしくは、会員IDが 3 の会員</span>
+cb.<span class="point">orScopeQuery</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"J"</span>);
+        orCB.query().setMemberId_Equal(<span class="literal">3</span>);
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; OrScopeQueryAndPart &gt;&gt;&gt;</span>
+<span class="comment">// or条件の中でand条件</span>
+<span class="comment">//  e.g. 退会会員、もしくは、会員IDが100以上で正式会員日時がnullの会員</span>
+cb.<span class="point">orScopeQuery</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        orCB.query().setMemberStatusCode_Equal_Withdrawal();
+        orCB.<span class="point">orScopeQueryAndPart</span>(<span class="keyword">new</span> AndQuery&lt;MemberCB&gt;() {
+            <span class="keyword">public void</span> query(MemberCB andCB) {
+                andCB.query().setMemberId_GreaterEqual(<span class="literal">100</span>);
+                andCB.query().setFormalizedDatetime_IsNull();
+            }
+        };
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; UnionQuery &gt;&gt;&gt;</span>
+<span class="comment">// unionの追加</span>
+<span class="comment">//  e.g. unionで、生年月日が2005年以降の会員を検索</span>
+cb.<span class="point">union</span>(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        Date targetDate = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/01/01"</span>).getDate();
+        unionCB.query().setBirthdate_GreaterEqual</span>(targetDate);
+    }
+});
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="orderby">データの並び替え</h3>
+<pre><span class="codetitle">データの並び替え @Java</span><code>
+<span class="abbreviation">...</span>
+
+cb.query().addOrderBy_MemberId_Asc(); <span class="comment">// 昇順ソート</span>
+cb.query().addOrderBy_FormalizedDatetime_Desc(); <span class="comment">// 降順ソート</span>
+cb.query().addOrderBy_Birthdate_Desc().withNullsFirst(); <span class="comment">// nullを先に</span>
+cb.query().addOrderBy_Birthdate_Desc().withNullsLast(); <span class="comment">// nullを後に</span>
+
+<span class="comment">// &lt;&lt;&lt; ManualOrder &gt;&gt;&gt;</span>
+<span class="comment">// 特定のロジックで手動ソートする</span>
+<span class="comment">//  e.g. 24時間以内に更新されたものを優先して並べる</span>
+ManualOrderBean mob = <span class="keyword">new</span> ManualOrderBean();
+Date date24before = <span class="keyword">new</span> HandyDate(currentDate()).addDay(<span class="literal">-1</span>).getDate();
+mob.<span class="point">when_GreaterThan</span>(date24before); <span class="comment">// 更新日時 &gt; 24時間前</span>
+cb.query().addOrderBy_UpdateDatetime_Asc().<span class="point">withManualOrder</span>(mob);
+
+<span class="comment">// &lt;&lt;&lt; SpecifiedDerivedOrderBy &gt;&gt;&gt;</span>
+<span class="comment">// 導出カラムでソートする</span>
+<span class="comment">//  e.g. 最終ログインが近いものから</span>
+cb.query().addSpecifiedDerivedOrderBy_Desc(Member.ALIAS_latestLoginDatetime);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="style">検索スタイル</h3>
+<pre><span class="codetitle">検索スタイル @Java</span><code>
+<span class="abbreviation">...</span>
+
+<span class="comment">// カウント検索</span>
+<span class="keyword">int</span> count = <span class="attribute">memberBhv</span>.selectCount(cb);
+
+<span class="comment">// 一件検索 (なければnull)</span>
+Member member = <span class="attribute">memberBhv</span>.selectEntity(cb);
+
+<span class="comment">// 一件検索 (なければ例外)</span>
+Member member =  = <span class="attribute">memberBhv</span>.selectEntityWithDeletedCheck(cb);
+
+<span class="comment">// リスト検索</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+<span class="comment">// ページング検索</span>
+PagingResultBean&lt;Member&gt; page = <span class="attribute">memberBhv</span>.selectPage(cb);
+
+<span class="comment">// &lt;&lt;&lt; ScalarSelect &gt;&gt;&gt;</span>
+<span class="comment">// 導出したスカラ値を検索する</span>
+<span class="comment">//  e.g. 正式会員の中で、一番若い生年月日を検索</span>
+Date max = <span class="attribute">memberBhv</span>.<span class="point">scalarSelect</span>(Date.<span class="keyword">class</span>).<span class="point">max</span>(<span class="keyword">new</span> ScalarQuery&lt;Me<span class="abbreviation">...</span>CB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate</span>(); <span class="comment">// 生年月日の最大値</span>
+        cb.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 正式会員に限る</span>
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; CursorSelect &gt;&gt;&gt;</span>
+<span class="comment">// カーソル検索する (一件ずつフェッチ)</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectCursor</span>(cb, <span class="keyword">new</span> EntityRowHandler&lt;Member&gt;() {
+    <span class="keyword">public void</span> <span class="point">handle</span>(Member entity) {
+        Integer memberId = entity.getMemberId();
+        String memberName = entity.getMemberName();
+        <span class="abbreviation">...</span>
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; QueryDelete &gt;&gt;&gt;</span>
+<span class="attribute">memberBhv</span>.queryDelete(cb);
+
+<span class="comment">// &lt;&lt;&lt; QueryUpdate &gt;&gt;&gt;</span>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberStatusCode_仮会員();
+<span class="attribute">memberBhv</span>.queryUpdate(member, cb);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="option">オプション</h3>
+<pre><span class="codetitle">オプション @Java</span><code>
+<span class="abbreviation">...</span>
+
+<span class="comment">// 条件値としてnullや空文字をセットしたら例外に (デフォルトでは無視される)</span>
+cb.checkInvalidQuery();
+
+<span class="comment">// 更新ロックを取得する</span>
+cb.lockForUpdate();
+
+<span class="abbreviation">...</span>
+</code></pre>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

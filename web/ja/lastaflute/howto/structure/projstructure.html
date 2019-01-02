@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteのプロジェクト構成 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteのプロジェクト構成</h1>
+	<p>
+		LastaFluteを使ったアプリのプロジェクト構成やDBFluteのリソースについて。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">とりあえずこんな感じです</h2>
+	<p>
+		架空のプロジェクトである、マルチプロジェクト構成のMaihamaプロジェクトの Dockside ドメイン (Webアプリ)
+		を想定して説明します。これらは、LastaFlute の Example 実装として公開されています。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama">lastaflute-example-maihama | Github</a></div>
+	<h3 id="projstructure">Maihamaプロジェクトのプロジェクト構成</h3>
+<pre><span class="codetitle">e.g. Maihamaプロジェクトのプロジェクト構成 @Directory</span><code>
+
+<span class="spotlight"><span class="point">maihama-base</span></span>           <span class="comment">// ベースプロジェクト (親pomやドキュメントなど)</span>
+ |-etc                 <span class="comment">// 環境ファイル置き場</span>
+ |  |-license          <span class="comment">// ライセンスファイル置き場</span>
+ |  |-tools            <span class="comment">// ツール関連ファイル置き場</span>
+ |  |  |-eclipse       <span class="comment">// Eclipse関連ファイル置き場</span>
+ |  |  |  |-code-formatter-profile.xml <span class="comment">// フォーマッター設定 (最初の一人が設定)</span>
+ |  |  |  |-java-editor-templates.xml  <span class="comment">// 補完テンプレート設定 (みんなでimport)</span>
+ |  |  |-mysql         <span class="comment">// MySQL関連ファイル置き場</span>
+ |-modeling            <span class="comment">// ドキュメント置き場 (モデルやERDなど)</span>
+ |  |-maihamadb.erm    <span class="comment">// ERDのファイル (Maihama では ERMaster-b を利用)</span>
+ |  |-maihamadb.png    <span class="comment">// 出力したERDの画像 (SchemaHTMLから参照される)</span>
+ |-<span class="abbreviation">...</span>
+ |-pom.xml             <span class="comment">// プロジェクト全体の共通pom</span>
+
+<span class="spotlight"><span class="point">maihama-common</span></span>         <span class="comment">// commonプロジェクト (DBFluteも含む)</span>
+ |-src/main/java       <span class="comment">// Maihamaプロジェクト共通クラス</span>
+ |-src/main/resources  <span class="comment">// lasta_di.properties, dbflute.xml など</span>
+ |-<span class="abbreviation">...</span>
+ |-dbflute_maihamadb   <span class="comment">// いわずとしれたDBFluteクライアント</span>
+ |  |-dfprop           <span class="comment">// DBFluteプロパティ (設定ファイルたち)</span>
+ |  |  |-syncdb        <span class="comment">// SchemaSyncCheck用のdfprop</span>
+ |  |  |-lastafluteMap.dfprop  <span class="comment">// LastaのDBFlute設定、FreeGenの設定など</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-playsql          <span class="comment">// ReplaceSchemaのリソース置き場 (SQLやエクセルデータなど)</span>
+ |  |  |-data          <span class="comment">// ReplaceSchemaで登録するデータ置き場</span>
+ |  |  |  |-common     <span class="comment">// 環境問わず共通のデータ (つまりマスタデータ)</span>
+ |  |  |  |-ut         <span class="comment">// ut環境(デフォルト)におけるデータ (つまりテストデータ)</span>
+ |  |  |  |  |-reversexls <span class="comment">// LoadDataReverseの出力先 (循環テストデータ運用で重要)</span>
+ |  |  |-replace-schema-00-system.sql <span class="comment">// DBユーザーやDBスキーマを作成するためのDDL</span>
+ |  |  |-replace-schema-10-basic.sql  <span class="comment">// 業務のDDL, ERMasterから自動生成される</span>
+ |  |  |-take-finally.sql <span class="comment">// データ登録後のDDL, データアサートSQL</span>
+ |  |-<span class="abbreviation">...</span>
+ |  |-manage.bat       <span class="comment">// 同じく重要、FreeGenを叩くためのバッチ (12番がFreeGen)</span>
+ |  |-manage.sh        <span class="comment">// それのシェル版 (Mac, Linux用)</span>
+ |  |-syncdb-replace-schema.bat <span class="comment">// SchemaSyncCheck用のWindowsバッチ</span>
+ |  |-syncdb-replace-schema.sh  <span class="comment">// SchemaSyncCheck用のMac,Linuxシェル</span>
+ |  |-<span class="abbreviation">...</span>
+ |-mydbflute           <span class="comment">// DBFluteモジュール</span>
+ |-<span class="abbreviation">...</span>
+ |-pom.xml             <span class="comment">// commonプロジェクトのpom (baseのpomを継承)</span>
+
+<span class="spotlight"><span class="point">maihama-dockside</span></span>       <span class="comment">// ドメインプロジェクト (Webアプリ)</span>
+ |-src/main/java       <span class="comment">// Docksideドメインのクラス</span>
+ |-src/main/resources  <span class="comment">// app.xml, lastaflute_director.xml など</span>
+ |-<span class="abbreviation">...</span>
+ |-pom.xml             <span class="comment">// docksideプロジェクトのpom (baseのpomを継承, common参照)</span>
+</code></pre>
+	<h3 id="pkgstructure">Maihamaプロジェクトのパッケージ構成</h3>
+	<p>
+		src/main/java や src/main/resources などのパッケージ構成は、別ページにて紹介しています。
+	</p>
+	<div class="detailpage"><a href="./pkgstructure.html">LastaFluteのパッケージ構成</a></div>
+	<h3 id="ifsingle">シングルプロジェクトは単純に...</h3>
+	<p>
+		シングルプロジェクトの場合は、これらのプロジェクトが単純に結合して一つのものになっただけです。
+		Maven の継承関係とかもなく、とてもシンプルなのでここでは紹介しません。
+	</p>
+
+	<h2 id="maven">Maven環境</h2>
+	<h3 id="superpom">Mavenの継承関係</h3>
+	<p>
+		Mavenの設定、pom.xml が継承関係になっています。<span class="frm">(maihamaで例えます)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>maihama-base</dt><dd>アプリのすべてのプロジェクトの親pom</dd>
+		<dt>maihama-common</dt><dd>maihama-baseを継承</dd>
+		<dt>maihama-dockside</dt><dd>maihama-baseを継承して、maihama-commonに依存</dd>
+	</dl>
+	<h3 id="deployproc">Mavenでのデプロイ</h3>
+	<p>
+		maihama-base が、子プロジェクトを aggregate しているので...
+	</p>
+	<ol>
+		<li><em class="keyword">maihama-base で mvn -e clean package</em></li>
+	</ol>
+	<p>
+		という手順で、warファイルを作ることができます。
+	</p>
+	<div class="detailpage"><a href="./builddeploy.html">LastaFluteのデプロイ環境</a></div>
+
+	<h2 id="envswitch">環境ごとの設定</h2>
+	<p>
+		環境ごとに設定を切り替えるときは、lasta.env を使います。
+	</p>
+	<div class="detailpage"><a href="./envswitch.html">LastaFluteの環境切り替え</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

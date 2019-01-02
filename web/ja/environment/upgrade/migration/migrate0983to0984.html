@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 0.9.8.3 to 0.9.8.4 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 0.9.8.3 to 0.9.8.4</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3 id="loaddatareverse">DataXlsTemplate は LoadDataReverse に</h3>
+	<p>
+		Docタスクの DataXlsTemplate は LoadDataReverse として再出発することになりました。
+	</p>
+	<div class="detailpage"><a href="../../../manual/function/generator/task/doc/dataxlstemplate.html">DataXlsTemplate</a></div>
+	<div class="detailpage"><a href="../../../manual/function/generator/task/doc/loaddatareverse.html">LoadDataReverse</a></div>
+	<h3 id="newaltercheck">AlterCheckが生まれ変わり</h3>
+	<p>
+		前バージョンで導入された AlterCheck が、より現場フィットになるように改善されています。
+	</p>
+	<div class="detailpage"><a href="../../../manual/function/generator/task/replaceschema/altercheck.html">AlterCheck</a></div>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<h3 id="sqlserverescape">SQLServerの正規表現ワイルドカードをエスケープ</h3>
+	<p>
+		SQLServer の LikeSearch では、正規表現ワイルドカードが利用できます。"[a-b]"
+		という風に [ と ] で囲った中で正規表現が利用できます。ConditionBean および ParameterBean
+		で行われている一致の方向が決まったときの自動のエスケープにおいて、
+		その括弧もエスケープをするようにしました。
+	</p>
+	<p>
+		これにて、アプリで自前でエスケープする必要はありませんが、このバージョンにアップグレードする際に既にエスケープ処理が入っていると、
+		二重でエスケープされてしまうので、自前のエスケープは基本的に除去する必要があります。
+	</p>
+	<h3 id="optionresolved">LikeSearchOptionで特殊ワイルドカードは実行時解決</h3>
+	<p>
+		Oracle と DB2 において、LikeSearchOption を ConditionBean や ParameterBean ではなく、
+		単なるエスケープのための文字列ユーティリティクラスとして利用している方のみ意識する項目です。
+		例えば、LikeSearchOption.generateRealValue() というメソッドに心当たりがない方は意識する必要はありません。
+	</p>
+	<p>
+		LikeSearchOption のクラス自体にワイルドカードをエスケープする処理が存在しますが、
+		Oracleの全角のパーセントやSQLServerの正規表現括弧など、DBMS独自のワイルドカードのエスケープは Behavior
+		で検索処理を実行したときに解決されます。
+	</p>
+	<p>
+		それまでのバージョンでは、どのDBMSでも全角のパーセントを固定でエスケープしていましたが、
+		ワイルドカードでない文字をエスケープした場合にエラーになるDBMSが若干存在するため(Apache Derbyなど)、
+		DBMS独自のワイルドカードをエスケープするかどうかの判定を精密に行うために Behavior の中に移行しました。
+	</p>
+	<p>
+		よって、(Oracle, DB2 にて) LikeSearchOption を単なるユーティリティクラスとして利用している場合、
+		つまり option.generateRealValue() メソッドを直接呼び出した場合は、このバージョンから全角のパーセントはエスケープされないのでご注意下さい。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

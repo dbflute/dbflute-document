@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,自動生成ツール,ジェネレータ,Generator,AutoGenerator" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>自動生成ツールとしてのDBFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>自動生成ツールとしてのDBFlute</h1>
+	${indexlist}
+
+	<h2 id="generator">自動生成ツールとして</h2>
+	<p>
+		DBFluteはO/Rマッパでありながら、自動生成ツールとも言えます。
+		データベース(スキーマ)のメタ情報を取得し、クラスファイルやDI設定ファイル、テーブル構造の一覧表(SchemaHTML)など、様々なものを自動生成します。
+		また、アプリケーションのDDL文を読み込んで、データベースにテーブルを構築する、自動生成ツールからはちょっと逸脱した機能(ReplaceSchema)などもあります。
+		このような単なる実行時ライブラリではできないツールとしての機能を徹底することで、DBFluteはディベロッパーの実装をサポートします。
+	</p>
+	<div class="relatedpage"><a href="../../../introduction/gendriven.html">自動生成ドリブン</a></div>
+
+	<h2 id="structure">ツールの構造</h2>
+	<p>
+		自動生成ツールを構築するメインコンポーネントが二つあります。
+	</p>
+	<dl class="textlist">
+		<dt><a href="./client/index.html">DBFluteクライアント</a></dt>
+		<dd>
+			DBFluteを利用するためのアプリケーション独自の設定が含まれるディレクトリです。
+		</dd>
+		<dt><a href="./module/index.html">DBFluteモジュール</a></dt>
+		<dd>
+			DBFluteの本体で、自動生成などの実処理を行うモジュールです。
+		</dd>
+	</dl>
+
+	<h2 id="task">DBFluteタスク</h2>
+	<p>
+		DBFluteが提供するAntタスク(DBFluteタスク)です。
+	</p>
+	<div class="detailpage"><a href="./task/index.html">DBFluteタスク</a></div>
+	<div class="relatedword"><a href="../../reference/dictionary/alphabet/wa.html#anttask">AntTask (Antタスク)</a></div>
+	<dl class="textlist">
+		<dt><a href="./task/jdbc/index.html">JDBCタスク</a></dt><dd>実際のデータベースからスキーマ情報を取得</dd>
+		<dt><a href="./task/generate/index.html">Generateタスク</a></dt><dd>スキーマ情報からクラスを自動生成</dd>
+		<dt><a href="./task/doc/index.html">Docタスク</a></dt><dd>スキーマ情報からドキュメントを自動生成</dd>
+		<dt><a href="./task/sql2entity/index.html">Sql2Entityタスク</a></dt><dd>外だしSQL(OutsideSql)からクラスを自動生成</dd>
+		<dt><a href="./task/outsidesqltest/index.html">OutsideSqlTestタスク</a></dt><dd>外だしSQL(OutsideSql)を一括実行してテスト</dd>
+		<dt><a href="./task/replaceschema/index.html">ReplaceSchemaタスク</a></dt><dd>スキーマを再構築(初期化・作成・データ登録・整合性チェック)</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

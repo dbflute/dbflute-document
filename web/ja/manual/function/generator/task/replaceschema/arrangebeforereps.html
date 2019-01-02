@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,実行前の調整,実行前にコピー" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ReplaceSchema実行前の調整 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ReplaceSchema実行前の調整</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		ReplaceSchema実行前に、ファイルコピーなどの調整(アレンジ操作)ができます。<span class="frm">@since 0.9.8.5</span>
+	</p>
+	<p>
+		例えば、DDLの出力先を保存できないERDツールや、フルパスで保存してしまうERDツールなどを利用している場合に、
+		ReplaceSchema実行前にDBFlute管理外の場所に出力されたDDLファイルを playsql 配下にコピーさせることができます。
+	</p>
+
+	<h2 id="copy">コピー</h2>
+	<p>
+		replaceSchemaDefinitionMap.dfprop の arrangeBeforeRepsMap にて、
+		copy指定すると、ReplaceSchemaの最初の処理でそのコピーが実行されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#arrangebeforerepsmap">dfprop - arrangeBeforeRepsMap</a></div>
+<pre><span class="codetitle">e.g. foo.ddl を replace-schema-10-basic.sql にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; copy = <span class="keyword">map:</span>{
+        ; ../erd/foo.ddl = ./playsql/replace-schema-10-basic.sql
+    }
+}
+</code></pre>
+	<h3 id="extsearchcopy">拡張子検索コピー</h3>
+	<p>
+		src にて "*.ddl" というように指定することができます。この場合、dest の指定によって挙動が変わります。
+	</p>
+	<dl class="textlist">
+		<dt>dest がファイル</dt>
+		<dd>
+			dest の指定がファイルをさす場合(ドット "." を含む)、src
+			のディレクトリの中にある唯一の指定された拡張子を持つファイルをコピーします。
+			単一ファイルのコピーにおいて、ファイル名が定まらない場合に有効です。
+		</dd>
+		<dt>dest がディレクトリ</dt>
+		<dd>
+			dest の指定がディレクトリをさす場合(ドット "." を含まない)、src
+			のディレクトリの中にある指定された拡張子を持つ全てのファイルをコピーします。
+			<span class="frm">@since 0.9.9.1A</span>
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. foo.ddl を replace-schema-10-basic.sql にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; copy = <span class="keyword">map:</span>{
+        ; ../erd/*.ddl = ./playsql/replace-schema-10-basic.sql
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. playsql の .sql ファイルを全て ../tmp 配下にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; copy = <span class="keyword">map:</span>{
+        ; ./playsql/*.sql = ../tmp
+    }
+}
+</code></pre>
+	<h3 id="absolutecopy">絶対パスコピー</h3>
+	<p>
+		パス表現がスラッシュ "/"
+		で始まる場合は、絶対パスとなります。DDLの出力先を絶対パスで保存してしまうERDツールで複数人で利用するような場合に、例えばDDLの出力先を
+		"/tmp/foo/bar.sql" と固定して、それをReplaceSchemaでコピーするような仕組みにすると、煩雑な出力先指定を軽減できます。
+	</p>
+<pre><span class="codetitle">e.g. tmp配下の bar.sql を replace-schema-10-basic.sql にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; copy = <span class="keyword">map:</span>{
+        ; /tmp/foo/bar.sql = ./playsql/replace-schema-10-basic.sql
+    }
+}
+</code></pre>
+
+	<h2 id="script">スクリプト実行 <span class="frm">@since 1.0.4H</span></h2>
+	<p>
+		replaceSchemaDefinitionMap.dfprop の arrangeBeforeRepsMap にて、
+		script指定すると、ReplaceSchemaの最初の処理でそのスクリプトが実行されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#arrangebeforerepsmap">dfprop - arrangeBeforeRepsMap</a></div>
+<pre><span class="codetitle">e.g. maven-install.sh を実行 @replaceSchemaDefinitionMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; script = <span class="keyword">map:</span>{
+        ; ../maven-install.sh = dummy
+    }
+}
+</code></pre>
+	<p>
+		map の key 値に、スクリプトのファイル名を相対パスで指定すると、そのファイルが実行されます。
+		Windowsであれば .bat, Macであれば .sh という風に実行できる拡張子が限定されています。
+		例えば、Windows環境では .sh は実行されずにスキップされます。
+	</p>
+	<p>
+		map の value 値は dummy で未使用(将来用)です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

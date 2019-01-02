@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,DerivedReferrer,子テーブルの導出カラムで絞り込み,最大値,合計,max,sum,相関サブクエリ,one-to-many" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(Query)DerivedReferrer | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(Query)DerivedReferrer</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		子テーブルの導出カラム(最大値や合計値)で絞り込みます。(Specify)DerivedReferrer
+		が "取得" であるのに対して、これは "絞り込み" です。
+	</p>
+	<div class="relatedpage"><a href="../specify/derivedreferrer.html">(Specify)DerivedReferrer</a></div>
+	<p>
+		例えば、"購入金額合計が10000円を超えている会員" というように、
+		子テーブルのカラムの値を元に導出したカラムで、絞り込み条件を設定することができます。
+		where 句の相関サブクエリを使って条件を設定します。
+	</p>
+	<p>
+		会話上では、<em class="keyword">くえりでぃらいゔどりふぁらぁ</em>
+		と表現します。単に <em class="keyword">でぃらいゔどりふぁらぁ</em> と言った場合、厳密には (Query)DerivedReferrer
+		を含みますが、前後関係で分かる場合は、(Specify)DerivedReferrer の方を示すことが多いです。
+	</p>
+	<h3 id="role">取得と絞り込みで違う機能</h3>
+	<p>
+		導出カラムの取得と絞り込みで違う機能になっています。
+		ConditionBeanのポリシーがそういった傾向があるのでわかりやすいと思われますが、そのポリシーだけでなく、SQLでは select
+		句にて導出した値を where 句で取り扱うことができません(order by
+		では扱える)。インラインビューという手もありますが、取得と絞り込みで微妙に条件が変わる可能性も考慮して、このような仕様となっています。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">derived[referrer-table]List()</em>
+		を呼び出し、その後、max() や sum() など関数メソッドを選び、SubQuery
+		のコールバック実装を引数に指定します。オーバーロードの第二引数は、様々なオプション(coalesce 関数の利用など)を指定する DerivedReferrerOption
+		を指定します。コールバックの中では、SpecifyColumn を使って導出カラムを(一つ)指定します。
+	</p>
+	<div class="relatedpage"><a href="#funcfilter">this - 導出値をSQL関数でフィルタ</a></div>
+	<div class="relatedpage"><a href="../specify/specifycolumn.html#onlyonecolumn">SpecifyColumn - 他の機能から間借りされる</a></div>
+<pre><span class="codetitle">e.g. (Query)DerivedReferrerの実装手順 (Eclipseでコード補完) {MEMBER, MEMBER_LOGIN} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .d まで打つと関連テーブル選択</span>
+<span class="comment">// 2. PL (PurchaseList) で enter</span>
+cb.query().dPL
+--
+
+cb.query().<span class="point">derivedPurchaseList()</span>
+--
+
+<span class="comment">// max() や min()、sum() などの関数メソッドを選んで enter</span>
+<span class="comment">//  =&gt; max(), min(), sum(), avg(), count(), countDistinct()</span>
+<span class="comment">// それぞれに、オーバーロードで DerivedReferrerOption が指定できる</span>
+<span class="comment">//  =&gt; 導出値が null の可能性がある場合のために、coalesce 関数も利用できる</span>
+cb.query().derivedPurchaseList().su
+--
+
+<span class="comment">// メソッドが補完されて、引数の "subQuery" が選択状態に</span>
+cb.query().derivedPurchaseList().<span class="point">sum</span>(subQuery)
+--
+
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+cb.query().derivedPurchaseList().sum(<span class="point">new </span>)
+--
+
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.query().derivedPurchaseList().sum(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+--
+
+<span class="comment">// ctrl (or command) + D で不要な空行やTODOコメントを消して</span>
+<span class="comment">// サブクエリ(子テーブル)の導出カラムと絞り込み条件を指定</span>
+cb.query().derivedPurchaseList().max(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.specify().<span class="point">columnPurchasePrice()</span>; <span class="comment">// 導出カラムの指定</span>
+        subCB.query().setPaymentCompleteFlg_Equal_True(); <span class="comment">// 絞り込み条件</span>
+    }
+}).greE <span class="comment">// 続けて比較条件を指定、ここでは .greE (GreaterEqual)</span>
+--
+
+cb.query().derivedPurchaseList().max(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.specify().columnPurchasePrice(); <span class="comment">// 導出カラムの指定</span>
+        subCB.query().setPaymentCompleteFlg_Equal_True(); <span class="comment">// 絞り込み条件</span>
+    }
+}).<span class="point">greaterEqual</span>(<span class="literal">10000</span>) <span class="comment">// 引数に条件値を設定</span>
+</code></pre>
+	<p>
+		SQL上では、FKを構成する関連カラムを使った相関条件が自動的に付与されます。
+	</p>
+<pre><span class="codetitle">e.g. (Query)DerivedReferrerを使って(支払済み)最大購入価格が10000円以上の会員を取得 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> (<span class="keyword">select</span> sum(sub1loc.PURCHASE_PRICE)
+          <span class="keyword">from</span> PURCHASE sub1loc
+         <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+           <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">1</span>
+       ) &gt;= <span class="literal">10000</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		適切な比較条件、および、関数を選んで実装して下さい。関数によっては利用できるカラムのデータ型が限定されるものもあります。
+	</p>
+	<div class="relatedpage"><a href="#usablefunc">this - 利用できる関数</a></div>
+	<div class="relatedpage"><a href="#usablecondition">this - 利用できる比較条件</a></div>
+	<h3 id="relation">関連テーブルへのアプローチ</h3>
+	<p>
+		関連テーブルへのアプローチは、(Specify)DerivedReferrer と同じです。 
+	</p>
+	<div class="detailpage"><a href="../specify/derivedreferrer.html#howto">(Specify)DerivedReferrer - 実装方法</a></div>
+	<p>
+		子テーブルの子テーブル(one-to-many-to-many)に関しては、(Query)DerivedReferrer の中で (Specify)DerivedReferrer
+		を利用する、という形式になります。<span class="frm">(@since 0.9.7.7)</span>
+	</p>
+	<h3 id="funcfilter">導出値をSQL関数でフィルタ</h3>
+	<p>
+		(Specify)DerivedReferrer と同じです。
+	</p>
+	<div class="detailpage"><a href="../specify/derivedreferrer.html#funcfilter">(Specify)DerivedReferrer - 導出値をSQL関数でフィルタ</a></div>
+	<p>
+		(導出カラムの)取得の場合は、取得した後にアプリ側でハンドリングできますが、
+		絞り込みの場合は、導出値はSQLの中で完結しますので、(Query)DerivedReferrer の方がフィルタが必要になる場面は多いと想定されます。
+		特に、導出値が null になる可能性は多くの場合で想定されますので(紐づく子テーブルがデータが一件も無く、max() や sum() を使う場合など)、coalesce を利用する場面は多いでしょう。
+	</p>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>引数の指定</dt>
+		<dd>
+			引数の SubQuery、条件値(isNull, isNotNull は除く)は必須です。DerivedReferrerOption
+			もオーバーロードのメソッドを指定している場合は必須です。
+		</dd>
+		<dt>導出カラムの指定は一つ</dt>
+		<dd>導出カラムの指定は必ず一つだけです。指定が無い場合、指定があり過ぎる場合は例外です。</dd>
+		<dt>サブクエリのConditionBean</dt>
+		<dd>
+			サブクエリの ConditionBean は、導出カラムと絞り込み条件だけの指定に利用するものです。
+			SetupSelect や OrderBy などサブクエリとして必要のない機能は呼び出してはいけません。
+		</dd>
+	</dl>
+	<h3 id="usablefunc">利用できる関数</h3>
+	<p>
+		利用できる関数は、(Specify)DerivedReferrer と同じです。
+	</p>
+	<div class="relatedpage"><a href="../specify/derivedreferrer.html#function">(Specify)DerivedReferrer - 利用できる関数</a></div>
+	<h3 id="usablecondition">利用できる比較条件</h3>
+	<p>
+		利用できる比較条件は、以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>equal()</dt><dd>等値</dd>
+		<dt>greaterThan()</dt><dd>大なり</dd>
+		<dt>lessThan()</dt><dd>小なり</dd>
+		<dt>greaterEqual()</dt><dd>大なりイコール</dd>
+		<dt>lessEqual()</dt><dd>小なりイコール</dd>
+		<dt>isNull()</dt><dd>null かどうか</dd>
+		<dt>isNotNull()</dt><dd>null でないかどうか</dd>
+		<dt>between()</dt><dd>小なりイコール、かつ、大なりイコール <span class="frm">@since 0.9.9.2F</span></dd>
+	</dl>
+	<p>
+		引数の条件値の型は Object 型です。カラムの型に合わせたプログラム型の値を指定して下さい。
+	</p>
+
+	<h2 id="supported">サポートされる関連テーブル</h2>
+	<p>
+		Referrer と定義付けられる one-to-many
+		の関連に対してサポートされます。また、基点テーブルが単一の主キーである必要があります。(複合主キーはNG)
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Action" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>LastaFlute Action | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>Tolerance-to-DB-change O/R Mapper</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute Action</h1>
+	${indexlist}
+
+	<h2 id="urlmapping">URL Mapping</h2>
+	<p>
+		<em class="keyword">You can know the URL from the action name.</em>
+	</p>
+	<h3 id="bigconvention">Mapping Convention <span class="frm">(Big convention)</span></h2>
+	<dl class="valuemainlist">
+		<dt>Request URL</dt><dd><em class="mark">Action</em> class + <em class="mark">Execute</em> method</dd>
+	</dl>
+	<h3 id="mapping">Mapping Example</h2>
+	<dl class="lolongkeymainlist">
+		<dt><em class="bigmark">ProfilePassword</em>Action#<em class="mark">change</em>()</dt>
+		<dd><em class="keyword">/profile/password/change/</em></dd>
+		<dt><em class="bigmark">Product</em>Action#<em class="mark">list</em>()</dt>
+		<dd><em class="keyword">/product/list/</em></dd>
+		<dt><em class="bigmark">ProductList</em>Action#index()</dt>
+		<dd><em class="keyword">/product/list/</em></dd>
+		<dt><em class="bigmark">Mypage</em>Action#index()</dt>
+		<dd><em class="keyword">/mypage/</em></dd>
+		<dt><em class="bigmark">Root</em>Action#index()</dt>
+		<dd><em class="keyword">/ <span class="frm">※Special Action means URL '/'</span></em></dd>
+	</dl>
+
+	<h2 id="pkglocation">Action Package</h2>
+	<p>
+		<em class="keyword">You can just know the location of action from the name.</em>
+	</p>
+	<h3 id="pkgconvention">Package Convention</h3>
+	<dl class="valuemainlist">
+		<dt>Application Package</dt><dd>[your domain].app <span class="frm">e.g. org.docksidestage.app</span></dd>
+		<dt>Web Package</dt><dd>[Application Root].web <span class="frm">e.g. org.docksidestage.app.web</span></dd>
+		<dt>Action's Package</dt><dd>*you can use Action's prefix package</dd>
+	</dl>
+	<h3 id="pkgexample">Package Example</h3>
+	<p>
+		You can choose several pattern like this: e.g. ProfilePasswordAction
+	</p>
+	<ul>
+		<li>[Application Root].web.ProfilePasswordAction#change()</li>
+		<li>[Application Root].web.<em class="smallmark">profile</em>.<em class="mark">Profile</em>PasswordAction#change() <span class="frm">*recommended</span></li>
+		<li>[Application Root].web.<em class="smallmark">profile.password</em>.<em class="mark">ProfilePassword</em>Action#change()</li>
+	</ul>
+
+<pre><span class="codetitle">e.g. Action Class Package Location @Directory</span><code>
+org.docksidestage
+ |-<span class="point">app</span> <span class="comment">// Application Package</span>
+ |  |-logic
+ |  |-<span class="point">web</span> <span class="comment">// Web Package</span>
+ |     |-product
+ |     |  |-<span class="subpoint">ProductListAction</span>
+ |     |  |-ProductPurchaseAction
+ |     |-profile
+ |     |  |-<span class="subpoint">ProfilePasswordAction</span>
+ |     |  |-ProfileWithdrawalAction
+ |     |-mypage
+ |     |  |-<span class="subpoint">MypageAction</span>
+ |     |-RootAction
+ |-dbflute
+ |  |-allcommon
+ |  |-bsbhv
+ |  |-<span class="abbreviation">...</span>
+ |-mylasta
+ |  |-action
+ |  |-direction
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="makeaction">make Action Class</h2>
+	<p>
+		<em class="keyword">arguments and return value for IN/OUT</em>
+	</p>
+	<h3 id="actiondef">Action Defintion</h3>
+	<dl class="valuemainlist">
+		<dt>Super Class</dt><dd>extends [App]BaseAction</dd>
+		<dt>Behavior DI</dt><dd>instance variable with @Resource</dd>
+		<dt>Execute Method</dt><dd>public method with @Execute</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Action Class Definition @Java</span><code>
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> DocksideBaseAction { <span class="comment">// Super Class</span>
+
+    @Resource
+    <span class="keyword">private</span> ProductBhv <span class="attribute">productBhv</span>; <span class="comment">// Behavior DI</span>
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() { <span class="comment">// Execute Method</span>
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<h3 id="urlparam">URL Parameter</h3>
+	<p>
+		e.g. ProductListAction#index()
+	</p>
+<pre><span class="codetitle">e.g. accept URL parameter as required argument @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="point">int pageNumber</span>) { <span class="comment">// /product/list/3</span>
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. accept URL parameter as optional argument @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="point">OptionalThing&lt;Integer&gt; pageNumber</span>) {
+        pageNumber.ifPresent(() -&gt; { <span class="comment">// /product/list/3</span>
+            <span class="abbreviation">...</span>
+        }).orElse(() -&gt; { <span class="comment">// /product/list/</span>
+            <span class="abbreviation">...</span>
+        });
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. accept URL parameter with more URL @Java</span><code>
+    <span class="comment">// /product/list/mystic/ikspiary/oneman/</span> <span class="comment">(sea=mystic, land=oneman)</span>
+    @Execute(<span class="subpoint">urlPattern</span> = <span class="literal">"{}/ikspiary/{}"</span>)
+    <span class="keyword">public</span> HtmlResponse index(<span class="subpoint">String sea, String land</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<h3 id="actionform">Action Form <span class="frm">(for POST, GET parameter)</span></h3>
+<pre><span class="codetitle">e.g. accept POST parameter by action form @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse doSignin(<span class="point">ProductSearchForm form</span>) { <span class="comment">// POST (or also GET)</span>
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. both URL parameter and GET parameter @Java</span><code>
+    <span class="comment">// e.g. /<span class="abbreviation">...</span>/list/3?favoriteCode=sea&nextName=land</span>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(<span class="subpoint">int pageNumber</span>, <span class="subpoint">ProductSearchForm form</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<p>
+		You can use Validator Annotation for basic validation. e.g. Required, Max...
+		(then you should call the validate() method in execute method of action)
+	</p>
+<pre><span class="codetitle">e.g. validator annotation in form @Java</span><code>
+<span class="keyword">public class</span> ProductEditForm {
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+}
+</code></pre>
+	<p>
+		And you can basic native type for bean properties. e.g. Integer, LocalDate, CDef...
+	</p>
+<pre><span class="codetitle">e.g. native type for properties in form @Java</span><code>
+<span class="keyword">public class</span> ProductSearchForm {
+
+    <span class="keyword">public</span> <span class="subpoint">Integer</span> <span class="attribute">productId</span>;
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+    <span class="keyword">public</span> <span class="subpoint">CDef.ProductStatus</span> <span class="attribute">productStatus</span>;
+}
+</code></pre>
+	<h3 id="jsonbody">JSON Body <span class="frm">(for JSON in request body)</span></h3>
+<pre><span class="codetitle">e.g. accept JSON in request body by JSON body @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductBean&gt; index(<span class="point">ProductSearchBody body</span>) {
+        <span class="abbreviation">...</span>
+    }
+</code></pre>
+	<p>
+		It can be treated as action form, e.g. can use validation, native type properties
+	</p>
+<pre><span class="codetitle">e.g. body for product search @Java</span><code>
+<span class="keyword">public class</span> ProductSearchBody {
+
+    <span class="keyword">public</span> <span class="subpoint">Integer</span> <span class="attribute">productId</span>;
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+    @Required
+    <span class="keyword">public</span> <span class="subpoint">CDef.ProductStatus</span> <span class="attribute">productStatus</span>;
+}
+</code></pre>
+	<h3 id="actionresponse">Action Response</h3>
+	<dl class="valuemainlist">
+		<dt>HtmlResponse</dt><dd>asHtml(path_...) or redirect(...class)</dd>
+		<dt>JsonResponse</dt><dd>asJson(bean)</dd>
+		<dt>StreamResponse</dt><dd>asStream(ins)</dd>
+	</dl>
+<pre><span class="codetitle">e.g. HtmlResponse @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="point">asHtml</span>(<span class="attribute">path_MyPage_MyPageJsp</span>);
+    }
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse doUpdate() {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="point">redirect</span>(MypageAction.<span class="keyword">class</span>);
+    }
+</code></pre>
+<pre><span class="codetitle">e.g. JsonResponse @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductBean&gt; product() {
+        ProductBean <span class="localvar">bean</span> = <span class="abbreviation">...</span>
+        <span class="keyword">return</span> <span class="point">asJson</span>(<span class="localvar">bean</span>);
+    }
+</code></pre>
+	<h3 id="validation">Form/Body Validation</h3>
+	<p>
+		You can use Hibernate Validator's annotations in form or body.
+	</p>
+<pre><span class="codetitle">e.g. validator annotation in form @Java</span><code>
+<span class="keyword">public class</span> ProductEditForm {
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+}
+</code></pre>
+	<p>
+		And you should call in your action.
+	</p>
+<pre><span class="codetitle">e.g. validation as HTML response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+                        , ProductSearchForm <span class="localvar">form</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. validation as JSON response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		Specify more validation manually at second argument.
+	</p>
+<pre><span class="codetitle">e.g. more validation @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    <span class="point">validate</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {
+        <span class="keyword">if</span> (<span class="localvar">body</span>.productName == <span class="keyword">null</span>) {
+            <span class="localvar">messages</span>.addConstraintsRequiredMessage(<span class="literal">"productName"</span>);
+        }
+    });
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="examplecode">Example Code</h2>
+	<h3 id="htmlresponse">HTML response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as HTML response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">HtmlResponse</span> index(OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+                        , ProductSearchForm <span class="localvar">form</span>) {
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {}, () -&gt; {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>);
+    });
+    PagingResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    List&lt;ProductRowBean&gt; <span class="localvar">beans</span> = <span class="localvar">page</span>.mappingList(<span class="localvar">product</span> -&gt; {
+        <span class="keyword">return</span> mappingToBean(<span class="localvar">product</span>);
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListJsp</span>).renderWith(<span class="localvar">data</span> -&gt; {
+        <span class="localvar">data</span>.register(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+        registerPagingNavi(<span class="localvar">data</span>, <span class="localvar">page</span>, <span class="localvar">form</span>);
+    });
+}
+</code></pre>
+	<h3 id="jsonresponse">JSON response style</h3>
+<pre><span class="codetitle">e.g. Action for URL '/product/list/3' as JSON response @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;SearchPagingBean&lt;ProductRowBean&gt;&gt;</span> index(
+                OptionalThing&lt;Integer&gt; <span class="localvar">pageNumber</span>
+              , ProductSearchBody <span class="localvar">body</span>) {
+    validate(<span class="localvar">body</span>, <span class="localvar">messages</span> -&gt; {});
+    ListResultBean&lt;Product&gt; <span class="localvar">page</span> = <span class="attribute">productBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_ProductStatus();
+        <span class="localvar">cb</span>.query().setProductName_LikeSearch(form.productName, <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.likeContain());
+        <span class="localvar">cb</span>.query().addOrderBy_ProductName_Asc();
+        <span class="localvar">cb</span>.paging(getPagingPageSize(), <span class="localvar">pageNumber</span>.orElse(<span class="literal">1</span>));
+    });
+    SearchPagingBean&lt;ProductRowBean&gt; <span class="localvar">bean</span> = createPagingBean(page);
+    <span class="keyword">return</span> asJson(<span class="localvar">bean</span>);
+}
+</code></pre>
+
+	<h2 id="templatepath">TemplatePath FreeGen <span class="frm">(if use)</span></h2>
+	<p>
+		At first, make template file (e.g. JSP) <span class="frm">(empty file for now)</span>
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>File Name</dt><dd>related to URL form tag submits <span class="frm">※except buttom name</span></dd>
+		<dt>Location Directory</dt><dd>prefix of file name</dd>
+	</dl>
+	<p>
+		URL requested by la:form tag when action attribute is omitted.
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>product/<em class="mark">product_list</em>.jsp</dt><dd>/product/list/</dd>
+		<dt>profile/<em class="mark">profile_password_change</em>.jsp</dt><dd>/profile/password/change/</dd>
+		<dt>mypage/<em class="mark">mypage</em>.jsp</dt><dd>/mypage/</dd>
+	</dl>
+	<p>
+		Execute FreeGen task of DBFlute, and you can complement the generated path definition in your code.
+	</p>
+<pre><span class="codetitle">e.g. Template File Location @Directory</span><code>
+src/main/webapp
+ |-WEB-INF
+    |-view <span class="comment">// location for HTML templates</span>
+    |  |-product <span class="comment">// related to product package</span>
+    |  |  |-<span class="subpoint">product_list.jsp</span>     <span class="comment">// /product/list/</span>
+    |  |  |-product_purchase.jsp <span class="comment">// /product/purchase/</span>
+    |  |
+    |  |-profile
+    |  |  |-<span class="subpoint">profile_password_change.jsp</span> <span class="comment">// /profile/password/change/</span>
+    |  |  |-profile_withdrawal.jsp      <span class="comment">// /profile/withdrawal/</span>
+    |  |
+    |  |-mypage
+    |  |  |-<span class="subpoint">mypage.jsp</span> <span class="comment">// /mypage/</span>
+    |  |
+    |  |-root.jsp <span class="comment">// '/'</span>
+    |
+    |-web.xml
+</code></pre>
+<pre><span class="codetitle">e.g. you can use Template Path for HtmlResponse @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> asHtml(<span class="point">path_Mypage_MypageJsp</span>); <span class="comment">// is static definition</span>
+    }
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

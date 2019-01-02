@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Swagger" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Swaggerで動作確認 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Swaggerで動作確認</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<div class="relatedpage"><a href="./lajsonapi.html">素早さのJSON API</a></div>
+	<div class="relatedpage"><a href="../structure/swaggerenv.html">Swaggerの環境セットアップ</a></div>
+	${indexlist}
+
+	<h2 id="overview">LastaFluteでのSwagger</h2>
+	<p>
+		LastaFluteでは、Swaggerを <em class="keyword">気軽にリクエストを送信するためのツール</em> として活用しています。
+	</p>
+	<p>
+		JSON APIだと、(少なくとも開発時に)画面が存在せず気軽に Action を叩けなかったり、JSON Body
+		のリクエストでブラウザから簡単に叩けなかったりすることが往々にしてあります。
+		そこで、Swaggerを活用して、気軽に動作確認できるようにしています。
+		<span class="frm">(もちろん、UnitTestはしっかり書いていった方が良いですが、最終的には実際にリクエストを飛ばして動くことを確認した方が良いです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/lastaflute/swagger/lastaflute-swagger-ui-basic-snapshot.png" title="SwaggerUIの概要"><img src="../../../../data/snapshot/lastaflute/swagger/lastaflute-swagger-ui-basic-snapshot.png" alt="SwaggerUIの概要" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="setup">Swaggerの環境セットアップ</h2>
+	<p>
+		そもそも、Swaggerの環境が整っていなければ、セットアップしましょう。
+	</p>
+	<div class="detailpage"><a href="../structure/swaggerenv.html">Swaggerの環境セットアップ</a></div>
+
+	<h2 id="howto">Swaggerの使い方</h2>
+	<p>
+		アプリを起動して、/swagger にアクセスします。
+	</p>
+	<p>
+		TODO jflute 画面の画像を入れたりして、簡単な使い方の説明を書きたい
+	</p>
+
+	<h2 id="egdefault">e.g.デフォルト値のススメ</h2>
+	<h3 id="valueproblem">どんな値をリクエストすればいいのかわからない問題</h3>
+	<p>
+		Swaggerで、どんな形のJSONを投げればいいのか？
+		がわかっても、それぞれの項目に具体的にどんな業務的な値を入れたらいいのか？
+		がわからないと、結局スムーズにリクエストを飛ばすことができません。Swaggerを起動するたびにつどつど入力するのも大変です。
+	</p>
+	<h3 id="javadoceg">JavaDocにe.g.でデフォルト値を記載</h3>
+	<p>
+		Form や JSON Body などのフィールドの JavaDoc に、e.g. で "例えば、こんな値"
+		という値を記載しておけば、それが Swagger 上のデフォルト値として扱われます。
+	</p>
+	<p>
+		これを、<em class="keyword">e.g.デフォルト値</em> (いーじーでふぉるとち) と呼びます。
+	</p>
+<pre><span class="codetitle">e.g. use "e.g." in javadoc in Maven @Java</span><code>
+<span class="keyword">public class</span> ProductSearchBody {
+
+    <span class="comment">/** keyword of product name <span class="point">e.g. Stranger</span> */</span>
+    @Length(max = <span class="literal">10</span>)
+    <span class="keyword">public</span> String <span class="attribute">productName</span>;
+
+    <span class="comment">/** status of product <span class="point">e.g. ONS</span> */</span>
+    <span class="keyword">public</span> CDef.ProductStatus <span class="attribute">productStatus</span>;
+
+    <span class="comment">/** keyword of member name that purchases <span class="point">e.g. S</span> */</span>
+    @Length(max = <span class="literal">5</span>)
+    <span class="keyword">public</span> String <span class="attribute">purchaseMemberName</span>;
+}
+</code></pre>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/lastaflute/swagger/lastaflute-swagger-ui-egdefault-snapshot.png" title="SwaggerUIでe.g.デフォルト値"><img src="../../../../data/snapshot/lastaflute/swagger/lastaflute-swagger-ui-egdefault-snapshot.png" alt="SwaggerUIでe.g.デフォルト値" width="550" height="320" /></a>
+	</p>
+	<p>
+		コード上でも、しっかりドキュメントになりますし、LastaDoc
+		にも反映されるので、しっかり書いておけば様々なところで活躍しますので、積極的に付けていくと良いでしょう。
+	</p>
+	<p>
+		細かい仕様は以下のようになります。
+	</p>
+	<ul>
+		<li>ダブルクォーテーションで囲うことで、空白を含めることができたり、値の後ろにコメントを書ける</li>
+		<li>Executeメソッドのjavadocで、Pathパラメーターの引数(@param)にも付けることができる</li>
+		<li>リストの場合は、[a, b, c] という[]形式で書く</li>
+		<li>nullと書いたら、nullという文字列ではなく、指定してないのと同じ</li>
+	</ul>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,freeGenMap.dfprop" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>freeGenMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>freeGenMap</h1>
+	${indexlist}
+
+	<h2 id="about">freeGenMapとは？</h2>
+	<p>
+		FreeGenタスクのための dfprop です。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/freegen/index.html">FreeGenタスク</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、FreeGenのリクエストとそれに対する設定を定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">freeGenMapの仕様 @freeGenMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [request-name] = <span class="keyword">map:</span>{
+        ; resourceMap = <span class="keyword">map:</span>{
+            ; resourceType = [PROP or XLS or JSON_SCHEMA or SOLR or ...]
+            ; resourceFile = [relative path from DBFlute client for resource file]
+        }
+        ; outputMap = <span class="keyword">map:</span>{
+            ; templateFile = [relative path from 'freegen' directory for template file]
+            ; outputDirectory = [relative path from DBFlute client e.g. ../src/main/java]
+            ; package = [package name for generated classes e.g. org.docksidestage.freegen]
+            ; className = [name of generated class]
+        }
+        ; optionMap = <span class="keyword">map:</span>{
+            ; mappingMap = map:{
+                ; type = map:{ [your type name] = [Java type name e.g. String, Integer] }
+            }
+        }
+    }
+    ; ...
+}
+</code></pre>
+
+	<h3 id="propertytype">request-name (*)</h3>
+	<p>
+		FreeGenのリクエスト名を指定します。ユニークであればなんでも構いません。
+	</p>
+	<p>
+		TODO jflute now writing
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

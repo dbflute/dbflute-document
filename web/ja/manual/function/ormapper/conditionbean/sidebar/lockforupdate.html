@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,lockForUpdate,for update,更新ロック,排他ロック" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>LockForUpdate | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LockForUpdate</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		更新ロックを取得する検索にします。
+	</p>
+	<p>
+		SQL上では、それぞれ DBMS ごとの構文を利用します。例えば、PostgreSQL や MySQL であれば
+		"for update"、Oracle であれば "for update of [pk-name]" など。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/postgresql/index.html#updatelock">PostgreSQL - 更新ロックの取得</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#updatelock">MySQL - 更新ロックの取得</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#updatelock">Oracle - 更新ロックの取得</a></div>
+	<p>
+		会話上では、<em class="keyword">ろっくふぉーあっぷでいと</em> もしくは単に <em class="keyword">ふぉーあっぷでいと</em> と表現します。
+	</p>
+	<h3 id="lockscope">ロック対象のテーブル</h3>
+	<p>
+		基本的には、基点テーブルに対してのみロックを取得しますが、DBMS
+		によってはどうしても結合したテーブルも含めてしまう場合があります。例えば、Oracle であれば、"for update of [column]"
+		という構文でロックを取得するテーブルを限定できますが、そういったことができない DBMS
+		も存在します。業務的な要件と照らし合わせて注意して利用する必要があります。
+	</p>
+	<h3 id="optimisticlock">必要性の検討 (楽観的並行性制御の利用)</h3>
+	<p>
+		そもそも楽観的並行性制御が適用できる排他制御要件であれば、その仕組みが DBFlute
+		には備わっているため LockForUpdate を使う必要はないかもしれません。実装する前によく吟味すると良いでしょう。
+		(更新ロックが本当に必要である場面でのみ使うように)
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御(楽観的並行性制御)</a></div>
+	<h3 id="databasedependency">DBMS 独自の更新ロック取得</h3>
+	<p>
+		例えば、Oracle の "for update no wait" などの、DBMS
+		独自の拡張された更新ロックの取得に関しては、オプションで提供されています。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/databasedependency/index.html">現場フィット - DBMS依存の機能 (ロックや全文検索など)</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dbway/oracle/index.html#forupdatenowait">Oracle - "for update nowait (wait N)" を利用</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		ConditionBean の lockForUpdate() を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 更新ロックを取得 (Eclipseでコード補完) @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().addOrderBy_Birthdate_Desc();
+cb.loF <span class="comment">// .loF と打って enter</span>
+--
+cb.<span class="point">lockForUpdate</span>();
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="severalcall">複数回呼び出しは上書き</h3>
+	<p>
+		複数回 LockForUpdate を呼び出した場合は、内部的には単なる上書きです。(業務的には無意味)
+	</p>
+	<h3 id="unsupported">更新ロックがサポートされていないDBMS</h3>
+	<p>
+		更新ロックがサポートされていない DBMS で呼び出すと例外です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

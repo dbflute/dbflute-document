@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>コードフォーマッター | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>コードフォーマッター</h1>
+	${indexlist}
+
+	<h2 id="about">コードフォーマッターとは？</h2>
+	<p>
+		Eclipseには、ソースコードを自動整形する機能(フォーマッター)が備わっています。
+	</p>
+
+	<h2 id="overview">フォーマッターの概要</h2>
+	<p>
+		Eclipseには、ソースコードを自動で整形する機能が備わっています。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseのコードフォーマッターを利用すると @Java</span><code>
+<span class="comment">// フォーマットする前</span>
+<span class="keyword">if</span>(<span class="keyword">true</span>)
+{ foo = <span class="keyword">null</span>;
+  }
+<span class="comment">// フォーマットした後</span>
+<span class="keyword">if</span> (<span class="keyword">true</span>) {
+    foo = <span class="keyword">null</span>;
+}
+</code></pre>
+	<p>
+		Javaエディタ上で "ctrl + shift + F" と押すとフォーマッターを利用できます。
+	</p>
+	<div class="relatedpage"><a href="../../programming/shortcut/codejustcut.html#look">コード調整ショートカット - 見た目周り</a></div>
+	<p>
+		ただし、Eclipseのデフォルトのフォーマット定義はプロジェクトによっては若干利用しづらいものである可能性があります。
+		具体的には以下の通りです。
+	</p>
+	<ul>
+		<li>横幅 80 文字で改行されてしまう</li>
+		<li>コメントの中までフォーマットされてしまう</li>
+	</ul>
+	<p>
+		そのため、独自のフォーマット定義を用意した方が利用しやすいことがあります。
+	</p>
+
+	<h2 id="setting">フォーマット定義の設定</h2>
+	<p>
+		独自のフォーマット定義は、Eclipseプロジェクトのプロパティ(Eclipseプロジェクトを選択して alt + enter)にて設定できます。
+		[Java Code Style] - [Formatter] において [Enable project specific settings]
+		をチェックし、Editボタンを押すと独自のフォーマット定義を細かく設定できます。
+	</p>
+	<div class="relatedpage"><a href="../../programming/shortcut/operationcut.html#setting">操作ショートカット - 設定周り</a></div>
+	<p>
+		例えば DBFlute では、横幅を 120 文字に、コメント内のフォーマットを OFF にしています。
+	</p>
+	<p>
+		フォーマット定義は、プロジェクト直下の .setting
+		ディレクトリに保存されます。このディレクトリをSVN経由で共有すれば、他のディベロッパーもそのまま同じ設定を利用することができます。
+	</p>
+
+	<h2 id="import">フォーマット定義のインポート</h2>
+	<p>
+		フォーマット定義をXMLファイルにエクスポートし、別のEclipseプロジェクトでインポートすることができます。フォーマット定義は .setting
+		ディレクトリに保存されるので、他のディベロッパーと共有したい場合はSVN経由で可能ですが、
+		別の開発プロジェクトなどで共有したい場合は、このXMLへのエクスポート、インポート機能が利用できるでしょう。
+	</p>
+	<p>
+		例えば、DBFluteで利用しているフォーマット定義は以下からダウンロードできます。
+	</p>
+	<p>
+		<a href="http://dbflute.seasar.org/download/misc/settings/dbflute-eclipse-code-formatter.zip">dbflute-eclipse-code-formatter.zip</a>
+	</p>
+
+	<h2 id="formattersaveaction">保管時アクションへの関連付け</h2>
+	<p>
+		ファイルを保存(ctrl + S)した時に、自動でフォーマットされるように設定できます。
+		そうすることで、プロジェクト全体でフォーマッターの利用を統一化することができます。
+	</p>
+	<p>
+		Eclipseプロジェクトのプロパティ(Eclipseプロジェクトを選択して alt + enter)の [Java Editor] - [Save Actions]
+		において、[Enable project specific settings] をチェックし、[Perform the selected actions on save]
+		をチェックし、[Format source code] をチェックすることで、保存時に自動でフォーマッターが動作します。
+	</p>
+	<p>
+		ついでではありますが、[Organize imports] にもチェックしておくと(デフォルトでチェックがついている可能性あり)、
+		"インポートの編成" も同様に保存時に自動で実行されるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../programming/shortcut/codejustcut.html#code">コード調整ショートカット - コード調整周り</a></div>
+	<p>
+		この保管時アクションの設定自体も、.settings ディレクトリに保存されるので、SVN経由で共有することができます。
+	</p>
+
+	<h2 id="workspace">ワークスペースでも設定できる</h2>
+	<p>
+		Eclipseプロジェクトごとではなく、ワークスペースに対してフォーマット定義を設定することもできます。
+		ただ、その場合はSVN経由での他のディベロッパーへの共有はできないので、複数人プロジェクトではあまり有効ではないと考えられます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

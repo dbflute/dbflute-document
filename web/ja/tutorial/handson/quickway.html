@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオンニュース" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンのクイック運用 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンのクイック運用</h1>
+	<div class="relatedpage"><a href="./index.html">DBFluteハンズオン</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteハンズオンをやり切った方が、しっかり使いこなせて安心であることは当然ですが、現場の運用的になかなか難しいこともあるでしょう。
+	</p>
+	<p>
+		DBFluteハンズオンの卒業、つまり、セクション１１まで完遂するためには、それなりの時間がかかります。
+		個人差があるので一概に言えませんが、今までの経験上すごく速い人で二週間(営業日で言うと十日間)くらいなので、まあまあのスキルなら三週間くらい、プログラミング経験が浅い人であればもっとかかることになるでしょう。
+	</p>
+	<p>
+		新卒だろうが中途だろうがパートナーだろうが、しっかりやり切ってもらった方が結果的に効率が良いと強く感じているので、その業務時間はぜひ確保して欲しいとは考えますが...
+		一方で、"ハンズオンをやってもらいたいけど重くてやってもらいづらい"
+		となって、結局やらないと本末転倒なので、DBFluteハンズオンのクイック運用の提案です。
+	</p>
+
+	<h2 id="until6">セクション６まで目標、模範も活用</h2>
+	<p>
+		およそ一週間くらい(営業日で五日間くらい)を想定した運用です。
+	</p>
+	<dl class="textlist">
+		<dt>セクション６まで完遂</dt>
+		<dd>
+			セクション６までやれば、基本的な ConditionBean や区分値など利用方法がわかり、自動生成としての DBFlute
+			にも少し慣れて全体像を知っている状態になるはずです。
+		</dd>
+		<dd>
+			更新系や外だしSQL, one-to-manyなどが抜けてしまいますが、６まで完遂しているのであれば、自力で調べて解決していく力が養っているだろうと想定できます。
+		</dd>
+		<dt>模範解答的な実装をなぞる</dt>
+		<dd>
+			セクション２やセクション３は割り切って、"模範解答的な実装" を最初から見て "なぞっていって学ぶ" という方式にして、
+			実践をセクション４やセクション５で行うという風にします。
+		</dd>
+		<dd>
+			最初から見ると楽過ぎると考えるのであれば、"5分考えてわからなければすぐに模範を見る"
+			というようなやり方でも良いでしょう。
+		</dd>
+		<dd>
+			ただ、なぞるだけで習得できる人と、なぞるだけじゃ頭に入らない人がいる、という個人差も出るはずです。
+			各個人にそこは委ねるしかないですが、それは言っておいたほうが良いかもしれません。一行一行、意味を意識しながらなぞりましょうと。
+		</dd>
+		<dt>わからなかったらtodo書いてすぐに飛ばす</dt>
+		<dd>
+			わからないエクササイズや、すぐに実装できない要件などがあったら、todoコメントを書いてすぐに飛ばすようにします。
+			それよりも、どんどん先に進んで広く浅く知ることを優先し、時間が余ったら飛ばしたものに着手します。
+		</dd>
+		<dd>
+			これは別にクイック運用じゃなくても有益なコツで、先に進んで全体像を把握してからの方が解決しやすいというケースもあるので、
+			それをもっと極端にやってみると良いのでは？ということです。
+			時間切れになっても、広く浅くは知っているはずなので、実業務には入りやすくなっており、スムーズに深めていきやすいだろという考えです。
+		</dd>
+		<dd>
+			ただ、何も書かずに飛ばすと、何を飛ばしたのか忘れてしまいます。そして、それは実業務でも同じで、
+			飛ばすときは必ずtodoコメントを入れる、習慣自体を鍛えることはとても有益です。
+			<span class="frm">(補完テンプレートの _todo を使う習慣を付けてもらいましょう)</span>
+		</dd>
+	</dl>
+	<p>
+		例えば、新規に参画された方に、<em class="keyword">一週間だけは、まとまった業務時間を設けてDBFluteハンズオンの研修をして、セクション６まで完遂を目標にする</em>
+		という運用が考えられます。
+	</p>
+	<p>
+		まとまった業務時間を設けられないとしたら、業務を進めながら一週間に二時間だけハンズオンの時間を確保して進めるというのも考えられるでしょう。
+		ハイブリッドで、三日間は丸一日ずつ使って進めて、終わってない分は一週間に二時間だけというのもあり得るでしょう。
+	</p>
+	<p>
+		もし、そういった時間ですら取ることができないとしたら、それはそもそも <em class="keyword">ハンズオンをやらずに実業務に入って調査時間や悩む時間が発生しているから時間がない</em> と考えることもできます。
+		<span class="frm">(実際に、現場のフォローイングの中でそう感じる場面が多々ありました)</span>
+	</p>
+	<p>
+		ちなみに、業務やりながらちょっとした時間に、というのはなかなか成り立ちません。仕事は次から次へと積み上がるからです。
+		(緊急案件でなければ)しっかりハンズオンの時間確保して良いよ、というのをつどつど組織ポリシーとして示して、堂々とやって良いというムードにしていくことが大切です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

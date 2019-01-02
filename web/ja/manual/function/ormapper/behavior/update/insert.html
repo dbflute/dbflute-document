@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,insert,登録,挿入,一件登録" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>insert(entity) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>insert(entity)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		Entityをもとに <em class="keyword">一件登録</em> をします。
+	</p>
+	<p>
+		主キー(PK)の値が自動採番される設定になっている場合(シーケンスや Identity)は、主キーの値を設定せずに登録し、登録処理後の Entity
+		から採番された主キーの値が取得できます。
+	</p>
+	<div class="relatedpage"><a href="#autoincrement">this - 自動採番処理の自動化</a></div>
+	<p>
+		会話上では、<em class="keyword">いんさーと</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">insert()</em>
+		を呼び出し、Entityを指定します。
+	</p>
+<pre><span class="codetitle">e.g. insert()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+<span class="comment">//member.setMemberId(1);</span> <span class="comment">// 自動採番の場合は不要</span>
+member.setMemberName(<span class="literal">"Stojkovic"</span>);
+member.setMemberAccount(<span class="literal">"Pixy"</span>);
+member.setMemberStatusCode_Provisional();
+
+member.set<span class="abbreviation">...</span> <span class="comment">// null で登録する場合は設定は不要</span>
+
+<span class="comment">//member.setRegisterUser(user);</span> <span class="comment">// 共通カラムは自動設定(設定が有効なら)</span>
+<span class="comment">//member.setRegister...</span>
+<span class="comment">//member.setVersionNo(versionNo);</span> <span class="comment">// バージョン番号は自動で初期値に</span>
+
+<span class="attribute">memberBhv</span>.in <span class="comment">// .in と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.<span class="point">insert</span>(member);
+
+Integer memberId = member.getMemberId(); <span class="comment">// 自動採番の場合は採番値が取得できる</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのEntityとなります。
+	</p>
+	<p>
+		nullを指定した場合は例外発生します。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		void です。
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>一意制約違反があった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyExistsException</dd>
+		<dd>
+			DBFluteで正式サポートしていない DBMS では、別の例外(SQLFailureException)の可能性があります。
+			<div class="relatedpage"><a href="../../../../../environment/supported.html#database">DBFluteのサポート情報 - データベース</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="autoincrement">自動採番処理の自動化</h2>
+	<p>
+		主キーに対して自動採番の設定がされている場合は、主キーの値の指定は不要です。
+		シーケンスの場合は、PK値が設定されていればその値で登録され、設定されていなければシーケンスで自動採番されます。Identity
+		の場合は、PK値の設定有無に関わらず必ず Identity で自動採番されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/autoincrement/index.html">現場フィット - 自動採番</a></div>
+	<p>
+		採番された値は、登録処理後の Entity から取得することができます。ただし、DBMS によっては状況次第で採番値の取得ができないことがあります。例えば
+		MySQL では、トランザクションでない insert 処理では Identity で採番した値を取得することができません。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dbway/mysql/index.html#autoincrement">MySQL - 主キーでの自動採番</a></div>
+	<p>
+		Identityカラムに対するアプリで明示的に指定した値での登録は、varyingInsert(entity, option)
+		にてオプション指定で実現できます<span class="frm">(@since 0.9.7.8)</span>。
+		ただし、実際に登録できるかどうかは DBMS の仕様と設定に依存します。
+	</p>
+	<div class="relatedpage"><a href="./varyinginsert.html">varyingInsert(entity, option)</a></div>
+
+	<h2 id="commoncolumn">共通カラムは自動設定</h2>
+	<p>
+		対応テーブルが共通カラムの自動設定対象になっている場合は、実行時に設定された通りに共通カラムの自動設定が行われます。
+		ゆえに、その場合は、プログラム上で共通カラムの値の設定をする必要はありません(設定しても自動設定処理にて上書きされます)。
+		自動設定された値は、登録処理後に Entity に格納されています。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム</a></div>
+	<p>
+		もし、共通カラムの自動設定を無視した登録を行いたい場合は、Entity の disableCommonColumnAutoSetup()
+		を登録前に呼び出すと、共通カラムの自動設定がされなくなります。
+		主に、システム移行のプログラム(移行プログラム)などで、共通カラムの値を保持したままデータを登録したいような場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/commoncolumn/index.html#disable">現場フィット - 共通カラム - 一時的な自動設定の無効化</a></div>
+
+	<h2 id="exclusive">排他制御カラムの自動設定</h2>
+	<p>
+		排他制御カラムは自動設定されるため、明示的に値を設定する必要はありません(設定しても自動設定処理にて上書きされます)。
+		自動設定された値は、登録処理後に Entity に格納されています。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+
+	<h2 id="nocascade">カスケードはしません</h2>
+	<p>
+		例えば、会員 Entity が購入 Entity のリストを保持していたとしても、登録するのは会員、つまり、基点テーブルだけです。
+		自動で購入のリストも一緒に登録しにいくことはありません。これは DBFlute
+		のポリシーですが、明示的に登録処理を指定していないものがディベロッパーの気付かないところで更新される、というような状態を避けるためです。
+		できた方が便利と思う場面も確かにありますが、別の機能でも同様ですが <em class="keyword">明示的に</em> が重視されています。
+	</p>
+
+	<h2 id="insertcolumn">insert文に列挙されるカラム</h2>
+	<h3 id="modifiedonly">Setterが呼ばれたカラムが登録される <span class="frm">@since 1.0.5A</span></h3>
+	<p>
+		(newされた) Entity の Setter が呼ばれたカラムが、insert 文の項目に列挙されます<span class="frm">(@since 1.0.5A)</span>。
+		これを <em class="keyword">ModifedOnly</em> と呼び、update() の方と同じ方式です。
+	</p>
+	<p>
+		ゆえに、呼び出していないカラムでDB上ので設定でデフォルト制約が存在する場合は、そのデフォルト値が登録されます。
+		ただし、登録処理後の Entity にそのデフォルト値が格納されることはありません。
+	</p>
+	<p>
+		<span class="frm">※自動採番のPKや共通カラムや排他制御カラムは、Setterが呼ばれなくても特別な処理で列挙されます。</span>
+	</p>
+	<h3 id="copyinsert">copy insertなら全カラム列挙 <span class="frm">@since 1.0.5A</span></h3>
+	<p>
+		一方で、検索された(別のレコードの)Entityに対して値をセットして insert()
+		する場合に限り、全カラム列挙になります。copy insertのようなケースが考えられ、Setter呼び出しがほとんど存在しない可能性があります。
+		デフォルト制約は利用できなくなりますが、既に別のレコードの値が土台として入っているため、その必要性はあまりないでしょう。
+	</p>
+	<h3 id="notnulldefault">デフォルト制約付きNotNullカラム追加してもOK</h3>
+	<p>
+		DB変更で、デフォルト制約付きNotNullカラム追加された場合でも、修正すること無く対応できます。
+		新しいカラムはSetterが呼ばれないので、insert文に列挙されずにデフォルト制約が利きます。
+		また、copy insertのときは、そもそも既に格納されている別のレコードの値が登録されます。
+	</p>
+	<h3 id="before105a">1.0.5Aより前のバージョンでは</h3>
+	<p>
+		Entity に設定された null でない値のみ、insert 文の項目に列挙されます。
+		ゆえに、値が存在しない(nullの値の)カラムは、DB上ので設定でデフォルト制約が存在する場合はそのデフォルト値が登録されます。
+		ただし、登録処理後の Entity にそのデフォルト値が格納されることはありません。
+	</p>
+	<p>
+		<span class="frm">※update()の方と方式が違うため、ちょっとわかりづらい仕様でありました。</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/upgrade/migration/migrate104Kto105A.html">移行ポイント - 移行 1.0.4K to 1.0.5A</a></div>
+
+	<div class="inucolumn">
+		<h2 id="columnsummary">更新系、列挙されるカラムのまとめ</h2>
+		<p>
+			バッチ更新やクエリ更新も含めた場合の、列挙されるカラムをまとめています<span class="frm">(@since 1.0.5A)</span>。
+		</p>
+		<p>
+			基本的には ModifiedOnly であり、検索されたEntityへのセットの insert 系だけが挙動が変わる、と認識しておくと良いでしょう。
+		</p>
+		<h3 id="newcreated">newしたEntityにセット <span class="frm">※通常はこちら</span></h3>
+		<dl class="shortkeymainlist">
+			<dt>insert()</dt><dd>ModifiedOnly</dd>
+			<dt>batchInsert()</dt><dd>ModifiedOnlyで、複数のEntityでの最小公倍数のカラム</dd>
+			<dt>update()</dt><dd>ModifiedOnly</dd>
+			<dt>batchUpdate()</dt><dd>ModifiedOnlyで、複数のEntityにて呼び出しセットが一致の必要あり</dd>
+			<dt>queryUpdate()</dt><dd>ModifiedOnly</dd>
+		</dl>
+		<h3 id="selected">検索されたEntityにセット</h3>
+		<dl class="shortkeymainlist">
+			<dt>insert()</dt><dd>全カラム列挙 <span class="frm">※copy insertを想定</span></dd>
+			<dt>batchInsert()</dt><dd>全カラム列挙 <span class="frm">※copy insertを想定</span></dd>
+			<dt>update()</dt><dd>※特に変わらず</dd>
+			<dt>batchUpdate()</dt><dd>※特に変わらず</dd>
+			<dt>queryUpdate()</dt><dd>※特に変わらず</dd>
+		</dl>
+		<h3 id="batchupdate">バッチ更新は呼び出しセット一致</h3>
+		<p>
+			バッチ更新は、複数のEntityで呼び出しセットがバラバラの状態が許されません。
+			これは、不意のnullによる更新事故を防ぐためです。nullで更新するなら、明示的にnullをセットする方が良いでしょう。
+			また、バッチ更新には、第二引数で更新カラムをSetter呼び出しとは無関係に明示するオプションもあり、自由度が求められる場合はそちらを使うと良いでしょう。
+		</p>
+		<p>
+			ただ、そもそもバッチ更新は、あまり利用頻度は少ないものです。固定値を複数レコードに更新するのであれば queryUpdate()
+			が使えるからです。複数レコードでそれぞれ違う値で更新する、とか、複数レコード更新でも排他制御をしたい、という場合のみ、バッチ更新の出番です。
+		</p>
+		<p>
+			一方で、バッチ登録は、もともとレコード自体が存在していませんので、セットしてなければ単にnullで登録されるという仕様で問題ないだろうと考えました。
+			また、実際の現場でそのように実装している箇所が多く見られたからです。
+		</p>
+		<div class="relatedpage"><a href="../../../../../environment/upgrade/migration/migrate104Kto105A.html">移行ポイント - 移行 1.0.4K to 1.0.5A</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

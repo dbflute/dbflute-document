@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,ページング,AutoPaging,カーソルスキップ,CursorSkip" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)selectPage() as autoPaging | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)selectPage() as autoPaging</h1>
+	<p>
+		"外だしSQLの使い方" を既に読んでいることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../howto.html">外だしSQLの使い方</a></div>
+	${indexlist}
+	
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">外だしSQLで自動ページングによるページング検索</em>
+		をします。ここでいう自動とは、ページング条件(81件目から100件目まで)をSQLの記述しないでも絞り込まれるようにすることを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html">現場フィット - ページング検索</a></div>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)おーとぺーじんぐのせれくとぺーじ</em>
+		もしくは <em class="keyword">おーとのせれくとぺーじ</em> や <em class="keyword">おーとのぺーじんぐ</em>
+		と表現します。
+	</p>
+	<div class="inucolumn">
+		<h3 id="automeaning">ページング条件が自動(オート)</h3>
+		<p>
+			自動ページングの "自動の対象" は、例えば、81 件目から 100 件目までを検索するというような "ページング条件"
+			です。"select句の切り替え" や "不要な結合の除去"、"不要な order-by 指定"
+			をは手動ページングと同じく必要です。
+		</p>
+		<p>
+			文字列操作で頑張ればできなくなさそうに思えますが、SQLの記述は自由であり、無理矢理な文字列操作で下手な誤動作が起きない可能性を抑えるのは厳しいでしょう。
+			DBFluteでは、(できるだけ)書いた通りのSQLが実行される、というのをポリシーとし、そういったトラブりそうな要因はできるだけ外した方が良いだろうと考えてこのようにしています。
+		</p>
+	</div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		手動ページングでなければ自動ページングになります。つまり、以下の条件です。
+	</p>
+	<ul>
+		<li>"df:pmb extends Paging" で、SQLでページング条件を記述しなければ</li>
+	</ul>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. AutoPagingで実データ処理IFコメントの利用 {PostgreSQL} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+    <span class="comment">/*IF pmb.isPaging()*/</span>
+    <span class="keyword">left outer join</span> <span class="abbreviation">...</span>
+    <span class="comment">/*END*/</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 外だしSQLの自動ページング検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().selP <span class="comment">// .selP と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">selectPage</span>(pmb);
+</code></pre>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+	<p>
+		手順は <em class="keyword">手動ページングとほとんど同じ</em> で、途中で呼び出すメソッドが <em class="keyword">autoPaging()</em>
+		となります。また、<em class="keyword">SQLでページング条件を記述する必要はありません</em>。
+	</p>
+	<div class="relatedpage"><a href="./selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+<pre><span class="codetitle">e.g. 外だしSQLの自動ページング検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().a <span class="comment">// .a と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">autoPaging()</span>.sP <span class="comment">// .sP と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().autoPaging().<span class="point">selectPage</span>(path, pmb, entityType);
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>

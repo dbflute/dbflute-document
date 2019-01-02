@@ -1,0 +1,27 @@
+@charset "UTF-8";
+
+
+body {
+	background-image: none;
+}
+#container {
+	background-image: none;
+}
+#header div.header-lower {
+	background-image: url("../../image/parts/cb/top/header-score.gif");
+}
+#leftpart {
+	background-image: url("../../image/parts/cb/top/frame-flute.gif");
+}
+#leftpart h2 {
+	background-image: none;
+}
+#middle {
+	background-image: none;
+}
+#middle div.navi-main {
+	background-image: url("../../image/parts/cb/top/main-naviscore.gif");
+}
+#middle div.navi-description {
+	background-image: url("../../image/parts/cb/top/main-dicscore.gif");
+}

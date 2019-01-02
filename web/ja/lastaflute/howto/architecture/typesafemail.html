@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>タイプセーフメール送信 (MailFlute) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>タイプセーフメール送信 (MailFlute)</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<p>
+		(いま見ている)このページでは、FreeGenを使った大まかな実装の流れと、LastaFluteにおけるメールの環境設定などについてのみ記載していきます。
+		MailFlute自体の使い方(メールテンプレートの書き方など)は、MailFluteのオフィシャルドキュメントをご覧ください。
+	</p>
+	<div class="detailpage"><a href="../../../manual/function/helper/mailflute/index.html">MailFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">タイプセーフにメールとは？</h2>
+	<h3 id="introduction">MailFlute と FreeGen</h3>
+	<p>
+		LastaFluteでは、MailFlute と FreeGen を組み合わせて、タイプセーフにメールを送信します。
+	</p>
+	<p>
+		MailFluteは、メールテンプレート機能を備えたシンプルなメール送信ライブラリ、FreeGenは、DBFluteが提供する様々なケースで利用できる自動生成エンジン、これらを組み合わせてタイプセーフメールを実現します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/model/helper/mailflute/mailflute-architecture-map.png" title="MailFlute Architecture"><img src="../../../../data/model/helper/mailflute/mailflute-architecture-map.png" alt="MailFlute Architecture" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="implflow">メールの実装の流れ</h2>
+	<h3 id="dfmail">dfmailを作成</h3>
+	<p>
+		まず、<em class="mark">src/main/resources/mail</em> 配下に、dfmailのメールテンプレートを書きます。
+		外だしSQLに非常によく似たパラメータコメント形式 (pmfile形式) で書きます。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/function/helper/mailflute/index.html#mailtemplate">MailFlute - メールテンプレート</a></div>
+<pre><span class="codetitle">e.g. 新しい会員の登録を想定したメールテンプレート @welcome_member.dfmail</span><code>
+<span class="comment">/*
+ [New Member's Registration]
+ The member will be formalized after click.
+*/</span>
+<span class="attribute">subject:</span> Welcome to your sign up, <span class="comment">/*pmb.memberName*/</span>
+<span class="attribute">&gt;&gt;&gt;</span>
+Hello, <span class="comment">/*pmb.memberName*/</span>
+
+How are you?
+<span class="comment">/*IF pmb.birthdate != null*/</span>
+Wonderful birthdate! <span class="comment">/*pmb.birthdate*/</span>
+<span class="comment">/*END*/</span>
+
+Delivery Address: <span class="comment">/*pmb.address:orElse('none')*/</span>
+
+Thanks
+</code></pre>
+	<p>
+		mailディレクトリ配下に自由にディレクトリを作ってOKです。何種類ものメールを飛ばすのであれば、業務カテゴリごとにディレクトリを作って分けて管理をすると良いでしょう。
+	</p>
+	<h3 id="freegen">FreeGenを叩いて自動生成</h3>
+	<p>
+		そして、FreeGenを叩き... <span class="frm">(lastafluteMap.dfprop に mail が設定されていることが前提)</span>
+	</p>
+<pre><span class="codetitle">e.g. Manageで 12 (freegen) を叩く @Command</span><code>
+<span class="abbreviation">...</span>$ sh manage.sh <span class="literal">12</span>
+</code></pre>
+	<p>
+		<em class="mark">mylasta.mail</em> パッケージ配下に <em class="mark">Postcard</em> クラスが自動生成されます。
+		クラス名は、テンプレートファイルをキャメルケースにしたものになります。<span class="frm">(welcome_member.dfmail なら WelcomeMemberPostcard)</span>
+	</p>
+	<h3 id="postbox">PostboxをDI</h3>
+	<p>
+		メールを送信するためのコンポーネント、<em class="mark">Postbox</em> を DI します。
+	</p>
+<pre><span class="codetitle">e.g. Postbox を DI @Java</span><code>
+@Resouce
+<span class="keyword">private</span> Postbox <span class="attribute">postbox</span>;
+</code></pre>
+	<h3 id="droppedinto">droppedInto() でメール送信</h3>
+	<p>
+		自動生成された Postcard の <em class="mark">droppedInto()</em> メソッドでメール送信します。
+		第二引数の postcard インスタンスに対して、メール送信の設定をしていきます。
+	</p>
+<pre><span class="codetitle">e.g. Postcard でメール送信 @Java</span><code>
+<span class="point">WelcomeMemberPostcard</span>.droppedInto(<span class="localvar">postbox</span>, <span class="localvar">postcard</span> -&gt; {
+    <span class="localvar">postcard</span>.setFrom(<span class="literal">"from@example.com"</span>, <span class="attribute">LABELS_OFFICE_MAIL</span>);
+    <span class="localvar">postcard</span>.addTo(<span class="literal">"to@example.com"</span>);
+    <span class="localvar">postcard</span>.<span class="subpoint">setMemberName</span>(<span class="literal">"sea"</span>);
+    <span class="localvar">postcard</span>.<span class="subpoint">setBirthdate</span>(birthdate);
+    <span class="localvar">postcard</span>.addReplyTo(<span class="literal">"replyto@example.com"</span>);
+});
+</code></pre>
+
+	<h2 id="howtomailflute">MailFluteの使い方は？</h2>
+	<h3 id="officialmailflute">MailFluteのオフィシャルページ</h3>
+	<p>
+		MailFlute自体の詳しい使い方は、MailFluteのオフィシャルドキュメントをご覧ください。
+	</p>
+	<div class="detailpage"><a href="../../../manual/function/helper/mailflute/index.html">MailFlute</a></div>
+	<h3 id="thispagedesc">このページはLastaFluteに関わるお話を</h3>
+	<p>
+		(いま見ている)このページでは、FreeGenを使った大まかな実装の流れと、LastaFluteにおけるメールの環境設定などについてのみ記載していきます。
+	</p>
+
+	<h2 id="dfprop">lastafluteMap.dfpropの設定</h2>
+	<p>
+		Postcardを自動生成するために、lastafluteMap.dfprop の freeGenList に <em class="smallmark">mail</em> を追加する必要があります。
+		Exampleデフォルトとして初めから追加されているので、Exampleからスタートアップした場合はあまり意識することはないでしょう。
+	</p>
+<pre><span class="codetitle">e.g. add mail to freeGenList @lastafluteMap.dfprop</span><code>
+; appMap = <span class="keyword">map:</span>{
+    ; harbor = <span class="keyword">map:</span>{
+        ; path = ..
+        ; freeGenList = <span class="keyword">list:</span>{ env ; <span class="abbreviation">...</span> ; <span class="point">mail</span> ; template ; <span class="abbreviation">...</span> }
+        ; propertiesHtmlList = <span class="keyword">list:</span>{ env ; config ; label ; message }
+    }
+}
+</code></pre>
+	<p>
+		もうひとつ、プラグインインターフェースを付与するときに、この dfprop を修正します(後述)。
+	</p>
+
+	<h2 id="defaultmethod">デフォルトメソッドで再利用</h2>
+	<h3 id="setfromsupport">お決まりの設定をどうにかしたい</h3>
+	<p>
+		例えば、どのメールでもお決まりの From を設定するというような場合...
+	</p>
+<pre><span class="codetitle">e.g. setFrom() plain @Java</span><code>
+postcard.setFrom(config.getMailAddressSupport(), HarborMessages.LABELS_MAIL_SUPPORT_PERSONAL);
+</code></pre>
+	<p>
+		一行だけとは言え書くのは少し面倒です。ただ、そこよりも、何箇所にもわたってメール送信の実装をしていくと、
+		どこかで間違った From を指定してしまう可能性もあります。アドレスとpersonalがズレてしまったりなど。
+	</p>
+	<p>
+		そういった場合、こういう風に再利用したいものです。
+	</p>
+<pre><span class="codetitle">e.g. setFrom() plain @Java</span><code>
+postcard.setFromSupport(config); <span class="comment">// address and personal are set</span>
+</code></pre>
+	<p>
+		ですが、Postcardは自動生成クラスです。ジェネレーションギャップにもなっていないので、クラスを書き換えることはできません。
+		書き換えられたとしてもすべての Postcard のそのメソッドを定義しないといけません<span class="frm">(現実的ではない)</span>。
+	</p>
+	<h3 id="allinterface">すべてのPostcardに同じインターフェースを</h3>
+	<p>
+		そこで、すべてのPostcardに同じインターフェースを付与することができるようになっています。
+	</p>
+	<p>
+		lastafluteMap.dfprop にて、mailPluginInterface でインターフェースのFQCNを指定すると、自動生成される Postcard が implements
+		するようになります。
+	</p>
+<pre><span class="codetitle">e.g. add mail to freeGenList @lastafluteMap.dfprop</span><code>
+; appMap = <span class="keyword">map:</span>{
+    ; harbor = <span class="keyword">map:</span>{
+        ; path = ..
+        ; freeGenList = <span class="keyword">list:</span>{ env ; <span class="abbreviation">...</span> ; mail ; template ; <span class="abbreviation">...</span> }
+        ; propertiesHtmlList = <span class="keyword">list:</span>{ env ; config ; label ; message }
+        ; <span class="point">mailPluginInterface</span> = <span class="subpoint">org.docksidestage.mylasta.mail.PluggedinHarborPostcard</span>
+    }
+}
+</code></pre>
+	<p>
+		このインターフェースはアプリで用意します。例えば、以下のように実装すると、すべての Postcard が setFromSupport() を持つようになります。
+	</p>
+<pre><span class="codetitle">e.g. setFromSupport() as default method of interface @Java</span><code>
+<span class="keyword">public interface</span> PluggedinHarborPostcard {
+
+    <span class="keyword">void</span> setFrom(String from, String personnel);
+
+    <span class="keyword">default void</span> setFromSupport(FortressConfig config) {
+        setFrom(config.getMailAddressSupport(), FortressMessages.LABELS_MAIL_SUPPORT_PERSONAL);
+    }
+}
+</code></pre>
+	<p>
+		このように、多くの Postcard でお決まりの設定処理がある場合、デフォルトメソッドを用意しておけば、ディベロッパーは補完で選ぶだけで設定を済ませることができます。
+		結果、変なズレによるバグというのを減らせることができます。また、変更時の一括修正もしやすくなります。
+	</p>
+
+	<h2 id="settigs">メールの環境設定</h2>
+	<p>
+		そもそもメールの環境設定をするためには？
+	</p>
+	<h3 id="properties">[app]_env.properties</h3>
+	<p>
+		Exampleテンプレート構成であれば、すでに <em class="mark">[app]_env.properties</em> にて、メールの送信先を設定することができます。
+	</p>
+<pre><span class="codetitle">e.g. [app]_env.properties メールの設定 @Java</span><code>
+<span class="comment"># ----------------------------------------------------------</span>
+<span class="comment">#                                                      Mail</span>
+<span class="comment">#                                                     ------</span>
+<span class="comment"># Does it send mock mail? (true: no send actually, logging only)</span>
+mail.send.mock = <span class="keyword">true</span>
+
+<span class="comment"># SMTP server settings for main: host:port</span>
+mail.smtp.server.main.host.and.port = <span class="literal">localhost:25</span>
+
+<span class="comment"># The prefix of subject to show test environment or not</span>
+mail.subject.test.prefix = <span class="literal">[Test]</span>
+
+<span class="comment"># The common return path of all mail</span>
+mail.return.path = <span class="literal">returnpath@docksidestage.org</span>
+</code></pre>
+	<h3 id="deliverydepartment">DeliveryDepartmentでもっと細かく</h3>
+	<p>
+		sponsor.[App]MailDeliveryDepartmentCreator にて、さらに細かく挙動を調整することができます。
+		このクラスは、[App]FwAssistantDirector から参照され、AssistantDirector の Direction として登録されます。
+	</p>
+	<p>
+		クラスレベルでの拡張ポイントとなり、振舞いなどを自由自在に変更することができます。
+		実際に、Exampleデフォルトとして、件名の[Test]付与、非同期処理の有効化、ラベルの活用など、LastaFluteとしての振舞いを実現するための拡張が組み込まれています。
+	</p>
+	<p>
+		さらに挙動を変更したり処理を追加したりする場合は、しっかりコードを読んで拡張しましょう。
+	</p>
+	<div class="detailpage"><a href="../../../manual/function/helper/mailflute/index.html#codereadinghint">MailFlute - コードリーディングのヒント</a></div>
+<pre><span class="codetitle">e.g. HarborMailDeliveryDepartmentCreator @Java</span><code>
+<span class="keyword">public</span> SMailDeliveryDepartment create() {
+    <span class="keyword">return new</span> SMailDeliveryDepartment(createPostalParkingLot(), createPostalPersonnel());
+}
+
+<span class="keyword">protected</span> SMailPostalParkingLot createPostalParkingLot() {
+    <span class="keyword">final</span> SMailPostalParkingLot parkingLot = <span class="keyword">new</span> SMailPostalParkingLot();
+    <span class="keyword">final</span> SMailPostalMotorbike motorbike = <span class="keyword">new</span> SMailPostalMotorbike();
+    <span class="keyword">final</span> String hostAndPort = config.getMailSmtpServerMainHostAndPort();
+    <span class="keyword">final</span> List&lt;String&gt; hostPortList = DfStringUtil.splitListTrimmed(hostAndPort, ":");
+    motorbike.registerConnectionInfo(hostPortList.get(0), Integer.parseInt(hostPortList.get(1)));
+    motorbike.registerReturnPath(config.getMailReturnPath());
+    parkingLot.registerMotorbikeAsMain(motorbike);
+    <span class="keyword">return</span> parkingLot;
+}
+
+<span class="keyword">protected</span> SMailPostalPersonnel createPostalPersonnel() {
+    <span class="keyword">final</span> SMailDogmaticPostalPersonnel personnel = createDogmaticPostalPersonnel();
+    <span class="keyword">return</span> config.isMailSendMock() ? personnel.asTraining() : personnel;
+}
+
+<span class="keyword">protected</span> SMailDogmaticPostalPersonnel createDogmaticPostalPersonnel() { <span class="comment">// #ext_point e.g. locale, database</span>
+    <span class="keyword">final</span> String testPrefix = config.getMailSubjectTestPrefix();
+    <span class="keyword">final</span> AsyncManager asyncManager = getAsyncManager();
+    <span class="keyword">final</span> MessageManager messageManager = getMessageManager();
+    <span class="keyword">return new</span> SMailDogmaticPostalPersonnel() {
+
+        <span class="comment">// *if you need user locale switching or templates from database,</span>
+        <span class="comment">// override createConventionReceptionist() (see the method for the details)</span>
+
+        @Override
+        <span class="keyword">protected</span> OptionalThing&lt;SMailSubjectFilter&gt; createSubjectFilter() {
+            <span class="keyword">return</span> OptionalThing.of((view, subject) -&gt; !subject.startsWith(testPrefix) ? testPrefix + subject : subject);
+        }
+
+        @Override
+        <span class="keyword">protected</span> OptionalThing&lt;SMailAsyncStrategy&gt; createAsyncStrategy() {
+            <span class="keyword">return</span> OptionalThing.of(<span class="keyword">new</span> SMailAsyncStrategy() {
+                @Override
+                <span class="keyword">public</span> void async(CardView view, Runnable runnable) {
+                    asyncRunnable(asyncManager, runnable);
+                }
+
+                @Override
+                <span class="keyword">public boolean</span> alwaysAsync(CardView view) {
+                    <span class="keyword">return true</span>; <span class="comment">// as default of LastaFlute example</span> 
+                }
+            });
+        }
+
+        @Override
+        <span class="keyword">protected</span> OptionalThing&lt;SMailLabelStrategy&gt; createLabelStrategy() {
+            <span class="keyword">return</span> OptionalThing.of((view, locale, label) -&gt; resolveLabelIfNeeds(messageManager, locale, label));
+        }
+    };
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

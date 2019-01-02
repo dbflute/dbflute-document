@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,T2 Lucy,取扱い,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>T2 Lucyの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>T2 Lucyの取扱い</h1>
+	<p>
+		※T2 Lucy が稼働していないので、こちらすでにサポートされていません。
+	</p>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>(T2) Lucy 0.5.x 以上</dd>
+	</dl>
+
+	<h2 id="disetting">DI設定ファイル (dbfluteBeans.xml)</h2>
+	<p>
+		DBFluteは、Generateタスクにて DBFluteのコンポーネントが登録されている <em class="keyword">dbfluteBeans.xml</em>
+		を自動生成します。主には、Behavior と allcommon のクラスが登録されています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html#disetting">Generate - DI設定ファイルも自動生成</a></div>
+	<p>
+		この dbfluteBeans.xml が <em class="keyword">アプリケーションのDI設定ファイルから参照されるように設定</em>
+		することで、アプリケーションのコンポーネントからDBFluteのコンポーネント(主にBehavior)が利用できるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/injection.html#spring">セットアップ - DI環境の調整</a></div>
+<pre><span class="codetitle">e.g. LucyTestCase にて dbfluteBeans.xml を Lucy に設定 @app.dicon</span><code>
+Lucy lucy = getLucy();
+<span class="point">lucy.load("dbfluteBeans.xml");</span>
+</code></pre>
+	<h3 id="datasource">データソースのコンポーネント名が dataSource でない場合</h3>
+	<p>
+		こちら、Spring Frameworkの場合と全く同じ話となります。
+	</p>
+	<div class="detailpage"><a href="../spring/index.html#datasource">Spring Framework - データソースのコンポーネント名が dataSource でない場合</a></div>
+	<h3 id="filename">dbfluteBeans.xml の名前を変更したい場合</h3>
+	<p>
+		こちら、Spring Frameworkの場合と全く同じ話となります。
+	</p>
+	<div class="detailpage"><a href="../spring/index.html#filename">Spring Framework - dbfluteBeans.xml の名前を変更したい場合</a></div>
+
+	<h2 id="diway">DIの方法 (Behavior)</h2>
+	<p>
+		DI管理されているコンポーネントクラスにおいて、Behavior のプロパティを定義し、@Inject
+		アノテーションを付与するとインジェクトされます。他にも方法はありますのでアプリケーションで統一的な実装をするようにして下さい。
+	</p>
+<pre><span class="codetitle">e.g. Inject アノテーションの利用 {Pageクラス} @Java</span><code>
+<span class="keyword">public class</span> XxxPage {
+    <span class="keyword">protected</span> MemberBhv <span class="attribute">memberBhv</span>;
+
+    <span class="point">@Inject</span>
+    <span class="keyword">public void</span> setMemberBhv(MemberBhv memberBhv) {
+        <span class="keyword">this</span>.<span class="attribute">memberBhv</span> = memberBhv;
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

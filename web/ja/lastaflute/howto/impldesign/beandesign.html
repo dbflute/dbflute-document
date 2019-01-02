@@ -1,0 +1,334 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Beanの実装デザイン | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Beanの実装デザイン</h1>
+	<p>
+		LastaFluteからの提案です。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<p>
+		このページは、Actionの実装デザインを読んでいることが前提です。
+	</p>
+	<div class="detailpage"><a href="./actiondesign.html">Actionの実装デザイン</a></div>
+	<p>
+		ここで言う Bean とは、Form や JsonResult などの入れ物クラスのことです。
+	</p>
+	${indexlist}
+
+	<h2 id="overview">いきなりまとめ</h2>
+	<h3 id="proposal">実装デザインの提案</h3>
+	<dl class="keymainlist">
+		<dt><a href="#rolesuffix">役割のわかるクラス名Suffix</a></dt><dd>Body, Result, Param, Return など</dd>
+		<dt><a href="#nestedexp">ネストした構造の表現</a></dt><dd><em class="mark">インナークラス</em> で定義、クラス名は <em class="mark">...Part</em> で終わる</dd>
+		<dt><a href="#egdefault">JavaDocでe.g.デフォルト値</a></dt><dd><em class="mark">e.g.</em> でデフォルト値 (いーじーでふぉるとち) を書く <span class="frm">(for Swagger)</span></dd>
+		<dt><a href="#latostring">気軽なtoString()</a></dt><dd><em class="mark">Lato</em> で気軽にtoString()をオーバーライド</dd>
+	</dl>
+
+	<h2 id="rolesuffix">役割のわかるクラス名Suffix</h2>
+	<h3 id="convpolicy">規約と慣習による統一化</h3>
+	<p>
+		LastaFluteでは、Beanのクラス名に Suffix を付けることで役割を明確にしたいと考えています。
+	</p>
+	<p>
+		規約のものもあれば、慣習のものもあります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>規約</dt><dd>そういうsuffixじゃないと動かない</dd>
+		<dt>慣習</dt><dd>動かないわけじゃないけど、みんなでそうしよう</dd>
+	</dl>
+	<p>
+		慣習に関しては、単なる提案になりますので、必ずしもそうでないといけないわけではありませんが、大勢でブレるくらいであれば、LastaFlute
+		の提案する慣習に則った方が多くの人が理解できるものになります。<span class="frm">(現場で変更する場合は、しっかり統一性を保つためのファシリテーションをしましょう)</span>
+	</p>
+	<h3 id="outsidebean">外部やり取りのBean</h3>
+	<p>
+		リクエストパラメーターや、JSONデータの変換、HTMLテンプレートへ渡す値など、外部の世界とのデータの受け渡しに関しては、このようになっています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>...Form <span class="frm">(規約)</span></dt><dd>リクエストパラメーターを受け取るクラス</dd>
+		<dt>...Body <span class="frm">(規約)</span></dt><dd>リクエストされたJSON Bodyを受け取るクラス</dd>
+		<dt>...Bean <span class="frm">(慣習)</span></dt><dd>Thymeleafに渡すデータのクラス、その他の用途でも使うかも <span class="frm">(HtmlBean)</span></dd>
+		<dt>...Result <span class="frm">(慣習)</span></dt><dd>レスポンスで戻すJSONを表現するクラス <span class="frm">(JsonResult)</span></dd>
+		<dt>...Part <span class="frm">(慣習)</span></dt><dd>BodyやResultなどの入れ物クラスの一部データをまとめたインナークラス</dd>
+	</dl>
+	<p>
+		Thymeleafに渡すデータのクラスだけ、Beanのままです。ここは良い名前が浮かびませんでした。
+		そもそも、サーバーサイドHTML方式のユーザーも少ないので、検討も先送りしてBeanのままですが、現場で統一ができるのであれば、別のsuffixにしても良いでしょう。
+	</p>
+	<h3 id="insidebean">内部やり取りだけのBean</h3>
+	<p>
+		Logicなど、アプリの内部レイヤ間でのデータの受け渡しに関しては、このようになっています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>...Param <span class="frm">(慣習)</span></dt><dd>Logicなどで項目が多い場合にまとめる引数クラス</dd>
+		<dt>...Return <span class="frm">(慣習)</span></dt><dd>Logicなどで項目が多い場合にまとめる戻り値クラス</dd>
+	</dl>
+	<p>
+		本来、ここはフレームワークが一切関わらないクラスたちなので、現場でケースバイケースでカスタマイズやアドリブがあっても全然良いところですが、
+		最低限区別しようという提案です。例えば、付ける名前が困り、なんとなくすべて区別せずに ...Bean とか ...Dto
+		とかにするくらいであれば、Param, Return を使いましょうというニュアンスです。
+	</p>
+	<p>
+		引数でも戻り値でも両方で使うようなケースであれば、業務的な意味の深い名前を付けられるクラスなので、その場合は Bean (or その他) でも良いでしょう。
+		<span class="frm">(ただし、他の規約や慣習で利用されている名前は避けたほうが良いかなと)</span>
+	</p>
+	<p>
+		<span class="frm">※一方で、RemoteApiの送受信のクラスでも利用されたりします。Param, Return自体は汎用的な活用のされ方をします。</span>
+	</p>
+
+	<h2 id="nestedexp">ネストした構造の表現</h2>
+	<h3 id="innnerpart">インナークラスのPart</h3>
+	<p>
+		特にJSONのクラスなどは、ネストした構造を気軽に持つことが多いです。
+		それをつどつど独立したクラスにするのもなかなか手間ですし、逆に切り出すとJSONの前提像がクラスから読み取りづらくなります。
+		なので、特に再利用しないようなネスト構造の部分のクラスは、その場で <em class="keyword">インナークラスで表現してしまったほうが良いだろう</em>
+		と考えました。
+	</p>
+	<p>
+		そして、<em class="keyword">クラス名の suffix には Part</em> を付けます<span class="frm">(ただし変数名はJSONに載る名前なので付けません)</span>。
+		外側のメインのクラスと区別することで、コード上の可読性が上がりやすいだろうと考えました。
+	</p>
+<pre><span class="codetitle">e.g. JSON Body that has nested classes @Java</span><code>
+<span class="comment">/*
+{
+    title : resort
+    , sea : {
+        docksideStage : {
+            showName : over
+            , showType : MSC
+        }
+        , hangarStage : {
+            showName : mystic
+            , showType : PFM
+        }
+    }
+    , hotels : [{
+        hotelName : amba
+        , hotelType : DIN
+    }, {
+        hotelName : baymai
+        , hotelType : OFC
+    }]
+}
+*/</span>
+<span class="keyword">public class</span> MaihamaBody {
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">title</span>;
+
+    @Required
+    @Valid
+    <span class="keyword">public</span> SeaPart <span class="attribute">sea</span>;
+
+    <span class="keyword">public static class</span> SeaPart {
+
+        @Required
+        @Valid
+        <span class="keyword">public</span> ShowPart <span class="attribute">docksideStage</span>;
+
+        @Required
+        @Valid
+        <span class="keyword">public</span> ShowPart <span class="attribute">hangarStage</span>;
+
+        <span class="keyword">public static class</span> ShowPart {
+
+            @Required
+            <span class="keyword">public</span> String <span class="attribute">showName</span>;
+
+            @Required
+            <span class="keyword">public</span> CDef.ShowType <span class="attribute">showType</span>;
+        }
+    }
+
+    @NotNull
+    <span class="keyword">public</span> List&lt;HotelPart&gt; <span class="attribute">hotels</span>;
+
+    <span class="keyword">public static class</span> HotelPart {
+        
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">hotelName</span>;
+
+        @Required
+        <span class="keyword">public</span> CDef.HotelType <span class="attribute">hotelType</span>;
+    }
+}
+</code></pre>
+	<h3 id="recyclepart">Partを再利用するときは？</h3>
+	<p>
+		もちろん再利用するものは、この限りではありませんが、あまりネスト構造の一部を再利用することも多くはないはずです。
+		もしそういうケースがあった場合、以下のような感じでやると良いでしょう。<span class="frm">(ここ厳密ではなくてもOKですが)</span>
+	</p>
+	<dl class="keymainlist">
+		<dt>片方はメイン利用</dt><dd>そのときは、もちろんメインに合わせたクラス名</dd>
+		<dt>どちらもネスト利用</dt><dd>Partという名前のまま独立クラスに</dd>
+	</dl>
+
+	<h2 id="egdefault">JavaDocでe.g.デフォルト値</h2>
+	<p>
+		JavaDocには、e.g. 形式でデフォルト値を書くことをオススメします。
+	</p>
+	<p>
+		以下のようなメリットを享受することができます。
+		特に、JSON API では、Swaggerの機能が不可欠ですが、このe.g.デフォルト値があるとスムーズな運用ができるようになります。
+	</p>
+	<div class="detailpage"><a href="../action/laswagger.html#egdefault">Swaggerで動作確認 - e.g.デフォルト値のススメ</a></div>
+	<dl class="keymainlist">
+		<dt>Swaggerでのメリット</dt><dd>swagger-uiですぐにリクエストを送ることができます <span class="frm">☆</span></dd>
+		<dt>LastaDocでのメリット</dt><dd>具体的な値がLastaDocでわかると理解が早まります</dd>
+		<dt>コード上でのメリット</dt><dd>具体的な値がコード上でわかると理解が早まります</dd>
+	</dl>
+<pre><span class="codetitle">e.g. javadoc has e.g.default values @Java</span><code>
+<span class="keyword">public class</span> MaihamaBody {
+
+    <span class="comment">/** そのエリアのテーマ e.g. resort */</span>
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">title</span>;
+
+    <span class="comment">/** 海パーク */</span>
+    @Required
+    @Valid
+    <span class="keyword">public</span> SeaPart <span class="attribute">sea</span>;
+
+    <span class="keyword">public static class</span> SeaPart {
+
+        <span class="comment">/** ドックサイドステージ */</span>
+        @Required
+        @Valid
+        <span class="keyword">public</span> ShowPart <span class="attribute">docksideStage</span>;
+
+        <span class="comment">/** ハンガーステージ */</span>
+        @Required
+        @Valid
+        <span class="keyword">public</span> ShowPart <span class="attribute">hangarStage</span>;
+
+        <span class="keyword">public static class</span> ShowPart {
+
+            <span class="comment">/** そのステージ行われているショーの名前 e.g. over */</span>
+            @Required
+            <span class="keyword">public</span> String <span class="attribute">showName</span>;
+
+            <span class="comment">/** ショーの種別 e.g. MSC */</span>
+            @Required
+            <span class="keyword">public</span> CDef.ShowType <span class="attribute">showType</span>;
+        }
+    }
+
+    <span class="comment">/** 存在するホテルの一覧 */</span>
+    @NotNull
+    <span class="keyword">public</span> List&lt;HotelPart&gt; <span class="attribute">hotels</span>;
+
+    <span class="keyword">public static class</span> HotelPart {
+        
+        <span class="comment">/** ホテルの名前 e.g. amba */</span>
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">hotelName</span>;
+
+        <span class="comment">/** ホテルの種別 e.g. DIN */</span>
+        @Required
+        <span class="keyword">public</span> CDef.HotelType <span class="attribute">hotelType</span>;
+    }
+}
+</code></pre>
+
+	<h2 id="latostring">気軽なtoString()</h2>
+	<p>
+		Beanクラスは、何かとデバッグログで出力される機会があります。中のデータを出力しておくことで、デバッグに役立つことが多々あります。
+	</p>
+	<p>
+		そこで、toString() をオーバーライドして、Lato.string(this)
+		という風に実装すれば、リフレクションで Bean の中身の情報を出力してくれます。
+		一番外側のクラスにだけ付けておけば、ネストしたクラスの中身も出力してくれます。
+	</p>
+	<p>
+		LastaFluteの補完テンプレートを入れていれば、<em class="mark">_lato</em> でサクッと補完できます。
+	</p>
+<pre><span class="codetitle">e.g. javadoc has e.g.default values @Java</span><code>
+<span class="keyword">public class</span> MaihamaBody {
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">title</span>;
+
+    @Required
+    @Valid
+    <span class="keyword">public</span> SeaPart <span class="attribute">sea</span>;
+
+    <span class="keyword">public static class</span> SeaPart {
+
+        @Required
+        @Valid
+        <span class="keyword">public</span> ShowPart <span class="attribute">docksideStage</span>;
+
+        @Required
+        @Valid
+        <span class="keyword">public</span> ShowPart <span class="attribute">hangarStage</span>;
+
+        <span class="keyword">public static class</span> ShowPart {
+
+            @Required
+            <span class="keyword">public</span> String <span class="attribute">showName</span>;
+
+            @Required
+            <span class="keyword">public</span> CDef.ShowType <span class="attribute">showType</span>;
+        }
+    }
+
+    @NotNull
+    <span class="keyword">public</span> List&lt;HotelPart&gt; <span class="attribute">hotels</span>;
+
+    <span class="keyword">public static class</span> HotelPart {
+        
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">hotelName</span>;
+
+        @Required
+        <span class="keyword">public</span> CDef.HotelType <span class="attribute">hotelType</span>;
+    }
+
+    @Override <span class="comment">// _lato => ctrl+space でこれら全部補完</span>
+    <span class="keyword">public</span> String toString() { <span class="comment">// 一番外側のクラスだけオーバーライドでOK</span>
+        <span class="keyword">return</span> <span class="point">Lato</span>.string(<span class="keyword">this</span>);
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

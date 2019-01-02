@@ -1,0 +1,484 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,アプリケーションBehavior,ApplicationBehavior,アプリケーションギャップ,ApplicationGap,BhvAp,大規模" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>アプリごとのBehavior | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>アプリごとのBehavior</h1>
+	${indexlist}
+
+	<h2 id="appgap">アプリケーションギャップ</h2>
+	<p>
+		例えば、以下のようなプロジェクト構成の開発があるとします。
+	</p>
+	<dl class="keymainlist">
+		<dt>dblib</dt><dd>DBFluteの自動生成クラス、DB周りのロジック <span class="frm">(ライブラリ扱い)</span></dd>
+		<dt>web1</dt><dd>コンシューマ向けのWEBサイト</dd>
+		<dt>web2</dt><dd>コンシューマ向けの携帯用WEBサイト <span class="frm">(別会社に発注)</span></dd>
+		<dt>web3</dt><dd>管理用WEBサイト <span class="frm">(海外に発注)</span></dd>
+		<dt>batch</dt><dd>バッチプロジェクト</dd>
+		<dt>web4</dt><dd>さらに別のコンシューマ向けのWEBサイト <span class="frm">(海外に発注)</span></dd>
+	</dl>
+	<p>
+		一つのDBを色々なアプリケーションが共有してDBアクセスするとして、dbilb プロジェクトを全てのアプリケーションが参照します。
+		この場合、かなり大人数で同時に開発が進み、かつ、アプリケーションごとに開発する組織が違うため、なにかとフットワークは重く、
+		マネジメントの難易度も単一プロジェクトに比べて遥かに高いものになるでしょう。
+	</p>
+	<h3 id="headache">ジェネレーションギャップでは足りない</h3>
+	<p>
+		DBFluteでは、ジェネレーションギャップという形で自動生成とアプリケーションのギャップを埋められるような構造にはなっていますが、
+		このような構造の場合では、(特にBehaviorの)Exクラスへのメソッド追加はかなり至難なものになることが想像されます。
+		バージョン管理システムでのコンフリクト、そして、とあるアプリでしか利用しないメソッドの乱立、もしくは、そもそもそれぞれのアプリには、dblib
+		プロジェクトへの編集権限を持たせない運用もする可能性があります(dblib プロジェクトを jar ファイルとして配るなど)。
+	</p>
+	<p>
+		また、外だしSQLの　BehaviorQueryPath もBehaviorが前提となっているため、dblib
+		プロジェクトの編集なしでは外だしSQLのタイプセーフな呼び出しは実現できません。
+	</p>
+	<p>
+		DBFluteでは、このようなアプリ間のギャップのことを、<em class="keyword">アプリケーションギャップ</em> と呼びます。
+	</p>
+
+	<h2 id="solution">アプリごとの Behavior</h2>
+	<p>
+		DBFluteでは、このアプリケーションギャップを埋めるために、<em class="keyword">アプリごとの Behavior</em>
+		を自動生成できるようにしています。これを <em class="keyword">ApplicationBehavior</em> と呼びます。 
+	</p>
+	<p>
+		対して、ここで言う dblib
+		プロジェクトのことを、<em class="keyword">ライブラリプロジェクト</em> と呼び、そのライブラリプロジェクト内にある(通常の) Behavior
+		を <em class="keyword">LibraryBehavior</em> と呼びます。(ApplicationBehaviorを利用している場合に)
+	</p>
+	<p>
+		このような構造にすることで、それぞれのアプリケーションのディベロッパーは、<em class="keyword">ライブラリプロジェクトのクラスを編集することなく</em>、
+		Behaviorに独自のメソッドを追加したり、外だしSQLを定義したりすることができます。(SQLファイルはそれぞれのアプリケーションプロジェクトに配置)
+	</p>
+
+	<h2 id="structure">ApplicationBehaviorの構造</h2>
+	<p>
+		ApplicationBehaviorは、それぞれのアプリケーションプロジェクトの中のクラスとして自動生成され、LibraryBehavior の
+		Exクラスを継承します。ApplicationBehavior には、そのアプリでしか利用しないメソッドの追加、そして、そのアプリでしか利用しない外だしSQLの
+		BehaviorQueryPath を定義することができます。
+	</p>
+	<p>
+		また、外だしSQLもアプリケーションプロジェクトに配置することで、それに関連する CustomizeEntity や ParameterBean
+		もアプリケーションプロジェクトの中に自動生成します。 
+	</p>
+<pre><span class="codetitle">e.g. ApplicationBehaviorの自動生成クラス(と外だしSQLの配置) {MEMBER} @Directory</span><code>
+dblib <span class="comment">// ライブラリプロジェクト</span>
+ |-src/main/java
+    |-com.example.dblib.dbflute.bsbhv
+       |-BsMemberBhv.java <span class="comment">// システム全体で共通の外だしSQLのBehaviorQueryPath</span>
+    |-com.example.dblib.dbflute.exbhv
+       |-MemberBhv.java <span class="comment">// システム全体で共通のメソッドを定義</span>
+web1
+ |-src/main/java
+ |  |-com.example.dblib.dbflute.bsbhv
+ |  |  |-<span class="point">BsMemberBhvAp.java</span> <span class="comment">// アプリ固有の外だしSQLのBehaviorQueryPath</span> 
+ |  |-com.example.dblib.dbflute.bsentity.customize
+ |  |  |-BsAppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Bsクラス)</span>
+ |  |-com.example.dblib.dbflute.exbhv
+ |  |  |-<span class="point">MemberBhvAp.java</span> <span class="comment">// アプリ固有のメソッドを定義</span>
+ |  |-com.example.dblib.dbflute.exentity.customize
+ |  |  |-AppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Exクラス)</span>
+ |-src/main/resources
+    |-com.example.dblib.dbflute.exbhv
+       |-MemberBhv_selectAppOriginal.sql <span class="comment">// アプリ固有の外だしSQL</span>
+web2
+ |-src/main/java
+ |  |-com.example.dblib.dbflute.bsbhv
+ |  |  |-<span class="point">BsMemberBhvAp.java</span> <span class="comment">// アプリ固有の外だしSQLのBehaviorQueryPath</span>
+ |  |-com.example.dblib.dbflute.bsentity.customize
+ |  |  |-BsAppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Bsクラス)</span>
+ |  |-com.example.dblib.dbflute.exbhv
+ |  |  |-<span class="point">MemberBhvAp.java</span> <span class="comment">// アプリ固有のメソッドを定義</span>
+ |  |-com.example.dblib.dbflute.exentity.customize
+ |  |  |-AppOriginal.java <span class="comment">// アプリ固有のCustomizeEntity(Exクラス)</span>
+ |-src/main/resources
+    |-com.example.dblib.dbflute.exbhv
+       |-MemberBhv_selectAppOriginal.sql <span class="comment">// アプリ固有の外だしSQL</span>
+</code></pre>
+	<h3 id="suffix">ApplicationBehavior の suffix</h3>
+	<p>
+		ApplicationBehavior のクラス名の suffix は、BhvAp (びへぶえーぴー)となります。
+	</p>
+	<h3 id="package">ApplicationBehavior のパッケージ</h3>
+	<p>
+		パッケージは、基本的に ApplicationBehavior と LibraryBehavior
+		で同じにします。(但し、dfpropの設定で別々にすることは可能)
+	</p>
+	<h3 id="appsqlbhv">アプリケーション独自の外だしSQLのBehaviorの名前</h3>
+	<p>
+		外だしSQLのファイル名の Behavior の名前は、LibraryBehavior
+		のもの、もしくは、ApplicationBehavior(Ap付き)<span class="frm">(@since 0.9.8.2)</span>のもの。
+		EMecha の EMSql で BhvAp の Behavior に対して作成した場合は後者となる。
+	</p>
+
+	<h2 id="generate">ApplicationBehaviorの自動生成</h2>
+	<p>
+		通常の自動生成環境とは別に、ApplicationBehavior用の自動生成環境を作ります。
+		全く別のDBFluteクライアントをもう一つ用意する必要はありませんが(してもOKですが)、
+		通常の自動生成で利用するDBFluteタスクとは違う設定で動作するように環境構築する必要があります。
+		そのために、環境毎にDBFluteプロパティ(dfprop)を切り替えることができる EnvironmentType
+		を利用します。(EnvironmentTypeは、アプリケーションごとに定義)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/environmenttype.html">dfprop - EnvironmentType</a></div>
+	<h3 id="dfprop">切り替えるDBFluteプロパティ</h3>
+	<p>
+		以下、主な切り替え対象のDBFluteプロパティです。その他、ApplicationBehavior
+		の自動生成において調整が必要なプロパティがあれば臨機に追加していきます(以下は、各種設定がDBFluteのデフォルトに近い状態を想定しています)。
+	</p>
+	<dl class="textlist">
+		<dt><a href="../../../../reference/dfprop/basicinfo/index.html">basicInfoMap.dfprop</a></dt>
+		<dd>必須。generateOutputDirectory と applicationBehaviorMap の設定</dd>
+		<dt><a href="../../../../reference/dfprop/documentdefinition/index.html">documentDefinitionMap.dfprop</a></dt>
+		<dd>アプリごとのSchemaHTMLを作成する場合に、documentOutputDirectory と schemaHtmlFileName を設定</dd>
+		<dt><a href="../../../../reference/dfprop/outsidesqldefinition/index.html">outsideSqlDefinitionMap.dfprop</a></dt>
+		<dd>ProcedurePmbの自動生成が有効になっている場合に、それを無効にする</dd>
+		<dt><a href="../../../../reference/dfprop/refreshdefinition/index.html">refreshDefinitionMap.dfprop</a></dt>
+		<dd>ResourceSynchronizerを利用している場合に、アプリのそれを無効にする</dd>
+	</dl>
+<pre><span class="codetitle">e.g. ApplicationBehaviorのDBFluteプロパティ構成 @Directory</span><code>
+dfprop
+ |-<span class="point">web1</span>
+ |  |-basicInfoMap+.dfprop            <span class="comment">// 自動生成出力先をweb1に。そして、BhvApの有効化</span>
+ |  |-documentDefinitionMap+.dfprop   <span class="comment">// web1用のSchemaHTMLの出力先など設定</span>
+ |  |-outsideSqlDefinitionMap+.dfprop <span class="comment">// ProcedurePmbの自動生成を無効に</span>
+ |  |-refreshDefinitionMap+.dfprop    <span class="comment">// リフレッシュ先プロジェクトを web1 に</span>
+ |-<span class="point">web2</span>
+ |  |-basicInfoMap+.dfprop            <span class="comment">// 基本となるプロパティ(マージされる側)</span>
+ |  |-documentDefinitionMap+.dfprop   <span class="comment">// SchemaHTMLの出力先など設定</span>
+ |  |-outsideSqlDefinitionMap+.dfprop <span class="comment">// ProcedurePmbの自動生成を無効に</span>
+ |  |-refreshDefinitionMap+.dfprop    <span class="comment">// リフレッシュ先プロジェクトを web2 に</span>
+ |
+ |-basicInfoMap.dfprop <span class="comment">// dblib プロジェクトの(通常の)自動生成</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		basicInfoMap.dfprop では、自動生成クラスの出力先の切り替えと共に、applicationBehaviorMap
+		にて、ApplicationBehavior の自動生成を有効化を設定します。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/basicinfo/index.html#applicationbehaviormap">dfprop - applicationBehaviorMap</a></div>
+<pre><span class="codetitle">e.g. ApplicationBehavior の basicInfoMap {environmentType=web1} @dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">generateOutputDirectory</span> = ../../web1/src/main/java
+
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
+    <span class="comment"># o applicationBehaviorMap: (NotRequired - Default map:{})</span>
+    <span class="comment">#  The settings for Application Behavior.</span>
+    <span class="comment">#  Elements of this map are as below:</span>
+    <span class="comment">#   o isApplicationBehaviorProject: (NotRequired - Default false)</span>
+    <span class="comment">#    Does the project is for application behaviors?</span>
+    <span class="comment">#    This property is a main signal for Application Behavior.</span>
+    <span class="comment">#    Other properties (for Application Behavior) work when this is true.</span>
+    <span class="comment">#   o libraryProjectPackageBase: (NotRequired - Default same as application's one)</span>
+    <span class="comment">#    If application package base is different from library's one,</span>
+    <span class="comment">#    set the property a value 'library's one'.</span>
+    <span class="comment">#</span>
+    ; <span class="attribute">applicationBehaviorMap</span> = <span class="keyword">map:</span>{
+        ; <span class="attribute">isApplicationBehaviorProject</span> = <span class="keyword">true</span>
+        ; <span class="attribute">libraryProjectPackageBase</span> = 
+    }
+    <span class="comment"># - - - - - - - - - -/</span>
+}
+</code></pre>
+	<p>
+		基本的には LibraryBehavior と ApplicationBehavior
+		は、同じパッケージであることが推奨されますが、設定次第で別々にすることもできます。この場合は packageBase
+		も切り替えて、libraryProjectPackageBase を指定します。
+		但し、その場合でもアプリケーションで作成する外だしSQLの配置パッケージは、LibraryBehavior のパッケージに合わせる必要があります。
+	</p>
+	<h3 id="command">それぞれのアプリ用のコマンドを用意</h3>
+	<p>
+		EnvironmentTypeの設定方法は、それぞれのアプリ用のコマンドを用意するのがお奨めです。
+		(JDBCタスクとReplaceSchemaタスクのコマンドは、どのアプリでも共通なので不要)
+	</p>
+	<div class="relatedpage"><a href="#replaceschema">this - ReplaceSchemaのテストデータは？</a></div>
+<pre><span class="codetitle">e.g. ApplicationBehavior の自動生成のためのコマンドを用意 @Directory</span><code>
+dbflute_foo <span class="comment">// DBFluteクライアント</span>
+ |-dfprop
+ |  |-web1
+ |  |-web2
+ |  |-basicInfoMap.dfprop
+ |  |-...
+ |-doc.sh
+ |-generate.sh
+ |-sql2entity.sh
+ |-outside-sql-test.sh
+ |-<span class="point">web1-doc.sh</span>
+ |-<span class="point">web1-generate.sh</span>
+ |-<span class="point">web1-sql2entity.sh</span>
+ |-<span class="point">web1-outside-sql-test.sh</span>
+ |-<span class="point">web2-doc.sh</span>
+ |-<span class="point">web2-generate.sh</span>
+ |-<span class="point">web2-sql2entity.sh</span>
+ |-<span class="point">web2-outside-sql-test.sh</span>
+</code></pre>
+	<p>
+		それぞれのコマンドは、ライブラリプロジェクト用のものをコピーして、環境変数
+		<em class="keyword">DBFLUTE_ENVIRONMENT_TYPE</em> をそれぞれ設定します。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationBehavior の自動生成のためのコマンド {generate.sh,web1} @Directory</span><code>
+#!/bin/sh
+
+cd `dirname $0`
+. _project.sh
+
+<span class="comment">echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"</span>
+<span class="comment">echo "Specify the environment type to use web1."</span>
+<span class="comment">echo "nnnnnnnnnn/"</span>
+<span class="keyword">export</span> <span class="point">DBFLUTE_ENVIRONMENT_TYPE=web1</span>
+
+<span class="comment">echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"</span>
+<span class="comment">echo "Specify the file path to be used as build-properties."</span>
+<span class="comment">echo "nnnnnnnnnn/"</span>
+<span class="keyword">export</span> MY_PROPERTIES_PATH=build-${MY_PROJECT_NAME}.properties
+
+<span class="comment">echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"</span>
+<span class="comment">echo "Execute {Generate}."</span>
+<span class="comment">echo "nnnnnnnnnn/"</span>
+<span class="keyword">sh</span> $DBFLUTE_HOME/etc/cmd/_df-generate.sh $MY_PROPERTIES_PATH
+
+<span class="comment">echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"</span>
+<span class="comment">echo "Remove the environment type (closing)."</span>
+<span class="comment">echo "nnnnnnnnnn/"</span>
+<span class="keyword">unset</span> <span class="point">DBFLUTE_ENVIRONMENT_TYPE</span>
+</code></pre>
+	<h3 id="execute">アプリ用のコマンドを実行</h3>
+	<p>
+		用意したGenerateタスクを実行すると、ApplicationBehavior
+		(とDI設定ファイル)が自動生成されます。また、Docタスクでは、アプリケーションごとの SchemaHTML
+		(テーブル定義は全く同じだが、外だしSQLのリストがそのアプリのものだけのリストに)が自動生成され、
+		Sql2Entityでは、アプリケーション独自の外だしSQLに対応する Entity が自動生成され、
+		OutsideSqlTestでは、アプリケーション独自の外だしSQLをテストします。
+	</p>
+	<h3 id="disetting">ApplicationBehaviorのDI設定</h3>
+	<p>
+		LibraryBehavior と同じく、ApplicationBehavior
+		はDIコンテナに登録される必要があります。それぞれのDIコンテナの形式に合わせた ApplicationBehavior のためのDI設定ファイル(or
+		クラス)が自動生成されるので、それぞれのアプリケーションにてDIコンテナがその設定ファイルを読み込まれるように設定します。(同時に
+		LibraryBehavior のDI設定ファイルも読み込まれる必要があります)
+	</p>
+	<dl class="textlist">
+		<dt><a href="../../../../reference/diway/seasar/index.html">Seasar(S2Container)</a></dt>
+		<dd>
+			<em class="keyword">dbflute++.dicon</em> が自動生成される。<em class="keyword">S2ClassBuilder</em>
+			を利用することで、他に設定なしで自動でコンテナに登録される。(利用することを前提とする)
+			<div class="relatedpage"><a href="../../../../topic/friends/s2classbuilder.html">S2ClassBuilder</a></div>
+		</dd>
+		<dt><a href="../../../../reference/diway/spring/index.html">Spring Framework</a></dt>
+		<dd>
+			<em class="keyword">dbfluteBeansBhvAp.xml</em> が自動生成される(コンテナに読み込まれるように設定が必要)
+		</dd>
+		<dt><a href="../../../../reference/diway/guice/index.html">Google Guice</a></dt>
+		<dd>
+			<em class="keyword">DBFluteModuleBhvAp.java</em> が自動生成される(コンテナに読み込まれるように設定が必要)
+		</dd>
+		<dt><a href="../../../../reference/diway/lucy/index.html">T2 Lucy</a></dt>
+		<dd>
+			<em class="keyword">dbfluteBeansBhvAp.xml</em> が自動生成される(コンテナに読み込まれるように設定が必要)
+		</dd>
+	</dl>
+	<p>
+		LibraryBehavior とは別の(シングルトン)インスタンスで登録されます。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationBehaviorの自動生成されるDI設定ファイル {Seasar} @Directory</span><code>
+entity
+ |-src/main/java
+    |-<span class="abbreviation">...</span>
+web1
+ |-src/main/java
+ |  |-<span class="abbreviation">...</span>
+ |-src/main/resources
+    |-<span class="point">dbflute++.dicon</span>
+web2
+ |-src/main/java
+ |  |-<span class="abbreviation">...</span>
+ |-src/main/resources
+    |-<span class="point">dbflute++.dicon</span>
+</code></pre>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		この構成のためのExampleプロジェクトが存在します。
+		この構成は複雑な部分があるため、(主に環境面において)必ずExampleを参考にするようにして下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+
+	<h2 id="howto">ApplicationBehaviorの利用</h2>
+	<p>
+		それぞれのアプリケーションでは、この ApplicationBehavior
+		を利用してDBアクセスを行うことで、LibraryBehavior
+		の機能に加えて、アプリ固有の機能(メソッドや外だしSQL)を利用することができます。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationBehaviorの利用 {MEMBER} @Java</span><code>
+<span class="keyword">protected</span> MemberBhvAp <span class="attribute">memberBhvAp</span>;
+
+<span class="keyword">public void</span> doSearch() {
+    <span class="comment">// アプリ固有のメソッド or アプリ固有の外だしSQLの呼び出し</span>
+    <span class="attribute">memberBhvAp</span>.select<span class="abbreviation">...</span>;
+}
+</code></pre>
+	<p>
+		アプリ固有の機能を利用する必要のない場面では、LibraryBehavior
+		を利用しても問題ありません。その場合は、どちらの Behavior
+		から実行しても処理に違いはありません。(但し、紛らわしい面もあるので、一律
+		BhvAp を利用するというポリシーでも良いでしょう)
+	</p>
+<pre><span class="codetitle">e.g. LibraryBehavior と ApplicationBehaviorの併用 {MEMBER} @Java</span><code>
+<span class="comment">// 同時に両方をDIしても問題ない</span>
+<span class="keyword">protected</span> MemberBhv <span class="attribute">memberBhv</span>;
+<span class="keyword">protected</span> MemberBhvAp <span class="attribute">memberBhvAp</span>;
+
+<span class="keyword">public void</span> doSearch() {
+    <span class="comment">// 全てのアプリ共通のメソッド or 全てのアプリ共通の外だしSQLの呼び出し</span>
+    <span class="attribute">memberBhv</span>.select<span class="abbreviation">...</span>;
+
+    <span class="comment">// アプリ固有のメソッド or アプリ固有の外だしSQLの呼び出し</span>
+    <span class="attribute">memberBhvAp</span>.select<span class="abbreviation">...</span>;
+}
+</code></pre>
+	<h3 id="derivedreferrer">(Specify)DerivedReferrerも</h3>
+	<p>
+		Exクラスにアプリ固有のメソッドを定義するのは Behavior だけではなく、Entity
+		も同様です。特に ConditionBean の (Specify)DerivedReferrer
+		を利用するときは、ディベロッパー自身が Entity のExクラスにメソッドを定義することが求められます。この
+		ApplicationBehavior を利用して、ライブラリプロジェクトの編集なしで (Specify)DerivedReferrer
+		を実現することができます。アプリケーション独自の Entity を作成して、それを利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/specify/derivedreferrer.html">ConditionBean - (Specify)DerivedReferrer</a></div>
+	<h4>ApplicationEntityの手動作成</h4>
+	<p>
+		アプリケーション独自の Entity (ApplicationEntity)は、手動で作成します。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationEntityの作成(習慣的にクラス名の後ろにApを付与) {MEMBER} @Directory</span><code>
+web1
+ |-src/main/java
+ |  |-com.example.dblib.dbflute.bsbhv
+ |  |  |-BsMemberBhvAp.java 
+ |  |-com.example.dblib.dbflute.exbhv
+ |  |  |-MemberBhvAp.java
+ |  |-com.example.dblib.dbflute.<span class="point">nogen.entity</span> <span class="comment">// 手動作成用パッケージ(習慣的に nogen)</span>
+ |     |-<span class="point">MemberAp.java</span> <span class="comment">// 手動で作成(習慣的に XxxAp)</span>
+</code></pre>
+	<h4>ApplicationEntityの実装</h4>
+	<p>
+		ライブラリプロジェクトの Entity (LibraryEntity)を継承するようにし、(Specify)DerivedReferrer
+		で利用するプロパティを定義します。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationEntityの実装(プロパティの追加など) {MEMBER} @Java</span><code>
+<span class="keyword">public class</span> MemberAp <span class="keyword">extends</span> Member {
+    <span class="abbreviation">...</span>
+    <span class="keyword">public static final</span> String ALIAS_firstLoginDatetime = <span class="literal">"FIRST_LOGIN_DATETIME"</span>;
+
+    <span class="keyword">protected</span> Date _firstLoginDatetime;
+
+    <span class="keyword">public</span> Date getFirstLoginDatetime() {
+        <span class="keyword">return</span> _firstLoginDatetime;
+    }
+
+    <span class="keyword">public void</span> setFirstLoginDatetime(Date firstLoginDatetime) {
+        _firstLoginDatetime = firstLoginDatetime;
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h4>ApplicationBehaviorにメソッド定義</h4>
+	<p>
+		ApplicationBehavior のExクラスに、ApplicationEntity
+		を利用するメソッドを定義します。例えば、ConditionBean のリスト検索 であれば、doSelectList()
+		の第二引数に ApplicationEntity の型を指定することで実現することができます。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationEntityを利用するリスト検索を追加 {MEMBER} @Java</span><code>
+<span class="keyword">public class</span> MemberBhvAp <span class="keyword">extends</span> BsMemberBhvAp {
+
+    <span class="keyword">public</span> ListResultBean&lt;MemberAp&gt; <span class="point">selectApList</span>(MemberCB cb) {
+        return <span class="point">doSelectList</span>(cb, MemberAp.<span class="keyword">class</span>);
+    }
+}
+</code></pre>
+	<h4>ApplicationBehaviorにメソッド呼び出し</h4>
+	<p>
+		このメソッド経由で、(Specify)DerivedReferrer のデータを(LibraryEntity の編集なしで)受け取ることができます。
+	</p>
+<pre><span class="codetitle">e.g. ApplicationEntityを利用した(Specify)DerivedReferrer {MEMBER} @Java</span><code>
+<span class="keyword">public void</span> doSearch() {
+    MemberCB cb = <span class="keyword">new</span> MemberCB();
+    cb.specify().derivedMemberLoginList().min(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+        <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+            subCB.specify().columnLoginDatetime();
+            subCB.query().setMobileLoginFlg_Equal_False();
+        }
+    }, MemberAp.<span class="attribute">ALIAS_firstLoginDatetime</span>);
+    ListResultBean&lt;MemberAp&gt; memberList = memberBhvAp.<span class="point">selectApList</span>(cb);
+    <span class="keyword">for</span> (MemberAp member : memberList) {
+        Date firstLoginDatetime = member.<span class="point">getFirstLoginDatetime()</span>;
+    }
+}
+</code></pre>
+
+	<h2 id="conditionquery">ConditionQuery(のwhere句再利用)は？</h2>
+	<p>
+		ConditionQuery のExクラスは、このアプリケーションギャップに対応していません。
+	</p>
+	<p>
+		where句の再利用メソッドは、システム全体で設計されることが望まれるため、
+		(極端に)逆に言うと、アプリケーションギャップを発生させてはいけないと想定されるためです。
+		また、万が一、アプリケーションギャップが発生しても、Behavior (外だしSQL)や Entity
+		に比べて、遥かに発生頻度が低いことが想定されるため、大規模な構成でもライブラリプロジェクト集中方式で耐えられやすいと考えています。
+		(単純に、(DBFlute内部での)実現がとても難しいという噂もあります)
+	</p>
+	<div class="relatedpage"><a href="../../implfit/whererecycle/index.html">現場フィット - WhereRecycle</a></div>
+
+	<h2 id="replaceschema">ReplaceSchemaのテストデータは？</h2>
+	<p>
+		このような大規模な構成の場合、ReplaceSchemaのテストデータもアプリケーションごとに追加したい可能性があります。
+		その場合は、ApplicationPlaySql 機能を利用します。
+	</p>
+	<div class="detailpage"><a href="../applicationplaysql/index.html">現場フィット - アプリごとのPlaySql(テストデータ)</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-bhvap-seasar-example や dbflute-bhvap-spring-example
+		では、実際にアプリごとのBehaviorを利用しています。
+		この構成は複雑な部分があるため、(主に環境面において)必ずExampleを参考にするようにして下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>セクション 9 のヒント | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>セクション 9 のヒント</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteハンズオン、セクション 9 のヒントです。
+	</p>
+	<div class="relatedpage"><a href="../section09.html">ハンズオンセクション 9</a></div>
+	<p>
+		見ると後悔するかもしれませんので、タイミング良く見てください。
+	</p>
+
+	<h2 id="cursorbonus">カーソル検索のボーナスステージ</h2>
+	<p>
+		Integer.MIN_VALUEの設定をすると、壁が待っています。
+	</p>
+	<h3 id="curboanalyzefirst">まずは壁の分析をしましょう</h3>
+	<p>
+		問題分析と問題解決をしっかり分けて考えましょう。
+		なので、最初は問題分析です。いったい何が起きているのか？それを掴みましょう。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20170712/analysissolving">問題分析と問題解決を分けることがハマらない第一歩</a></div>
+	<h3 id="curboreadmessage">そのためにエラーメッセージを読みましょう</h3>
+	<p>
+		そのためには、エラーメッセージには真摯に接しましょう。
+	</p>
+	<div class="detailpage"><a href="../../../manual/topic/programming/mind/errormessage.html">エラーメッセージには真摯に接する</a></div>
+	<p>
+		エラーメッセージで検索する <span class="frm">(ググる)</span> のも、一つのやり方。
+	</p>
+	<h3 id="curboreaddocument">見つけたドキュメントを読みましょう</h3>
+	<p>
+		ポイントになるドキュメントを見つけることができたら、しっかり読んで対処をしましょう。
+	</p>
+	<h3 id="curbocheckhandson">DBFluteハンズオン自体の環境に着目</h3>
+	<p>
+		DBFluteハンズオンで使っているフレームワークやライブラリは何なのか？
+		ビルドツールとして Maven を使っていますから、pom.xml に依存ライブラリは書いてあります。
+	</p>
+	<h3 id="curboultimet">究極のヒント</h3>
+	<p>
+		ほぼ答えに近いことが書いていますので注意。<span class="frm">(薄目で、上から一行ずつ読んで考えるのも良いでしょう)</span>
+	</p>
+	<ul>
+		<li>DBFluteのMySQLのページが用意されている <span class="frm">(エラーメッセージでググれば見つかる)</span></li>
+		<li>DBFluteハンズオンでは Lasta Di を使っている <span class="frm">(トランザクションを制御するのは誰だ？)</span></li>
+		<li>Lasta Di のページを見れば、トランザクションのかけ方はわかる <span class="frm">(ドキュメントはしっかり読もう)</span></li>
+		<li>ただ、DIコンテナ管理外(自分でnewしている)のインスタンスにInterceptorは効かないもの</li>
+		<li><span class="frm">(正しい方法でやっているはずなのに効かない、そのときはそもそもなぜ効くのか？を考える)</li>
+		<li>DIコンテナはそもそも、動的にクラスを継承してオーバーライドしてInterceptorを実現している</li>
+		<li>(要件を満たすとなると)本番とUnitTestで、トランザクション制御を分けるしかない</li>
+		<li>自分でnewしているのであれば、自分でInterceptorのようなことを拡張できる</li>
+		<li>MySQLのデフォルトのトランザクション分離レベルは、RepeatableReadである</li>
+	</ul>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

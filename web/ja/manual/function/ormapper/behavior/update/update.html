@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,update,更新,一件更新,排他制御あり,排他制御付き" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>update(entity) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>update(entity)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		Entityをもとに <em class="keyword">排他制御あり一件更新</em>
+		をします(但し、排他制御対象でないテーブルなら、排他制御なしの普通の一件更新)。主に、排他制御が必要なオンライン系の更新処理で利用されます。
+		アプリケーションでは、すれ違いが発生した場合に発生する例外を明示的にハンドリングし、業務的なアクションを取ることが想定されます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御(楽観的並行性制御)</a></div>
+	<p>
+		会話上では、<em class="keyword">あっぷでーと</em> もしくは <em class="keyword">あっぷでーとえんてぃてぃ</em>
+		と表現します。文脈上、曖昧で伝わりにくい場合は <em class="keyword">Behavior のあっぷでーと(メソッド)</em>
+		や <em class="keyword">排他制御ありのあっぷでーと</em>
+		などと言うとわかりやすいでしょう。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wc.html#concurrentupdate">ConcurrentUpdate (すれ違い)</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">update()</em>
+		を呼び出し、Entityを指定します。
+	</p>
+<pre><span class="codetitle">e.g. update()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.up <span class="comment">// .up と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.<span class="point">update</span>(member);
+</code></pre>
+	<p>
+		排他制御対象テーブルの場合、排他制御処理のために、PKに加えて排他制御カラムの値を設定します。
+	</p>
+<pre><span class="codetitle">e.g. 事前に検索されたPKと排他制御カラムの値を設定して更新 {MEMBER} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.<span class="point">setMemberId</span>(memberId); <span class="comment">// PK</span>
+member.setMemberName(<span class="literal">"Stojkovic"</span>); <span class="comment">// 業務的な更新値の設定</span>
+member.<span class="point">setVersionNo</span>(versionNo); <span class="comment">// 事前に検索されたバージョン番号</span>
+<span class="attribute">memberBhv</span>.update(member);
+</code></pre>
+	<p>
+		Setterが呼び出されたカラムに対してのみ、更新値を設定します。
+	</p>
+	<div class="relatedpage"><a href="modified">this - 設定された値だけ更新</a></div>
+	<h3 id="uniqueby">ユニークキーで更新 <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		主キーではなく、ユニーク制約のキーで更新することもできます。
+	</p>
+	<p>
+		プログラム上でPKは持ってなくて代わりにユニークキーだけを持っているような場合に、PK取得のためだけの無駄な事前検索を省くことができます。
+		<span class="frm">(こういったケースはわりと多いと想定されます)</span>
+	</p>
+<pre><span class="codetitle">e.g. ユニークキーである会員アカウントで更新 {MEMBER} @Java</span><code>
+<span class="comment">// PK取得のためだけの無駄な事前検索は不要</span>
+<span class="comment">//Member member = memberBhv.selectEntityWithDeletedCheck(cb);</span>
+Member member = <span class="keyword">new</span> Member();
+member.<span class="point">uniqueBy</span>(memberAccount); <span class="comment">// ユニークキー (複合キーなら引数が増える)</span>
+member.setMemberName(<span class="literal">"Stojkovic"</span>); <span class="comment">// 業務的な更新値の設定</span>
+member.setVersionNo(versionNo); <span class="comment">// 事前に検索されたバージョン番号</span>
+<span class="attribute">memberBhv</span>.update(member);
+</code></pre>
+	<p>
+		そのテーブルにユニーク制約が一つだけの場合は uniqueBy() というメソッド名、二つ以上ある場合は uniqueBy[カラム名の列挙]()
+		というメソッド名になります。
+	</p>
+	<p>
+		このとき、Entityの中の PK は、値が設定されていても更新処理に何も影響しません。PKの値自体を更新することもできません。
+		<span class="frm">(そもそもPKの値は更新すべきではなく、更新できない方がよいという考えから)</span>
+	</p>
+	<p>
+		バッチ更新では利用できません。<span class="frm">(uniqueByしても無視されます)</span>
+	</p>
+	<p>
+		insertOrUpdate()など、他の一件更新系のメソッドでも利用できます。
+	</p>
+	<div class="relatedpage"><a href="./insertorupdate.html#uniqueby">insertOrUpdate() - ユニークキーで更新</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのEntityとなります。
+	</p>
+	<p>
+		nullを指定した場合は例外発生します。
+		また、PKカラムの値と(排他制御が有効の場合に)排他制御カラムの値の指定が必須です(指定なしは例外)。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		void です。
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>更新対象が存在しなかった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyDeletedException</dd>
+		<dd>
+			この例外は、排他制御対象でない場合のみ発生します。業務的に存在することが前提の更新であれば、開発時はバグ・データ不備、結合テスト・運用時はすれ違いと捉えることができます。
+		</dd>
+		<dd>
+			排他制御対象の場合は、"更新対象が存在しないという状況"
+			は、"すれ違いがあったのと同じ状況" として扱われます(仕組み上区別が付かないため)。
+		</dd>
+		<dt>更新結果が複数件の場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityDuplicatedException</dd>
+		<dd>予期せぬレコードを更新してしまっている可能性があるため、ロールバックが求められます。</dd>
+		<dt>すれ違いがあった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyUpdatedException</dd>
+		<dd>
+			この例外は、排他制御対象の場合のみ発生します。
+			<div class="relatedpage"><a href="#exclusive">this - 排他制御の自動化</a></div>
+		</dd>
+		<dt>一意制約違反があった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyExistsException</dd>
+		<dd>
+			DBFluteで正式サポートしていない DBMS では、別の例外(SQLFailureException)の可能性があります。
+			<div class="relatedpage"><a href="../../../../../environment/supported.html#database">DBFluteのサポート情報 - データベース</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="modified">設定された値だけ更新</h2>
+	<p>
+		<em class="keyword">設定された(setterが呼ばれた)カラム</em>
+		と内部で自動的に設定されるカラム(バージョン番号など)だけが更新対象になります。ゆえに、何も設定しなかった(Entity上は) null
+		のカラムがあっても、そのカラムが null で更新されることはありません(明示的に null で設定されれば、null で更新されます)。 
+	</p>
+	<p>
+		これを <em class="keyword">ModifedOnly</em>
+		と呼び、DBFluteでは基本的には <em class="keyword">更新都合の事前検索は不要</em> です。
+	</p>
+<pre><span class="codetitle">e.g. update()は設定された値だけ更新される {MEMBER,memberId=3} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberId(<span class="literal">3</span>);
+member.setMemberName(<span class="literal">"Stojkovic"</span>); <span class="comment">// 明示的に設定されたカラムだけが更新される</span>
+member.setBirthdate(<span class="keyword">null</span>); <span class="comment">// 明示的に null を設定すれば null で更新される</span>
+<span class="attribute">memberBhv</span>.update(member);
+<span class="comment">// update MEMBER</span>
+<span class="comment">//    set MEMBER_NAME = 'Stojkovic'</span>
+<span class="comment">//      , BIRTHDATE = null</span>
+<span class="comment">//      , VERSION_NO = ...</span>
+<span class="comment">//  where ...</span>
+</code></pre>
+	<h3 id="noupdate">設定された値がなければ</h3>
+	<p>
+		排他制御対象でないテーブル、かつ、共通カラムの自動設定対象になっていないテーブル(かつ、Entity
+		で自動設定を無効にしていない)で、設定された値(更新値)が何もない(呼び出された Setter
+		がない)場合は更新処理自体が発生しません。その場合、DB上で仕掛けているトリガがあったとして発動しません。
+	</p>
+	<h3 id="columnsummary">更新系、列挙されるカラムのまとめ</h3>
+	<p>
+		まとめていますので、ぜひご覧を。
+	</p>
+	<div class="detailpage"><a href="./insert.html#columnsummary">insert() - 更新系、列挙されるカラムのまとめ</a></div>
+
+	<h2 id="exclusive">排他制御の自動化</h2>
+	<p>
+		対応テーブルが排他制御カラムを持っている場合は、このメソッドの処理に排他制御が追加されます(排他制御が有効になる)。
+		排他制御が不要な状況がある場合は、このメソッドではなく、updateNonstrict() を利用します。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+	<div class="relatedpage"><a href="./updatenonstrict.html">Behavior - updateNonstrict(entity)</a></div>
+	<p>
+		その場合、排他制御カラムは自動で更新されます。例えば、バージョン番号は
+		<em class="keyword">Entity に設定されている値にプログラム上でインクリメント(+1)された値で更新</em>
+		されます。更新後の Entity には、(インクリメントされた)その値が格納されています。
+	</p>
+	<p>
+		また、検索条件に排他制御カラムによる等値条件が追加され、すれ違いが発生した場合(更新対象が存在しなかった場合)は、
+		EntityAlreadyUpdatedException が発生します。(ゆえに、排他制御カラムの値の設定は必須です)
+	</p>
+	<div class="relatedpage"><a href="#exception">this - 例外</a></div>
+<pre><span class="codetitle">e.g. 排他制御カラムの値が色々なところで活躍 {MEMBER,memberId=3,versionNo=10} @Java</span><code>
+Member member = <span class="attribute">memberBhv</span>.selectByPKValue(<span class="literal">3</span>);
+member.setMemberName(<span class="literal">"Stojkovic"</span>);
+<span class="attribute">memberBhv</span>.update(member);
+<span class="comment">// update MEMBER</span>
+<span class="comment">//    set MEMBER_NAME = 'Stojkovic'</span>
+<span class="comment">//      , VERSION_NO = 11</span>
+<span class="comment">//  where MEMBER_ID = 3 and VERSION_NO = 10</span>
+</code></pre>
+
+	<h2 id="commoncolumn">共通カラムの自動設定</h2>
+	<p>
+		対応テーブルが共通カラムの自動設定対象になっている場合は、実行時に設定された通りに共通カラムの自動設定が行われます。
+		ゆえに、その場合は、プログラム上で共通カラムの値の設定をする必要はありません(設定しても自動設定処理にて上書きされます)。
+		自動設定された値は、更新処理後に Entity に格納されています。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム</a></div>
+	<p>
+		もし、共通カラムの自動設定を無視した更新を行いたい場合は、Entity の disableCommonColumnAutoSetup()
+		を更新前に呼び出すと、共通カラムの自動設定がされなくなります。
+		主に、システム移行のプログラム(移行プログラム)などで、共通カラムの値を保持したままデータを更新したいような場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/commoncolumn/index.html#disable">現場フィット - 共通カラム - 一時的な自動設定の無効化</a></div>
+
+	<h2 id="nocascade">カスケードはしません</h2>
+	<p>
+		例えば、会員 Entity が購入 Entity のリストを保持していたとしても、更新するのは会員、つまり、基点テーブルだけです。
+		自動で購入のリストも一緒に更新しにいくことはありません。これは DBFlute
+		のポリシーですが、明示的に更新処理を指定していないものがディベロッパーの気付かないところで更新される、というような状態を避けるためです。
+		できた方が便利と思う場面も確かにありますが、別の機能でも同様ですが <em class="keyword">明示的に</em> が重視されています。
+	</p>
+
+	<h2 id="scope">Entity更新のスコープ</h2>
+	<p>
+		Entity を利用した更新系のメソッドでは、<em class="keyword">更新値はプログラム上で指定されたスカラ値である</em>
+		が基本です。例えば、SQL上で値を導出(set句で足し算したり別のカラムの値を設定したり)して更新をする、というような場合は、
+		varying 系の更新メソッドを利用します。但し、やれることに限界もありますので、複雑な計算をするような場合は、
+		一度検索してからプログラム上で値を導出して更新するか、外だしSQLで実装します。
+	</p>
+	<div class="relatedpage"><a href="./varyingupdate.html">varyingUpdate(entity, option)</a></div>
+	<div class="relatedpage"><a href="./varyingupdatenonstrict.html">varyingUpdateNonstrict(entity, option)</a></div>
+	<div class="relatedpage"><a href="./varyingqueryupdate.html">varyingQueryUpdate(entity, cb, option)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

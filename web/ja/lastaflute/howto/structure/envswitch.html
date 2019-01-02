@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteの環境切り替え | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteの環境切り替え</h1>
+	<p>
+		環境ごとに設定を切り替えるための構成が用意されています。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="envproperties">環境切り替え用のproperties</h2>
+	<p>
+		ファイル単位で切り替えるため、一つのファイルで環境ごとのものと環境で変わらないものが混在していると重複の原因になります。
+		なので、なんでもかんでも切り替えるのではなく、環境切り替え用のpropertiesを用意しています。
+	</p>
+	<div class="relatedpage"><a href="../architecture/objsafeprop.html#antidiswitch">これはやめたい！DI設定ファイルの環境ごと切り替え</a></div>
+	<p>
+		デフォルトでは、commonと各アプリにそれぞれ xxx_env.properties が用意されています。
+		こちらに、DBの接続情報や、メールサーバーの情報などを入れて切り替えるとよいでしょう。
+	</p>
+<pre><span class="codetitle">e.g. リファレンス実装のMaihamaプロジェクトでの環境ごとのProperties @Directory</span><code>
+maihama-common
+ |-src/main/resources
+ |  |-maihama_config.properties <span class="comment">// 環境依存しないコンフィグ</span>
+ |  |-maihama_env.properties <span class="comment">// 環境依存コンフィグ</span>
+ |  |-<span class="subpoint">maihama_env_integration.properties</span> <span class="comment">// 結合用の環境依存コンフィグ</span>
+ |  |-<span class="subpoint">maihama_env_production.properties</span> <span class="comment">// 本番用の環境依存コンフィグ</span>
+</code></pre>
+	<p>
+		こちらの properties は、プログラム上でタイプセーフに get することができます。
+	</p>
+	<div class="relatedpage"><a href="../architecture/objsafeprop.html#typesafeprop">LastaFluteのタイプセーフProperties</a></div>
+
+	<h2 id="envifstatement">プログラム上で環境切り替え分岐</h2>
+	<p>
+		基本的に、プロパティ値の切り替えだけで環境切り替えを実現するのが理想です。プログラム上で "ローカルだから本番だから"
+		という分岐を入れるのは、あまりオススメではありません。
+	</p>
+	<p>
+		ですが、どうしてもというときにある程度できるようにしています。
+	</p>
+<pre><span class="codetitle">e.g. isDevelopmentHere()による分岐 @Java</span><code>
+<span class="keyword">if</span> (maihamaConfig.<span class="point">isDevelopmentHere()</span>) { <span class="comment">// 開発環境(ローカル)だったら</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		もしくは、EnvDispatchアノテーションで Logic をまるごと切り替えます。
+	</p>
+<pre><span class="codetitle">e.g. EnvDispatchによるロジックの切り替え @Java</span><code>
+@EnvDispatch(dev = SeaLogicDev.<span class="keyword">class</span>, real = SeaLogicReal.<span class="keyword">class</span>)
+<span class="keyword">public interface</span> SeaLogic {
+    <span class="abbreviation">...</span>
+}
+<span class="comment">// SeaLogicDev と SeaLogicReal は SeaLogic インターフェースをimplements</span>
+</code></pre>
+	<p>
+		結合と本番でプログラムを分岐させる方法はデフォルトでは用意していません。
+		結合はできるだけ本番に近いプログラムで動いて欲しいものだからです。プロパティの値だけで切り替えたいところです。
+		ですが、どうしてもというときは、isDevelopmentHere()の仕組みを応用すれば、できなくはないので必要になったら修正を。
+	</p>
+
+	<h2 id="lastaenv">LastaEnv での環境切り替え</h2>
+	<p>
+		LastaFluteのデフォルトは、LastaEnv 方式です。<span class="frm">(Exampleもそうなっています)</span>
+	</p>
+	<p>
+		こちらの方式であれば、<em class="keyword">環境依存しないwarファイル</em> が作れます。
+	</p>
+	<h3 id="systemproperty">System Property で lasta.env</h3>
+	<p>
+		Java の <em class="keyword">System Property</em> に、<em class="bigmark">lasta.env</em> というキーで環境キーワードを指定します。
+	</p>
+	<p>
+		例えば、lasta.env=production であれば、maihama_env.properties ではなく、maihama_env_production.properties が読まれます。
+	</p>
+	<p>
+		_env.properties 以外の properties や Di xml は切り替え対象になりませんので、環境依存のものはすべて _env
+		に集約します。<span class="frm">(これは LastaEnv 方式に限らず、そのようにするのが推奨ポリシー)</span>
+	</p>
+	<h3 id="javaarg">Javaコマンドの引数にて</h3>
+	<p>
+		なので、組み込みwarで実行するときは、javaコマンドの引数で指定します。
+	</p>
+	<div class="relatedpage"><a href="./builddeploy.html#executablewar">LastaFluteのデプロイ環境 - 実行可能warでアプリ起動</a></div>
+<pre><span class="codetitle">e.g. 本番環境(production)としてアプリを実行 @Command</span><code>
+java <span class="point">-Dlasta.env=production</span> -jar maihama-dockside.war
+</code></pre>
+	<p>
+		もし、インストール済みの Tomcat にwarファイルを展開するのであれば、Tomcat側でのJavaコマンド引数に lasta.env
+		を追加します。
+	</p>
+	<h3 id="logback">logback.xml も env を読む</h3>
+	<p>
+		Exampleでは、logback.xml の中で _env.properties を読んでいます。
+	</p>
+	<p>
+		できる限り、_env.properties に集約して、環境ごとにファイルをまるごと切り替えるというのがないようにします。
+		LastaEnv方式で、シンプルさをキープしていく方がよいでしょう。
+	</p>
+
+	<h2 id="mavenprofile">Maven での環境切り替え</h2>
+	<p>
+		(推奨ではありませんが) Maven の profile 機能を使って切り替えることもできます。
+	</p>
+	<h3 id="profileresources">profileごとのresources</h3>
+	<dl class="longkeymainlist">
+		<dt>src/main/resources</dt><dd>ローカル用 (デフォルト) (環境切り替えがなければこれ)</dd>
+		<dt>src/allpackage/resources</dt><dd>パッケージングするすべての環境用 (次に優先)</dd>
+		<dt>src/integration/resources</dt><dd>結合環境用 (最優先)</dd>
+		<dt>src/production/resources</dt><dd>本番環境用 (最優先)</dd>
+	</dl>
+	<p>
+		例えば、ローカル用に sea.properties があっても、productionの方にも sea.properties
+		があった場合、本番環境では production の sea.properties
+		が利用されます。一方で、ローカル用に land.properties があって、他の環境で同じファイルが一切なければ、どの環境でもローカル用のものが利用されます。
+	</p>
+	<p>
+		allpackageは、結合環境や本番環境など、パッケージングされてデプロイされる環境における共通の領域です。
+		例えば、logback.xml などは結合環境でも本番環境でも設定が変わらないのであれば、allpackageに置くとよいでしょう。
+	</p>
+	<p>
+		Mavenの profile 設定は、common, webプロジェクトそれぞれの pom.xml
+		にあります。baseに入れていないのは、webとcommonで設定が変わる可能性があるだろうということで、あえて共通化していません。
+		もし、webプロジェクトを増やすときに、webの共通pomを作った場合は、webのprofile設定はそちらで一元管理するとよいでしょう。
+	</p>
+	<p>
+		Maven の Profile 方式を使うときは、lastafluteMap.dfprop にて、environmentList を設定して、isUseLastaEnv を false
+		にすると、Profile方式に追従して PropertiesHtml などが生成されるようになります。
+	</p>
+	<h3 id="envproperties">環境切り替え用のproperties</h3>
+	<p>
+		_env.propertiesの置き場所は、maven の profile の通りに。
+	</p>
+<pre><span class="codetitle">e.g. リファレンス実装のMaihamaプロジェクトでの環境ごとのProperties @Directory</span><code>
+maihama-common
+ |-src/main/resources
+ |  |-maihama_config.properties <span class="comment">// 環境依存しないコンフィグ</span>
+ |  |-<span class="point">maihama_env.properties</span> <span class="comment">// ローカル環境用のコンフィグ (環境ごとにコピーされる)</span>
+ |
+ |-src/main/integration
+ |  |-maihama_env.properties <span class="comment">// 結合環境用のコンフィグ</span>
+ |
+ |-src/main/production
+ |  |-maihama_env.properties <span class="comment">// 本番環境用のコンフィグ</span>
+</code></pre>
+
+	<h2 id="envreps">環境ごとのReplaceSchema</h2>
+	<p>
+		もし、結合環境のDBを ReplaceSchema で管理するときのために、DB接続先などを切り替えることができます。
+		ちなみに、本番では ReplaceSchema は絶対にやりませんので、結合とか検証環境においてのみの話です。
+	</p>
+	<p>
+		DBFluteの環境ごとのdfpropの切り替えを使って実現します。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/dfprop/environmenttype.html">環境タイプごとの dfprop</a></div>
+	<p>
+		例えば、integration だったら...
+	</p>
+<pre><span class="codetitle">e.g. 結合DB(integration)のためのReplaceSchemaのdfprop構成 @Directory</span><code>
+DBFluteクライアント <span class="comment">// dbflute_maihamadb とか</span>
+ |-dfprop
+ |  |-<span class="point">integration</span>
+ |  |  |-<span class="subpoint">databaseInfoMap+.dfprop</span> <span class="comment">// 結合DBへの接続先を設定</span>
+ |  |  |-<span class="subpoint">replaceSchemaMap+.dfprop</span> <span class="comment">// 結合でのReplaceSchemaの微調整</span>
+ |  |
+ |  |-<span class="abbreviation">...</span>dfprop
+ |  |-databaseInfoMap.dfprop
+ |  |-replaceSchemaMap.dfprop
+ |  |-<span class="abbreviation">...</span>dfprop
+ |
+ |-log
+ |-output
+ |-<span class="abbreviation">...</span>
+ |-<span class="subpoint">__integration_manage.sh</span> <span class="comment">// 結合への環境タイプが設定されたmanage</span>
+</code></pre>
+	<p>
+		databaseInfoMap+.dfpropには、結合DB用の接続情報を差分で設定します。
+	</p>
+<pre><span class="codetitle">e.g. 結合用の databaseInfoMap+.dfprop の設定 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; url      = jdbc:mysql://<span class="subpoint">integration.maihamadb.org</span>:3306/maihamadb
+    ; schema   =
+    ; user     = <span class="subpoint">integrationdb</span>
+    ; password = <span class="subpoint">integrationdb</span>
+}
+</code></pre>
+	<p>
+		replaceSchemaMap+.dfpropには、結合DBに登録するテストデータの選択、システムユーザーによるスキーマの自動作成をするかどうかなどの微調整を設定します。
+	</p>
+	<p>
+		例えば、特に結合DB専用のテストデータを用意していないのであれば、repsEnvType は ut
+		で。もし、用意する場合は、repsEnvType を integaration に修正。
+		<span class="frm">(テストデータをローカル用と結合用と分けて管理するのは、なかなかリソース的に難しい可能性があるので、とりあえずはutでもOKかと)</span>
+	</p>
+	<p>
+		また、システムユーザーによるスキーマの自動作成をしないのであれば、additionalUserMapは空っぽで上書き。
+		使いたい場合は本体のdfpropを真似て設定しましょう。
+		<span class="frm">(結合に関しては、そこまで自動化しなくても手間はあまりかからないので、ここでは空っぽで紹介しています)</span>
+	</p>
+<pre><span class="codetitle">e.g. 結合用の replaceSchemaMap+.dfprop の設定 @replaceSchemaMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="comment"># same as UT for now</span>
+    ; repsEnvType = ut
+
+    <span class="comment"># no system user here</span>
+    ; additionalUserMap = map:{
+    }
+}
+</code></pre>
+	<p>
+		__integration_manage.sh は、manage.sh をコピーして、DBFLUTE_ENVIRONMENT_TYPE が設定されただけのものです。
+		それにより、結合用のDB接続先が有効になって、結合DBに対してアクセスできます。
+	</p>
+<pre><span class="codetitle">e.g. 結合用の manage の中身 @__integration_manage.sh</span><code>
+<span class="abbreviation">...</span>
+
+<span class="keyword">export</span> <span class="point">DBFLUTE_ENVIRONMENT_TYPE</span>=integration
+
+<span class="keyword">sh</span> $DBFLUTE_HOME/etc/cmd/_df-manage.sh <span class="abbreviation">...</span>
+taskReturnCode=$?
+
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="newdeployenv">新しいデプロイ環境をつくるなら</h2>
+	<p>
+		新しい環境 (profile) をつくる場合は、いくつかの設定ファイルを修正していく必要があります。
+	</p>
+	<p>
+		例えば、pom.xml の修正や resources フォルダの追加、lastafluteMap.dfprop の environmentList
+		など、幾つかの手続きを踏む必要があります。
+	</p>
+	<div class="detailpage"><a href="./builddeploy.html#newdeployenv">新しいデプロイ環境をつくる</a></div>
+
+	<h2 id="envdispatch">お手軽 Logic 環境切り替え</h2>
+	<p>
+		TODO jflute EnvDispatchアノテーションのこと書く (気になる人はとりあえずJavaDocを)
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

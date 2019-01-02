@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,現場フィット,実行時共通要件の実現,Runtime Fit" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>実行時共通要件の実現 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>実行時共通要件の実現</h1>
+	${indexlist}
+
+	<h2 id="linklist">リンクの一覧</h2>
+	<dl class="hierarchylist">
+		<dt><a href="./exceptionhandling/index.html">例外ハンドリング (ExceptionHandling)</a></dt>
+		<dd>DBFluteで発生する例外のハンドリング</dd>
+		<dt><a href="./sequencecache/index.html">シーケンスキャッシュ (SequenceCache)</a></dt>
+		<dd>パフォーマンス向上のためのシーケンスのキャッシュ機構</dd>
+		<dt><a href="./bootinitialization/index.html">一括初期化 (BootInitialization)</a></dt>
+		<dd>アプリ起動時の一括初期化(UTはLazy)</dd>
+		<dt><a href="./datelogformat/index.html">日付・日時のログフォーマット (DateLogFormat)</a></dt>
+		<dd>ログ上の表示用SQLの日付・日時のフォーマットの指定</dd>
+		<dt><a href="./behaviorcommandhook/index.html">Behavior実行のフック (BehaviorCommandHook)</a></dt>
+		<dd>Behavior実行(直前直後)をフックして特殊要件に対応</dd>
+		<dt><a href="./sqlfirehook/index.html">SQL実行のフック (SqlFireHook)</a></dt>
+		<dd>SQL実行(直前直後)をフックして特殊要件に対応 <span class="frm">@since 0.9.9.7A</span></dd>
+		<dt><a href="./sqlloghandler/index.html">SQLログの取得 (SqlLogHandler)</a></dt>
+		<dd>SQLログを取得して操作ログとして記録したり</dd>
+		<dt><a href="./sqlresulthandler/index.html">SQL結果であれこれ (SqlResultHandler)</a></dt>
+		<dd>SQLの結果(データ)に対する共通処理</dd>
+		<dt><a href="./sqlstringfilter/index.html">SQLをあれこれ (SqlStringFilter)</a></dt>
+		<dd>SQL文字列をフィルタする共通処理 <span class="frm">@since 0.9.9.7A</span></dd>
+		<dt class="twoedged-title">{TwoEdgedSword}</dt><dd class="twoedged-desc">※以下は厳重注意して利用すること</dd>
+		<dd>
+			<dl class="twoedged-element">
+				<dt><a href="./defaultstatementconfig">デフォルトのStatementConfig (DefaultStatementConfig)</a></dt>
+				<dd>デフォルトのStatementConfig(queryTimeoutなど)の設定</dd>
+				<dt><a href="./datasourcehandler">DataSourceのハンドラ (DataSourceHandler)</a></dt>
+				<dd>DataSourceに対する共通のフック処理(Connection取得など)</dd>
+				<dt><a href="./queryexecuteloglevelinfo">クエリログ・実行ログのINFO化 (QueryExecuteLogLevelInfo)</a></dt>
+				<dd>クエリログ・実行ログを本番環境でも</dd>
+			</dl>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,EMecha,イーメカ,EMSql,外だしSQLの支援,外だしSQLの新規作成,SQLファイルの作成,OutsideSql NewFile" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>EMecha - EMSql | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>EMecha - EMSql</h1>
+	${indexlist}
+
+	<h2 id="about">EMSqlとは？</h2>
+	<p>
+		外だしSQL(OutsideSql)のSQLファイルの実装支援を行う EMecha
+		の中の一機能(EMechaがインストールされていれば利用可能)。これを利用すると、より安全な外だしSQLライフが送れます。
+	</p>
+	<p>
+		ゆえに EMecha は、(アーキテクトだけでなく)ディベロッパーもインストールするのがお奨めです。
+	</p>
+
+	<h2 id="newoutsidesql">外だしSQLの新規作成</h2>
+	<p>
+		Sql2Entityマークなどの設定を画面上で行い、外だしSQL用のSQLファイルを新規作成します。
+	</p>
+	<h3 id="prologue">Behaviorを選んで画面を起動</h3>
+	<p>
+		<em class="keyword">Package Explorer</em>
+		上で対応する Behavior クラス(Exクラスのソースファイル)を選択して右クリックし、<em class="keyword">EMecha - New Outside Sql</em>
+		と選択すると画面が起動します。
+	</p>
+	<p>
+		対応する Behavior のソースファイルまでは、リソースの検索(ctrl + shift + R)から対応する Behavior
+		を開き、Package Explorer の右上の方にある "Link with Editor" を押して階層を開くと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/shortcut/searchcut.html">検索ショートカット</a></div>
+	<p class="imgbox">図 : EMSqlの画面 (初期状態)
+		<a href="../../../../../data/model/emecha/emecha-EMSql-newsql.png" title="EMSqlの画面 (初期状態)"><img src="../../../../../data/model/emecha/emecha-EMSql-newsql.png" alt="EMSqlの画面 (初期状態)" width="500" height="500" /></a>
+	</p>
+	<h3 id="sqlname">SQL Name を入力</h3>
+	<p>
+		初期状態では、select が選択されていています。検索系のSQLであればそのまま SQL Name の select
+		に続けてSQL業務名を入力します。検索でなければ該当するものを選択してSQL名を完成させます。
+	</p>
+	<h3 id="sqltitledesc">SQLのタイトル・説明</h3>
+	<p>
+		画面からは、タイトルのみを入力します。
+		説明は、SQLを実装しながらでないと書きにくいと思われるため、SQLファイルが作成されてからエディタで記述するようにしています。
+	</p>
+	<p>
+		タイトルを入力しない場合は、タイトル・説明自体のコメント欄自体が出力されません。タイトルなしで説明だけを利用する状況は想定していません。
+	</p>
+	<h3 id="sql2entitymark">Sql2Entityマーク</h3>
+	<p>
+		利用したいSql2Entityマークにチェックしていきます。TypedParameterBean
+		の利用を想定して、ある程度デフォルトでチェックが付いています。ページングか否か、戻り値 Entity
+		の型(カーソルも含む)などオプション項目を要件に応じてチェックして下さい。
+	</p>
+	<p>
+		出力されるSql2Entityマークは、"df:entity" や "df:pmb"
+		といったような、SQLの名前からEntity名やPmb名を抽出する方式のものになります。
+		もし、(SQLの名前とは違う)独自の名前を利用する場合は、SQLファイルが作成されてからエディタで修正して下さい。
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/index.html#sql2entitymark">Sql2Entityマーク</a></div>
+	<h3 id="output">出力先ディレクトリ</h3>
+	<p>
+		SQLファイルは、Eclipseプロジェクト直下の <em class="keyword">src/main/resources</em> 配下の、<em class="keyword">対応するBehaviorと同じパッケージ</em>
+		に作成されます。ただ、これはデフォルト値であり、画面上で変更可能です。
+	</p>
+	<h3 id="encoding">エンコーディング</h3>
+	<p>
+		SQLファイルは、<em class="keyword">UTF-8</em> で作成されます。
+	</p>
+
+	<h2 id="flytosql">外だしSQLへ飛ぶ！</h2>
+	<p>
+		ソースコード上の ParameterBean や CustomizeEntity から、対象となる外だしSQLをエディターで開くことができます。<span class="frm">@since EMecha-0.5.6</span>
+	</p>
+	<p>
+		クラス名にカーソル合わせて ctrl すると、"SQLを開く" というメニューが出てくるので、それをクリックすると対応する外だしSQLが開きます。 
+	</p>
+<pre><span class="codetitle">ParameterBeanから外だしSQLにctrl + クリック @Java</span><code>
+<span class="comment">// </span>
+<span class="comment">// クラス名のところでカーソル合わせて ctrl すると、</span>
+<span class="comment">// </span>
+<span class="comment">//  _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">//  o Open Declaration</span>
+<span class="comment">//  o SQLを開く</span>
+<span class="comment">//  o CustomizeEntityを開く</span>
+<span class="comment">//  _/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// </span>
+<span class="comment">// がポップアップで表示される</span>
+<span class="comment">// "SQLを開く" をクリックすれば外だしSQLへ！</span>
+<span class="comment">// </span>
+PartOfMemberPmb pmb = <span class="keyword">new</span> PartOfMemberPmb();
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		さらに、ParameterBeanなら "CustomizeEntityを開く"、CustomizeEntityなら "ParameterBeanを開く"
+		が利用できます。(対応するクラスが存在しない場合は表示されません)
+	</p>
+	<p>
+		また、ctrl ではなく alt + クリックであれば、問答無用で "SQLを開く" になります。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/seasarorg/dbflute-emecha/pull/3">外部サイト - dbflute-emecha - Append Hyperlink key bindings</a></div>
+	<p>
+		厳密には、EMSqlではなくDFAssistの機能です。<span class="frm">(内部的なお話です)</span>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

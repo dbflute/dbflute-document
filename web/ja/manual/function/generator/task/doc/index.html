@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Doc,SchemaHTML,スキーマ情報,テーブル一覧" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Docタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Docタスク</h1>
+	${indexlist}
+
+	<h2 id="about">Docタスクとは？</h2>
+	<p>
+		様々なドキュメント(主に <em class="keyword">SchemaHTML</em>)を自動生成するDBFluteタスクです。
+	</p>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>実装開始直前 (開発用DBスキーマの作成後)</li>
+		<li>DB変更の発生</li>
+		<li>DBFluteアップグレード直後</li>
+		<li>本番運用後のDB変更</li>
+	</ul>
+
+	<h2 id="command">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">doc.(bat|sh)</em> をコマンドから実行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップが終わった時点から利用できます。
+		但し、スキーマのメタデータがないと無意味ですので、実行前にJDBCタスクが必ず(一度は)実行されていることが前提です。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		Docタスクを実行すると処理が始まります。
+	</p>
+	<ul class="flowlist">
+		<li><a href="#schemaxml">1. SchemaXMLを参照</a></li>
+		<li><a href="#schemahtml">2. SchemaHTMLを自動生成</a></li>
+		<li><a href="#historyhtml">3. HistoryHTMLを自動生成</a></li>
+		<li><a href="#propertieshtml">4. PropertiesHTMLを自動生成(オプション)</a></li>
+		<li><a href="#refresh">4. Eclipseプロジェクトをリフレッシュ(オプション)</a></li>
+	</ul>
+	<h3 id="schemaxml">1. SchemaXMLを参照</h3>
+	<p>
+		JDBCタスクで出力された SchemaXML (スキーマのメタ情報)を読み込みます。
+	</p>
+	<div class="relatedpage"><a href="../jdbc/index.html">JDBCタスク</a></div>
+	<h3 id="schemahtml">2. SchemaHTMLを自動生成</h3>
+	<p>
+		取得したメタデータを人が見やすい形にして、<em class="keyword">[DBFluteクライアント]/output/doc/schema-[client-project].html</em>
+		に出力します。このHTMLファイルを <em class="keyword">SchemaHTML</em>
+		と言います。このファイルはDocタスク実行のたびに上書きされます。
+	</p>
+	<div class="detailpage"><a href="./schemahtml.html">SchemaHTML</a></div>
+	<h3 id="historyhtml">3. HistoryHTMLを自動生成</h3>
+	<p>
+		スキーマの変更履歴を人が見やすい形にして、<em class="keyword">[DBFluteクライアント]/output/doc/history-[client-project].html</em>
+		に出力します。このHTMLファイルを <em class="keyword">HistoryHTML</em>
+		と言います。このファイルはDocタスク実行のたびに上書きされます。<span class="frm">@since 0.9.7.1</span>
+	</p>
+	<div class="detailpage"><a href="./historyhtml.html">HistoryHTML</a></div>
+	<h3 id="propertieshtml">4. PropertiesHTMLを自動生成</h3>
+	<p>
+		".properties" ファイルを環境ごと言語ごとに見やすい形にして、<em class="keyword">[DBFluteクライアント]/output/doc/properties-[client-project].html</em>
+		に出力します。このHTMLファイルを <em class="keyword">PropertiesHTML</em>
+		と言います。このファイルはDocタスク実行のたびに上書きされます。<span class="frm">@since 1.0.1</span>
+	</p>
+	<div class="detailpage"><a href="./propertieshtml.html">PropertiesHTML</a></div>
+	<h3 id="refresh">5. Eclipseプロジェクトをリフレッシュ(オプション)</h3>
+	<p>
+		refreshDefinitionMap.dfprop にてリフレッシュ設定がされている場合に、
+		指定されているEclipseプロジェクトをリフレッシュ(更新)します<span class="frm">(@since 0.9.8.4)</span>。
+		これにより、ファイルシステム上は生成されていてもEclipse上には反映されていないという状態が発生しません。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/refreshdefinition/index.html">refreshMap.dfprop</a></div>
+
+	<h2 id="variousoption">様々なオプション</h2>
+	<p>
+		DBFluteプロパティを利用することで、様々なオプションが利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/documentdefinition/index.html">documentMap.dfprop</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

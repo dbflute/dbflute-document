@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,DBFluteの設定,DBFluteSetting,dfprop" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>DBFluteプロパティ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteプロパティ</h1>
+	${indexlist}
+
+	<h2 id="about">DBFluteプロパティとは？</h2>
+	<p>
+		そもそもDBFluteプロパティとは？について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="./about.html">DBFluteプロパティについて</a></div>
+
+	<h2 id="properties">プロパティの一覧</h2>
+	<dl class="compactlist">
+		<dt>必須プロパティ</dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./basicinfo/index.html">basicInfoMap.dfprop</a></dt><dd>最も基本的なプロパティ</dd>
+				<dt><a href="./databaseinfo/index.html">databaseInfoMap.dfprop</a></dt><dd>データベース接続情報・メタ情報関連のプロパティ</dd>
+			</dl>
+		</dd>
+		<dt>情報付加系プロパティ</dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./additionalforeignkey/index.html">additionalForeignKeyMap.dfprop</a></dt><dd>制約のないFKのFK情報や業務的one-to-oneを定義するプロパティ</dd>
+				<dt><a href="./additionalprimarykey/index.html">additionalPrimaryKeyMap.dfprop</a></dt><dd>制約のないPKのPK情報を定義するプロパティ</dd>
+				<dt><a href="./additionaluniquekey/index.html">additionalUniqueKeyMap.dfprop</a></dt><dd>制約のないUQのUQ情報を定義するプロパティ</dd>
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd>※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<dt><a href="./additionaltable/index.html">additionalTableMap.dfprop</a></dt><dd>メタ情報のないテーブルを定義するプロパティ</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+		<dt>実装環境系プロパティ</dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./commoncolumn/index.html">commonColumnMap.dfprop</a></dt><dd>共通カラム(CommonColumn)の自動設定を定義するプロパティ</dd>
+				<dt><a href="./classificationdefinition/index.html">classificationDefinitionMap.dfprop</a></dt><dd>区分値を定義するプロパティ</dd>
+				<dt><a href="./classificationdeployment/index.html">classificationDeploymentMap.dfprop</a></dt><dd>区分値をカラムに関連付けるプロパティ</dd>
+				<dt><a href="./optimisticlockdefinition/index.html">optimisticLockMap.dfprop</a></dt><dd>排他制御(楽観的並行性制御)に関するプロパティ</dd>
+				<dt><a href="./outsidesqldefinition/index.html">outsideSqlMap.dfprop</a></dt><dd>外だしSQL(OutsideSql)に関するプロパティ</dd>
+				<dt><a href="./sequencedefinition/index.html">sequenceMap.dfprop</a></dt><dd>シーケンス(Sequence)とテーブルを関連付けるプロパティ</dd>
+				<dt><a href="./dependencyinjection/index.html">dependencyInjectionMap.dfprop</a></dt><dd>DIに関するプロパティ</dd>
+				<dt><a href="./littleadjustment/index.html">littleAdjustmentMap.dfprop</a></dt><dd>ちょっとした調整をするプロパティ</dd>
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd>※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<!-- identityDefinitionMap.dfprop is a closet option -->
+						<dt><a href="./includequery/index.html">conditionBeanMap.dfprop</a></dt><dd>ConditionBeanのqueryの条件メソッドの取捨選択をするプロパティ</dd>
+						<dt><a href="./typemapping/index.html">typeMappingMap.dfprop</a></dt><dd>DB上のデータ型とプログラム上の型のマッピングに関するプロパティ</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+		<dt>ReplaceSchemaプロパティ</dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./replaceschemadefinition/index.html">replaceSchemaMap.dfprop</a></dt><dd>ReplaceSchemaに関するプロパティ</dd>
+			</dl>
+		</dd>
+		<dt>Documentプロパティ</dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./documentdefinition/index.html">documentMap.dfprop</a></dt><dd>ドキュメント(JavaDocやSchemaHTMLなど)に関するプロパティ</dd>
+			</dl>
+		</dd>
+		<dt>非機能的プロパティ</dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./allclasscopyright/index.html">allClassCopyright.dfprop</a></dt><dd>自動生成されるクラスのコピーライトを定義するプロパティ</dd>
+				<dt><a href="./refreshdefinition/index.html">refreshMap.dfprop</a></dt><dd>自動生成後のIDE(Eclipseなど)の自動更新に関するプロパティ</dd>
+			</dl>
+		</dd>
+	</dl>
+
+	<h2 id="environmenttype">環境タイプごとのDBFluteプロパティ</h2>
+	<p>
+		環境ごとに実行時に参照するDBFluteプロパティを切り替えることが可能です。主にはUT環境・結合環境の違いによる
+		<em class="keyword">DBの接続先</em> や <em class="keyword">ReplaceSchemaの設定</em> などの切り替えに利用します。
+	</p>
+	<div class="detailpage"><a href="./environmenttype.html">環境タイプごとのDBFluteプロパティ</a></div>
+
+	<h2 id="setupdefault">セットアップデフォルト</h2>
+	<p>
+		プロパティ未設定時のデフォルトではなく、<em class="keyword">セットアップ時に既に固定で設定されているプロパティ(の値)</em>
+		のことを "セットアップデフォルト" と呼びます。例えば、EMechaでセットアップした直後は、typeMappingMap.dfprop
+		において、NUMERICとDECIMALの自動マッピングの設定が最初から付与されています。
+	</p>
+	<p>
+		このセットアップデフォルトは、基本的にオフィシャルなツール(EMechaなど)では、
+		統一されていますが、例えば、アンオフィシャルなセットアップツールなどでは変わる可能性があります。
+	</p>
+
+	<h2 id="renameas11x">1.1.x (Java8版) からrename</h2>
+	<p>
+		1.1.x (Java8版) になって、dfpropの名前が変わったものがあります。古い名前でも動作はしますが、気づいて時点で直しておくと良いでしょう。
+	</p>
+	<h3 id="simplerename">単純なファイル名の変更</h3>
+	<dl class="shortvaluemainlist">
+		<dt>documentDefinitionMap</dt><dd>documentMap</dd>
+		<dt>freeGenDefinitionMap</dt><dd>freeGenMap</dd>
+		<dt>includeQueryMap</dt><dd>conditionBeanMap</dd>
+		<dt>optimisticLockDefinitionMap</dt><dd>optimisticLockMap</dd>
+		<dt>outsideSqlDefinitionMap</dt><dd>outsideSqlMap</dd>
+		<dt>refreshDefinitionMap</dt><dd>refreshMap</dd>
+		<dt>sequenceDefinitionMap</dt><dd>sequenceMap</dd>
+		<dt>replaceSchemaDefinitionMap</dt><dd>replaceSchemaMap</dd>
+	</dl>
+	<p>
+		上記、拡張子の .dfprop を省略しています。
+	</p>
+	<p>
+		<em class="keyword">環境タイプごとの dfprop がある場合、そちらの方の dfprop も一緒に修正してください。</em>
+		dfprop/replaceSchemaMap.dfprop に対して dfprop/it/replaceSchemaDefinitionMap+.dfprop と名前がズレていると機能しません。
+	</p>
+	<p>
+		ファイルの中のヘッダーコメント上の表記も変更しておくと誤解がなくて良いでしょう。
+	</p>
+	<h3 id="movetoother">別のdfpropファイルに取り込み</h3>
+	<p>
+		いくつかのdfpropは、別のdfpropファイルに取り込まれたものがあります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>refreshMap</dt><dd>littleAdjustmentMap の中に同じ名前で</dd>
+		<dt>optimisticLockMap</dt><dd>littleAdjustmentMap の中に同じ名前で</dd>
+		<dt>typeMappingMap</dt><dd>databaseInfoMap の variousMap の中に同じ名前で</dd>
+	</dl>
+	<p>
+		1.1.x (Java8版) の dfprop を参考にすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-howto/tree/master/dbflute_maihamadb/dfprop">dbflute-howto - dfprop | Github</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

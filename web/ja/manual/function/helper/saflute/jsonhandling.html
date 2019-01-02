@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFluteのJSONハンドリング (Json Handling) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteのJSONハンドリング</h1>
+	<p>
+		SAFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">Ajaxやスマートフォン対応として</h2>
+	<p>
+		クライアント側とJSONなどでやり取りすることが多くなってきました。
+	</p>
+	<p>
+		RomanticActionCustomizer や GodHandableActionWrapper が連携して実現しています。
+		オブジェクト型でやり取りすることで、JUnitTestもしやすくなります。
+	</p>
+
+	<h2 id="jsonparameter">JsonParameter</h2>
+	<p>
+		ActionFormのプロパティに @JsonParameter
+		を付けると、リクエストパラメーターのJSON文字列をパースして、Beanにマッピングしてくれます。
+	</p>
+<pre><span class="codetitle">e.g. JsonParameterでJSONをBeanで受け取る (ActionFormにて) @Java</span><code>
+<span class="point">@JsonParameter</span>
+<span class="keyword">public</span> FooWebBean <span class="attribute">jsonBean</span>;
+</code></pre>
+	<p>
+		※こちら、Form送信の一部のJSON文字列に対しての機能であり、リクエストボディ直接のJSONには対応できていません。
+	</p>
+
+	<h2 id="jsonresponse">JsonResponse</h2>
+	<p>
+		さらには Action の戻り値で、JSON をオブジェクトとして指定できるようにしています。
+		(自分で Response に write するのではなく、オブジェクト型を戻すだけ)
+	</p>
+	<p>
+		Actionの@Executeメソッドの戻り値の型を JsonResponse にして...
+	</p>
+<pre><span class="codetitle">e.g. JsonResponseを戻す @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> <span class="point">JsonResponse</span> submit() { <span class="comment">// application/json</span>
+    FooWebBean bean = <span class="abbreviation">...</span>;
+    <span class="keyword">return new</span> JsonResponse(bean); <span class="comment">// JSONになって欲しいBeanを引数に</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. JSONP形式の JsonResponse を戻す @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> <span class="point">JsonResponse</span> submit() { <span class="comment">// application/javascript</span>
+    FooWebBean bean = <span class="abbreviation">...</span>;
+    <span class="keyword">return new</span> JsonResponse(bean).asJsonp(<span class="literal">"callback"</span>);
+}
+</code></pre>
+
+	<h2 id="xmlresponse">XmlResponse <span class="frm">(XMLも指定できます)</span></h2>
+	<p>
+		XMLも指定できます。Actionの@Executeメソッドの戻り値の型を XmlResponse にして...
+	</p>
+<pre><span class="codetitle">e.g. XmlResponseを戻す @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> <span class="point">XmlResponse</span> submit() { <span class="comment">// text/xml</span>
+    String xmlStr = <span class="abbreviation">...</span>;
+    <span class="keyword">return new</span> XmlResponse(xmlStr);
+}
+</code></pre>
+
+	<h2 id="streamresponse">StreamResponse <span class="frm">(というかStreamも)</span></h2>
+	<p>
+		Actionの@Executeメソッドの戻り値の型を StreamResponse にして...
+	</p>
+<pre><span class="codetitle">e.g. StreamResponseを戻す (ダウンロードする) @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> <span class="point">StreamResponse</span> submit() { <span class="comment">// application/octet-stream</span>
+    InputStream ins = <span class="abbreviation">...</span>;
+    <span class="keyword">return new</span> StreamResponse(<span class="literal">"dbflute.pdf"</span>).stream(ins);
+}
+</code></pre>
+	<p>
+		content-typeは、デフォルトで application/octet-stream ですが、変更したいときは...
+	</p>
+<pre><span class="codetitle">e.g. StreamResponseを戻す (ダウンロードする) @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> <span class="subpoint">StreamResponse</span> submit() {
+    InputStream ins = <span class="abbreviation">...</span>;
+    <span class="keyword">return new</span> StreamResponse(<span class="literal">"dbflute.pdf"</span>).stream(ins).<span class="point">contentType</span>(<span class="literal">"dream/cruise"</span>);
+}
+</code></pre>
+	<p>
+		独自に header を、定義したいときは...
+	</p>
+<pre><span class="codetitle">e.g. StreamResponseを戻す (ダウンロードする) @Java</span><code>
+@Execute(validator = <span class="keyword">false</span>)
+<span class="keyword">public</span> <span class="subpoint">StreamResponse</span> submit() {
+    InputStream ins = <span class="abbreviation">...</span>;
+    <span class="keyword">return new</span> StreamResponse(<span class="literal">"dbflute.pdf"</span>).stream(ins).<span class="point">header</span>(<span class="literal">"dream"</span>, <span class="literal">"cruise"</span>);
+}
+</code></pre>
+
+	<h2 id="exceptionjson">JSON戻りの例外ハンドリング</h2>
+	<p>
+		JSON戻りのActionにて、例外 (主に業務例外) が発生したときに、JSONを戻す仕組みがあります。
+	</p>
+	<h3 id="assistantdirectorapicall">AssistantDirector で Provider 設定</h3>
+	<p>
+		AssistantDirectorで、アプリ独自の ApiResultProvider
+		を設定すると、例外発生時にその provider が処理されて、好きなようにJSONを戻すことができます。
+	</p>
+	<p>
+		JsonResponseが戻り値になっている Action の中で例外が発生したときに呼ばれます。
+	</p>
+<pre><span class="codetitle">e.g. AssistantDirectory で ApiResultProvider を設定 @Java</span><code>
+<span class="abbreviation">...</span>
+<span class="keyword">protected</span> OptionalActionDirection prepareOptionalActionDirection() {
+    <span class="abbreviation">...</span>
+    prepareApiCall(direction);
+}
+
+<span class="abbreviation">...</span>
+
+<span class="keyword">protected void</span> prepareApiCall(OptionalActionDirection direction) {
+    direction.directApiCall(createApiResultProvider());
+}
+
+<span class="keyword">protected</span> XxxApiResultProvider createApiResultProvider() { <span class="comment">// アプリ独自のクラス</span>
+    <span class="keyword">return new</span> <span class="point">XxxApiResultProvider()</span>; <span class="comment">// ApiResultProviderをimplements</span>
+}
+</code></pre>
+	<h3 id="apiresultprovider">ApiResultProvider の実装</h3>
+	<p>
+		ApiResultProvider では、それぞれの状況に応じて、ApiResult を implements したBeanを戻します。
+		そのBeanは、JSONに変換されてレスポンスになります。
+	</p>
+	<p>
+		その中で、メッセージなども取得できるようになっています。
+		アプリケーションのルールに従って、実装してみてください。
+	</p>
+<pre><span class="codetitle">e.g. ApiResultProvider の実装 @Java</span><code>
+// ===================================================================================
+//                                                                      Prepare Result
+//                                                                      ==============
+@Override
+public ApiResult prepareLoginRequiredFailureResult(ActionMessages errors, ActionExecuteMeta meta) {
+    final ApiResultWebBean bean = createApiResultWebBean(ApiResultMode.LOGIN_REQUIRED);
+    if (errors != null) {
+        bean.setMessage(getConcatedMessage(errors));
+    }
+    return bean;
+}
+
+@Override
+public ApiResult prepareLoginPerformRedirectResult(ActionMessages errors, ActionExecuteMeta meta) {
+    final ApiResultWebBean bean = createApiResultWebBean(ApiResultMode.SUCCESS);
+    bean.setMessage(getConcatedMessage(errors));
+    return bean;
+}
+
+@Override
+public ApiResult prepareValidationErrorResult(ActionMessages errors, ActionExecuteMeta meta) {
+    final ApiResultWebBean bean = createApiResultWebBean(ApiResultMode.FAIL);
+    bean.setMessage(getConcatedMessage(errors));
+    return bean;
+}
+
+@Override
+public ApiResult prepareApplicationExceptionResult(ActionMessages errors, ActionExecuteMeta meta,
+        RuntimeException cause) {
+    final ApiResultWebBean bean = createApiResultWebBean(ApiResultMode.FAIL);
+    bean.setMessage(getConcatedMessage(errors));
+    return bean;
+}
+
+@Override
+public ApiResult prepareSystemExceptionResult(HttpServletResponse response, ActionExecuteMeta executeMeta,
+        Throwable cause) {
+    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    final ApiResultWebBean bean = createApiResultWebBean(ApiResultMode.FAIL);
+    return bean; // Not Required
+}
+
+// ===================================================================================
+//                                                                             WebBean
+//                                                                             =======
+protected ApiResultWebBean createApiResultWebBean(ApiResultMode mode) {
+    return new ApiResultWebBean(mode);
+}
+
+// ===================================================================================
+//                                                                             Message
+//                                                                             =======
+protected List<String> getMessageList(ActionMessages errors) {
+    final MessageManager messageManager = getMessageManager();
+    final Locale userLocale = getRequestManager().getUserLocale();
+    return messageManager.getMessageList(userLocale, errors);
+}
+
+protected String getConcatedMessage(ActionMessages errors) {
+    List&lt;String&gt; messageList = getMessageList(errors);
+    if (CollectionUtils.isNotEmpty(messageList)) {
+        StringBuilder sb = new StringBuilder();
+        for (String message : messageList) {
+            sb.append(message);
+            sb.append("\n");
+        }
+        return sb.toString().trim();
+    }
+    return "";
+}
+
+protected Map&lt;String, List&lt;String&gt;&gt; getPropertyMessageMap(ActionMessages errors) {
+    final MessageManager messageManager = getMessageManager();
+    final Locale userLocale = getRequestManager().getUserLocale();
+    return messageManager.getPropertyMessageMap(userLocale, errors);
+}
+
+protected MessageManager getMessageManager() {
+    return ContainerUtil.getComponent(MessageManager.class);
+}
+
+protected RequestManager getRequestManager() {
+    return ContainerUtil.getComponent(RequestManager.class);
+}
+</code></pre>
+	<h3 id="apiresultappexp">業務例外のハンドリングはActionCallback</h3>
+	<p>
+		どの例外が業務例外で、どういうメッセージを戻すかという設定は、ActionCallback
+		の中で行われています。TypicalBaseAction の godHandExceptionMonologue() から辿っていくとわかります。
+	</p>
+	<div class="relatedpage"><a href="./actioncallback.html">SAFlute の ActionCallback</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,S2ClassBuilder,dicon,diconの拡張,コンポーネントの追加,複数プロジェクト" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>S2ClassBuilder | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>S2ClassBuilder</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、同時に利用するととても便利なライブラリを紹介します。
+	</p>
+	${indexlist}
+
+	<h2 id="about">S2ClassBuilderとは？</h2>
+	<p>
+		<em class="keyword">Seasar(S2Container)のDI設定機能(dicon)を拡張</em> するライブラリです。
+	</p>
+	<p>
+		例えば、ライブラリに組み込まれた dicon をアプリ側で拡張することができます。j2ee.dicon
+		に対して、アプリ独自のコンポーネントを追加したり、(アプリ内の)共通プロジェクトの dicon
+		に対して、そのアプリでしか利用しないコンポーネントを追加したり、<em class="keyword">同じ namespace に対して、別の dicon ファイル上でコンポーネントを指定</em>
+		することができます。
+	</p>
+<pre><span class="codetitle">e.g. foo.dicon にコンポーネントを追加する @Directory</span><code>
+library
+ |-src/main/resources/foo.dicon <span class="comment">// fooLogic のみ定義されている</span>
+
+app1
+ |-src/main/resources/<span class="point">foo++.dicon</span> <span class="comment">// barLogic のみ定義されている</span>
+
+<span class="comment">// app1 で Seasar を起動し、foo.dicon を読み込むと、</span>
+<span class="comment">// fooLogic と barLogic が登録される</span>
+<span class="comment">// (内部的にマージされる)</span>
+</code></pre>
+
+	<h2 id="setup">S2ClassBuilderの環境構築</h2>
+	<p>
+		s2container.dicon に S2ClassBuilder のクラスを定義します。
+	</p>
+<pre><span class="codetitle">e.g. s2container.dicon に S2ClassBuilder のクラスを定義する @s2container.dicon</span><code>
+&lt;components&gt;
+    <span class="abbreviation">...</span>
+
+    <span class="point">&lt;component name="dicon" class="org.seasar.cms.classbuilder.impl.RedefinableXmlS2ContainerBuilder" /&gt;</span>
+    <span class="point">&lt;component class="org.seasar.cms.classbuilder.impl.RedefinableResourceResolver" /&gt;</span>
+&lt;/components&gt;
+</code></pre>
+	<p>
+		s2-classbuilder.jar をアプリの実行環境のクラスパスに含めます。jarファイルは Maven
+		経由、もしくは、Maven リポジトリから直接ダウンロードして取得します。
+	</p>
+	<div class="relatedpage"><a href="http://maven.seasar.org/maven2">外部サイト - Seasar - Mavenリポジトリ</a></div>
+<pre><span class="codetitle">e.g. S2ClassBuilder-0.0.11のdependencyを定義 @pom.xml</span><code>
+&lt;dependency&gt;
+    &lt;groupId&gt;<span class="literal">org.seasar.cms.s2-classbuilder</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="literal">s2-classbuilder</span>&lt;/artifactId&gt;
+    &lt;version&gt;<span class="literal">0.0.11</span>&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+	<h3 id="withoutymir">S2ClassBuilder は Ymir に依存しない</h3>
+	<p>
+		S2ClassBuilder は Ymir に組み込まれて利用されることが多いですが、特に Ymir
+		には依存しておらず、単独で利用することができます。
+	</p>
+
+	<h2 id="howto">S2ClassBuilderの使い方</h2>
+	<p>
+		主な機能は以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>完全な上書き</dt>
+		<dd>foo+.dicon に定義されたコンポーネントが有効になる</dd>
+		<dt>特定コンポーネントの差し替え</dt>
+		<dd>foo+bar.dicon に bar を定義することで、bar コンポーネントが差し替わる</dd>
+		<dt>特定コンポーネントの除去</dt>
+		<dd>foo+bar.dicon に何も定義しないことで、bar コンポーネントが削除される</dd>
+		<dt>コンポーネントの追加</dt>
+		<dd>
+			foo++.dicon に定義されたコンポーネントが追加される。"++"
+			が後ろに付くと、最後に定義されたコンポーネントと同じ扱いとなり、
+			逆に先に付くと(++foo.dicon)、最初に定義されたコンポーネントと同じ扱いで追加される。
+			(つまり、初期化順序の調整が可能である)
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="http://ymir.seasar.org/docs/1.0.x/ref/dicon">外部サイト - Ymir - S2ClassBuilder</a></div>
+
+	<h2 id="dbflutedicon">dbflute.dicon のカスタマイズ</h2>
+	<p>
+		dbflute.dicon を調整するために、dependencyInjectionMap.dfprop
+		が用意されていますが、要件次第では、このプロパティを利用しなくても S2ClassBuilder
+		で実現できることがあります。
+	</p>
+	<div class="relatedpage"><a href="../../reference/dfprop/dependencyinjection/index.html">dependencyInjectionMap.dfprop</a></div>
+
+	<h2 id="bhvap">ApplicationBehavior では必須</h2>
+	<p>
+		DBFluteの機能の ApplicationBehavior では、S2ClassBuilder
+		を利用していることを前提としています。ClientBehavior
+		は大規模開発を想定した機能ですが、大規模開発であればなおさら S2ClassBuilder
+		が(その開発の別の場面で)役に立つでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../function/genbafit/projectfit/applicationbehavior/index.html">現場フィット - アプリごとのBehavior</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-sastruts-example では、実際に S2ClassBuilder を利用したExampleがあります。
+	</p>
+	<div class="detailpage"><a href="../../reference/example/index.html#friends">DBFlute Example - 他のフレームワーク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

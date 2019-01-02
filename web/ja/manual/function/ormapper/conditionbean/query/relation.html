@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,QueryRelation,query-relation,絞り込み条件,where句,関連テーブル,親テーブル,ForeignTable" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Query(Relation) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Query(Relation)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		関連テーブルに対する Query
+		です。指定された関連テーブルの絞り込み条件などを付与することができます(結合処理は内部的に解決されます)。 
+	</p>
+	<div class="relatedpage"><a href="./index.html">Query</a></div>
+	<p>
+		会話上では、<em class="keyword">くえりぃりれーしょん</em> と表現します。Query
+		という名前自体には、関連テーブルへの絞り込み条件も含まれますが、"関連テーブルに対して"
+		ということを強調したい場合に明示的な表現として利用されます。
+	</p>
+	<div class="inucolumn">
+		<h3 id="queryisquery">取得と絞り込みは別の機能</h3>
+		<p>
+			ConditionBean はDBアクセスの基本概念を(できるだけ)そのまま投影したインターフェースとなっています。
+			"データ取得" と "絞り込み" というのは別の概念です。よって、"関連テーブルのデータを取得すること" と "関連テーブルの条件で絞り込みをすること"
+			は、業務的には同時に求められることが多いですが、これら二つの概念は ConditionBean の機能として別の機能となります。
+		</p>
+		<div class="relatedpage"><a href="../about.html#purpose">目的ドリブンの思考手順</a></div>
+		<div class="relatedpage"><a href="../about.html#purposeapi">目的ドリブンの堅いAPI</a></div>
+		<p>
+			SetupSelect は、"関連テーブルのデータ取得"、Query(Relation) は、"関連テーブルの条件で絞り込み" (もしくは並び替え)
+			といった形に分けられます。例えば、関連テーブルのデータは必要ないけど、その関連テーブルのカラムで絞り込みや並び替えをするような場合、Query(Relation)
+			と一緒に SetupSelect する必要はありません。
+			逆に、データを取得する必要がないのに、絞り込みや並び替えで使うからといって無意味に無意識に取得されてしまうことがないようにしています。
+		</p>
+		<div class="relatedpage"><a href="../setupselect/index.html#supported">SetupSelect(Relation)</a></div>
+	</div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">query[relation-table]()</em>
+		を呼び出します。その後に続けて、関連テーブルに関する条件設定メソッドを呼び出すことができます。(基本的な)絞り込み条件であれば
+		<em class="keyword">.set[column-name]...</em>、並び替え条件であれば .addOrderBy...
+		を呼び出します。(他にも色々な機能が利用できます)
+	</p>
+<pre><span class="codetitle">e.g. Query(Relation)の実装手順 (Eclipseでコード補完) {MEMBER_STATUS} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.q <span class="comment">// ".q" とだけ打って enter</span>
+--
+cb.query().q <span class="comment">// ".q" とだけ打ってメソッド(関連テーブル)を選んで enter</span>
+--
+cb.query().<span class="point">queryMemberStatus()</span><span class="abbreviation">...</span> <span class="comment">// 続けて、条件設定を</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Query(Relation)を利用したときのSQL {MEMBER_STATUS} @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID, dfloc.MEMBER_NAME, <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+    <span class="point">left outer join MEMBER_STATUS dfrel_0 on ...</span>
+ <span class="keyword">where</span> <span class="point">dfrel_0</span>.MEMBER_STATUS_NAME <span class="abbreviation">...</span> 
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<p>
+		基本的に Query と同じです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Query</a></div>
+	<p>
+		"同じメソッドの複数回の呼び出し" に関しては、SetupSelect と同じです。
+	</p>
+	<div class="relatedpage"><a href="../setupselect/index.html#supported">SetupSelect(Relation)</a></div>
+
+	<h2 id="supported">サポートされる関連テーブル</h2>
+	<p>
+		SetupSelect と同じです。
+	</p>
+	<div class="relatedpage"><a href="../setupselect/index.html#supported">SetupSelect(Relation)</a></div>
+
+	<h2 id="samerelation">SetupSelect で同じ関連テーブル</h2>
+	<p>
+		Query(Relation) で、SetupSelect で指定した同じ関連テーブルを利用した場合でも、SQL上は一つの結合で表現されます。
+	</p>
+	<div class="relatedpage"><a href="../setupselect/index.html#queryrelation">SetupSelect(Relation) - Query(Relation) で同じ関連テーブル</a></div>
+
+	<h2 id="joinway">結合方式は...外部結合"的"!?</h2>
+	<p>
+		SetupSelect(Relation) とセオリーは同じです。
+	</p>
+	<div class="relatedpage"><a href="../setupselect/index.html#joinway">SetupSelect(Relation) - 結合方式は...外部結合"的"!?</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

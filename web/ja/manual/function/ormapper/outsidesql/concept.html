@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,実装概念" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>外だしSQLの実装コンセプト | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>外だしSQLの実装コンセプト</h1>
+	<p>
+		外だしSQLの実装方式におけるコンセプト(背景)のわりと事務的な説明です。
+	</p>
+	<div class="relatedpage"><a href="./howto.html">外だしSQLの使い方</a></div>
+	${indexlist}
+
+	<h2 id="conceptimage">外だしSQLの概念図</h2>
+	<p class="imgbox">図 : 外だしSQLの概念図
+		<a href="../../../../data/model/outsql-TypedConcept-view.png" title="外だしSQLの概念図"><img src="../../../../data/model/outsql-TypedConcept-view.png" alt="外だしSQLの概念図" width="550" height="390" /></a>
+	</p>
+
+	<h2 id="tabledriven">テーブル駆動でSQLを管理</h2>
+	<p>
+		ConditionBean がそうであるように、外だしSQLも "基点テーブル"
+		という概念を重視します。SQLファイルの名前は <em class="keyword">[Behaviorクラス名]_[SQL名(SQLを表現する任意の名前)].sql</em>
+		という形式にすることを推奨しています(デフォルトでは exbhv
+		パッケージ配下)。たとえ基点テーブルが曖昧なSQLにおいても、管理上どれかのテーブルと関連付けるようにします。
+		これを <em class="keyword">BehaviorQuery</em> (形式) と呼びます。
+	</p>
+<pre><span class="codetitle">e.g. BehaviorQuery を使ったSQLファイルの管理 {src/main/resources} @Directory</span><code>
+foo-project
+ |-src/main/resources
+       |-com<span class="abbreviation">...</span>/dbflute
+             |-exbhv
+               |-<span class="point">MemberBhv_selectSimpleMember.sql</span>
+</code></pre>
+	<p>
+		SQL名は、select文なら "select..."、update文なら "update..." と、小文字始まりでSQLを prefix
+		でわかりやすく表現することが推奨されます。この prefix を除去した残りの部分の名前を <em class="keyword">SQL業務名</em>
+		と呼び、アプリ全体でユニークなアプリ固有の業務上の名前を付けます。	(ただし、先頭文字が大文字の場合は、何も除去せずSQL名そのままがSQL業務名となります)
+	</p>
+	<p>
+		このSQLファイルへのパスは Sql2Entity タスクで分析され、プログラム上では Behavior
+		とSQL業務名(自動生成されたクラス、ParameterBean)だけで呼び出すことができるようになります。
+	</p>
+<pre><span class="codetitle">e.g. テーブル駆動でSQLを呼び出す @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb(); <span class="comment">// SQL業務名 + Pmb</span>
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// 対応する Behavior で呼び出し</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="point">memberBhv</span>.outsideSql().selectList(pmb);
+</code></pre>
+	<p>
+		SQL業務名にどうのような名前を付けるか？
+		これは業務の特徴次第なのでフレームワークとして明確な定義はできませんが、例えば DBFlute の Example
+		では以下のような命名をしています。(参考までに)
+	</p>
+	<dl class="textlist">
+		<dt>検索系</dt>
+		<dd>検索対象の業務的概要 + 基点テーブルの抽象名</dd>
+		<dd>
+			e.g. UnpaidSummaryMember (未払い購入情報付き会員)
+			<span class="frm">MemberBhv_selectUnpaidSummaryMember.sql</span>
+		</dd>
+		<dt>更新系</dt>
+		<dd>更新対象テーブルの抽象名 + 更新内容の業務的概要(受動態)</dd>
+		<dd>
+			e.g. MemberChangedToWithdrawalForcedly (会員の強制退会)
+			<span class="frm">MemberBhv_updateMemberChangedToWithdrawalForcedly.sql</span>
+		</dd>
+	</dl>
+
+	<h2 id="separatedlogic">呼び出しロジックとSQLの固定仕様の分離</h2>
+	<p>
+		DBFluteでは、呼び出しロジックとSQLの固定仕様を分離したインターフェースを提供しています。
+	</p>
+	<p>
+		呼び出しロジックは、例えば、結果をリスト型で受け取るのか、Entity(一件) 型で受け取るのか、ページング形式で受け取るのか、その他細かいオプション(StatementConfig
+		など)をどのように指定するのか、こういったものを指します。これらは、一つのSQLに対し複数の実装が存在することが想定されます。
+		それに対しSQLの固定仕様というのは、例えば、バインドパラメータの構成、戻り値の型など、一つのSQLで基本的に一つの決まるものです。
+	</p>
+	<p>
+		プログラム上での呼び出しにおいて、この考え方がそのまま反映されています。
+	</p>
+<pre><span class="codetitle">e.g. 呼び出しロジックとSQLの仕様の分離 (リスト) @Java</span><code>
+<span class="comment">// リスト型での呼び出し</span>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb(); <span class="comment">// SQLの固定仕様</span>
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>); <span class="comment">// バインドパラメータ</span>
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// o 結果をリスト型で受け取る -&gt; 呼び出しロジック</span>
+<span class="comment">// o Entityの型は SimpleMemberクラス -&gt; SQLの固定仕様</span>
+List&lt;<span class="point">SimpleMember</span>&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().<span class="point">selectList</span>(pmb);
+</code></pre>
+<pre><span class="codetitle">e.g. 呼び出しロジックとSQLの仕様の分離 (Entity) @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb(); <span class="comment">// SQLの固定仕様</span>
+pmb.setMemberId(<span class="literal">3</span>); <span class="comment">// バインドパラメータ (PK値の指定)</span>
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// o 結果を Entity(一件) 型で受け取る -&gt; 呼び出しロジック</span>
+<span class="comment">// o Entityの型は SimpleMemberクラス -&gt; SQLの固定仕様</span>
+<span class="point">SimpleMember</span> member
+        = <span class="attribute">memberBhv</span>.outsideSql().entityHandling().<span class="point">selectEntity</span>(pmb);
+</code></pre>
+	<p>
+		ConditionBean のことを思い出すと、条件は ConditionBean で呼び出しロジックは
+		Behavior。つまり、DBFlute 全体でこのようなポリシーになっていることがわかります。
+	</p>
+
+	<h2 id="typedandfree">タイプセーフ、そして、自由度考慮</h2>
+	<p>
+		"外部のSQLを呼び出す" という場合、一般に指定すべき基本的な要素は以下の三つです。
+	</p>
+	<ul>
+		<li>SQLへのパス</li>
+		<li>SQLに渡すパラメータ(バインド変数の値など)</li>
+		<li>戻り値 Entity の型 (検索時)</li>
+	</ul>
+	<p>
+		DBFluteでは、"SQLに渡すパラメータ" を格納する DTO を ParameterBean、"戻り値を受け取る型" に対応する Entity
+		クラスを CustomizeEntity と呼びます。また、BehaviorQuery 形式のSQLファイルへのパスを BehaviorQueryPath と呼びます。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/parameterbean.html">Sql2Entity - ParameterBean</a></div>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/customizeentity.html">Sql2Entity - CustomizeEntity</a></div>
+	<h3 id="typedpmb">TypedParameterBean</h3>
+	<p>
+		これらはSQLの固定仕様であり、それぞれ基本的に 1:1:1 です。DBFluteでは、Sql2Entity
+		タスクにより、これらの要素が全て関連付いた ParameterBean を自動生成します。これを "SQLに型付けされた ParameterBean"
+		ということで TypedParameterBean (たいぷどぱらめーたびーん)
+		と呼び、SQLの特定や戻り値 Entity の型の解決を一括した "定型呼び出し" を提供します<span class="frm">(@since 0.9.8.0)</span>。
+	</p>
+<pre><span class="codetitle">e.g. TypedParameterBean による呼び出し @Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb(); <span class="comment">// TypedParameterBean</span>
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// 何を呼び出すか？ 何の Entity 型で受け取るか？ は SimpleMemberPmb が解決</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().selectList(<span class="point">pmb</span>);
+</code></pre>
+	<p>
+		ParameterBean の引数は、Sql2Entity タスクで自動付与されるそれぞれの呼び出しロジックに対応したインターフェースです。例えば、selectList()
+		なら ListHandlingPmb、selectCursor() なら CursorHandlingPmb
+		など。パスや戻り値Entityの型の解決にも利用されるためパラメータがなくてもParameterBeanは必要です(つまり、null は許容されない)。
+	</p>
+	<p>
+		さらには、対応する Behavior
+		への型付け、リストやページング、カーソルなど、そのSQLが実行可能な呼び出しロジックの型付けもされ、間違った呼び出しはコンパイル時にチェックされます。
+		例えば、PurchaseBhv に関連付けられている SQL を MemberBhv で呼び出すことはできません。
+		また、ページングを前提としたSQLに対して、単なるリスト型の検索や、カーソル検索などの間違った呼び出しをすることはできません。
+	</p>
+	<p>
+		TypedParameterBean として型付けされる条件は、それぞれの呼び出しロジックごとにあります。その ParameterBean
+		がどのように型付けされたのかは、Bsクラスが実装しているインターフェースでもわかりますが、ParameterBean
+		のクラスコメント(javadoc)にわかりやすく書かれています。Eclipse 上で ParameterBean
+		にカーソルを合わせてふんわり出てくるクラスコメントを参考にすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./select/selectlist.html">selectList()</a></div>
+	<div class="relatedpage"><a href="./select/selectentity.html">entityHandling() - selectEntity()</a></div>
+	<div class="relatedpage"><a href="./select/selectpagemanual.html">manualPaging() - selectPage()</a></div>
+	<div class="relatedpage"><a href="./select/selectpageauto.html">autoPaging() - selectPage()</a></div>
+	<div class="relatedpage"><a href="./select/selectcursor.html">cursorHandling() - selectCursor()</a></div>
+	<p>
+		ConditionBean はテーブルごとの CB、外だしSQLはSQLごとの TypedParameterBean、プロシージャはプロシージャごとの
+		ProcedurePmb、つまり、DBFlute全体で "対応する Bean" を基点にDBアクセスが始まっていると言えます。
+	</p>
+	<h3 id="freestyle">フリースタイル形式のメソッド <span class="frm">(非推奨)</span></h3>
+	<p>
+		ほとんどの外だしSQLは、この TypedParameterBean の形式で実行されることが想定されます。
+		ただし、場合によっては 1:1:1 とならないような利用方法も想定されます。例えば、ParameterBean
+		を別のSQLでも再利用したり、戻り値Entityの型に別のSQLの CustomizeEntity
+		や独自に作ったクラスを使ったり(String, Integer などのスカラ型や DomainEntity は除く)、など。
+		そういった場合のために、この三つの要素をバラバラに指定するフリースタイル形式の自由度考慮のメソッドも用意されています。
+	</p>
+	<p>
+		ただ、1.1.x (Java8版) からは、外だしSQLのクラスをあまり再利用するべきではないだろうというポリシーから、
+		基本的には非推奨で、traditionalStyle()というメソッドを経由するようになっています。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/sql2entity/customizeentity.html#recylclingentity">CustomizeEntity - 他の自動生成Entityは指定できない!?</a></div>
+<pre><span class="codetitle">e.g. フリースタイル形式の自由度考慮のメソッドによる呼び出し @Java</span><code>
+String path = MemberBhv.<span class="attribute">PATH_selectSimpleMember</span>; <span class="comment">// BehaviorQueryPath</span>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb(); <span class="comment">// ParameterBean</span>
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+Class&lt;SimpleMember&gt; entityType = SimpleMember.<span class="keyword">class</span>
+
+<span class="comment">// 【1.1.x: Java8版】</span>
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// 何を呼び出すか？ 何の Entity 型で受け取るか？ は SimpleMemberPmb が解決</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().<span class="subpoint">traditionalStyle()</span>.selectList(<span class="point">path</span>, <span class="point">pmb</span>, <span class="point">entityType</span>);
+
+<span class="comment">// 【1.0.x: Java6版】</span>
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+<span class="comment">// 何を呼び出すか？ 何の Entity 型で受け取るか？ は SimpleMemberPmb が解決</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().selectList(<span class="point">path</span>, <span class="point">pmb</span>, <span class="point">entityType</span>);
+</code></pre>
+	<p>
+		ParameterBean 引数は、単なる Object 型であり何でも受け入れます。パラメータがない場合は null
+		も許容されます。TypedParameterBean を指定したとしても、内部ロジックで評価されるのはパラメータ部分の要素だけです。
+	</p>
+	<div class="inucolumn">
+		<h4 id="migration">0.9.8.0 より前はフリースタイルのみ</h4>
+		<p>
+			TypedParameterBean の概念は、DBFlute-0.9.8.0
+			から導入されたものであり、それより前のバージョンではフリースタイル形式のみでの実行となります。
+		</p>
+		<p>
+			ただ、フリースタイル形式であっても、BehaviorQuery であれば "SQLのパス"
+			は自動生成されるため、呼び出し対象SQLの指定がタイプセーフであることに変わりはありません。
+			TypedParameterBean の導入で、お決まりパターン(三要素が 1:1:1
+			になるケース)の呼び出しに対して、お決まりのレールを整備したと言えます。(実装のすっきりさ、そして、組み合わせの間違い防止など)
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+
+</body>
+</html>

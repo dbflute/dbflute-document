@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Fess" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Friends - Fess+Lasta | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Friends - Fess+Lasta</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、親和性の高いフレームワークを紹介します。
+	</p>
+	${indexlist}
+
+	<h2 id="fessview">Fessの概観</h2>
+	<div class="detailpage"><a href="http://fess.codelibs.org/ja/index.html">Fess本家サイト</a></div>
+	<p>
+		TODO jflute 書き途中
+	</p>
+
+	<h2 id="fessprj">fessプロジェクト</h2>
+	<h3 id="fesssrcmainjava">fess - src/main/java</h3>
+<pre><span class="codetitle">e.g. fessプロジェクトのsrc/main/java @Directory</span><code>
+fess
+ |-src/main/java          <span class="comment">// Fessプロジェクト共通クラス</span>
+ |  |-org.codelibs.fess   <span class="comment">// ★パッケージ構成要検討</span>
+ |     |-<span class="abbreviation">...</span>
+ |     |-<span class="point">lasta</span>            <span class="comment">// FessのLasta対応パッケージ ★名前要検討</span>
+ |     |  |-core          <span class="comment">// SAFluteのcoreを拡張したクラスなど</span>
+ |     |  |  |-direction  <span class="comment">// SAFluteをFessプロジェクト風にするところ☆</span>
+ |     |  |     |-sponsor <span class="comment">// AssistantDirectorで設定する処理を切り出したクラスなど</span>
+ |     |  |     |  |-FessActionAdjustmentProvider    <span class="comment">// 微調整</span>
+ |     |  |     |  |-FessTimeResourceProvider        <span class="comment">// 時間リソース</span>
+ |     |  |     |  |-FessUserLocaleProcessProvider   <span class="comment">// ロケール</span>
+ |     |  |     |  |-FessUserTimeZoneProcessProvider <span class="comment">// タイムゾーン</span>
+ |     |  |     |-FessConfig.java <span class="comment">// fess_config 対応クラス(自動生成)</span>
+ |     |  |     |-FessEnv.java    <span class="comment">// fess_env 対応クラス(自動生成)</span>
+ |     |  |     |-<span class="point">FessFwAssistantDirector.java</span> <span class="comment">// Lastaの現場フィットを司る</span>
+ |     |  |       <span class="comment">// ☆これが最強に大事</span>
+ |     |  |       <span class="comment">// (各ドメインが継承して微調整オーバーライドする)</span>
+ |     |  |
+ |     |  |-<span class="abbreviation">...</span>
+ |     |  |-web           <span class="comment">// SAFluteのwebを拡張したクラスなど</span>
+ |     |     |-action     <span class="comment">// Actionに関する拡張クラスなど</span>
+ |     |     |-login      <span class="comment">// ログインに関する拡張クラスなど</span>
+ |     |     |-paging     <span class="comment">// ページングに関する拡張クラスなど</span>
+ |     |-<span class="abbreviation">...</span>
+ |     |-web      <span class="comment">// ActionやFormのパッケージ ★★actionとformをこっちに移行</span>
+ |     |  |-admin <span class="comment">// 管理系のActionたち</span>
+ |     |  |-base  <span class="comment">// Actionのスーパークラスなどの基盤 e.g. FessBaseAction</span>
+ |     |  |-AppletAction
+ |     |  |-ErrorAction
+ |     |  |-IndexAction   <span class="comment">// トップページ (検索画面)</span>
+ |     |  |-LoginAction
+ |
+ |-src/main/resources
+ |-src/test/java
+ |-src/test/resources
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="fesssrcmainresources">fess - src/main/resources</h3>
+<pre><span class="codetitle">e.g. fessプロジェクトのsrc/main/resources @Directory</span><code>
+fess
+ |-src/main/java
+ |  |-<span class="abbreviation">...</span>
+ |-src/main/h2/resources/sql <span class="comment">// H2のときだけ変な!?情報が残っちゃうから</span>
+ |  |-robot.ddl              <span class="comment">// fessの中でs2robotのDBを置き換え (手動同期)</span>
+ |-src/main/resources            <span class="comment">// ★フォルダ分けするか要検討</span>
+ |  |-device                     <span class="comment">// ★★削除 (がらけー)</span>
+ |  |-META-INF                   <span class="comment">// ★★削除</span>
+ |  |-app.dicon                  <span class="comment">// ★整理: アプリ情報が埋め込まれている</span>
+ |  |-application_ja.properties  <span class="comment">// ★fess_message_ja.propertiesに移行</span>
+ |  |-application.properties     <span class="comment">// ★fess_message.propertiesに移行</span>
+ |  |-convention.dicon    <span class="comment">// Seasarのスマートデプロイのルートパッケージを決める dicon</span>
+ |  |-creator.dicon       <span class="comment">// SeasarのスマートデプロイのCreatorを定義した dicon (web用)</span>
+ |  |-customizer.dicon    <span class="comment">// ★taskが不要？ SeasarのスマートデプロイのCustomizerを定義した dicon (web用)</span>
+ |  |-env.txt           <span class="comment">// Seasarのアプリ実行時の環境タイプ (ローカル環境用なのでut)</span>
+ |  |-fess_api.dicon      <span class="comment">// JSONとXMLを戻すためのコンポーネント (Filterから呼ばれる)</span>
+ |  |-<span class="point">fess_config.properties</span> <span class="comment">// Fessプロジェクト共通のコンフィグ</span>
+ |  |-fess_dist.dicon     <span class="comment">// 辞書管理系のコンポーネント</span>
+ |  |-fess_ds.dicon       <span class="comment">// Web以外のデータをクロールするコンポーネント</span>
+ |  |-<span class="point">fess_env.properties</span>    <span class="comment">// Fessプロジェクト共通の環境依存コンフィグ</span>
+ |  |-fess_job.dicon      <span class="comment">// FessのJobのコンポーネント</span>
+ |  |-<span class="subpoint">fess_message_ja.properties</span> <span class="comment">// Fessプロジェクト共通の日本語リソース</span>
+ |  |-<span class="subpoint">fess_message.properties</span>    <span class="comment">// Fessプロジェクト共通の英語リソース</span>
+ |  |-<span class="subpoint">fess_label_ja.properties</span>   <span class="comment">// ★★まだない</span>
+ |  |-<span class="subpoint">fess_label.properties</span>      <span class="comment">// ★★まだない</span>
+ |  |-fess_suggest.dicon  <span class="comment">// Fessのサジェスト機能のコンポーネント</span>
+ |  |-fess.dicon          <span class="comment">// Webとコマンドで共通の入り口となるfessのdicon</span>
+ |  |-FESSMessages.properties <span class="comment">// エラーログのメッセージリソース</span>
+ |  |-jdbc.dicon          <span class="comment">// JDBCの接続 (ユーザーが利用するDBMSに合わせて変更する)</span>
+ |  |-log4j.xml           <span class="comment">// そのまんまLog4j</span>
+ |  |-quartz.properties   <span class="comment">// そのまんまQuartz</span>
+ |  |-jdbc.dicon        <span class="comment">// DB接続dicon (URLなどはConfigから取得するようにしている)</span>
+ |  |-s2container.dicon <span class="comment">// Seasarの大事なdicon (S2ClassBuilder定義含む)</span>
+ |  |-s2robot_contentlength.dicon <span class="comment">// 以下、S2Robotの定義でFessで差し替えの必要なものだけ</span>
+ |  |-s2robot_db.dicon
+ |  |-s2robot_interval.dicon
+ |  |-s2robot_jdbc.dicon
+ |  |-s2robot_log.dicon
+ |  |-s2robot_rule.dicon
+ |  |-s2robot_transformer.dicon
+ |  |-<span class="point">saflute_assist++.dicon</span> <span class="comment">// Config や AssistantDirector を追加するdicon</span>
+ |  |-solrlib.dicon <span class="comment">// Solrのためのコンポーネント</span>
+ |
+ |-src/test/java
+ |-src/test/resources
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="fessothers">fess - others (webapp)</h3>
+<pre><span class="codetitle">e.g. fessプロジェクトのsrc/main/[others] @Directory</span><code>
+fess
+ |-src/main/java
+ |-src/main/resources
+ |-src/test/java
+ |-src/test/resources
+ |-.settings
+ |-solr                  <span class="comment">// テスト用のSolr</span>
+ |  |-conf
+ |     |-elevate.xml     <span class="comment">// キーワードブーストの設定</span>
+ |     |-protwords.txt   <span class="comment">// 英語の活用変換に関する設定</span>
+ |     |-schema.xml      <span class="comment">// Solrのスキーマ情報、fieldの定義など</span>
+ |     |-solrconfig.xml  <span class="comment">// Solrの設定</span>
+ |     |-stopwords.txt   <span class="comment">// 英語のStopword設定</span>
+ |     |-synonyms.txt    <span class="comment">// シノニム定義</span>
+ |-src
+ |  |-config
+ |  |  |-eclipse
+ |  |     |-formatter         <span class="comment">// mavenのcompileで最終的にフォーマットするためのもの</span>
+ |  |        |-java.xml       <span class="comment">// Javaのフォーマッター (DBFluteと同じ)</span>
+ |  |        |-javascript.xml <span class="comment">// JavaScriptのフォーマッター</span>
+ |  |-etc    <span class="comment">// mavenのpluginから呼ばれる</span>
+ |  |  |-header-definition.xml <span class="comment">// ソースコードのヘッダーの定義 ★誰から呼ばれる？</span>
+ |  |  |-header.txt            <span class="comment">// ソースコードのライセンスヘッダー</span>
+ |  |-main
+ |     |-config <span class="comment">// ★★消す</span>
+ |     |  |-h2
+ |     |  |  |-fess.ddl             <span class="comment">// H2用のFessDBのDDL</span>
+ |     |  |-mysql
+ |     |  |  |-fess.ddl             <span class="comment">// MySQL用のFessDBのDDL</span>
+ |     |  |-oracle
+ |     |  |  |-build-create.xml     <span class="comment">// fess.ddlを実行するためのAntタスク</span>
+ |     |  |  |-fess.ddl             <span class="comment">// Oracle用のFessDBのDDL</span>
+ |     |  |  |-update-schema-xml.sh <span class="comment">// TODO jflute</span>
+ |     |  |-tablemeta.properties    <span class="comment">// TODO jflute</span>
+ |     |-h2
+ |     |  |-resources/sql
+ |     |  |  |-robot.ddl            <span class="comment">// H2用のS2RobotDBのDDL</span>
+ |     |  |-webapp/WEB-INF/db
+ |     |     |-fess.mv.db
+ |     |     |-robot.mv.db
+ |     |-mysql
+ |     |  |-resources
+ |     |  |  |-jdbc.dicon              <span class="comment">// TODO jflute</span>
+ |     |  |  |-s2robot_jdbc.dicon      <span class="comment">// TODO jflute</span>
+ |     |  |-webapp/WEB-INF
+ |     |  |  |-cmd/resources/app.dicon <span class="comment">// TODO jflute</span>
+ |     |  |  |-web.xml
+ |     |-webapp                <span class="comment">// fess本体のWebアプリ</span>
+ |        |-css
+ |        |-images
+ |        |-js
+ |        |-WEB-INF
+ |           |-cachedirs       <span class="comment">// 検索結果のスクリーンショットの一時置き</span>
+ |           |-cmd             <span class="comment">// コマンドのホームディレクトリ</span>
+ |           |  |-lib          <span class="comment">// コマンドで必要なjarたち</span>
+ |           |  |  |-geronimo-servlet_2.4_spec-1.0.jar  <span class="comment">// ★Lastaで不要になるか!?</span>
+ |           |  |-resources    <span class="comment">// コマンドで優先するresources</span>
+ |           |     |-app.dicon        <span class="comment">// コマンドのapp.dicon、コマンド用のコンポーネント定義</span>
+ |           |     |-creator.dicon    <span class="comment">// 画面用のものを除外</span>
+ |           |     |-customizer.dicon <span class="comment">// 画面用のものを除外</span>
+ |           |-conf   <span class="comment">// 動的に書き換えるプロパティなどを置くところ e.g. 失敗したSolrサーバー名とか</span>
+ |           |-logs   <span class="comment">// 画面とクロールで吐いたログの置き場</span>
+ |           |-mail   <span class="comment">// メールのテンプレート ★MailFluteで置き換え</span>
+ |           |  |-crawler.hbs
+ |           |  |-solr_status.hbs
+ |           |-orig            <span class="comment">// JSPの復元のため</span>
+ |           |  |-jnlp                 <span class="comment">// ★★これはなくなる</span>
+ |           |  |-open-search/osdd.xml <span class="comment">// ★OSDD: あとで調べる</span>
+ |           |  |-view                 <span class="comment">// 復元用のJSPたち</span>
+ |           |-view         <span class="comment">// JSPたち</span>
+ |           |-fe.tld       <span class="comment">// Fessのタグリブ定義？ここに置いておけばTomcatから読まれる</span>
+ |           |-struts-config.xml      <span class="comment">// ★消える運命</span>
+ |           |-validator-rules.xml    <span class="comment">// ★消える運命</span>
+ |           |-web.xml
+ |
+ |-target
+ |-.classpath      <span class="comment">// コミット対象外、mavenで自動生成される</span>
+ |-.gitattributes  <span class="comment">// Gitの改行コードの制御</span>
+ |-.gitignore
+ |-.project
+ |-LICENSE
+ |-pom.xml
+ |-README.md
+</code></pre>
+
+	<h2 id="fessdbprj">fess-dbプロジェクト</h2>
+	<p>
+		
+	</p>
+	<h3 id="fessdbh2">fess-db-h2の全体</h3>
+<pre><span class="codetitle">e.g. fessプロジェクトのsrc/main/java @Directory</span><code>
+fess
+ |-src/main/java
+ |  |-org.codelibs.fess.db <span class="comment">// DBFluteのパッケージ</span>
+ |-src/main/resources
+ |  |-org.codelibs.fess.db.exbhv <span class="comment">// DBFluteの外だしSQL</span>
+ |  |-dbflute.dicon <span class="comment">// DBFluteのBehaviorのコンポーネント定義</span>
+ |
+ |-dbflute_fess
+ |  |-dfprop
+ |  |  |-<span class="abbreviation">...</span>
+ |  |  |-basicInfoMap.dfprop <span class="comment">// DBFluteの基本となる設定 (自動生成パッケージなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |  |-databaseInfoMap.dfprop <span class="comment">// DBFluteエンジンの接続DB情報</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |  |-documentDefinitionMap.dfprop <span class="comment">// ドキュメントの設定 (PropertiesHTMLも)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |  |-freeGenDefinitionMap.dfprop <span class="comment">// FreeGenの設定 (propertiesなど)</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |  |-replaceSchemaDefinitionMap.dfprop <span class="comment">// ReplaceSchemaの設定</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-extlib
+ |  |-freegen              <span class="comment">// FreeGenのテンプレート置き場</span>
+ |  |  |-ControlFreeGen.vm <span class="comment">// FreeGen実行時のコントロールファイル</span>
+ |  |  |-JspPath.vm        <span class="comment">// JSPパスの定数のテンプレート</span>
+ |  |  |-SystemConfig.vm   <span class="comment">// Configインターフェースのテンプレート</span>
+ |  |  |-UserMessages.vm   <span class="comment">// ActionMessagesのテンプレート</span>
+ |  |-log
+ |  |-output
+ |  |-playsql <span class="comment">// ActionMessagesのテンプレート</span>
+ |  |  |-replace-schema.sql <span class="comment">// fessのDDL (drop文は不要)</span>
+ |  |  |-take-finally.sql   <span class="comment">// テストデータ登録後のDDL</span>
+ |  |-schema
+ |  |-_project.bat
+ |  |-_project.sh
+ |  |-_readme.txt
+ |  |-build.properties
+ |  |-manage.bat
+ |  |-manage.sh
+ |-<span class="abbreviation">...</span>
+</code></pre>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 T | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 T</h1>
+	<p>
+		"T" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="taskexecutionstatus" class="dicword">TaskExecutionStatus (タスク実行ステータス)</h2>
+	<p>
+		DBFluteタスクの実行結果の "成功、失敗" を表現するステータスです。タスク実行が成功した場合はコンソールの最後に
+		"BUILD SUCCESSFUL" と表示されます。逆に失敗した場合は "BUILD FAILED" と表示されます。
+	</p>
+	<div class="relatedpage"><a href="./wa.html#antexecutionstatus">AntExecutionStatus (Ant実行ステータス)</a></div>
+
+	<h2 id="tritonn" class="dicword">Tritonn</h2>
+	<p>
+		MySQLから全文検索エンジン Senna を利用可能にするための改造を行うプロジェクト、もしくは、その改造されたモジュールを示します。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/mysql/index.html#fulltextsearch">MySQL - ConditionBeanで全文検索</a></div>
+	<div class="relatedword"><a href="./wf.html#fulltextsearch">FullTextSearch (全文検索)</a></div>
+	<div class="relatedword"><a href="./ws.html#senna">Senna</a></div>
+
+	<h2 id="twoedgedsword" class="dicword">TwoEdgedSword (諸刃の剣)</h2>
+	<p>
+		DBFluteにおいて、念のために利用できるけど使い方を間違えると大変なことになる(なりやすい)機能に対するレッテルです。TwoEdgedSword
+		な機能は、DBFluteとして消極的サポート(積極的なサポートがされない機能)であることを踏まえた上で、厳重注意のもと利用することが求められます。
+	</p>
+	<p>
+		消極的サポートによる弊害として、例えば以下のようなことが考えられます。
+	</p>
+	<ul>
+		<li>DBFlute側で行っているテストケースが少なく、品質が十分でない可能性がある</li>
+		<li>他の機能との組み合わせでサポートされない可能性がある</li>
+		<li>バグ対応や組み合わせ対応など、実現難度によって対応を断念する可能性が通常の機能よりも高い</li>
+	</ul>
+
+	<h2 id="threadlocal" class="dicword">ThreadLocal (スレッドローカル)</h2>
+	<p>
+		スレッド内で共通に利用できる変数領域のことを示します。基本的には、フレームワークの仕組みの中で利用されるもので、
+		業務アプリケーションの個々の機能のプログラムで利用するようなことはあまりないことが想定されます。
+		DBFluteでは、この仕組みを利用して、内部的な機能の実現をしています。また、この仕組みを利用したトランザクションを前提としています。
+	</p>
+	<div class="relatedword"><a href="#threadtransaction">ThreadTransaction (スレッドトランザクション)</a></div>
+
+	<h2 id="threadtransaction" class="dicword">ThreadTransaction (スレッドトランザクション)</h2>
+	<p>
+		スレッドローカルの仕組みを利用したトランザクションの仕組みのことを示します。例えば、スレッドトランザクションに対応した DataSource
+		と言った場合、その DataSource からトランザクション内に取得した Connection
+		は、そのトランザクションを継続した同じ Connection
+		インスタンスとなることが求められます。DBFluteでトランザクションを利用するためには、基本的にはスレッドトランザクションに対応した DataSource
+		を利用することが前提となります(DataSourceHandlerを使って独自に制御する場合、もしくは、Spring Framework + Commons DBCP の構成を除く)。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#datasourcehandler">DBFluteConfig - DataSourceHandler</a></div>
+	<div class="relatedpage"><a href="../../diway/spring/index.html#commonsdbcp">Spring Framework- Commons DBCP</a></div>
+	<div class="relatedword"><a href="#threadlocal">ThreadLocal (スレッドローカル)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

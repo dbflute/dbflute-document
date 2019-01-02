@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 G | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 G</h1>
+	<p>
+		"G" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="gapclass" class="dicword">GapClass (ギャップクラス)</h2>
+	<p>
+		ジェネレーションギャップにおけるExクラスの別称です。
+		テーブル構造が反映されたBsクラスに対して、アプリケーションによるギャップを追加する(できる)クラスということで、ギャップクラスと呼ばれます。
+	</p>
+
+	<h2 id="generationgap" class="dicword">GenerationGap (ジェネレーションギャップ)</h2>
+	<p>
+		自動生成されたクラスにアプリケーション独自のメソッドなどを付与できるようにする構造で、ジェネレーションギャップパターンと呼ばれます。
+		DBFluteでは、自動生成されるクラスは、(一つのクラスにつき) <em class="keyword">Bsクラス(スーパークラス)</em> と
+		<em class="keyword">Exクラス(サブクラス)</em> に分かれ、再自動生成されたときは、Bsクラスは(常に)上書きされ、
+		Exクラスは(既に存在している場合は)上書きされません。ゆえに、Exクラスには、アプリケーション独自のメソッドを(手動で)作成しても構いません。
+		この仕組みを利用した現場フィットとして、"where句の再利用"、"ドメインロジックの再利用" というものがあります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/whererecycle/index.html">現場フィット - where句の再利用</a></div>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/domainlogicrecycle/index.html">現場フィット - ドメインロジックの再利用</a></div>
+	<div class="relatedword"><a href="./wb.html#bsclass">BsClass (Bsクラス)</a></div>
+	<div class="relatedword"><a href="./we.html#exclass">ExClass (Exクラス)</a></div>
+	<p>
+		DBFlute.NETでは、継承の代わりに、C# が持っている partial という言語仕様を利用して実現されます(一部例外あり)。
+		但し、partial だと、Bsクラスの自動生成されたメソッドをExクラスでオーバーライドできないのが難点です。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet/index.html">DBFlute.NET</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

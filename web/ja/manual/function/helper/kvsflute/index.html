@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,KVSFlute,KVS,Redis" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>KVSFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>KVSFlute</h1>
+	<p>
+		DBFluteプロジェクトが提供するライブラリ KVSFlute のページ。
+	</p>
+	${indexlist}
+
+	<h2 id="about">KVSFluteとは？</h2>
+	<p>
+		KVSFlute は、KVS (Redisなど) に対して、DBFluteライクにアクセスするライブラリです。
+	</p>
+	<h3 id="typesafe">自動生成してタイプセーフ</h3>
+	<p>
+		DBFlute の FreeGen と組み合わせて利用することで、タイプセーフなアクセスインターフェースを自動生成します。
+		アプリからは、自動生成されたクラスを使ってKVSにアクセスします。
+	</p>
+	<h3 id="architecture">KVSFluteのアーキテクチャ</h3>
+	<p class="imgbox">
+		<a href="../../../../../data/model/helper/kvsflute/kvsflute-architecture-map.png" title="KVSFlute Architecture"><img src="../../../../../data/model/helper/kvsflute/kvsflute-architecture-map.png" alt="KVSFlute Architecture" width="550" height="380" /></a>
+	</p>
+	<h3 id="lastaeg">LastaFluteでの利用例</h3>
+	<p>
+		LastaFluteとの組み合わせが、KVSFlute利用の典型例となります。
+	</p>
+	<div class="relatedpage"><a href="../../../../lastaflute/index.html">LastaFlute</a></div>
+	<p>
+		2018/04時点にて、KVSFluteは LastaFlute に依存をしています。<span class="frm">(将来、汎用的にする可能性はあります)</span>
+	</p>
+
+	<h2 id="keypoint">KVSFluteのキーポイント</h2>
+	<h3 id="useredis">KVSとして Redis を使っている</h3>
+	<p>
+		KVSとして Redis を使います。
+	</p>
+	<p>
+		2018/04時点にて、KVSFluteは Redis でしか利用できません。<span class="frm">(将来、汎用的にする可能性はあります)</span>
+	</p>
+	<h3 id="kvscache">KVSキャッシュ</h3>
+	<p>
+		KVSを、<em class="smallmark">RDBのキャッシュ</em> として利用する方式を提供しています。
+	</p>
+	<ol>
+		<li>検索されたら...</li>
+		<li>まずはKVSを見て、あればそれを戻す</li>
+		<li>なければ、RDBを検索する</li>
+		<li>RDBからの結果を戻す</li>
+		<li>RDBからの結果をKVSに登録する (次の検索時のために)</li>
+	</ol>
+	<p>
+		このような制御が組み込み済のインターフェースが提供されます。
+		呼び出しコードは、"KVSを使っていること" 自体には依存をしますが、RDBとの連携部分を意識する必要はないです。
+	</p>
+<pre><span class="codetitle">e.g. KVSキャッシュの一件検索 @Java</span><code>
+<span class="attribute">kvsProductBhv</span>.selectEntityByProductId(cb -&gt; {
+    cb.query().setProductId_Equal(productId);
+}).ifPresent(<span class="abbreviation">...</span>); <span class="frm">(OptionalEntity)</span>
+</code></pre>
+	<h3 id="kvsstore">KVSストア</h3>
+	<p>
+		KVSを、<em class="smallmark">永続ストレージ</em> として利用する方式を提供しています。
+		<span class="frm">(RDBの代わりにKVSを使うという感じ)</span>
+	</p>
+	<p>
+		設定ファイルに定義した、KVS上の仮想的なスキーマ構造に対応したクラスを自動生成し、タイプセーフに取り扱うことができます。
+		DBFluteのようにKVSにアクセスします。
+	</p>
+<pre><span class="codetitle">e.g. KVSストアの一件検索 @Java</span><code>
+<span class="attribute">kvsEgStoreExampleBhv</span>.selectEntity(cb -&gt; {
+    cb.acceptPK(egkey);
+}).ifPresent(<span class="abbreviation">...</span>); <span class="frm">(OptionalEntity)</span>
+</code></pre>
+
+	<h2 id="setup">KVSFluteのセットアップ</h2>
+	<p>
+		KVSFluteの設定ファイルやExampleは、もろもろ dbflute-example-with-non-rdb リポジトリに入っています。
+		こちらを参考に環境構築をしていきましょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-non-rdb">dbflute-example-with-non-rdb | Github</a></div>
+	<p>
+		このプロジェクトは、KVSFluteだけでなく SolrFlute や ESFlute など、RDBではないFlute系の Example をまるごと含んでいます。
+	</p>
+
+	<h2 id="greatthanks">Great Thanks</h2>
+	<p>
+		KVSFluteは、"U-NEXTさん" より、コントリビュート頂きました。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20161208/solrkvsflute">U-NEXTさんからSolrFlute,KVSFluteコントリビュート頂きました | jfluteの日記</a></div>
+	<p>
+		ありがとうございます！
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

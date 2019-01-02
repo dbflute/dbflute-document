@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DatabaseDepencency,DBMS依存,for update nowait,Ludia,Senna,Tritonn,Oracle Text" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>データベース依存機能(メソッド)の利用 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>データベース依存機能(メソッド)の利用</h1>
+	${indexlist}
+
+	<h2 id="about">データベース依存機能とは？</h2>
+	<p>
+		DBFluteは、デフォルトでは DBMS に依存したメソッドは生成されず、DBMS を移行した場合でも少なくとも機能面ではコンパイルエラーにはならないようになっています。
+		例えば、ExistsReferrer, LockForUpdate, Paging など、どの DBMS で自動生成してもインターフェースは同じです。
+		(但し、コンパイルエラーが出ないというだけで潜在的な部分での移行はやはり必要となるでしょう)
+	</p>
+	<p>
+		しかし、DBMS に依存した幾つかの機能(データベース依存機能)も利用できます。その場合、別の DBMS
+		ではコンパイルエラーとなりますが、特に問題なければオプションで生成することができます。
+	</p>
+
+	<h2 id="option">オプション設定</h2>
+	<p>
+		littleAdjustmentMap.dfprop の isAvailableDatabaseDependency を有効にすることで、データベース依存(DMBS依存)のメソッドが生成されます。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dfprop/littleadjustment/index.html#isavailabledatabasedependency">dfprop - isAvailableDatabaseDependency</a></div>
+
+	<h2 id="function">各種データベースの機能</h2>
+	<p>
+		どのような機能が利用できるようになるかは、データベースごとに様々です。
+	</p>
+	<h3 id="postgresql">PostgreSQL</h3>
+	<dl class="keymainlist">
+		<dt>for update nowait</dt><dd>待たずに例外になる更新ロックの取得</dd>
+		<dt>"%%" 構文</dt><dd>"Ludia + Senna" の利用を想定した全文検索の条件</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../../reference/dbway/postgresql/index.html#dependency">PostgreSQL - データベース依存機能</a></div>
+	<h3 id="mysql">MySQL</h3>
+	<dl class="keymainlist">
+		<dt>for update nowait</dt><dd>待たずに例外になる更新ロックの取得</dd>
+		<dt>"match" 構文</dt><dd>"Tritonn + Senna" の利用を想定した全文検索の条件</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../../reference/dbway/mysql/index.html#dependency">MySQL - データベース依存機能</a></div>
+	<h3 id="oracle">Oracle</h3>
+	<dl class="keymainlist">
+		<dt>for update nowait</dt><dd>待たずに例外になる更新ロックの取得</dd>
+		<dt>for update wait N</dt><dd>待つ時間を指定できる更新ロックの取得</dd>
+		<dt>"contains" 構文</dt><dd>"Oracle Text" の利用を想定した全文検索の条件</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../../reference/dbway/oracle/index.html#dependency">Oracle - データベース依存機能</a></div>
+	<h3 id="db2">DB2</h3>
+	<dl class="keymainlist">
+		<dt>with [LEVEL]</dt><dd>分離レベルに応じてロックの方法を変更</dd>
+	</dl>
+	<div class="detailpage"><a href="../../../../reference/dbway/db2/index.html#dependency">DB2 - データベース依存機能</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

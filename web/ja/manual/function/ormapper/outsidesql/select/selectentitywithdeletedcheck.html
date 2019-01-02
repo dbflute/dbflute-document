@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,selectEntityWithDeletedCheck,一件検索,nullなし,nullを戻さない,排他制御" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)selectEntityWithDeletedCheck() | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)selectEntityWithDeletedCheck()</h1>
+	<p>
+		"外だしSQLの使い方" を既に読んでいることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../howto.html">外だしSQLの使い方</a></div>
+	<p>
+		1.1.x (Java8版) より、このメソッドは削除されました。selectEntity() が OptionalEntity
+		を戻すので、それで存在有無を判断してください。WithDeletedCheck想定の検索であれば、alwaysPresent() か get()
+		で良いです。 
+	</p>
+	<div class="relatedpage"><a href="./selectentity.html">(外だしSQL)selectEntity()</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">外だしSQLで nullを戻さない一件検索</em>
+		をします。検索結果が存在しない場合は明示的な例外が発生するので、検索結果がないという状況が業務的にあり得ない(条件設定のバグ、データ不整合など)、
+		もしくは、その状況は業務的なすれ違いなので排他制御の仕組みで一律の処理を行う、というようなときに利用します。
+	</p>
+	<p>
+		DeletedCheck の Deleted は、別の人(プロセス)のすれ違いによる削除のことを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+	<p>
+		検索結果が存在しなかったら業務的に正常な処理を行う、という場合は、このメソッドではなく selectEntity() を利用して下さい。 
+	</p>
+	<div class="relatedpage"><a href="./selectentity.html">selectEntity()</a></div>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)せれくとえんてぃてぃうぃずでりーでぃっどちぇっく</em>
+		もしくは <em class="keyword">(外だしSQLの)nullを戻さないせれくとえんてぃてぃ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="methodcall">メソッドの呼び出し</h3>
+	<p>
+		手順は selectEntity() とほとんど同じで、最後に呼び出すメソッドが <em class="keyword">selectEntityWithDeletedCheck()</em>
+		となります。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().en <span class="comment">// .en と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">entityHandling()</span>.selEW <span class="comment">// .selEW と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().entityHandling().<span class="point">selectEntityWithDeletedCheck</span>(pmb);
+</code></pre>
+	<p>
+		selectEntity() との唯一の違いは、検索結果が存在しない場合の挙動です。
+	</p>
+	<div class="relatedpage"><a href="./selectentity.html">selectEntity()</a></div>
+	<h3 id="nohit">検索結果が存在しない場合</h3>
+	<p>
+		検索結果が存在しない場合は、条件もしくはSQLの不備と判断され、<em class="keyword">EntityAlreadyDeletedException</em>
+		が発生します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索で存在しないIDで検索して結果なくて寂しい @Java</span><code>
+String path = MemberBhv.<span class="attribute">PATH_selectSimpleMember</span>;
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.setMemberId(<span class="literal">99999</span>);
+Class&lt;?&gt; entityType = SimpleMember.<span class="keyword">class</span>;
+<span class="keyword">try</span> {
+    <span class="attribute">memberBhv</span>.outsideSql().entityHandling().<span class="point">selectEntityWithDeletedCheck</span>(path, pmb, entityType)
+} <span class="keyword">catch</span> (EntityAlreadyDeletedException e) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		この例外が業務的なすれ違いで発生する可能性があるような状況で、かつ、それに対してアプリとして何かしらのアプローチをする要件があるならば、
+		排他制御エラーとしてアプリで一律の取扱いをする必要があります。
+	</p>
+	<div class="detailpage"><a href="../../behavior/select/selectentitywithdeletedcheck.html#nohit">Behavior - selectEntityWithDeletedCheck(cb) - 検索結果が存在しない場合</a></div>
+
+	<div class="inucolumn">
+		<h2 id="whyhandling">なぜ、DeletedCheck なのか？</h2>
+		<p>
+			条件やSQLの不備よりも、業務的なすれ違いか何かで削除されてしまった、という状況に(も)着目していることを忘れないで欲しいためです。
+			ずっと昔に(名前を)付けて、普及したためにもう変えられないという噂もあります。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

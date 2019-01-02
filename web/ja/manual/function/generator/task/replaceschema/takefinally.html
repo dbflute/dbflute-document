@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,最終チェック,TakeFinally,take-finally.sql,整合性チェック,テストデータチェック,PURGE RECYCLEBIN,マテリアライズドビュー,MATERIALIZED VIEW" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>最終チェック (TakeFinally) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>最終チェック (TakeFinally)</h1>
+	${indexlist}
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		DBFluteプロパティ databaseInfoMap.dfprop に定義されたスキーマに接続し、<em class="keyword">データ登録の処理が終わった後に</em>
+		仕様に合致するファイルに定義されているSQL文を実行し、最終チェックを行います。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+	<h3 id="executesql">SQLファイルの実行</h3>
+	<p>
+		以下の項目以外については、仕様は "テーブル作成" と同じ仕様です。
+	</p>
+	<dl class="textlist">
+		<dt>SQLファイル名の違い</dt>
+		<dd>SQLファイル名の始まりは "replace-schema" ではなく "take-finally" となります。</dd>
+		<dt>実行タイミングの違い</dt>
+		<dd>データ登録が終わった後に実行されます。</dd>
+		<dt>データの整合性チェック</dt>
+		<dd>実際に登録されたデータを検索して、不整合なデータが存在しないかのチェックができます。</dd>
+		<dt>その他違い</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>システムユーザでの実行機能なし</li>
+				<li>外部スクリプトを実行できる</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="./createtable.html">ReplaceSchema - テーブル作成</a></div>
+	<div class="relatedpage"><a href="#assert">this - データの整合性チェック</a></div>
+	<div class="relatedpage"><a href="#outsidescript">this - TakeFinallyで外部スクリプト</a></div>
+	<h3 id="afterloaddata">データ登録後に実行したいSQL</h3>
+	<p>
+		ここでの処理は、"登録されたデータのデータの整合性チェック"
+		がメインの目的ですが、その他にも以下のような "データ登録後に実行したいSQL"
+		にも利用できます。
+	</p>
+	<ul>
+		<li>SQL関数でパスワードを暗号化する(データファイル上はplainで定義しておいて)</li>
+		<li>Oracleで "purge recyclebin" を実行する</li>
+		<li>Oracleで "マテリアライズドビュー" を作成する</li>
+	</ul>
+
+	<h2 id="assert">データの整合性チェック</h2>
+	<p>
+		不整合なデータを検出する "select文" を定義して、検出された場合に処理が中断するようなチェックをすることができます。
+	</p>
+	<p>
+		ここでいう "不整合なデータ" とは、主には "どうしてもDBMSの制約(FKやUQなど)ではチェックできない業務的な制約を違反したデータ" のことを示します。
+	</p>
+	<h3 id="listzero">不整合なデータのリストを検出</h3>
+	<p>
+		select文に "-- #df:assertListZero#"
+		というSQLコメント(assertコメント)を定義すると、その検索が一件でも結果を持った場合にReplaceSchemaが中断され、検出されたデータがログに出力されます。"select句"
+		には、検出した場合に(人間が)データを特定できるためのカラムを列挙しておきます。
+	</p>
+<pre><span class="codetitle">e.g. 最終チェックのアサート @take-finally.sql</span><code>
+<span class="comment">-- #df:assertListZero#</span>
+<span class="comment">-- 退会会員が退会情報を持っていることをアサート</span>
+<span class="keyword">select</span> member.MEMBER_ID, member.MEMBER_NAME
+  <span class="keyword">from</span> MEMBER member
+ <span class="keyword">where</span> member.MEMBER_STATUS_CODE = <span class="literal">'WDL'</span>
+   <span class="keyword">and not exists</span> (<span class="keyword">select</span> withdrawal.MEMBER_ID
+                     <span class="keyword">from</span> MEMBER_WITHDRAWAL withdrawal
+                    <span class="keyword">where</span> withdrawal.MEMBER_ID = member.MEMBER_ID
+       )
+;
+
+<span class="comment">-- #df:assertListZero#</span>
+<span class="comment">-- 会員住所情報において、同じ会員で重複した期間がないことをアサート</span>
+<span class="keyword">select</span> adr.MEMBER_ADDRESS_ID, adr.MEMBER_ID
+     , adr.VALID_BEGIN_DATE, adr.VALID_END_DATE
+     , adr.ADDRESS
+  <span class="keyword">from</span> MEMBER_ADDRESS adr
+ <span class="keyword">where exists</span> (<span class="keyword">select</span> subadr.MEMBER_ADDRESS_ID
+                 <span class="keyword">from</span> MEMBER_ADDRESS subadr
+                <span class="keyword">where</span> subadr.MEMBER_ID = adr.MEMBER_ID
+                  <span class="keyword">and</span> subadr.VALID_BEGIN_DATE &gt; adr.VALID_BEGIN_DATE
+                  <span class="keyword">and</span> subadr.VALID_BEGIN_DATE &lt; adr.VALID_END_DATE
+       )
+;
+</code></pre>
+	<h3 id="countzero">不整合なデータのカウントを検出</h3>
+	<p>
+		また、"select count(*)文" では "-- #df:assertCountZero"
+		が利用できます。但し、この場合は検出時に不整合なデータのカウント(件数)しかわからないので、通常は
+		"assertListZero" の方がお奨めです。
+	</p>
+<pre><span class="codetitle">e.g. 正式会員なのに正式会員日時がないデータをチェック @take-finally.sql</span><code>
+<span class="comment">-- #df:assertCountZero#</span>
+<span class="keyword">select</span> count(*)
+  <span class="keyword">from</span> MEMBER
+ <span class="keyword">where</span> MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+   <span class="keyword">and</span> FORMALIZED_DATETIME <span class="keyword">is null</span>
+</code></pre>
+	<h3>存在するべきデータのチェック</h3>
+	<p>
+		不整合なデータを検出するでなく、"こういったデータが存在すること" というチェックもできます。
+		定義するSQLコメントの "Zero" の部分を "Exists" に変更することでそのような挙動になります("List"と "Count" 両方サポート)。
+	</p>
+<pre><span class="codetitle">e.g. 会員ステータスは一件以上あることをチェック @take-finally.sql</span><code>
+<span class="comment">-- #df:assertListExists#</span>
+<span class="keyword">select</span> *
+  <span class="keyword">from</span> MEMBER_STATUS
+</code></pre>
+<pre><span class="codetitle">e.g. 会員ステータスは一件以上あることをチェック @take-finally.sql</span><code>
+<span class="comment">-- #df:assertCountExists#</span>
+<span class="keyword">select</span> count(*)
+  <span class="keyword">from</span> MEMBER_STATUS
+</code></pre>
+	<p>
+		この場合は、エラー発生時の情報として "Count" と "List"
+		で特に差はありませんので、SQLを書く上で都合の良い方を選びます。
+	</p>
+
+	<h2 id="testpattern">テストパターンのチェック</h2>
+	<p>
+		データの整合性チェックは、"業務的な整合性チェック" だけでなく、"テストパターンのチェック"
+		にも利用できます。例えば、"結合テスト環境(の初期状態)において、正式会員が一人もいないのはNG"
+		という場合に、"結合テスト環境のみでチェック" という指定が可能です。
+	</p>
+	<h3 id="peronesql">SQL一つ一つごとの切り替え</h3>
+	<p>
+		"assertListExists" の後ろに "@[repsEnvType]" を付与すると("Count" や "Zero" でも利用可能)、実行時の "repsEnvType"
+		と一致するときだけチェックされるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#repsenvtype">dfprop - repsEnvType</a></div>
+<pre><span class="codetitle">e.g. 正式会員が一人もいないのはNG(結合テスト環境："it") @take-finally.sql</span><code>
+<span class="comment">-- #df:assertListExists@it#</span>
+<span class="keyword">select</span> *
+  <span class="keyword">from</span> MEMBER
+ <span class="keyword">where</span> MEMBER_STATUS_CODE = 'FML'
+</code></pre>
+	<p>
+		また、複数指定することで、環境によってチェックの仕方を切り替えることも可能です。
+	</p>
+<pre><span class="codetitle">e.g. 会員はUT環境では存在して、本番環境(の初期状態)では一人もいないこと(本番環境："real") @take-finally.sql</span><code>
+<span class="comment">-- #df:assertCountExists@ut#</span>
+<span class="comment">-- #df:assertCountZero@real#</span>
+<span class="keyword">select</span> count(*) <span class="keyword">from</span> MEMBER member
+</code></pre>
+	<p>
+		この切り替え機能は、特に "テストパターンのチェック"
+		に特化しているわけではなく、業務的な制約のチェックにも利用出来ますが、利用ケースとして考えたときに、"テストパターンのチェック"
+		専用の機能と言っても過言ではありません。(業務的な制約のチェックは、基本的にどの環境でも共通な制約であると考えられるため)
+	</p>
+	<p>
+		また、"テストパターンのチェック" を行う場合は、必ずこの "repsEnvType"
+		を指定することをお奨めします。最初はUT環境だけで利用していても、後から結合環境でも利用するということはよくあるため、
+		少なくとも "UT環境のみ" における "テストパターンのチェック" かどうかは意識して定義することをお奨めします。
+	</p>
+	<h3 id="persqlfile">SQLファイルごとの切り替え</h3>
+	<p>
+		"環境ごとの実行チェック" 機能を使ってSQLファイルごとに切り替えることもできます。
+	</p>
+	<div class="detailpage"><a href="./createtable.html#repsenvtype">環境ごとの実行チェック</a></div>
+
+	<h2 id="twocheck">二種類のチェックを明確に</h2>
+	<p>
+		"業務的な整合性チェック" と "テストパターンのチェック"
+		のSQLが一つのファイルの中でごっちゃにならないようにすることをお奨めします。
+		例えば、SQLコメントで定義する位置を統一するとか、それぞれ専用のファイルに分けて管理するとか、工夫次第で簡単に明確に管理できます。
+		また、そうすることで、SQLを定義する人が "どっちのチェックを書いているのか" を明確にすることができます。
+		(但し、グレーゾーンが存在することもあるので、一概に明確にできないものもありますので、臨機にファイルを分けて管理するようにして下さい)
+	</p>
+<pre><span class="codetitle">e.g. 二種類のチェックをファイルを分けて管理 @playsql</span><code>
+playsql
+ |-take-finally-10-basic.sql   <span class="comment">// チェック以外のSQL</span> 
+ |-take-finally-20-constraint.sql   <span class="comment">// 業務的な整合性チェック</span> 
+ |-take-finally-30-testpattern.sql  <span class="comment">// テストパターンのチェック</span>
+ |-take-finally-40-othercheck.sql   <span class="comment">// グレーゾーンなチェック</span> 
+</code></pre>
+	<p>
+		また、実際の開発運用として、両方しっかり定義するのか、片方だけに集中するのかを明確にするのも大事です。例えば、"業務的な整合性チェック"
+		だけを定義するなら、そのことをSQLを定義する人(できれば、プロジェクトに関わる全ての人に)にしっかり周知しておくことをお奨めします。
+	</p>
+
+	<div class="inucolumn">
+		<h2>テストデータの品質向上</h2>
+		<p>
+			DBMSによる制約チェックには限度があります。どうしても業務的な制約(人間しか知らない)が発生してしまいがちです。
+			そして、ディベロッパーは開発時にデバッグ作業に追われるのが常ですが、その多くの原因が "不正なテストデータ"
+			であることも珍しくありません。また、多くのディベロッパーが "プログラムが悪いのかデータが悪いのか"
+			の切り分けに多くの時間を割いてしまいます。そして、これらは予期せぬ膨張工数として、
+			マネジメントする側としてもかなりやっかいな工数となります(最初からわかっている工数なら幾らでも調整のしようがありますが...)。
+		</p>
+		<p>
+			ReplaceSchemaでテストデータを管理し、そして、この整合性チェックSQLを整備すればするほど、そのリスクは減ります。
+			データを登録する時点でそういった "予期せぬ工数を生み出しかねない不整合なデータ" を除去しようという発想です。
+			テストデータの品質を向上させ、ディベロッパーが余計な切り分け作業に時間を割くようなことがないようにします。
+		</p>
+		<p>
+			もちろん、書き過ぎるとチェックSQLの管理が膨大になってしまうので、
+			特徴的で間違いやすく重要なものだけをチョイスしてチェックしていくのが現実的でしょう。
+			業務的one-to-oneは構造として非常に特徴的であるため不正なデータが入るとデバッグ等で面倒なことが多く想定されるため、必ずチェックしたいところです。
+		</p>
+	</div>
+
+	<h2 id="outsidescript">TakeFinallyで外部スクリプト</h2>
+	<p>
+		TakeFinally において、SQLの実行だけでなく外部スクリプトを実行することができます。
+		大量データ登録など、DBMSのコマンドを利用して特殊な操作をすることもあるでしょう。
+		そういう場合のために、外部スクリプトが実行できるようになっています。<span class="frm">@since 1.1.7</span>
+	</p>
+	<p>
+		TakeFinally のSQLファイルと同じディレクトリに、take-finally で始まる拡張子が .bat もしくは .sh
+		のスクリプトファイルを配置します。SQLファイルも含めてファイル名の昇順で実行されます。
+	</p>
+<pre><span class="codetitle">e.g. TakeFinally の外部スクリプトの配置 @playsql</span><code>
+dbflute_maihamadb
+ |-playsql
+    |-take-finally-10-sea.sql
+    |-take-finally-20-land.sql
+    |-<span class="point">take-finally-30-piari.sh</span>
+</code></pre>
+	<p>
+		スクリプトの exitCode が 0 以外の場合は、スクリプト実行エラーとみなされます。
+	</p>
+	<p>
+		スクリプトのコンソールログは、固定で UTF-8
+		として取得され、DBFluteタスクのログと一緒に出力されます。なので場合によっては、ログが文字化けする可能性はありますが、処理に影響はありません。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

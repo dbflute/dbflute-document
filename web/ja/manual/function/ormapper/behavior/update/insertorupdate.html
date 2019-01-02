@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,insertOrUpdate" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>insertOrUpdate(entity) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>insertOrUpdate(entity)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		Entityをもとに <em class="keyword">あれば排他制御ありの更新、なければ登録</em> をします。
+	</p>
+	<p>
+		排他制御ありの更新には update()、登録には insert() を利用しています。
+	</p>
+	<div class="relatedpage"><a href="./update.html">update(entity)</a></div>
+	<div class="relatedpage"><a href="./insert.html">insert(entity)</a></div>
+	<p>
+		このメソッドは、登録と更新でよくある利用を定型化して簡易に利用できるようにしたものであり、このメソッドでなければ実現できないこと、というものはありません。
+	</p>
+	<p>
+		会話上では、<em class="keyword">いんさーとおああっぷでーと</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">insertOrUpdate()</em>
+		を呼び出し、Entityを指定します。
+	</p>
+<pre><span class="codetitle">e.g. insertOrUpdate()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.inOrU <span class="comment">// .inOrU と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.<span class="point">insertOrUpdate</span>(member);
+</code></pre>
+	<p>
+		Entity に設定されている PK に該当するレコードがDBにあれば更新、なければ登録します。PKが自動採番のとき、Entity
+		に設定されている PK が null なら問答無用で登録します。
+	</p>
+	<h3 id="uniqueby">ユニークキーで更新 <span class="frm">@since 1.0.5G</span></h3>
+	<p>
+		主キーではなく、ユニーク制約のキーで更新することもできます。
+	</p>
+	<p>
+		プログラム上でユニークキーだけを持っていて、そのレコードがDBに存在するかどうかわからない場合に、レコード存在確認のためだけの事前検索を省くことができます。
+		<span class="frm">(こういったケースはわりと多いと想定されます)</span>
+	</p>
+<pre><span class="codetitle">e.g. ユニークキーである会員アカウントで更新 {MEMBER} @Java</span><code>
+<span class="comment">// PK取得のためだけの無駄な事前検索は不要</span>
+<span class="comment">//Member member = memberBhv.selectEntityWithDeletedCheck(cb);</span>
+Member member = <span class="keyword">new</span> Member();
+member.<span class="point">uniqueBy</span>(memberAccount); <span class="comment">// ユニークキー (複合キーなら引数が増える)</span>
+member.setMemberName(<span class="literal">"Stojkovic"</span>); <span class="comment">// 業務的な更新値の設定</span>
+<span class="attribute">memberBhv</span>.insertOrUpdate(member);
+</code></pre>
+	<p>
+		Entity に設定されている (明示的に指定された) ユニークキーがDBにあれば更新、なければ登録します。この場合、ユニークキーの値は必須です。
+	</p>
+	<p>
+		細かい仕様は、update()と同じです。
+	</p>
+	<div class="relatedpage"><a href="./update.html#uniqueby">update() - ユニークキーで更新</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのEntityとなります。
+	</p>
+	<p>
+		nullを指定した場合は例外発生します。
+		また、更新においてはPKカラムの値と(排他制御が有効の場合に)排他制御カラムの値の指定が必須です(指定なしは例外)。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		void です。
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>更新結果が複数件の場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityDuplicatedException</dd>
+		<dd>予期せぬレコードを更新してしまっている可能性があるため、ロールバックが求められます。</dd>
+		<dt>すれ違いがあった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyUpdatedException</dd>
+		<dd>
+			この例外は、排他制御対象の場合のみ発生します。
+			<div class="relatedpage"><a href="#exclusive">this - 排他制御の自動化</a></div>
+		</dd>
+		<dt>一意制約違反があった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyExistsException</dd>
+		<dd>
+			DBFluteで正式サポートしていない DBMS では、別の例外(SQLFailureException)の可能性があります。
+			<div class="relatedpage"><a href="../../../../../environment/supported.html#database">DBFluteのサポート情報 - データベース</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="nopkinsert">主キー値がなければ登録</h2>
+	<p>
+		指定された Entity に主キー値がなければ問答無用で登録と判断して insert() を実行します。
+	</p>
+	<div></div>
+	<div class="relatedpage"><a href="./insert.html">insert(entity)</a></div>
+
+	<h2 id="updatefirst">まずは更新、失敗なら登録</h2>
+	<p>
+		指定された Entity に主キー値が存在する場合、まずは update()
+		を実行します。その結果、(すれ違いでもなく)指定された主キーに対応するレコードが存在しないと判断された場合に insert()
+		を実行します。(登録処理の前にカウント検索が実行されます)
+	</p>
+	<div class="relatedpage"><a href="./update.html">update(entity)</a></div>
+	<div class="relatedpage"><a href="./insert.html">insert(entity)</a></div>
+	<p>
+		ゆえに、大量のデータを扱う場合、更新が多い方がパフォーマンス的には優位です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

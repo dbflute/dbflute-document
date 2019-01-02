@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ひとめ,hitome" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>ひとめでDBFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ひとめでDBFlute</h1>
+	<p>
+		ひとめでパッとDBFluteを探るまとめページです。<span class="frm">(ここからリンクが辿れます)</span>
+	</p>
+	${indexlist}
+
+	<h2 id="entrypage">入り口ページ</h2>
+	<h3 id="tutorial">チュートリアル <span class="frm">(とにかくここから)</span></h3>
+	<dl class="valuemainlist">
+		<dt>アーキテクト向け</dt><dd><a href="./architect.html">アーキテクトのためのチュートリアル</a></dd>
+		<dt>ディベロッパー向け</dt><dd><a href="./developer.html">ディベロッパーのためのチュートリアル</a></dd>
+	</dl>
+	<h3 id="handson">DBFluteハンズオン <span class="frm">(厳しい修行)</span></h3>
+	<dl class="valuemainlist">
+		<dt>ハンズオン形式で修行</dt><dd><a href="./handson/index.html">DBFluteハンズオン</a></dd>
+	</dl>
+
+	<h2 id="dbflutetask">DBFluteタスク</h3>
+	<h3 id="tasklist">DBFluteタスクの一覧</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/generator/task/jdbc/index.html">JDBCタスク</a></dt><dd>実際のデータベースからスキーマ情報を取得</dd>
+		<dt><a href="../manual/function/generator/task/doc/index.html">Docタスク</a></dt><dd>スキーマ情報からドキュメントを自動生成</dd>
+		<dt><a href="../manual/function/generator/task/generate/index.html">Generateタスク</a></dt><dd>スキーマ情報からクラスを自動生成</dd>
+		<dt><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entityタスク</a></dt><dd>外だしSQL(OutsideSql)からクラスを自動生成</dd>
+		<dt><a href="../manual/function/generator/task/outsidesqltest/index.html">OutsideSqlTestタスク</a></dt><dd>外だしSQL(OutsideSql)を一括実行してテスト</dd>
+		<dt><a href="../manual/function/generator/task/replaceschema/index.html">ReplaceSchemaタスク</a></dt><dd>スキーマを再構築(初期化・作成・データ登録・整合性チェック)</dd>
+		<dt><a href="../manual/function/generator/task/manage/index.html">Manageタスク</a></dt><dd>管理用のサブタスク (Renewal, Regenerate など) を実行できる</dd>
+	</dl>
+<pre><span class="codetitle">e.g. Sql2Entityの実行ファイル (バッチファイル) @Directory</span><code>
+dbflute_xxxdb <span class="comment">// ここをDBFluteクライアントと呼びます</span>
+ |-dfprop     <span class="comment">// DBFluteプロパティの置き場所 (設定ファイルたち)</span>
+ |-log
+ |-<span class="abbreviation">...</span>
+ |-playsql    <span class="comment">// ReplaceSchemaのリソースの置き場</span>
+ |-<span class="abbreviation">...</span>
+ |-<span class="point">sql2entity.bat</span>
+ |-<span class="point">sql2entity.sh</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="tasktiming">DBFluteタスク実行タイミング</h3>
+	<dl class="shortvaluemainlist">
+		<dt>ドキュメント自動生成なら</dt><dd>JDBC, Doc</dd>
+		<dt>Entityクラス自動生成なら</dt><dd>JDBC, Generate</dd>
+		<dt>外だしSQLのクラス自動生成なら</dt><dd>Sql2Entity</dd>
+		<dt>DBスキーマを構築するなら</dt><dd>ReplaceSchema</dd>
+		<dt>いろいろ一括実行するなら</dt><dd>Manage の Renewal or Regenerate</dd>
+	</dl>
+
+	<h2 id="conditionbean">ConditionBean</h2>
+	<h3 id="cbinfo">ConditionBeanの情報ページ</h3>
+	<dl class="valuemainlist">
+		<dt>トップページ</dt><dd><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> <span class="frm">*ここがすべて</span></dd>
+		<dt>ひとめで</dt><dd><a href="../manual/function/ormapper/conditionbean/hitomecb.html">ひとめでConditionBean</a> <span class="frm">*お手軽リファレンス</span></dd>
+	</dl>
+	<h3 id="cbexample">ConditionBeanの実装Example</h3>
+<pre><span class="codetitle">e.g. 基点テーブルは "会員" @Java</span><code>
+
+<span class="comment">// 1. 基点テーブルのConditionBeanを生成 (基点テーブル何か？)</span>
+<span class="comment">//  {select句, from句}</span>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+
+<span class="comment">// 2. 取得したい関連テーブルを指定 (取得したい関連テーブルは何か？)</span>
+<span class="comment">//  {select句, join句}</span>
+cb.setupSelect_MemberStatus();
+
+<span class="comment">// 3. 絞り込み条件・並び替え条件を設定 (どんな絞り込み、並び替えをしたいか？)</span>
+<span class="comment">//  {where句, order-by句, (from句, on句)}</span>
+cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+cb.query().addOrderBy_Birthdate_Desc();
+cb.query().addOrderBy_MemberId_Asc();
+
+<span class="comment">// 4. Behaviorのメソッドを呼ぶ (一件検索なのか？リスト検索なのか？)</span>
+<span class="comment">//  {一件検索？リスト検索？ページング検索？}</span>
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+<span class="comment">// あとは、検索結果をお好きなように</span>
+<span class="keyword">for</span> (Member member : memberList) {
+    String memberName = member.getMemberName();
+    Date birthdate = member.getBirthdate();
+    String statusName = member.getMemberStatus().getMemberStatusName();
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="outsidesql">外だしSQL (OutsideSql)</h2>
+	<h3 id="outsideinfo">外だしSQLの情報ページ</h3>
+	<dl class="shortvaluemainlist">
+		<dt>トップページ</dt><dd><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL(OutsideSql)</a> <span class="frm">*2Way-SQL</span></dd>
+		<dt>使い方</dt><dd><a href="../manual/function/ormapper/outsidesql/howto.html">外だしSQLの使い方</a> <span class="frm">*とにかく実装したいなら</span></dd>
+		<dt>外だしで使うタスク</dt><dd><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entityタスク</a> <span class="frm">*SQL対応Entityの自動生成</span></dd>
+	</dl>
+	<h3 id="osqlflow">外だしSQLの実装の流れ</h3>
+	<ol>
+		<li>
+			外だしSQLを <em class="keyword"><a href="../manual/function/ormapper/outsidesql/about.html#pmcomment">パラメータコメント</a></em> を使って
+			<em class="keyword"><a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2Way-SQL</a></em> で書く
+		</li>
+		<li>
+			<em class="keyword"><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entity</a></em> を実行して
+			<em class="keyword"><a href="../manual/function/generator/task/sql2entity/customizeentity.html">CustomizeEntity</a></em> と
+			<em class="keyword"><a href="../manual/function/generator/task/sql2entity/parameterbean.html">ParameterBean</a></em> を自動生成
+		</li>
+		<li>Behaviorの outsideSql() メソッドから実行</li>
+	</ol>
+	<h3 id="osqlexample">外だしSQLの実装Example <span class="frm">(2Way-SQL)</span></h3>
+<pre><span class="codetitle">e.g. 2Way-SQLでの実装 (CustomizeEntity と ParameterBean を利用) @OutsideSql</span><code>
+<span class="comment">/*</span>
+ <span class="comment">[df:title]</span>
+ <span class="comment">単なるシンプルな会員検索</span>
+ 
+ <span class="comment">[df:description]</span>
+ <span class="comment">これはDBFluteドキュメント上のExampleであり、</span>
+ <span class="comment">正直、このくらいなら ConditionBean で実装してしまうだろう。</span>
+<span class="comment">*/</span>
+<span class="comment">-- #df:entity#</span>
+
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> mb.MEMBER_ID
+     , mb.MEMBER_NAME
+     , stat.MEMBER_STATUS_NAME
+  <span class="keyword">from</span> MEMBER mb
+    <span class="keyword">left outer join</span> MEMBER_STATUS stat
+      <span class="keyword">on</span> mb.MEMBER_STATUS_CODE = stat.MEMBER_STATUS_CODE
+ <span class="comment">/*BEGIN*/</span>
+ <span class="keyword">where</span>
+   <span class="comment">/*IF pmb.memberId != null*/</span>
+   mb.MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="comment">/*END*/</span>
+   <span class="comment">/*IF pmb.memberName != null*/</span>
+   <span class="keyword">and</span> mb.MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'M%'</span>
+   <span class="comment">/*END*/</span>
+ <span class="comment">/*END*/</span>
+ <span class="keyword">order by</span> mb.BIRTHDATE <span class="keyword">desc</span>, mb.MEMBER_ID <span class="keyword">asc</span>
+</code></pre>
+	<dl class="shortkeymainlist">
+		<dt>#df:entity#</dt><dd>SQL対応のEntityを自動生成するというマーク</dd>
+		<dt>!df:pmb!</dt><dd>SQLに渡すパラメーターを詰めるBeanを自動生成するというマーク</dd>
+		<dt>!!AutoDetect!!</dt>SQLに渡すパラメーターのプロパティを自動判別するというマーク</dd>
+	</dl>
+	<h3 id="osqlcall">外だしSQLの呼び出し <span class="frm">(Javaから)</span></h3>
+<pre><span class="codetitle">e.g. リスト検索 (TypedParameterBean) {名前が 'S' で始まる会員を検索｝@Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().selectList(pmb);
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

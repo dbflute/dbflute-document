@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/lasub.css";</style>
+	<title>LastaFluteで非同期処理 (Async) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteで非同期処理 (Async)</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="network">外部通信などは非同期で</h2>
+	<h3 id="noreturnsad">戻ってこないと悲しい</h3>
+	<p>
+		メール送信など外部通信が入る処理は、あまり画面のスレッドで実行するのではなく、別のスレッドに投げて画面のレスポンスはすぐに戻してあげたいと思うことがたくさんがあります。
+	</p>
+	<p>
+		外部通信は、物理的な要因で突如遅くなったり戻ってこなかったりする可能性があります。
+		そのとき、画面を待っているユーザーにとってはあまりよいことではありませんし、
+		場合によってはトランザクション貼ったDBのコネクションを保持したままのケースもあるでしょう。
+		リクエスト数が多くなって負荷がかかって、そういったスレッドがたくさん発生すると、DBのコネクションが枯渇してサイトにアクセスできなくなる可能性があります。
+	</p>
+	<p>
+		それを回避するために、外部通信の処理は非同期で実行したいと考えることがあります。
+	</p>
+	<h3 id="asyncerrorok">async側のエラーを許容できる？</h3>
+	<p>
+		ただし、同期でなくなるということは、外部通信の処理でエラーが発生しても呼び出し元のスレッドはそれを検知することができないので、
+		非同期側のエラー処理はしっかりトレースしやすい形にしておく必要がありますし、それが許容されるケースに限ります。
+	</p>
+
+	<h2 id="howto">実装の仕方</h2>
+	<h3 id="callbackasync">async()のコールバックが非同期</h3>
+	<p>
+		AsyncManager の async() メソッドの引数で指定したコールバックが非同期になります。
+	</p>
+<pre><span class="codetitle">e.g. Actionクラスで AsyncManager を DI して async() で非同期処理 @Java</span><code>
+@Resource
+<span class="keyword">private</span> AsyncManager <span class="attribute">asyncManager</span>;
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index() {
+    <span class="attribute">asyncManager</span>.<span class="point">async</span>(() -&gt; {
+        <span class="comment">// ここが非同期 (メール送信とか)</span>
+    });
+    <span class="comment">// 呼び出しスレッドは先に進む</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="transactionasyc">非同期処理でトランザクションは？</h3>
+	<p>
+		もし、非同期処理で新たにトランザクションを発行したいときは、TransactionStage の requiresNew() を
+		async() の中で使います。
+	</p>
+<pre><span class="codetitle">e.g. 非同期処理でトランザクション @Java</span><code>
+@Resource
+<span class="keyword">private</span> AsyncManager <span class="attribute">asyncManager</span>;
+
+@Resource
+<span class="keyword">private</span> TransactionStage <span class="attribute">transactionStage</span>;
+
+@Execute(<span class="abbreviation">...</span>)
+<span class="keyword">public void</span> index() {
+    <span class="attribute">asyncManager</span>.<span class="subpoint">async</span>(() -&gt; {
+        <span class="attribute">transactionStage</span>.<span class="point">requiresNew</span>(tx -&gt; {
+            <span class="comment">// 更新処理とか</span>
+        });
+    });
+}
+</code></pre>
+	<p>
+		非同期処理の最初はトランザクションかかってないので required() でも同じですが、required() だと "あれっ、外側の引き継いでるのかな？...ん？" と迷いやすいので、このケースでは迷いのない requiresNew() をオススメしています。
+	</p>
+
+	<h2 id="inheritable">もろもろ引き継ぎ</h2>
+	<h3 id="threadcache">スレッドキャッシュを引き継ぎ</h3>
+	<p>
+		あまり知られていない機能ですが(積極的に使うものでもない)、LastaFluteが提供するスレッドキャッシュが非同期スレッドにも引き継がれます。
+		Mapの内容がまるごとコピーされると考えていいです。
+	</p>
+	<h3 id="accesscontext">AccessContextを引き継ぎ</h3>
+	<p>
+		非同期処理でDBに検索したり更新したりすることもあるでしょう。
+		DBFlute の AccessContext が引き継がれるので、トランザクションさえ発行すれば更新処理が可能です。
+	</p>
+	<p>
+		ただ、AccessContext がコールバック形式の Provider として設定されている場合 (LastaFluteのデフォルトではそうなっている) は、Provider
+		自体が引き継がれるのではなく、async呼び出し時点の Provider の provideXxx() の戻り値が固定的にコピーされます。
+		Provider を複数スレッドで共有すると、そのコールバックがスレッドセーフになっていないとおかしなことになる可能性があるので、そのようにしています。
+		Provider形式だとしても、呼ばれるたびに違う値が戻ってくるような作り方をすることはまずないと考えられ、かつ、
+		共通カラムのトレース値なのでそれが問題になることがないという割り切りです。
+	</p>
+	<h3 id="callbackcontext">CallbackContextは選択式</h3>
+	<p>
+		CallbackContextは、デフォルトでは引き継がず選択式になっています。
+	</p>
+	<p>
+		async()の引数の FunctionInterface のデフォルトメソッドで、何を引き継ぐかをoptionで指定できます。
+		例えば、BehaviorCommandHook を引き継ぎたいときは、ConcurrentAsyncOption#inheritBehaviorCommandHook()を指定します。
+	</p>
+<pre><span class="codetitle">e.g. 非同期処理でBehaviorCommandHookを引き継ぐ @Java</span><code>
+<span class="attribute">asyncManager</span>.async(<span class="keyword">new</span> ConcurrentAsyncCall() {
+    <span class="keyword">public void</span> callback() { <span class="comment">// この場合、Lambdaは使えない</span>
+        sea();
+    }
+
+    @Override
+    <span class="keyword">public</span> ConcurrentAsyncOption <span class="subpoint">option()</span> {
+        <span class="keyword">return new</span> ConcurrentAsyncOption().<span class="point">inheritBehaviorCommandHook()</span>;
+    }
+});
+</code></pre>
+	<p>
+		ただ、SqlStringFilterに関しては、何も指定しなくても非同期処理としてデフォルトの filter
+		が登録されます。それにより、async側のSQLでも、呼び出し側のActionクラスなどの情報が埋め込まれます。
+	</p>
+	<p>
+		CallbackContextをデフォルトで引き継いでいないのは、コールバックの実装がスレッドセーフになっているかどうかが不明だからです。
+		そこはアプリに判断してもらう必要があるということで選択式になっていますし、CallbackContextの処理は非同期では不要であるケースもありえると考えました。
+		<span class="frm">(SQLの呼び出し情報だけは欲しいので、デフォルトの実装をいれている)</span>
+	</p>
+
+	<h2 id="threadpool">スレッドはプールされている</h2>
+	<p>
+		非同期処理のためのスレッドは、TomcatやJettyとは別のスレッドプールで管理されています。
+	</p>
+	<h3 id="defaultpool">デフォルトでは、2+10スレッド</h3>
+	<p>
+		デフォルトでは、最大12スレッド <span class="frm">(Primary と Secondary の両方使うなら22スレッド、詳しくは後述)</span> が同時に存在する可能性があります。
+		そのうちの2スレッドは、非同期スレッドの待機用のスレッドで、残りの10スレッドが実際に非同期処理を実行するスレッドです。
+	</p>
+	<p>
+		まったく非同期処理のリクエストがない場合は、10スレッドは破棄されます。
+		一方で待機用の2スレッドは、固定で存続します。ただし、アプリ起動時点から一度も非同期処理のリクエストがなければ、待機スレッドも作成されません。
+		つまり、待機スレッドは初めてのリクエストのときに初期化されるようになっています。
+	</p>
+	<h3 id="waitingpool">スレッド待ちでも呼び出し側は待たない</h3>
+	<p>
+		リクエスト数が多くスレッドが足りない状態でさらにリクエストが来た場合、別の非同期処理が使っているスレッドの戻りを待つことになりますが、
+		ただ、async()を呼び出したスレッドは待ちません。待機スレッドが代わりにスレッドの戻りを待ちます。
+		<span class="frm">(待機スレッド自体のスレッドプールの Queue の)</span>
+	</p>
+	<h3 id="primary">Primary, Secondary選べる</h3>
+	<p>
+		非同期処理用のスレッドプールは二つ用意されており、デフォルトではすべて Secondary
+		のスレッドプールで実行されます。業務上優先度の高いものがあれば、Primaryのスレッドプールを使うことができます。
+	</p>
+	<p>
+		ConcurrentAsyncOption#asPrimary()でtrueを戻すと、Primaryでの実行になります。
+	</p>
+<pre><span class="codetitle">e.g. 非同期処理をPrimaryのスレッドで実行 @Java</span><code>
+<span class="attribute">asyncManager</span>.async(<span class="keyword">new</span> ConcurrentAsyncCall() {
+    <span class="keyword">public void</span> callback() { <span class="comment">// この場合、Lambdaは使えない</span>
+        sea();
+    }
+
+    @Override
+    <span class="keyword">public boolean</span> <span class="subpoint">asPrimary()</span> {
+        <span class="keyword">return</span> <span class="point">true</span>;
+    }
+});
+</code></pre>
+	<p>
+		例えば、業務上の優先度が低いリクエストがスレッドをすべて占有していると、すぐに実行したい優先度の高いリクエストが待つことになります。
+		そこで、優先度の高いリクエストであることがあらかじめわかっているのであれば、Primaryのスレッドプールを使うようにすることで、スレッド待ちのリスクを減らすことができます。
+		ただ、スレッドを割り当てた後、PrimaryのスレッドがSecondaryのスレッドよりも先に実行されるとは限りません。
+		割り込み機能は実装されていません。<span class="frm">(将来的な拡張の余地はあり)</span>
+	</p>
+
+	<h2 id="powerfullog">相変わらずログが気合い入ってる</h2>
+	<p>
+		非同期処理でもログは頑張っています。
+	</p>
+	<h3 id="errorlog">非同期でエラーが発生したら？</h3>
+	<p>
+		非同期処理の中で例外が発生したときに、スレッドの <em class="mark">業務的な状態</em>
+		がスタックトレースと共にエラーログとして記録されるようにしています。
+	</p>
+<pre><span class="codetitle">e.g. asyncの中で例外が発生したときのログ @Log</span><code>
+<span class="abbreviation">...</span> ERROR <span class="abbreviation">...</span> - Failed to callback the asynchronous process.
+/= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =: /login/
+  callbackInterface=<span class="abbreviation">...</span>logic.<span class="point">SeaLogic$$Lambda$11/1919928341@3daeb6a1</span>
+  ; requestPath=<span class="point">/login/</span>
+  ; entryMethod=<span class="abbreviation">...</span>web.login.<span class="point">SigninAction#index()</span>
+  ; userBean={userId=1, sync=2018/03/27 19:26:38}@144e2f8b
+  ; accessContext=AccessContext:{localDateTimeProvider=org.docksidestage.app.base.MaihamaBaseAction$1$$Lambda$4/2105624763@3b76c7e6, user=M:-1,DCK,SigninAction}
+  ; callbackContext=CallbackContext:{behaviorCommandHook=null, sqlFireHook=null, sqlLogHandler=null, sqlResultHandler=null, sqlStringFilter=org.dbflute.bhv.proposal.callback.SimpleTraceableSqlStringFilter@1d1c4db}
+  ; sqlCount={total=3, selectCB=3, entityUpdate=0, queryUpdate=0, outsideSql=0, procedure=0}
+= = = = = = = = = =/ [00m3s385ms] #2caaa834
+java.lang.<span class="subpoint">IllegalStateException: sealand</span>
+	at org.dbflute.maihama.<span class="abbreviation">...</span>(<span class="abbreviation">...</span>java:98)
+	at org.dbflute.maihama.<span class="abbreviation">...</span>(<span class="abbreviation">...</span>java:432)
+	at org.dbflute.maihama.<span class="abbreviation">...</span>(<span class="abbreviation">...</span>java:24)
+<span class="abbreviation">...</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>async()を呼び出したリクエストのURL</li>
+		<li>async()を呼び出したリクエストのActionクラスとメソッド</li>
+		<li>そのときのログインユーザー</li>
+		<li>フレームワークの ThreadLocal の状態</li>
+		<li>その非同期処理の中での、SQLの発行回数</li>
+		<li>その非同期処理の中での、メールの送信回数</li>
+		<li>その非同期処理が始まってから落ちるまでの処理時間</li>
+	</ul>
+	<h3 id="hashtag">非同期を示すハッシュタグ</h3>
+	<p>
+		非同期処理の開始と終了のデバッグログで、#async でログがでるようになっています。
+	</p>
+	<div class="relatedpage"><a href="./friendlylogging.html#actionflowlog">ActionやJSPなどを一発で探せるように</a></div>
+<pre><span class="codetitle">e.g. asyncの呼び出しログのハッシュタグ @Log</span><code>
+#flow <span class="point">#async</span> ...Running asynchronous call as secondary@221a3fa4
+<span class="abbreviation">...</span>
+<span class="comment">(非同期の処理が実行される)</span>
+<span class="abbreviation">...</span>
+#flow <span class="point">#async</span> ...Finishing asynchronous call as secondary@221a3fa4: 00m03s056ms
+</code></pre>
+	<p>
+		as secondaryであれば、Secondaryのスレッドプールを利用しての実行となります。そのときのスレッドプールのハッシュ値も表示されます。
+		これは、アプリ起動時に初期化されるスレッドプールのハッシュ値とリンクしています。
+	</p>
+	<p>
+		終わったとき、その非同期処理がどのくらいの時間かかったのかも表示されます。
+	</p>
+	<h3 id="calllersqllog">SQLの中に呼び出しActionの情報</h3>
+	<p>
+		非同期処理で発行したSQLにも、async()を呼び出したリクエストに対応するActionクラスが組み込まれます。
+		加えて、その async() のコールバックのクラスも表示されます。
+	</p>
+	<div class="relatedpage"><a href="./friendlylogging.html#calllersqllog">SQLに呼び出しActionを埋め込み</a></div>
+	<p>
+		例えば、以下は、SigninActionのindex()メソッドがリクエストされて、そこから AbcLogic
+		を経由して async() が呼び出され、その非同期処理で検索されたことがわかります。
+	</p>
+<pre><span class="codetitle">e.g. asyncの呼び出しログのハッシュタグ @Log</span><code>
+select dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as <span class="abbreviation">...</span>
+  from MEMBER dfloc
+ where dfloc.MEMBER_ID = 3
+<span class="point">-- ...login.SigninAction#index(): (via SeaLogic$$Lambda$26/1161854698)</span>
+</code></pre>
+
+	<h2 id="assistantdirector">AssistantDirectorで拡張</h2>
+	<p>
+		もろもろの設定を、AssistantDirectorで拡張できます。
+	</p>
+	<p>
+		FwCoreDirection#directAsync()にて、CallbackContextの引き継ぎ設定や、スレッドプールのサイズを指定することができます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

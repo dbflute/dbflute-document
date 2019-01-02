@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,DBアクセス,ページング検索,PagingSelect,ページングの基本,ページングとは" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBアクセス - ページング検索 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>そもそもページング検索とは？</h1>
+	${indexlist}
+
+	<h2 id="about">ページング検索とは？</h2>
+	<p>
+		主に、検索画面などで、条件に合致する全部のデータを表示すると、大量件数になり過ぎてメモリ不足になる、もしくは、
+		そもそも人がとても見づらい画面になってしまう、ということから "1 ページに付き 20 件だけ表示"
+		というように一度に表示する件数を絞り込むやり方があり、それに合わせた検索の方式をページング検索と呼びます(少なくともDBFluteではそう呼びます)。
+	</p>
+	<p>
+		画面上では、何ページ目のデータを表示するのかをユーザに指定させるための、ページングナビゲーションが存在します。
+		ページングナビゲーションは、さらに、全体で何件あって、かつ、全体で何ページあって、今表示しているのが何ページ目なのか、の情報も表示します。
+		キャッシュするなど色々な方式がありますが、単純なやり方では、指定されたページのデータをその場で検索します。
+	</p>
+<pre><span class="codetitle">e.g. よくあるページングナビゲーション {8ページ目を表示} @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (453 <span class="keyword">件</span>)
+<span class="attribute">前へ 3 4 5 6 7</span> <span class="point">8</span> <span class="attribute">9 10 11 12 13 次へ</span>
+</code></pre>
+	<p>
+		ここでは、シンプルでよく利用されていると想定される、キャッシュなどは利用しない、ページング検索に焦点を当てます。
+		(DBFluteが採用してるのはこちらです)
+	</p>
+
+	<h2 id="process">ページング検索の処理</h2>
+	<p>
+		ページング検索で行う処理には大きく三つの工程があります。
+	</p>
+	<ul>
+		<li>1. ページングなし総レコード数の取得</li>
+		<li>2. ページング実データの取得</li>
+		<li>3. ページング結果の計算処理</li>
+	</ul>
+	<h3 id="allrecordcount">1. ページングなし総レコード数の取得</h3>
+	<p>
+		ページングをしなかったときに取得対象となるレコードの総件数を取得する処理です。
+		総レコード数は、画面で表示するだけでなく、総ページ数を計算するのにも利用するため、この処理は欠かせないものです。
+		単に、(ページングの) <em class="keyword">カウント検索</em> と表現することもあります。
+	</p>
+<pre><span class="codetitle">e.g. ページングなし総レコード数は、ページングナビゲーションだと... @GUI</span><code>
+ 8 / 23 <span class="keyword">ページ</span> (<span class="point">453</span> <span class="keyword">件</span>) <span class="comment">&lt;= ここ！</span>
+<span class="attribute">... 6 7</span> 8 <span class="attribute">9 10 ...</span>
+</code></pre>
+	<h3 id="pagingdata">2. ページング実データの取得</h3>
+	<p>
+		例えば、81件目から100件目のレコード(実データ)を取得する処理です。
+		単に、(ページングの) <em class="keyword">実データ検索</em> と表現することもあります。
+	</p>
+	<p>
+		このページング条件を実現するための方法が、大きく二つあります。
+	</p>
+	<ul>
+		<li>SQLスキップ(SQLの構文で絞り込みをする)</li>
+		<li>カーソルスキップ(カーソルでデータ取得をスキップ)</li>
+	</ul>
+	<h4 id="sqlskip">SQLスキップ</h4>
+	<p>
+		例えば、Oracleなら rownum、PostgreSQLなら limit/offset 構文を利用して、SQLでページング条件を実現させます。
+		この方法を(ページングの)SQLスキップと呼びます。
+		DBの処理の中で絞り込みを完結させるため、パフォーマンス向上が(比較的)見込まれやすい方法となります。
+	</p>
+<pre><span class="codetitle">e.g. PostgreSQLでSQLでページング条件 {81-100} @DisplaySql</span><code>
+<span class="keyword">select</span> ...
+  <span class="keyword">from</span> MEMBER dfloc  
+ <span class="keyword">order by</span> dfloc.MEMBER_NAME <span class="keyword">asc</span> 
+ <span class="keyword">offset</span> 80 <span class="keyword">limit</span> 20 <span class="comment">-- 80件飛ばして、そこから20件だけ取得</span>
+</code></pre>
+	<h4 id="cursorskip">カーソルスキップ</h4>
+	<p>
+		SQLでは指定された条件に合致するレコードが全て検索対象になるが、検索結果をカーソルで扱っているときに、
+		必要なデータだけ読み込むようにカーソル操作してページング条件を実現させます。この方法を(ページングの)カーソルスキップと呼びます。
+		パフォーマンス上のデメリットがありながらも、一つ共通の仕組みが用意できれば、SQLの実装が楽になるのが特徴です。
+	</p>
+	<p>
+		また、この方式の中でさらに二つのやり方が存在します。
+	</p>
+	<dl class="textlist">
+		<dt>カーソルのループスルー</dt><dd>カーソルをループさせて読み込み対象外レコードを単純に読み飛ばす(データ取得しない)</dd>
+		<dt>カーソルのポインタシフト</dt><dd>カーソルの現在位置移動を利用して読み込み対象のレコードだけをループで取得する</dd>
+	</dl>
+	<p>
+		ポインタシフトの方がパフォーマンス上のメリットがありますが、カーソルの状態次第で利用できないことがあります。
+		例えば、ResultSet の ResultSetType が ResultSet.TYPE_FORWARD_ONLY に設定されている場合は利用できません。
+	</p>
+	<h3 id="calculate">3. ページング結果の計算処理</h3>
+	<p>
+		総レコード数、そして、実データから、ページングナビゲーションを構築するために必要な情報を導出する計算処理です。
+		例えば、総ページ数は、総レコード数を 1 ページあたりのレコード数で割って余りがある場合はそれに 1
+		を足すことで計算できます。これら計算処理を、それぞれの画面ごとに実装するとバグの温床になりやすいものです。
+	</p>
+
+	<h2 id="miscpoint">さまざまな考慮ポイント</h2>
+	<h3 id="dilemma">ページングのジレンマ</h3>
+	<p>
+		どうしても、SQLを二回発行させる必要があることがジレンマとなります。
+		パフォーマンス上の問題もありますが、実装上、ほとんど同じ仕様(検索条件の)二つのSQLを準備する必要があることが、
+		ディベロッパーを悩めせるポイントになります。(条件が変わったときは二つとも直す必要があります)
+	</p>
+	<p>
+		また、トランザクション分離レベルが ReadCommitted の場合、厳密には総レコード数と実データ取得で結果がすれ違う可能性があります。
+		現実的に発生する可能性がかなり低いため、かつ、更新系の処理ではないので業務的に大きな問題になりにくいため、割り切ってしまうことも多いと考えられます。
+		(RepeatableRead であれば矛盾は発生しませんが、それはそれで色々と(全く別の機能などで)考慮が必要になる可能性があります)
+	</p>
+	<p>
+		二つジレンマを挙げましたが、SQLを二回発行させるジレンマの方が圧倒的なジレンマです。
+	</p>
+	<h3 id="optimisticlock">ページングの排他制御</h3>
+	<p>
+		例えば、最後のページの検索を指定された場合に、その直前にDB上のデータが変更されて、該当する条件で最後のページが存在しなくなったとき、
+		どのようなアクションを取るか？
+	</p>
+	<ul>
+		<li>A. 排他制御のエラーとして検知して、エラー画面へ</li>
+		<li>B. 空っぽデータのまま検索結果画面へ</li>
+		<li>C. 本当の最後のページを再検索</li>
+	</ul>
+	<p>
+		一番避けるのは、予期せぬ例外でシステムエラーになってしまうことです。
+		これはすれ違いによる発生だけでなく、仕組み上存在しないページを指定できる場合(getパラメータにページ番号を指定する場合)や、
+		検索結果画面でそのまま削除処理などを行えるような場合には、この状況が発生する確率が高くなります。
+	</p>
+	<p>
+		ただし、更新系の処理ではないため、おおげさに扱う必要はないため、"A" までやる必要もないという考えもあります。何もアクションを取らなければ "B"
+		になる可能性がありますが、想定しないちょっと矛盾のある変な状態で画面を表示してしまう可能性や、やはりそこで予期せぬエラーが発生する可能性もあり、わざわざ
+		"B" を考慮するくらいなら、"C" の処理を設けて、ユーザの画面利用をスムーズに続けさせるのもユーザにとって優しい一つの手と考えられます。
+	</p>
+	<h3 id="processorder">ページング処理の順序</h3>
+	<p>
+		総レコード数取得と実データ取得は、順序が入れ替わっても特に問題ありません。
+		ただし、パフォーマンスにちょっとした要素に違いがあります。
+	</p>
+	<dl class="textlist">
+		<dt>総レコード数取得が先</dt>
+		<dd>総レコード数が 0 件だった場合に、実データ取得を省略できる</dd>
+		<dt>総レコード数取得が後 <span class="frm">(つまり、実データが先)</span></dt>
+		<dd>
+			実データが 1 ページのレコード数に達していない場合に、総レコード数取得を省略できる。
+			(主に、一ページ分のレコードしか存在しない状況での一ページ目の検索や、最後のページの検索の場合)
+		</dd>
+	</dl>
+	<p>
+		"総レコード数取得が後" の方が、パフォーマンス的に優位になるパターンが多いと考えられますが、ページング処理の実装は多少煩雑になります。
+		特に、"1 ページのレコード数に達していない場合" というのを "1 ページのレコード数以下の場合"
+		と取り違えないように注意が必要です。(後者は次のページが存在する可能性があります)
+	</p>
+	<h3 id="countleastsql">総レコード数取得時のSQL</h3>
+	<p>
+		総レコード数取得時のSQLはレコードの件数だけがわかればいいので、OrderBy
+		が不要なのは明白であり、また、(絞り込みが発生しない)取得目的のためだけの結合(Join)も不要です。
+	</p>
+	<p>
+		ただ、結合は "厳密に件数に影響しない結合なのかどうか"
+		を確定することが難しい面もあるため、ほとんど費用対効果のない凝り過ぎた作業に時間を取られないように気をつける必要があります。
+	</p>
+
+	<h2 id="dbflutepaging">DBFluteのページング検索</h2>
+	<p>
+		DBFluteでは、できる限りこのページング検索のプロセスを定型化し、より安全な実装ができるように考慮しています。
+		ConditionBean、外だしSQL両方においてその恩恵を得ることができます。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/pagingselect/index.html">現場フィット - ページング検索</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

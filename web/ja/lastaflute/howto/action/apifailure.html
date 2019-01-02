@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>忘れられないApiFailureHook | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>忘れられないApiFailureHook</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="jsoserrors">JSON時のエラーハンドリング</h2>
+	<h3 id="unifiedjson">統一的なJSONを戻す</h3>
+	<p>
+		JsonResponse の Action にて <em class="mark">バリデーションエラー</em>、<em class="mark">業務例外</em>、<em class="mark">システム例外</em>が発生したときは、
+		<em class="keyword">Actionごとつどつど制御するのではなくアプリ全体で共通的な処理をすることが想定される</em>
+		ため、共通部分で統一的なJSONを戻します。
+	</p>
+	<p>
+		それを司るのが、<em class="bigmark">ApiFailureHook</em>
+		です。これ自体はインターフェースなので、実装クラスは Maihama プロジェクトであれば、<em class="mark">MaihamaApiFailureHook</em> というクラスとなり、AssistantDirectorで登録されます。
+	</p>
+	<div class="relatedpage"><a href="../architecture/assistantdirector.html">AssistantDirector</a></div>
+	<dl class="longkeymainlist">
+		<dt>handleValidationError()</dt><dd>バリデーションエラーのHook</dd>
+		<dt>handleApplicationException()</dt><dd>業務例外のHook</dd>
+		<dt>handleClientException()</dt><dd>クライアント例外のHook</dd>
+		<dt>handleServerException()</dt><dd>システム例外のHook</dd>
+	</dl>
+	<h3 id="hookpolicy">最初にHookポリシーをデザイン</h3>
+	<p>
+		これは、フロントサイドと相談して決める必要があります。
+	</p>
+	<ul>
+		<li>バリデーションエラーのとき、どういう形式でメッセージを戻すのか？</li>
+		<li>そもそもバリデーションエラーをどう判定してもらうのか？</li>
+		<li>業務例外のユーザー用メッセージはどうやって戻すのか？</li>
+		<li>そもそも業務例外のユーザー用メッセージはサーバー管理？クライアント管理？</li>
+		<li>それぞれの業務例外をどう判定してもらうのか？</li>
+		<li>JSONパースエラーなどフロントサイドの不具合のときどうするのか？</li>
+		<li>NullPointerなどサーバーサイドの不具合のときどうするのか？</li>
+	</ul>
+	<p>
+		これはプロジェクトによってガラリを変わるものなので、いい感じのデザインをしましょう。
+	</p>
+	<p>
+		LastaFlute の Example プロジェクト (harbor や maihama)
+		では、シンプルな実装がされていますので、それを参考にしてもよいでしょう。
+	</p>
+	<h3 id="whatexception">そもそもシステム例外や業務例外とは？</h3>
+	<p>
+		そもそも、システム例外やクライアント例外や業務例外の区別がよくわかってない場合や、LastaFluteの例外ハンドリングを把握していない場合は、こちらのページを読んでから考えましょう。
+	</p>
+	<div class="detailpage"><a href="../architecture/exceptionhandling.html">開拓の例外ハンドリング (Exception Handling)</a></div>
+
+	<h2 id="hookvalidationerror">バリデーションエラーをHook</h2>
+	<p>
+		<em class="bigmark">handleValidationError(resource)</em>
+	</p>
+	<h3 id="whenvalidationerror">バリデーションエラーならここ！</h3>
+	<dl class="textlist">
+		<dt>考えるべきこと</dt>
+		<dd>どういう形式でバリデーションエラーのユーザー用メッセージを戻すのか？</dd>
+		<dd>バリデーションエラーであることをどうやって判定してもらうか？ <span class="frm">(業務例外との区別など)</span></dd>
+		<dt>実装上のヒント</dt>
+		<dd>バリデーションエラーのメッセージは、ApiFailureResource から取得できる</dd>
+		<dd>resource.getPropertyMessageMap() で、プロパティごとの変数解決済みメッセージ</dd>
+		<dd>この時点ではメッセージは必ず存在する <span class="frm">(バリデーションエラーがあるのにメッセージがないってのはない)</span></dd>
+		<dd>LastaFluteの中で<em class="mark">DEBUGレベル</em>で詳細がログ出力される <span class="frm">(本番で出すと大変なことになるため)</span></dd>
+		<dd>HTTPステータスは何も指定しなければ 200 になる</dd>
+	</dl>
+	<h3 id="maihamvalidationerror">MaihamaのValidationError</h3>
+	<p>
+		シンプル過ぎるBeanに FailureType "VALIDATION_ERROR" でメッセージを載せて、HTTPステータスは
+		400 (Bad Request) にしています。<span class="frm">(BUSINESS_FAILURE_STATUS は業務例外の方でも利用する)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-common/src/main/java/org/docksidestage/mylasta/direction/sponsor/MaihamaApiFailureHook.java">MaihamaApiFailureHook.java | Github</a></div>
+<pre><span class="codetitle">e.g. handleValidationError() of MaihamaApiFailureHook @Java</span><code>
+<span class="keyword">protected static final int</span> <span class="attribute">BUSINESS_FAILURE_STATUS</span> = HttpServletResponse.<span class="attribute">SC_BAD_REQUEST</span>;
+
+<span class="abbreviation">...</span>
+
+@Override
+<span class="keyword">public</span> ApiResponse handleValidationError(ApiFailureResource <span class="localvar">resource</span>) {
+    <span class="keyword">final</span> TooSimpleFailureBean <span class="localvar">bean</span> = createFailureBean(TooSimpleBizStatus.<span class="attribute">VALIDATION_ERROR</span>, <span class="localvar">resource</span>);
+    <span class="keyword">return</span> asJson(<span class="localvar">bean</span>).httpStatus(<span class="attribute">BUSINESS_FAILURE_STATUS</span>);
+}
+</code></pre>
+	<p>
+		業務例外も同じく 400 Bad Request で統一し、フロントサイドでは 400 なら Failure 用の統一的なJSONをパースし、failureType
+		で判断してもらうという想定です。
+	</p>
+
+	<h2 id="hookapplicationexception">業務例外をHook</h2>
+	<p>
+		<em class="bigmark">handleApplicationException(resource, cause)</em>
+	</p>
+	<h3 id="laappexorembedded">LaApplicationException or 組み込み業務例外ならここ！</h3>
+	<p>
+		LaApplicationException を継承した例外、もしくは、フレームワーク組み込み業務例外が throw されたときに呼び出されます。
+		<span class="frm">(アプリで作った例外でも、LaApplicationExceptionを継承していれば業務例外です)</span>
+	</p>
+	<dl class="textlist">
+		<dt>考えるべきこと</dt>
+		<dd>業務例外のユーザー用メッセージはどうやって戻すのか？</dd>
+		<dd>そもそも業務例外のユーザー用メッセージはサーバー管理？クライアント管理？</dd>
+		<dd>それぞれの業務例外をどう判定してもらうのか？ <span class="frm">(判定する必要があるケースとないケースは？)</span></dd>
+		<dt>実装上のヒント</dt>
+		<dd>
+			メッセージが紐づいている業務例外であれば、そのメッセージを ApiFailureResource から取得できる。
+			例えば、組み込みメッセージに紐づいているフレームワーク組み込み業務例外だったり、MessageKeyApplicationException
+			で明示的にメッセージを紐づけられた場合である。
+		</dd>
+		<dd>LastaFluteの中で<em class="mark">INFOレベル</em>で詳細がログ出力される <span class="frm">(業務例外なのかエラーなのか判断が難しい)</span></dd>
+		<dd>HTTPステータスは何も指定しなければ 200 になる</dd>
+	</dl>
+	<h3 id="embeddedappex">フレームワーク組み込み業務例外</h3>
+	<p>
+		LastaFluteですでに用意している業務例外があります。
+		LastaFlute自体が自動でthrowするものもあれば、アプリがthrowするメソッドを明示的に呼ぶこともあります。
+	</p>
+	<dl class="textlist">
+		<dt>EntityAlreadyDeletedException <span class="frm">(DBFluteの例外クラス)</span></dt>
+		<dd>DBFluteの一件検索や更新でデータがなかったとき <span class="frm">(selectEntity() などが throw)</span></dd>
+		<dd>組み込みメッセージの <em class="bigmark">errors.app.db.already.deleted</em> に紐づいている</dd>
+		<dd>すれ違い更新、削除やアドレスバーいたずらが考えられるが、業務例外 or エラーの判断が難しい</dd>
+		<dt>EntityAlreadyUpdatedException <span class="frm">(DBFluteの例外クラス)</span></dt>
+		<dd>DBFluteの一件更新ですれ違いが発生したとき <span class="frm">(update() などが throw)</span></dd>
+		<dd>組み込みメッセージの <em class="bigmark">errors.app.db.already.updated</em> に紐づいている</dd>
+		<dd>専用の排他制御例外だが、存在しないPK指定でも発生するので、業務例外 or エラーの判断が難しい</dd>
+		<dt>EntityAlreadyExistsException <span class="frm">(DBFluteの例外クラス)</span></dt>
+		<dd>DBFluteの登録や更新でユニーク制約違反が発生したとき <span class="frm">(insert(), update() などが throw)</span></dd>
+		<dd>組み込みメッセージの <em class="bigmark">errors.app.db.already.exists</em> に紐づいている</dd>
+		<dd>すれ違い登録や重複リクエストなどが考えられるが、こちらも業務例外 or エラーの判断が難しい</dd>
+		<dt>LoginFailureException <span class="frm">(extends LoginUnauthorizedException, LaApplicationException)</span></dt>
+		<dd>ログイン処理に失敗したとき <span class="frm">(LoginAssist の login() などが throw)</span></dd>
+		<dd>組み込みメッセージの <em class="bigmark">errors.login.failure</em> に紐づいている</dd>
+		<dt>LoginRequiredException <span class="frm">(extends LoginUnauthorizedException, LaApplicationException)</span></dt>
+		<dd>ログイン必須画面にログインなしでリクエストしたとき <span class="frm">(LastaFlute内で検知して throw)</span></dd>
+		<dd>特定の組み込みメッセージには紐づいていない <span class="frm">(フロントサイドではログイン画面に飛ばすだけを想定)</span></dd>
+		<dt>ForcedIllegalTransitionException  <span class="frm">(extends MessageKeyApplicationException)</span></dt>
+		<dd>不正な画面遷移を検知したとき <span class="frm">(Action で明示的に throwIllegalTransition(), JSON APIだと使わないかも)</span></dd>
+		<dd>組み込みメッセージの <em class="bigmark">errors.app.illegal.transition</em> に紐づいている</dd>
+		<dt>DoubleSubmitRequestException  <span class="frm">(extends MessageKeyApplicationException)</span></dt>
+		<dd>ダブルサブミットを検知したとき <span class="frm">(Action で明示的に verifyToken(), JSON APIだと使わないかも)</span></dd>
+		<dd>組み込みメッセージの <em class="bigmark">errors.app.double.submit.request</em> に紐づいている</dd>
+		<dt>MessageKeyApplicationException  <span class="frm">(extends LaApplicationException)</span></dt>
+		<dd>任意のメッセージを載せてthrow <span class="frm">(throwする人がメッセージを決めることができる)</span></dd>
+		<dd>これを継承して、メッセージ固定の専用の例外を作ることもある</dd>
+	</dl>
+	<h3 id="embeddedmessage">フレームワーク組み込みメッセージ</h3>
+	<p>
+		フレームワーク組み込み業務例外に対応する組み込みメッセージを、アプリに適したものに調整しましょう。
+		<em class="mark">[App]_message.properties</em> にて定義されています。
+	</p>
+<pre><span class="codetitle">e.g. embedded messages in maihama_message.properties @Properties</span><code>
+<span class="abbreviation">...</span>
+constraints.Required.message                = is required
+constraints.TypeAny.message                 = should be {propertyType}
+
+<span class="comment"># ----------------------------------------------------------</span>
+<span class="comment">#                                      Application Exception</span>
+<span class="comment">#                                      ---------------------</span>
+<span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
+<span class="comment"># five framework-embedded messages (don't change key names)</span>
+<span class="comment"># - - - - - - - - - -/</span>
+<span class="point">errors.login.failure</span>=<span class="literal">could not login</span>
+<span class="point">errors.app.illegal.transition</span>=<span class="literal">retry because of illegal transition</span>
+<span class="point">errors.app.db.already.deleted</span>=<span class="literal">others might be deleted, so retry</span>
+<span class="point">errors.app.db.already.updated</span>=<span class="literal">others might be updated, so retry</span>
+<span class="point">errors.app.db.already.exists</span>=<span class="literal">already existing data, so retry</span>
+<span class="point">errors.app.double.submit.request</span>=<span class="literal">double submit might be requested</span>
+
+
+<span class="comment"># _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment"># you can define your messages here:</span>
+<span class="comment"># e.g.</span>
+<span class="comment">#  errors.xxx = ...</span>
+<span class="comment">#  info.xxx = ...</span>
+<span class="comment"># _/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment"># ========================================================================================</span>
+<span class="comment">#                                                                                  Sign up</span>
+<span class="comment">#                                                                                  =======</span>
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h3 id="maihamaappex">MaihamaのApplicationException</h3>
+	<p>
+		例外に対応する FailureType を探して、シンプル過ぎるBeanに例外に紐づいているものメッセージを載せて、
+		HTTPステータスは 400 (Bad Request) で戻しています。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-common/src/main/java/org/docksidestage/mylasta/direction/sponsor/MaihamaApiFailureHook.java">MaihamaApiFailureHook.java | Github</a></div>
+<pre><span class="codetitle">e.g. handleApplicationException() of MaihamaApiFailureHook @Java</span><code>
+<span class="keyword">protected static final int</span> <span class="attribute">BUSINESS_FAILURE_STATUS</span> = HttpServletResponse.<span class="attribute">SC_BAD_REQUEST</span>;
+<span class="keyword">protected static final</span> Map&lt;Class&lt;?&gt;, TooSimpleFailureType&gt; <span class="attribute">failureTypeMap</span>; <span class="comment">// for application exception</span>
+
+<span class="keyword">static</span> { <span class="comment">// you can add mapping of failure type with exception</span>
+    <span class="keyword">final</span> Map&lt;Class&lt;?&gt;, TooSimpleFailureType&gt; <span class="localvar">makingMap</span> = <span class="keyword">new</span> HashMap&lt;Class&lt;?&gt;, TooSimpleFailureType&gt;();
+    <span class="localvar">makingMap</span>.put(LoginFailureException.<span class="keyword">class</span>, TooSimpleFailureType.<span class="attribute">LOGIN_FAILURE</span>);
+    <span class="localvar">makingMap</span>.put(LoginRequiredException.<span class="keyword">class</span>, TooSimpleFailureType.<span class="attribute">LOGIN_REQUIRED</span>);
+    <span class="localvar">failureTypeMap</span> = Collections.unmodifiableMap(<span class="localvar">makingMap</span>);
+}
+
+<span class="abbreviation">...</span>
+
+@Override
+<span class="keyword">public</span> ApiResponse handleApplicationException(ApiFailureResource <span class="localvar">resource</span>, RuntimeException <span class="localvar">cause</span>) {
+    <span class="keyword">final</span> TooSimpleFailureType <span class="localvar">failureType</span> = findAssignableValue(<span class="localvar">failureTypeMap</span>, <span class="localvar">cause</span>.getClass()).orElseGet(() -> {
+        <span class="keyword">return</span> TooSimpleFailureType.<span class="attribute">APPLICATION_EXCEPTION</span>;
+    });
+    <span class="keyword">final</span> TooSimpleFailureBean <span class="localvar">bean</span> = createFailureBean(<span class="localvar">failureType</span>, <span class="localvar">resource</span>);
+    <span class="keyword">return</span> asJson(<span class="localvar">bean</span>).httpStatus(<span class="attribute">BUSINESS_FAILURE_STATUS</span>);
+}
+
+<span class="keyword">protected</span> &lt;VALUE&gt; OptionalThing&lt;VALUE&gt; findAssignableValue(Map&lt;Class&lt;?&gt;, VALUE&gt; <span class="localvar">map</span>, Class&lt;?&gt; <span class="localvar">key</span>) {
+    <span class="keyword">final</span> VALUE <span class="localvar">found</span> = <span class="localvar">map</span>.get(<span class="localvar">key</span>);
+    <span class="keyword">if</span> (<span class="localvar">found</span> != <span class="keyword">null</span>) {
+        <span class="keyword">return</span> OptionalThing.of(<span class="localvar">found</span>);
+    } <span class="keyword">else</span> {
+        <span class="keyword">return</span> OptionalThing.migratedFrom(<span class="localvar">map</span>.entrySet().stream().filter(<span class="localvar">entry</span> -> {
+            <span class="keyword">return</span> <span class="localvar">entry</span>.getKey().isAssignableFrom(<span class="localvar">key</span>);
+        }).map(<span class="localvar">entry</span> -> <span class="localvar">entry</span>.getValue()).findFirst(), () -> {
+            <span class="keyword">throw new</span> IllegalStateException(<span class="literal">"Not found the exception type in the map: "</span> + map.keySet());
+        });
+    }
+}
+</code></pre>
+	<p>
+		ログイン以外の業務例外は、フロントサイドではメッセージを表示するだけで特に区別はしないことを想定しています。
+		特にフロントサイドで制御する必要のない例外は、特にJSONにその情報を載せる必要はないという割り切りです。
+	</p>
+	<p>
+		もし、フロントサイドで個々の例外で特別な制御をしたくなるようであれば、failureTypeMap
+		に例外とfailureTypeのマッピングを追加します。あまりに細かく多くなるようであれば、throwする側で FailureType を指定する例外クラスを作ってもよいでしょう。
+	</p>
+
+	<h2 id="hookclientexception">クライアント例外をHook</h2>
+	<p>
+		<em class="bigmark">handleClientException(resource, cause)</em>
+	</p>
+	<h3 id="clienterror">JSONパースエラー、ClientError.classならここ！</h3>
+	<p>
+		フロントからリクエストされたJSONのパースエラーや、ClientError.classを指定したバリデーションエラーなどのときに呼び出されます。
+		基本的に、LastaFlute内部で throw される例外です。
+	</p>
+	<dl class="textlist">
+		<dt>考えるべきこと</dt>
+		<dd>JSONパースエラーなどフロントサイドの不具合のときどうするのか？</dd>
+		<dt>実装上のヒント</dt>
+		<dd>ApiFailureResourceのユーザー用メッセージは存在しない</dd>
+		<dd>HTTPステータスは何も指定しなくても自動で400系 (e.g. 400 BadRequest) になる</dd>
+		<dd>OptionalThing.empty()を戻せば、400系 の空っぽResponseになる</dd>
+		<dd>Webコンテナレベル (e.g. Tomcat) での 404 Not Found はここには来ない</dd>
+		<dd>いずれにせよ、詳細なログはLastaFluteの中で<em class="mark">INFOレベル</em>で出力される</dd>
+	</dl>
+	<h3 id="maihamclientexception">MaihamaのClientException</h3>
+	<p>
+		シンプル過ぎるBeanに failureType "CLIENT_EXCEPTION" を設定して、HTTPステータスはLastaFlute内部の判断 (e.g. 400, 404) で戻します。
+	</p>
+<pre><span class="codetitle">e.g. handleClientException() of MaihamaApiFailureHook @Java</span><code>
+@Override
+<span class="keyword">public</span> OptionalThing&lt;ApiResponse&gt; handleClientException(ApiFailureResource <span class="localvar">resource</span>, RuntimeException <span class="localvar">cause</span>) {
+    <span class="keyword">final</span> TooSimpleFailureBean <span class="localvar">bean</span> = createFailureBean(TooSimpleBizStatus.<span class="attribute">CLIENT_EXCEPTION</span>, <span class="localvar">resource</span>);
+    <span class="keyword">return</span> OptionalThing.of(asJson(<span class="localvar">bean</span>)); <span class="comment">// HTTP status will be automatically sent as client error for the cause</span>
+}
+</code></pre>
+	<p>
+		バリデーションエラーや業務例外を 400 Bad Request
+		にしているので、フロントサイドで区別できるようにJSONで戻しています。
+		<span class="frm">(区別してもあまり業務的な意義がないかもしれませんが、念のため)</span>
+	</p>
+	<p>
+		Webコンテナレベル (e.g. Tomcat) での 404 Not Found
+		などはこちらには来ませんので、フロントサイドで 400 系の JSON
+		のパースエラーを考慮することが前提です。<span class="frm">(その場合、クライアントだろうがサーバーだろうが、システムの不具合であることには変わりないので、実質的に500エラーと同等と考えてもよいでしょう)</span>
+	</p>
+
+	<h2 id="hookserverxception">サーバー例外をHook</h2>
+	<p>
+		<em class="bigmark">handleServerException(resource, cause)</em>
+	</p>
+	<h3 id="servererror">NullPointer など、論外なサーバーサイドならここ！</h3>
+	<dl class="textlist">
+		<dt>考えるべきこと</dt>
+		<dd>NullPointerなどサーバーサイドの不具合のときどうするのか？</dd>
+		<dt>実装上のヒント</dt>
+		<dd>ApiFailureResourceのユーザー用メッセージは存在しない</dd>
+		<dd>HTTPステータスは何も指定しなくても自動で500 (ServerError) になる</dd>
+		<dd>OptionalThing.empty()を戻せば、500 の空っぽResponseになる</dd>
+		<dd>いずれにせよ、詳細なログはLastaFluteの中で<em class="mark">ERRORレベル</em>で出力される</dd>
+	</dl>
+	<h3 id="maihamserverexception">MaihamaのServerException</h3>
+	<p>
+		何もせず OptionalThing.empty() を戻して、500 の Response
+		にする。フロントサイドは、HTTPステータスが 500 であればシステムエラー画面を表示しておしまい。
+	</p>
+<pre><span class="codetitle">e.g. handleServerException() of MaihamaApiFailureHook @Java</span><code>
+@Override
+<span class="keyword">public</span> OptionalThing&lt;ApiResponse&gt; handleServerException(ApiFailureResource <span class="localvar">resource</span>, RuntimeException <span class="localvar">cause</span>) {
+    <span class="keyword">return</span> OptionalThing.empty(); <span class="comment">// means empty body, HTTP status will be automatically sent as server error</span>
+}
+</code></pre>
+
+	<h2 id="maihamafront">Maihamaのフロント実装イメージ</h2>
+	<h3 id="likejava">Javaっぽい書き方ですが...</h3>
+	<p>
+		こんな感じです。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-common/src/main/java/org/docksidestage/mylasta/direction/sponsor/MaihamaApiFailureHook.java">MaihamaApiFailureHook.java | Github</a></div>
+<pre><span class="codetitle">e.g. front-side implementation image of Maihama @Java</span><code>
+<span class="keyword">if</span> (HTTP Status: <span class="literal">200</span>) { <span class="comment">// success</span>
+    XxxJsonResult <span class="localvar">bean</span> = parseJsonAsSuccess(<span class="localvar">response</span>);
+    <span class="abbreviation">...</span><span class="comment">(do process per action)</span>
+} <span class="keyword">else if</span> (HTTP Status: <span class="literal">400</span>) { <span class="comment">// e.g. validation error, application exception, client exception</span>
+    FailureBean <span class="localvar">bean</span> = parseJsonAsFailure(<span class="localvar">response</span>);
+    <span class="abbreviation">...</span><span class="comment">(show <span class="attribute">bean.messageList</span> or do process per <span class="attribute">bean.failureType</span>)</span>
+} <span class="keyword">else</span> if (HTTP Status: <span class="literal">404</span>) { <span class="comment">// e.g. real not found, invalid parameter</span>
+    showNotFoundError();
+} <span class="keyword">else</span> { <span class="comment">// basically 500, server exception</span>
+    showSystemError();
+}
+</code></pre>
+	<h3 id="failureunity">Failure統一パターン</h3>
+	<p>
+		正常系は Action ごと固有の JSON を戻して<span class="frm">(特に共通項目は無し)</span>、Failure のケースのみ統一した JSON を戻すやり方を、
+		<em class="keyword">Failure統一パターン</em> と呼んでいます。
+	</p>
+	<p>
+		もちろん、この通りでなくてもOKですが、一つの参考として。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

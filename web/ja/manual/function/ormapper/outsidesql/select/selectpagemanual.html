@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,ページング,ManualPaging,SQLスキップ,SQL-Skip" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)selectPage() as manualPaging | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)selectPage() as manualPaging</h1>
+	<p>
+		"外だしSQLの使い方" を既に読んでいることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../howto.html">外だしSQLの使い方</a></div>
+	${indexlist}
+	
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">外だしSQLで手動ページングによるページング検索</em> をします。
+		ここで言う手動とは、ページング絞り込み条件(81件目から100件目など)を明示的に実装することを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/pagingselect.html">DBアクセス - ページング検索</a></div>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)まにゅあるぺーじんぐのせれくとぺーじ</em>
+		もしくは <em class="keyword">まにゅあるのせれくとぺーじ</em> や <em class="keyword">まにゅあるのぺーじんぐ</em>
+		と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="pagingbean">Paging用のParameterBeanを用意</h3>
+	<p>
+		ParameterBeanの宣言で、df:pmb extends Paging というように Paging を継承します。
+		すると、自動生成される ParameterBean が、汎用的なページングの機能を備えた SimplePagingBean
+		を継承します。 
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/pmbclassoption.html#pagingoption">ParameterBean - ページング検索のオプション</a></div>
+<pre><span class="codetitle">e.g. ページング検索用のParameterBeanを生成 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb</span> <span class="point">extends Paging</span><span class="comment">!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="pagingcondition">ページング条件の指定</h3>
+	<p>
+		パラメータコメントを利用して、ページング条件を指定します。これは DBMS
+		によって条件の書き方が変わりますので、DBMSごとの取扱いを必ずご覧下さい。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dbway/index.html#paging">DBMSごとの取扱い - ページング検索の条件</a></div>
+<pre><span class="codetitle">e.g. MySQLでOutsideSqlのManualPagingのページング条件 @OutsideSql</span><code>
+ <span class="keyword">limit</span> <span class="comment">/*$pmb.pageStartIndex*/</span><span class="literal">80</span>, <span class="comment">/*$pmb.fetchSize*/</span><span class="literal">20</span>
+</code></pre>
+<pre><span class="codetitle">e.g. PostgreSQLでOutsideSqlのManualPagingのページング条件 @OutsideSql</span><code>
+ <span class="keyword">offset</span> <span class="comment">/*$pmb.pageStartIndex*/</span><span class="literal">80</span> <span class="keyword">limit</span> <span class="comment">/*$pmb.fetchSize*/</span><span class="literal">20</span>
+</code></pre>
+	<h3 id="pagingifcomment">実データ処理IFコメント</h3>
+	<p>
+		総レコード数取得と実データ取得を、IFコメントで分岐させます。
+	</p>
+	<ul>
+		<li>select句の切り替え</li>
+		<li>left outer join <span class="frm">※総レコード数の取得に無関係なもの</span></li>
+		<li>order by</li>
+		<li>ページング条件</li>
+	</ul>
+	<p>
+		(SimplePagingBeanを継承した) ParameterBean の <em class="keyword">isPaging()</em>
+		は、実データ取得のときに true になります。これをIFコメントの中で利用します。
+	</p>
+<pre><span class="codetitle">e.g. ManualPagingで実データ処理IFコメントの利用 {PostgreSQL} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+    <span class="comment">/*IF pmb.isPaging()*/</span>
+    <span class="keyword">left outer join</span> <span class="abbreviation">...</span>
+    <span class="comment">/*END*/</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="keyword">offset</span> <span class="comment">/*$pmb.pageStartIndex*/</span><span class="literal">80</span> <span class="keyword">limit</span> <span class="comment">/*$pmb.fetchSize*/</span><span class="literal">20</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<h3 id="methodcall">メソッドの呼び出し</h3>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		outsideSql() の後、<em class="keyword">selectPage()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの手動ページング検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().selP <span class="comment">// .sP と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">selectPage</span>(pmb);
+</code></pre>
+	<p>
+		メソッドはオーバーロードで "定型呼び出し形式" と "フリースタイル形式" と二つあります。
+	</p>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+	<p>
+		outsideSql() の後、<em class="keyword">manualPaging()</em>
+		を呼び出し、その後 <em class="keyword">selectPage()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの手動ページング検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().m <span class="comment">// .m と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">manualPaging()</span>.sP <span class="comment">// .sP と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().manualPaging().<span class="point">selectPage</span>(pmb);
+</code></pre>
+	<p>
+		メソッドはオーバーロードで "定型呼び出し形式" と "フリースタイル形式" と二つあります。
+	</p>
+	<h3 id="typedcall">定型呼び出し形式</h3>
+	<p>
+		TypedParameterBean を引数に受け取ります。(null は許可されません)
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+	<p>
+		CustomizeEntityマーク、および、ページング検索のオプションが指定されたParameterBeanマーク
+		が定義されていることで TypedParameterBean の定型呼び出しが利用できます。
+		加えて、ManualPaging であることを自動判別、もしくは、明示的指定されたものであることが条件です。
+		逆に、ManualPaging と判別されない場合は、AutoPaging 用の TypedParameterBean となります。
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/parameterbean.html#pagingselect">ParameterBean - ページング検索のオプション</a></div>
+	<h3 id="freestyle">フリースタイル形式</h3>
+	<p>
+		パス、パラメータ(ParameterBean)、戻り値Entityの型の三つの要素を引数に受け取ります。 
+		それぞれフリースタイル形式の基本仕様と全く同じです。
+	</p>
+	<div class="relatedpage"><a href="../howto.html#freestylebasic">外だしSQLの使い方 - フリースタイル基本仕様</a></div>
+	<h3 id="resulttype">検索結果の受け取り</h3>
+	<p>
+		検索結果は、TypedParameterBean に関連付けられている Entity 型、もしくは、第三引数で指定した Entity
+		型の <em class="keyword">PagingResultBean</em> を戻り値として受け取ります。
+	</p>
+	<div class="detailpage"><a href="../../behavior/resultbean/paging/index.html">PagingResultBean</a></div>
+	<h3 id="countlater">カウント検索を後に (CountLater)</h3>
+	<p>
+		enablePagingCountLater() を呼び出すことで、カウント検索を後に実行することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html#countlater">現場フィット - ページング検索 - 総レコード数取得を後にするオプション</a></div>
+	<p>
+		要領はConditionBeanと同じです。
+	</p>
+	<div class="detailpage"><a href="../../conditionbean/sidebar/paging.html#countlater">ConditionBean - カウント検索を後に (CountLater)</a></div>
+	<h3 id="nonreselect">再検索はしない (NonReSelect)</h3>
+	<p>
+		enablePagingCountLater() を呼び出すことで、カウント検索を後に実行することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html#reselect">現場フィット - ページング検索 - 存在しないページが指定された時の再検索</a></div>
+	<p>
+		要領はConditionBeanと同じです。
+	</p>
+	<div class="detailpage"><a href="../../conditionbean/sidebar/paging.html#nonreselect">ConditionBean - 再検索はしない (NonReSelect)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>

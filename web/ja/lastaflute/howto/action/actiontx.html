@@ -1,0 +1,290 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development,Transaction,トランザクション" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Action の Transaction (トランザクション) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Action の Transaction</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<div class="relatedpage"><a href="./index.html">LastaFlute の Action</a></div>
+	${indexlist}
+
+	<h2 id="defaulttx">デフォルトTransaction</h2>
+	<h3 id="firstimpact">まず、大前提</h3>
+	<p>
+		Action の Execute メソッドは、デフォルトで Transaction が発行されています。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>正常終了 (例外throwなし)</dt><dd>自動的にコミット</dd>
+		<dt>例外発生 (Executeメソッドが中断)</dt><dd>自動的にロールバック</dd>
+	</dl>
+	<p>
+		Actionクラスのディベロッパーは、基本的に自分でTransaction制御をする必要はありません。
+		正常終了すればコミットされますし、例外が発生してExecuteメソッドが中断すればロールバックされます。
+	</p>
+	<h3 id="architectureconcept">アーキテクチャコンセプト</h3>
+	<p>
+		このようなコンセプトを元にしています。
+	</p>
+	<ul>
+		<li>ActionのほとんどのTransactionは、リクエスト単位で制御したい</li>
+		<li>LastaFlute の Action はフローコントロールも兼ねる (無駄なレイヤの排除) ※A</li>
+		<li>検索だけのリクエストでも、一貫性を保ったアクセスを推奨</li>
+		<li>検索だけのリクエストのとき、SQLごとの内部トランザクションコストを回避</li>
+	</ul>
+	<p>
+		 ※A: Actionの役割として、<em class="keyword">バウンダリ、かつ、ファサード</em> を想定しています。
+	</p>
+	<div class="relatedpage"><a href="../impldesign/actiondesign.html">Actionの実装デザイン</a></div>
+	<h3 id="physicalcare">物理的な配慮</h3>
+	<p>
+		これらは、ActionのTransactionに限らず、LastaFlute自体のTransactionの特徴となります。
+	</p>
+	<dl class="textlist">
+		<dt>実際のTransaction開始</dt>
+		<dd>
+			実際のTransaction開始は最初のDBアクセスからです。なので、DBアクセスのないリクエストは実質的にTransactionコストはありません。
+		</dd>
+		<dt>Transaction時間の提供</dt>
+		<dd>
+			Transaction内では、TimeManager が提供する現在日付 (currentDateTime()など) は固定でTransaction開始時間を戻します。
+			Transactionの中では業務的な時間経過を意識しないというコンセプトで、同じTransactionの中でのDBに保存される更新日時などを同一にします。
+		</dd>
+		<dt>更新時はTransaction必須</dt>
+		<dd>
+			Transaction内でのみ、AccessContext が利用可能です。実質的に更新処理は必ずTransactionが必要ということになります。
+			<span class="frm">(もちろん、共通カラムが存在しないテーブルだと更新はできてしまいますが)</span>
+		</dd>
+	</dl>
+
+	<h2 id="aftertxcommit">コミット後に何か処理したい</h2>
+	<p>
+		もし、コミット後に何か処理をしたいというときは、afterTxCommit()を使います。
+	</p>
+	<p>
+		例えば、Signupが終わった後に自動的にログイン処理を走らせたい時、コミットしてからじゃないとログイン処理の中のログイン履歴登録の非同期処理 (別トランザクションになる)
+		が動作しないので、そういうときに使うと良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. afterTxCommit() for signup'S login @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse signup(SignupForm <span class="localvar">form</span>) { <span class="comment">// already in transaction</span>
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; moreValidate(<span class="localvar">form</span>, <span class="localvar">messages</span>), () -> {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Signup_SignupHtml</span>);
+    });
+    Member <span class="localvar">member</span> = insertProvisionalMember(<span class="localvar">form</span>);
+    String <span class="localvar">token</span> = signupTokenAssist.saveSignupToken(<span class="localvar">member</span>);
+    sendSignupMail(<span class="localvar">form</span>, <span class="localvar">token</span>);
+    <span class="keyword">return</span> redirect(MypageAction.<span class="keyword">class</span>).<span class="point">afterTxCommit</span>(() -> {
+        <span class="attribute">loginAssist</span>.identityLogin(<span class="abbreviation">...</span>); <span class="comment">// after transaction committed</span>
+    });
+}
+</code></pre>
+
+	<h2 id="txfinally">正常/異常に関わらず何か処理したい</h2>
+	<h3 id="txfinallyintx">Transactionの中でもいいのであれば</h3>
+	<p>
+		あまり特別なことはありません。Java の try-finally を使えば実現できます。
+	</p>
+<pre><span class="codetitle">e.g. afterTxCommit() for signup's login @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse signup(SignupForm <span class="localvar">form</span>) { <span class="comment">// already in transaction</span>
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; moreValidate(<span class="localvar">form</span>, <span class="localvar">messages</span>), () -> {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Signup_SignupHtml</span>);
+    });
+    <span class="keyword">try</span> {
+        <span class="keyword">return</span> doSignup(<span class="localvar">form</span>);
+    } <span class="keyword">finally</span> {
+        <span class="comment">// always executed in spite of transaction success/failure</span>
+        <span class="abbreviation">...</span>
+    }
+}
+
+<span class="keyword">private</span> HtmlResponse doSignup(SignupForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		大抵のケースでは、これで特に問題ないと想定しています。
+	</p>
+	<h3 id="txfinallyoutsidetx">Transactionの外じゃないとダメであれば</h3>
+	<p>
+		どうしてもトランザクションの外じゃないといけないというのであれば、そもそも独立性が高い処理ではないでしょうか？
+		であれば、ActionHook の hookFinally() を使うこともできます。
+	</p>
+	<div class="relatedpage"><a href="../architecture/actionhook.html#hook">気軽な前後処理 ActionHook - hookメソッド</a></div>
+<pre><span class="codetitle">e.g. hookFinally() for business process outside action transaction @Java</span><code>
+@Override
+<span class="keyword">public void</span> <span class="point">hookFinally</span>(ActionRuntime <span class="localvar">runtime</span>) { <span class="comment">// outside transaction</span>
+    <span class="keyword">super</span>.hookFinally(<span class="localvar">runtime</span>); <span class="comment">// don't forget super</span>
+    <span class="comment">// always executed in spite of transaction success/failure</span>
+    <span class="abbreviation">...</span>
+}
+
+@Execute
+<span class="keyword">public</span> HtmlResponse signup(SignupForm <span class="localvar">form</span>) { <span class="comment">// already in transaction</span>
+    <span class="keyword">return</span> <span class="abbreviation">...</span>;
+}
+</code></pre>
+	<p>
+		そのActionクラス内の別のExecuteメソッドでも実行されてしまいますが、発生した例外とかで判断できるのであれば、引数の ActionRuntime
+		から例外を取得して分岐させることができます。
+	</p>
+	<h3 id="txfinallystage">Transactionの外だけど、つながりも深い</h3>
+	<p>
+		Transactionの外じゃないとダメで、かつ、つながりも深いので、そのExecuteメソッド内じゃないと実装がしづらいというのであれば、
+		デフォルトのTransactionを抑制して、自前でTransaction制御をすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#manualtx">this - はちゃめちゃTransaction制御したい</a></div>
+	<dl class="shortvaluemainlist">
+		<dt>デフォルトTransactionの抑制</dt><dd>@Execute(suppressTransaction=true)</dd>
+		<dt>自前のTransaction制御</dt><dd>TransactionStage: requred(), requiresNew()</dd>
+	</dl>
+
+	<h2 id="rollbackappex">ロールバックしつつ画面遷移したい</h2>
+	<h3 id="commonappex">共通的に画面を表示するのであれば</h3>
+	<p>
+		すでに、LastaFluteの中で業務例外の仕組みが用意されています。MessageApplicationException などを throw することで、HtmlResponseであれば show_errors.html
+		に遷移し、JsonResponseであれば ApiFailureHook が呼ばれます。
+	</p>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html#bizhandling">開拓の例外ハンドリング - 業務例外ハンドリング</a></div>
+	<h3 id="specificappex">固有の画面に遷移するのであれば</h3>
+	<p>
+		こちらも同じく、業務例外の仕組みで実現すると良いでしょう。
+	</p>
+	<p>
+		そもそもロールバックするということは業務的な例外と言えますし、フレームワークを経由することで通知ログに記録されたりなどのメリットもあるので、単純な分岐で実現するのではなく仕組みの上でやりましょう。
+	</p>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html#bizhandling">開拓の例外ハンドリング - 業務例外ハンドリング</a></div>
+	<p>
+		業務例外を作成して throw し、handleApplicationException() をオーバーライドして処理します。
+		個別のActionだけの話であれば、その個別のActionでオーバーライドして、どのActionでも共通する処理であれば、Actionのスーパークラスでオーバーライドしましょう。
+	</p>
+<pre><span class="codetitle">e.g. handleApplicationException() for specific exception @Java</span><code>
+@Override
+<span class="keyword">public void</span> <span class="point">handleApplicationException</span>(ActionRuntime <span class="localvar">runtime</span>, ApplicationExceptionHandler <span class="localvar">handler</span>) {
+    <span class="keyword">super</span>.handleApplicationException(<span class="localvar">runtime</span>, <span class="localvar">handler</span>); <span class="comment">// don't forget super</span>
+    <span class="localvar">handler</span>.handle(<span class="subpoint">SeaLandBothLimittedException</span>.<span class="keyword">class</span>, createMessages().addErrors<span class="abbreviation">...</span>(<span class="attribute">GLOBAL</span>), <span class="localvar">cause</span> -&gt; {
+         <span class="keyword">return</span> asHtml(<span class="attribute">path_</span><span class="abbreviation">...</span>);
+    });
+}
+
+<span class="keyword">private static class</span> SeaLandBothLimittedException <span class="keyword">extends</span> LaApplicationException {
+
+    <span class="abbreviation">...</span>
+}
+
+@Execute
+<span class="keyword">public</span> HtmlResponse signup(SignupForm <span class="localvar">form</span>) { <span class="comment">// already in transaction</span>
+    <span class="keyword">if</span> (<span class="abbreviation">...</span>) {
+        <span class="keyword">throw new</span> <span class="subpoint">SeaLandBothLimittedException</span>(<span class="abbreviation">...</span>);
+    }
+    <span class="keyword">return</span> <span class="abbreviation">...</span>;
+}
+</code></pre>
+	<p>
+		もし、メッセージが不要なのであれば、UserMessages は UserMessages.empty() を指定します。
+	</p>
+	<p>
+		業務例外は、LaApplicationException を継承して作成します。そのActionだけで閉じる局所的な例外であれば、インナークラスでも構わないでしょう。
+	</p>
+
+	<h2 id="manualtx">はちゃめちゃTransaction制御したい</h2>
+	<h3 id="transactionstage">TransactionStageを連れてきて</h3>
+	<p>
+		こうなったら、suppressTransaction=true しつつ、TransactionStage を DI して、好きなようにやりましょう。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>デフォルトTransactionの抑制</dt><dd>@Execute(suppressTransaction=true)</dd>
+		<dt>自前のTransaction制御</dt><dd>TransactionStage: requred(), requiresNew()</dd>
+	</dl>
+<pre><span class="codetitle">e.g. suppressTransaction and TransactionStage @Java</span><code>
+@Resource
+<span class="keyword">private</span> TransactionStage <span class="attribute">transactionStage</span>;
+
+@Execute(<span class="subpoint">suppressTransaction</span>=<span class="keyword">true</span>)
+<span class="keyword">public</span> HtmlResponse signup(SignupForm <span class="localvar">form</span>) { <span class="comment">// already in transaction</span>
+    <span class="attribute">transactionStage</span>.<span class="point">required</span>(<span class="localvar">tx</span> -&gt; {
+        <span class="comment">// as you like it</span>
+        <span class="abbreviation">...</span>
+    });
+    String <span class="localvar">result</span> = (String)<span class="attribute">transactionStage</span>.<span class="point">required</span>(<span class="localvar">tx</span> -&gt; {
+        <span class="comment">// as you like it</span>
+        <span class="abbreviation">...</span>
+        <span class="localvar">tx</span>.returns(<span class="literal">"sea"</span>); <span class="comment">// you can return value for caller</span>
+    }).get();
+    <span class="attribute">logger</span>.debug(<span class="literal">"result: {}"</span>, <span class="localvar">result</span>); <span class="comment">// result: sea</span>
+    <span class="keyword">return</span> <span class="abbreviation">...</span>;
+}
+</code></pre>
+	<h3 id="stagemethod">TransactionStageのメソッド</h3>
+	<p>
+		TransactionStageのメソッドには、幾つかの種類があります。
+	</p>
+	<dl class="keymainlist">
+		<dt>required()</dt><dd>外側にトランザクションがあれば継承</dd>
+		<dt>requiresNew()</dt><dd>関係なくトランザクションを必ず発行</dd>
+		<dt>selectable()</dt><dd>そのどっちかを引数で指定</dd>
+	</dl>
+	<p>
+		どのメソッドでも、TransactionStage のコールバック処理の中で例外が発生すれば自動的にロールバックされます。
+		<span class="frm">(正常に終了すれば自動的にコミットされます)</span>
+	</p>
+	<p>
+		suppressTransactionしているのであれば、どちらでも挙動は変わらないので、UnitTestのときのことを考えて required()
+		の方が良いでしょう。UnitTestのときだけはUnitTestのTransactionを継承して全体ロールバックができるようになります。
+	</p>
+	<p>
+		ネストしたTransactionのときは、requiresNew() を使います。UnitTestのときは、UTFlute
+		の changeRequiresNewToRequired() を呼び出して、一時的に効果を調整すると良いでしょう。
+	</p>
+	<p>
+		TransactionStage の JavaDoc コメントをしっかり読んで使いましょう。
+	</p>
+	<div class="inucolumn">
+		<h3 id="nonannotation">アノテーションじゃないのは？</h3>
+		<p>
+			アノテーションを付けて AOP で実現しようとすると、クラスをエンハンスするコストがかかるため、アプリ起動時間などに影響が出ます。
+			また、本来privateでも良いメソッドをpublicにする必要もあるなど、何かとややこしいので、普通のプログラムで表現した方がわかりやすいだろうと判断しました。
+		</p>
+		<p>
+			ちなみに、アノテーションによるトランザクション制御も実はできます。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

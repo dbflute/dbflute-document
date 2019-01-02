@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,TypeSafeCursor,タイプセーフカーソル,カーソル検索,大量データ" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>TypeSafeCursor | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>TypeSafeCursor</h1>
+	<p>
+		Sql2Entityで自動生成される TypeSafeCursor についてのページです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Sql2Entity</a></div>
+	${indexlist}
+
+	<h2 id="about">TypeSafeCursorとは？</h2>
+	<p>
+		外だしSQLのカーソル検索において、ResultSetオブジェクトを直接扱うのではなく、<em class="keyword">カーソル操作をしながらもタイプセーフにデータにアクセス</em>
+		できるようにするクラスを TypeSafeCursor
+		と呼びます。TypeSafeCursorはCustomizeEntityと同じくSQLのselect句と同じプロパティ構造(読み取りのみ)を持ちます。
+	</p>
+	<div class="relatedpage"><a href="#howto">this - TypeSafeCursorの利用</a></div>
+
+	<h2 id="autogenerate">TypeSafeCursorの自動生成</h2>
+	<p>
+		TypeSafeCursorは、CustomizeEntityと同様にSql2EntityタスクでSQLを実行することで得られるメタデータを元に自動生成されます。
+		出力先ディレクトリと出力クラスのパッケージは、<span class="existscloset" title="exists a closet option">Generateタスクで自動生成されるクラスと同じ</span>で、
+		Behaviorのパッケージ配下の "cursor" パッケージに出力されます。
+	</p>
+	<p>
+		CustomizeEntityに加えて<span class="frm">(@since 1.0.5A)</span>、TypeSafeCursorが自動生成されます。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Sql2Entityタスク</a></div>
+	<h3 id="deleteold">古いクラスは削除される</h3>
+	<p>
+		外だしSQLのどこにも記述されていない既存の<span class="existscloset" title="exists a closet option">古いTypeSafeCursorは(ファイルシステム上から)削除されます</span>。
+		古いTypeSafeCursorを利用しているプログラムはコンパイルエラーとして検知できます。
+	</p>
+
+	<h2 id="typesafecursormark">TypeSafeCursorマーク</h2>
+	<p>
+		TypeSafeCursorの生成は、CustomizeEntityのオプションとして指定します。CustomizeEntityマーク
+		を記述した上で、別途SQLの行コメントで <em class="keyword">+cursor+</em> という形で指定します。これを
+		"<em class="keyword">TypeSafeCursorマーク</em>" と呼びます。 
+	</p>
+<pre><span class="codetitle">e.g. SimpleMemberという名前のTypeSafeCursorを生成 @SQL-File</span><code>
+<span class="comment">-- #df:entity#</span>
+<span class="point">-- +cursor+</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		TypeSafeCursorの名前の指定は、CustomizeEntityマークで指定されたものが利用されます。
+		直接クラス名を記述することもできますし、SQLファイル名から導出することもできます。
+	</p>
+	<p>
+		※EMechaで作成するときは、"Use Cursor" にチェックを付ければOKです。
+	</p>
+
+	<h2 id="structure">TypeSafeCursorの構造</h2>
+	<p>
+		<em class="keyword">ResultSetのラッパであるCursorクラス</em> と <em class="keyword">それをコールバックで扱うCursorHandlerクラス</em>
+		の２つが存在します。それぞれ、ジェネレーションギャップになっています。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wg.html#generationgap">GenerationGap (ジェネレーションギャップ)</a></div>
+	<h3 id="cursorclass">Cursorクラス</h3>
+	<p>
+		ResultSetを保持し、"ResultSetに対する(カラムの)文字列アクセスを代理するメソッド" が存在します。
+	</p>
+	<dl class="keymainlist">
+		<dt>next()</dt><dd>次のレコードへ</dd>
+		<dt>getXxx()</dt><dd>カラムデータの取得 (タイプセーフ)</dd>
+		<dt>cursor()</dt><dd>保持しているResultSetの取得 (通常利用しない)</dd>
+	</dl>
+	<h3 id="cursorhandlerclass">CursorHandlerクラス</h3>
+	<p>
+		CursorHandlerインターフェースを実装しており、Cursorクラスを業務的に扱う処理を実装して、
+		Behavior(OusideSql)に渡してその処理をコールバックしてもらいます。生成されるクラス自体は abstractクラス であり、
+		fetchCursor()メソッドをオーバーライドしたクラスを定義して利用します。
+	</p>
+	<dl class="keymainlist">
+		<dt>fetchCursor()</dt><dd>Cursorクラスを業務的に扱う処理 (abstractメソッド)</dd>
+	</dl>
+
+	<h2 id="howto">TypeSafeCursorの使い方</h2>
+	<p>
+		<em class="keyword">CursorHandlerクラスの fetchCursor() メソッド</em>
+		をオーバーライドしたクラスを定義し、そのクラスのインスタンスを
+		<em class="keyword">外だしSQLの selectCursor() メソッド</em> の引数に指定します。fetchCursor()
+		では、Cursorクラスを参照して業務処理を実装します。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/selectcursor.html">外だしSQL - selectCursor()</a></div>
+
+	<h2 id="valuetype">ValueTypeの調整</h2>
+	<p>
+		デフォルトでは、マッピングされたプログラム型に対応する ValueType が利用されるため、基本的には意識する必要はありませんが、万が一、別の
+		ValutType を利用したい場合は、TypeSafeCursor のExクラスにて、get メソッドをオーバーライドすることで、独自の ValutType
+		を利用することができます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

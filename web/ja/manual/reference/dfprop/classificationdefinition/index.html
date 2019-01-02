@@ -1,0 +1,637 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,classificationDefinitionMap.dfprop,区分値,Classification,ENUM,コード定義" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>classificationDefinitionMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>classificationDefinitionMap</h1>
+	${indexlist}
+
+	<h2 id="about">classificationDefinitionMapとは？</h2>
+	<p>
+		区分値の定義を行うためのDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の classificationDefinitionMap.dfprop という名前のテキストファイルです。主に Generateタスク
+		から参照されます。Generateタスクを実行すると、定義された区分値をタイプセーフに扱うことができるメソッドが生成され、
+		区分値の定義情報と実装の一致を実現することができます。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<h3 id="clstype">テーブル区分値と暗黙の区分値</h3>
+	<p>
+		区分値は、主に大きく二つに分けられます。区分値に対応するテーブルが存在する
+		"テーブル区分値"、テーブルは存在せず業務的に(暗黙の)定義付けられる
+		"暗黙の区分値"。このプロパティを設定する前にこの概念を理解するようにして下さい。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/classification/index.html#clstype">現場フィット - 区分値 - 区分値のタイプ</a></div>
+	<h3 id="clsattribute">区分値要素の属性</h3>
+	<p>
+		区分値要素を構成する幾つかの決められた属性があります。
+		このプロパティを設定する前にこの概念を理解するようにして下さい。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/classification/index.html#clsattribute">現場フィット - 区分値 - 区分値要素の属性</a></div>
+	<h3>区分値情報がドキュメントに</h3>
+	<p>
+		定義した区分値情報は、プログラム上で利用するだけでなく、ドキュメントになります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/schemahtml.html#classification">Docタスク - SchemaHTML - 区分値</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、一つの区分値とその区分値の要素についての情報を定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		区分値要素を map型プロパティ で指定していきますが、<em class="keyword">table プロパティを利用する場合は、テーブル区分値</em>
+		として扱われるようになります。<em class="keyword">逆にそうでないものは、暗黙の区分値</em> として扱われるようになります。
+	</p>
+<pre><span class="codetitle">classificationDefinitionMapの仕様 @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    [classification-name] = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{
+            ; topComment=[comment]; dataType=[String(default) or Number]
+            ; isCheckImplicitSet=[true or false(default)]
+            ; isUseDocumentOnly=[true or false(default)]
+            ; isSuppressAutoDeploy=[true or false(default)]
+            ; isSuppressDBAccessClass=[true or false(default)]
+            ; groupingMap = ; <span class="keyword">map:</span>{
+                ; [group-name] = ; <span class="keyword">map:</span>{
+                    ; groupComment = [group-comment]
+                    ; elementList = <span class="keyword">list:</span>{[element-name] ; <span class="abbreviation">...</span>}
+                }
+            }
+        }
+        ; <span class="keyword">map:</span>{code=[code]; name=[name]; alias=[alias]; comment=[comment]}
+        ; <span class="keyword">map:</span>{
+            ; table=[table-name]
+            ; code=[column-name for code]; name=[column-name for name]
+            ; alias=[column-name for alias]; comment=[column-name for comment]}
+            ; where=[condition for select]; orderBy=[column-name for ordering]
+            ; exceptCodeList=[the list of except code]
+        }
+    }
+    ; ...
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="classificationname">classification-name (*)</h3>
+	<p>
+		区分値の名前です。そのままENUMのクラス名として利用されますので、プログラム上のENUMクラスとして扱える名前である必要があります。
+	</p>
+	<h3 id="topcomment">topComment (*)</h3>
+	<p>
+		区分値についての説明を定義します。区分値自体の名前や、わかりやすい説明があると良いでしょう。
+	</p>
+	<p>
+		このプロパティは必ず定義されている必要があります。
+		(厳密には定義しなくても動作することもありますが、幾つかのプロパティなどでは topComment
+		が存在していることが前提となるため、仕様としては必須項目です)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>どのような区分値であるかの説明文</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>生成する区分値メソッドのJavadocに出力</li>
+				<li>Javadocに適した内容であること</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="codetype">codeType</h3>
+	<p>
+		区分値のコードの型を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>String or Number or Boolean</dd>
+		<dt>デフォルト</dt><dd>String</dd>
+	</dl>
+	<p>
+		このプロパティを指定しても、CDefクラス(ENUM)のコード値の型はString型のまま変わりません。
+		このプロパティは、CDefクラスがテーブルのカラムとの関連から独立して利用されるような状況の場合、
+		例えば、ParameterBeanのプロパティとして区分値の型(CDef)を直接利用するような場合に、
+		JDBCへのバインドするときの型の判定の材料になるなど、その他特別な機能における調整の場で利用されます。
+	</p>
+	<p>
+		逆に言うと、このプロパティを指定しなくても(デフォルトはString)、
+		区分値の基本的な機能(ConditionBeanやEntityにおける区分値メソッドなど)は利用できますが、
+		習慣的に指定しておくことをお奨めします。
+	</p>
+	<h3 id="ischeckimplicitset">isCheckImplicitSet</h3>
+	<p>
+		暗黙の区分値の場合に、ReplaceSchemaのデータ登録やEntityへの区分値設定において、
+		定義されている区分値要素以外のコードが指定されたかどうかチェックします。定義されていないコードの場合は例外になります。
+		<span class="frm">@since 0.9.9.1B</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		ConditionBean での条件設定ではチェックされません。
+		あくまで、データ登録という面でのチェックなので、(自動生成されるクラスとしては)Entityの Setter
+		メソッドのみにおいてチェックされます。
+	</p>
+	<h3 id="isusedocumentonly">isUseDocumentOnly</h3>
+	<p>
+		その区分値を、自動生成されたクラスでは利用せず、SchemaHTMLなどのドキュメントのみでの利用をする場合に設定します。
+		プログラムのロジックとしては区分値を意識しないような場合に有効です(不要なメソッドが生成されない)。
+		<span class="frm">@since 0.9.9.1B</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		実装としては、Docタスク、ReplaceSchemaタスクにおいてのみ認識される区分値、という単純なロジックになっています。
+		よって、細かい挙動において、それに依存することがあります。
+	</p>
+	<h3 id="issuppressautodeploy">isSuppressAutoDeploy</h3>
+	<p>
+		テーブル区分値において、DBFluteが自動でカラムに関連付けるのを抑制します。
+		通常の利用では、このプロパティはまず必要ありません。
+		<span class="frm">@since 0.9.9.1B</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル区分値を使用する場合のみ有効</li>
+				<li>通常のテーブル区分値では抑制する必要はない</li>
+				<li>All-in-Oneテーブル区分値の場合(のみ)での利用が想定される</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/allinonetableclassification.html">DB設計 - All-in-Oneテーブル区分値について</a></div>
+	<h3 id="issuppressdbaccessclass">isSuppressDBAccessClass</h3>
+	<p>
+		テーブル区分値において、Behaviorの自動生成を抑制します。
+		テーブル区分値でBehaviorが不要な場合に、メモリ領域の節約として利用できます。
+		<span class="frm">@since 1.0.5B</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="groupingmap">groupingMap</h3>
+	<p>
+		とある複数の区分値が業務的な意味を持つような場合のグルーピング定義を指定します。<span class="frm">@since 0.9.9.7A</span>
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/classification/index.html#groupingmap">グルーピング判定</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>グルーピング定義のmap (グループ名と区分値要素の指定)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>暗黙の区分値でもテーブル区分値でも利用可能</li>
+				<li>区分値要素は、区分値要素の名前を指定 (コードではない)</li>
+				<li>存在しない区分値を指定した場合は自動生成時にコンパイルエラー</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#groupingmapexample">this - Example - グルーピング定義</a></div>
+	<h3 id="deprecatedmap">deprecatedMap</h3>
+	<p>
+		非推奨となった区分値要素に、Deprecatedを指定します。<span class="frm">@since 1.0.4F</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt>
+		<dd>非推奨定義のmap</dd>
+		<dd>map:{区分値要素のname = 非推奨となった理由}</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>非推奨の区分値要素のメソッドはプログラム上で deprecated になる</li>
+				<li>暗黙の区分値でもテーブル区分値でも利用可能</li>
+				<li>mapのキーとなる区分値要素は、区分値要素の名前を指定 (コードではない)</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#deprecatedexample">this - Example - 非推奨定義</a></div>
+	<h3 id="table">table</h3>
+	<p>
+		テーブル区分値を利用するときの該当するテーブル名を指定します。同時に該当区分値がテーブル区分値であることを示します。
+	</p>
+	<p>
+		テーブル区分値の場合は、table の無い通常の区分値要素の定義は不要です。区分値要素の情報は実際のDBから検索して取得されます。
+		よって、この場合は基本的に一つの区分値におけるmap型プロパティの定義は二つだけとなります(topComment用とテーブル区分値用)。
+	</p>
+	<p>
+		table を付与したmap型プロパティでは、code や name などは、値そのものではなく、その値を格納しているカラム名を指定します。 
+	</p>
+	<dl class="keymainlist">
+		<dt>code</dt><dd>コードに対応するカラム</dd>
+		<dt>name</dt><dd>名前(識別名)に対応するカラム</dd>
+		<dt>alias</dt><dd>別名(表示名)に対応するカラム</dd>
+		<dt>comment</dt><dd>コメントに対応するカラム</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html#tablecls">現場フィット - 区分値の設定 - テーブル区分値</a></div>
+	<div class="relatedpage"><a href="#tableexample">テーブル区分値のExample</a></div>
+	<p>
+		指定されたカラムで(DBFluteタスク内で)そのままSQLを実行しますので、実行できる形式で指定して下さい。
+		(例えば、大文字小文字を区別するDBMS環境であれば、必ずそれに合わせた名前で書くようにします)
+	</p>
+	<h4 id="tablequoted">テーブル名のクォート</h4>
+	<p>
+		指定されたテーブル名において、littleAdjustmentMap.dfprop の設定でクォート対象になっているか、
+		空白やハイフンなどのプログラム上のクラス名などで利用できない文字が利用されている場合、
+		該当テーブルからデータを取得する内部的な処理(SQL)において自動的にクォートされます。
+		これは、code や name などのカラム名を指定するプロパティでも同様です。
+		(where や order はSQL表現を指定するプロパティなので除外)
+	</p>
+	<div class="relatedpage"><a href="../littleadjustment/index.html#quotetablenamelist">dfprop - quoteTableNameList</a></div>
+	<div class="relatedpage"><a href="../../../../environment/supported.html#compile">プログラム上でコンパイルエラーになる名前</a></div>
+	<h4 id="tablesqlexp">テーブル名のSQL表現</h4>
+	<p>
+		自動クォートの機能があるため、例えば、関連テーブルを参照するためにテーブル名に加えて結合処理などをそのままこのプロパティに書くと、まるごとクォートされてしまいます。
+		このプロパティの先頭に $sql: と付与することでSQL表現がそのまま記述でき、クォート処理は施さずそのままSQLに反映させることができます<span class="frm">(@since 0.9.8.2)</span>。
+		コメントの内容として関連テーブルのカラムの値を参照したい、
+		テーブル区分値が階層構造になっていて、どの親カテゴリに属しているのかをコメントで表現したい、というような場合に有効です。
+	</p>
+	<div class="relatedpage"><a href="#sqlexpexample">this - Example - テーブル区分値のSQL表現</a></div>
+	<p>
+		この機能は、カラム名を指定する code や name なども同様に利用できます。一方で、where や orderBy
+		は、そもそもの仕様がSQL表現のため指定は不要です。
+	</p>
+	<h3 id="code">code (*)</h3>
+	<p>
+		それぞれの区分値要素のコード値を指定します。(暗黙の区分値の場合)
+	</p>
+	<div class="detailpage"><a href="#implicitexample">暗黙の区分値のExample</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>区分値要素の実際にDBに格納する値</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>テーブル区分値の場合は、コードに対応するカラムの名前を指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		大文字小文字区別なしで等しいコード値、例えば "FOO" と "foo" は別要素として定義できません。
+		テーブル区分値における指定されたカラムから取得されたコード値でも同様です。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/supported.html#caseinsensitiveequalpk">DBFluteのサポート情報 - 大文字小文字区別なし等値のPKで別レコード</a></div>
+	<h3 id="name">name (*)</h3>
+	<p>
+		区分値要素の名前(識別名)を指定します。(暗黙の区分値の場合)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>区分値要素のわかりやすい名前 (基本、英語名を想定)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>主に区分値メソッドの名前の一部に利用される</li>
+				<li>プログラム上のメソッド名に適した名前であること</li>
+				<li>テーブル区分値の場合は、名前に対応するカラムの名前を指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="alias">alias</h3>
+	<p>
+		区分値要素の別名(表示名)を指定します。(暗黙の区分値の場合)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>区分値要素のわかりやすいローカル言語(和名など)での名前</dd>
+		<dt>デフォルト</dt><dd>name と同じ</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>生成する区分値メソッドのJavadocに出力</li>
+				<li>Javadocに適した内容であること</li>
+				<li>テーブル区分値の場合は、別名に対応するカラムの名前を指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="comment">comment</h3>
+	<p>
+		区分値要素の説明を指定します。(暗黙の区分値の場合)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>区分値要素のわかりやすい説明</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>生成する区分値メソッドのJavadocに出力</li>
+				<li>Javadocに適した内容であること</li>
+				<li>テーブル区分値の場合は、コメントに対応するカラムの名前を指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="sistercode">sisterCode</h3>
+	<p>
+		code で指定されたコード値とは別に、コード値として扱うことのできる姉妹コードを指定します。(暗黙の区分値の場合)
+		<span class="frm">@since 0.9.9.4B</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html#sistercode">現場フィット - 区分値 - 姉妹コードの利用</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>コード値、もしくは、コード値のリスト</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>複数の場合は、list:{} 形式で指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#sisterexample">this - Example - 姉妹コード</a></div>
+	<p>
+		※テーブル区分値では利用できません。
+	</p>
+	<h3 id="subitemmap">subItemMap</h3>
+	<p>
+		区分値に追加する独自の属性を指定します。
+		<span class="frm">@since 0.9.9.3C</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html#subitemmap">現場フィット - 区分値 - 独自の属性</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>キー値と実際の値のマップ</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>全ての区分値要素に同じキーの属性が設定されている場合、CDefにそのキー名のメソッドが追加される</li>
+				<li>値としてmapやlist形式を利用しても、単なる文字列となるためパースが必要</li>
+				<li>テーブル区分値の場合は、値の代わりに対応するカラムを指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="#subitemmapexample">this - Example - 独自の属性</a></div>
+	<h3 id="where">where</h3>
+	<p>
+		テーブルから区分値を取得する際の絞り込み条件を指定します。(テーブル区分値専用)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>SQLのwhere句の条件式 (簡易なものに限る)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>主には削除フラグなどを条件にすることを想定</li>
+				<li>テーブル区分値を使用する場合のみ有効</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="orderby">orderBy</h3>
+	<p>
+		テーブルから区分値を取得する際のソート条件を指定します。(テーブル区分値専用)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>ソートするカラム名 (+ asc or desc)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>主には表示順カラムなどを指定することを想定</li>
+				<li>テーブル区分値を使用する場合のみ有効</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="exceptCodeList">exceptCodeList</h3>
+	<p>
+		テーブルから区分値を取得する際に除外するコード値を指定します。(テーブル区分値専用)
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>除外するDBのコード値</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>固定であるコードを除外したい場合に有効</li>
+				<li>テーブル区分値を使用する場合のみ有効</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="splitdfprop">dfpropファイルの分割</h2>
+	<h3 id="removeline">ある程度は工夫...</h3>
+	<p>
+		この dfprop は、しっかり使いこなし始めると、かなり大きなファイルになる可能性があります。
+	</p>
+	<p>
+		ある程度は、改行を工夫して、ファイルが長くならないようにしますが...
+	</p>
+<pre><span class="codetitle">e.g. あまり縦長にしないようにいいかんじに @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; table = MEMBER_STATUS ; code = MEMBER_STATUS_CODE
+            ; name = MEMBER_STATUS_NAME ; comment = DESCRIPTION
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		焼け石に水です。
+	</p>
+	<h3 id="dosplit">ファイルを分割しよう</h3>
+	<p>
+		かなり大きくなってきたら、会員系、商品系、レポート系など、カテゴリごとにファイルを分割すると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. カテゴリごとにファイルを分割 @Directory</span><code>
+dfprop
+ |-<span class="abbreviation">...</span>
+ |-classificationDefinitionMap_<span class="point">land</span>.dfprop  <span class="comment">// ランド系</span>
+ |-classificationDefinitionMap_<span class="point">sea</span>.dfprop   <span class="comment">// シー系</span>
+ |-classificationDefinitionMap.dfprop       <span class="comment">// 本体</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. ファイル分割の設定を本体のdfpropにて @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$split$$</span> = <span class="keyword">map:</span>{
+        ; <span class="point">land</span> = dummy
+        ; <span class="point">sea</span> = dummy
+    }
+
+    <span class="comment"># 本体の dfprop にも定義はできる</span>
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; table = MEMBER_STATUS ; code = MEMBER_STATUS_CODE
+            ; name = MEMBER_STATUS_NAME ; comment = DESCRIPTION
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		dummyは、将来拡張のための固定値です。
+	</p>
+	<p>
+		EMechaによるキー重複チェックが、ファイル間では効かないので設定ミスに注意しましょう。
+	</p>
+
+	<h2 id="example">Example</h2>
+	<h3 id="tableexample">テーブル区分値</h3>
+<pre><span class="codetitle">e.g. テーブル区分値を利用する例 {会員ステータス} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; table = MEMBER_STATUS
+            ; code  = MEMBER_STATUS_CODE ; name = MEMBER_STATUS_NAME
+            ; alias  = MEMBER_STATUS_ALIAS ; comment  = DESCRIPTION
+            ; where = DELETE_FLG != 0 <span class="comment"># 条件で除外</span>
+            ; orderBy = DISPLAY_ORDER
+            ; exceptCodeList = <span class="keyword">list:</span>{FOO ; BAR} <span class="comment"># 固定で除外</span>
+            ; suppressAutoDeploy = false
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="implicitexample">暗黙の区分値</h3>
+<pre><span class="codetitle">e.g. 暗黙の区分値を利用する例 {会員ステータス} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=入会から退会までの会員のステータスを示す; codeType=String}
+        ; <span class="keyword">map:</span>{code=PRV;name=Provisional;alias=仮会員  ;comment=入会直後のステータスで一部のサイトサービスが利用可能}
+        ; <span class="keyword">map:</span>{code=FML;name=Formalized ;alias=正式会員;comment=正式な会員としてサイトサービスが利用可能}
+        ; <span class="keyword">map:</span>{code=WDL;name=Withdrawal ;alias=退会会員;comment=退会が確定した会員でサイトサービスはダメ}
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 暗黙の区分値を利用する例 {フラグ} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; Flg = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=フラグを示す; codeType=Number}
+        ; <span class="keyword">map:</span>{code=1; name=True ; alias=はい  ; comment=有効を示す}
+        ; <span class="keyword">map:</span>{code=0; name=False; alias=いいえ; comment=無効を示す}
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="groupingmapexample">グルーピング定義</h3>
+<pre><span class="codetitle">e.g. サービスが利用可能なステータスのグルーピング定義 @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{
+            ; topComment=会員ステータス; codeType=String
+            ; groupingMap = <span class="keyword">map:</span>{
+                ; serviceAvailable = <span class="keyword">map:</span>{
+                    ; groupComment = サービスが利用できる会員
+                    ; elementList = <span class="keyword">list:</span>{正式会員;仮会員}
+                }
+                <span class="abbreviation">...</span>
+            }
+        }
+        ; <span class="keyword">map:</span>{ <span class="abbreviation">...</span> }
+        <span class="abbreviation">...</span>
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="sisterexample">姉妹コード</h3>
+<pre><span class="codetitle">e.g. 暗黙の区分値で姉妹コードを利用する例 {Flg} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; Flg = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=フラグ; codeType=Number}
+        ; <span class="keyword">map:</span>{
+            ; code=1; name=True; alias=Checked; comment=フラグが立っている
+            ; sisterCode=true
+        }
+        ; <span class="keyword">map:</span>{
+            code=0; name=False; alias=Unchecked; comment=フラグが立っていない
+            ; sisterCode=false
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="subitemmapexample">独自の属性</h3>
+<pre><span class="codetitle">e.g. 暗黙の区分値で姉妹コードを利用する例 {Flg} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; FooBar = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=独自の属性のExample; codeType=String}
+        ; <span class="keyword">map:</span>{
+            ; code=FOO; name=Foo; alias=Who; comment=Fooさん
+            ; subItemMap=map:{
+                ; priceType=ABC ; rank=2
+            }
+        }
+        ; <span class="keyword">map:</span>{
+            ; code=BAR; name=Bar; alias=Ver; comment=Barさん
+            ; subItemMap=map:{
+                ; priceType=XYZ ; rank=5
+            }
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="sqlexpexample">テーブル区分値のSQL表現</h3>
+<pre><span class="codetitle">e.g. テーブル区分値のSQL表現の例 (階層型) @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; Genre = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{topComment=Genre of Music; codeType=Number}
+        ; <span class="keyword">map:</span>{
+            ; table=<span class="attribute">$sql:</span> GENRE loc <span class="keyword">left outer join</span> GENRE rel <span class="keyword">on</span> loc.PARENT_ID = rel.GENRE_ID
+            ; code=<span class="attribute">$sql:</span> loc.GENRE_ID; name=<span class="attribute">$sql:</span> loc.GENRE_NAME
+            ; comment=<span class="attribute">$sql:</span> 'of ' || rel.GENRE_NAME
+            ; orderBy=loc.PARENT_ID <span class="keyword">is not null</span>, loc.GENRE_ID
+        }
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="deprecatedexample">非推奨の区分値要素</h3>
+<pre><span class="codetitle">e.g. 非推奨の区分値要素を指定する例 {会員ステータス} @classificationDefinitionMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; MemberStatus = <span class="keyword">list:</span>{
+        ; <span class="keyword">map:</span>{
+            ; topComment=入会から退会までの会員のステータスを示す; codeType=String
+            <span class="point">; deprecatedMap = map:{ 仮会員 = もう仮なんて言わせないから }</span>
+        }
+        <span class="abbreviation">...</span>
+    }
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

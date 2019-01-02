@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,機能,更新,Update" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Behaviorの更新系 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Behaviorの更新系</h1>
+	<p>
+		外だしSQL以外のBehaviorの更新系の機能について
+	</p>
+	${indexlist}
+
+	<h2 id="linklist">リンクの一覧</h2>
+	<dl class="hierarchylist">
+		<dt><a href="./insert.html">insert(entity)</a></dt><dd>一件登録</dd>
+		<dt><a href="./update.html">update(entity)</a></dt><dd>排他制御あり一件更新</dd>
+		<dt><a href="./updatenonstrict.html">updateNonstrict(entity)</a></dt><dd>排他制御なし一件更新</dd>
+		<dt><a href="./delete.html">delete(entity)</a></dt><dd>排他制御あり一件削除</dd>
+		<dt><a href="./deletenonstrict.html">deleteNonstrict(entity)</a></dt><dd>排他制御なし一件削除</dd>
+		<dt><a href="./deletenonstrictignoredeleted.html">deleteNonstrictIgnoreDeleted(entity)</a></dt><dd>排他制御なし一件削除(なければ無視)</dd>
+		<dt><a href="./insertorupdate.html">insertOrUpdate(entity)</a></dt><dd>排他制御あり一件登録もしくは更新</dd>
+		<dt><a href="./insertorupdatenonstrict.html">insertOrUpdateNonstrict(entity)</a></dt><dd>排他制御なし一件登録もしくは更新</dd>
+		<dt><a href="./batchinsert.html">batchInsert(entityList)</a></dt><dd>バッチ登録</dd>
+		<dt><a href="./batchupdate.html">batchUpdate(entityList)</a></dt><dd>排他制御ありバッチ更新</dd>
+		<dt><a href="./batchupdatenonstrict.html">batchUpdateNonstrict(entityList)</a></dt><dd>排他制御なしバッチ更新</dd>
+		<dt><a href="./batchdelete.html">batchDelete(entityList)</a></dt><dd>排他制御ありバッチ削除</dd>
+		<dt><a href="./batchdeletenonstrict.html">batchDeleteNonstrict(entityList)</a></dt><dd>排他制御なしバッチ削除</dd>
+		<dt><a href="./queryupdate.html">queryUpdate(entity, cb)</a></dt><dd>ConditionBeanによる更新</dd>
+		<dt><a href="./querydelete.html">queryDelete(cb)</a></dt><dd>ConditionBeanによる削除</dd>
+		<dt><a href="./varyingupdate.html">varyingUpdate(entity, option)</a></dt><dd>排他制御あり相対値での更新 <span class="frm">@since 0.9.7.2</span></dd>
+		<dt><a href="./varyingupdatenonstrict.html">varyingUpdateNonstrict(entity, option)</a></dt><dd>排他制御なし相対値での更新 <span class="frm">@since 0.9.7.2</span></dd>
+		<dt><a href="./varyingqueryupdate.html">varyingQueryUpdate(entity, cb, option)</a></dt><dd>ConditionBeanによる相対値での更新 <span class="frm">@since 0.9.7.2</span></dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

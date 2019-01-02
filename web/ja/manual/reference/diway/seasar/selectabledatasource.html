@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Seasar(S2Container),SelectableDataSource,SelectableDataSourceProxy,冗長化,DB切り替え" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SelectableDataSource | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SelectableDataSource</h1>
+	${indexlist}
+
+	<h2 id="overview">冗長化複数DB</h2>
+	<p>
+		冗長化複数DBの構成の際に利用する機能です。DBアクセスの処理の際に、接続する DataSource
+		を動的に切り替えて負荷分散などを実現する仕組みが Seasar(S2Container)
+		には備わっています。DBFluteで冗長化複数DBを実現する場合も、その機能を活用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html#redundant">冗長化複数DB</a></div>
+	<p>
+		典型的な例として、MasterDB と SlaveDB と二つ以上のDBを用意し、更新処理は全て MasterDB
+		で行い、検索処理の一部を(更新内容が同期された) SlaveDB で行うというパターンがあります。
+		MasterDB に障害が発生した場合は SlaveDB が MasterDB となってサービスが継続できます。
+	</p>
+	<p>
+		ここでは、Master, Slave を想定した構成を前提に説明を行いますが、他のパターンでも応用できます。
+	</p>
+
+	<h2 id="howto">SelectableDataSourceの使い方</h2>
+	<p>
+		MasterDB を masterDataSource、SlaveDB を slaveDataSource
+		という名前で定義すると仮定します(以降、全ての例において同様)。
+	</p>
+	<h3 id="diconimage">Dicon構造</h3>
+	<p>
+		jdbc.dicon で定義している dataSource コンポーネントの実体を、SelectableDataSourceProxy
+		クラスに変更し、二つ(もしくは三つ以上)の DB に対する jdbc-xxx.dicon を作成して include します。
+	</p>
+	<p>
+		jdbc.dicon には、SelectableDataSourceProxy の dataSource コンポーネントだけを定義し、それぞれの jdbc-xxx.dicon
+		では、それぞれの DB に対応した "もともとの jdbc.dicon の構成" を定義します。
+	</p>
+	<dl class="textlist">
+		<dt>jdbc.dicon</dt>
+		<dd>SelectableDataSourceProxy の dataSource コンポーネント</dd>
+		<dd>jdbc-master.dicon, jdbc-slave.dicon への include</dd>
+		<dd>jta.dicon, jdbc-extension.dicon への include</dd>
+		<dt>jdbc-master.dicon</dt>
+		<dd>MasterDB のための xaDataSource, connectionPool</dd>
+		<dd>DataSourceImpl の masterDataSource コンポーネント</dd>
+		<dd>jta.dicon, jdbc-extension.dicon への include</dd>
+		<dt>jdbc-slave.dicon</dt>
+		<dd>SlaveDB のための xaDataSource, connectionPool</dd>
+		<dd>DataSourceImpl の slaveDataSource コンポーネント</dd>
+		<dd>jta.dicon, jdbc-extension.dicon への include</dd>
+	</dl>
+	<p>
+		xxxDataSource の xxx 部分が切り替え先DBを識別する DataSourceName となります。
+	</p>
+	<p class="imgbox">図 : SelectableDataSourceのDicon構造
+		<a href="../../../../data/model/friends/friends-Seasar-SelectableDSDicon-view.png" title="SelectableDataSourceのDicon構造"><img src="../../../../data/model/friends/friends-Seasar-SelectableDSDicon-view.png" alt="SelectableDataSourceのDicon構造" width="550" height="350" /></a>
+	</p>
+	<h3 id="betaimpl">ベタな実装方法</h3>
+	<p>
+		非常に単純でベタな実装方法は以下のようになります。
+	</p>
+<pre><span class="codetitle">e.g. SelectableDataSource のベタな実装方法 @Java</span><code>
+<span class="keyword">protected</span> MemberBhv <span class="attribute">memberBhv</span>;
+<span class="keyword">protected</span> DataSourceFactory <span class="attribute">dataSourceFactory</span>; <span class="comment">// injected</span>
+
+<span class="keyword">public void</span> fooAndBar() {
+    <span class="attribute">dataSourceFactory</span>.setSelectableDataSourceName(<span class="literal">"master"</span>);
+    Member member = <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span> 
+    <span class="attribute">memberBhv</span>.update(member); <span class="comment">// master の会員を更新</span>
+
+    <span class="attribute">dataSourceFactory</span>.setSelectableDataSourceName(<span class="literal">"slave"</span>);
+    MemberCB cb = <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.select(cb); <span class="comment">// slave の会員を検索</span>
+}
+</code></pre>
+	<p>
+		DataSourceFactory は、Seasar に組み込まれている jdbc-extension.dicon にて定義されています。
+		デフォルトでは何の DataSource とも関連付いていないため、DBアクセスする前は必ず何かしらの DB を指定する必要があります。
+	</p>
+	<p>
+		通常、このように利用することはあり得ません。
+		仕組みをわかりやすく理解するための Example です。
+	</p>
+	<h3 id="realisticimpl">現実的な実装方法</h3>
+	<p>
+		現実的には、DBアクセスのたびに指定するのはあり得ない感じなので、Interceptor
+		などの共通処理で切り替えます。デフォルトのDBの設定と切り替えのロジックを実装します。
+	</p>
+	<p>
+		例えば、通常は MasterDB の方にDBアクセスし、SlaveDB
+		を示すアノテーションがメソッドに定義されていたら、そのメソッド内だけ SlaveDB
+		にDBアクセスするというやり方が考えられます。
+	</p>
+<pre><span class="codetitle">e.g. SelectableDataSource の現実的な実装方法 (Interceptor) @Java</span><code>
+<span class="keyword">protected</span> DataSourceFactory <span class="attribute">dataSourceFactory</span>; <span class="comment">// injected</span>
+
+<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
+    String current = <span class="attribute">dataSourceFactory</span>.getSelectableDataSourceName();
+    <span class="keyword">try</span> {
+        String selectableName = getSelectableDataSourceName();
+        <span class="attribute">dataSourceFactory</span>.setSelectableDataSourceName(selectableName);
+        <span class="keyword">return</span> invocation.proceed();
+    } <span class="keyword">finally</span> {
+        <span class="attribute">dataSourceFactory</span>.setSelectableDataSourceName(current);
+    }
+}
+
+<span class="keyword">protected</span> String getSelectableDataSourceName(MethodInvocation invocation) {
+    <span class="keyword">if</span> (hasSlaveAnnotation(invocation)) {
+        <span class="keyword">return</span> <span class="literal">"slave"</span>;
+    } <span class="keyword">else</span> {
+        <span class="keyword">return</span> <span class="literal">"master"</span>; <span class="comment">// MasterDB as default</span>
+    }
+}
+
+<span class="keyword">protected</span> <span class="keyword">boolean</span> hasSlaveAnnotation(MethodInvocation invocation) {
+    <span class="comment">// メソッドに SlaveDB を示すアノテーションが付いていたら true</span>
+    <span class="comment">// (そのアノテーションは自作)</span>
+    <span class="keyword">return</span> <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. SelectableDataSource の現実的な実装方法 (Logic) @Java</span><code>
+<span class="keyword">protected</span> MemberBhv <span class="attribute">memberBhv</span>;
+<span class="keyword">protected</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+<span class="point">@SlaveDB</span>
+<span class="keyword">public</span> void selectHeavy() { <span class="comment">// このメソッド内のDBアクセスは全て SlaveDB へ</span>
+    MemberCB cb = <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectList(cb);
+    PurchaseCB cb = <span class="abbreviation">...</span>
+    <span class="abbreviation">...</span> = <span class="attribute">purchaseBhv</span>.selectList(cb);
+}
+</code></pre>
+	<p>
+		この Interceptor は、DBアクセスをする可能性のあるプロセスの入り口となるコンポーネント、
+		および、DBアクセス先を切り替える可能性のあるコンポーネントに関連付けます。例えば、Page, Action, Service, Logicクラスなどです。
+		バリデーションやバリデーションエラーなどの処理の中でDBアクセスをする場合は、それらメソッドにも関連付ける必要があります。
+	</p>
+	<p>
+		この(独自の) Interceptor は、例えば S2ClassBuilder で aop.dicon にコンポーネントを追加できる aop++.dicon
+		に定義し、customizer.dicon にてどのコンポーネントに定義するか関連付けます。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/friends/s2classbuilder.html">S2ClassBuilder</a></div>
+	<p>
+		また、Interceptor は通常 public メソッドにのみ動作しますので、間違えて protected
+		メソッドに付けないようにディベロッパーに通知しておく必要があります。
+	</p>
+	<h3 id="transaction">トランザクションは独立</h3>
+	<p>
+		Master と Slave のようなレプリケーション構成の場合は、そもそも更新処理を Master
+		に集中させないといけないためあまり気にする必要はありませんが、トランザクションはそれぞれのDBごとに独立したものになります。
+		そのことだけはしっかり理解しておいた方が良いでしょう。
+	</p>
+	<h3 id="selectonly">更新処理の混在に注意</h3>
+	<p>
+		Master と Slave のようなレプリケーション構成の場合は、Slave
+		の方で更新処理が走らないように注意する必要があります。ここでの例で言えば、SlaveDB
+		アノテーションが付与されているメソッド内で insert() や upadte() を呼び出してはいけません。
+	</p>
+	<p>
+		Slave への接続を ReadOnly にしておけばエラーで検知することができますが、
+		できるだけ更新処理の混在が発生しないようにしたい場合は、シンプルなコールバック方式や更新処理フックなどを利用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#callback">this - よりシンプルにコールバックで</a></div>
+	<div class="relatedpage"><a href="#updatehook">this - 更新処理フックでMasterDBに</a></div>
+
+	<h2 id="callback">よりシンプルにコールバックで</h2>
+	<p>
+		Master と Slave のようなレプリケーション構成の場合は、Slave
+		の方で更新処理が走らないように注意する必要があります。ここでの例で言えば、SlaveDB
+		アノテーションが付与されているメソッド内で insert() や upadte() を呼び出してはいけません。
+		また、トランザクションはそれぞれ独立したものになります。
+	</p>
+	<p>
+		もし、アノテーション方式だとちょっと更新処理の紛れが怖いというのであれば、先ほどの Interceptor
+		に加えて、コールバック処理でピンポイントで指定できるようにするのも一つの選択肢です。
+		このとき、Interceptor でアノテーション方式を有効にするか否かは実際に利用するかどうかと相談ですが、
+		やり方が何通りもあると混乱しがちなので、この場合はアノテーション方式は適用しない方が良いでしょう。
+		(ちなみに、その場合でもデフォルトのDBを設定するために Interceptor 自体は必要です)
+	</p>
+<pre><span class="codetitle">e.g. SlaveDBへアクセスするユーテリィティの導入 @Java</span><code>
+@Resource
+<span class="keyword">protected</span> SlaveDBAccessor <span class="attribute">slaveDBAccessor</span>;
+
+<span class="keyword">public void</span> foo() {
+    <span class="keyword">final</span> MemberCB cb = <span class="keyword">new</span> MemberCB();
+    cb.setupSelect<span class="abbreviation">...</span>
+    cb.query().set<span class="abbreviation">...</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessFixedly(<span class="keyword">new</span> SlaveDBCallback() {
+        <span class="keyword">public</span> List&lt;Member&gt; callback() {
+            <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb);
+        }
+    });
+}
+</code></pre>
+	<p>
+		この例では、SlaveDBAccessor を jdbc.dicon で slaveDBAccessor という名前でコンポーネントとして登録し、access()
+		メソッドの中で dataSourceFactory に対して SlaveDB に設定をする実装を想定しています。(コールバックが終わったら元のDBへ戻します)
+	</p>
+
+	<h2 id="defaultdb">デフォルトのDBの設定</h2>
+	<p>
+		先ほどの SlaveDBAccessor を利用してアノテーション方式を適用しない場合でも、デフォルトのDBを指定するために
+		Interceptor は必要です。ただそれだけのための Interceptor を作成して定義するのに少々ためらうのであれば、SelectableDataSourceProxy
+		を継承してデフォルトのDB(通常は MasterDB)を指定すれば、その Interceptor なしで実現できます。
+	</p>
+	<p>
+		SelectableDataSourceProxy の getDataSource() をオーバーライドし、dataSourceFactory から DataSourceName
+		が取得できなかったときに、デフォルトの DataSourceName を利用して DataSource
+		を戻すように修正します。このクラスを jdbc.dicon に代わりに定義します。
+	</p>
+<pre><span class="codetitle">e.g. SelectableDataSourceProxy を継承してデフォルトのDBを設定 @Java</span><code>
+<span class="keyword">public class</span> AppSelectableDataSourceProxy <span class="keyword">extends</span> SelectableDataSourceProxy {
+
+    @Override
+    <span class="keyword">public</span> DataSource getDataSource() {
+        String dataSourceName = <span class="attribute">dataSourceFactory</span>.getSelectableDataSourceName();
+        <span class="keyword">if</span> (dataSourceName == <span class="keyword">null</span>) {
+            dataSourceName = <span class="literal">"masterDataSource"</span>; <span class="comment">// as default</span>
+        }
+        <span class="keyword">return</span> <span class="attribute">dataSourceFactory</span>.getDataSource(dataSourceName);
+    }
+}
+</code></pre>
+
+	<h2 id="updatehook">更新処理フックでMasterDBに</h2>
+	<p>
+		アノテーション方式、コールバック方式に限らず、とにかく紛れた更新処理が万が一でも SlaveDB
+		に向かないような "すべり止め" 的な仕組みを施すと良いでしょう。
+	</p>
+	<p>
+		CallbackContext の BehaviorCommandHook
+		を利用することで、DBFluteの更新処理に対して強制的に MasterDB に変更する処理をフックさせることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/runtimefit/behaviorcommandhook/index.html">Behavior実行のフック</a></div>
+<pre><span class="codetitle">e.g. BehaviorCommandHook を使って更新処理を強制的に MasterDB に @Java</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// BehaviorCommandHook を設定</span>
+CallbackContext.setBehaviorCommandHookOnThread(<span class="keyword">new</span> BehaviorCommandHook() {
+    <span class="keyword">protected</span> String <span class="attribute">currentName</span>;
+    <span class="keyword">protected boolean</span> forcedSet;
+
+    <span class="keyword">public void</span> hookBefore(BehaviorCommandMeta meta) {
+        <span class="keyword">if</span> (needsForcedMasterCommand(meta)) {
+            <span class="keyword">final</span> String masterDB = <span class="literal">"master"</span>;
+            <span class="attribute">currentName</span> = <span class="attribute">dataSourceFactory</span>.getSelectableDataSourceName();
+            if (!masterDB.equals(currentName)) {
+                if (<span class="attribute">_log</span>.isDebugEnabled()) {
+                    <span class="attribute">_log</span>.debug(<span class="literal">"...Accessing to MasterDB forcedly: "</span> + masterDB);
+                }
+                <span class="attribute">dataSourceFactory</span>.setSelectableDataSourceName(masterDB);
+                <span class="attribute">forcedSet</span> = <span class="keyword">true</span>;
+            }
+        }
+    }
+
+    <span class="keyword">protected boolean</span> needsForcedMasterCommand(BehaviorCommandMeta meta) {
+        return !meta.isSelect();
+    }
+
+    <span class="keyword">public void</span> hookFinally(BehaviorCommandMeta meta, RuntimeException cause) {
+        <span class="keyword">if</span> (<span class="attribute">forcedSet</span>) {
+            <span class="attribute">dataSourceFactory</span>.setSelectableDataSourceName(currentName);
+        }
+    }
+});
+
+<span class="abbreviation">...</span>
+
+<span class="comment">// 最後は必ずどこかでクリアすること</span>
+CallbackContext.clearBehaviorCommandHookOnThread
+</code></pre>
+	<p>
+		BehaviorCommandMeta の meta.isSelect() は、全てのプロシージャコールにおいて false
+		と判定されます。つまり、検索だけで別に SlaveDB に実行してもよいプロシージャも MasterDB
+		に向いてしまいます。あくまで更新処理が SlaveDB に向かないようにするための "すべり止め"
+		であることが前提です。その辺、どこまで厳密に判定するかはプロジェクトの要件と BehaviorCommandMeta
+		の仕様(JavaDocコメント)と相談して実装すると良いでしょう。
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-flexserver-example にて、SelectableDataSource
+		を利用しています。Example のための無理矢理なレリプケーションですが、実装は参考にできるでしょう。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#friends">DBFlute Example - 他のフレームワークとの組み合わせ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

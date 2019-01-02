@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,MySQL,カーソル検索,メモリ対策,大量件数,Integer.MIN_VALUE,Streaming result set" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>MySQLの本当のカーソル検索 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>MySQLの本当のカーソル検索</h1>
+	${indexlist}
+
+	<h2 id="cursormemory">カーソル検索でのメモリ対策</h2>
+	<p>
+		MySQLのJDBCドライバでは、カーソル検索をしてもメモリ対策になりません。
+		検索結果のResultSetを構築した時点で、全ての検索結果のデータをメモリに持ってしまうからです。
+		<span class="frm">(少なくとも Connector/J-5.1.46 においては)</span>
+	</p>
+	<p>
+		つまり、DBFlute側で一件ずつフェッチのようにカーソル検索をしていても、それはあくまで "論理的なカーソル検索"
+		に過ぎず、JDBCドライバーの中でJavaVMのメモリ上に全件保持されてしまい、大量件数の場合は OutOfMemoryError の可能性があるのです。
+	</p>
+
+	<h2 id="minvalsolution">Integer.MIN_VALUE技</h2>
+	<p>
+		JDBCパラメータの FetchSize に Integer.MIN_VALUE を指定すると一件ずつフェッチの動作になり、大量件数の検索に対応できます。
+		DBFluteでは、StatementConfig を使って FetchSize を指定するか、カーソル検索におけるデフォルトの FetchSize を指定することで実現できます。
+		<span class="frm">(useCursorFetchオプションについては後述)</span>
+	</p>
+	<h3 id="configure">configure() で StatementConfig</h3>
+	<p>
+		ConditionBeanでは、configure()メソッドで StatementConfig を設定できます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/statementconfig.html">DBFluteランタイム - StatementConfig</a></div>
+<pre><span class="codetitle">e.g. ConditionBeanで Integer.MIN_VALUE を設定 @Java</span><code>
+<span class="attribute">memberBhv</span>.selectCursor(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span><span class="abbreviation">...</span>
+
+    <span class="comment">// このように設定することで、一件ずつフェッチになって大量件数の検索できる</span>
+    <span class="comment">// もしくは、littleAdjustmentMap.dfpropで設定すれば、cbごとの設定は必要なし</span>
+    <span class="localvar">cb</span>.configure(<span class="localvar">conf</span> -&gt; <span class="localvar">conf</span>.fetchSize(Integer.<span class="attribute">MIN_VALUE</span>));
+}, <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="dfprop">dfpropで固定的にMIN_VALUE</h3>
+	<p>
+		ただ、つどつどCBごとに設定するとなると、漏れが発生する可能性があります。
+		dfpropにて、<em class="keyword">カーソル検索のときだけ常に FetchSize を Integer.MIN_VALUE に</em>
+		することができます。開発始めから想定するのであれば、configure()よりもdfpropの方が良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/littleadjustment/index.html#cursorselectfetchsize">dfprop - cursorSelectFetchSize</a></div>
+<pre><span class="codetitle">e.g. ConditionBeanで Integer.MIN_VALUE を設定 @littleAdjustmentMap.dfprop</span><code>
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o cursorSelectFetchSize: (NotRequired - Default null)
+    #  The fetch size of JDBC parameter for cursor select.
+    #  For example, specify Integer.MIN_VALUE to enable fetch of MySQL.
+    #</span>
+    ; <span class="point">cursorSelectFetchSize</span> = <span class="literal">Integer.MIN_VALUE</span>
+    <span class="comment"># - - - - - - - - - -/</span>
+</code></pre>
+
+	<h2 id="minvalheadache">MIN_VALUE技の副作用</h2>
+	<h3 id="streamingactive">Streaming result set ... still active</h3>
+	<p>
+		ただ、Integer.MIN_VALUEの設定をすると今度は、<em class="keyword">カーソル検索のコールバックの中で、カーソル検索と同じトランザクションを利用したDBアクセスができなくなる</em>
+		ため、運用途中からの統一的な適用には注意が必要です<span class="frm">(このため、DBFluteもデフォルトにできず...他のDBMSではこういうことはない)</span>。
+	</p>
+<pre><span class="codetitle">e.g. Integer.MIN_VALUEしたときに、コールバック内でDBアクセスしたときの例外 @Log</span><code>
+<span class="keyword">Caused by</span>: <span class="attribute">java.sql.SQLException</span>:
+  Streaming result set com.mysql.jdbc.RowDataDynamic@7646731d is still active.
+  No statements may be issued when any streaming result sets are open and in use on a given connection.
+  Ensure that you have called .close() on any active streaming result sets before attempting more queries.
+    at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:870)
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		なので、コールバックの中でDBアクセスをする場合は、別トランザクションにする必要があります。
+		<span class="frm">(どのみち、カーソル検索を使う時は、業務的に一件ずつトランザクションで処理をすることが多いでしょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. Integer.MIN_VALUE時のカーソル検索のコールバック内で更新処理 @Java</span><code>
+<span class="attribute">memberBhv</span>.selectCursor(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span><span class="abbreviation">...</span>
+}, <span class="localvar">member</span> -&gt; { <span class="comment">// この中では、まだカーソル検索の接続が継続中</span>
+    <span class="abbreviation">...</span>
+
+    <span class="comment">// この処理を別トランザクションにする</span>
+    <span class="comment">// トランザクションのかけ方は、フレームワーク (e.g. DIコンテナ) によって変わる</span>
+    <span class="attribute">memberBhv</span>.update(<span class="localvar">member</span>);
+});
+</code></pre>
+	<h3 id="realonefetch">キャッシュなしの一件ずつフェッチ!?</h3>
+	<p>
+		また、この設定により、フェッチ処理が(キャッシュなしで)一件ずつになるため、逆にパフォーマンスが劣化する可能性を否定できません。
+		一応、DBFluteではそのパフォーマンス問題に悩む場合の回避機能があります。
+	</p>
+	<p>
+		Integer.MIN_VALUEを利用した場合のパフォーマンス劣化対策として、
+		カーソル検索の内部動作を "べたなページング" 方式にするオプションがあります。
+		単に 1000 件ずつページング検索して、カーソル検索っぽく振る舞うやり方です。<span class="frm">@since 1.0.3</span>
+	</p>
+	<p>
+		littleAdjustmentMap.dfprop の cursorSelectFetchSize に
+		Integer.MIN_VALUE が指定されていて、かつ、MySQLの場合は、ConditionBeanに customizeCursorSelect()
+		というメソッドが生成され、CursorSelectOption が指定できるようになります。そのオプションで、byPagingOrderByPK()
+		もしくは byPagingSimply() を指定すると、べたページングになります。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/littleadjustment/index.html#cursorselectfetchsize">dfprop - cursorSelectFetchSize</a></div>
+<pre><span class="codetitle">e.g. べたページング、IDソート @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.customizeCursorSelect(<span class="keyword">new</span> CursorSelectOption().byPagingOrderByPK(<span class="literal">1000</span>));
+cb.query().addOrderBy_MemberId_Asc();
+</code></pre>
+	<p>
+		厳密には、通常のカーソル検索と結果が同じになるとは限りません。
+		内部的に検索を繰り返しているため、他のプロセスによる更新の影響を後の方の検索が受ける可能性があるためです。
+		ただ、MySQLのトランザクション分離レベルが RepeatableRead
+		(デフォルト)であれば、その心配はないかもしれませんが、業務的にそれを許容できるかどうかは <em class="keyword">必ず</em>
+		確認してください。(RepeatableReadであっても、カーソル検索部分がトランザクションになってなければ無意味ですので要注意)
+	</p>
+	<p>
+		byPagingOrderByPK()は、PKでソートされていることが前提となり、PKソートでない場合は例外が発生します。
+		安全性が "比較的" 高いため、べたページングで一番推奨されているやり方です。
+		(他のプロセスの更新で順序が入れ替わる可能性は "比較的" 低いため)
+	</p>
+	<p>
+		byPagingSimply() は、PK以外のソートで利用できますがページングの最中で順序がバラバラになり、
+		同じレコードがもう一度処理されてしまう可能性と処理されるはずのレコードが処理されない可能性が否定できないため非推奨です。
+		RepeatableReadであれば大丈夫である可能性がありますが、利用する場合は利用する側で厳密な確認を <em class="keyword">必ず</em> してください。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="usecursorfetch">useCursorFetchは惜しい!?</h2>
+		<p>
+			一方で、MySQLの接続URLのオプションで、useCursorFetch というのがあります。こちらであれば、fetchCursor
+			で指定サイズ分のフェッチができるので、Integer.MIN_VALUE技よりも効率的です。
+		</p>
+		<p>
+			なので、理想的には、接続URLに useCursorFetch
+			を指定しつつ、DBFlute の cursorSelectFetchSize で (例えば) 50 を指定すると、プログラム上では意識せずに大量データ検索ができます。
+			ただ、接続URLに useCursorFetchをついつい本番環境で忘れてしまったり、スペルを間違えてしまったりすると、いつの日か OutOfMemory
+			というのも怖いので<span class="frm">(スペルミスでもエラーにならないし...)</span>、しっかり確認をした方が良いでしょう。
+			<span class="frm">(その確認の時間が取れないなら、cursorSelectFetchSize で Integer.MIN_VALUE でも...)</span>
+		</p>
+		<div class="relatedpage"><a href="https://twitter.com/jflute/status/855670775063298048">useCursorFetchについてのjfluteのつぶやき</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

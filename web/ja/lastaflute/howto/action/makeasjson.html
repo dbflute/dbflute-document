@@ -1,0 +1,821 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Actionの作り方 (JSONスタイル) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Actionの作り方 (JSONスタイル)</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<div class="relatedpage"><a href="./index.html">LastaFlute の Action</a></div>
+	${indexlist}
+
+	<h2 id="flow">実装の流れ</h2>
+	<h3 id="precon">ちょっと前提</h3>
+	<p>
+		ここでは、docksidestage.org というドメイン、つまりパッケージは <em class="mark">org.docksidestage</em>
+		を想定し、<em class="mark">harbor</em> というアプリ名であることを想定して説明していきます。
+	</p>
+	<h3 id="handson">ハンズオンで Action を作ってみよう！</h3>
+	<p>
+		LastaFluteでの実装のやり方を学んでいる最中であれば、まずは、Exampleプロジェクト harbor
+		で、実際にクラスを作りながらやっていってもよいでしょう。コードを真似て書きながら(コピーでもOK)、画面を作っていくと流れとコツがわかってくるかと思います。
+		<span class="frm">(それができるようにドキュメントを作っています)</span>
+	</p>
+	<p>
+		harborプロジェクトは、組み込みの H2 Database を使っているので、データベースのインストールは不要です。
+		ただし、clone した後、ReplaceSchema を叩くの忘れないように。<span class="frm">(Quick Trial の欄を参考に)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor">lastaflute-example-harbor | Github</a></div>
+	<h3 id="rough">まずはラフスケッチ実装</h3>
+	<p>
+		一行一行、しっかり書いていくのではなく、まずは流れを実装して、全体像を構築してから細かいところを固めていくというスタイルをオススメしています。
+		最初の一ターン目はラフスケッチです。わからないことがあったら保留して次に進み、全体像を把握できる状態になってからつまづいたところを解決していきましょう。
+	</p>
+	<ol>
+		<li><a href="#designurl">URLを決める</a></li>
+		<li><a href="#makeaction">Actionクラスを作る</a></li>
+		<li><a href="#prepareexecute">Executeメソッドを準備</a></li>
+		<li><a href="#makeform">Formを作る</a></li>
+		<li><a href="#makejsonresult">JSON Resultを作る</a></li>
+		<li><a href="#implexecute">Executeメソッドを実装</a></li>
+		<li><a href="#roughfinished">ラフスケッチできた</a></li>
+	</ol>
+
+	<h2 id="designurl">URLを決める</h2>
+	<p>
+		まずは、URLを決めましょう。 
+	</p>
+	<p>
+		ここでは <em class="mark">/lido/sea/3?pay=HAN</em> (/lido/sea/[商品ID]?pay=[支払方法]) というGETリクエストの対応する Action を作ることにしましょう。
+	</p>
+	<p>
+		/3 の部分はPathパラメーターで商品IDと想定し、<em class="mark">ログイン会員(自分)とフォローしている会員の、指定された商品に対応する購入一覧</em> と <em class="mark">今のあなたの気分</em>
+		を JSON で戻すとします。もし、payが指定されていたら、指定された方法で支払された購入に絞ります。<span class="frm">(maihamadb を参考に、よくわからなければ後で)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/example/exampledb.html">MaihamaDB</a></div>
+
+	<h2 id="makeaction">Actionクラスを作る</h2>
+	<h3 id="actionname">Actionの名前を決める</h3>
+	<p>
+		/3 はPathパラメーターとするならば、Actionを識別する部分が /lido/sea/ となり、
+	</p>
+	<ul>
+		<li>A. <em class="mark">Lido</em>Action#<em class="mark">sea</em>()</li>
+		<li>B. <em class="mark">LidoSea</em>Action#index()</li>
+	</ul>
+	<p>
+		の、どちらかとなります。<em class="keyword">(規約)</em>
+	</p>
+	<div class="relatedpage"><a href="./index.html#urlmapping">LastaFlute の Action - URL Mapping</a></div>
+	<p>
+		最後の sea という要素の下にさらに分割された要素が来るのか次第です。
+		<span class="frm">(とりあえず漠然と決めて、あとでやっぱりこっちだった、となればリファクタリングすればOKです。変更してもURLには影響しません)</span>
+	</p>
+	<p>
+		ここでは、seaの下さらに要素があると想定して、<em class="mark">LidoSeaAction#index()</em> を作りましょう。
+		<span class="frm">(index()は、HTMLのindex.htmlと同様に、要素がないことを表現します。実質的に、その Action のデフォルトメソッドと考えて良いでしょう)</span>
+	</p>
+	<h3 id="pkglocation">Actionのパッケージ(配置場所)を決める</h3>
+	<p>
+		LidoSeaAction であれば...
+	</p>
+	<ul>
+		<li>A. ...app.web.LidoSeaAction</li>
+		<li>B. ...app.web.<em class="mark">lido</em>.LidoSeaAction</li>
+		<li>C. ...app.web.<em class="mark">lido.sea</em>.LidoSeaAction</li>
+	</ul>
+	<p>
+		のどれかになります。<em class="keyword">(規約)</em>
+	</p>
+	<div class="relatedpage"><a href="./index.html#pkglocation">LastaFlute の Action - Action Package</a></div>
+	<p>
+		web直下に置くのは、よほどのメジャー感のあるものなので、基本的には B, C となるでしょう。
+		lidoの仲間がすごく多いことが想定される場合は C ですが、まずは B にしておいて、後から移動してもよいでしょう。
+		<span class="frm">(あとでパッケージを移動しても、URLやプログラムに影響はありません)</span>
+	</p>
+	<p>
+		ここでは、...app.web.<em class="mark">lido.sea</em> に置くことにしましょう。
+	</p>
+	<h3 id="actuallymakeaction">実際に作る</h3>
+	<p>
+		実際に org.docksidestage.app.web.lido.sea.LidoSeaAction にクラスを作ってみましょう。
+	</p>
+<pre><span class="codetitle">e.g. Action class location @Package</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-app
+ |  |  |-logic
+ |  |  |-web
+ |  |  |  |-<span class="subpoint">lido</span>
+ |  |  |  |  |-<span class="subpoint">sea</span>
+ |  |  |  |  |  |-<span class="point">LidoSeaAction.java</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-bizfw
+ |  |-dbflute
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="prepareexecute">Executeメソッドを準備</h2>
+	<h3 id="extendsbase">Baseクラスを継承</h3>
+	<p>
+		まずは、作成したActionにて、そのアプリのBaseクラスを継承しましょう。アプリ名が harbor
+		であれば、	<em class="mark">HarborBaseAction</em> を継承します。<span class="frm">(そのアプリのBaseActionが用意されているはずです)</span>
+	</p>
+<pre><span class="codetitle">e.g. Action class extends Base class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaAction <span class="subpoint">extends</span> <span class="point">HarborBaseAction</span> {
+}
+</code></pre>
+	<h3 id="executedef">Executeメソッドを定義</h3>
+	<p>
+		ここでは、JSONスタイルの Execute メソッド <em class="mark">index()</em>
+		を作ってみましょう。
+	</p>
+	<p>
+		Executeアノテーションを付けて戻り値は JsonResponse&lt;LidoSeaResult&gt;,
+		そして、Pathパラメーター /3 を受け取る引数を最初に定義して、GETパラメーターを受け取る Form を最後の引数に定義します。<em class="keyword">(規約)</em>
+	</p>
+	<div class="relatedpage"><a href="./index.html#actionclass">LastaFlute の Action - Action Class</a></div>
+<pre><span class="codetitle">e.g. Action class extends Base class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaAction <span class="keyword">extends</span> HarborBaseAction {
+
+    @Execute
+    <span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;LidoSeaResult&gt;</span> index(Integer <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    	<span class="comment">// まだ、Formがない、Resultがない、returnがないので三つンパイルエラーです！</span>
+    	<span class="comment">// この後、FormとResultを作って、戻り値を指定しますので、ちょっとそのままで。</span>
+    }
+}
+</code></pre>
+	<p>
+		もし、Pathパラメーターの /3 が非必須の要素であれば、productId の型を OptionalThing&lt;Integer&gt;
+		にします。省略されたときは empty になります。そもそも、PathパラメーターもFormパラメーターもないのであれば、引数なしでOKです。
+	</p>
+
+	<h2 id="makeform">Formを作る</h2>
+	<h3 id="formdef">Formクラスを定義</h3>
+	<p>
+		LidoSeaForm は定義してみましたが、まだ存在しないのでコンパイルエラーです。
+	</p>
+	<p>
+		<em class="keyword">Formのクラス名は Form で終わる</em> 必要があります<em class="keyword">(規約)</em>。その前の名前は任意ですが、Actionとイメージの近い名前がオススメです。
+		ここでは、<em class="mark">LidoSeaForm</em> という名前で作りましょう。
+	</p>
+	<p>
+		パッケージ(置き場所)は、Actionクラスと同じ (つまり、Actionの隣に置く) がオススメです。
+	</p>
+<pre><span class="codetitle">e.g. Form class location @Directory</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-app
+ |  |  |-logic
+ |  |  |-web
+ |  |  |  |-lido
+ |  |  |  |  |-sea
+ |  |  |  |  |  |-LidoSeaAction.java
+ |  |  |  |  |  |-<span class="point">LidoSeaForm.java</span>
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-bizfw
+ |  |-dbflute
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="formimpl">Formの実装</h3>
+	<p>
+		publicフィールドで受け取るパラメーターのプロパティを定義します。フリー入力項目でなければ、Stringではなく、Integer や LocalDate
+		や CDef (区分値) など、ネイティヴな型で宣言してOKです。
+		<span class="frm">(変換できない値だったら、それはシステム上のミス、もしくは、いたずらということで 400 になる)</span>
+	</p>
+	<p>
+		ここでは、pay=HANというGETパラメーターに対応して、payプロパティを定義しましょう。
+		商品ステータスの区分値なので、CDef 型で宣言します。
+	</p>
+<pre><span class="codetitle">e.g. Form class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaForm {
+
+    <span class="keyword">public</span> <span class="point">CDef.PaymentMethod</span> <span class="attribute">pay</span>;
+}
+</code></pre>
+	<p>
+		もし、バリデーションを行うなら、Validatorアノテーションを付けます。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html">LastaFlute Validation</a></div>
+	<dl class="longvaluemainlist">
+		<dt>必須チェック</dt><dd>@Required <span class="frm">(String, Integerなんでも使える)</span></dd>
+		<dt>文字列の最大長</dt><dd>@Length</dd>
+		<dt>数値の最大値</dt><dd>@Max</dd>
+		<dt>などなど</dt><dd>いろいろ</dd>
+	</dl>
+	<p>
+		ここでは、payプロパティを必須にしてしまいましょう。<span class="frm">(何も付けないと説明しづらいので...)</span>
+	</p>
+<pre><span class="codetitle">e.g. Form class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaForm {
+
+    <span class="point">@Required</span>
+    <span class="keyword">public</span> CDef.PaymentMethod <span class="attribute">pay</span>;
+}
+</code></pre>
+	<h3 id="bodylater">JSON Bodyはまた後で</h3>
+	<p>
+		ちなみに、リクエストを (Request Bodyの) JSON で受け取る場合は、Form ではなく Body
+		クラスを使います。JSON API を作るときは、Bodyの方がメインになることが想定されますが、いったんここでは簡易に動作確認をするために Form
+		で作ることにしましょう。<span class="frm">(クラス名の終わりを Body にするだけなので作ること自体は簡単です)</span>
+	</p>
+	<div class="relatedpage"><a href="./index.html#jsonbody">JSON Body (for JSON in request body)</a></div>
+
+	<h2 id="makejsonresult">JSON Resultを作る</h2>
+	<h3 id="jsonresultdef">JSON Resultクラスを定義</h3>
+	<p>
+		レスポンスで戻すJSONを表現する JSON Resultクラスを作りましょう。
+	</p>
+	<p>
+		特にクラス名に規約はありませんが、Resultで終わる名前にするのか慣習です。ここでは、<em class="mark">LidoSeaResult</em> という名前で作りましょう。
+	</p>
+	<p>
+		パッケージ(置き場所)は、Actionクラスと同じ (つまり、Actionの隣に置く) がオススメです。 
+	</p>
+<pre><span class="codetitle">e.g. JSON Result class location @Directory</span><code>
+src/main/java
+ |-org.docksidestage
+ |  |-app
+ |  |  |-logic
+ |  |  |-web
+ |  |  |  |-lido
+ |  |  |  |  |-sea
+ |  |  |  |  |  |-LidoSeaAction.java
+ |  |  |  |  |  |-LidoSeaForm.java
+ |  |  |  |  |  |-<span class="point">LidoSeaResult.java</span>
+ |  |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |-bizfw
+ |  |-dbflute
+ |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="jsonresultimpl">JSON Resultの実装</h3>
+	<p>
+		プロパティの宣言の仕方は、基本的に Form と同じです。
+	</p>
+	<p>
+		ここでは、検索されたデータ項目と "今のあなたの気分" を表現しましょう。
+	</p>
+<pre><span class="codetitle">e.g. properties for display in JSON Result class @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaResult {
+
+    @NotNull
+    @Valid
+    <span class="keyword">public</span> List&lt;LidoSeaProductPart&gt; <span class="attribute">products</span>;
+
+    <span class="keyword">public static class</span> LidoSeaProductPart {
+
+        @Required
+        <span class="keyword">public</span> Long <span class="attribute">purchaseId</span>;
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">memberName</span>;
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">productName</span>;
+        @Required
+        <span class="keyword">public</span> String <span class="attribute">productHandleCode</span>;
+        @Required
+        <span class="keyword">public</span> LocalDate <span class="attribute">purchaseDate</span>;
+        @Required
+        <span class="keyword">public</span> Integer <span class="attribute">purchasePrice</span>;
+    }
+
+    @Required
+    <span class="keyword">public</span> String <span class="attribute">yourMood</span>;
+}
+</code></pre>
+	<p>
+		ネストした要素を表現するクラスは、staticのインナークラスで表現するのが慣習です。
+		特に再利用するわけでもないので、わざわざ独立したクラスにする必要はないでしょうし、一緒に宣言されていたほうが JSON の形が見えやすいという考えです。
+		また、内部の一部分を表現するクラスということで、<em class="mark">Part</em> で終わるクラス名にするのも慣習です。
+		<span class="frm">(慣習なので従わなくてもいいのですが、クラス検索したときとかわかりやすいので、LastaFluteのデフォルト慣習として)</span> 
+	</p>
+	<h3 id="jsonresultvalidation">JSON Result でも Validation</h3>
+	<p>
+		JSON Result でも Validator Annotation を付けましょう<span class="frm">(@Required や @NotNull など基本的なものだけ)</span>。
+		JSONの戻りに対する自分自身のチェックと解釈することができます。
+		クライアント側でエラーがあるとデバッグしづらいので事前に防ぐとともに、ドキュメント的な意味合いも兼ねます。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#responsevalidation">見通しのValidation - 番外. レスポンスデータのバリデーション</a></div>
+	<p>
+		リストは、空っぽ(0件)もあり得るのであれば @Required ではなく、@NotNull (nullだけのチェック) にしておきましょう。
+		また、ネストした要素のクラスのバリデーションも有効にするために @Valid も忘れずに。
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#bigcheck">見通しのValidation - 三大チェックポイント</a></div>
+
+	<h2 id="implexecute">Executeメソッドを実装</h2>
+	<h3 id="returnfornow">ひとまずreturnを書いておく</h3>
+	<p>
+		returnは後であれこあカスタマイズするかもしれませんが、コンパイルエラーのまま実装するのはつらいので、とりあえず解決しておきます。
+	</p>
+	<p>
+		asJson([JSON Resultのインスタンス]) を return します。
+	</p>
+<pre><span class="codetitle">e.g. return JsonResponse with JSON Result @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="subpoint">JsonResponse&lt;LidoSeaResult&gt;</span> index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    LidoSeaResult <span class="localvar">result</span> = <span class="keyword">new</span> LidoSeaResult();
+    <span class="keyword">return</span> <span class="point">asJson</span>(<span class="localvar">result</span>); 
+}
+</code></pre>
+	<p>
+		<span class="frm">(jflute備忘録: デモンストレーションのとき、ここで Boot で画面アクセス)</span>
+	</p>
+	<h3 id="validate">validateApi()を呼ぶ</h3>
+	<p>
+		FormにValidatorアノテーションを一つでも付けているなら、validateApi() を呼ぶ必要があります。
+	</p>
+<pre><span class="codetitle">e.g. validateApi() in Action class @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;LidoSeaResult&gt; index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    <span class="point">validateApi</span>(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+    LidoSeaResult <span class="localvar">result</span> = <span class="keyword">new</span> LidoSeaResult();
+    <span class="keyword">return</span> asJson(<span class="localvar">result</span>); 
+}
+</code></pre>
+	<p>
+		Eclipseであれば、秘伝の EditorTemplate が設定されていれば、魔法のように補完できます。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/onjava8.html#triclipse">DBFlute on Java8 - 裏技あります</a></div>
+	<p>
+		相関バリデーションやDBを使ったバリデーションなど、アノテーションでは実現できないものは、第二引数の Lambda の中で実装します。
+		<span class="frm">(if文でチェックしてメッセージを追加)</span>
+	</p>
+	<div class="relatedpage"><a href="./lavalidation.html#morevalidation">見通しのValidation - 3. Lambdaで、もっとValidation</a></div>
+	<p>
+		"Api" の付かない単なる validate() メソッドは、HTMLを戻すときのためのメソッドなので、今回は関係ありません。
+		ただ、JSON APIサーバーを作るときは、validateApi() しか使わないのに毎回呼び分けることになってしまうので、[App]BaseAction が implements
+		しているインターフェースを差し替えて、validate() を validateApi() と同じにすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./lajsonapi.html#validateapi">素早さのJSON API - API用のvalidateApi()</a></div>
+	<h3 id="selectbydbflute">DBFluteで検索しよう</h3>
+	<p>
+		DBFluteを使って検索・更新などを行うのであれば...基点テーブルの Behavior を DI しましょう。
+	</p>
+	<p>
+		ここでは、購入の一覧でしたから、基点テーブルは <em class="mark">PURCHASE</em> です。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Behavior's DI @Java</span><code>
+@Resource
+<span class="keyword">private</span> <span class="point">PurchaseBhv</span> <span class="attribute">purchaseBhv</span>;
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		そして、ConditionBean で検索しましょう。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. select by ConditionBean @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;LidoSeaResult&gt; index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    validateApi(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+    Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+    ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> -&gt; {
+        <span class="localvar">cb</span>.setupSelect_Member();
+        <span class="localvar">cb</span>.setupSelect_Product();
+        <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+        <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+            <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+            <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+            });
+        });
+        <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+            <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+        });
+        <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+    });
+    LidoSeaResult <span class="localvar">result</span> = <span class="keyword">new</span> LidoSeaResult();
+    <span class="keyword">return</span> asJson(<span class="localvar">result</span>); 
+}
+</code></pre>
+	<p>
+		<span class="frm">※実際、商品IDが固定なので、商品は単独データ取得してリストでは要らないはずですが、簡略化しています</span>
+	</p>
+	<p>
+		ログインしているユーザーの情報は、getUserBean() で取得できます。
+		ここでは、ログインしていることが前提なので、戻り値の OptionalThing は問答無用で get() してしまいます。
+	</p>
+	<p>
+		まだ、ラフスケッチ中なので、完璧な実装じゃなくてもOKです。とりあえずなんか検索できれば。
+	</p>
+	<h3 id="mappingto">JSON Resultにマッピング</h3>
+	<p>
+		検索したデータ (Entity) を、JSON Result にマッピングします。<span class="frm">(いわゆる詰替え)</span>
+	</p>
+<pre><span class="codetitle">e.g. mapping to JSON Result in Action class @Java</span><code>
+
+@Resource
+<span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;LidoSeaResult&gt; index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    validateApi(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+    Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+    ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(cb -&gt; {
+        <span class="abbreviation">...</span>
+    });
+    LidoSeaResult <span class="localvar">result</span> = <span class="keyword">new</span> LidoSeaResult();
+    <span class="localvar">result</span>.<span class="attribute">products</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+        LidoSeaProductPart <span class="localvar">part</span> = <span class="keyword">new</span> LidoSeaProductPart();
+        <span class="localvar">part</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+        <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+            <span class="localvar">part</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+        });
+        <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+            <span class="localvar">part</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+            <span class="localvar">part</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+        });
+        <span class="localvar">part</span>.purchaseDate = <span class="localvar">purchase</span>.getPurchaseDatetime().toLocalDate();
+        <span class="localvar">part</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+        <span class="keyword">return</span> <span class="localvar">part</span>;
+    }).collect(Collectors.toList());
+    <span class="localvar">result</span>.<span class="attribute">yourMood</span> = <span class="literal">"オープンリーチ一発ツモされて満貫の親っかぶりした気分"</span>;
+    <span class="keyword">return</span> asJson(<span class="localvar">result</span>);
+}
+</code></pre>
+	<p>
+		ちなみに、リフレクションで詰め替えるとかは強烈に非推奨です。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/architect.html#entityset">EntityとDTOとの詰め替えは地道に</a></div>
+
+	<h2 id="roughfinished">ラフスケッチできた</h2>
+	<p>
+		さて、これでラフスケッチ実装は終了です。全体像が、見えてきたでしょうか？
+	</p>
+	<h3 id="actionfornow">とりあえずActionはこんな感じ</h3>
+	<p>
+		この時点では、このような感じで Action ができあがっているはずです。
+	</p>
+<pre><span class="codetitle">e.g. rough sketch finished @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaAction <span class="keyword">extends</span> HarborBaseAction {
+
+    @Resource
+    <span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;LidoSeaResult&gt; index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+        validateApi(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+        Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.setupSelect_Member();
+            <span class="localvar">cb</span>.setupSelect_Product();
+            <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+            <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+                <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+                <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                    <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+                });
+            });
+            <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+                <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+            });
+            <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+        });
+        LidoSeaResult <span class="localvar">result</span> = <span class="keyword">new</span> LidoSeaResult();
+        <span class="localvar">result</span>.<span class="attribute">products</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+            LidoSeaProductPart <span class="localvar">part</span> = <span class="keyword">new</span> LidoSeaProductPart();
+            <span class="localvar">part</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+            <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+                <span class="localvar">part</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+            });
+            <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+                <span class="localvar">part</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+                <span class="localvar">part</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+            });
+            <span class="localvar">part</span>.purchaseDate = <span class="localvar">purchase</span>.getPurchaseDatetime().toLocalDate();
+            <span class="localvar">part</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+            <span class="keyword">return</span> <span class="localvar">part</span>;
+        }).collect(Collectors.toList());
+        <span class="localvar">result</span>.<span class="attribute">yourMood</span> = <span class="literal">"オープンリーチ一発ツモされて満貫の親っかぶりした気分"</span>;
+        <span class="keyword">return</span> asJson(<span class="localvar">result</span>);
+    }
+}
+</code></pre>
+	<h3 id="firstboot">Bootしてアクセスしてみましょう</h3>
+	<p>
+		Bootクラスを起動して、実際にそのURLでアクセスしてみましょう。
+		恐らく非常にそっけない画面しか表示されないと思いますが、ログをみてちゃんと動いていればこの先に進めます。
+	</p>
+	<p>
+		ここでは、<em class="mark">HarborBoot</em> クラスの main() を実行しましょう。
+	</p>
+<pre><span class="codetitle">e.g. HarborBoot @Java</span><code>
+/**
+ * @author jflute
+ */
+<span class="keyword">public class</span> HarborBoot { <span class="comment">// #change_it_first</span>
+
+    <span class="keyword">public static void</span> main(String[] args) { <span class="comment">// e.g. java -Dlasta.env=production -jar harbor.war</span>
+        <span class="keyword">new</span> JettyBoot(<span class="literal">8090</span>, <span class="literal">"/harbor"</span>).asDevelopment(isDevelopment()).bootAwait();
+    }
+
+    <span class="keyword">private static boolean</span> isDevelopment() {
+        return System.getProperty(<span class="literal">"lasta.env"</span>) == null;
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. boot log @Console</span><code>
+INFO  (...@showBoot():105) - _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+INFO  (...@showBoot():106) -  the system has been initialized:
+INFO  (...@showBoot():107) - 
+INFO  (...@showBoot():108) -   -> Harbor (Local Development)
+INFO  (...@showBoot():109) - _/_/_/_/_/_/_/_/_/_/
+Boot successful as development: url -> <span class="literal">http://localhost:8090/harbor</span>
+</code></pre>
+	<p>
+		ここで、<a href="http://localhost:8090/harbor/lido/sea/3?pay=HAN"><em class="mark">http://localhost:8090/harbor/lido/sea/3?pay=HAN</em></a> にアクセスしてみましょう。
+		さて、ブラウザで何が表示されたでしょうか？
+	</p>
+	<p>
+		この時点で単純にアクセスするとログイン必須エラーになります。
+		harborプロジェクトはログイン機能を使っているのでActionクラスはデフォルトでログイン必須になっていますし、処理の中でログインユーザーの情報を利用しているのでログインが前提です。
+	</p>
+	<p>
+		そして、一度ログイン画面 <a href="http://localhost:8090/harbor/signin"><em class="mark">http://localhost:8090/harbor/signin</em></a>
+		にアクセスして、ログインしてから lido/sea にアクセスしてみてください。
+	</p>
+	<h3 id="serverlog">サーバーのログでも確認してみましょう</h3>
+	<p>
+		サーバーのログ (IDEのコンソールなど) にも着目してみましょう。
+		想定通りのSQLが実行されて、想定通しのJSONレスポンスが戻っていることを確認してみてください。
+	</p>
+	<p>
+		LastaFluteでこのようにログが出る、ということを知っておくことも大切です。うまく活用してスムーズなデバッグライフを送ってください。
+	</p>
+	<h3 id="refactoring">ちょいっとリファクタリング</h3>
+	<p>
+		ちょっとメソッド長いですね。実際に業務だと、もっと大きくなる可能性があります。
+	</p>
+	<p>
+		IDEのショートカットを使って、稲妻のようにリファクタリングして、確認のためもう一度アクセスしてみましょう。
+		<span class="frm">(jflute備忘録: デモンストレーションのとき稲妻のように)</span>
+	</p>
+<pre><span class="codetitle">e.g. after refactoring @Java</span><code>
+<span class="comment">/**
+ * @author yourname
+ */</span>
+<span class="keyword">public class</span> LidoSeaAction <span class="keyword">extends</span> HarborBaseAction {
+
+    <span class="comment">// ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========</span>
+    @Resource
+    <span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;LidoSeaResult&gt; index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+        validateApi(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = selectPurchaseList(<span class="localvar">productId</span>, <span class="localvar">form</span>);
+        LidoSeaResult <span class="localvar">result</span> = mappingToResult(<span class="localvar">purchaseList</span>);
+        <span class="keyword">return</span> asJson(<span class="localvar">result</span>);
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                              Select
+    //                                                                              ======</span>
+    <span class="keyword">private</span> ListResultBean&lt;Purchase&gt; selectPurchaseList(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+        Integer <span class="localvar">userId</span> = <span class="subpoint">getUserBean()</span>.get().getUserId();
+        ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span> = <span class="attribute">purchaseBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+            <span class="localvar">cb</span>.setupSelect_Member();
+            <span class="localvar">cb</span>.setupSelect_Product();
+            <span class="localvar">cb</span>.query().setProductId_Equal(<span class="localvar">productId</span>);
+            <span class="localvar">cb</span>.orScopeQuery(<span class="localvar">orCB</span> -> {
+                <span class="localvar">orCB</span>.query().setMemberId_Equal(<span class="localvar">userId</span>);
+                <span class="localvar">orCB</span>.query().queryMember().existsMemberFollowingByYourMemberId(<span class="localvar">followingCB</span> -> {
+                    <span class="localvar">followingCB</span>.query().setMyMemberId_Equal(<span class="localvar">userId</span>);
+                });
+            });
+            <span class="localvar">cb</span>.query().existsPurchasePayment(<span class="localvar">paymentCB</span> -&gt; {
+                <span class="localvar">paymentCB</span>.query().setPaymentMethodCode_Equal_AsPaymentMethod(form.<span class="attribute">pay</span>);
+            });
+            <span class="localvar">cb</span>.query().addOrderBy_PurchaseDatetime_Desc();
+        });
+        return <span class="localvar">purchaseList</span>;
+    }
+
+    <span class="comment">// ===================================================================================
+    //                                                                             Mapping
+    //                                                                             =======</span>
+    <span class="keyword">private</span> LidoSeaResult mappingToResult(ListResultBean&lt;Purchase&gt; <span class="localvar">purchaseList</span>) {
+        LidoSeaResult <span class="localvar">result</span> = <span class="keyword">new</span> LidoSeaResult();
+        <span class="localvar">result</span>.<span class="attribute">products</span> = <span class="localvar">purchaseList</span>.stream().map(<span class="localvar">purchase</span> -&gt; {
+            LidoSeaProductPart <span class="localvar">part</span> = <span class="keyword">new</span> LidoSeaProductPart();
+            <span class="localvar">part</span>.<span class="attribute">purchaseId</span> = <span class="localvar">purchase</span>.getPurchaseId();
+            <span class="localvar">purchase</span>.getMember().alwaysPresent(<span class="localvar">member</span> -&gt; {
+                <span class="localvar">part</span>.<span class="attribute">memberName</span> = <span class="localvar">member</span>.getMemberName();
+            });
+            <span class="localvar">purchase</span>.getProduct().alwaysPresent(<span class="localvar">product</span> -&gt; {
+                <span class="localvar">part</span>.<span class="attribute">productName</span> = <span class="localvar">product</span>.getProductName();
+                <span class="localvar">part</span>.<span class="attribute">productHandleCode</span> = <span class="localvar">product</span>.getProductHandleCode();
+            });
+            <span class="localvar">part</span>.purchaseDate = <span class="localvar">purchase</span>.getPurchaseDatetime().toLocalDate();
+            <span class="localvar">part</span>.purchasePrice = <span class="localvar">purchase</span>.getPurchasePrice();
+            <span class="keyword">return</span> <span class="localvar">part</span>;
+        }).collect(Collectors.toList());
+        <span class="localvar">result</span>.<span class="attribute">yourMood</span> = <span class="literal">"オープンリーチ一発ツモされて満貫の親っかぶりした気分"</span>;
+        <span class="keyword">return</span> <span class="localvar">result</span>;
+    }
+}
+</code></pre>
+
+	<h2 id="deftest">DefTestでポリシーチェック</h2>
+	<p>
+		"Action定義のテスト" のドキュメントをよく読み...
+	</p>
+	<div class="detailpage"><a href="./actiondeftest.html">Action定義のテスト (ActionDefTest)</a></div>
+	<p>
+		HarborActionDefTest を実行してみましょう。
+	</p>
+	<p>
+		現時点で特に何か落ちるような不備はないはずなので、結果はgreenになるはずです。
+		何か一つでも、わざと落ちるような修正をしてみて、結果がredになるようにして例外メッセージを読んでみましょう。
+		<span class="frm">(読み終わったら元に戻して、greenになることを確認しましょう)</span>
+	</p>
+	<p>
+		LastaFluteには、最初からこのような横断的なプログラムのポリシーチェックをする UnitTest
+		が用意されています。UnitTestは気軽に実行できるものですから、"Actionを作りながら" や "Actionを作り終わったとき"
+		などに、実行してみてポリシー崩れがないかどうか確認するようにしましょう。 
+	</p>
+
+	<h2 id="lastadoc">LastaDocの自動生成</h2>
+	<p>
+		"Actionのドキュメント自動生成" のドキュメントをよく読み...
+	</p>
+	<div class="detailpage"><a href="../dbflute/lastadoc.html">Actionのドキュメント自動生成 (LastaDoc)</a></div>
+	<p>
+		LastaDocを自動生成し直して、新しく自分で作った SeaLandAction が LastaDoc に反映されることを確認してみましょう。
+	</p>
+	<p>
+		LastaFluteには、このようにActionに関するドキュメントを自動生成する機能が備わっています。
+		DBFluteで言えば、SchemaHTML のようなものです。ぜひ、有効活用していってください。
+	</p>
+
+	<h2 id="tryhotdeploy">ホットデプロイ体験</h2>
+	<p>
+		例えば、cb.query().setProductId_Equal(productId) を一時的にコメントアウトして、(再起動せずに)アクセスしてみましょう。
+		検索結果が変わるはずです。<span class="frm">(終わったら戻しておきましょう)</span>
+	</p>
+	<p>
+		appパッケージ配下のクラスは、ホットデプロイ (HotDeploy) が効きますので、修正したらすぐに反映されます。
+		それの特徴をうまく活用して、開発効率を上げていってください。
+		<span class="frm">(ただし、FreeGenなどDBFluteの自動生成を挟んだときは再起動が必要です)</span>
+	</p>
+	<div class="relatedpage"><a href="../dbflute/lafreegen.html">なんでも自動生成 (FreeGen)</a></div>
+
+	<h2 id="jsonbody">JSON Bodyに変更してみよう</h2>
+	<p>
+		JSON APIを作るときは、やはりリクエストも JSON にすることが多いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./index.html#jsonbody">JSON Body (for JSON in request body)</a></div>
+	<h3 id="formtobody">Form を Body という名前に</h3>
+	<p>
+		Formクラスの Form を、Body に名前変更するだけです。IDEのリファクタリング機能を使って rename してみましょう。
+		変数名も form から body にするのを忘れずに。
+	</p>
+<pre><span class="codetitle">e.g. change Form to Body JQuery @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;LidoSeaResult&gt; index(<span class="keyword">int</span> <span class="localvar">productId</span>, <span class="point">LidoSeaBody</span> <span class="subpoint">body</span>) {
+        <span class="abbreviation"></span>
+    }
+</code></pre>
+	<p>
+		動作確認のためにブラウザからリクエストを飛ばすのがちょっと工夫が必要なので、一例を示しておきます。
+		<span class="frm">(Thanks, orito)</span>
+	</p>
+	<h3 id="chromejquery">Chrome開発者ツールを開いてJQuery</h3>
+	<p>
+		Chrome開発者ツール (別のブラウザでもそれに相当するもの) を起動して、まず JQuery を使えるようにします。
+		<span class="frm">(JQueryが必ず必要ってわけじゃなく、単純に簡易にリクエストを飛ばすために)</span>
+	</p>
+<pre><span class="codetitle">e.g. prepare JQuery @JavaScript</span><code>
+!function () {
+  var script = document.createElement("script");
+  script.setAttribute("src", "//code.jquery.com/jquery-2.0.0.min.js");
+  document.body.appendChild(script);
+}();
+</code></pre>
+	<h3 id="sendjsonbyjs">JSONのリクエストを送信するJavaScript</h3>
+	<p>
+		そして、pay=HAN部分がJSONになったリクエストを送信します。
+	</p>
+<pre><span class="codetitle">e.g. send POST as JSON Body @JavaScript</span><code>
+$.ajax({
+	url: 'http://localhost:8090/harbor/lido/sea/3',
+	data: JSON.stringify({
+		pay: 'HAN'
+    }),
+	type: 'POST',
+	contentType: 'application/json',
+	dataType: "json"
+}).done(function(data){
+    console.log(data);
+});
+</code></pre>
+	<h3 id="confirmbylog">でもってサーバーのログで確認</h3>
+	<p>
+		サーバーのログ (IDEのコンソールなど) で、想定通りのJSONを受け取って、想定通りのJSONを戻していることを確認しましょう。
+	</p>
+	<p>
+		リクエストされた JSON もログに表示されるようになっています。
+	</p>
+	<h3 id="useswagger">実際にはSwaggerを使うと良いでしょう</h3>
+	<p>
+		もし、JSON APIの開発で JSON Body のリクエストばかり受け付ける API を作るのであれば、Swagger
+		を使うと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="./laswagger.html">Swaggerで動作確認</a></div>
+	<p>
+		LastaFluteで Swagger を使うために最適化された <em class="mark">lasta-doc.jar</em> というライブラリがあります。
+		harborには入ってないので、ここでは気軽に試せませんが、もしスタートアップした実際のプロジェクトで Swagger を使った動作確認をするのであれば、環境構築して使える状態にしましょう。
+	</p>
+	<div class="relatedpage"><a href="../structure/swaggerenv.html">Swaggerの環境セットアップ</a></div>
+	<p>
+		<span class="frm">※harborは、あくまで "サーバーサイドHTML + Ajax"
+		を想定したプロジェクトなので、Swaggerはあまり必要ないと想定して入っていません。(逆に、不要なものが入らないように)</span>
+	</p>
+
+	<h2 id="littletips">ちょこっとTips</h2>
+	<h3 id="supermethod">スーパークラスのメソッド、何が使える？</h3>
+	<p>
+		Actionクラスの中で、this.docu...() と document
+		メソッドを補完して、JavaDocを表示してみてください。すると...
+	</p>
+<pre><span class="codetitle">e.g. document methods @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(<span class="keyword">int</span> <span class="localvar">productId</span>, LidoSeaForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    <span class="point">this.docu</span> <span class="comment">// 補完して、IDE上でJavaDoc表示</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		実装しながら、ふとActionの規約を忘れちゃったときとか、ブラウザで検索してドキュメントを探す...ではなく、
+		ササッと this.docu... ってやってみるといいかもですね。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

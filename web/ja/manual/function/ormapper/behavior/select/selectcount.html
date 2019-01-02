@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,selectCount,カウント検索,件数検索,select count(*),ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectCount(cb) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectCount(cb)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">ConditionBeanをもとにカウント検索</em> (select count(*))をします。
+	</p>
+	<p>
+		ページング条件が設定されていても、ページング条件を無視したカウントを取得します。
+		また、必ず該当テーブルのユニークなカウントを取得します。例えば、PKの存在するテーブルであれば、count(*) の "*" の中には必ず PK
+		カラムが含まれます。PKなしテーブルであれば、"*" には (SpecifyColumnの有無に関わらず) 全てのカラムが含まれます。
+	</p>
+	<div class="relatedpage"><a href="#unioncolumn">this - UnionQuery での select 句のカラム</a></div>
+	<p>
+		会話上では、<em class="keyword">せれくとかうんと</em>
+		と表現します。文脈上、抽象的で伝わりにくい場合は <em class="keyword">Behaviorのせれくとかうんと(メソッド)</em>
+		や <em class="keyword">ConditionBeanのせれくとかうんと</em>
+		などと言うとわかりやすいでしょう。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		Behaviorの <em class="keyword">selectCount()</em>
+		を呼び出し、ConditionBeanを指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. selectCount()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selCo <span class="comment">// .selCo と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "cbLambda" が選択状態に</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectCount</span>(cbLambda)
+--
+
+<span class="comment">// _ll で補完 (DBFlute補完テンプレートが有効なら)</span>
+<span class="attribute">memberBhv</span>.selectCount(<span class="subpoint">_ll</span>)
+--
+
+<span class="comment">// Lambda引数名はcbにして...</span>
+<span class="attribute">memberBhv</span>.selectCount(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+})
+--
+
+<span class="comment">// セミコロン ';' を打って ctrl+2, L で戻り値補完</span>
+<span class="keyword">int</span> count = <span class="attribute">memberBhv</span>.selectCount(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+});
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+	<p>
+		1.0.x (Java6版) であれば...
+	</p>
+<pre><span class="codetitle">e.g. selectCount()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selCo <span class="comment">// .selCo と打って enter</span>
+--
+<span class="comment">// セミコロン ';' を打って ctrl+2, L</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectCount(cb)</span>;
+--
+<span class="keyword">int</span> count = <span class="attribute">memberBhv</span>.selectCount(cb);
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのConditionBeanとなります。<span class="frm">(1.1.xよりコールバック)</span>
+	</p>
+	<p>
+		ConditionBeanが必ず存在することが前提であるため、nullを指定した場合は例外発生します。
+		検索条件がない検索をする場合でも、必ずConditionBeanのインスタンスが必要です。
+	</p>
+	<p>
+		設定されている SetupSelect や OrderBy, SpecifyColumn(旧バージョンにて例外あり) など、カウント検索に不要な情報は無視されます。
+	</p>
+	<div class="relatedpage"><a href="#unioncolumn">this - UnionQuery での select 句のカラム</a></div>
+	<h3 id="result">戻り値</h3>
+	<p>
+		int型となります。検索結果が一件もない場合は 0 が戻ります。
+	</p>
+	<p>
+		int型(32ビット:2147483648)の精度を超える件数は、サポートされません。
+	</p>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		selectList() と同じような要領となります。
+	</p>
+	<div class="detailpage"><a href="./selectlist.html#override">selectList(cb) - オーバーライド</a></div>
+
+	<h2 id="unioncolumn">UnionQuery での select 句のカラム</h2>
+	<p>
+		PKが存在するテーブルの場合で、引数の ConditionBean で UnionQuery
+		を利用すると、UnionQuery に対応する select 句は PK カラムのみ列挙されます(PK は NotNull なのでカウントに変化なし)。
+		つまり、CLOB や TEXT 型のカラムが含まれるテーブルで、union の distinct 処理でそれらカラムがサポートされない DBMS
+		でも問題なく UnionQuery を利用することができます<span class="frm">(@since 0.9.7.7)</span>。
+		旧バージョンでは、SpecifyColumn を利用して列挙カラムを絞り込むことで回避することができます。
+	</p>
+	<p>
+		PKなしテーブル(ビューも含む)では、バージョンに関わらず回避はできません。ビューにおいては、AdditionalPrimaryKey
+		で疑似の PK を設定すると良いでしょう。 
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

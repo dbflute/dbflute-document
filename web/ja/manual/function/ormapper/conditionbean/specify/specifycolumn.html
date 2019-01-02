@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,specify,SpecifyColumn,取得カラム,カラムの取捨選択,パフォーマンス" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>SpecifyColumn | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SpecifyColumn</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		取得カラム(select句に並べるカラム)の明示的な指定をします。
+	</p>
+	<p>
+		通常、ConditionBean では取得対象となったテーブルにおいて、デフォルトでは全てのカラムが取得対象(select句に並ぶ)となります。
+		厳密なパフォーマンスを求められる場面においては、SpecifyColumn
+		を使うことで必要なカラムだけを取得対象(select句に並ぶ)にするようにできます。
+		特に、一つのテーブルにおける定義カラム数があまりに多い場合に有効です。
+	</p>
+	<p>
+		会話上では、<em class="keyword">すぺしふぁいからむ</em> と表現します。
+	</p>
+	<h3 id="selectpolicy">バランス指向のデータ取得ポリシー</h3>
+	<p>
+		SpecifyColumn に絡んで、DBFlute にはデータ取得の明確なポリシーがあります。 
+	</p>
+	<div class="detailpage"><a href="#balancepolicy">this - データ取得のポリシーもバランス指向</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		まずは通常通り、取得対象のテーブルを確定します。基点テーブルだけであれば、単に new
+		するだけ。関連テーブルがある場合は、SetupSelect を指定。その後、SpecifyColumn
+		を使って取得カラムを調整します。また、カラムの明示的指定をするかどうかは、テーブル単位で調整します。
+	</p>
+	<h3 id="basepoint">基点テーブル</h3>
+	<p>
+		specify() を呼び出し、<em class="keyword">column[column-name]()</em> で取得カラムを指定します。
+	</p>
+<pre><span class="codetitle">e.g. 会員の名称だけを取得 (Eclipseでコード補完) @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.sp <span class="comment">// .sp と打って enter</span>
+--
+cb.specify()
+--
+<span class="comment">// 1. .c まで打つとカラム選択</span>
+<span class="comment">// 2. MN (MemberName) で enter</span>
+<span class="comment">//  ※JavaDocコメントにカラム定義あり</span>
+cb.specify().cMN
+--
+cb.specify().<span class="point">columnMemberName()</span>
+</code></pre>
+	<p>
+		主キーに関しては、必須のカラムという扱いになり、明示的に指定しなくても取得対象となります(主キーを外しての検索ではできない)。
+		よって、例の場合、検索して取得した Entity には、会員ID(PK)と会員名称しか値が入りません。
+		他のカラムの get メソッドを呼び出しても null が戻ってきます。
+	</p>
+	<p>
+		二つ以上のカラムを指定する場合は同じ要領でメソッドを指定します。
+	</p>
+<pre><span class="codetitle">e.g. 会員の名称と生年月日だけを取得 (Eclipseでコード補完) @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">columnMemberName()</span>;
+cb.specify().<span class="point">columnBirthdate()</span>;
+</code></pre>
+	<h3 id="relation">関連テーブル</h3>
+	<p>
+		まずは、通常通り、SetupSelect(Relation)
+		を使って取得テーブルを指定します(関連が無い場合はそのまま)。その後、specify()
+		そして、specify[relation-table]() を呼び出し、<em class="keyword">column[column-name]()</em>
+		で取得カラムを指定します。(specify[relation-table]() を Specify(Relation) と呼びます)
+	</p>
+<pre><span class="codetitle">e.g. 会員ステータスは会員ステータス名称だけ取得 (Eclipseでコード補完) @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.<span class="point">setupSelect_MemebrStatus()</span>;
+<span class="comment">// 1. まずは specify() を呼び出して</span>
+<span class="comment">// 2. .sp まで打つと関連テーブル選択</span>
+<span class="comment">// 3. MSt (MemberStatus) で enter</span>
+cb.specify().spMSt
+--
+cb.specify().<span class="point">specifyMemberStatus()</span>
+--
+cb.specify().specifyMemberStatus().<span class="point">columnMemberStatusName()</span>
+</code></pre>
+	<p>
+		関連テーブルの主キーも、基点テーブルと同じく必須のカラムという扱いです。
+		よって、例の場合、会員テーブルのカラムは全て取得し、会員ステータスは、会員ステータスコード(PK)と会員ステータス名称だけが取得されます。
+	</p>
+	<p>
+		SetupSelect された関連テーブルだけが Specify(Relation)
+		経由でカラムを指定できます。それ以外の関連テーブルのカラムを指定すると例外になります。
+	</p>
+	<h3 id="both">基点テーブルと関連テーブルの両方</h3>
+<pre><span class="codetitle">e.g. 会員名称と生年月日と会員ステータス名称だけ取得 @Java</span><code>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">columnMemberName()</span>;
+cb.specify().<span class="point">columnBirthdate()</span>;
+cb.setupSelect_MemebrStatus();
+cb.specify().specifyMemberStatus().<span class="point">columnMemberStatus()</span>
+</code></pre>
+	<p>
+		SetupSelect した関連テーブルに対する基点テーブルの関連カラム(FKカラム)は、必須のカラムとして明示的に指定しなくても取得対象となります。
+		よって、例の場合、会員の会員ステータスコードは明示的な指定はされていませんが、SetupSelect していることで取得対象となります。
+	</p>
+	<h3 id="referrer">子テーブル</h3>
+	<p>
+		LoadReferrer の子テーブルに対する ConditionBean の中でも SpecifyColumn
+		は利用できます。関連をつなぐカラム(基点テーブルへの子テーブルのFKカラム)はマッピング処理で利用するため必要なのですが、
+		明示的に指定しなくても内部的に解決されます<span class="frm">(@since 0.9.7.6)</span>。
+	</p>
+<pre><span class="codetitle">e.g. 購入の購入日時だけを取得 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+cb.query().loadPurchaseList(memberList, <span class="keyword">new</span> ConditionBeanSetu<span class="abbreviation">...</span>() {
+    <span class="keyword">public void</span> setup(PurchaseCB cb) {
+        cb.specify().<span class="point">columnPurchaseDatetime()</span>;
+        <span class="comment">//cb.specify().columnMemberId(); 不要 (但し、旧バージョンでは必要)</span>
+        cb.query().setPaymentCompleteFlg_Equal_True(); <span class="comment">// 支払が完了したものだけ</span>
+        cb.query().addOrderBy_PurchaseDatetime_Desc(); <span class="comment">// 購入日時の降順で取得</span>
+    }
+})
+</code></pre>
+	<h3 id="pkonly">主キーだけを取得</h3>
+	<p>
+		主キーだけを取得するという場合は、通常は指定しない主キーカラムを明示的に指定します。
+		(SpecifyColumn を利用するというスイッチを押すようなニュアンスになります)
+	</p>
+<pre><span class="codetitle">e.g. 会員IDだけを取得 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">columnMemberId()</span>;
+</code></pre>
+	<h3 id="union">UnionQuery には引き継がれる</h3>
+	<p>
+		UnionQuery と合わせて使うこともできますが、UnionQuery の中の ConditionBean
+		にて SpecifyColumn を指定しません。SpecifyColumn
+		の情報は UnionQuery に引き継がれます。(UnionQuery を呼び出す前に SpecifyColumn を指定します)
+	</p>
+<pre><span class="codetitle">e.g. 会員名称だけ取得、union @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">columnMemberName()</span>;
+cb.union(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        <span class="comment">// ここで再度 SpecifyColumn はしない</span>
+        unionCB.query().set<span class="abbreviation">...</span>
+    }
+});
+</code></pre>
+
+	<h2 id="exceptcolumn">共通カラムや排他制御カラムの除外</h2>
+	<p>
+		基本的には、除外指定はサポートしていませんが、共通カラムや排他制御カラムの除外(SpecifyExceptColumn)だけサポートされています。
+		<span class="frm">@since 1.0.3</span>
+	</p>
+	<p>
+		specify()の後に、exceptRecordMetaColumn()を指定することで、共通カラムと排他制御カラムを除いたカラムを取得することができます。
+		SpecifyColumnと同じく、テーブルごとの指定となります。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称だけ取得、union @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">exceptRecordMetaColumn()</span>;
+</code></pre>
+	<p>
+		"業務カラムはほとんど利用するのであまり気にしないが、たくさんのテーブルを取得するので共通カラムだけは除外しておきたい"
+		という場合に利用できます。
+	</p>
+	<p>
+		内部的には、共通カラムと排他制御カラム以外のカラムを SpecifyColumn
+		することで実現しています。この除外指定を利用した場合は、SpecifyColumnを利用することはできません(同時に呼び出した場合は、例外となります)。
+		ただ、テーブルごとの指定なので、"このテーブルは共通カラムを除外、このテーブルはこのカラムを指定"
+		というように使い分けることができます。
+	</p>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="aftersetupselect">必ず SetupSelect の後に指定</h3>
+	<p>
+		呼び出しの順番の制約として、SpecifyColumn は必ず SetupSelect の後に指定します。
+	</p>
+	<h3 id="samecolumncall">同カラムに対する複数回の指定</h3>
+	<p>
+		無意味ですが、特に例外にもならず、上書きとなります。
+	</p>
+
+	<h2 id="onlyonecolumn">他の機能から間借りされる</h2>
+	<p>
+		SpecifyColumn は、基本的には、最上位のselect句を調整してアプリで取得するカラムを指定する機能ですが、"取得するカラムを指定"
+		という部分の概念だけを間借りして、他の機能で利用されることがあります。例えば、(Specify)DerivedReferrer
+		においては、サブクエリの中の(唯一の)子テーブルの導出カラムを指定するのに使われます。そのような場合においては、通常の SpecifyColumn
+		にある SetupSelect の有無に依存する仕様などは無関係となります。
+	</p>
+<pre><span class="codetitle">e.g. (Specify)DerivedReferrerでのSpecifyColumnの利用(間借り) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().derivedPurchaseList().max(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.specify().<span class="point">columnPurchasePrice()</span>;
+    }
+});
+</code></pre>
+	<div class="relatedpage"><a href="./derivedreferrer.html">(Specify)DerivedReferrer</a></div>
+	<div class="relatedpage"><a href="../query/derivedreferrer.html">(Query)DerivedReferrer</a></div>
+	<div class="relatedpage"><a href="../query/columnquery.html">ColumnQuery</a></div>
+	<div class="relatedpage"><a href="../query/scalarcondition.html">ScalarCondition</a></div>
+	<div class="relatedpage"><a href="../../behavior/select/scalarselect.html">ScalarSelect</a></div>
+
+	<div class="inucolumn">
+		<h2 id="balancepolicy">データ取得のポリシーもバランス指向</h2>
+		<p>
+			ConditionBean のデータ取得のポリシーは以下の通りです。
+		</p>
+		<dl class="valuemainlist">
+			<dt>テーブル</dt><dd>明示的に指定されたものを取得</dd>
+			<dt>カラム</dt><dd>デフォルトでは全て取得 (必要であれば明示的に指定)</dd>
+		</dl>
+		<p>
+			まず、テーブルもデフォルトで全て取得、はあり得ません。
+			どの階層までの関連テーブルを取得するか、という限界的な問題もありますし、パフォーマンス劣化の温床です。
+			SetupSelect(Relation) を使って、明示的に取得したい関連テーブルを指定して下さい。LazyLoad
+			に関しては、子テーブル(one-to-many)におけるポリシーと同様にサポートしません。
+		</p>
+		<div class="relatedpage"><a href="../../behavior/select/loadreferrer.html#balance">バランスをとったone-to-manyのアプローチ</a></div>
+		<p>
+			そして、デフォルトでカラムを明示的な指定、にしなかったのは、妥協点をどこに持ってくるかを考えた結果です。
+			常に必要なカラムだけを指定すればパフォーマンス上は一番良いに決まっています。ですが、カラムの指定は意外に時間の掛かるもの、
+			そして、実装しながらあれが必要これが必要と都度都度追加するような状況も生まれ、実はあまり効率がよくありません。
+			同じことは当然テーブルにも言えますが、粒度が違うのでその影響度は大きく変わります。
+			パフォーマンスに関しても、テーブル単位の話よりもカラム単位の話の方が影響度は遥かに少なく、不要なカラムを幾つか取得しても、
+			人が感じるレベルどころか、コンピュータでミリ秒単位で計っても差がでないことが多いです。
+			この辺のところを踏まえて、カラムに関しては、デフォルトでは全て取得、必要であれば明示的に指定、というスタンスになっています。
+		</p>
+		<p>
+			また、SpecifyColumn は、<em class="keyword">テーブル単位で</em>
+			カラムの指定ができるので、例えば名称カラムだけ利用したいけどその他カラムの数が多い関連テーブル、があった場合に、
+			(基点テーブルは全カラム取得で)その関連テーブルに対してだけ取得カラムを指定するようなことができます。
+			現場ではこういったパターンが意外に多く、カラムが指定できると一言で言っても、こういった考慮がないとやはり現場では使いづらいという話になります。
+			かなり悩んだ仕様、かつ、後付けの仕様<span class="frm">(@since 0.7.4)</span>ですが、DBFlute
+			らしいバランスの良いものになったと思います。カラムをタイプセーフに、かつ、メソッド選択形式になっているのも DBFlute っぽいところですね。
+		</p>
+		<p>
+			一方で、パフォーマンスに影響が出るほど、一つのテーブルに定義カラム数が多いDB設計自体があまりお奨めではありません。
+			大抵の場合、ライフサイクルやカテゴリの分析をすることで、one-to-oneのテーブルに分離することができるかと思います。
+			本来は、SpecifyColumn が活躍する場面がないのが理想です。
+			この件は詳しくは別途テーマとして扱いますが、例えば、ExampleDB の会員退会情報テーブルはその典型的な例です。
+		</p>
+		<div class="relatedpage"><a href="../../../../topic/dbdesign/onetoone.html">DB設計 - one-to-oneの活用</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

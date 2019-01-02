@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 2 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 2</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、ハンズオンの続きです。
+	</p>
+	<div class="relatedpage"><a href="./section01.html">(ひとつまえ) ハンズオンセクション 1</a></div>
+	<p>
+		"データ登録をしてConditionBeanで基本の検索" をしていきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		org.docksidestage.handson.exercise.<em class="mark">HandsOn02Test</em> クラスを src/test/java (Testクラス置き場) に作成してください。
+		このクラスは <em class="smallmark">UnitContainerTestCase</em> を継承します。また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+
+	<h2 id="master">マスタデータの登録</h2>
+	<p>
+		ここでいうマスタデータとは、会員ステータスなどの固定的なテーブルを指します。<span class="frm">(開発環境でも、本番でも変化しないようなテーブル、例えば区分値など)</span>
+	</p>
+	<h3 id="assertnomaster">マスタデータがないことを確認</h3>
+	<p>
+		localdb/login-mysql-root.bat|sh で MySQL
+		にログインして、会員ステータスが一件も存在しないことを確認してください。
+	</p>
+<pre><span class="codetitle">e.g. 会員ステータスの件数を取得 @SQL</span><code>
+<span class="comment">-- MaihamaDBに接続</span>
+<span class="keyword">use</span> maihamadb;
+
+<span class="comment">-- 会員ステータスのカウント検索</span>
+<span class="keyword">select</span> count(*) <span class="keyword">from</span> MEMBER_STATUS;
+</code></pre>
+	<h3 id="loadmaster">マスタデータを配置して再びReplaceSchema</h3>
+	<p>
+		<em class="smallmark">tutorial/material/dbflute/playsql-loaddata-common.zip</em> <span class="frm">(commonの方です)</span> を解凍して、<em class="smallmark">10-master.xls</em>
+		を、以下のように配置して、ReplaceSchemaを実行してください。
+	</p>
+<pre><span class="codetitle">e.g. マスタデータ用のエクセルファイルの配置場所 @Directory</span><code>
+PROJECT_ROOT
+ |-<span class="abbreviation">...</span>
+ |-dbflute_maihamadb
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-playsql
+ |  |  |-data
+ |  |  |  |-common
+ |  |  |     |-xls
+ |  |  |        |-<span class="point">10-master.xls</span>
+ |  |  |-replace-schema-00-system.sql
+ |  |  |-replace-schema-10-basic.sql
+ <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="checkokmaster">マスタデータが入ったことを確認</h3>
+	<p>
+		先ほどの会員ステータスのカウント検索の結果が 0 でないことを確認してください。
+	</p>
+
+	<h2 id="testmethod">テストメソッドの作成</h2>
+	<p>
+		こんどは、テストデータの登録ですが、先にテストメソッドを書いて、テストデータが入っていることをアサートしてみましょう。
+		まだデータを登録する前ですから、テストは落ちるはずです。
+	</p>
+	<h3 id="assertnotestdata">テストデータがあることをアサートするテスト</h3>
+	<p>
+		HandsOn02Test に、会員(MEMBER)のデータをアサートするテストを書いて "落ちること"
+		を確認してください。テストメソッド名は <em class="mark">test_existsTestData()</em> とします。
+	</p>
+	<p>
+		このプロジェクトでは、メソッド名が test で始まることで、それがテストメソッドであると認識されます。
+		今後、テストを作成する際は、必ず "test何々" という形式でメソッドを作成してください。 
+	</p>
+	<h3>テストメソッドの雛形</h3>
+	<p>
+		セクション１で設定した、補完テンプレートが入っていることを前提とします。
+		ここでは、テストメソッドの雛形を作る補完を使います。IDEによって若干補完文字が違うのでご注意を。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>Eclipse</dt><dd>_test <span class="frm">※ドキュメント上の説明は、こちらをベースに書いています</span></dd>
+		<dt>IntelliJ</dt><dd>_utest</dd>
+	</dl>
+	<p>
+		_test と打って ctrl + space して enter するとテストメソッドの雛形が作成されます。
+	</p>
+<pre><span class="codetitle">e.g. テストメソッドのコード補完 @Java</span><code>
+
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    _test <span class="comment">// _test と入力して ctrl + space して enter</span>
+}
+--
+
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    <span class="keyword">public void</span> testname() <span class="keyword">throws</span> Exception { <span class="comment">// name の部分が入力モードに</span>
+        <span class="comment">// ## Arrange ##</span>
+
+        <span class="comment">// ## Act ##</span>
+
+        <span class="comment">// ## Assert ##</span>
+    }
+}
+</code></pre>
+	<p>
+		テストコードのお約束コメントの Arrange や Act のコメントが付与されているかと思います。
+		実はこれは、セクション１で DBFlute のエディターテンプレートを設定したからです。
+	</p>
+	<div class="relatedpage"><a href="./section01.html#editortemplates">セクション１ - エディターテンプレートを設定</a></div>
+	<h3>メソッド名とBehaviorの宣言</h3>
+	<p>
+		テストメソッド名は、"test_existsTestData()" とし、MemberBhv を private のインスタンス変数として宣言してください。
+		Lasta Di では、@Resource というアノテーションを付けるとDI対象フィールドとなります。<span class="frm">(_lap という補完を使うと少し楽になるかも)</span>
+	</p>
+<pre><span class="codetitle">e.g. test_existsTestData() の実装準備 @Java</span><code>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    @Resource
+    <span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
+
+    <span class="keyword">public void</span> test_existsTestData() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+
+        <span class="comment">// ## Act ##</span>
+
+        <span class="comment">// ## Assert ##</span>
+    }
+}
+</code></pre>
+	<h3 id="impltestcode">テストコードの実装</h3>
+	<p>
+		そして、絞込み条件なしのシンプルな検索処理を実装してみましょう。<span class="frm">(いわゆる全件検索です)</span>
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/ormapper/conditionbean/index.html">ConditionBean</a></div>
+	<p>
+		Behavior の selectCount() を使って select count(*)
+		を実行し、assertTrue()メソッドを使ってアサートしてみましょう。
+		<span class="frm">(assertTrue() は、"assT" とまで打って ctrl + space すれば補完できます)</span>
+	</p>
+	<h3 id="executetestcode">テストコードの実行</h3>
+	<p>
+		その UnitTest (test_existsTestData()) を実行して、落ちることを確認してください。
+		テストコードが正しく実装されていれば、テストデータはまだ入っていないので例外が発生し、JUnitのバー表示が赤くなる (redになる) はずです。
+	</p>
+	<h4>UnitTest は red から</h4>
+	<p>
+		ちなみに UnitTest は、最初 red になる状態で作っておいて、正しく修正した後に green になるようにしておくと良いです。
+		事前に何も実行せずに正しく修正してから green になっても、その UnitTest のプログラム自体がちゃんと正しいチェックをしているのかわからないからです。
+		<span class="frm">(もしかしたら、別に正しい修正をする前から green になっちゃってたのかも...)</span>
+	</p>
+	<h4>もし、Eclipse なら</h4>
+	<p>
+		テストを実行する際は、そのテストメソッドの中にカーソルがある状態で ctrl + 0
+		を押すと、そのテストが実行されます。これは Quick JUnit のショートカットです。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/programming/shortcut/uttestcut.html">単体テストショートカット</a></div>
+
+	<h2 id="testdata">テストデータの登録</h2>
+	<h3 id="loadtestdata">テストデータを配置して再びReplaceSchema</h3>
+	<p>
+		<em class="smallmark">tutorial/material/dbflute/playsql-loaddata-ut.zip</em> <span class="frm">(さっきと違ってこんどは ut の方です)</span> を解凍して、<em class="smallmark">20-member.xls</em> と <em class="smallmark">30-product.xls</em>
+		を、以下のように配置してください。
+	</p>
+<pre><span class="codetitle">e.g. テストデータ用のエクセルファイルの配置場所 @Directory</span><code>
+PROJECT_ROOT
+ |-<span class="abbreviation">...</span>
+ |-dbflute_maihamadb
+ |  |-dfprop
+ |  |-<span class="abbreviation">...</span>
+ |  |-playsql
+ |  |  |-data
+ |  |  |  |-common
+ |  |  |  |  |-xls
+ |  |  |  |     |-10-master.xls
+ |  |  |  |-ut
+ |  |  |     |-xls
+ |  |  |        |-<span class="point">20-member.xls</span>
+ |  |  |        |-<span class="point">30-product.xls</span>
+ |  |  |-replace-schema-00-system.sql
+ |  |  |-replace-schema-10-basic.sql
+ <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="repsagain">再び ReplaceSchema を実行</h3>
+	<p>
+		さあ、実行してみてください。
+	</p>
+	<h3 id="logreading">ログを読んでみましょう</h3>
+	<p>
+		落ちるはずです。ログを追って、<em class="keyword">何が起きたのか？</em> を把握してみましょう。
+		コンソールが見づらければ、DBFluteクライアント(dbflute_maihamadb)の log/dbflute.log
+		を見るとよいでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/programming/java/beginners.html#exceptionstacktrace">例外メッセージとスタックトレース</a></div>
+	<p>
+		"例外の翻訳" を意識してみましょう。
+	</p>
+<pre><span class="codetitle">e.g. exception translation model @Model</span><code>
+                 catch        catch        catch
+     <---- 例外  /      例外  /     例外    /    例外
+             \ /         \ /          \ /       |
+   o          |           |            |         \
+  /|\   ->    A     ->    B    ->     C     ->     D ----> D'
+  / \
+           (DBFlute)      (ReplaceSchema)      (MySQL)
+</code></pre>
+	<p>
+		ログを読むものハンズオンです。DBFluteタスクが必ず成功するとは限りません。
+		設定にミスがあれば遠慮なく落ちますので、落ちたときの分析方法をしっかりと知っておきましょう。
+	</p>
+	<div class="relatedpage"><a href="http://d.hatena.ne.jp/jflute/20130522/errorsinging">エラーメッセージ読め読め大合唱 | jfluteの日記</a></div>
+	<p>
+		ちなみに、問題分析と問題解決をごちゃまぜにしないようにしましょう。
+		まずは分析が大切です。分析の前に解決方法のことばかりを考えてると、解決のヒントを見逃してしまいがちで本末転倒です。
+	</p>
+	<h3 id="defaultvalue">defaultValueMap.dataprop</h3>
+	<p>
+		原因わかりましたでしょうか？...どういう風に解決していきましょうか。
+	</p>
+	<p>
+		20-member.xls を開いてみてみてください。NotNull制約のついている共通カラムのデータがありません。
+		ここでは、(DB上ではなく)ReplaceSchemaにデフォルト値を設定して解決しましょう。
+		同じディレクトリに以下の内容で defaultValueMap.dataprop というファイルを作成して、ReplaceSchemaを再実行してみましょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/task/replaceschema/defaultvalue.html">ReplaceSchema - デフォルト値の設定</a></div>
+<pre><span class="codetitle">e.g. 共通カラムのデフォルトテストデータの設定 @defaultValueMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    ; REGISTER_DATETIME = sysdate
+    ; REGISTER_USER     = foo
+    ; UPDATE_DATETIME   = sysdate
+    ; UPDATE_USER       = foo
+    ; VERSION_NO        = 0
+}
+</code></pre>
+	<h3 id="checkoktestdata">テストが通ることを確認</h3>
+	<p>
+		再度テストを実行し、テストが通ってJUnitのバー表示が green になることを確認してください。
+	</p>
+
+	<h2 id="watchdata">テストデータの閲覧</h2>
+	<p>
+		さて、ここでじっくり ConditionBean について学んでみましょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/ormapper/conditionbean/index.html">ConditionBean</a></div>
+	<p>
+		せっかくなので、どのようなデータが入っているかさらに見てみましょう。
+		以下のテストを作成してください。<span class="frm">(メソッド名の先頭にtestを付けましょう。メソッド名はいい感じに...)</span>
+	</p>
+	<dl class="textlist">
+		<!-- SetupSelect(Relation), PrefixSearch, OrderBy Asc, selectList() -->
+		<dt>会員名称がSで始まる会員を検索 <span class="frm">(これはタイトル、この中にも要件が含まれている)</span></dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称の昇順で並べる <span class="frm">(これは実装要件、Arrange or Act でこの通りに実装すること)</span></li>
+				<li>(検索結果の)会員名称がSで始まっていることをアサート <span class="frm">(これはアサート要件、Assert でこの通りに実装すること)</span></li>
+				<li>"該当テストデータなし" や "条件間違い" 素通りgreenにならないように素通り防止を <span class="frm">(今後ずっと同じ)</span></li>
+			</ul>
+		</dd>
+		<!-- Equal, selectEntity() -->
+		<dt>会員IDが1の会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>一件検索として検索すること</li>
+				<li>会員IDが 1 であることをアサート</li>
+			</ul>
+		</dd>
+		<!-- IsNull, OrderBy Desc -->
+		<dt>生年月日がない会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>更新日時の降順で並べる</li>
+				<li>生年月日がないことをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		アサートだけでなく、テストコード自体が想定通りか？を確認する意味でのログの出力も実装すると良いでしょう。
+		テストコード内では、<em class="mark">log()メソッド</em> が利用できます。
+		ログに何を出力するかは自由です。ただ、<em class="keyword">ログも綺麗に</em> 出しましょう。
+	</p>
+	<p>
+		本来、UnitTestというのは、mainコード (src/main/java) を、testコード (src/test/java)
+		で呼び出して、検証をするというものですが、セクション５までは、シンプルな形で DBFlute
+		を体験してもらうために、<em class="keyword">Arrange と Act が main コード</em>
+		と想定して、Assert をしていきます。
+	</p>
+	<div class="inucolumn">
+		<h3 id="completion">コード補完を駆使して実装</h3>
+		<p>
+			DBFluteは、Java (コンパイル言語) の良さを最大限活かしていくことに重きを置いています。
+		</p>
+		<p>
+			ぜひ、ショートカットとコード補完を駆使して、気持ちよく実装していきましょう。
+			最初は全然ゆっくりでOKです。ハンズオンでじっくり手に馴染ませて、本番(業務の実装)でスピーディーに実装できればいいわけなのです。
+		</p>
+		<div class="detailpage"><a href="../../manual/function/ormapper/conditionbean/howto.html#completion">ConditionBeanの使い方 - コード補完を駆使して実装</a></div>
+		<h3 id="howtosearch">ConditionBeanの機能を探したいときはどうする？</h3>
+		<p>
+			ぜひ、"ディベロッパーのFAQ" をじっくりお読みください。
+		</p>
+		<div class="detailpage"><a href="../../tutorial/devfaq.html">ディベロッパーのためのFAQ</a></div>
+		<p>
+			まずは、DBFluteに関係なく <em class="keyword">やりたいことを明確にすること</em> これを重要視しています。
+			それさえハッキリすれば、その一つ一つの "目的" から、おのずと機能が探しやすくなっているはずです。
+		</p>
+		<p>
+			<span class="frm">(ConditionBeanを覚えるためにやっているというのに...)</span>
+			いきなりConditionBeanのことを考えるのではなく、要件をよく読み、ERDのテーブル構造と照らし合わせて検索イメージを湧かせることが大切です。
+		</p>
+		<p>
+			すでに何十人の人にハンズオンを行っていますが、<span class="frm">(もちろん経験の差もありますが)</span>
+			自力で機能を見つけられる方と苦戦される方の大きな違いは、そこにあると感じています。
+			<em class="keyword">見つけ方</em>、それがわかってしまえば、機能を丸暗記する必要はないのです。
+		</p>
+		<p>
+			これは DBFlute に限らない話で、覚えることのあまりに多過ぎるこの世界でやっていくための、とても重要なスキルと言えると考えていますので、ぜひここで意識してみてください
+		</p>
+	</div>
+
+	<h2 id="flower">模範解答的な</h2>
+	<p>
+		模範解答的な実装を紹介しています。(参考までに)
+	</p>
+	<div class="relatedpage"><a href="./flower/flower02.html">模範解答的なセクション 2</a></div>
+
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section03.html">ハンズオンセクション 3</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

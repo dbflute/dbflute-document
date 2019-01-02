@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>JSON API のデザイン | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>JSON API のデザイン</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">JSON API をどう作る？</h2>
+	<p>
+	</p>
+
+	<h2 id="displayformat">表示フォーマットはどっちに持つ？</h2>
+	<p>
+		例えば、1000000 という数値データを 1,000,000
+		と表示する場合、カンマを入れる処理はクライアントでやるのかサーバーでやるのか？
+	</p>
+	<p>
+		例えば、2016-12-02T12:34:56 という日付データを 2016/12/02 12:34:56
+		と表示する場合、日付フォーマットの処理はクライアントでやるのかサーバーでやるのか？
+	</p>
+	<h3 id="displayformatbyclient">クライアントで解決したときのメリデメ</h3>
+	<dl class="textlist">
+		<dt>メリット</dt>
+		<dd>クライアントごとの対応ができる</dd>
+		<dd>変更してもサーバーに影響でない</dd>
+		<dd>クライアント側で日付型として制御しやすい (日付型変換が統一できる)</dd>
+		<dt>デメリット</dt>
+		<dd>クライアントが複数ある場合、フォーマットの一斉変更がしづらい</dd>
+		<dd>クライアントごとに同じようなロジックを作ってしまうかも</dd>
+	</dl>
+	<h3 id="displayformatbyserver">サーバーで解決したときのメリデメ</h3>
+	<dl class="textlist">
+		<dt>メリット</dt><dd>ロジックの統一がしやすい</dd>
+		<dt>デメリット</dt>
+		<dd>クライアントごとにフォーマットが変わるとアウト</dd>
+		<dd>変更のたびにサーバー再起動</dd>
+		<dd>クライアント側で日付型として制御しづらい</dd>
+		
+	</dl>
+	<h3 id="displayformatsupplement">メリデメ補足</h3>
+	<p>
+		サーバー再起動は作り次第で回避できるかもしれませんし、JS/APIひとまとめパターンであれば、クライアントで解決してもサーバーも一緒に再起動の可能性もあります。
+	</p>
+	<p>
+		組織的な話も絡む可能性あります。
+		フォーマットの変更のとき、クライアントの方が修正しやすいのか、サーバーの方が修正しやすいのか？
+		サーバー再起動が必要だとしても、サーバーチームの方が稼働がとりやすかったり、再起動のデメリットをあまり受けないサービスとかであればまた話が違います。
+	</p>
+	<h3 id="displayformatclientway">クライアントで表示フォーマットを解決するなら... <span class="frm">#lastaflute</span></h3>
+	<p>
+		JSON Result の LocalDate, LocalDateTime
+		のデフォルトフォーマットを、転送用の日付フォーマットとしてそのまま利用し、クライアント側で表示を調整しましょう。
+	</p>
+	<p>
+		サーバーサイドでは、LocalDate, LocalDateTime のまま JSON
+		に変換するだけなので、特に何も意識することはありません。
+	</p>
+	<h3 id="displayformatserverway">サーバーで表示フォーマットを解決するなら... <span class="frm">#lastaflute</span></h3>
+	<p>
+		LastaFluteであれば、二つの方法があります。同時に組み合わせても良いでしょう。
+	</p>
+	<dl class="textlist">
+		<dt>A. LocalDateのデフォルトフォーマットを変更</dt>
+		<dd>
+			例えば、サービス全体で yyyy/MM/dd, yyyy/MM/dd HH:mm:ss
+			というフォーマットで表示するとかであれば、JSON Result クラスの
+			LocalDate, LocalDateTime のフォーマットを変更すると良いでしょう。
+		</dd>
+		<dd>
+			JsonResourceProvider の provideOption() にて変更できます。
+			<div class="relatedpage"><a href="../../howto/action/lajsonapi.html#nativemapping">素早さのJSON API - ネイティヴ型のマッピング</a></div>
+		</dd>
+		<dt>B. @JsonDatePatternアノテーションでつどつど変更</dt>
+		<dd>
+			例えば、とある項目だけ yyyy/MM/dd
+			というフォーマットで表示するのであれば、その項目に対応する JSON Result のプロパティに @JsonDatePattern
+			を付与して日付フォーマットを指定すると、そのプロパティだけ指定された日付フォーマットで出力されます。
+		</dd>
+	</dl>
+	<p>
+		いずれにせよ、JSON ResultクラスでString型は使わず、LocalDate, LocalDateTime
+		のままでフォーマットを制御していきます。<span class="frm">(ただし、国際化対応とか入るとちょっと話は変わります)</span>
+	</p>
+	<p>
+		そして、数値に関しては、こういった仕組みがないので、JSON Result クラスのプロパティ型を
+		String にして、自前でどうにかしましょう。
+	</p>
+	<h3 id="displayformatthinkit">考えましょう</h3>
+	<p>
+		いずれにせよ、最初に考えて統一しましょう。ぐちゃぐちゃなのが一番つらい。
+	</p>
+	<div class="inucolumn">
+		<h3 id="displayformatbyjflute">表示フォーマット、jfluteなら...</h3>
+		<p>
+			特別にサーバーでの解決の必要性が強いものがなければ、クライアントサイドでの解決を前向きに検討します。
+			もちろん、その場合のデメリットはちゃんと考慮しないといけないので、クライアント側でどのようにロジックを組むか気にかけないとですね。
+		</p>
+		<p>
+			ちなみに、これは JSON API
+			に限らず、サーバーサイドHTMLでも同じ話になります。
+			HTMLテンプレート上で解決するのか？プログラムで解決したものをテンプレートに渡すのか？
+		</p>
+	</div>
+
+	<h2 id="messagebuilding">メッセージの解決はどっちに持つ？</h2>
+	<p>
+		画面に表示するメッセージ、
+	</p>
+
+	<h2 id="exceptionstyle">例外時のJSONのかたちは？</h2>
+	<p>
+		
+	</p>
+
+	<h2 id="toplistwrapping">ルートのリストはラップする？</h2>
+
+	<h2 id="jsonitemtype">JSON 項目の型は？</h2>
+	<h3 id="numberboolean">数値とBoolean</h3>
+	<p>
+		
+	</p>
+	<h3 id="jsonresponse">JsonResponseを戻り値に</h3>
+	<p>
+		Executeメソッドの戻り値が、<em class="mark">JsonResponse</em> 型になり、<em class="mark">asJson()</em> で Bean を戻します。
+	</p>
+	<div class="relatedpage"><a href="../action/index.html#actionresponse">LastaFlute の Action - Action Response</a></div>
+<pre><span class="codetitle">e.g. JsonResponse and asJson() @Java</span><code>
+@Execute
+<span class="keyword">public</span> <span class="point">JsonResponse</span><span class="subpoint">&lt;SeaLandResult&gt;</span> index() {
+    <span class="abbreviation">...</span>
+    SeaLandResult <span class="localvar">result</span> = <span class="keyword">new</span> SeaLandResult();
+    <span class="localvar">result</span>.<span class="attribute">piari</span> = <span class="literal">"piary"</span>;
+    <span class="localvar">result</span>.<span class="attribute">bonvo</span> = <span class="literal">"yage"</span>;
+    <span class="abbreviation">...</span>
+    <span class="keyword">return</span> <span class="subpoint">asJson</span>(<span class="localvar">result</span>); 
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

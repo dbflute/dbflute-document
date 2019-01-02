@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ListResultBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>ListResultBean | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ListResultBean</h1>
+	${indexlist}
+
+	<h2 id="about">ListResultBeanとは？</h2>
+	<p>
+		DBFluteにおけるリスト検索などで戻されるリスト型の結果オブジェクトです。通常は、あまり意識する必要はなく、扱う型として
+		java.util.List を利用していれば問題ありませんが、時々、力を発揮するかもしれません。(PagingResultBeanのスーパークラスとしても利用される)
+	</p>
+	<p>
+		会話上では、<em class="keyword">りすとりざるとびーん</em> と表現します。
+	</p>
+	<h3 id="implementation">java.util.Listの実装クラス</h3>
+	<p>
+		java.util.List を実装しているため、他のリスト型と同様に扱うことができます。
+	</p>
+	<h3 id="wrapper">java.util.ArrayListをラップ</h3>
+	<p>
+		内部的に java.util.ArrayList をラップして、java.util.List の仕様を実現しているため、リストとしての仕様は
+		ArrayList と基本的に同じです。List インターフェースのメソッドの実装は、ラップしている ArrayList に委譲しています。
+	</p>
+	<h3 id="selectresult">(幾つかの)検索情報を保持</h3>
+	<p>
+		検索結果だけでなく、さらに(幾つかの)検索情報のプロパティを保持しています。
+	</p>
+	<div class="detailpage"><a href="#property">this - プロパティ</a></div>
+	<h3 id="listutility">汎用的なリスト操作を備える</h3>
+	<p>
+		さらに、汎用的なリスト操作を行うメソッドを備えています。
+	</p>
+	<div class="detailpage"><a href="#method">this - メソッド</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		ListResultBeanが保持しているプロパティは以下の通りです。
+	</p>
+	<dl class="keymainlist">
+		<dt>tableDbName</dt><dd>検索の基点となったテーブルの名前</dd>
+		<dt>allRecordCount</dt><dd>保持しているリストの件数</dd>
+		<dt>selectedList</dt><dd>保持しているリストそのもの</dd>
+		<dt>orderByClause</dt><dd>検索時のソート情報 <span class="frm">(基本的に、CBによる検索のみ)</span></dd>
+	</dl>
+	<p>
+		あまり、純粋な ListResultBean として利用する場合に、これらを役に立てることは少ないかもしれません。
+		ListResultBean を継承する PagingResultBean を利用する際に意識する機会が増えるでしょう。
+	</p>
+
+	<h2 id="method">メソッド</h2>
+	<h3 id="groupinglist">グルーピングMap</h3>
+	<p>
+		例えば、リストの中身が <em class="keyword">{A, B, C, D, E, F, G, H, I, J}</em>
+		とあった場合に、<em class="keyword">{[A, B, C], [D, E, F], [G, H, I], [J]}</em>
+		というように、ある決まった規則でグルーピングされた(ネストした)構造に変換(コントロールブレイク)したいという場合に、
+		ListResultBeanのメソッドを使ってこれを実現できます。
+	</p>
+	<p>
+		ListResultBeanの <em class="keyword">groupingList(GroupingListDeterminer)</em>
+		を利用します。GroupingListDeterminer にて、一つのグループを区切る判定をします。
+	</p>
+<pre><span class="codetitle">e.g. 3 件ずつでグルーピング(row の型は ArrayList) @Java</span><code>
+ListResultBean&lt;Member> memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+List&lt;List&lt;Member&gt;&gt; groupingList = memberList.<span class="point">groupingList</span>(<span class="keyword">new</span> GroupingListDeterminer&lt;Member&gt() {
+    <span class="keyword">int</span> count = 0;
+    <span class="keyword">public boolean</span> isBreakRow(GroupingListRowResource&lt;Member&gt; rowResource, Member nextEntity) {
+        ++count;
+        <span class="keyword">return</span> count % 3 == 0;
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称の先頭文字でグルーピング(row の型は ArrayList) @Java</span><code>
+ListResultBean&lt;Member> memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+List&lt;List&lt;Member&gt;&gt; groupingList = memberList.<span class="point">groupingList</span>(<span class="keyword">new</span> GroupingListDeterminer&lt;Member&gt() {
+    <span class="keyword">public boolean</span> isBreakRow(GroupingListRowResource&lt;Member&gt; rowResource, Member nextEntity) {
+        Member currentEntity = rowResource.getCurrentEntity();
+        String currentInitChar = currentEntity.getMemberName().substring(0, 1);
+        String nextInitChar = nextEntity.getMemberName().substring(0, 1);
+        <span class="keyword">return</span> !currentInitChar.equalsIgnoreCase(nextInitChar);
+    }
+});
+</code></pre>
+	<h3 id="groupingmap">グルーピングMap</h3>
+	<p>
+		とあるキーでグルーピングされた Map を戻す
+		<em class="keyword">groupingMap(GroupingMapDeterminer)</em>
+		もあります。例えば、会員リストを、会員ステータスコードをキーにしたMapに分割することができます。
+	</p>
+<pre><span class="codetitle">e.g. 会員ステータスコードでグルーピング @Java</span><code>
+ListResultBean&lt;Member> memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+Map&lt;String, List&lt;Member&gt;&gt; groupingMap = memberList.<span class="point">groupingMap</span>(<span class="keyword">new</span> GroupingMapDeterminer&lt;Member&gt() {
+    <span class="keyword">public</span> String provideKey(Member entity) {
+        <span class="keyword">return</span> entity.getMemberStatusCode();
+    }
+});
+</code></pre>
+	<h3 id="mappinglist">マッピングList</h3>
+	<p>TODO jflute now writing</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

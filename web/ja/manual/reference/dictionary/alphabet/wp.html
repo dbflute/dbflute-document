@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 P | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 P</h1>
+	<p>
+		"P" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="packageprocedure" class="dicword">PackageProcedure (パッケージプロシージャ)</h2>
+	<p>
+		主にOracleにおけるパッケージ付きのプロシージャを示します。
+		Sql2Entityにおいて、このパッケージ付きのプロシージャを通常のプロシージャと同じように扱うことができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+
+	<h2 id="parenttable" class="dicword">Parent Table (親テーブル)</h2>
+	<p>
+		主に many-to-one, one-to-one リレーションの関連側のテーブルのことを示す。
+		one-to-one は、FK制約の参照方向が one-to-many と同じであるが、DBFluteの実装上は many-to-one
+		と同じように扱うことができるため、どちらかと言うと親テーブルに含まれる。
+		(そういう意味では、この言葉は "基点に対して関連側が one になるもの" と定義できる)
+	</p>
+	<p>
+		但し、DBFluteの実装から離れて、スキーマ上のテーブル構造だけの世界だけの焦点を当てる場合は、
+		one-to-one は、この言葉ではなく、FK制約の参照方向でカテゴリ分けして ChildTable に含まれることがある。
+		(この場合は、実装上の扱いではなく、業務的なデータの従属性に焦点を当てている)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/entity/relation.html">Entity間のリレーション</a></div>
+	<div class="relatedword"><a href="./wc.html#childtable">Child Table (子テーブル)</a></div>
+
+	<h2 id="pluginvaluetype" class="dicword">PluginValueType (プラグインValueType)</h2>
+	<p>
+		名前で管理するプラグインのValueTypeのことを示します。登録されたプラグインValueTypeが設定なしで自動で利用されることはなく、
+		登録時に利用した名前をキーにして、"このカラムはこのValueTypeを使う" というように明示的に指定することで初めて利用されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#valuetype">DBFluteConfig - ValueType</a></div>
+	<div class="relatedword"><a href="./wv.html#valuetype">ValueType</a></div>
+
+	<h2 id="pointershift" class="dicword">PointerShift (ポインタシフト) <span class="frm">for Cursor</span></h2>
+	<p>
+		ページング処理におけるカーソルスキップの実現方法の一つで、カーソルの現在位置移動を利用して読み込み対象のレコードだけをループで取得する方法のことを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/programming/dbaccess/pagingselect.html#cursorskip">DBアクセス - ページング検索 - カーソルスキップ</a></div>	
+	<div class="relatedword"><a href="./wl.html#loopthrough">LoopThrough (ループスルー)</a></div>
+
+	<h2 id="prefixsearch" class="dicword">PrefixSearch (前方一致)</h2>
+	<p>
+		LikeSearch条件の方向の一つで、例えば、"A で始まる" という条件における一致の方向のこと、もしくは、
+		また、その条件を設定する機能のことを示します。他の一致の方向に比べて、(Bツリー)インデックスが利用できるものであることで知られています。
+	</p>
+	<div class="relatedword"><a href="./wl.html#likesearchmatchdirection">LikeSearchMatchDirection (LikeSearch条件の一致の方向)</a></div>
+
+	<h2 id="process" class="dicword">Process (プロセス)</h2>
+	<p>
+		一般的な用語ですが、DBFluteでは、オンラインのリクエストやバッチの処理などアプリケーションの業務プロセスのことを示すことが多いです。
+		もちろん、その他一般的な用語としても利用します。
+	</p>
+
+	<h2 id="procedure" class="dicword">Procedure (プロシージャ)</h2>
+	<p>
+		ストアドプロシージャやストアドファンクションのことを示します。
+		DBFluteでは、ファンクションであってもそれを区別する必要がない場面ではひっくるめてプロシージャと呼びます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+
+	<h2 id="procedurecall" class="dicword">ProcedureCall (プロシージャコール)</h2>
+	<p>
+		アプリケーションなどから、プロシージャを呼び出すこと、もしくは、呼び出す機能のことを示します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+
+	<h2 id="procedureescape" class="dicword">ProcedureEscape (プロシージャのエスケープ)</h2>
+	<p>
+		JDBC経由でプロシージャを呼び出す際の、DBMS依存を解決するためのステートメント(SQL)のエスケープ処理のことを示します。
+		JDBCでは、例えば、"call SP_FOO()" というステートメントを "{call SP_FOO()}"
+		と囲うことでエスケープします。
+	</p>
+
+	<h2 id="proceduresynonym" class="dicword">ProcedureSynonym (プロシージャシノニム)</h2>
+	<p>
+		主にOracleにおけるプロシージャを参照するシノニムを示します。
+		Sql2Entityにおいて、このプロシージャシノニムを(設定次第で)通常のプロシージャとして扱うことができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+	<div class="relatedword"><a href="../../dbway/oracle/index.html#proceduresynonym">Oracle - プロシージャシノニム</a></div>
+
+	<h2 id="procedurereturn" class="dicword">ProcedureReturn (プロシージャリターン)</h2>
+	<p>
+		主にプロシージャの戻り値のことを示します。DBMSによってサポート状況が変わります(機能的にはOUTパラメータにて代替できるため)。
+	</p>
+	<div class="relatedword"><a href="./wo.html#outparameter">OUTパラメータ</a></div>
+
+	<h2 id="programtype" class="dicword">Program Type (プログラム型)</h2>
+	<p>
+		プログラム上のデータ型を示します。例えば、java.lang.String や java.lang.Integer など。
+	</p>
+	<div class="relatedpage"><a href="../../dfprop/typemapping/index.html#defaultmapping">JDBC型とプログラム型のデフォルトマッピング</a></div>
+	<div class="relatedword"><a href="./wj.html#jdbctype">JDBC Type (JDBC型)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

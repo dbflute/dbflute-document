@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,commonColumnMap.dfprop,共通カラム,CommonColumn,AccessContext" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>commonColumnMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>commonColumnMap</h1>
+	${indexlist}
+
+	<h2 id="about">commonColumnMapとは？</h2>
+	<p>
+		共通カラム(CommonColumn)に関する設定を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の commonColumnMap.dfprop という名前のテキストファイルです。主に Generateタスク
+		から参照されます。このプロパティを設定することで、insert や
+		update 処理で共通カラムに任意の値を自動設定することができます。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、共通カラムの定義、と insert、update 時の自動設定の定義をします。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">commonColumnMapの仕様 @commonColumnMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">commonColumnMap</span> = <span class="keyword">map:</span>{
+        ; [column-name1] = [JDBC-type1] ; [column-name2] = [JDBC-type2] ; ...
+    }
+    ; <span class="attribute">beforeInsertMap</span> = <span class="keyword">map:</span>{
+        ; [column-name1] = [expression to set the value]
+        ; [column-name2] = [expression to set the value]
+        ; ...
+    }
+    ; <span class="attribute">beforeUpdateMap</span> = <span class="keyword">map:</span>{
+        ; [column-name1] = [expression to set the value]
+        ; [column-name2] = [expression to set the value]
+        ; ...
+    }
+</code></pre>
+	<h3 id="commoncolumnmap">commonColumnMap</h3>
+	<p>
+		共通カラムの組み合わせを定義します。
+	</p>
+<pre><span class="codetitle">e.g. 共通カラムの組み合わせを定義 @commonColumnMap.dfprop</span><code>
+; <span class="attribute">commonColumnMap</span> = <span class="keyword">map:</span>{
+    ; REGISTER_DATETIME=TIMESTAMP ; REGISTER_USER=VARCHAR
+    ; UPDATE_DATETIME=TIMESTAMP   ; UPDATE_USER=VARCHAR
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラムとJDBC型のmap型プロパティ</dd>
+		<dt>デフォルト</dt><dd>なし (共通カラムの定義なし)</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>カラム名は大文字小文字の区別なし (但し実体と合わせることを推奨)</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		JDBC型は、実際に自動生成してマッピングされているJDBC型を指定して下さい。"JDBC型とプログラム型のデフォルトマッピング" の表を参考にして下さい。
+	</p>
+	<div class="detailpage"><a href="../typemapping/index.html#defaultmapping">JDBC型とプログラム型のデフォルトマッピング</a></div>
+	<p>
+		ここで設定された <em class="keyword">全ての共通カラムが定義されているテーブル</em>
+		が、共通カラムを持っているテーブルとして認識されます。例えば、どれか一つだけしか定義されていないテーブルは対象となりません。
+	</p>
+	<p>
+		共通カラムを持っているとして認識されたテーブルの Entity は、EntityDefinedCommonColumn
+		インターフェースを実装します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/index.html#entitydefinedcommoncolumn">allcommon - EntityDefinedCommonColumn</a></div>
+	<h3 id="beforeinsertmap">beforeInsertMap</h3>
+	<p>
+		<em class="keyword">テーブルを登録する直前に共通カラムに格納する値</em> を定義します。
+	</p>
+	<p>
+		カラム名は、commonColumnMapで指定したカラム(のみ)を指定できます。
+		また、格納する値の表現はプログラムの一行センテンスですが、後ろにセミコロンは不要です。
+	</p>
+	<p>
+		AccessContextは、<em class="keyword">$$AccessContext$$</em> という表現で解決することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/commoncolumn/index.html#accesscontext">現場フィット - 共通カラム - AccessContext</a></div>
+<pre><span class="codetitle">e.g. AccessContextから値を取得する場合 @commonColumnMap.dfprop</span><code>
+; REGISTER_DATETIME = <span class="attribute">$$AccessContext$$</span>.getAccessTimestampOnThread()
+</code></pre>
+	<p>
+		その他、細かい仕様が幾つかあります。
+	</p>
+	<div class="relatedpage"><a href="#detailspec">this - 自動設定の細かい仕様</a></div>
+	<h3 id="beforeupdatemap">beforeUpdateMap</h3>
+	<p>
+		<em class="keyword">テーブルを更新する直前に共通カラムに格納する値</em> を定義します。
+	</p>
+	<p>
+		設定方法は基本的に beforeInsertMap と同様です。但し、登録時の状態を保持し続けるカラムはここでは指定する必要はありません(してはいけません)。
+	</p>
+
+	<h2 id="detailspec">自動設定の細かい仕様</h2>
+	<p>
+		beforeInsertMap, beforeUpdateMap の細かい仕様について。
+	</p>
+	<h3 id="selfentity">Entity自身から値を取得</h3>
+	<p>
+		Entity自身から値を取得することができます。例えば、既に登録されている登録日時の値をそのまま更新日時に設定するような場合に有効です。
+	</p>
+<pre><span class="codetitle">e.g. Entity(自分自身)から値を取得する場合 @commonColumnMap.dfprop</span><code>
+; UPDATE_DATETIME = <span class="point">entity.getRegisterDatetime()</span>
+</code></pre>
+	<h4>自動設定で区分値メソッドを利用</h4>
+	<p>
+		自動設定の処理で区分値メソッドを利用することができます。
+		このようなメソッドの戻り値がなく独立している処理の場合は、先頭に "$" を付与します。
+	</p>
+<pre><span class="codetitle">e.g. 固定の値を設定する場合 @commonColumnMap.dfprop</span><code>
+; LOGICAL_DELETE_FLG = <span class="point">$entity.setLogicalDeleteFlg_False()</span>
+</code></pre>
+	<h3 id="literalvalue">固定の値を設定</h3>
+	<p>
+		あまり想定されませんが、固定の値を設定する場合に、(文字列や数値の)リテラルを記述できます。
+	</p>
+<pre><span class="codetitle">e.g. 固定の値を設定する場合 @commonColumnMap.dfprop</span><code>
+; UPDATE_USER   = <span class="literal">"foo"</span>
+</code></pre>
+	<h3 id="accessvaluemap">accessValueMap の利用</h3>
+	<p>
+		AccessContext の accessValueMap
+		を利用するような場合は、キー値に文字列リテラルを指定し、かつ、プロパティの型にダウンキャストします。
+	</p>
+<pre><span class="codetitle">e.g. accessValueMap を利用して設定 (ダウンキャストが必要) @commonColumnMap.dfprop</span><code>
+; SPECIAL_ITEM = (String)<span class="attribute">$$AccessContext$$</span>.getAccessValueOnThread(<span class="literal">"special"</span>)
+</code></pre>
+	<h3 id="optimisticklock">排他制御用のカラムの自動設定は不要</h3>
+	<p>
+		排他制御用のカラムに関しては、排他制御の仕組みで自動で適切な値に更新されますので、ここで自動設定する必要はありません(共通カラムの定義には含めても構わない)。
+		例えば、バージョン番号のインクリメントは排他制御の仕組みで実行されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/exclusivecontrol/index.html">現場フィット - 排他制御</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

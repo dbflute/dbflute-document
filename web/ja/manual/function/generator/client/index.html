@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteクライアント,DBFluteClient,クライアントディレクトリ,ClientDirectory,Client Project" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFluteクライアント | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteクライアント</h1>
+	${indexlist}
+
+	<h2 id="about">DBFluteクライアントとは？</h2>
+	<p>
+		DBFluteを利用するための <em class="keyword">アプリケーション設定(DBFluteプロパティなど)</em>
+		が含まれるディレクトリです(クライアントディレクトリとも呼ばれる)。一つのDBにつき一つのDBFluteクライアントが作成され、
+		指定されたDBFluteエンジンを参照し自動生成処理(スクリプト起動)を委譲します。
+	</p>
+	<p>
+		DBFluteクライアントの中にはデータベース接続情報などアプリケーション独自の情報が含まれるので、
+		アプリケーションにてしっかり管理をする必要があります(バージョン管理に追加するなど)。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteクライアントとDBFluteエンジンの関係 {exampledb, 1.0.0}</span><code>
+example-project
+ |-dbflute_exampledb   <span class="comment">// DBFluteクライアント</span>
+ |  |-dfprop
+ |  |-...
+ |  |-_project.bat(sh) <span class="comment">// DBFluteエンジンへの参照(相対パス)が定義される</span>
+ |  |-...
+ |-mydbflute
+    |-dbflute-1.0.0    <span class="comment">// DBFluteエンジン</span>
+</code></pre>
+	<p>
+		dbflute_xxx の xxx 部分をDBFluteクライアントプロジェクト名と呼びます。この名前は、build.propertiesの
+		torque.project の値と(習慣的に)一致します。
+	</p>
+	<h2 id="newclient">DBFluteクライアントの作成</h2>
+	<p>
+		EclipseプラグインやMavenプラグインなどで作成支援があります。
+		<div class="detailpage"><a href="../../../../environment/setup">DBFluteのセットアップ</a></div>
+	</p>
+	<h2 id="structure">DBFluteクライアントの構造</h2>
+<pre><span class="codetitle">e.g. DBFluteクライアントの構造 {exampledb}</span><code>
+dbflute_exampledb
+ |-dfprop               <span class="comment">// DBFluteプロパティの配置先</span> 
+ |-extlib               <span class="comment">// (同梱されていない)JDBCドライバの配置先</span>
+ |-log                  <span class="comment">// 自動生成実行ログの出力先</span>
+ |-output               <span class="comment">// (自動生成クラス以外の)生成物の出力先</span>
+ |  |-doc               <span class="comment">// SchemaHTMLなど生成ドキュメントの出力先</span>
+ |-playsql              <span class="comment">// ReplaceSchema関連ファイルの配置先</span>
+ |  |-data              <span class="comment">// ReplaceSchemaで登録するマスタデータ・テストデータの配置先</span>
+ |-schema               <span class="comment">// スキーマのメタデータの出力先</span>
+ |-_project.bat         <span class="comment">// DBFluteエンジンへの参照を管理するバッチスクリプト</span>
+ |-_project.sh          <span class="comment">// DBFluteエンジンへの参照を管理するシェルスクリプト</span>
+ |-_readme.txt          <span class="comment">// DBFluteクライアントについてのreadme</span>
+ |-build.properties     <span class="comment">// ANT実行のためのビルドプロパティ(編集の必要性なし)</span>
+ |-doc.bat              <span class="comment">// Docタスクのバッチスクリプト</span>
+ |-doc.sh               <span class="comment">// Docタスクのシェルスクリプト</span>
+ |-generate.bat         <span class="comment">// Generateタスクのバッチスクリプト</span>
+ |-generate.sh          <span class="comment">// Generateタスクのシェルスクリプト</span>
+ |-jdbc.bat             <span class="comment">// JDBCタスクのバッチスクリプト</span>
+ |-jdbc.sh              <span class="comment">// JDBCタスクのシェルスクリプト</span>
+ |-outside-sql-test.bat <span class="comment">// OutsideSqlTestタスクのバッチスクリプト</span>
+ |-outside-sql-test.sh  <span class="comment">// OutsideSqlTestタスクのシェルスクリプト</span>
+ |-replace-schema.bat   <span class="comment">// ReplaceSchemaタスクのバッチスクリプト</span>
+ |-replace-schema.sh    <span class="comment">// ReplaceSchemaタスクのシェルスクリプト</span>
+ |-sql2entity.bat       <span class="comment">// Sql2Entityタスクのバッチスクリプト</span>
+ |-sql2entity.sh        <span class="comment">// Sql2Entityタスクのシェルスクリプト</span>
+</code></pre>
+
+	<h2 id="dfprop">DBFluteプロパティ (dfprop)</h2>
+	<p>
+		DBFluteプロパティの配置ディレクトリです。拡張子が .dfprop のファイルをエディタ(EMechaの DFEditor
+		がお奨め)で編集して、DBFluteを利用する際のアプリケーション設定を調整します。
+	</p>
+	<div class="relatedpage"><a href="../../helper/emecha/dfeditor">EMechaのDFEditor</a></div>
+
+	<h2 id="extlib">非同梱のJDBCドライバ (extlib)</h2>
+	<p>
+		同梱されていないJDBCドライバ(Oracleなど)を配置するディレクトリです。
+		実際にはこのディレクトリにクラスパスが設定されている訳ではなく、
+		DBFluteタスク実行時にこのディレクトリのライブラリを、DBFluteエンジンのライブラリ配置ディレクトリにコピーします。
+	</p>
+
+	<h2 id="log">タスク実行ログ (log)</h2>
+	<p>
+		DBFluteタスクを実行したときにDBFluteが出力するログの出力ディレクトリです。
+	</p>
+	<h3 id="dbflutelog">dbflute.log</h3>
+	<p>
+		DBFluteタスク(自動生成処理)の実行時のコンソールに出力されたログがこのファイルに出力されます。
+		エラーが発生したときでコンソールを消してしまった場合は、真っ先に dbflute.log
+		を見ます。	エラーメッセージを読むことで、設定ファイルの不備など例外の原因がわかります。
+		どうしても原因が分からなくて詳しい人に聞くときはこのログも提示しましょう。
+	</p>
+	<p>
+		dbflute.log は、<em class="keyword">1MBごとにローリング</em>
+		され、バックアップは二つまで保持されます。
+	</p>
+	<p>
+		DBFluteの処理がこのファイルの情報を参照することはありません。
+	</p>
+	<h3 id="velocitylog">velocity.log</h3>
+	<p>
+		もう一つ、velocity.log がありますが、Velocityテンプレート関連のログです。
+		基本的に意識することのないログですが、原因不明なエラーで詳しい人に聞くときはこのログも提示しましょう。
+	</p>
+	<p>
+		DBFluteの処理がこのファイルの情報を参照することはありません。
+	</p>
+
+	<h2 id="output">出力ドキュメント (output)</h2>
+	<p>
+		スキーマのメタデータから自動生成する(クラス以外の)生成物の出力ディレクトリです。
+	</p>
+	<h3 id="schemahtml">SchemaHTML</h3>
+	<p>
+		Docタスクを実行すると ./output/doc 配下にデータベース(スキーマ)のメタデータを閲覧するためのHTMLが出力されます。
+		アーキテクトにもディベロッパーにもとても役に立つものなので、常に気軽に閲覧できるようにしておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/doc/schemahtml.html">SchemaHTML</a></div>
+	<h3 id="dataxls">LoadDataReverse</h3>
+	<p>
+		./output/doc 配下にもう一つ、Docタスクが提供するオプション機能として、
+		ReplaceSchemaタスクのデータ登録で利用可能なエクセルデータが出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../generator/task/doc/loaddatareverse.html">LoadDataReverse</a></div>
+
+	<h2 id="playsql">ReplaceSchemaのリソース (playsql)</h2>
+	<p>
+		ReplaceSchemaで利用するDDLやマスタ・テストデータ(エクセルなど)などの配置ディレクトリです。
+	</p>
+	<div class="relatedpage"><a href="../task/replaceschema">ReplaceSchemaタスク</a></div>
+
+	<h2 id="schema">スキーマのメタデータ (schema)</h2>
+	<p>
+		JDBCタスクで取得したスキーマのメタデータを保存するXMLの出力ディレクトリです。
+		GenerateタスクやDocタスクなどはこのXMLの情報をもとにそれぞれの処理をします。
+	</p>
+
+	<h2 id="project">モジュールへの参照 (_project.bat|sh)</h2>
+	<p>
+		DBFluteクライアントがどのDBFluteエンジンを利用するのかを定義したスクリプトファイルです。EMecha や Maven DBFluet Plugin
+		などのツールでは、アップグレード時にこのファイルを上書きしてDBFluteエンジンへの参照を更新しますので、基本的にアプリケーション側で独自に編集することはありません。
+		手動でのセットアップやアップグレードのときのみエディタでこのファイルを開いて修正します(バッチスクリプトとシェルスクリプトと両方とも修正すること)。
+	</p>
+<pre><span class="codetitle">e.g. _project.shの中身 {exampledb,1.0.0}</span><code>
+<span class="comment">#!/bin/sh</span>
+
+<span class="keyword">export</span> ANT_OPTS=-Xmx256m
+
+<span class="keyword">export</span> MY_PROJECT_NAME=exampledb
+
+<span class="keyword">export</span> DBFLUTE_HOME=../mydbflute/dbflute-1.0.0
+</code></pre>
+	<p>
+		その他、ANT実行時のメモリ設定もこのファイルの中でしています。多めに設定していますので基本的には修正する必要はありませんが、
+		万が一必要な場合はここを修正します。
+	</p>
+
+	<h2 id="buildprop">ビルドプロパティ (build.properties)</h2>
+	<p>
+		DBFluteクライアントプロジェクト名だけを管理するプロパティです。DBFluteタスク実行時に必要なファイルです。
+		基本的にこのファイルを開いたり修正したりする必要はほとんどありません。
+	</p>
+<pre><span class="codetitle">e.g. build.propertiesの中身 {exampledb} @build.properties</span><code>
+<span class="comment"># -------------------------------------------------------------------</span>
+<span class="comment">#  P R O J E C T</span>
+<span class="comment"># -------------------------------------------------------------------</span>
+torque.project = exampledb
+</code></pre>
+
+	<h2 id="taskscript">DBFluteタスク実行スクリプト</h2>
+	<p>
+		DBFluteタスクを実行するためのスクリプトです。バッチスクリプトとシェルスクリプトと環境に応じて使い分けます。
+		これらスクリプトファイルは明示的に指定しない限り支援ツールなどから上書きされることはありませんので、
+		呼び出し構造さえ保てば独自の処理を追加するなどして構いません。
+	</p>
+<pre><span class="codetitle">e.g. generate.shの中身 @generate.sh</span><code>
+#!/bin/sh
+
+<span class="keyword">cd</span> `dirname $0`
+. _project.sh
+
+<span class="comment">echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"</span>
+<span class="comment">echo "Specify the file path to be used as build-properties."</span>
+<span class="comment">echo "nnnnnnnnnn/"</span>
+<span class="keyword">export</span> MY_PROPERTIES_PATH=build.properties
+
+<span class="comment">echo "/nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"</span>
+<span class="comment">echo "Execute {Generate}."</span>
+<span class="comment">echo "nnnnnnnnnn/"</span>
+<span class="keyword">sh</span> $DBFLUTE_HOME/etc/cmd/_df-generate.sh $MY_PROPERTIES_PATH
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

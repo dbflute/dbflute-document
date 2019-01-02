@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,EMecha,イーメカ,Upgrade,アップグレード,DBFluteモジュール,ダウンロード,Download" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DBFluteのアップグレード | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteのアップグレード</h1>
+	${indexlist}
+	<p>
+		こちら、Java6,7 の DBFlute 向けのページです。Java8 の場合は、別のツールを利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+
+	<h2 id="procedure">アップグレード手順</h2>
+	<p>
+		ウィザード画面からDBFluteモジュールがダウンロードし、DBFluteクライアントのDBFluteモジュールへの参照
+		_project.bat|sh を更新します。
+	</p>
+	<ol>
+		<li><em class="keyword">Package Explorer</em> 上でEclipseプロジェクトを選択して右クリック</li>
+		<li><em class="keyword">New - Other...</em> そして <em class="keyword">DBFlute Wizards - DBFlute Upgrade</em> を選択</li>
+		<li><em class="keyword">Latest Version</em> ボタンを押して最新バージョンを指定</li>
+		<li><em class="keyword">Download DBFlute</em> ボタンを押してDBFluteモジュールをダウンロード</li>
+		<li>Finish! (DBFluteクライアントの参照が更新される)</li>
+	</ol>
+	<h3 id="packageexplorer">必ず Package Explorer から実行</h3>
+	<p>
+		DBFluteクライアントの作成時と同じ注意点です。
+	</p>
+	<div class="detailpage"><a href="../newclient/index.html#packageexplorer">DBFluteクライアントの新規作成 - Package Explorer</a></div>
+	<h3 id="overridden">_project.bat|shは上書きされる</h3>
+	<p>
+		DBFluteクライアントの _project.bat|sh は上書きされます。
+		もし、こちらのファイルにアプリケーション独自の処理を記述している場合はご注意下さい。
+	</p>
+	<h3 id="goodbyeoldversion">古いバージョンは削除しても構わない</h3>
+	<p>
+		DBFluteクライアントの参照が更新された時点で、古いバージョンどこからも参照されません。
+		新しいバージョンでの動作が確認出来た時点でディレクトリごと削除しても構いません。
+	</p>
+
+	<h2 id="input">入力項目</h2>
+	<p>
+		以下、(*)の付いた項目は必須です。
+	</p>
+	<h3 id="eclipseproject">Eclipse Project (*)</h3>
+	<p>
+		対象のEclipseプロジェクト名。自動判別なので入力の必要なし。
+	</p>
+	<h3 id="version">DBFlute Version (*)</h3>
+	<p>
+		利用するDBFluteのバージョン。DBFluteクライアントの作成時と同じ仕様。
+	</p>
+	<div class="detailpage"><a href="../newclient/index.html#version">DBFluteクライアントの新規作成 - DBFlute Version</a></div>
+
+	<h2 id="button">ボタン項目</h2>
+	<p>
+		DBFluteクライアントの作成時と同じ仕様。
+	</p>
+	<div class="detailpage"><a href="../newclient/index.html#button">DBFluteクライアントの新規作成 - ボタン項目</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

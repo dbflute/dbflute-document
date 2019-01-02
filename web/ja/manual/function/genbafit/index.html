@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,現場フィット,現場指向,Genba Fit,Field Oriented" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>現場フィット | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>現場フィット</h1>
+	${indexlist}
+
+	<h2 id="about">現場フィットとは？</h2>
+	<p>
+		そもそも現場フィットとは？について説明するページがあります。
+	</p>
+	<div class="detailpage"><a href="./about.html">現場フィットについて</a></div>
+
+	<h2 id="function">現場フィットな機能</h2>
+	<dl class="hierarchylist">
+		<dt><a href="./implfit/index.html">アプリ実装の全体最適 (Implementation Fit)</a></dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./implfit/commoncolumn/index.html">共通カラム (CommonColumn)</a></dt>
+				<dd>登録・更新時の共通カラムの自動設定</dd>
+				<dt><a href="./implfit/classification/index.html">区分値 (Classification)</a></dt>
+				<dd>区分値のタイプセーフ解決</dd>
+				<dt><a href="./implfit/bizonetoone/index.html">業務的one-to-one (BizOneToOne)</a></dt>
+				<dd>業務的one-to-oneリレーションの解決</dd>
+				<dt><a href="./implfit/exclusivecontrol/index.html">排他制御 (exclusivecontrol)</a></dt>
+				<dd>排他制御(楽観的並行性制御)の自動化</dd>
+				<dt><a href="./implfit/autoincrement/index.html">自動採番 (AutoIncrement)</a></dt>
+				<dd>登録時のPKの自動採番の自動化</dd>
+				<dt><a href="./implfit/pagingselect/index.html">ページング検索 (PagingSelect)</a></dt>
+				<dd>ページング検索を定型化</dd>
+				<dt><a href="./implfit/cursorselect/index.html">カーソル検索 (CursorSelect)</a></dt>
+				<dd>大量件数検索でメモリ不足にならないために</dd>
+				<dt><a href="./implfit/likesearch/index.html">LikeSearch条件 (LikeSearch)</a></dt>
+				<dd>曖昧検索の条件指定を定型化(安全に)</dd>
+				<dt><a href="./implfit/datefromto/index.html">DateFromTo条件 (DateFromTo)</a></dt>
+				<dd>日付範囲の条件指定を定型化(安全に)</dd>
+				<dt><a href="./implfit/subquery/index.html">サブクエリ (SubQuery)</a></dt>
+				<dd><em class="keyword">サブクエリ</em> を定型化してタイプセーフに</dd>
+				<dt><a href="./implfit/procedurecall/index.html">プロシージャコール (ProcedureCall)</a></dt>
+				<dd><em class="keyword">プロシージャ</em> の呼び出しをタイプセーフに</dd>
+				<dt><a href="./implfit/debuglog/index.html">デバッグログ (DebugLog)</a></dt>
+				<dd>デバッグしやすいログの設定</dd>
+				<dt><a href="./implfit/displaysql/index.html">表示用SQL (DisplaySql)</a></dt>
+				<dd>バインド変数付きSQLを人に見やすく</dd>
+				<dt><a href="./implfit/aliasdefinition/index.html">別名(和名)の定義 (AliasDefinition)</a></dt>
+				<dd>(ドキュメント上の)別名(和名)の定義</dd>
+				<dt><a href="./implfit/databasedependency/index.html">データベース依存機能 (DatabaseDependency)</a></dt>
+				<dd>データベース依存機能(メソッド)の利用</dd>
+				<dt><a href="./implfit/whererecycle/index.html">where句の再利用 (WhereRecycle)</a></dt>
+				<dd>where句条件の業務的な再利用</dd>
+				<dt><a href="./implfit/domainlogicrecycle/index.html">ドメインロジックの再利用 (DomainLogicRecycle)</a></dt>
+				<dd>複数のプロセスで利用するドメインロジックの再利用</dd>
+				<dt><a href="./implfit/schemapolicy/index.html">DB設計のチェックスタイル (SchemaPolicyCheck)</a></dt>
+				<dd>DB設計の一貫性をキープするためにチェックしよう</dd>
+			</dl>
+		</dd>
+		<dt><a href="./projectfit/index.html">プロジェクト構成対応 (Project Fit)</a></dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./projectfit/viewgeneration/index.html">View の自動生成 (ViewGeneration)</a></dt>
+				<dd><em class="keyword">View</em> を自動生成対象に(DefaultでOK)</dd>
+				<dt><a href="./projectfit/synonymgeneration/index.html">シノニムの自動生成 (SynonymGeneration)</a></dt>
+				<dd>(Oracleの)シノニムや(DB2の)Aliasを自動生成対象に</dd>
+				<dt><a href="./projectfit/tableexcepttarget/index.html">テーブルの除外・対象 (TableExceptTarget)</a></dt>
+				<dd>アプリで利用しないテーブルの除外・対象の指定</dd>
+				<dt><a href="./projectfit/columnexcept/index.html">カラムの除外 (ColumnExcept)</a></dt>
+				<dd>アプリで利用しないカラムの除外</dd>
+				<dt><a href="./projectfit/multipledb/index.html">複数DB (MultipleDB)</a></dt>
+				<dd>複数DBの利用(複数DBFluteクライアント)</dd>
+				<dt><a href="./projectfit/additionalschema/index.html">追加スキーマ (AdditionalSchema)</a></dt>
+				<dd>別スキーマを追加スキーマとして自動生成対象に</dd>
+				<dt><a href="./projectfit/schematablename/index.html">スキーマ修飾テーブル (SchemaTableName)</a></dt>
+				<dd>実行されるSQL(CB)のテーブル名にスキーマ名を付与</dd>
+				<dt><a href="./projectfit/dienvironment/index.html">DI環境 (DIEnvironment)</a></dt>
+				<dd>DI環境の様々な調整</dd>
+				<dt><a href="./projectfit/gearedcipher/index.html">暗号化・復号化処理の組み込み (GearedCipher)</a></dt>
+				<dd>暗号化処理(主にはSQL関数)をCBやBehaviorで自動的に</dd>
+				<dt><a href="./projectfit/craftdiff/index.html">手作り差分チェック (CraftDiff)</a></dt>
+				<dd>HistoryHTMLやSchemaSyncCheckで差分チェック項目を独自に増やす</dd>
+				<dt><a href="./projectfit/classauthor/index.html">クラスのAuthor指定 (ClassAuthor)</a></dt>
+				<dd>自動生成クラスにプロジェクト独自の Author を指定</dd>
+				<dt><a href="./projectfit/copyright/index.html">クラスのコピーライト指定 (Copyright)</a></dt>
+				<dd>自動生成クラスにプロジェクト独自のコピーライトを指定</dd>
+				<dt><a href="./projectfit/projectprefix/index.html">クラス名のプレフィックス (ProjectPrefix)</a></dt>
+				<dd>プロジェクト独自のクラス名のプレフィックス</dd>
+				<dt><a href="./projectfit/numericautomapping/index.html">NUMERICの自動マッピング (AutoMapping)</a></dt>
+				<dd>NUMERIC型の(IntegerやLongへの)自動マッピング</dd>
+				<dt><a href="./projectfit/applicationoutsidesql/index.html">アプリごとの外だしSQL (ApplicationOutsideSql)</a></dt>
+				<dd>複数プロジェクト構成のためのアプリごとの外だしSQL</dd>
+				<dt><a href="./projectfit/applicationbehavior/index.html">アプリごとのBehavior (ApplicationBehavior)</a></dt>
+				<dd>アプリケーションギャップのためのアプリごとのBehavior</dd>
+				<dt><a href="./projectfit/outsidesqladjustment/index.html">外だしSQL環境の微調整 (OutsideSqlAdjustment)</a></dt>
+				<dd>外だしSQLのパッケージ、エンコーディングなど</dd>
+				<dt><a href="./projectfit/emptystring/index.html">空文字の取扱い(等値条件など) (EmptyString)</a></dt>
+				<dd>DBFluteにおける空文字の取扱いの調整(等値条件の利用など)</dd>
+				<dt><a href="./projectfit/simpledto/index.html">(転送用の)シンプルなDTO (SimpleDto)</a></dt>
+				<dd>Flex や JSON などと連携するためのDBFlute依存しないDTO</dd>
+			</dl>
+		</dd>
+		<dt><a href="./runtimefit/index.html">実行時共通要件の実現 (Runtime Fit)</a></dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./runtimefit/exceptionhandling/index.html">例外ハンドリング (ExceptionHandling)</a></dt>
+				<dd>DBFluteで発生する例外のハンドリング</dd>
+				<dt><a href="./runtimefit/sequencecache/index.html">シーケンスキャッシュ (SequenceCache)</a></dt>
+				<dd>パフォーマンス向上のためのシーケンスのキャッシュ機構</dd>
+				<dt><a href="./runtimefit/bootinitialization/index.html">一括初期化 (BootInitialization)</a></dt>
+				<dd>アプリ起動時の一括初期化(UTはLazy)</dd>
+				<dt><a href="./runtimefit/datelogformat/index.html">日付・日時のログフォーマット (DateLogFormat)</a></dt>
+				<dd>ログ上の表示用SQLの日付・日時のフォーマットの指定</dd>
+				<dt><a href="./runtimefit/behaviorcommandhook/index.html">Behavior実行のフック (BehaviorCommandHook)</a></dt>
+				<dd>Behavior実行をフックして特殊要件に対応</dd>
+				<dt><a href="./runtimefit/sqlloghandler/index.html">SQLログの取得 (SqlLogHandler)</a></dt>
+				<dd>SQLログを取得して操作ログとして記録したり</dd>
+				<dt><a href="./runtimefit/sqlresulthandler/index.html">SQL結果であれこれ (SqlResultHandler)</a></dt>
+				<dd>SQLの結果(データ)に対する共通処理</dd>
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd class="twoedged-desc">※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<dt><a href="./runtimefit/defaultstatementconfig">デフォルトのStatementConfig (DefaultStatementConfig)</a></dt>
+						<dd>デフォルトのStatementConfig(queryTimeoutなど)の設定</dd>
+						<dt><a href="./runtimefit/datasourcehandler">DataSourceのハンドラ (DataSourceHandler)</a></dt>
+						<dd>DataSourceに対する共通のフック処理(Connection取得など)</dd>
+						<dt><a href="./runtimefit/queryexecuteloglevelinfo">クエリログ・実行ログのINFO化 (QueryExecuteLogLevelInfo)</a></dt>
+						<dd>クエリログ・実行ログを本番環境でも</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+		<dt><a href="./dbflutefit/index.html">DBFlute利用のサポート (DBFlute Fit)</a></dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./dbflutefit/refreshproject/index.html">自動生成後の自動更新 (RefreshProject)</a></dt>
+				<dd>自動生成後のEclipse上の自動更新(F5)を自動化</dd>
+				<dt><a href="./dbflutefit/outsidesqltitle/index.html">外だしSQLのタイトル (OutsideSqlTitle)</a></dt>
+				<dd>外だしSQLのタイトル・説明をドキュメント化</dd>
+				<dt><a href="./dbflutefit/nonmetadataidentity/index.html">メタデータのないIdentity (NonMetaDataIdentity)</a></dt>
+				<dd>メタ情報のないIdentityの解決</dd>
+				<dt><a href="./dbflutefit/nonmetadatatable/index.html">メタデータのないテーブル (NonMetaDataTable)</a></dt>
+				<dd>メタ情報のないテーブルの解決</dd>
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd class="twoedged-desc">※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<dt><a href="./dbflutefit/corecomponentextension/index.html">コアコンポーネントの拡張 (CoreComponentExtension)</a></dt>
+						<dd>コアコンポーネントの拡張して独自処理を実現</dd>
+						<dt><a href="./dbflutefit/templateextension/index.html">自動生成テンプレートの拡張(TemplateExtension)</a></dt>
+						<dd>自動生成テンプレートの拡張して独自処理を実現</dd>
+						<dt><a href="./dbflutefit/includequery/index.html">条件メソッドの取捨選択 (IncludeQuery)</a></dt>
+						<dd>不要な条件メソッドは生成しないように</dd>
+						<dt><a href="./dbflutefit/dburiflute/index.html">DBuriFlute</a></dt>
+						<dd>BuriとDBFluteの連携</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+		<dt><a href="./deprecatedfit/index.html">非推奨な構造フォロー (Deprecated Fit)</a></dt><dd>&nbsp;</dd>
+		<dd>
+			<dl>
+				<dt><a href="./deprecatedfit/nonprimarykeyinsert/index.html">PKのないinsert (NonPrimaryKeyInsert)</a></dt>
+				<dd>PK制約のないテーブルのInsert</dd>
+				<dt><a href="./deprecatedfit/compoundprimarykey/index.html">複合主キーの対策 (CompoundPrimaryKey)</a></dt>
+				<dd>複合主キーの対策・アプローチ</dd>
+				<dt><a href="./deprecatedfit/nonconstraint/index.html">制約のない制約 (NonConstraint)</a></dt>
+				<dd>制約のないPK/FK/UQの解決</dd>
+				<dt class="twoedged-title">{TwoEdgedSword}</dt><dd class="twoedged-desc">※以下は厳重注意して利用すること</dd>
+				<dd>
+					<dl class="twoedged-element">
+						<dt><a href="./deprecatedfit/shortcharhandling/index.html">char型の桁数不足の取扱い (ShortCharHandling)</a></dt>
+						<dd>桁数の満たないchar型データの解決</dd>
+						<dt><a href="./deprecatedfit/caseinsensitiveequalprimarykey/index.html">大文字小文字区別なし等値のPK (CaseInsensitiveEqualPrimaryKey)</a></dt>
+						<dd>大文字小文字区別なし等値のPKによる制限と回避</dd>
+						<dt><a href="./deprecatedfit/nonunitycommoncolumn/index.html">統一性のない共通カラム (NonUnityCommonColumn)</a></dt>
+						<dd>統一性のない共通カラムに対する危険な対応</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

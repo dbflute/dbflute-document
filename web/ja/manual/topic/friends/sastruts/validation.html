@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Friends - SAStruts | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAStrutsのバリデーション</h1>
+	<p>
+		DBFluteとは直接無関係ながらも、親和性の高いフレームワークを紹介します。
+		ここでは、SAStrutsのバリデーションについて。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Friends - SAStruts</a></div>
+	${indexlist}
+
+	<h2 id="overview">バリデーションの概要</h2>
+	<h3 id="bigtwo">大きくは二つ</h3>
+	<p>
+		大きく分けると二種類のバリデーション方式があります。
+	</p>
+	<dl class="keymainlist">
+		<dt>アノテーション方式</dt><dd>Formのプロパティにアノテーションを付与してお手軽チェック</dd>
+		<dt>メソッドベタ方式</dt><dd>バリデーションメソッドの中で自分でなんでもチェック</dd>
+	</dl>
+	<h3 id="hybridway">ハイブリッドway</h3>
+	<p>
+		アノテーション方式は表現に限界があります。
+		厳密には、独自のバリデーションアノテーションを作るなどすればそうではないですが、
+		用意されているものだけでとなると業務で求められる複雑な条件のバリデーションはなかなか難しくなってきます。
+	</p>
+	<p>
+		なので、アノテーション方式だけで済ませるというのではなく、現実的にはメソッドベタ方式も織り交ぜていくことが想定されます。
+		ハイブリッドなやり方です。
+	</p>
+	<h3 id="simpleway">割り切りway</h3>
+	<p>
+		ただ、ハイブリッドだと、バリデーションのロジックが分散してしまいます。
+		ある項目のチェックがどのようなものなのか？を調べるには、Formの定義とメソッドを見ないといけません。
+	</p>
+	<p>
+		また、SAStrutsのデフォルトでは、アノテーションによるバリデーションでエラーになったらメソッドのバリデーションは呼ばれません。
+		これだと二段階バリデーションになってしまい、UI的にはあまり良いものにはなりません。
+		Executeアノテーションの属性で挙動を変更できますが、それぞれのActionで毎回定義しないといけないので、設定漏れで二段階バリデーションになってしまうかもしません。
+	</p>
+	<p>
+		なので、アノテーションは一切使わずに、バリデーションメソッドだけでやるというやり方もアリかもしれません。
+		簡単なバリデーションもロジックで書くのはちょっと面倒かもしれませんが、それはうまくユーティリティを作るなどして、楽に実装できるようにすればいいかと。
+	</p>
+
+	<h2 id="howtoanno">アノテーション方式のやり方</h2>
+	<h3 id="validatortrue">Executeでvalidator=true</h3>
+	<p>
+		Executeアノテーションにて validator属性を true にて、input属性にバリデーションエラー発生時に表示するJSPを指定します。
+	</p>
+<pre><span class="codetitle">e.g. Executeアノテーションでバリデーションの指定 @Java</span><code>
+@Execute(<span class="point">validator</span>=true, input="index.jsp")
+<span class="keyword">public</span> String index() {
+}
+</code></pre>
+	<h3 id="formanno">Formのフィールドにアノテーションを</h3>
+	<p>
+		そして、ActionFormのpublicフィールドに、バリデーション用のアノテーションを定義します。
+		すると、リクエストが来たときにバリデーションが実行され、エラーがひとつでもある場合は Action のメソッドは呼ばれずに、input属性で指定されたJSPを表示します。
+	</p>
+<pre><span class="codetitle">e.g. ActionFormでバリデーションのアノテーション @Java</span><code>
+<span class="point">@Required</span>
+<span class="keyword">public</span> String memberName;
+</code></pre>
+
+	<div class="detailpage"><a href="http://sastruts.sandbox.seasar.org/">SAStruts本家サイト</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

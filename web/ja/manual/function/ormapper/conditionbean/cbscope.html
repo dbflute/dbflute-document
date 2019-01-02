@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,スコープ,外だしSQL,OutsideSql,判断,切り分け,できないこと" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>ConditionBeanのスコープ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ConditionBeanのスコープ</h1>
+	<p>
+		DBFluteは、大きく二つのDBアクセスのやり方を提供しています。それは ConditionBean と 外だしSQL(OutsideSql) です。ここでは
+		"ConditionBeanのスコープ" に焦点を当てて、<em class="keyword">いざ実装するときにこの２つのどちらを利用すれば良いのか</em>
+		の判断基準をまとめます。
+	</p>
+	<div class="relatedpage"><a href="./index.html">ConditionBean</a></div>
+	<div class="relatedpage"><a href="../outsidesql/index.html">外だしSQL(OutsideSql)</a></div>
+	${indexlist}
+
+	<h2 id="flow">判断の流れ</h2>
+	<p>
+		当然、"ConditionBeanでできないことは外だしSQLで"
+		という正論に間違いはありませんが、なかなか最初からプログラマが ConditionBean
+		の機能を網羅することは難しいです。そこで、素早く判断するための判断の流れを紹介したいと思います。
+	</p>
+	<p>
+		ここでは、ConditionBeanによる検索に焦点を当てています。更新に関しては別途まとめています。
+	</p>
+	<div class="relatedpage"><a href="#update">this - ConditionBeanによる更新での判断</a></div>
+
+	<h2 id="flowa">A. 概念的な違いで判断</h2>
+	<p>
+		ConditionBeanの細かい機能を確認する前に、まずはそれぞれが持つ概念的なスコープを確認することで早い段階で棲み分けが判断できます。
+		やはり基本中の基本、<em class="keyword">基点テーブルは何？</em> に着目しています。
+	</p>
+	<h3 id="domain">基点テーブルが定まる検索</h3>
+	<p>
+		例えば、会員一覧は会員IDでユニークになり、つまり、基点テーブルは会員です。
+		また、購入一覧のユニーク性は購入ID(もしくは、会員ID、商品ID、購入日時)です。
+		会員ごとの購入状況の集計(合計購入価格など)を検索という場合、"会員ごと"
+		と言っているので購入IDではなく会員IDでユニークになり、基点テーブルはやはり会員です。
+		(集計とか購入とかという言葉に惑わされてはいけません)
+	</p>
+	<dl class="keymainlist">
+		<dt>会員一覧</dt><dd>会員IDでユニーク、基点テーブルは会員</dd>
+		<dt>購入一覧</dt><dd>購入ID(会員ID、商品ID、購入日時)でユニーク、基点テーブルは購入</dd>
+		<dt>会員ごとの購入状況の集計</dt><dd>会員IDでユニーク、基点テーブルは会員</dd>
+	</dl>
+	<p>
+		さて、あなたの検索における
+		<em class="keyword">結果セットのユニーク性、つまり、基点テーブル</em> はなんでしょう？
+	</p>
+	<h3 id="customize">基点テーブルが定まらない検索</h3>
+	<p>
+		例えば、"月ごとの購入状況の集計(最大購入金額など)" というような場合、元になっている情報は購入テーブルですが、
+		結果セットのユニーク性は購入IDではなく <em class="keyword">(購入)月ごと</em>
+		です。そのようなユニーク性を持ったテーブルはどこにも存在しないため、厳密には基点テーブルは存在していないと言えます。
+		プログラムの管理上、"あえて言うなら" と曖昧に基点テーブルを購入と定めることはありますが、それは厳密な基点テーブルではありません。
+	</p>
+	<p>
+		"会員と月ごとの購入状況の集計" と会員という要素が入ったとしても、あくまで <em class="keyword">会員と月ごと</em>
+		でユニークとなるわけで、一致するユニーク性は会員でも購入でもありません。
+		実際にSQLでは、購入日時の年月部分を抜き出して購入月という実際のテーブル上には存在しない要素で結果セットを構築するでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>月ごとの購入状況の集計</dt><dd>購入月でユニーク、基点テーブルはスキーマ上にはない</dd>
+		<dt>会員と月ごとの購入状況の集計</dt><dd>会員IDと購入月でユニーク、基点テーブルはスキーマ上にはない</dd>
+	</dl>
+	<p>
+		このような <em class="keyword">結果セットのユニーク性がスキーマ上のテーブルと一致しない検索は外だしSQL</em> です。
+	</p>
+	<h3 id="cbscope">ConditionBeanのスコープ</h3>
+	<p>
+		もう少しぼかした言い方をすると、基点テーブルが厳密に定まるものは ConditionBean
+		のスコープで、曖昧にしか定まらないものは確実に外だしSQLで実装します。
+	</p>
+	<p>
+		その違いが、受け取り Entity の違いに現れます。ConditionBean はオブジェクトグラフのDomainEntity
+		なのに対して、外だしSQLは(基本的に)フラット構造の CustomizeEntity になります。
+	</p>
+	<div class="relatedpage"><a href="../entity/index.html#about">Entityとは？ (DomainEntityの説明あり)</a></div>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wo.html#objectgraph">ObjectGraph (オブジェクトグラフ)</a></div>
+	<p>
+		例外が一つ、(一般的な)集計関数を使ったスカラ値の検索は、ConditionBean
+		のスコープです。結果セットの基点テーブルという概念がそもそも存在しない検索形式ですが、
+		ConditionBean の絞り込み条件を利用してとあるカラムの最大値や合計値などを検索することができます。
+	</p>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/ws.html#scalarvalue">ScalarValue (スカラ値)</a></div>
+	<div class="inucolumn">
+		<h3 id="unique">結果セットのユニーク性を明確に</h3>
+		<p>
+			結果セットのユニーク性を(実装前に)明確にすることは、DBFluteの話に限らず、検索というDBアクセスを実装する上でとても重要なことです。
+			例えば、(外だしSQLなどで)SQLを直接書くような場合においても同様です。
+		</p>
+		<p>
+			SQLは、非常に自由度の高い言語で、一つの目的を色々な手段で実現することができます。
+			これはとても便利な特徴ですが、逆に言うと最適な手段をしっかり見つけることが大事になってきます。
+			目的を明確にせずにいきなりSQLを書き始めても、それはSQLの構文(文法)から目的を探すのと同義であり、試行錯誤を繰り返す実装になりがちです。
+			また、行き当たりばったりで見つけた手段で実装してしまい、(パフォーマンスやわかりやすさなどの面で)最適な別の手段を見失なってしまう可能性もあります。
+		</p>
+		<p>
+			"結果セットのユニーク性を明確にすること" と "ConditionBeanの目的ドリブンの思考手順" は、非常に密接な関係にあり、一番最初のプロセスである
+			"基点テーブルは何？" は、(ユニーク性の明確化において)とても重要な要素となります。
+			DBFluteを利用することが、(できるだけ)こういった意識が自然と身に付くことにつながればと考えています。
+		</p>
+		<div class="relatedpage"><a href="./about.html#purpose">ConditionBeanについて - 目的ドリブン</a></div>
+		<p>
+			ちなみに、"結果セットのユニーク性" を "レコードの粒度"
+			と呼ぶこともあります。基本的にはドキュメント上は前者で表現していますが、どちらも同じことを意味しています。
+		</p>
+	</div>
+
+	<h2 id="flowb">B. ConditionBeanでとりあえず実装</h2>
+	<p>
+		"概念的な違いで判断" を通り過ぎたこの時点では ConditionBean
+		で実装可能である可能性が高いです。実際に ConditionBean を実装しながら確認してみましょう。後に "やっぱり外だしSQLで実装"
+		となってしまっても、<em class="keyword">その ConditionBean の実装は無駄にはなりません</em>。後述しますが、近いところまで実装した
+		<em class="keyword">ConditionBean から外だしSQLの土台となるSQLを生成</em> できるからです。
+	</p>
+	<h3 id="purposedriven">目的ドリブンで実装</h3>
+	<p>
+		ConditionBean は目的ドリブンでSQLを組み立てるためのオブジェクトです。"ConditionBeanの機能"
+		と、DBアクセスの目的(やりたいこと)をマッチングさせて、実装していきましょう。
+	</p>
+	<div class="detailpage"><a href="./index.html#function">ConditionBeanの機能</a></div>
+
+	<h2 id="flowc">C. やはり外だしSQLであると判断</h2>	
+	<p>
+		ここまで来たら、やはり "外だしSQLで実装" ということになります。
+	</p>
+	<p>
+		もし、この時点で ConditionBean で近いところまで実装済みであれば、それは消してはいけません。
+		以下の手順で外だしSQLの実装の土台にして下さい。
+	</p>
+	<ol>
+		<li>ConditionBean でできるところまでテスト実装</li>
+		<li>ConditionBean の <em class="keyword">toDisplaySql()</em> の戻り値をログに出力</li>
+		<li>ログ出力されたSQL文を外だしSQLの土台として活用</li>
+	</ol>
+	<div class="relatedpage"><a href="./sidebar/todisplaysql.html">ConditionBean - ToDisplaySql</a></div>
+	<p>
+		SQLの構文やテーブル名、カラム名を一から書く必要はなくなり、スペルミスなどのケアレスミスも少なくなります。
+		判断の流れの中で実装したConditionBeanは無駄にはならないのです。
+	</p>
+
+	<h2 id="update">ConditionBeanによる更新での判断</h2>
+	<p>
+		ConditionBeanの絞り込み条件部分だけを利用した更新や削除(queryUpdate() や
+		queryDelete())においては、まずは更新値(update文のset句)の表現における制約を確認し、明らかに外だしSQLなのかどうか判断します。
+		その制約は、Entityを利用した更新において共通のものです。
+	</p>
+	<div class="detailpage"><a href="../behavior/update/update.html#scope">Behavior - update(entity) - Entity更新のスコープ</a></div>
+	<div class="relatedpage"><a href="../behavior/update/queryupdate.html">Behavior - queryUpdate(entity ,cb)</a></div>
+	<div class="relatedpage"><a href="../behavior/update/querydelete.html">Behavior - queryDelete(cb)</a></div>
+	<p>
+		絞り込み条件に関しては、ConditionBeanによる検索の時と基本的に判断は同じなので、同ページの内容を参考にします。
+		但し、DBMS によって利用できる条件に制限がありますので(例えば、MySQL)、あわせてDBMSごとの取扱いも必ず目を通しましょう。
+	</p>
+	<div class="relatedpage"><a href="#flowb">this - B. ConditionBeanでとりあえず実装</a></div>
+	<div class="relatedpage"><a href="../../../reference/dbway/index.html">DBMSごとの取扱い</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

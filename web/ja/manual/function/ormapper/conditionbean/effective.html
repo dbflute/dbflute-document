@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Effective ConditionBean | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Effective ConditionBean</h1>
+	${indexlist}
+
+	<h2 id="codeway">コードスタイル</h2>
+	<h3 id="cb">変数名は cb で</h3>
+	<p>
+		みなそうしています。
+	</p>
+<pre><span class="codetitle">変数名は cb で @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+</code></pre>
+	<p>
+		SubQueryは subCB, OrScopeQueryは orCB など、コールバックの変数は補完されたままのもので。
+	</p>
+<pre><span class="codetitle">SubQueryは subCB で @Java</span><code>
+cb.query().existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB <span class="point">subCB</span>) {
+        subCB.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+    }
+});
+</code></pre>
+	<p>
+		一つのメソッド内に、複数の ConditionBean を宣言する必要がある場合、つまり二回検索するような場合は、そもそもメソッド分けすると良いでしょう。
+		<span class="frm">(できれば、くらいのニュアンスで)</span>
+	</p>
+	<h3 id="implorder">実装順序は、データの取得、絞り込み、並び替え</h3>
+	<p>
+		みながそうすれば、可読性が良くなります。<span class="frm">(ぜひとも、くらいのニュアンスで)</span>
+	</p>
+<pre><span class="codetitle">データの取得、絞り込み、並び替え @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus(); <span class="comment">// データの取得</span>
+cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>); <span class="comment">// データの絞り込み</span>
+cb.query().addOrderBy_MemberId_Asc(); <span class="comment">// データの並び替え</span>
+
+<span class="comment">// 並び替えの後に絞り込みとかやらない</span>
+<span class="comment">//cb.query().setBirthdate_IsNull();</span>
+
+<span class="comment">// データの取得は一番最初がうれしい</span>
+<span class="comment">//cb.setupSelect_MemberSecurityAsOne();</span>
+
+<span class="comment">// リスト検索</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+</code></pre>
+
+	<h2 id="determination">実装判断</h2>
+	<h3 id="noif">不要なif文を減らそう</h3>
+	<p>
+		条件値がnullや空文字の場合は条件が無視されます。検索画面の検索条件などにぴったりフィットします。
+		この特性をうまく活かしてif文を減らして可読性を良くしましょう。
+	</p>
+<pre><span class="codetitle">nullや空文字なら無視されるので、if文は要らない @Java</span><code>
+cb.query().setMemberId_Equal(memberId);
+cb.query().setMemberName_PrefixSearch(memberPrefix);
+
+<span class="comment">// selectedStatusCode が null なら status も null</span>
+CDef.MemberStatus status = CDef.MemberStatus.codeOf(selectedStatusCode);
+cb.query().setMemberStatusCode_Equal_AsMemberStatus(status);
+</code></pre>
+	<p>
+		ただし、ExistsReferrerなど条件が無い場合はサブクエリごと消えて欲しい場合は、やはりif文が必要なので、何も考えずにif文を外し過ぎないようにしましょう。
+	</p>
+<pre><span class="codetitle">e.g. ExistsReferrerの中の条件がなくなったらサブクエリごと無くすif文 @Java</span><code>
+<span class="keyword">if</span> (purchasePriceFrom != null) {
+    cb.query().existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+        <span class="keyword">public void</span> query(PurchaseCB subCB) {
+            subCB.query().setPurchasePrice_GreaterEqual(purchasePriceFrom);
+        }
+    });
+}
+</code></pre>
+	<h3 id="invalidquery">必須なら引数チェックをしよう</h3>
+	<p>
+		逆に、条件値が存在することが前提であれば、メソッドの引数チェックをしましょう。でないと、万が一 null
+		や空文字が来た場合、予期せぬ大量データを検索してしまう可能性があります。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称と購入価格の検索条件の必須チェックをメソッドの先頭で @Java</span><code>
+<span class="comment">/**</span>
+<span class="comment"> * Select the list of high class members.</span>
+<span class="comment"> * @param memberName The member name for prefix-search. (NotNull, NotEmpty)</span>
+<span class="comment"> * @param purchasePriceFrom The purchase price for greater-equal. (NotNull)</span>
+<span class="comment"> * @return The list of member entities. (NotNull)</span>
+<span class="comment"> */</span>
+<span class="keyword">public</span> List&lt;Member&gt; selectHighClassMemberList(
+                  String memberName
+                , <span class="keyword">final</span> Integer purchasePriceFrom) {
+    <span class="keyword">if</span> (memberName == <span class="keyword">null</span> || memberName.length() == <span class="literal">0</span>) {
+        <span class="keyword">throw new</span> IllegalArgumentException(<span class="literal">"The argument 'mem<span class="abbreviation">...</span>"</span> + me<span class="abbreviation">...</span>);
+    }
+    <span class="keyword">if</span> (purchasePriceFrom == <span class="keyword">null</span>) {
+        <span class="keyword">throw new</span> IllegalArgumentException(<span class="literal">"The argument 'pur<span class="abbreviation">...</span>"</span>);
+    }
+    MemberCB cb = <span class="keyword">new</span> MemberCB();
+    cb.query().setMemberName_PrefixSearch(memberName);
+    cb.query().existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+        <span class="keyword">public void</span> query(PurchaseCB subCB) {
+            subCB.query().setPurchasePrice_GreaterEqual(purchasePriceFrom);
+        }
+    });
+}
+</code></pre>
+	<p>
+		。。。確かに、ちょっと面倒かもしれませんね(それでも、やるべきだとは思いますが)。
+	</p>
+	<p>
+		チェックはしたいけど、そこまでしてやりたくないという場合は、cb.checkInvalidQuery()
+		が利用できるかもしれません。ConditionBeanの "nullや空文字で条件設定を無視する"
+		という挙動を変更して、例外にすることができます。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称と購入価格の検索条件の必須チェックを checkInvalidQuery() で @Java</span><code>
+<span class="comment">/**</span>
+<span class="comment"> * Select the list of high class members.</span>
+<span class="comment"> * @param memberName The member name for prefix-search. (NotNull, NotEmpty)</span>
+<span class="comment"> * @param purchasePriceFrom The purchase price for greater-equal. (NotNull)</span>
+<span class="comment"> * @return The list of member entities. (NotNull)</span>
+<span class="comment"> */</span>
+<span class="keyword">public</span> List&lt;Member&gt; selectHighClassMemberList(
+                  String memberName
+                , <span class="keyword">final</span> Integer purchasePriceFrom) {
+    MemberCB cb = <span class="keyword">new</span> MemberCB();
+    cb.<span class="point">checkInvalidQuery()</span>;
+    cb.query().setMemberName_PrefixSearch(memberName);
+    cb.query().existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+        <span class="keyword">public void</span> query(PurchaseCB subCB) {
+            subCB.query().setPurchasePrice_GreaterEqual(purchasePriceFrom);
+        }
+    });
+}
+</code></pre>
+	<p>
+		ConditionBeanの処理の前にフィルター処理するとか別途ロジックが入るようなケースでは、やはり普通にif文でチェックすることになりますので、ケースバイケースで使い分けてください。
+		<span class="frm">(よくわからないのであれば、これは使わずに全部if文で明示的にチェックする方がよいでしょう)</span>
+	</p>
+	<p>
+		また、すべてのケースで適用するというより、"あっ、これちょっとチェックしておいた方がいいかなー"
+		と、ふと頭に電流走ったときに使うと良いでしょう。
+	</p>
+	<h3 id="queryupdate">queryUpdate()で全件更新を防止</h3>
+	<p>
+		リスト検索してfor文で回って、(同じ値で、かつ、排他制御なしで)一括更新もしくは一括削除するくらいなら、queryUpdate() や queryDelete()
+		を使いましょう。パフォーマンス的なメリットもそうですが、安全性も違います。
+	</p>
+	<p>
+		アンチパターンが以下のようなケースです。
+	</p>
+<pre><span class="codetitle">e.g. これはやって欲しくない！ @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberId_InScope(memberIdList); <span class="comment">// 空っぽだと条件なくなる</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="keyword">for</span> (Member member : memberList) {
+    <span class="attribute">memberBhv</span>.deleteNonstrict(member); <span class="comment">// これはやってはいけない！</span>
+}
+</code></pre>
+	<p>
+		この場合、万が一 memberIdList が空リストになったら、なかなかのジ・エンドです。そもそも memberIdList
+		は、引数チェックなどでチェックされるべき、もしくは、checkInvalidQuery() でチェックされるべきですが、やってなかったらOUTです。
+	</p>
+	<p>
+		でも、queryUpdate(), queryDelete()
+		であれば、"全件更新、全件削除は許されていない" ので例外として検知できます。
+	</p>
+<pre><span class="codetitle">e.g. queryDelete()であれば "全件更新、全件削除は許されていない" ので最悪のケースは防げる @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberId_InScope(memberIdList); <span class="comment">// 空っぽだと条件なくなる</span>
+<span class="attribute">memberBhv</span>.queryDelete(cb); <span class="comment">// 全件削除だったら例外に</span>
+</code></pre>
+	<p>
+		ただ、もしその InScope の条件以外に、固定の絞り込み条件がある場合は意味がありません。InScopeが消えても全件ではないので DBFlute
+		も例外にすることができません。でも、業務的にはOUTであることには変わりないので、基本的には条件値(memberIdList)を事前にチェックするか、checkInvalidQuery()
+		を使うことが大切です。<span class="frm">(両方やっておくのが吉。更新や削除で何かあると大事故です)</span>
+	</p>
+<pre><span class="codetitle">e.g. 固定条件があると全件チェックできないので、やはり事前チェックはやっておいた方がいい @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.<span class="point">checkInvalidQuery()</span>;
+cb.query().setMemberId_InScope(memberIdList); <span class="comment">// 空っぽなら例外</span>
+cb.query().setMemberStatusCode_Equal_正式会員(); <span class="comment">// 固定条件</span>
+<span class="attribute">memberBhv</span>.queryDelete(cb);
+</code></pre>
+
+	<h2 id="recycle">再利用メソッド</h2>
+	<h3 id="slice">再利用は細切れに <span class="frm">(ArrangeQuery)</span></h3>
+	<p>
+		検索をまるごと再利用すると、画面間の要求のちょっとしたギャップで分岐がカオスになりがちですし、setupSelect
+		が最小公倍数の指定になって、無駄なデータ取得が発生しやすいです。検索は、絞り込み条件などを細かく分けて再利用する方が扱いやすく効果的です。
+	</p>
+	<p>
+		ジェネレーションギャップを有効活用して、ConditionBean や ConditinoQuery の "Exクラス" に Arrange
+		メソッドを定義して再利用しましょう。<span class="frm">(ArrangeQueryと呼ぶ)</span>
+	</p>
+<pre><span class="codetitle">e.g. サービス会員: ある特別な商品を購入したことのある会員名称が "S" で始まる正式会員 @Java</span><code>
+<span class="keyword">public class</span> MemberCQ <span class="keyword">extends</span> BsMemberCQ {
+    <span class="abbreviation">...</span>
+
+    <span class="comment">/**</span>
+    <span class="comment"> * Arrange the query for selecting service members. &lt;br /&gt;</span>
+    <span class="comment"> * &lt;pre&gt;</span>
+    <span class="comment"> * o starts with 'S'</span>
+    <span class="comment"> * o status 'Formalized'</span>
+    <span class="comment"> * o exists the special product</span>
+    <span class="comment"> * &lt;/pre&gt;</span>
+    <span class="comment"> */</span>
+    <span class="keyword">public void</span> arrangeServiceMember() {
+        setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+        setMemberStatusCode_Equal_Formalized();
+        existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+            <span class="keyword">public void</span> query(PurchaseCB subCB) {
+                subCB.query().setProductId_Equal(<span class="attribute">SPECIAL_PRODUCT_ID</span>);
+            }
+        });
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. サービス会員を検索 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">arrangeServiceMember()</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. サービス会員の購入を検索 @Java</span><code>
+PurchaseCB cb = <span class="keyword">new</span> PurchaseCB();
+cb.query().queryMember().<span class="point">arrangeServiceMember()</span>;
+</code></pre>
+	<p>
+		ConditinoQuery の方が、基点テーブルがどこであるかに依存せず再利用できるのでベターです。
+		ですが、OrScopeQuery や ColumnQuery などは "ConditionBeanドリブン"
+		なので、それらを使う場合は ConditionBean にて。
+	</p>
+	<h3 id="arrange">再利用メソッドの名前は arrangeXxx()</h3>
+	<p>
+		arrangeXxx() という名前がオススメです。みなで合わせれば、補完するときにとりあえず arr
+		で探せば簡単に見つけることができます。<span class="frm">(再利用のポイントは、いかに知ってもらうか)</span>
+	</p>
+	<p>
+		(Specify)DerivedReferrer や LoadReferrer のときでも、(特に違和感なければ) arrangeXxx()
+		で良いでしょう。<span class="frm">(ここはまあ、好みにおまかせします、くらいのニュアンスで)</span>
+	</p>
+<pre><span class="codetitle">e.g. 最終ログイン日時を取得する再利用メソッド @Java</span><code>
+<span class="keyword">public class</span> MemberCB <span class="keyword">extends</span> BsMemberCB {
+    <span class="abbreviation">...</span>
+
+    <span class="comment">/**</span>
+    <span class="comment"> * Arrange the (Specify)DerivedReferrer for latest login datetime.</span>
+    <span class="comment"> * @return The alias name of the derived column. (NotNull)</span>
+    <span class="comment"> */</span>
+    <span class="keyword">public </span> String arrangeSpecifyLatestLoginDatetime() {
+        String alias = Member.ALIAS_latestLoginDatetime;
+        cb.specify().derivedMemberLoginList().max(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+            <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+                subCB.specify().columnLoginDatetime();
+            }
+        }, alias);
+        <span class="keyword">return</span> alias; <span class="comment">// order by で使うかもしれないので戻しておく</span>
+    }
+}
+</code></pre>
+	<div class="inucolumn">
+		<h3 id="arrangename">参考までにこんな命名はいかがでしょう？</h3>
+		<p>
+			jfluteがやっている命名です。
+			業務次第でアドリブもありますが、おおまかにはこういった名前を心がけています。
+			とにかく、見つけやすさ重視です。<span class="frm">(絞り込みとソートは CB, CQ 共通)</span>
+		</p>
+		<dl class="shortvaluemainlist">
+			<dt>setupSelect...() の再利用</dt>
+			<dd>arrangeSetupXxx()</dd>
+			<dt>specify() の再利用</dt>
+			<dd>arrangeSpecifyXxx()</dd>
+			<dt>query() (絞り込み) の再利用</dt>
+			<dd>arrangeXxx() <span class="frm">★いちばんよく使うので業務名だけで</span></dd>
+			<dt>query() (ソート) の再利用</dt>
+			<dd>arrangeOrderXxx()</dd>
+		</dl>
+	</div>
+	<h3 id="javadoc">再利用メソッドには必ずJavaDocを</h3>
+	<p>
+		黙っているメソッドは不安を与え、使ってくれません。
+	</p>
+	<h3 id="balance">再利用を凝りすぎない</h3>
+	<p>
+		完璧な再利用を目指してはいけません。
+	</p>
+	<p>
+		再利用が破綻するよりかは、少しだけでもいいので "確実で安全な再利用" の方が効果があります。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

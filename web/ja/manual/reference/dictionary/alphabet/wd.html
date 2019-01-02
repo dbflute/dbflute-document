@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 D | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 D</h1>
+	<p>
+		"D" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="dblink" class="dicword">DB Link (データベースリンク)</h2>
+	<p>
+		主に Oracle で他のデータベースインスタンスのスキーマを参照するためのデータベースリンクという機能を示します。
+		DBFluteでは、データベースリンク経由のテーブルを参照しているシノニムも自動生成して利用することができます。
+		(データベースリンク経由でメタデータを取得)
+	</p>
+	<div class="relatedpage"><a href="../../dbway/oracle/index.html">DBMSごとの取扱い - Oracle</a></div>
+
+	<h2 id="datatype" class="dicword">Data Type (データ型)</h2>
+	<p>
+		場所を問わずにデータの型を示す場合と、(暗に)DB上のカラムの型を示す場合があります。
+		但し、後者の場合で明確に表現する場合は、"DBデータ型" と表現されることが多いです。
+	</p>
+	<div class="relatedword"><a href="#dbdatatype">DB Data Type (DBデータ型)</a></div>
+	<div class="relatedword"><a href="./wp.html#programtype">Program Type (プログラム型)</a></div>
+	<div class="relatedword"><a href="./wj.html#jdbctype">JDBC Type (JDBC型)</a></div>
+
+	<h2 id="dbcomment" class="dicword">DB Comment (DBコメント)</h2>
+	<p>
+		DB上のテーブルやカラムに定義できるコメント領域のことを示します。
+		例えば、"comment on" 構文を利用して定義できるコメントのことです。
+		DBMSによってサポート状況が変わります(定義するための構文も変わります)。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/aliasdefinition/index.html">現場フィット - 別名(和名)の定義</a></div>
+
+	<h2 id="dbdatatype" class="dicword">DB Data Type (DBデータ型)</h2>
+	<p>
+		DB上のカラムのデータ型を示します。但し、単に "データ型" と言った場合、このDBデータ型を示すことがあります。
+		プログラム型やJDBC型と明確に区別をするような場合に、明確な言い方として "DBデータ型" と利用されることが多いです。
+	</p>
+	<div class="relatedword"><a href="./wp.html#programtype">Program Type (プログラム型)</a></div>
+	<div class="relatedword"><a href="./wj.html#jdbctype">JDBC Type (JDBC型)</a></div>
+
+	<h2 id="dbfluteclient" class="dicword">DBFluteClient (DBFluteクライアント)</h2>
+	<p>
+		DBFluteを利用するためのアプリケーション設定が含まれるディレクトリです。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/client/index.html">DBFluteクライアント</a></div>
+	<div class="relatedword"><a href="./wc.html#clientdirectory">ClientDirectory</a></div>
+
+	<h2 id="developer" class="dicword">Developer (ディベロッパー)</h2>
+	<p>
+		DBFluteにおいては、主にシステム開発におけるアプリ実装(ビジネスロジックの実装)や単体テスト実装などを受け持つ役割を示します。
+		ConditionBeanや外だしSQL(OutsideSql)と最も触れ合う利用者となります。<br />
+	</p>
+	<div class="relatedword"><a href="./wa.html#architect">Architect (アーキテクト)</a></div>
+
+	<h2 id="doctask" class="dicword">DocTask (Docタスク)</h2>
+	<p>
+		スキーマのメタデータを利用して様々なドキュメントを生成するDBFluteタスク。
+	</p>
+	<div class="detailpage"><a href="../../../function/generator/task/doc/index.html">Docタスク</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,BehaviorQueryPath,SQLの定義,SQLの名前,Sql2Entity" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>BehaviorQueryPath | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>BehaviorQueryPath</h1>
+	<p>
+		Sql2Entityで自動生成される BehaviorQueryPath についてのページです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Sql2Entity</a></div>
+	${indexlist}
+
+	<h2 id="about">BehaviorQueryPathとは？</h2>
+	<p>
+		BehaviorQueryPath とは、外だしSQLの BehaviorQuery のパス表現のことを指します。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/howto.html#tabledriven">外だしSQLの使い方 - テーブル駆動でSQLを管理</a></div>
+	<p>
+		SQLファイルへのパスを解決は悩ましい問題です。プログラム上でのSQLの指定方法が文字列だと、"そんなファイルありません"
+		エラーになることはよくあります。Sql2Entityは <em class="keyword">ある規約に則ったSQLファイル</em>
+		に限ってそのSQLのパス定義を Behaviorクラスに自動生成し、プログラム上で
+		<em class="keyword">タイプセーフにどのSQLを実行するのかを指定</em>
+		できるようにします。これにより先述のようなエラーが発生することはありません。Sql2Entityで作ったSQLのパス定義のことを
+		BehaviorQueryPath と呼びます。
+	</p>
+
+	<h2 id="generate">BehaviorQueryPath の自動生成</h2>
+	<p>
+		BehaviorQueryPath は TypedParameterBean 内部で管理され、通常は意識することはありません。
+		パスを明示指定するフリースタイル呼び出しの場合に自動生成された BehaviorQueryPath を意識します。
+	</p>
+	<p>
+		BehaviorQueryPathは、<em class="keyword">関連付いたBehaviorのBsクラス</em>
+		に Sql2Entityタスク および Generateタスク(の最後の処理) によって定義されます。(既に存在しているBehaviorに対して定義が追加されます)
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wb.html#bsclass">BsClass (Bsクラス)</a></div>
+<pre><span class="codetitle">e.g. BehaviorQueryPathの定義(BsMemberBhv.java) @Java</span><code>
+<span class="keyword">public static final</span> String PATH_selectSimpleMember = <span class="literal">"selectSimpleMember"</span>;
+<span class="keyword">public static final</span> String PATH_selectMemberName = <span class="literal">"selectMemberName"</span>;
+</code></pre>
+	<h3 id="convention">BehaviorQueryPathの規約</h3>
+	<p>
+		BehaviorQueryPathの規約に沿った外だしSQLのみ自動生成されます。
+	</p>
+	<dl class="valuelist">
+		<dt>ソースディレクトリ</dt><dd>Sql2Entityの対象となるディレクトリ</dd>
+		<dt>パッケージ</dt><dd>BehaviorのExクラスと同じパッケージ</dd>
+		<dt>SQLファイル名</dt><dd>[関連付けるBehaviorのクラス名]_[SQL名].sql</dd>
+	</dl>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/ws.html#sourcedirectory">SourceDirectory (ソースディレクトリ)</a></div>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/we.html#exclass">ExClass (Exクラス)</a></div>
+
+	<h2 id="howto">BehaviorQueryPathの利用</h2>
+	<p>
+		定義自体はBsクラスですが、利用するときはExクラス経由で利用するのが習慣です。
+	</p>
+<pre><span class="codetitle">e.g. BehaviorQueryPathの定義(BsMemberBhv.java) @Java</span><code>
+String path = MemberBhv.PATH_selectSimpleMember;
+... = memberBhv.outsideSql().selectList(path, ...);
+</code></pre>
+	<div class="detailpage"><a href="../../../ormapper/outsidesql/howto.html">外だしSQLの使い方</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

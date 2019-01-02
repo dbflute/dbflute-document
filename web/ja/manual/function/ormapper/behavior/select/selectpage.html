@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,selectPage,ページング検索,PagingSelect,PagingSearch,ページングナビゲーション,PagingNavigation,paginate,pagination,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectPage(cb) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectPage(cb)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">ConditionBean でページング検索</em> をします。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/pagingselect/index.html">現場フィット - ページング検索</a></div>
+	<p>
+		会話上では、<em class="keyword">せれくとぺーじ</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ <span class="frm">※1.1.x (Java8版)</span></h3>
+	<p>
+		まずは、ConditionBean で paging() を呼び出し、ページサイズと検索対象のページ番号を設定します。
+		そして、Behaviorの <em class="keyword">selectPage()</em>
+		を呼び出し、その ConditionBean を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<div class="relatedpage"><a href="../../../../../tutorial/onjava8.html">DBFlute on Java8</a></div>
+<pre><span class="codetitle">e.g. selectPage()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="keyword">int</span> currentPageNumber = <span class="literal">3</span>; <span class="comment">// 実業務では、画面などで指定されたページ番号など</span>
+<span class="attribute">memberBhv</span>.selP <span class="comment">// .selP と打って enter</span>
+--
+
+<span class="comment">// メソッドが補完されて、引数の "cbLambda" が選択状態に</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectPage</span>(cbLambda);
+--
+
+<span class="comment">// cbLambdaの部分で、_ll (補完テンプレートが有効なら)</span>
+<span class="attribute">memberBhv</span>.selectPage(<span class="subpoint">_ll</span>);
+--
+
+<span class="comment">// Lambda引数名はcbにして...</span>
+<span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+})
+--
+
+<span class="comment">// paging()メソッドを呼び出す</span>
+<span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+    <span class="localvar">cb</span>.<span class="point">paging</span>(<span class="literal">20</span>, currentPageNumber); <span class="comment">// 1 ページ 20 件で 3 ページ目を検索対象に</span>
+})
+--
+
+<span class="comment">// セミコロン ';' を打って ctrl+2, L で戻り値補完</span>
+<span class="point">PagingResultBean</span>&lt;Member&gt; <span class="localvar">memberPage</span> = <span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span> <span class="comment">// tabでカーソル移動してcbで検索条件</span>
+    <span class="localvar">cb</span>.paging(<span class="literal">20</span>, currentPageNumber); <span class="comment">// 1 ページ 20 件で 3 ページ目を検索対象に</span>
+});
+--
+
+<span class="comment">// PagingResultBeanを使って、ページングナビゲーションをいい感じに</span>
+PagingResultBean&lt;Member&gt; <span class="localvar">memberPage</span> = <span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span>.query().set<span class="abbreviation">...</span>
+    <span class="localvar">cb</span>.paging(<span class="literal">20</span>, currentPageNumber);
+});
+<span class="keyword">int</span> allRecordCount = memberPage.<span class="subpoint">getAllRecordCount()</span>;
+<span class="keyword">int</span> allPageCount = memberPage.<span class="subpoint">getAllPageCount()</span>;
+<span class="keyword">for</span> (Member member : memberPage) { <span class="comment">// java.util.Listなのでそのままループ</span>
+    <span class="abbreviation">...</span>
+}
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="implflow10x">実装の流れ <span class="frm">※1.0.x (Java6版)</span></h3>
+<pre><span class="codetitle">e.g. selectPage()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="keyword">int</span> currentPageNumber = <span class="literal">3</span>; <span class="comment">// 実業務では、画面などで指定されたページ番号など</span>
+MemberCB() cb = <span class="keyword">new</span> MemberCB();
+cb.setupSelect_MemberStatus();
+cb.query().addOrderBy_Birthdate_Desc();
+cb.<span class="point">paging</span>(<span class="literal">20</span>, currentPageNumber); <span class="comment">// 1 ページ 20 件で 3 ページ目を検索対象に</span>
+<span class="attribute">memberBhv</span>.selP <span class="comment">// .selP と打って enter</span>
+--
+<span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectPage</span>(cb);
+--
+<span class="point">PagingResultBean</span>&lt;Member&gt; memberPage = <span class="attribute">memberBhv</span>.selectPage(cb);
+<span class="keyword">int</span> allRecordCount = memberPage.getAllRecordCount();
+<span class="keyword">int</span> allPageCount = memberPage.getAllPageCount();
+<span class="keyword">for</span> (Member member : memberPage) {
+    <span class="abbreviation">...</span>
+}
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルの ConditionBean となります。<span class="frm">(1.1.xよりコールバック)</span>
+	</p>
+	<p>
+		ConditionBeanが必ず存在することが前提であるため、nullを指定した場合は例外発生します。
+		検索条件がない検索をする場合でも、必ずConditionBeanのインスタンスが必要です。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		該当のBehaviorに対応するテーブルの PagingResultBean となります。
+	</p>
+	<div class="relatedpage"><a href="../resultbean/paging/index.html">PagingResultBean</a></div>
+	<p>
+		検索結果が一件もない場合でも null にはならず、空のPagingResultBean(空のリスト)となります。
+	</p>
+	<h3 id="nopaging">ページング条件未設定</h3>
+	<p>
+		ConditionBean の paging() でページング条件が設定されていないで呼び出されると例外となります。
+	</p>
+	<div class="relatedpage"><a href="../../conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		selectList() と同じような要領となります。
+	</p>
+	<div class="detailpage"><a href="./selectlist.html#override">selectList(cb) - オーバーライド</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

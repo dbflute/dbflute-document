@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,パフォーマンス考慮,実行時のパフォーマンス,Performance,実行速度,速い,遅い" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>パフォーマンス考慮 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>パフォーマンス考慮</h1>
+	<p>
+		DBFluteが取り組んでいる <em class="keyword">(実行時の)パフォーマンス考慮</em> について説明します。
+	</p>
+	${indexlist}
+
+	<h2 id="basic">パフォーマンス考慮の重要性</h2>
+	<p>
+		いくら実装のパフォーマンスが良くても、実行時(ランタイム)のパフォーマンスが良くなければ、それは採用できないO/Rマッパです。
+		O/Rマッパは、DBアクセス実装の道具というだけでなく、アプリケーションの一部品として組み込まれるものだからです。
+	</p>
+
+	<h2 id="noreflection">リフレクションを使わない</h2>
+	<p>
+		"O/Rマッパは、リフレクションを使うから遅い" と言われることがあります。
+		大抵のO/Rマッパは、Entityクラスにデータをマッピングする際にリフレクションを利用するからです。
+		現実的には、時代と共にリフレクションコストはかなり低いものになってきていますが、昔の印象に引きずられていることもよくあります。
+	</p>
+	<p>
+		DBFluteでは、データのマッピングの際に、リフレクションを利用しません。
+		自動生成ドリブンがあるがゆえに、<em class="keyword">データをマッピングするプログラム自体も自動生成</em>
+		することができるからです。ConditionBean、外だしSQL、どちらにおいても、データのマッピングは自動生成されたマッピング処理が利用されます。
+	</p>
+	<div class="relatedpage"><a href="./gendriven.html">自動生成ドリブン</a></div>
+	<p>
+		実質的にマッピングコストが(少しでも)低くなっていることも重要であると同時に、リフレクションを使ってないということ自体が、
+		特に昔の印象に引きずられていることから発生する(精神的な)懸念を払拭するためにも重要なことです。
+	</p>
+
+	<h2 id="sqlbuilder">SQLの組み立てに徹する</h2>
+	<p>
+		ConditionBeanは、プログラム上で(タイプセーフに)SQLを組み立てられる目的指向のAPIですが、
+		これは、決してSQL(RDBMS)を隠蔽するものではなく、<em class="keyword">あくまでSQLを(安全に)組み立てるためのもの</em>
+		に徹しています。"せっかくプログラム上で組み立てるのだから、SQL(RDBMS)への意識は隠蔽して、オブジェクトデータベースっぽくアクセスしたい"
+		という声も頂きますが、DBFluteはその意見には賛成ではありません。ディベロッパーの "データが取れればいいや"
+		という(魔が差してしまった)意識は極力排除して、<em class="keyword">あくまで(RDBMSに対して)DBアクセスをしているんだ</em>
+		という意識を持ってもらうことを重視しています。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/conditionbean/about.html">ConditionBeanについて</a></div>
+	<h3 id="setupselect">何を取得しているのかを明示的に</h3>
+	<p>
+		ConditionBeanは、関連テーブルの取得に関しては、必ずプログラム上で明示的に指定することが求められます。
+		関連テーブルをデフォルトで取得してしまうO/Rマッパを見掛けますが、
+		DBFluteは、どこでも指定してない関連テーブルを勝手に取得するというようなことはありません。
+	</p>
+<pre><span class="codetitle">e.g. 何を取得しているのかを明示的に(ConditionBean) {MEMBER, MEMBER_STATUS} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB(); <span class="comment">// 会員を(基点として)取得</span>
+cb.<span class="point">setupSelect_MemberStatus()</span>; <span class="comment">// 会員ステータスを取得</span>
+</code></pre>
+	<h3 id="nolazyload">(暗黙の)LazyLoad機能はない</h3>
+	<p>
+		(暗黙の)LazyLoad機能は一切備えておらず、get
+		メソッドを呼び出したら、知らないうちに裏でSQLが発行されている、というようなことは絶対にありません。
+		one-to-manyの検索をする場合も、格好悪いと感じられるかもしれませんが、明示的に取得を宣言します。
+		"何を取得(検索)したのか？" がプログラム上に明確に現れるようにするためです。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/behavior/select/loadreferrer.html">Behavior - LoadReferrer</a></div>
+<pre><span class="codetitle">e.g. one-to-manyも明示的に(ConditionBean) {MEMBER, PURCHASE} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+<span class="comment">// 購入を(明示的に)取得 (この時点で検索処理が実行される)</span>
+<span class="attribute">memberBhv</span>.<span class="point">loadPurchaseList</span>(cb, <span class="keyword">new</span> ConditionBeanSetupper() {
+    <span class="keyword">public void</span> setup(PurchaseCB subCB) {
+        subCB.query().addOrderBy_PurchaseCount_Desc();
+    }
+});
+
+<span class="keyword">for</span> (Member member : memberList) {
+    <span class="abbreviation">...</span> = member.getPurchaseList(); <span class="comment">// load したから取得できる</span>
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>関連するmany側のデータは一括取得(バッチフェッチ)するため、n+1問題は発生しない</li>
+	</ul>
+	<h3 id="debuglog">SQLのログは見やすく</h3>
+	<p>
+		ConditionBeanで組み立てられたSQLは、<em class="keyword">人が見やすい形に整形されてログに出力</em>
+		され、かつ、実行されます。ディベロッパーが、"自分がやったことはこういうこと(SQL)なんだ"
+		というのが直感的にわかるようにしています。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanの実行ログ {MEMBER} @Console</span><code>
+- /===========================================================================
+-                                                       MemberBhv.selectList()
+-                                                       =====================/
+- MemberAdminPage.initialize():43 --> ...
+- <span class="keyword">select</span> dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as MEMBER_NAME, dfloc.MEMBER_ACCOUNT as MEMBER_ACCOUNT, dfloc.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE, dfloc.FORMALIZED_DATETIME as FORMALIZED_DATETIME, dfloc.BIRTHDATE as BIRTHDATE, dfloc.REGISTER_DATETIME as REGISTER_DATETIME, dfloc.REGISTER_USER as REGISTER_USER, dfloc.REGISTER_PROCESS as REGISTER_PROCESS, dfloc.UPDATE_DATETIME as UPDATE_DATETIME, dfloc.UPDATE_USER as UPDATE_USER, dfloc.UPDATE_PROCESS as UPDATE_PROCESS, dfloc.VERSION_NO as VERSION_NO, dfrel_0.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE_0, dfrel_0.MEMBER_STATUS_NAME as MEMBER_STATUS_NAME_0, dfrel_0.DISPLAY_ORDER as DISPLAY_ORDER_0
+-   <span class="keyword">from</span> MEMBER dfloc
+-     <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE
+-  <span class="keyword">where</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+-  <span class="keyword">order by</span> dfloc.MEMBER_ID <span class="keyword">asc</span>
+- ===========/ [00m00s016ms - Selected list: 6 first={1,Stojkovic,Pixy,FML,2007-12-01 02:01:10.0,1965-03-02 15:00:00.0,2008-01-23 13:38:25.989,replace-schema,replace-schema,2008-01-23 13:38:25.991,replace-schema,replace-schema,1}]
+</code></pre>
+	<p>
+		また、実際に発行されるときはバインド変数が利用されますが、ログにおいては表示用SQLということで条件値が埋め込まれた状態で表示されます。
+		これには、単に見やすいというだけでなく、いざこのSQLの実行計画を確認したいという場合にすぐにSQLのツールで実行できるというメリットがあります。
+	</p>
+	<h3 id="specifycolumn">カラムレベルで調整可能</h3>
+	<p>
+		プログラム上でSQLを組み立てるAPIの弱点としてよく挙げられるものとして、"テーブル単位で全てのカラムを取得してしまう"
+		ということがありますが、ConditionBeanでは、<em class="keyword">取得するカラムを(タイプセーフに)調整できる</em>
+		ようになっています。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/conditionbean/specify/specifycolumn.html">ConditionBean - SpecifyColumn</a></div>
+<pre><span class="codetitle">e.g. 会員名称だけを取得(ConditionBean) @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.specify().<span class="point">columnMemberName()</span>; <span class="comment">// 会員名称を指定</span>
+</code></pre>
+
+	<h2 id="twowaysql">2Way-SQLによる管理</h2>
+	<p>
+		いざとなれば外だしSQL、というようにいくらでも自由にパフォーマンスチューニングできるネイティブなSQLを書けるようにしています。
+		しかも、書けるというだけでなく、2Way-SQL
+		という形式で書けるようにしていることで、安全性というだけでなく、パフォーマンス考慮にもプラスになっています。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2Way-SQL</a></div>
+	<p>
+		例えば、実行計画を確認するような場合、2Way-SQLであれば、すぐにそのままSQLツールなどで実行計画を確認することができます。
+		実際に本番想定のデータが入っているのであれば、実際に実行してみてリスポンスを確かめてみることもできます。
+		2Way-SQLであることが、パフォーマンスチューニングにおいても大いに力を発揮するのです。
+	</p>
+<pre><span class="codetitle">e.g. 2Way-SQLなので、そのまま実行することができる @OutsideSql</span><code>
+<span class="keyword">select</span> member.MEMBER_ID
+     , member.MEMBER_NAME
+  <span class="keyword">from</span> MEMBER member
+ <span class="keyword">where</span> member.BIRTHDATE = <span class="comment">/*pmb.birthdate*/</span><span class="literal">'1960-04-12'</span>
+</code></pre>
+
+	<h2 id="update">更新対象カラムの明示的指定</h2>
+	<p>
+		DBFluteにおける更新処理では、update 文の set
+		句に指定するカラムを明示的に指定します。そのテーブル全てのカラムを列挙するのではなく、Entityの set
+		メソッド(setter)が呼ばれたものだけを列挙して更新します。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/behavior/update/update.html">Behavior - update()</a></div>
+	<p>
+		これにより、<em class="keyword">(明らかに)同じ値での更新処理を行わない</em> というのと
+		<em class="keyword">(全ての項目を埋めるための)事前の検索(select)が要らない</em>、という二つのメリットがあります。
+		オンライン処理ではあまり気にするほどではありませんが(特に排他制御処理をする場合は、どのみち事前検索が必要になることもあるため)、
+		大量件数のレコードを処理するバッチ処理などにおいては、このメリットがかなり効いてきます。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称だけを更新 @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberId(<span class="literal">3</span>);
+member.setMemberName(<span class="literal">"Savicevic"</span>); <span class="comment">// 会員名称だけ変更</span>
+<span class="attribute">membherBhv</span>.update(member); <span class="comment">// 事前検索なしでも更新できる</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称だけがset句に列挙される @SQL</span><code>
+<span class="keyword">update</span> MEMBER <span class="keyword">set</span> MEMBER_NAME = <span class="literal">'Savicevic'</span>
+ <span class="keyword">where</span> MEMBER_ID = <span class="literal">3</span>
+</code></pre>
+
+	<h2 id="initializing">初期化コストの調整</h2>
+	<p>
+		どんなフレームワークにも、初期化コストは付きものです。そして、その初期化コストをどこで払うのかは、環境によって異なります。
+		開発環境、そして、本番環境と単純なモデルで分けて考えると以下のようになります。
+	</p>
+	<dl class="keymainlist">
+		<dt>開発環境</dt><dd>呼び出された処理だけその場で初期化</dd>
+		<dt>本番環境</dt><dd>アプリ起動時にできるだけ初期化</dd>
+	</dl>
+	<p>
+		DBFluteのデフォルトは、前者に適したものになっています。
+		開発時の単体テストなどにおいて、(そのとき)利用しないメソッドの初期化処理が入らないように考慮しています。
+	</p>
+	<p>
+		一方で、本番環境に関しては、明示的に(ConditionBean関連メソッドの)一括初期化をする処理を提供し、
+		アプリ起動時にその処理を(アプリにて)呼び出してもらうことで、本番環境に適した挙動にすることができます。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/runtimefit/bootinitialization/index.html">現場フィット - 一括初期化</a></div>
+	<p>
+		但し、リッチクライアントアプリやバッチアプリに関して言えば、本番環境においても、開発環境と同じタイミングでの初期化が望ましいと考えられることがありますので、
+		一括初期化の利用は、そのアプリケーションの特徴と相談して決定します。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

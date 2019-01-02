@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,サポート,対応,プログラミング言語,データベース,DB,DIコンテナ,Java,C#,Seasar,Spring,Guice,予約語,日本語テーブル,日本語カラム,和名テーブル,和名カラム" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>DBFluteのサポート情報 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteのサポート情報</h1>
+	${indexlist}
+
+	<h2 id="language">対応プログラミング言語</h2>
+	<ul>
+		<li>Java-5.0 <span class="frm">@until 0.9.9.5B</span></li>
+		<li>Java-6.0</li>
+		<li>Java-7.0</li>
+		<li>C#-3.0 <span class="frm">*DBFlute.NETにてサポート</span></li>
+	</ul>
+	<div class="relatedpage"><a href="../manual/topic/dbflutenet">DBFlute.NET</a></div>
+
+	<h2 id="database">対応データベース</h2>
+	<h3 id="formaldb">正式サポート</h3>
+	<p>
+		ほとんどの機能が利用可能で、テスト環境も用意され、積極的にサポートされているデータベースです。
+	</p>
+	<ul>
+		<li>MySQL</li>
+		<li>PostgreSQL</li>
+		<li>Oracle</li>
+		<li>DB2</li>
+		<li>SQLServer</li>
+		<li>H2 Database</li>
+		<li>Apache Derby</li>
+	</ul>
+	<h3 id="subdb">準サポート</h3>
+	<p>
+		機能制限が多く積極的なサポートはありませんが、テスト環境も用意されているデータベースです。
+	</p>
+	<ul>
+		<li>SQLite <span class="frm">@since 0.9.7.0</span></li>
+		<li>MS Access <span class="frm">@since 0.9.7.0</span></li>
+	</ul>
+	<h3 id="littledb">若干サポート</h3>
+	<p>
+		DBMS の違いを吸収するクラスは用意されていますが、テスト環境はなく、ユーザからのフィードバックのみで動作が確認されているデータベースです。
+	</p>
+	<ul>
+		<li>Firebird <span class="frm">@since 0.9.7.5</span></li>
+		<li>Sybase <span class="frm">@since 0.9.7.6</span></li>
+	</ul>
+
+	<h2 id="dicontainer">対応DIコンテナ</h2>
+	<ul>
+		<li>Seasar-2.4.x</li>
+		<li>Spring-3.0.x</li>
+		<li>Guice-3.x</li>
+		<li>CDI (JSR-299)</li>
+	</ul>
+
+	<h2 id="os">対応OS</h2>
+	<p>
+		DBFluteの自動生成処理の実行環境として、以下の環境をサポートしています。
+	</p>
+	<ul>
+		<li>Mac OS X</li>
+		<li>Linux (Ubuntsuも含む)</li>
+		<li>Windows</li>
+	</ul>
+	<p>
+		Mac OS X、および、Linux では、DBFluteタスクは bash で動作します。
+	</p>
+
+	<h2 id="unsupportedname">サポートされない名前</h2>
+	<h3 id="quote">SQL上でクォートの必要な名前</h3>
+	<p>
+		SQL上でもクォートしないと利用できないテーブル名やカラム名は正式にはサポートされません。
+		例えば、SQL上の予約語や日本語テーブル(和名テーブル)、日本語カラム(和名カラム)などが該当します。
+	</p>
+	<p>
+		ニュアンスとしては、"クォートするオプションはあるが積極的なサポートはしていない" (例えば、詳細なテストはしていない)というところです。
+		また、これら機能は TwoEdgedSword 認定されています。dbflute-mysql-example にて Example があります。
+	</p>
+	<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#quotetablenamelist">dfprop - quoteTableNameList</a></div>
+	<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#quotecolumnnamelist">dfprop - quoteColumnNameList</a></div>
+	<div class="relatedpage"><a href="../manual/reference/example/index.html#database">DBFlute Example - データベース(DBMS)</a></div>
+	<div class="relatedword"><a href="../manual/reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<p>
+		外だしSQLや別のツールでのSQLで不利益であることに変わりはないため、基本的にはDB上の名前を変更するか、ビューやシノニムを作ることが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="#normalname">this - 名称変更、もしくは、ビュー・シノニム回避</a></div>
+	<h3 id="pgreverv">プログラム上の予約語になる名前</h3>
+	<p>
+		プログラム上の予約語になるテーブル名やカラム名は正式にはサポートされません。
+		(例えば、"class" や "public" など)
+	</p>
+	<p>
+		ニュアンスとしては、"自動解決する機能はあるが積極的なサポートはしていない"
+		(例えば、詳細なテストはしていない)というところです。全ての予約語には対応しておらず、代表的な "class" や "public"
+		など一部の予約語のみ対象となっており、かつ、カラム名に限定されています(テーブル名は、ProjectPrefix
+		で回避できるかもしれませんが確認されていません)。また、この自動解決する機能自体が TwoEdgedSword
+		認定されています。dbflute-mysql-example にて Example があります。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/projectfit/projectprefix/index.html">現場フィット - クラス名のプレフィックス (ProjectPrefix)</a></div>
+	<div class="relatedpage"><a href="../manual/reference/example/index.html#database">DBFlute Example - データベース(DBMS)</a></div>
+	<div class="relatedword"><a href="../manual/reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<p>
+		外だしSQLや別のツールでのSQLで不利益であることに変わりはないため、基本的にはDB上の名前を変更するか、ビューやシノニムを作ることが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="#normalname">this - 名称変更、もしくは、ビュー・シノニム回避</a></div>
+	<h3 id="compile">プログラム上でコンパイルエラーになる名前</h3>
+	<p>
+		"-" (ハイフン)や空白(半角スペース)などのプログラム上のクラス名などでコンパイルエラーとなるような名前、および、"$"
+		が入ったテーブル名やカラム名はサポートされません。
+	</p>
+	<p>
+		ニュアンスとしては、"解決するオプション、特殊な利用方法はあるが積極的なサポートはしていない"
+		(例えば、詳細なテストはしていない)というところです<span class="frm">(@since 0.9.7.2)</span>。
+		また、この機能は TwoEdgedSword 認定されています。dbflute-postgresql-example にて Example があります。
+	</p>
+	<div class="relatedpage"><a href="../manual/reference/example/index.html#database">DBFlute Example - データベース(DBMS)</a></div>
+	<div class="relatedword"><a href="../manual/reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<p>
+		外だしSQLや別のツールでのSQLで不利益であることに変わりはないため、基本的にはDB上の名前を変更するか、ビューやシノニムを作ることが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="#normalname">this - 名称変更、もしくは、ビュー・シノニム回避</a></div>
+	<h3 id="similarname">大文字小文字やアンダースコア区別なしで同名</h3>
+	<p>
+		例えば、"foo_date", "foo_DATE", "fooDate"
+		といった、大文字小文字やアンダースコア区別なしで同名となるテーブル名や、カラム名が同時に存在するのはサポートされません。
+		DBFluteは基本的に、テーブル名やカラム名を大文字小文字やアンダースコア区別なしで同じ場合は同じものと判断します。
+	</p>
+	<p>
+		仕様という面を置いておいても、業務的にもそういった紛らわしい名前は非推奨です。しっかりと違いのわかる意味のある名前を付けることをお奨めします。
+		どうしても変更できない場合は、該当テーブルは自動生成対象外にして、ビュー経由で自動生成することをお奨めします。
+	</p>
+	<div class="relatedpage"><a href="#normalname">this - 名称変更、もしくは、ビュー・シノニム回避</a></div>
+	<div class="inucolumn">
+		<h3 id="normalname">名称変更、もしくは、ビュー・シノニム回避</h3>
+		<p>
+			DBFluteの Behavior や ConditionBean などの機能で、サポートされない名前のテーブルを扱えるようにしても、
+			結局は、外だしSQLや別のツールでのSQLで不利益なことは変わりません。
+		</p>
+		<p>
+			なので、できることなら特殊な記号を使ったりしないような名前に変更することをお奨めします。
+			どうしても変更できない場合は、該当テーブルは自動生成対象外にして、ビューやシノニム経由で自動生成することをお奨めします。
+		</p>
+		<div class="relatedpage"><a href="../manual/reference/dfprop/databaseinfo/index.html#objecttypetargetlist">dfprop - objectTypeTargetList</a></div>
+		<div class="relatedpage"><a href="../manual/reference/dfprop/databaseinfo/index.html#tableexceptlist">dfprop - tableExceptList</a></div>
+	</div>
+
+	<h2 id="deprecateddata">非推奨データ構造</h2>
+	<p>
+		完全なサポート外にはなりませんが、一部機能で制限が出てくる可能性のある構造があります。
+		これら構造は、DBFluteではそもそも推奨されないDB設計となります。
+	</p>
+	<h3 id="nonpktable">PKのないテーブル</h3>
+	<p>
+		PKのないテーブルでは、Behavior や ConditionBean
+		などの更新系メソッドは利用できません。登録処理(insert)のみオプションで利用できます。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/deprecatedfit/nonprimarykeyinsert/index.html">非推奨構造フォロー - PKのないInsert</a></div>
+	<h3 id="compoundpk">複合主キー</h3>
+	<p>
+		複合主キーでは、そのもの自体が持つSQLへの制限などから、DBFluteでの機能も限られます。
+		複合主キーのその他デメリットを考えても、DBFluteでは推奨されません。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/deprecatedfit/compoundprimarykey/index.html">非推奨構造フォロー - 複合主キーの対策</a></div>
+	<h3 id="nonconstraint">制約のないPK/FK/UQなど</h3>
+	<p>
+		実際には PK/FK/UQ の役割のカラムがあるのにも関わらず、制約が付いていない場合は、DBFluteプロパティにて手動で定義する必要があります。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/deprecatedfit/nonconstraint/index.html">非推奨構造フォロー - 制約のないPK/FK/UQの解決</a></div>
+	<h3 id="shortchar">桁数の満たないchar型データ</h3>
+	<p>
+		例えば、char(3) と定義されているカラムに、"AB" という二文字のデータを登録するような構造は強く非推奨です。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/deprecatedfit/shortcharhandling/index.html">非推奨構造フォロー - char型の桁数不足の取扱い</a></div>
+	<h3 id="caseinsensitiveequalpk">大文字小文字区別なし等値のPKで別レコード</h3>
+	<p>
+		大文字小文字区別なしで等しくなるPKの値、例えばPK値が "FOO" と "foo"
+		で別レコードの分かれるような構造は強く非推奨です。そのような場合、一部機能においてサポートされません。
+		LoadReferrer や区分値メソッドでは、PK値(コード値)を大文字小文字を区別せずに処理します。
+		(ここでいうPKには、FKされるUQも含まれます)
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/deprecatedfit/caseinsensitiveequalprimarykey/index.html">非推奨構造フォロー - 大文字小文字区別なし等値のPK</a></div>
+	<p>
+		"データの大文字小文字を区別するかどうかのDB上の設定" 自体は、どちらでもサポートされます。
+		大文字小文字区別なしで等しくなるPKの値さえなければ、大文字小文字を区別する設定でも問題ありません。
+	</p>
+	<h3 id="nonunitycommoncolumn">統一性のない共通カラム</h3>
+	<p>
+		多くのテーブルで定義される共通カラム、例えば、登録日時、更新ユーザなどのカラムの名前が、テーブルごとにバラバラの場合(update_user
+		だったり、upd_usr だったり)、共通カラムの自動設定の機能が利用できない可能性があります。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/genbafit/deprecatedfit/nonunitycommoncolumn/index.html">非推奨構造フォロー - 統一性のない共通カラム</a></div>
+	<h3 id="nordb">その他、RDB 的でない構造</h3>
+	<p>
+		その他、リレーショナルデータベース的でない構造は推奨されません。
+		例えば、カラムデータの中に複数の値を集約して、何桁数目から何桁が FOO データ、その次の何桁が BAR
+		データというようなコードをロジックとして必要とする構造です。
+		単なる、人が見やすいコード、というためだけに利用するならよいですが、プログラム上で分解して利用するようなものは強く非推奨です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

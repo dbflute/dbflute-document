@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Upgrade,Version Up,アップグレード,バージョンアップ,最新版,変更履歴,ChangeLog" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/lasub.css";</style>
+	<title>LastaFluteのアップグレード | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteのアップグレード</h1>
+	<p>
+		LastaFluteのアップグレード (バージョンアップ) について
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="newest">最新バージョンの情報</h2>
+	<h3 id="lastaver">LastaFluteの最新バージョン</h3>
+	<p>
+		LastaFluteの最新バージョン (最新版) の情報です。
+	</p>
+	<dl class="shortvaluemainlist">
+		<dt>バージョン</dt><dd>1.1.0</dd>
+		<dt>リリース日</dt><dd>2018/10/11</dd>
+		<dt>製品ステータス</dt><dd>Product</dd>
+		<dt>対応DBFlute</dt><dd>1.1.1以上</dd>
+	</dl>
+	<p>
+		ただし、ドキュメントの更新が遅れる可能性がありますので、正確なバージョンを確認したいときは Github の master ブランチの
+		README.md を確認すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute">LastaFlute | Github</a></div>
+	<p>
+		リリース時は、DBFluteのML (Google Group) や Twitter などで通知しています。
+	</p>
+	<div class="relatedpage"><a href="https://groups.google.com/forum/#!forum/dbflute">DBFluteユーザの集い | Google Group</a></div>
+	<div class="relatedpage"><a href="https://twitter.com/jflute/">jflute | Twitter</a></div>
+	<h3 id="relatedver">関連ライブラリの最新バージョン</h3>
+	<p>
+		LastaFluteに関連するライブラリの最新バージョンの情報です。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt><a href="../../lastadi/index.html">Lasta Di</a></dt><dd>0.7.8 <span class="frm">(LastaFlute組み込み)</span> <span class="frm">(2018/10/11)</span></dd>
+		<dt><a href="../architecture/typesafemail.html">MailFlute</a></dt><dd>0.6.0 <span class="frm">(LastaFlute組み込み)</span> <span class="frm">(2018/07/23)</span></dd>
+		<dt><a href="../architecture/jobscheduling.html">LastaJob</a></dt><dd>0.5.3 <span class="frm">(2018/03/03)</span></dd>
+		<dt><a href="../action/lathymeleaf.html">LastaThymeleaf</a></dt><dd>0.3.2 <span class="frm">(2017/11/29)</span></dd>
+		<dt><a href="../architecture/remoteapicall.html">LastaRemoteApi</a></dt><dd>0.4.1 <span class="frm">(2018/04/26)</span></dd>
+		<dt><a href="https://github.com/lastaflute/lasta-doc/">LastaDoc</a></dt><dd>0.3.4 <span class="frm">(2018/10/03)</span></dd>
+		<dt><a href="https://github.com/lastaflute/lasta-taglib/">LastaTaglib</a></dt><dd>0.7.3 <span class="frm">(2018/07/26)</span></dd>
+		<dt><a href="https://github.com/dbflute-session/jetty-boot/">JettyBoot</a></dt><dd>0.4.9 <span class="frm">(2017/10/22)</span></dd>
+		<dt><a href="https://github.com/dbflute-session/tomcat-boot/">TomcatBoot</a></dt><dd>0.7.0 <span class="frm">(2018/08/30)</span></dd>
+		<dt><a href="../../../manual/function/helper/utflute/index.html">UTFlute</a></dt><dd>0.8.9 <span class="frm">(2018/10/07)</span></dd>
+	</dl>
+
+	<h2 id="changelog">ChangeLog</h2>
+	<p>
+		LastaFluteのバージョンごとの対応課題については、ChangeLog のページを参照。
+	</p>
+	<div class="detailpage"><a href="./lachangelog.html">LastaFlute の ChangeLog</a></div>
+
+	<h2 id="migration">移行情報</h2>
+	<p>
+		LastaFluteの移行情報 (移行の注意点など) を確認しましょう。
+	</p>
+	<div class="detailpage"><a href="./migration/index.html">LastaFluteの移行情報</a></div>
+
+	<h2 id="howto">アップグレードの仕方</h2>
+	<p>
+		アプリでのLastaFluteへの依存定義にて、バージョンを最新にします。
+		Mavenであれば pom.xml, Gradleであれば build.gradle となります。あとは、アプリでの動作確認です。
+	</p>
+	<p>
+		もし、対応するDBFluteのバージョンよりも古いDBFluteを利用されている場合は、DBFluteもアップグレードしましょう。
+		<span class="frm">(freegenで自動生成するクラスのテンプレートが古いとコンパイルエラーの可能性あり)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../environment/upgrade/index.html">DBFluteのアップグレード</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

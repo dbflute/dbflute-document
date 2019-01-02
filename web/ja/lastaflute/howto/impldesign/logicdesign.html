@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Logicの実装デザイン | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Logicの実装デザイン</h1>
+	<p>
+		LastaFluteからの提案です。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<p>
+		このページは、Actionの実装デザインを読んでいることが前提です。
+	</p>
+	<div class="detailpage"><a href="./actiondesign.html">Actionの実装デザイン</a></div>
+	${indexlist}
+
+	<h2 id="overview">いきなりまとめ</h2>
+	<h3 id="proposal">実装デザインの提案</h3>
+	<p>
+		本気でDDDをやるフェーズまで達していない段階、かつ、プロジェクトで独自にアーキテクチャを定義していない場合の、LastaFlute
+		からのデフォルト実装デザインの提案です。
+	</p>
+	<dl class="textlist">
+		<dt><em class="bigmark">Action</em> <span class="frm">(バウンダリ、かつ、ファサード: Transactionあり)</span></dt>
+		<dd><em class="keyword">フローコントロール、そして、再利用しない検索や更新など(ちょこっとロジック)を書く</em></dd>
+		<dd>WEB依存 "する" 処理の再利用や、ちょこっと役割分担は、<em class="bigmark">(Action)Assist</em></dd>
+		<dd>WEB依存 "しない" 処理の再利用は、<em class="mark">(Business)Logic</em></dd>
+		<dt><em class="bigmark">Logic</em> <span class="frm">(ビジネスロジック)</span></dt>
+		<dd><em class="keyword">WEB依存しない再利用するものを書く</em> <span class="frm">(二箇所以上で呼ばれて初めて Logic に)</span></dd>
+		<dd>ただし、検索の再利用はできるだけ ArrangeQuery にて <span class="frm">(Logicでのまるごと再利用は限定的に)</span></dd>
+		<dd>Logicの名前は、"モノ+Logic" はダメ、できるだけ <em class="mark">"モノ+業務+Logic"</em></dd>
+	</dl>
+	<p class="imgbox">
+		<a href="../../../../data/model/lastaflute/lastaflute-actiondesign-view.png" title="LastaFlute ActionDesign"><img src="../../../../data/model/lastaflute/lastaflute-actiondesign-view.png" alt="LastaFlute ActionDesign" width="550" height="340" /></a>
+	</p>
+	<h3 id="actionhere">Action は、こちら</h3>
+	<p>
+		Actionは、また別途まとめています。
+	</p>
+	<div class="detailpage"><a href="./actiondesign.html">Actionの実装デザイン</a></div>
+	<p>
+		というか、<em class="keyword">Actionの方から先に読んだほうが良い</em> です。Actionの持つ役割の前提があってこそ、ここでの Logic になっています。
+	</p>
+
+	<h2 id="logicimpl">Logicに何を実装するか？</h2>
+	<p>
+		Logicは、非常に粒度を設計するのが難しいクラスです。画面単位？テーブル単位？いやいや業務単位？
+		しっかりとDDDをやらない限り、業務単位というのもなかなか適切なデザインをするのは難しいです。
+	</p>
+	<h3 id="recylelogic">再利用するものだけをロジックに！</h3>
+	<p>
+		ここはなかなか答えを出すのが難しいところですが、LastaFluteでのひとつの提案があります。
+	</p>
+	<p>
+		<em class="keyword">☆☆☆ 再利用するものだけロジックに書く ☆☆☆</em>
+	</p>
+	<p>
+		再利用し過ぎるよりかは、少し足りないくらいの方がスタートアップには向いていると考えます。
+	</p>
+	<h3 id="looselogic">ルーズなロジックだと？</h3>
+	<p>
+		曖昧なまま、Logic運用をするプロジェクトがたくさんあります。
+		そこで発生する問題は大抵同じです。
+	</p>
+	<dl class="textlist">
+		<dt>潜在的に画面に依存したロジック</dt>
+		<dd>
+			汎用的に見えて、実際には (潜在的に) 固有の画面に依存したロジック。再利用すべきでないロジック。
+		</dd>
+		<dd>
+			これ自体が悪いというより、これが Logic に入っていると、ついつい別の画面が使ってしまうことがあります。
+			そうすると、元々の画面のロジック変更をしたとき、別の画面に不具合が発生する可能性があります。
+			ちゃんと修正するときに確認はすべきことですが、ロジックの扱いが曖昧だと、修正する方は他の画面が使ってると全く思わず作業してしまいます。
+		</dd>
+		<dd>
+			そうなってくると、本来再利用すべきロジックも "なんか怖くて呼べない", "呼んでいいのやらいけないのやら..."
+			という気持ちになってきて、本来ロジックが持っている大きな役割の一つである "再利用"
+			に支障が出てくるのです。
+		</dd>
+		<dt>ソースを読むのにあっちこっち飛ぶ</dt>
+		<dd>
+			そもそも再利用していたり、業務上の意味が明確で、ネーミングもわかりやすいものであれば、それは問題ないですが、
+			なかなかそうはならないです。たくさん command + click
+			でソースを飛んで飛んで読んでいても、実際には全部その画面固有の処理だったなんてことも...
+		</dd>
+		<dd>
+			綺麗に役割を分けて書くというのは、想像以上に難しいことです。プログラムが書けるからそれができる、とは全く言えないと考えます。
+			ヘタに分けるくらいだったら、分けない方がまだマシというようなことも多くあります。
+		</dd>
+	</dl>
+	<h3 id="firstlogic">二個目が見えてないときは難しい</h3>
+	<p>
+		将来の再利用を目的に Logic に切り出すとします。厳密にはそれはとてもよいことです。
+		しかしながら、そのときはまだ再利用するもう一個のリクエストが見えてない状態です。
+		その状態で二個目のリクエストに本当にぴったりな再利用メソッドに最初から仕上げるのはなかなか高度なことです。
+	</p>
+	<p>
+		よくあるケースで、"再利用できそうなんだけど、ちょっとだけ違うんだよね"
+		と、実質最初のプロセス固有の処理が入り込んでしまったりして、結局再利用できないことも。
+		すると、ここでなかなかつらいことが発生します。
+	</p>
+	<dl class="valuemainlist">
+		<dt>コピペパターン</dt><dd>コピーして、少しだけ直したものを新しく作ってしまう</dd>
+		<dt>リモコンパターン</dt><dd>一つ目のメソッドの引数にbooleanを追加して分岐させる</dd>
+	</dl>
+	<p>
+		放っておくと大抵はコピペパターンになります。
+	</p>
+	<p>
+		リモコンパターンが積み重なると、悲劇を生みます。
+	</p>
+	<div class="detailpage"><a href="http://dbflute.seasar.org/ja/manual/function/genbafit/implfit/whererecycle/#argremote">引数リモコンパターンはやめたい</a></div>
+	<p>
+		単純に処理の違いだけでなく、引数や戻り値などのメソッドデザインが、二個目のリクエストに合うとも限りません。
+		二個目の人にとっては使いづらくて、結局使わないで自分で書いたり、先ほどのパターンにハマったりすることも多いです。
+	</p>
+	<h3 id="lazyrecyle">再利用するときに切り出せばいい</h3>
+	<p>
+		インクリメンタル開発は、運用中の既存のコードを修正するのが当たり前なので、ある意味で既存のコードを修正しやすい環境とも言えます。
+		なので、適切な再利用が見えてきてから再利用をするように切り出すことは比較的しやすいのです。
+	</p>
+	<p>
+		もちろん、再利用メソッドの経験値の高い人はよいですが、そうでないならば、将来を見越した再利用メソッドは無理をする必要はないと考えます。
+		なので、ひとまずは Action クラスに書いてもいいでしょうと。それが恒久デザインなわけではないので。
+	</p>
+	<p>
+		もし、自信持って再利用メソッドをあらかじめ作るのであれば、JavaDocなどはしっかり整備して、再利用する人が迷わないようにしましょう。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="nomoreaboutlogic">No more, アバウトLogic!?</h2>
+		<p>
+			よく巨大な Logic を見かけませんか？
+		</p>
+<pre><span class="codetitle">e.g. No way, logic should not extend action @Java</span><code>
+<span class="keyword">public class</span> SeaLogic { <span class="comment">// ★名前がアバウト</span>
+
+    <span class="comment">// ここにメソッド100個くらい...ってちょっとおおげさだけど、ちょーたくさん</span>
+}
+</code></pre>
+		<p>
+			大抵、MemberLogic, ProductLogic というアバウトな名前のクラスであることが多いです。
+			Memberに関するLogicだから、Memberに関するものがなんでも入ります。
+		</p>
+		<p>
+			こういったクラスがすでに存在していると、後から実装する人は、当然 Member
+			に関するものは MemberLogic に入れます。"ちょっとでかいなぁ、やだなぁ"
+			と思っても、そのまま MemberLogic に入れることがほとんどでしょう。MemberLogic
+			がすでにあるのに、MemberSignupLogic は作りづらいですから。
+			<span class="frm">(すでにあるクラスに入れる方が楽と思うでしょうし...MemberLogicに入れなきゃいけないんだと思うでしょう)</span>
+		</p>
+		<p>
+			Logicはどういう単位で作っていくべきでしょうか？
+		</p>
+		<p>
+			これは難題です。恐らくちゃんとやるなら、DDD的なアプローチが必要になるでしょう。
+			でも、スタートアップではなかなか最初から徹底するのは難しいものです。
+		</p>
+		<p>
+			でも、Logicを作って再利用はしたい...
+		</p>
+		<p>
+			少なくとも、<em class="keyword">モノ + Logic だけのクラスは作らないこと</em>。そう、MemberLogic です。
+		</p>
+		<p>
+			小さな提案、最低限 <em class="bigmark">モノ + 業務 + Logic</em> にすること。
+			MemberSignupLogic です。もし、業務自体で暗黙にモノが特定できるなら、<em class="mark">業務 + Logic</em>
+			だけでも良いでしょう。SignupLogic ですね。でも、モノ+Logicにはしない。
+		</p>
+<pre><span class="codetitle">e.g. object + business + logic @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic { <span class="comment">// SeaにInParkするLogic</span>
+
+    <span class="comment">// したら、さすがに In する以外のメソッドが追加されることは...あまりないはず</span>
+}
+</code></pre>
+		<p>
+			PurchaseLogic は迷いますね。Purchaseはモノなのか業務なのか...
+			でも、購入というイベントにも色々なものがあるかと思います。
+			購入フロー自体に加えて、購入商品の支払い、購入履歴の確認、購入のキャンセルなどなど、購入というデータに対して、様々な振舞いが存在します。
+			安易に PurchaseLogic を作ると、それらがすべて後からどんどん追加されていきます。
+		</p>
+		<p>
+			その結果、一つしかメソッドのないLogicができるかもしれませんが、別にそれは構わないかと思います。
+			インクリメンタル開発では、後で追加される可能性は大ですから。
+		</p>
+		<p>
+			<em class="keyword">モノは名詞とは限らないし、業務が動詞とは限りません。</em>
+			そこが難しいのかもしれませんが、少なくとも Logic を作るときにちょっと考えてみると、良い名前が見つかるかもしれません。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="nomorelogicaction">No more, Logic が Action 継承!?</h2>
+		<p>
+			よく新人プログラマーの実装で見かけることがあるかと思います。
+		</p>
+<pre><span class="codetitle">e.g. No way, logic should not extend action @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic <span class="keyword">extends</span> DocksideBaseAction { <span class="comment">// ★絶対ダメ</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+		<p>
+			<em class="keyword">Logic は Action ではありません。</em>つまり、<em class="mark">"is a" の関係</em>になっていません。 
+		</p>
+		<p>
+			では、なぜ "is a" の関係になっていないといけないのでしょうか？
+		</p>
+		<p>
+			Actionのスーパークラスは、Actionに最適化しています。Actionを形づけるために存在しています。
+			<em class="keyword">Logicのために存在しているわけではない</em> のです。
+		</p>
+		<p>
+			ゆえに...
+		</p>
+		<p>
+			<em class="keyword">(Actionを継承している)Logicに都合の悪い修正が平気で入ります</em>。
+		</p>
+		<p>
+			もし、Actionのスーパークラスの修正で、それを継承している Logic
+			が落ちたとしたら、Action を継承している Logic の方が良くないと言えます。
+		</p>
+		<p>
+			もともとオブジェクト指向の目的として、<em class="bigmark">意味</em>
+			を重視して、概念ごとにクラスを取り扱うことでプログラムを整備しやすいという点があります。
+			"XxxLogic は Action である" と自然言語にして <em class="keyword">しっくりくるかどうか？</em>
+			ここがポイントです。
+		</p>
+		<p>
+			便利なメソッドが欲しければ、Logicがその便利なクラスに依存すればよいと考えます。
+			それが、Actionのスーパークラスにベタッと書いてあったのであれば、別途クラスに抽出して再利用して使うようにしましょう。
+		</p>
+		<p>
+			一方で、Logicのスーパークラスを作っても悪いわけではありませんが、スーパークラスのメインの役割は <em class="bigmark">その概念を形づける</em>
+			なので、特に Logic を共通的に形づけるものはあまりないかなと考えるので<span class="frm">(Actionが非常に定型的で特殊と言えます)</span>、大抵の場合は全体共通のスーパークラスはあまり必要ではないと考えています。
+			もちろん、まとまった業務単位で必要であれば作っても良いでしょう。
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="nomorelogicweb">No more, Logic が WEB に依存!?</h2>
+		<p>
+			もっと、"それ以前" 的な話ですが...
+			時々見かけるコードにこういうのがあります。
+		</p>
+<pre><span class="codetitle">e.g. No way, logic should not depend on web @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic {
+
+    <span class="keyword">public void</span> land(<span class="point">SeaForm</span> form) { <span class="comment">// ★絶対ダメ</span>
+    }
+}
+</code></pre>
+		<p>
+			先の通り、<em class="keyword">Logicは再利用を目的</em> にしているため、とある固有の画面のFormクラスを参照すると、別の画面で再利用がしづらくなります。
+			FormクラスはWEBサイドに特化しているので、こちらも先に述べた潜在的にWEBに依存したロジックとなってしまいます。
+		</p>
+		<p>
+			仮に、B画面がA画面のFormをnewして無理矢理再利用したとしましょう。
+			でも、A画面のFormはA画面に最適化されていて、いかにもA画面だけで使っていそうなクラス名やパッケージに見えます。
+			でも実はB画面が使っている...となると、<em class="keyword">B画面やLogicのことを気にせずにA画面都合の修正が入り、B画面やLogicが落ちる</em>
+			というトラブルが発生しやすくなります。ひとりで作っていればそんなことはないだろうと思われるかもしれませんが、インクリメンタル開発では様々な人が入れ替わり立ち替わりコードを修正することが想定されるため、再利用すべきもの再利用すべきでないものは明確にしたいという気持ちがあります。
+		</p>
+		<p>
+			アーキテクチャ的にも、完全に逆参照となります。
+		</p>
+		<div class="relatedpage"><a href="../../tutorial/laimpl.html#architecture">アーキテクチャ概念マップ</a></div>
+		<p>
+			どうしても引数が多くてまとめたい場合は、別途パラメータークラスを作成すると良いでしょう。
+		</p>
+<pre><span class="codetitle">e.g. Parameter class for SeaInPark @Java</span><code>
+<span class="keyword">public class</span> SeaInParkParam {
+
+    <span class="keyword">public</span> Integer piariId;
+    <span class="keyword">public</span> String dstoreName;
+    <span class="keyword">public</span> LocalDate bonvoDate;
+    <span class="keyword">public</span> LocalDateTime ambaDateTime;
+    <span class="keyword">public</span> Boolean miraco;
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. Logic accepts Param @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic {
+
+    <span class="keyword">public void</span> land(SeaInParkParam param) {
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. package of parameter class @Directory</span><code>
+app
+ |-logic
+ |  |-sea
+ |  |  |-SeaInParkLogic.java
+ |  |  |-<span class="point">SeaInParkParam.java</span>
+ |-web
+ |  |-sea
+ |  |  |-SeaAction.java
+ |  |  |-SeaForm.java
+</code></pre>
+		<p>
+			概念的な話が難しければ、<em class="keyword">app.logicパッケージからapp.webパッケージを参照してしまっていないか？</em>
+			という視点で考えて頂ければと。
+		</p>
+		<p>
+			Logicは、ずばり <em class="mark">ビジネスロジック</em> ということで、極端な話 "バッチのプログラムから呼ばれても大丈夫"
+			というような状態をキープするものです。少なくとも、LastaFluteではそのように想定しています。
+			なので、Session や Cookie にも依存してはいけません<span class="frm">(SessionManager や CookieManager を DI してはいけません)</span>。
+		</p>
+<pre><span class="codetitle">e.g. No way, logic should not depend on web @Java</span><code>
+<span class="keyword">public class</span> SeaInParkLogic {
+
+    @Resource
+    <span class="keyword">private</span> RequestManager requestManager; <span class="comment">// ★絶対ダメ</span>
+    @Resource
+    <span class="keyword">private</span> SessionManager sessionManager; <span class="comment">// ★絶対ダメ</span>
+    @Resource
+    <span class="keyword">private</span> CookieManager cookieManager; <span class="comment">// ★絶対ダメ</span>
+}
+</code></pre>
+		<p>
+			どうしても、WEBに依存した状態で再利用がしたければ、それは ActionAssist を使いましょう。
+		</p>
+		<div class="detailpage"><a href="./actiondesign.html#actionassist">ActionをアシストするAssistクラス</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

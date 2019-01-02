@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SAStruts,SAFlute,Maihama,Dockside" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SAFluteの現在日時 (CurrentDate) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SAFluteの現在日時</h1>
+	<p>
+		SAFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="./index.html">SAFlute</a></div>
+	${indexlist}
+
+	<h2 id="overview">現在日時は、TimeManagerで</h2>
+	<p>
+		アプリの現在日時を細工してテストをしたいことがあります。
+	</p>
+	<h3 id="pinpointtime">ピンポイントの時間で動かしたい</h3>
+	<p>
+		アプリには、月初、月末、年末など時間限定でないと動かないプログラムもよくあります。
+		それらをテストするのにはどうしたらいいでしょう？
+		PCのシステム日付を変える方法もありますが、ファイル更新日時などがひっくり返って戻したときに予期せぬ挙動をしたり、ライセンス周りの挙動がおかしくなったりと、
+		あまりやりたいことではありません。
+	</p>
+	<h3 id="currentinterface">統一した現在日時インターフェース</h3>
+	<p>
+		そこでよく利用されるのが、アプリで "現在日時を提供するインターフェース"
+		を用意して、その実装をちょっとだけ差し替えることで自由に "アプリ内の現在日時" を変更する方法です。
+		実際には、実装の差し替えというよりかは設定ファイルで変更できるするようにします。
+	</p>
+	<p>
+		そのためには、Javaから現在日時を取ってはいけないのです。
+	</p>
+	<p>
+		新しい開発プロジェクトに入って現在日時を取得する場面に遭遇したら、まずは聞いてみましょう。
+		現在日時を取得する統一的なインターフェースがありますでしょうか？
+	</p>
+
+	<h2 id="diway">まずは、DIのやり方</h2>
+	<p>
+		SAFluteでは、アプリで TimeManager インターフェースをDIすることができます。
+	</p>
+<pre><span class="codetitle">e.g. TimeManagerをDIする (ActionやLogicにて) @Java</span><code>
+<span class="point">@Resource</span>
+<span class="keyword">protected</span> TimeManager <span class="attribute">timeManager</span>;
+</code></pre>
+
+	<h2 id="currentdate">現在日時を取得</h2>
+	<p>
+		コードを見ればわかる！
+	</p>
+<pre><span class="codetitle">e.g. TimeManagerをDIする (ActionやLogicにて) @Java</span><code>
+<span class="point">@Resource</span>
+<span class="keyword">protected</span> TimeManager <span class="attribute">timeManager</span>;
+
+@Execute(validator = false)
+<span class="keyword">public void</span> index() {
+    LocalDate currentLocalDate = <span class="attribute">timeManager</span>.<span class="point">getCurrentLocalDate()</span>;
+    LocalDateTime currentLocalDateTime = <span class="attribute">timeManager</span>.getCurrentLocalDateTime();
+    HandyDate currentHandyDate = <span class="attribute">timeManager</span>.getCurrentHandyDate();
+    long currentMillis = <span class="attribute">timeManager</span>.getCurrentMillis();
+    Date flashDate = <span class="attribute">timeManager</span>.getFlashDate();
+}
+</code></pre>
+	<p>
+		まあ、やっぱり説明はしましょう。
+	</p>
+	<h3 id="getcurrent">getCurrentXxx() で現在日時</h3>
+	<p>
+		getCurrentXxx()メソッドで、現在日時を色々な形式で取得することができます。
+		アプリ内での現在日時の取得は「必ず」このTimeManagerから取得します。
+		後述する「現在日時の細工」をするために、Javaから直接日付を取得してはいけません。
+	</p>
+	<h3 id="currentflash">getCurrentDate() と getFlashDate() との違いは？</h3>
+	<p>
+		以下のように違います。
+	</p>
+	<dl class="keymainlist">
+		<dt>getCurrentDate()</dt><dd>トランザクション日時 (業務上の現在日時)</dd>
+		<dt>getFlashDate()</dt><dd>メソッド呼び出し日時 (物理的な現在日時)</dd>
+	</dl>
+	<p>
+		という感じで、
+		getCurrentDate()は厳密にはトランザクション内では常に同じ日時が取得されます。
+		トランザクション内での処理タイミングの前後は業務的にあまり必要ないという考えから、
+		DBに登録する日時データ(更新日時など)などが、一つのトランザクション内で統一されるようにしています。
+	</p>
+	<p>
+		トランザクション関係なく本当に今の日時が欲しいときは getFlashDate() を使います。
+		ただ、あまりそういう状況はめったにないと想定しています。
+	</p>
+
+	<h2 id="changetime">現在日時の細工</h2>
+	<p>
+		月末・年末のテストや、とある期間内でないと動かない機能のテストのときに役立ちます。
+	</p>
+	<p>
+		[project]_env.properties のプロパティで指定できます。
+		properties も HotDeploy が効くので、propertiesを修正してすぐに画面を動かせば反映されます。
+	</p>
+	<h3 id="fixeddate">固定日付を指定 <span class="frm">e.g. $(2015/03/22)</span></h3>
+	<p>
+		$([日付表現]) で固定日付を指定すると、その日付に対して起動時からの経過時間が足されたものが現在日時になります。
+	</p>
+<pre><span class="codetitle">e.g. 2014年7月10日にする (起動時からの経過時間が足されたものが現在日時になる) @maihama_env.properties</span><code>
+<span class="comment"># one day: 86400000, three days: 259200000, five days: 432000000, one week: 604800000, one year: 31556926000</span>
+<span class="comment"># special script :: absolute mode: $(2014/07/10), relative mode: addDay(3).addMonth(4)</span>
+<span class="comment"># The milliseconds for (relative or absolute) adjust time (set only when test) *dynamic in development</span>
+<span class="point">time.adjust.time.millis</span> = <span class="literal">$(2015/03/22)</span>
+</code></pre>
+	<h3 id="relatiedate">相対日付を指定 <span class="frm">e.g. addDay(3).addMonth(4)</span></h3>
+	<p>
+		addDay()やaddMonth()などで相対日付を指定すると、システムの現在日付に対して常にその分だけ計算されたものが現在日時になります。
+	</p>
+<pre><span class="codetitle">e.g. システム日付から、三日足して四ヶ月足す @maihama_env.properties</span><code>
+<span class="comment"># one day: 86400000, three days: 259200000, five days: 432000000, one week: 604800000, one year: 31556926000</span>
+<span class="comment"># special script :: absolute mode: $(2014/07/10), relative mode: addDay(3).addMonth(4)</span>
+<span class="comment"># The milliseconds for (relative or absolute) adjust time (set only when test) *dynamic in development</span>
+<span class="point">time.adjust.time.millis</span> = <span class="literal">addDay(3).addMonth(4)</span>
+</code></pre>
+	<p>
+		過去に戻すときは、マイナスを付ければOKです。e.g. addDay(-3)
+		これらは、HandyDateの機能を使って実現されています。相対日付の表現は、HandyDateのメソッドそのままです。
+	</p>
+	<h3 id="noproduction">本番では絶対に使わないで！</h3>
+	<p>
+		開発時のみの利用を想定しています。使っても結合環境(検証環境)まで。
+		「うっかり本番でも使っちゃった」みたいなを防ぐために、env管理になっています。
+		（仮に開発で放置したとしても、本番では影響ないように）
+	</p>
+
+	<h2 id="framework">仕組み</h2>
+	<p>
+		XxxFwAssistantDirector の prepareTime() メソッドにて、
+		TimeManager の挙動を調整するための TimeResourceProvider を設定しています。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

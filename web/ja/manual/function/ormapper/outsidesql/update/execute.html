@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,execute,外だしSQLで更新,外だしSQLでupdate,外だしSQLでDDL,truncate" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)execute() | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)execute()</h1>
+	<p>
+		"外だしSQLの使い方" を既に読んでいることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../howto.html">外だしSQLの使い方</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">外だしSQLで登録、更新、削除、truncate、DDLなどの更新系のSQLを実行</em>
+		します。プロシージャの実行を除けば、検索以外の外だしSQLは全てこのメソッドで実行すると言えます。
+		(プロシージャも実行できますが、OUTパラメータ(プロシージャリターン値も含む)には対応できません)
+	</p>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)えぐぜきゅーと</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="methodcall">メソッドの呼び出し</h3>
+	<p>
+		outsideSql() の後、<em class="keyword">execute()</em> を呼び出します。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの一件検索の実装手順 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().ex <span class="comment">// .ex と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">execute</span>(pmb);
+<span class="comment">// あらかじめ補完される引数の名前に合わせておくとスムーズに</span>
+</code></pre>
+	<p>
+		メソッドはオーバーロードで "定型呼び出し形式" と "フリースタイル形式" と二つあります。
+	</p>
+	<h3 id="typedcall">定型呼び出し形式</h3>
+	<p>
+		TypedParameterBean を引数に受け取ります。(null は許可されません)
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+	<p>
+		CustomizeEntityマーク、および、ParameterBeanマークが定義されていることで TypedParameterBean
+		の定型呼び出しが利用できます。
+	</p>
+	<h3 id="freestyle">フリースタイル形式</h3>
+	<p>
+		パス、パラメータ(ParameterBean)、二つの要素を引数に受け取ります。 
+		それぞれフリースタイル形式の基本仕様と全く同じです。
+	</p>
+	<div class="relatedpage"><a href="../howto.html#freestylebasic">外だしSQLの使い方 - フリースタイル基本仕様</a></div>
+	<h3 id="resulttype">実行結果の受け取り</h3>
+	<p>
+		実行結果はint型の戻り値として受け取ります。基本的には、そのSQLで影響したレコードの件数(更新件数など)ですが、単純に PreparedStatement
+		の executeUpdate() の戻り値を戻しているだけであり、実行したSQL次第で数値の意味は変わります。(業務的に利用されることはあまり多くないと想定されます)
+	</p>
+
+	<h2 id="onlyexecute">単純に実行するだけ</h2>
+	<p>
+		このメソッドは、指定された外だしSQLを単純に実行するだけです。例えば、このメソッドを使って更新処理などを行ったとしても、
+		共通カラムの自動設定や、排他制御などの処理は行われません(自前で制御する必要があります)。
+	</p>
+
+	<h2 id="specialupdate">本当に特殊な更新処理にて</h2>
+	<p>
+		一件更新、バッチ更新、クエリ更新など、更新系は Behavior にて既に基本となるメソッドが存在します。
+		なので、この execute() は、本当に特殊な更新処理にて利用されることを想定しています。
+	</p>
+	<p>
+		例えば、以下のような処理を想定されています。
+	</p>
+	<ul>
+		<li>ConditionBean で表現できない複雑な条件でのクエリ更新・削除</li>
+		<li>truncate table</li>
+		<li>DDL文全般</li>
+		<li>OUTパラメータのないプロシージャでSql2Entityの恩恵が受けられる場合</li>
+		<li>(環境面など色々な都合で) call() で呼べない(OUTパラメータのない)プロシージャ</li>
+	</ul>
+	<div class="relatedpage"><a href="../procedure/call.html">外だしSQL - call()</a></div>
+	<p>
+		OutsideSqlTest タスクで実行されてはいけないSQL(truncateやDDLなど)は、必ず実行対象外SQLに設定するようにして下さい。
+	</p>
+	<div class="detailpage"><a href="../../../generator/task/outsidesqltest/index.html#exceptsql">OutsideSqlTest - 実行対象外SQL</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

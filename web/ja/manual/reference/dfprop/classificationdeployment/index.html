@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,classificationDeploymentMap.dfprop,区分値の関連" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>classificationDeploymentMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>classificationDeploymentMap</h1>
+	${indexlist}
+
+	<h2 id="about">classificationDeploymentMapとは？</h2>
+	<p>
+		テーブルのカラムと、それに関連付ける区分値のマッピングを定義するためのDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の classificationDeploymentMap.dfprop という名前のテキストファイルです。主に Generateタスク から参照されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<p>
+		このプロパティを利用すると、以下のことができるようになります。
+	</p>
+	<ul>
+		<li>Entityに区分値を設定する際に、区分値の名称でタイプセーフに設定できる</li>
+		<li>Entityに設定されている区分値が何であるかを、区分値の名称で判定できる</li>
+		<li>ConditionBeanで条件を組み立てる際に、区分値の名称でタイプセーフに指定できる</li>
+	</ul>
+	<p>
+		また、Docタスクを実行すると、このプロパティに定義した内容が SchemaHTML
+		に反映されます。(テーブルのカラムに関連付けた区分とその区分値が表示される)
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/doc/index.html">Docタスク</a></div>
+	<p>
+		<em class="keyword">テーブル区分値に関しては、(基本的に)自動で関連付けが行われるため、このプロパティでの設定は不要</em>
+		です。classificationDefinitionMap.dfprop
+		の方で既にテーブル名やカラム名を設定しているためです。なので、このプロパティは "暗黙の区分値" のためのものと言えます。
+		(例外的に、All-in-Oneテーブル区分値の場合にこのプロパティが必要になります)
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/classification/index.html#tablecls">現場フィット - テーブル区分値</a></div>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/classification/index.html#implicitcls">現場フィット - 暗黙の区分値</a></div>
+	<div class="relatedpage"><a href="../classificationdefinition/index.html">classificationDefinitionMap.dfprop</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/allinonetableclassification.html">DB設計 - All-in-Oneテーブル区分値について</a></div>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、テーブル名そしてカラム名と区分値の関連を定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">classificationDeploymentMapの仕様 @classificationDeploymentMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [table-name or $$ALL$$] = <span class="keyword">map:</span>{
+        ; [column-name (with hint)] = [classification-name]
+    }
+    ; ...
+}
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="table-name">table-name (*)</h3>
+	<p>
+		テーブル名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名 (全テーブルを対象とする場合は $$ALL$$ とする)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>$$ALL$$ は、全テーブルの中から条件に一致するカラム全てに区分値を関連付ける</li>
+				<li>$$ALL$$ の要素は一つだけ (mapのキー値)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="column-name">column-name (*)</h3>
+	<p>
+		区分値を関連付けるカラム名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラム名</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>前方一致: "prefix:前方一致させる文字列" という形式で指定</li>
+				<li>後方一致: "suffix:後方一致させる文字列" という形式で指定</li>
+				<li>中間一致: "contain:中間一致させる文字列" という形式で指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="classification-name">classification-name (*)</h3>
+	<p>
+		カラムに関連付ける区分値の名称を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>classificationDefinitionMap.dfprop で定義した区分値名</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+	</dl>
+
+	<h2 id="example">Example</h2>
+<pre><span class="codetitle">e.g. 設定例 @classificationDeploymentMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$ALL$$</span>       = <span class="keyword">map:</span>{suffix:_FLG = Flg} <span class="comment"># 全テーブルの_FLGで終わるカラム</span>
+    ; MEMBER_STATUS = <span class="keyword">map:</span>{MEMBER_STATUS_CODE = MemberStatus}
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

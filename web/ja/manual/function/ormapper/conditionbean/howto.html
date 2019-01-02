@@ -1,0 +1,564 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,使い方,利用方法,実装方法,実装手順" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>ConditionBeanの使い方 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="../../../../../index.html">DBFlute<span>現場指向O/Rマッパ</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ConditionBeanの使い方</h1>
+	${indexlist}
+
+	<h2 id="procedure">ConditionBeanの実装手順</h2>
+	<h3 id="purposedriven">目的ドリブンで</h3>
+	<p>
+		<em class="keyword">目的ドリブンの思考手順</em> を頭の中に入れた上で...
+	</p>
+	<div class="relatedpage"><a href="./about.html#purpose">目的ドリブンの思考手順</a></div>
+	<ol>
+		<li>基点テーブル何か？</li>
+		<li>一件検索なのか？リスト検索なのか？</li>
+		<li>取得したい関連テーブルは何か？</li>
+		<li>どんな絞り込み、並び替えをしたいか？</li>
+	</ol>
+	<p>
+		これがそのまま実装手順となります。
+	</p>
+<pre><span class="codetitle">e.g. 基点テーブルは "会員" @Java</span><code>
+
+<span class="comment">// 1. 基点テーブルのBehaviorを選んで... (基点テーブル何か？)</span>
+<span class="comment">// 2. Behaviorのメソッドを呼ぶ (一件検索なのか？リスト検索なのか？)</span>
+<span class="comment">//  {select句, from句}</span>
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb -&gt; {
+    <span class="comment">// 3. 取得したい関連テーブルを指定 (取得したい関連テーブルは何か？)</span>
+    <span class="comment">//  {select句, join句}</span>
+    cb.setupSelect_MemberStatus();
+
+    <span class="comment">// 4. 絞り込み条件・並び替え条件を設定 (どんな絞り込み、並び替えをしたいか？)</span>
+    <span class="comment">//  {where句, order-by句, (from句, on句)}</span>
+    cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+    cb.query().addOrderBy_Birthdate_Desc();
+    cb.query().addOrderBy_MemberId_Asc();
+});
+
+<span class="comment">// あとは、検索結果をお好きなように</span>
+<span class="keyword">for</span> (Member member : memberList) {
+    String memberName = member.getMemberName();
+    Date birthdate = member.getBirthdate();
+    String statusName = member.getMemberStatus().getMemberStatusName();
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		すると、以下のようなSQLが実行されます。
+	</p>
+<pre><span class="codetitle">e.g. リスト検索のテスト実装のログ {select句を一部省略} @Log</span><code>
+(XLog#log():38) - /===========================================================================
+(XLog#log():38) -                                                       MemberBhv.selectList()
+(XLog#log():38) -                                                       =====================/
+(XLog#log():38) - DemoTest.test_demo():118 -> ...
+(QLog#log():38) - 
+<span class="keyword">select</span> dfloc.MEMBER_ID <span class="keyword">as</span> MEMBER, dfloc.MEMBER_NAME <span class="abbreviation">...</span>
+     , dfrel_0.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE_0, <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc 
+    <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE 
+ <span class="keyword">where</span> dfloc.MEMBER_NAME <span class="keyword">like</span> <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span> 
+ <span class="keyword">order by</span> dfloc.BIRTHDATE <span class="keyword">desc</span>, dfloc.MEMBER_ID <span class="keyword">asc</span>
+(XLog#log():38) - ===========/ [00m00s064ms (4) first={12, Suker, Suker, PRV, null, 1968-01-01, 2010-03-10 17:42:34.402, foo, bar, 2010-03-10 17:42:34.404, foo, bar, 0}(memberStatus)@21b]
+(XLog#log():38) -  
+</code></pre>
+	<h3 id="custom">慣習として</h3>
+	<dl class="textlist">
+		<dt>ConditionBeanの変数名は cb で</dt>
+		<dd>
+			みんなで統一した変数名を使うことで可読性が良くなります。
+		</dd>
+		<dt>取得、絞り込み、並び替えの順番で</dt>
+		<dd>
+			SetupSelect (データの取得) や Query (データの絞り込み、並び替え)
+			は順番が前後しても動作しますが、可読性のために目的ドリブンの思考手順の通りに書くのが良いでしょう。
+		</dd>
+	</dl>
+
+	<h2 id="completion">コード補完を駆使して実装</h2>
+	<p>
+		コード補完を最大限活用して、スピーディーに実装するのがデフォルトです。
+	</p>
+	<p>
+		<span class="frm">※ここでは Eclipse を基本として説明しますが、IntelliJでも同じものがあるはずです</span>
+	</p>
+	<h3 id="autovariable">戻り値の受け取り</h3>
+	<p>
+		先にメソッドを呼びましょう！<span class="frm">(戻り値を受け取るのはあとあと)</span>
+	</p>
+	<ol>
+		<li>セミコロンの右側にカーソルを置いて...</li>
+		<li><em class="keyword">ctrl+2</em> (Macなら command+2)を押して離して...</li>
+		<li>...離してから 0.2 秒後に <em class="keyword">L</em> (える) を押します</li>
+	</ol>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (メソッドの場合) @Java</span><code>
+<span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; {
+    <span class="localvar">cb</span><span class="abbreviation">...</span>
+}); <span class="comment">// セミコロンの右側にカーソル置いて ctrl+2, L (Macなら command+2, L)</span>
+--
+ListResultBean&lt;Member&gt; <span class="point">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> -&gt; { <span class="comment">// ぼがーん！</span>
+    <span class="localvar">cb</span><span class="abbreviation">...</span>
+}); <span class="comment">// 変数名はいい感じに修正、候補から選んでもOK</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (getの場合) @Java</span><code>
+<span class="localvar">member</span>.getMemberId(); <span class="comment">// セミコロンの右側にカーソル置いて ctrl+2, L</span>
+--
+Integer <span class="point">memberId</span> = <span class="localvar">member</span>.getMemberId(); <span class="comment">// 戻り値の型を厳密に知らなくても良い</span>
+</code></pre>
+	<p>
+		いったん指を話した後に、別のボタンを押すので難しいかもしれません。苦手な場合は、同じカーソル位置で ctrl+1 を押して "Assign statement to new local variable"
+		を選ぶやり方もあります。
+	</p>
+	<p>
+		<em class="keyword">基本的に右辺から書いていって、左辺は導出します。</em>
+	</p>
+	<p>
+		newでも使えます。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (newの場合) @Java</span><code>
+<span class="keyword">new</span> MemberCB(); <span class="comment">// セミコロンの右側にカーソル置いて ctrl+2, L</span>
+--
+MemberCB <span class="point">cb</span> = <span class="keyword">new</span> MemberCB(); <span class="comment">// 変数名は習慣的に "cb"</span>
+</code></pre>
+	<h3 id="firstchar">先頭文字で勝負を決める</h3>
+	<p>
+		先頭文字を打てば、後はコード補完が導いてくれます。
+		特にConditionBeanでは、先頭文字(もしくはあと一文字)を打つだけで補完できるメソッドを多く利用します。
+	</p>
+	<p>
+		唯一の <em class="keyword">se</em> で始まる setupSelect...()、唯一の <em class="keyword">q</em> で始まる query()、
+		これだけでも覚えておく(習得する)だけで、ConditionBeanライフは大分違ったものになるでしょう。
+	</p>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (setupSelect) @Java</span><code>
+cb<span class="point">.se</span> <span class="comment">// ".se" とだけ打ってメソッド (関連テーブル) を選んで enter</span>
+--
+cb.<span class="point">setupSelect_MemberStatus()</span> <span class="comment">// 完璧に絞り込む必要はない (選べれば良い)</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (query) @Java</span><code>
+cb<span class="point">.q</span> <span class="comment">// ".q" とだけ打って enter</span>
+--
+cb.<span class="point">query()</span> <span class="comment">// "q" で始まるメソッドは query() のみ</span>
+</code></pre>
+	<p>
+		その他メソッドに関しても、先頭文字をおおよそ把握しておくとさらに良いでしょう。
+	</p>
+	<div class="detailpage"><a href="./about.html#structure">ConditionBeanの構造</a></div>
+	<div class="inucolumn">
+		<h4>基本は enter がお奨め</h4>
+		<p>
+			ちなみに、enter でなくても、"." を押すことでメソッドの選択(決定)はできます。しかも、その後のコード補完もすぐに開始できて、
+			手間が一つ減ります。ただし、戻り値が存在していない場合は効かず、結局 enter を押す必要があります。戻り値がある場合とない場合とで、
+			enter なのか "." なのかを判断するくらいなら、全て enter で統一、という方がやりやすいと考えられるため(人に寄ります)、
+			ドキュメント上は、enter 方式で全て書いています。(enterキーの方が大きいのでリズミカルに打ちやすいというものあり)
+		</p>
+	</div>
+	<h3 id="camelcase">キャメルケースコード補完</h3>
+	<p>
+		特に <em class="keyword">キャメルケースコード補完</em>
+		は、ConditionBean実装を充実させます。必ず利用しましょう。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/programming/completion/camelcase.html">プログラミング - キャメルケースコード補完</a></div>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (query - set...) @Java</span><code>
+<span class="comment">// query()の後 ".set" とだけ打って補完候補からメソッド選択</span>
+<span class="comment">// set[カラム名]_[比較条件名]の形式のメソッドが大量に補完される</span>
+cb.query()<span class="point">.set</span>
+--
+<span class="comment">// メソッドを単語の先頭の大文字部分だけを入力して補完候補を絞り込む</span>
+<span class="comment">// setMemberName_LikeSearch()であれば、".setMNLS" と入力し、enter</span>
+cb.query()<span class="point">.setMNLS</span>
+--
+cb.query().<span class="point">setMemberName_LikeSearch(<span class="abbreviation">...</span>)</span> <span class="comment">// 後は引数に値を入れてセミコロンで締める</span>
+</code></pre>
+<pre><span class="codetitle">e.g. Eclipseでのショートカット (query - addOrderBy...) @Java</span><code>
+<span class="comment">// query()の後 ".add" とだけ打って補完候補からメソッド選択</span>
+<span class="comment">// addOrderBy_[カラム名]_[Asc or Desc]の形式のメソッドが大量に補完される</span>
+cb.query()<span class="point">.add</span>
+--
+<span class="comment">// メソッドを単語の先頭の大文字部分だけを入力して補完候補を絞り込む</span>
+<span class="comment">// addOrderBy_MemberName_Desc()であれば、".addOBMND" と入力し、enter</span>
+cb.query()<span class="point">.addOBMND</span>
+--
+cb.query().<span class="point">addOrderBy_MemberName_Desc()</span> <span class="comment">// 後はセミコロンで締める</span>
+</code></pre>
+	<h3 id="foreachloop">for文の補完</h3>
+	<p>
+		検索結果などでリストを取り扱うことが多いと思います。for文は一文字一文字書かず補完しましょう。
+		<em class="keyword">リストや配列の下の行にて fore まで打って、ctrl + space そして enter</em>
+	</p>
+<pre><span class="codetitle">e.g. キャメルケースコード補完 @Java</span><code>
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="comment">// ここで fore -&gt; ctrl + space -&gt; enter</span>
+--
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="keyword">for</span> (Member member : memberList) {
+
+}
+</code></pre>
+	<p>
+		fore まで打って補完で、foreach の補完が一番上に候補として上がるので、候補を見ずに enter してOKです。ただ、例えば ForeginKey
+		というクラスがそのプロジェクトに存在するような場合はそちらが優先されるので、矢印キーでちょっと調整する必要があります。
+	</p>
+	<p>
+		もし、ループに Java8 の List@forEach() を使う場合は、(DBFluteのコード補完テンプレートが入っていれば) <em class="smallmark">_fo =&gt; ctrl+space</em> でいけます。 
+	</p>
+	<div class="relatedpage"><a href="../../../../tutorial/onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
+	<h3 id="extracttovariable">ローカル変数の抽出</h3>
+	<p>
+		何回も同じものを get, get してたら、ローカル変数へ！
+	</p>
+<pre><span class="codetitle">e.g. キャメルケースコード補完 @Java</span><code>
+log(<span class="literal">"memberName: {}"</span>, <span class="localvar">member</span>.getMemberName());
+<span class="keyword">if</span> (<span class="localvar">member</span>.getMemberName().startsWith(<span class="literal">"S"</span>) || <span class="localvar">member</span>.getMemberName().length() &gt;= <span class="literal">10</span>) {
+    <span class="abbreviation">...</span> = convertToDetarame(<span class="localvar">member</span>.getMemberName());
+}
+<span class="comment">// member.getMemberName() を選択して、</span>
+<span class="comment">// ctrl+1 => enter (extract to variable) すると...</span>
+--
+<span class="comment">// ぜんぶ一気に変数に置き換わる！</span>
+String <span class="point">memberName</span> = <span class="localvar">member</span>.getMemberName(); <span class="comment">// どーん！</span>
+log(<span class="literal">"memberName: {}"</span>, <span class="subpoint">memberName</span>);
+<span class="keyword">if</span> (<span class="subpoint">memberName</span>.startsWith(<span class="literal">"S"</span>) || <span class="subpoint">memberName</span>.length() &gt;= <span class="literal">10</span>) {
+    <span class="abbreviation">...</span> = convertToDetarame(<span class="subpoint">memberName</span>);
+}
+</code></pre>
+	<p>
+		パフォーマンス上の問題というよりも、コードの見た目がきっかけかもしれません。抽出前は get, get
+		でだいぶコードが膨れ上がっていますよね。スッキリさせるためにも、積極的に抽出していきましょう。
+	</p>
+	<p>
+		一方で、最初から想定して変数を用意するというのはそれはそれで難度が高いものだし、
+		一回だけしか使わないもので、あまりメソッド名も長くないものであれば、逆に変数になっている方がめざわりかもしれません。
+		最初はあまり気にせず勢いでget,getして、ふとコードを見上げたときに "えいっ" とやればいいかなと思っています。
+	</p>
+	<h3 id="renamequickly">メソッド名や変数名の変更</h3>
+	<p>
+		しっくりくる名前を気軽に試そう！
+	</p>
+<pre><span class="codetitle">e.g. キャメルケースコード補完 @Java</span><code>
+<span class="abbreviation">...</span> = <span class="localvar">memberEntityDayo</span>.getMemberName()
+<span class="abbreviation">...</span> = <span class="localvar">memberEntityDayo</span>.getMemberAccount()
+<span class="abbreviation">...</span> = <span class="localvar">memberEntityDayo</span>.getBirthdate()
+<span class="abbreviation">...</span> = <span class="localvar">memberEntityDayo</span>.getFormalizedDatetime()
+<span class="comment">// memberEntityDayo を選択して、</span>
+<span class="comment">// ctrl+1 => enter (rename in file) して、名前を member に修正すると...</span>
+--
+<span class="comment">// ぜんぶ一気に変わる！</span>
+<span class="abbreviation">...</span> = <span class="point">member</span>.getMemberName()
+<span class="abbreviation">...</span> = <span class="point">member</span>.getMemberAccount()
+<span class="abbreviation">...</span> = <span class="point">member</span>.getBirthdate()
+<span class="abbreviation">...</span> = <span class="point">member</span>.getFormalizedDatetime()
+</code></pre>
+	<p>
+		名前は、実際にある程度書き終わってからじゃないと、適切な名前って思いつかないものですし、実際にその名前で書いてみないとしっくりくるかどうかわからないものです。
+		ショートカットで名前の試行錯誤をスムーズにできるようにしましょう。
+	</p>
+	<h3 id="idesuggestion">IDEに提案してもらおう</h3>
+	<p>
+		ctrl+1 (command+1) って、なんか何でも使えるショートカットに思えますね。
+	</p>
+	<p>
+		このショートカットは、IDEがカーソル位置から判断して、プログラマーのやりたいことを推測してリファクタリング候補を挙げてくれるものです。
+		リファクタリング候補は、だいたいカーソル位置から規則的に列挙されますので、ショートカットキーを忘れたときの保険のようにも使えます。
+	</p>
+	<p>
+		というか、ショートカットキーを覚えるのが大変であれば、とにかく ctrl+1 さえ覚えておけば良いとも言えます。
+		実際に、受け取り変数の導出も、ctrl+1で実現できてしまいます。大抵のことはできるように設計されているので、ぜひぜひ積極的に使っていきましょう。
+	</p>
+	<h3 id="variouscut">その他ショートカット</h3>
+	<p>
+		他にも ConditionBean を実装する上で役に立つコード補完やショートカットがあります。最初は慣れるまでちょっと
+		"最初からベタに書いた方が速いんじゃないの？"
+		って感じになってしまいますが、その後長く実装を続けるのであれば非常に効果的な道具となるでしょう。
+	</p>
+	<p>
+		以下、Eclipseのその他のショートカットの一部です。
+	</p>
+	<dl class="keymainlist">
+		<dt>一行削除</dt><dd><em class="mark">ctrl (command) + D</em></dd>
+		<dt>一行移動</dt><dd><em class="mark">alt + 上下矢印</em></dd>
+		<dt>一行コピー</dt><dd><em class="mark">alt + ctrl(command) + 上下矢印</em></dd>
+		<dt>単語ごとカーソル移動</dt><dd><em class="mark">alt + 左右矢印</em></dd>
+		<dt>メソッドごとの移動</dt><dd><em class="mark">control + alt + 上下矢印</em> <span class="frm">(Macの場合。ちょとWindowsだとわからない...)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../topic/programming/completion/index.html">プログラミング - コード補完</a></div>
+	<div class="relatedpage"><a href="../../../topic/programming/shortcut/index.html">プログラミング - ショートカット</a></div>
+	<p>
+		以下、DBFlute補完テンプレートを入れたときの補完ショートカットの一部です。
+	</p>
+	<dl class="keymainlist">
+		<dt>Lambda, Inline Style</dt><dd><em class="mark">_li (あんすこえるあい)</em></dd>
+		<dt>Lambda, Block Style</dt><dd><em class="mark">_ll (あんすこえるえる)</em></dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../../tutorial/onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
+	<p>
+		特に、_li や _ll は、1.1.x (Java8版) の ConditionBean を実装する上で、非常に大切な補完なので、ぜひ使いこなしていきましょう。
+	</p>
+
+	<h2 id="basicspec">Java8版の基本仕様 <span class="frm">(1.1.x)</span></h2>
+	<dl class="textlist">
+		<dt>条件の連結</dt>
+		<dd>
+			(複数の条件を指定した場合に)基本的に <em class="keyword">and</em> で連結します。(<em class="keyword">OrScopeQuery</em> 機能で or 連結)
+			<div class="relatedpage"><a href="./query/orscopequery.html">OrScopeQuery</a></div>
+		</dd>
+		<dt>nullや空文字の扱い</dt>
+		<dd>
+			基本的に、条件値が null もしくは空文字の場合は <em class="keyword">例外</em>
+			になります。
+		</dd>
+		<dd>
+			条件値がリストの場合 (e.g. InScope) で、リスト自体が null や空リストの場合も同様に例外となります。
+			ただし、リストの中の要素が null や空文字の場合は、それら要素は例外にならず無視されます。
+		</dd>
+		<dd>
+			無効な条件値を無視するオプション cb.ignoreNullOrEmptyQuery() もあります。
+			ただ、cb全体に効いてしまうので、全体的に無視するほうが都合の良いときのみ利用することを前提にしています。
+		</dd>
+		<dd>
+			また、空文字を条件値として取扱うオプションもあります。
+			<div class="relatedpage"><a href="./sidebar/emptystringquery.html">EmptyStringQUery</a></div>
+			<div class="relatedpage"><a href="../../genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+		</dd>
+		<dt>同じカラムで同じ比較条件の複数指定</dt>
+		<dd>
+			基本的に例外になりますが、比較条件 (e.g. InScope) 次第で追加条件となることもあります。
+		</dd>
+		<dd>
+			cb.enableOverridingQuery() で、上書きOKにすることも可能です。
+		</dd>
+		<dt>同じカラムで同じ比較条件の同じ条件値での複数指定</dt>
+		<dd>
+			同じ条件値かどうかは気にせず、同じ比較条件の複数指定ということで基本期に例外になります。
+		</dd>
+		<dd>
+			同じく、cb.enableOverridingQuery() で、上書きOKにすることも可能です。
+		</dd>
+		<dt>結合の方式</dt>
+		<dd>
+			基本的に <em class="keyword">left outer join</em>
+			で結合しますが、outer も inner でも結果が変わらないときは、inner join になります。 
+			<div class="relatedpage"><a href="./sidebar/innerjoinautodetect.html">InnerJoinAutoDetect</a></div>
+		</dd>
+		<dt>メソッドの呼び出し順序</dt>
+		<dd>
+			基本的に 以下のような順序でメソッドを呼び出すことを(習慣的に)お奨めします。
+			<ul class="supplementlist">
+				<li>setupSelect...</li>
+				<li>query().set...</li>
+				<li>union(...)</li>
+				<li>query().addOrderBy...</li>
+				<li>paging(), lockForUpdate(), ...</li>
+			</ul>
+			基本的には順序が入れ替わっても動作はしますが、一部処理は順序が通りでないと動作しないものもあります。例えば、union
+			を利用する場合は必ず setupSelect の後でなければなりません。<em class="keyword">可読性のためにも</em>
+			この順序(SQLのイメージと近い形)を習慣とするようにして下さい。
+		</dd>
+		<dt>マルチスレッド対応</dt>
+		<dd>
+			<em class="keyword">スレッドセーフではない</em> ので、スレッド間で(同期なしの)再利用はしてはいけません。
+		</dd>
+		<dt>ライフサイクル</dt>
+		<dd>
+			基本的には、使い捨てです。DBアクセスするときにインスタンスを生成し、実行したらそのまま破棄。
+			スレッドセーフではないので、持ち回しての利用は基本的に想定されません。
+		</dd>
+		<dt>検索結果のキャッシュ</dt>
+		<dd>
+			<em class="keyword">検索結果をキャッシュするようなことはありません</em>。
+		</dd>
+		<dt>Serializableではない</dt>
+		<dd>
+			Serializableではありません。
+		</dd>
+	</dl>
+
+	<h2 id="basicspec">Java6版の基本仕様 <span class="frm">(1.0.x)</span></h2>
+	<p>
+		Java8版と違う部分だけ記述します。
+	</p>
+	<dl class="textlist">
+		<dt>nullや空文字の扱い</dt>
+		<dd>
+			基本的に <em class="keyword">条件値が null もしくは空文字の場合は設定された条件は無効(条件付与しない)</em>
+			になります。条件値がリストの場合で、リストの中の null や空文字も同様、有効な条件が何もない空リストも同様。
+			ただし、無効な条件値を例外にするオプション、および、空文字を条件値として取扱うオプションもあります。
+			<div class="relatedpage"><a href="./sidebar/checkinvalidquery.html">CheckInvalidQuery</a></div>
+			<div class="relatedpage"><a href="../../genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+		</dd>
+		<dt>同じカラムで同じ比較条件の複数指定</dt>
+		<dd>
+			基本的に <em class="keyword">上書き</em> ですが、比較条件次第で追加条件となることもあります。
+		</dd>
+		<dt>同じカラムで同じ比較条件の同じ条件値での複数指定</dt>
+		<dd>
+			基本的に 重複した条件にはならずにデバッグログが出力されますが、比較条件次第で追加条件となることもあります。
+		</dd>
+	</dl>
+
+	<h2 id="behavior">Behaviorとのコラボ</h2>
+	<h3 id="bhvinstance">Behaviorインスタンスの取得</h3>
+	<p>
+		Behaviorインスタンスは <em class="keyword">DIコンテナから取得</em> します。
+	</p>
+	<div class="detailpage"><a href="../behavior/howto.html">Behaviorの使い方</a></div>
+	<h3 id="bhvmethod">CB関連のBehaviorのメソッド</h3>
+	<dl class="hierarchylist">
+		<dt><a href="../behavior/select/selectentity.html">selectEntity(cb)</a></dt>
+		<dd>一件検索。結果がない場合はnullを戻す</dd>
+		<dt><a href="../behavior/select/selectentitywithdeletedcheck.html">selectEntityWithDeletedCheck(cb)</a></dt>
+		<dd>一件検索。結果がない場合は例外発生</dd>
+		<dt><a href="../behavior/select/selectlist.html">selectList(cb)</a></dt>
+		<dd>リスト検索</dd>
+		<dt><a href="../behavior/select/selectpage.html">selectPage(cb)</a></dt>
+		<dd>ページング検索。cb.paging()とセットで利用</dd>
+		<dt><a href="../behavior/select/selectcursor.html">selectCursor(cb, entityRowHandler)</a></dt>
+		<dd>カーソル検索。一件ずつメモリ展開して処理</dd>
+		<dt><a href="../behavior/select/scalarselect.html">scalarSelect(cb)</a></dt>
+		<dd>スカラ検索。max(), min(), sum(), avg()</dd>
+		<dt><a href="../behavior/select/loadreferrer.html">LoadReferrer</a></dt>
+		<dd>子テーブルの取得。Refererrテーブル毎にメソッドがある</dd>
+		<dt><a href="../behavior/update/queryupdate.html">queryUpdate(entity, cb)</a></dt>
+		<dd>ConditionBeanの条件で更新</dd>
+		<dt><a href="../behavior/update/querydelete.html">queryDelete(cb)</a></dt>
+		<dd>ConditionBeanの条件で削除</dd>
+	</dl>
+
+	<h2 id="classification">区分値</h2>
+	<p>
+		区分値設定がされているカラムに関しては、区分値に関する条件設定のメソッドが存在します。
+		これらを利用することで、区分値条件をタイプセーフに指定することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+	<h3 id="classify">区分値の設定</h3>
+	<p>
+		<em class="keyword">set[カラム名]_[ConditionKey]_[区分値要素の名前]()</em>
+		の形式のメソッドを利用します。サポートされている ConditionKey
+		は、<em class="keyword">Equal、NotEqual</em> です。
+	</p>
+<pre><span class="codetitle">e.g. 区分値条件の設定(メソッド解決)。会員ステータスが正式会員であること。 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">setMemberStatusCode_Equal_Formalized()</span>;
+<span class="comment">// cb.query().setMemberStatusCode_Equal("FML"); と同義</code>
+</code></pre>
+	<dl class="textlist">
+		<dt>通常のプロパティの設定と同じ set 始まり</dt>
+		<dd>
+			通常のプロパティの設定と同じ set 始まりのメソッドなので、他のカラムと同様、とりあえず set
+			と打って、対象のカラムの set メソッドを補完すると、区分値メソッドも一緒に補完候補に並びますので、後はそこから選ぶだけです。
+			その時、ネイティブ型の設定メソッドしか存在しない場合は、区分値が関連付けられていません(設定漏れ)ので、(ディベロッパーは)アーキテクトに相談しましょう。
+		</dd>
+		<dt>キャメルケースコード補完の活用</dt>
+		<dd>
+			キャメルケースコード補完で、スムーズにメソッドを呼び出せます。例えば、<em class="keyword">setMemberStatusCode_Equal_Formalized()</em>
+			メソッドであれば、<em class="keyword">setMSCEF</em> と打ち込めばほぼピンポイントで絞り込めるでしょう。
+			<div class="relatedpage"><a href="../../../topic/programming/completion/camelcase.html">プログラミング - キャメルケースコード補完</a></div>
+		</dd>
+		<dt>CDef を直接渡すメソッド</dt>
+		<dd>
+			メソッド名解決のメソッドに対し、ENUMである CDef を直接渡すメソッドもあります。<em class="keyword">set[カラム名]_[ConditionKey]_As[区分値の名前](CDef)</em>
+			という形式のメソッドです。ただ、Equal、NotEqualに関しては、メソッド名解決のメソッドがあるため(そちらの方が便利であるため)、基本的にはあまり利用する必要はありません。
+			複数の区分値要素を指定する <em class="keyword">InScope、NotInScope</em> において利用します。
+			<div class="relatedpage"><a href="../runtime/allcommon/index.html#cdef">DBFluteランタイム - allcommon - CDef</a></div>
+<pre><span class="codetitle">e.g. 区分値条件の設定(CDef指定)。会員ステータスが正式会員、仮会員であること。 @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+List&lt;CDef.MemberStatus&gt; statusList = <span class="keyword">new</span> ArrayList&lt;CDef.MemberStatus&gt;();
+statusList.add(CDef.MemberStatus.Formalized);
+statusList.add(CDef.MemberStatus.Provisional);
+cb.query().<span class="point">setMemberStatusCode_InScope_AsMemberStatus(statusList)</span>;
+</code></pre>
+		</dd>
+		<dd>
+			区分値が関連付いたカラムのネイティヴ型での設定メソッドは残っています。
+			ですが、よほどのことがない限り、<em class="keyword">区分値コードをハードコードした利用は絶対にやってはいけません</em>。
+<pre><span class="codetitle">e.g. (ディベロッパーが)絶対にやってはいけないやり方 @Java</span><code>
+cb.query.setMemberStatusCode_Equal(<span class="literal">"FML"</span>); <span class="comment">// 絶対にだめ</span>
+</code></pre>
+		</dd>
+		<dd>
+			ネイティヴ型のメソッドが補完候補となる場合、<em class="keyword">一緒に区分値メソッドも候補として表示されるため</em>、
+			区分値メソッドの存在に気付かずにネイティヴ型を使ってしまうケースはあまりないでしょうが、"念には念を"
+			ということで、DBFluteプロパティのオプションで、このメソッドを削除して利用できないようにすることができます。
+			<div class="detailpage"><a href="../../genbafit/implfit/classification/index.html#forcedcls">現場フィット - 区分値 - ネイティヴ型メソッドの削除</a></div>
+		</dd>
+		<dt>大なり小なり比較・曖昧検索は生成されない</dt>
+		<dd>
+			区分値が関連付けられたカラムに対しては、GreaterEqual や LessThan
+			などの大なり小なり比較をするメソッド、ならびに、PrefixSearch や LikeSearch
+			などの曖昧検索のメソッドは<span class="existscloset">生成されません</span>。
+			業務的に区分値のコードに対してそのような比較条件を適用することはないと想定されるため、間違いを生まないようにとそのようにしています。
+		</dd>
+		<dd>
+			もし、区分値の要素間で順列を付けるのであれば、コード値に意味を兼任させるのではなく、ExampleDBの "会員ステータスの表示順"
+			のように、別のカラムで明示的な業務名で表現するのが良いでしょう(コード値はあくまで純粋に識別値として扱うもの)。
+			もしくは、SubItemMap を使って独自の属性を追加しても良いでしょう。
+			<div class="detailpage"><a href="../../genbafit/implfit/classification/index.html#subitemmap">現場フィット - 区分値 - SubItemMap</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="recycle">再利用メソッドの定義</h2>
+	<p>
+		ConditionBeanでは再利用メソッドを定義して、業務的に定型的な検索条件、つまり
+		where 句を再利用することができます。
+	</p>
+	<div class="detailpage"><a href="../../genbafit/implfit/whererecycle/index.html">現場フィット - where句の再利用</a></div>
+<pre><span class="codetitle">e.g. ある特別な商品を購入したことのある会員名称が "S" で始まる正式会員という条件を設定するメソッド @Java</span><code>
+<span class="keyword">public class</span> MemberCQ <span class="keyword">extends</span> BsMemberCQ {
+
+    <span class="abbreviation">...</span>
+
+    <span class="comment">/**</span>
+    <span class="comment"> * Arrange the query for selecting service members.</span>
+    <span class="comment"> * o starts 'S'</span>
+    <span class="comment"> * o status 'Formalized'</span>
+    <span class="comment"> * o exists the special product</span>
+    <span class="comment"> */</span>
+    <span class="keyword">public void</span> arrangeServiceMember() {
+        setMemberName_LikeSearch(<span class="literal">"S"</span>, op -&gt; op.likePrefix());
+        setMemberStatusCode_Equal_Formalized();
+        existsPurchase(purchaseCB -&gt; {
+            purchaseCB.query().setProductId_Equal(<span class="attribute">SPECIAL_PRODUCT_ID</span>);
+        });
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="../../../../sitemap.html">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

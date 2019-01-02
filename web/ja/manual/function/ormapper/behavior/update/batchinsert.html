@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,batchInsert,バッチ登録,一括登録,複数件登録,バッチ挿入" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>batchInsert(entityList) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>batchInsert(entityList)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		Entityのリストをもとに <em class="keyword">バッチ登録</em> をします。
+	</p>
+	<p>
+		これは単なる複数件の insert() ではありません。
+		DBと一回の通信で複数件のレコードを取扱うバッチ更新により、ループで一件登録を行う場合に比べてパフォーマンス的に優位です。
+		具体的には、PreparedStatement の addBatch(), executeBatch() を利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/batchupdate">DBアクセス - バッチ更新</a></div>
+	<p>
+		通常の一件登録の insert() とは違う仕様を持つことがあります。例えば、登録時に自動採番された Identity の値は登録後の Entity
+		の中には格納されません。また、insert 文に列挙されるカラムは複数のEntityでの最小公倍数のカラムです<span class="frm">(@since 1.0.5A)</span>。
+	</p>
+	<div class="relatedpage"><a href="#autoincrement">this - 自動採番処理の自動化</a></div>
+	<div class="relatedpage"><a href="#insertcolumn">this - insert文に列挙されるカラム</a></div>
+	<p>
+		会話上では、<em class="keyword">ばっちいんさーと</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">batchInsert()</em>
+		を呼び出し、Entityを指定します。
+	</p>
+<pre><span class="codetitle">e.g. insert()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+List&lt;Member&gt; memberList = <span class="keyword">new</span> ArrayList&lt;Member&gt;();
+{
+    Member member = <span class="keyword">new</span> Member();
+    <span class="comment">//member.setMemberId(1);</span> <span class="comment">// 自動採番の場合は不要</span>
+    member.setMemberName(<span class="literal">"Stojkovic"</span>);
+    <span class="abbreviation">...</span>
+    <span class="comment">//member.setRegisterUser(user);</span> <span class="comment">// 共通カラムは自動設定(設定が有効なら)</span>
+    <span class="comment">//member.setRegister...</span>
+    <span class="comment">//member.setVersionNo(versionNo);</span> <span class="comment">// バージョン番号は自動で初期値に</span>
+    memberList.add(member);
+}
+{
+    Member member = <span class="keyword">new</span> Member();
+    member.setMemberName(<span class="literal">"Savicevic"</span>);
+    <span class="abbreviation">...</span>
+    memberList.add(member);
+}
+{
+    Member member = <span class="keyword">new</span> Member();
+    member.setMemberName(<span class="literal">"Mijatovic"</span>);
+    <span class="abbreviation">...</span>
+    memberList.add(member);
+}
+
+<span class="attribute">memberBhv</span>.baI <span class="comment">// .baI と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.<span class="point">batchInsert</span>(memberList);
+
+<span class="comment">// .ba と打つと batchInsert() や batchUpdate() など</span>
+<span class="comment">// バッチ更新系のメソッドだけが補完候補に列挙される</span>
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのEntityのリストとなります。
+	</p>
+	<p>
+		空リストの場合は、何も処理が発生しません。nullを指定した場合は例外発生します。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		それぞれのレコードごとの登録件数を示す int[] です。これは JDBC の executeBatch() の戻り値そのままの値となっています。一つの Entity
+		で一つのレコードを登録する仕様なので、実際には {1, 1, 1, 1, ...}
+		という値になることが想定されます。"0" を持つ要素は登録に失敗したことを示しますが、そのような状況は想定されていません。
+		(ほとんどの場合において、この戻り値を意識する必要はないでしょう)
+	</p>
+	<h3 id="exception">例外</h3>
+	<dl class="textlist">
+		<dt>一意制約違反があった場合</dt>
+		<dd>org.seasar.dbflute.exception.EntityAlreadyExistsException</dd>
+		<dd>
+			DBFluteで正式サポートしていない DBMS では、別の例外(SQLFailureException)の可能性があります。
+			<div class="relatedpage"><a href="../../../../../environment/supported.html#database">DBFluteのサポート情報 - データベース</a></div>
+		</dd>
+	</dl>
+
+	<h2 id="autoincrement">自動採番処理の自動化</h2>
+	<p>
+		一件登録の insert() と同じく自動設定されます(全ての Entity にそれぞれ設定されます)。
+	</p>
+	<div class="relatedpage"><a href="./insert.html#autoincrement">insert(entity) - 自動採番処理の自動化</a></div>
+	<p>
+		ただし、バッチ登録特有の制限として、Identityの場合は採番された値を登録処理後の Entity から取得することができません。
+		(シーケンスの場合は取得できる)
+	</p>
+
+	<h2 id="commoncolumn">共通カラムは自動設定</h2>
+	<p>
+		一件登録の insert() と同じく自動設定されます(全ての Entity にそれぞれ設定されます)。
+	</p>
+	<div class="relatedpage"><a href="./insert.html#commoncolumn">insert(entity) - 共通カラムは自動設定</a></div>
+
+	<h2 id="exclusive">排他制御カラムの自動設定</h2>
+	<p>
+		一件登録の insert() と同じく自動設定されます(全ての Entity にそれぞれ設定されます)。
+	</p>
+	<div class="relatedpage"><a href="./insert.html#exclusive">insert(entity) - 排他制御カラムの自動設定</a></div>
+
+	<h2 id="nocascade">カスケードはしません</h2>
+	<p>
+		一件登録の insert() と同じくカスケードはしません。
+	</p>
+	<div class="relatedpage"><a href="./insert.html#nocascade">insert(entity) - カスケードはしません</a></div>
+
+	<h2 id="insertcolumn">insert文に列挙されるカラム</h2>
+	<h3 id="modifiedonly">Setterが呼ばれたカラムが登録される <span class="frm">@since 1.0.5A</span></h3>
+	<p>
+		(newされた) Entity の Setter が呼ばれたカラムが、insert 文の項目に列挙されます<span class="frm">(@since 1.0.5A)</span>。
+		これを <em class="keyword">ModifedOnly</em> と呼び、一件登録の insert() の方と同じ方式です。
+	</p>
+	<p>
+		ただ、複数のEntityで呼び出しセットがバラバラな場合は、最小公倍数のカラムが列挙されます。
+		ゆえに、一部のEntityで呼び出されなかったカラムの登録では、デフォルト制約が利用されず、固定でnullで登録されます(nullでセットすることを省略したとみなされる)。
+		もちろん、最小公倍数に含まれなかったカラムは、デフォルト制約が有効です。
+	</p>
+	<p>
+		<span class="frm">※自動採番のPKや共通カラムや排他制御カラムは、Setterが呼ばれなくても特別な処理で列挙されます。</span>
+	</p>
+	<h3 id="before105a">1.0.5Aより前のバージョンでは</h3>
+	<p>
+		insert 文の項目には全てのカラムが列挙されます。
+		ゆえに、DB上ので設定でデフォルト制約が存在する場合でも、そのデフォルト値を利用して登録することはできません。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/upgrade/migration/migrate104Kto105A.html">移行ポイント - 移行 1.0.4K to 1.0.5A</a></div>
+	<p>
+		運用後のDB変更でNotNullのカラム追加をする際は、そのテーブルのBehaviorの batchInsert()
+		の呼び出し処理を確認する必要があります。そのまま何も対応せずカラムだけ追加すると、NotNull制約で落ちる可能性があります。
+		例えば Eclipse であれば、ctrl + shift + G のショートカットで呼び出し階層を検索できます。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/shortcut/searchcut.html#program">Topic - 検索ショートカット - プログラム周り</a></div>
+	<p>
+		以前の悩みがこちらです。<span class="frm">(ようやく改善しました)</span>
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20121217/1355749396">外部サイト - jfluteの日記 - DBFluteのノリ切れないやつ、バッチ登録</a></div>
+	<h3 id="columnsummary">更新系、列挙されるカラムのまとめ</h3>
+	<p>
+		まとめていますので、ぜひご覧を。
+	</p>
+	<div class="detailpage"><a href="./insert.html#columnsummary">insert() - 更新系、列挙されるカラムのまとめ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

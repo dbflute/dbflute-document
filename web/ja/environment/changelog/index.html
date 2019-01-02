@@ -1,0 +1,2651 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ChangeLog,変更点,バグ修正,新機能,履歴,History" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ChangeLog | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ChangeLog</h1>
+	${indexlist}
+
+      <div class="release">
+        <h2>DBFlute-1.1.9 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2019/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: ArrangeQuery Doc in SchemaHTML, first version</li>
+            <li>DBFlute Runtime: SystemScript, callback for real-time console</li>
+            <li>DBFlute Engine: dbfluteBeansTransactionalDataSourcePackage in dependencyInjectionMap for Spring <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: decomment for Chrome-70, needs to trim() <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: dfprop, $$env:xxx$$ value can be part <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: improve Decomment dialog design <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: use getDeclaredConstructor().newInstance() for Java11 <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Oracle, can use multiple unique of DB link synonym <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: fixedCondition, IF comment for classification <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: DBFlute Engine: dfprop, $$env: | df:dfprop/... | default <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: dfprop, isCompatibleNativeInScopePublicForcedly <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: dfprop, env can have default e.g. $$env:SEA$$ | defaultUrl <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, /*$dfprop.mainUserNoAtServer*/ for e.g. Azure <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Spring JavaConfig, switch @resource to @Autowired+@qualifier for Java11 <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: DBFlute Intro, Decomment Server <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: can make history of the first time <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use $$column$$ as $$columnName$$ <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use pk_columnName in table if-statement <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, sequeneIfPureIDPK for e.g. PostgreSQL <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, identityIfPureIDPK should ignore case <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: upgrade MySQL JDBC driver to 5.1.46 (to avoid MySQL-8.0 error) <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: just fix, SchemaSyncCheck failure by hacomment <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use (table/column/alias) is not $$comment$$ <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use (alias) is not $$table/columnName$$ <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use $$tableName$$ instead of $$table$$ <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, show comment in table/column expression <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use singlePK in column.statement <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, no-value $$variable$$ is no-hit dummy <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, unsupported $$variable$$ is checked <span class="frm">*前回パッチ</span></li>
+          </ul>
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.8 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2018/05/19</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: dbfluteBeansTransactionalDataSourcePackage in dependencyInjectionMap for Spring <span class="frm">*12/06パッチ</span></li>
+            <li>DBFlute Engine: decomment for Chrome-70, needs to trim() <span class="frm">*11/27パッチ</span></li>
+            <li>DBFlute Engine: dfprop, $$env:xxx$$ value can be part <span class="frm">*10/25パッチ</span></li>
+            <li>DBFlute Engine: improve Decomment dialog design <span class="frm">*10/22パッチ</span></li>
+            <li>DBFlute Engine: use getDeclaredConstructor().newInstance() for Java11 <span class="frm">*10/06パッチ</span></li>
+            <li>DBFlute Engine: Oracle, can use multiple unique of DB link synonym <span class="frm">*10/06パッチ</span></li>
+            <li>DBFlute Engine: fixedCondition, IF comment for classification <span class="frm">*10/06パッチ</span></li>
+            <li>DBFlute Engine: DBFlute Engine: dfprop, $$env: | df:dfprop/... | default <span class="frm">*9/19パッチ</span></li>
+            <li>DBFlute Engine: dfprop, isCompatibleNativeInScopePublicForcedly <span class="frm">*9/19パッチ</span></li>
+            <li>DBFlute Engine: dfprop, env can have default e.g. $$env:SEA$$ | defaultUrl <span class="frm">*9/13パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, /*$dfprop.mainUserNoAtServer*/ for e.g. Azure <span class="frm">*9/13パッチ</span></li>
+            <li>DBFlute Engine: Spring JavaConfig, switch @resource to @Autowired+@qualifier for Java11 <span class="frm">*7/9パッチ</span></li>
+            <li>DBFlute Engine: DBFlute Intro, Decomment Server <span class="frm">*6/30パッチ</span></li>
+            <li>DBFlute Engine: can make history of the first time <span class="frm">*6/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use $$column$$ as $$columnName$$ <span class="frm">*6/14パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use pk_columnName in table if-statement <span class="frm">*6/14パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, sequeneIfPureIDPK for e.g. PostgreSQL <span class="frm">*6/14パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, identityIfPureIDPK should ignore case <span class="frm">*6/14パッチ</span></li>
+            <li>DBFlute Engine: upgrade MySQL JDBC driver to 5.1.46 (to avoid MySQL-8.0 error) <span class="frm">*6/7パッチ</span></li>
+            <li>DBFlute Engine: just fix, SchemaSyncCheck failure by hacomment <span class="frm">*5/25パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use (table/column/alias) is not $$comment$$ <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use (alias) is not $$table/columnName$$ <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use $$tableName$$ instead of $$table$$ <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, show comment in table/column expression <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use singlePK in column.statement <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, no-value $$variable$$ is no-hit dummy <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, unsupported $$variable$$ is checked <span class="frm">*5/23パッチ</span></li>
+            <li>DBFlute Runtime: make DfMapStyle for performance instead of MapListString</li>
+            <li>DBFlute Runtime: improve DfStringUtil.count() for performance</li>
+            <li>DBFlute Runtime: Oracle, Procedure, large data of BLOB argument</li>
+            <li>DBFlute Runtime: make plug-in value-type bytesBlobType</li>
+            <li>DBFlute Engine: upgrade H2 database to 1.4.197</li>
+            <li>DBFlute Engine: SchemaHTML, escape '&' for already-escaped string in DB comment</li>
+            <li>DBFlute Engine: SchemaHTML, show firstDate(since) of table and column</li>
+            <li>DBFlute Engine: SchemaHTML, support Decomment mapping for renaming by DBFlute Intro</li>
+            <li>DBFlute Engine: HistoryHTML, improve display design a little</li>
+            <li>DBFlute Engine: HistoryHTML, make Hacomment in HistoryHTML by DBFlute Intro</li>
+            <li>DBFlute Engine: HistoryHTML, show author and gitBranch of SchemaDiff</li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use if columnName is $$table$$_ID</li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use if alias is $$tableAlias$$ID</li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use then columnName is $$table$$_ID</li>
+            <li>DBFlute Engine: SchemaPolicyCheck, can use then alias is $$tableAlias$$ID</li>
+            <li>DBFlute Engine: LastaDoc, improve display design a little</li>
+            <li>DBFlute Engine: LastaDoc, isSuppressDescriptionInList in lastafluteMap.dfprop</li>
+            <li>DBFlute Engine: DBMeta, escape escape character '\' to avoid compile error</li>
+            <li>DBFlute Engine: data source handling for SpringFramework with HikariCP <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, statement then can use hasAlias, hasComment, ... <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, firstDate is after:yyyy/MM/dd in statement <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, tableColumnName in column statement <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, same...IfSame... in column statement <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ConventionalTakeAssert, support onlyFirstDateAfterTargetDate <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: simpleDtoDefinitionMap, target/except of table or SQL <span class="frm">*前回パッチ</span></li>
+          </ul>
+          <h3>BUG</h3>
+          <ul>
+            <li>DBFlute Engine: DBFlute Intro, Decomment, fix embeddedPickup failure <span class="frm">*6/30パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.7 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2018/04/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: data source handling for SpringFramework with HikariCP <span class="frm">*5/9パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, same...IfSame... in column statement <span class="frm">*5/8パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, tableColumnName in column statement <span class="frm">*5/8パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, firstDate is after:yyyy/MM/dd in statement <span class="frm">*5/8パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, statement then can use hasAlias, hasComment, ... <span class="frm">*5/8パッチ</span></li>
+            <li>DBFlute Engine: simpleDtoDefinitionMap, target/except of table or SQL <span class="frm">*4/6パッチ</span></li>
+            <li>DBFlute Engine: deprecatedSpecifyBatchColumnMap in littleAdjustmentMap.dfprop</li>
+            <li>DBFlute Engine: deprecatedSelectByPKUQMap in littleAdjustmentMap.dfprop</li>
+            <li>DBFlute Engine: conventionalTakeAssertMap in replaceSchemaMap.dfprop</li>
+            <li>DBFlute Runtime: support SpecifyColumnRequiredExceptDeterminer</li>
+            <li>DBFlute Engine: upgrade embedded H2 database to 1.4.196</li>
+            <li>DBFlute Engine: add DEFAULT_CLIENT_INVOKE_NAMES to Job for LastaJob</li>
+            <li>DBFlute Engine: extlib's jar files are preferred to embedded libraries <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema take-finally.sh for native command <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: databaseSubType of basicInfoMap.dfprop, for SQLServer LocalDB <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: repsAsDataManagerMap in replaceSchemaMap.dfprop for Flyway hybrid <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Decomment, bug fix of single quatation in DB comment <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Decomment, bug fix of table comment for MySQL <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.6 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2018/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: extlib's jar files are preferred to embedded libraries <span class="frm">*3/2パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema take-finally.sh for native command <span class="frm">*3/2パッチ</span></li>
+            <li>DBFlute Engine: databaseSubType of basicInfoMap.dfprop, for SQLServer LocalDB <span class="frm">*3/2パッチ</span></li>
+            <li>DBFlute Engine: repsAsDataManagerMap in replaceSchemaMap.dfprop for Flyway hybrid <span class="frm">*2/1パッチ</span></li>
+            <li>DBFlute Engine: Decomment, bug fix of single quatation in DB comment <span class="frm">*1/28パッチ</span></li>
+            <li>DBFlute Engine: Decomment, bug fix of table comment for MySQL <span class="frm">*1/26パッチ</span></li>
+            <li>DBFlute Engine: SchemaHTML for DBFlute Intro's Decomment, production release</li>
+            <li>DBFlute Engine: small improvement of generation templates e.g. javadoc, format</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.5 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2017/11/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: SchemaHTML for DBFlute Intro's Decomment, first release</li>
+            <li>DBFlute Engine: FreeGen, add JSON_GENERAL, SWAGGER resourceTypes <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaHTML, resolve HTML validator problems <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LastaDoc, resolve HTML validator problems <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LastaDoc, HTML escape for annotations <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Runtime: LikeSearch compound columns can use coalesce()</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.4 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2017/08/20</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: SchemaHTML for DBFlute Intro's Decomment, first release <span class="frm">*11/26パッチ</span></li>
+            <li>DBFlute Engine: FreeGen, add JSON_GENERAL, SWAGGER resourceTypes <span class="frm">*10/9パッチ</span></li>
+            <li>DBFlute Engine: SchemaHTML, resolve HTML validator problems <span class="frm">*9/18パッチ</span></li>
+            <li>DBFlute Engine: LastaDoc, resolve HTML validator problems <span class="frm">*9/18パッチ</span></li>
+            <li>DBFlute Engine: LastaDoc, HTML escape for annotations <span class="frm">*9/17パッチ</span></li>
+            <li>DBFlute Runtime: ConditionBean option of millisecond truncation for MySQL</li>
+            <li>DBFlute Runtime: JavaPropertiesReader, order number and named variable</li>
+            <li>DBFlute Runtime: JavaPropertiesReader, useVariableExcept()</li>
+            <li>DBFlute Runtime: suppress SpecifyColumnAlreadySpecifiedEveryColumnException</li>
+            <li>DBFlute Runtime: JavaPropertiesReader should use same encoding in extends reader</li>
+            <li>DBFlute Engine: fix ESFlute several warnings</li>
+            <li>DBFlute Engine: LastaFlute FreeGen, suppress {item} as variable <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: AppCls can use groupingMap <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: improve auto increment extractor for PostgreSQL <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ParameterBean, setter as CDef argument <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LastaFlute FreeGen, named appcls <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.3 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2017/05/05</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: LastaFlute FreeGen, suppress {item} as variable <span class="frm">*8/19パッチ</span></li>
+            <li>DBFlute Engine: AppCls can use groupingMap <span class="frm">*7/20パッチ</span></li>
+            <li>DBFlute Engine: improve auto increment extractor for PostgreSQL <span class="frm">*7/20パッチ</span></li>
+            <li>DBFlute Engine: ParameterBean, setter as CDef argument <span class="frm">*5/17パッチ</span></li>
+            <li>DBFlute Engine: LastaFlute FreeGen, named appcls <span class="frm">*5/15パッチ</span></li>
+            <li>DBFlute Engine: TableClassification, improve name filter for kutouten</li>
+            <li>DBFlute Runtime: DfTypeUtil@toLocalDateTime() error message for suffix 'Z'</li>
+            <li>DBFlute Runtime: DfTypeUtil@toBoolean() empty string can return null</li>
+            <li>DBFlute Runtime: CountDownRace, improve exception handling</li>
+            <li>DBFlute Runtime: FileTextIO, improve exception handling</li>
+            <li>DBFlute Runtime: DBFlute Intro task uses Java8 version</li>
+            <li>DBFlute Engine: SchemaPolicyCheck, columnExceptMap does not work in sameColumnAliasIfSameColumnName <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LoadDataReverse, numbering of TSV file e.g. cyclic_01_3-MEMBER.tsv <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, TSV, wrong check of classification column in defaultValue <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, TSV, option to throws exception if column count different <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, TSV, tsv-data-result.dfmark <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Classification, isSuppressNameCamelizing for Japanese name <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Engine: SchemaPolicy, table.statement fkName's message mistake <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaHTML, isShowSchemaHtmlProcedureRegardlessOfGeneration in documentMap.dfprop <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, can set SQL delimiter at dfprop, sqlDelimiter <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: remove unneeded DBFluteInitializer import from SpringDBFluteBeansJavaConfig <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LastaDoc, has Job documentation <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: allcommonPrefix for e.g. DBFluteBeansJavaConfig <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, improve TSV loading non-existing column error message <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: if classification NotInScope, native setter is protected <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LastaFlute, add item e.g. URL parameter to lastadoc <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: LastaFlute, remove warning of empty AppCDef <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Boolean setter of Entity can be always public <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, fix classification in ReplaceSchema <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, then column is notNull <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, dbType_with_size <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck in ReplaceSchema option <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: third improvement for SchemaPolicyCheck <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.2 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2017/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: SchemaPolicyCheck, columnExceptMap does not work in sameColumnAliasIfSameColumnName <span class="frm">*3/31パッチ</span></li>
+            <li>DBFlute Engine: LoadDataReverse, numbering of TSV file e.g. cyclic_01_3-MEMBER.tsv <span class="frm">*3/28パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, TSV, wrong check of classification column in defaultValue <span class="frm">*3/27パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, TSV, option to throws exception if column count different <span class="frm">*3/27パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, TSV, tsv-data-result.dfmark <span class="frm">*3/27パッチ</span></li>
+            <li>DBFlute Engine: Classification, isSuppressNameCamelizing for Japanese name <span class="frm">*3/27パッチ</span></li>
+            <li>DBFlute Engine: Engine: SchemaPolicy, table.statement fkName's message mistake <span class="frm">*3/19パッチ</span></li>
+            <li>DBFlute Engine: SchemaHTML, isShowSchemaHtmlProcedureRegardlessOfGeneration in documentMap.dfprop <span class="frm">*3/19パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, can set SQL delimiter at dfprop, sqlDelimiter <span class="frm">*3/19パッチ</span></li>
+            <li>DBFlute Engine: remove unneeded DBFluteInitializer import from SpringDBFluteBeansJavaConfig <span class="frm">*3/19パッチ</span></li>
+            <li>DBFlute Engine: LastaDoc, has Job documentation <span class="frm">*3/4パッチ</span></li>
+            <li>DBFlute Engine: allcommonPrefix for e.g. DBFluteBeansJavaConfig <span class="frm">*3/4パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, improve TSV loading non-existing column error message <span class="frm">*2/4パッチ</span></li>
+            <li>DBFlute Engine: if classification NotInScope, native setter is protected <span class="frm">*1/27パッチ</span></li>
+            <li>DBFlute Engine: LastaFlute, add item e.g. URL parameter to lastadoc <span class="frm">*1/27パッチ</span></li>
+            <li>DBFlute Engine: LastaFlute, remove warning of empty AppCDef <span class="frm">*1/27パッチ</span></li>
+            <li>DBFlute Engine: Boolean setter of Entity can be always public <span class="frm">*1/27パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, fix classification in ReplaceSchema <span class="frm">*1/12パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, then column is notNull <span class="frm">*1/5パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, dbType_with_size <span class="frm">*1/5パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck in ReplaceSchema option <span class="frm">*1/5パッチ</span></li>
+            <li>DBFlute Engine: third improvement for SchemaPolicyCheck <span class="frm">*1/3パッチ</span></li>
+            <li>DBFlute Runtime: Entity deep copy e.g. modified properties</li>
+            <li>DBFlute Engine: fix DBFluteInitializer's import for dbfluteSystemFinalTimeZone</li>
+            <li>DBFlute Runtime: LoadReferrer for one entity should use Equal</li>
+            <li>DBFlute Runtime: QLog, XLog, info level determination method to be public</li>
+            <li>DBFlute Runtime: CDef, remove completion noise e.g. exception, EMPTY_SISTERS</li>
+            <li>DBFlute Engine: CDef, quit List&lt;? extends Classification&gt; of meta's listOf()</li>
+            <li>DBFlute Runtime: improve message of AbstractDBMeta's throwDBMetaNotFoundException()</li>
+            <li>DBFlute Runtime: protected setMemberStatusCode_InScope() if cls</li>
+            <li>DBFlute Runtime: SqlAnalyzer newEmbeddedVariableNode() should use argument adviceFactory</li>
+            <li>DBFlute Runtime: CountDownRace, assign by parameter list</li>
+            <li>DBFlute Runtime: DfPropFile try-catch and show file name when parse error</li>
+            <li>DBFlute Engine: second improvement for SchemaPolicyCheck</li>
+            <li>DBFlute Engine: remove unneeded warning for deprecated relationship</li> 
+            <li>DBFlute Runtime: MapListString, printOneLiner() option for performance</li>
+            <li>DBFlute Runtime: ConditionBean, SpecifyColumn required check</li>
+            <li>DBFlute Engine: upgrade MySQL and PostgreSQL JDBC Driver</li>
+            <li>DBFlute Engine: upgrade ESFlute</li>
+            <li>DBFlute Engine: Properties reader uses UTF-8 as default <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: FreeGen's databaseMap can use schemaFile <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: FreeGen big refactoring (keeping compatible) <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: remove unneeded "pre" closing tag in javadoc <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: TSV's convertValueMap.dataprop, $$type(VARCHAR)$$ <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: TSV's convertValueMap.dataprop, $$NullToEmpty$$ <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: typeMappingMap, enable default auto_mapping <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: CDef of(), byName() using OptionalThing <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: FromTo javadoc NotNull, allowOneSide() <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: EMECHA_DEFAULT_TITLE/DESC invalid check ignore dot <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Revive InScopeRelation for many-to-one <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ESFlute, for Elasticsearch 2.3.0 <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: DBFlute Engine: FreeGen, can determine DI container in templates <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: dbfluteBeansRuntimeComponentPrefix for Spring Framework <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: FreeGen, appCls <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ColumnNullObject, disableColumnNullObject()'s bug <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: AlterCheck, enabling sequence increments <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.1 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2016/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: Properties reader uses UTF-8 as default <span class="frm">*11/27パッチ</span></li>
+            <li>DBFlute Engine: FreeGen's databaseMap can use schemaFile <span class="frm">*11/27パッチ</span></li>
+            <li>DBFlute Engine: FreeGen big refactoring (keeping compatible) <span class="frm">*11/10パッチ</span></li>
+            <li>DBFlute Engine: remove unneeded "pre" closing tag in javadoc <span class="frm">*11/10パッチ</span></li>
+            <li>DBFlute Engine: TSV's convertValueMap.dataprop, $$type(VARCHAR)$$ <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: TSV's convertValueMap.dataprop, $$NullToEmpty$$ <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: typeMappingMap, enable default auto_mapping <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: CDef of(), byName() using OptionalThing <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: FromTo javadoc NotNull, allowOneSide() <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: EMECHA_DEFAULT_TITLE/DESC invalid check ignore dot <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: Revive InScopeRelation for many-to-one <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: ESFlute, for Elasticsearch 2.3.0 <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: DBFlute Engine: FreeGen, can determine DI container in templates <span class="frm">*8/18パッチ</span></li>
+            <li>DBFlute Engine: dbfluteBeansRuntimeComponentPrefix for Spring Framework <span class="frm">*8/8パッチ</span></li>
+            <li>DBFlute Engine: FreeGen, appCls <span class="frm">*8/8パッチ</span></li>
+            <li>DBFlute Engine: ColumnNullObject, disableColumnNullObject()'s bug <span class="frm">*8/8パッチ</span></li>
+            <li>DBFlute Engine: AlterCheck, enabling sequence increments <span class="frm">*8/8パッチ</span></li>
+            <li>DBFlute Runtime: SimpleTraceableSqlStringFilter, to atmark</li>
+            <li>DBFlute Runtime: BehaviorCommandSetup's getEntity()</li>
+            <li>DBFlute Runtime: delete unused lnd() of MapListString</li>
+            <li>DBFlute Runtime: BehaviorCommand, selectEntity()</li>
+            <li>DBFlute Runtime: ClassificationMeta listAll(), groupOf() javadoc when not found</li>
+            <li>DBFlute Runtime: OptionalThing orElseTranslatingThrow()</li>
+            <li>DBFlute Runtime: CountDownRace keeps thread pool</li>
+            <li>DBFlute Runtime: CallbackContext, all inheritable</li>
+            <li>DBFlute Runtime: DfReflectionUtil, getWholeFieldList()</li>
+            <li>DBFlute Runtime: varyingUpdate() uniqueBy() PK loading option</li>
+            <li>DBFlute Engine: CDef.DefMeta meta(String classificationName)</li>
+            <li>DBFlute Engine: SchemaPolicyCheck by schemaPolicyMap.dfprop</li>
+            <li>DBFlute Engine: adjust lastadoc design a little <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: adjust application outsideSql for lastaflute single project <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp9 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/12/04</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: adjust lastadoc design a little <span class="frm">*12/11パッチ</span></li>
+            <li>DBFlute Engine: adjust application outsideSql for lastaflute single project <span class="frm">*12/11パッチ</span></li>
+            <li>DBFlute Runtime: isBreakCursor() for CursorByPaging</li>
+            <li>DBFlute Runtime: quit Behavior's inernal adjust() stop</li>
+            <li>DBFlute Runtime: DfTypeUtil javadoc, empty string returns null</li>
+            <li>DBFlute Runtime: DfTypeUtil LocalDate locale overload</li>
+            <li>DBFlute Runtime: TnBeanMetaDataFactoryExtension's provideDBMeta() check</li>
+            <li>DBFlute Runtime: OptionalThing.translatedFrom()</li>
+            <li>DBFlute Runtime: DreamCruise's nested conversion parameters in ColumnQuery</li>
+            <li>DBFlute Engine: make isReadOnlySchema</li>
+            <li>DBFlute Engine: make readOnlyTableNameList</li>
+            <li>DBFlute Engine: Oracle emergency option for too many procedures <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: floating parameter comment, support cls() + '-- //' <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ESFlute indexSettingsMap from pull request <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: Oracle ALL_COL_COMMENTS performance tuning <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: FreeGen cannot make directory on Windows <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: JSON adjustment for empty map but empty list <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp8 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/09/08</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: Oracle emergency option for too many procedures <span class="frm">*10/03パッチ</span></li>
+            <li>DBFlute Engine: floating parameter comment, support cls() + '-- //' <span class="frm">*10/03パッチ</span></li>
+            <li>DBFlute Engine: ESFlute indexSettingsMap from pull request <span class="frm">*10/03パッチ</span></li>
+            <li>DBFlute Engine: Oracle ALL_COL_COMMENTS performance tuning <span class="frm">*09/17パッチ</span></li>
+            <li>DBFlute Engine: add isReplaceSchemaLimited to replaceSchemaMap.dfprop</li>
+            <li>DBFlute Engine: support xlsx for ReplaceSchema</li>
+            <li>DBFlute Engine: LoadDataReverse, overrrideXls for tableNameMap</li>
+            <li>DBFlute Runtime: use valueOf() of Long, Double and so on...</li>
+            <li>DBFlute Runtime: SqlAnalyzer adjust overlookNativeBinding</li>
+            <li>DBFlute Runtime: fix HandyDate javadoc param order</li>
+            <li>DBFlute Runtime: ListResultBean.toRichString()</li>
+            <li>DBFlute Runtime: PostgreSQL bytea type, avoid out of memory</li>
+            <li>DBFlute Runtime: OptionalThing#migratedFrom()</li>
+            <li>DBFlute Engine: for boolean flg as unique element <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp7 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/07/23</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: for boolean flg as unique element <span class="frm">*08/10パッチ</span></li>
+            <li>DBFlute Runtime: check conflict alias name of (Specify)DerivedReferrer</li>
+            <li>DBFlute Engine: fix SchemaHTML for HTML5</li>
+            <li>DBFlute Runtime: improve behavior override hook</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp6 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/07/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Runtime: allow empty text in FileTextIO</li>
+            <li>DBFlute Engine: isSchemaOnlyAlterCheck to avoid big loading data</li>
+            <li>DBFlute Runtime: fix FileTextIO wrong method name</li>
+            <li>DBFlute Engine: improve OutsideSql title and description format</li>
+            <li>DBFlute Runtime: fix JavaPropertiesReader comment out duplicate key</li>
+            <li>DBFlute Runtime: FileToken delimiter in header</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp5 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/06/21</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Runtime: (Query)DerivedReferrer allows from-to pattern</li>
+            <li>DBFlute Runtime: optimistic lock column as date-time for LocalDateTime</li>
+            <li>DBFlute Runtime: (Myself)ScalarCondition for max(), sum()</li>
+            <li>DBFlute Runtime: (Myself)ScalarCondition SpecifyCalculation</li>
+            <li>DBFlute Runtime: improve manual order allowOneSide() unsupported message</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>DBFlute Runtime: fix toDouble() wrong call</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp4 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/06/04</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: BaseBhv.vm can use other Optional</li>
+            <li>DBFlute Engine: SpringBoot HybritScan for new behavior</li>
+            <li>DBFlute Engine: remove Definition from DefinitionMap</li>
+            <li>DBFlute Engine: LastaFlute embedded freegen (lastafluteMap.dfprop)</li>
+            <li>DBFlute Runtime: OptionalEntity Serializable</li>
+            <li>DBFlute Runtime: FileTextIO file not found exception</li>
+            <li>DBFlute Runtime: HpColumnSpHandler asDBMeta()</li>
+            <li>DBFlute Runtime: derived() java-doc, inherited exceptions, throws</li>
+            <li>DBFlute Runtime: exceptRecordMetaColumn() java-doc</li>
+            <li>DBFlute Runtime: Srl.count() quits argument override</li>
+            <li>DBFlute Runtime: Srl, remove Srl reference</li>
+            <li>DBFlute Runtime: DfReflectionUtil.getGenericType() refactoring, performance</li>
+            <li>DBFlute Runtime: FunCustodial#throwNonSpecifiedColumnAccessException() comment mistake</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>DBFlute Runtime: PagingResultBean, _selectList NullPointer</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp2 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/04/03</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: largeTextFileMap for ReplaceSchema</li>
+            <li>DBFlute Engine: tableTargetList's generate-only</li>
+            <li>DBFlute Runtime: ForeignInfo toString() uses getTableDispName()</li>
+            <li>DBFlute Runtime: BehaviorCommandMeta.getInvokePath() javadoc, return</li>
+            <li>DBFlute Runtime: SqlFireHook stack and inheritsExistingHook</li>
+            <li>DBFlute Runtime: BehaviorCommandHook javadoc about inherit</li>
+            <li>DBFlute Runtime: CDef sisterSet() public</li>
+            <li>DBFlute Runtime: ConditionBean enableUndefinedClassificationSelect()</li>
+            <li>DBFlute Runtime: Adjustment for SpringBoot big boot</li>
+            <li>DBFlute Runtime: FreeGen Properties for Hibernate Validator</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>DBFlute Runtime: Optional's flatMap bug, returned null if empty</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0-sp1 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/02/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: largeTextFileMap for ReplaceSchema <span class="frm">*02/26パッチ</span></li>
+            <li>DBFlute Engine: compound PrimaryKey SchemaHTML expression</li>
+            <li>DBFlute Engine: sisterCode for tableClassification</li>
+            <li>DBFlute Engine: escape default value for Java</li>
+            <li>DBFlute Engine: Spring Tomcat JDBC, transaction</li>
+            <li>DBFlute Engine: remove CDI warning</li>
+            <li>DBFlute Engine: can specify environment for id and password in dfprop</li>
+            <li>DBFlute Engine: Guice DBFluteModule's final for instance variable</li>
+            <li>DBFlute Engine: BehaviorCommandInvoker dfprop</li>
+            <li>DBFlute Engine: natural unique info by DBMeta</li>
+            <li>DBFlute Engine: upgrade H2 to 1.4.185</li>
+            <li>DBFlute Engine: retry to secondary port for EMSynchronizer</li>
+            <li>DBFlute Runtime: can parse 2015/01/28 2:49</li>
+            <li>DBFlute Runtime: fix invoke query null allowed handling</li>
+            <li>DBFlute Runtime: UpdateOption's uniqueOf(UniqueInfo)</li>
+            <li>DBFlute Runtime: varyingQueryUpdate() option's specify()</li>
+            <li>DBFlute Runtime: uniqueDeriven read-only and other props remove()</li>
+            <li>DBFlute Runtime: DBMeta unique info, and meta data list read-only</li>
+            <li>DBFlute Runtime: DBMeta primary key and unique key search methods</li>
+            <li>DBFlute Runtime: improve AccessContext#toString()</li>
+            <li>DBFlute Runtime: QueryTraceableSqlStringFilter refactor</li>
+            <li>DBFlute Runtime: FileTextIO mkdirs in write()</li>
+            <li>DBFlute Runtime: FileToken#tokenize() make restored line separator method</li>
+            <li>DBFlute Runtime: VaryingUpdate self() convert().addDay(DreamCruise)</li>
+            <li>DBFlute Runtime: batchInsert() part of SQLs improvement</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.1.0 <span class="frm">※Java8</span></h2>
+        <p class="releasedate">2015/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>new DBFlute(java8)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5N ("に"ゅーろーど)</h2>
+        <p class="releasedate">2014/12/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: Flex DTO array to array-collection <span class="frm">*06/02パッチ</span></li>
+            <li>DBFlute Engine: tableTargetList's generate-only <span class="frm">*03/06パッチ</span></li>
+            <li>(DBFLUTE-1180){Java/C#}: SchemaHTMLで複合PKのときもトップカラムがわかるように <span class="frm">*01/29パッチ</span></li>
+            <li>(DBFLUTE-1179){Java/C#}: テーブル区分値でも姉妹コードを使えるように <span class="frm">*01/27パッチ</span></li>
+            <li>(DBFLUTE-1178){Java/C#}: SchemaHTMLで隣のSchemaHTMLへのリンク、ERDの画像リンクなど <span class="frm">*01/21パッチ</span></li>
+            <li>(DBFLUTE-1177){Java/C#}: 複数Eclipse起動に耐えられるようにEMSynchronizer対応 <span class="frm">*01/21パッチ</span></li>
+            <li>(DBFLUTE-1176){Java/C#}: カラムのデフォルト値でダブルクォーテーションが入っていても大丈夫なように <span class="frm">*01/11パッチ</span></li>
+            <li>(DBFLUTE-1176){Java/C#}: カラムのデフォルト値でダブルクォーテーションが入っていても大丈夫なように <span class="frm">*01/11パッチ</span></li>
+            <li>(DBFLUTE-1175){Java/C#}: Sql2EntityでAutoDetectのプロパティにもコメントを <span class="frm">*12/22パッチ</span></li>
+            <li>(DBFLUTE-1174){Java/C#}: manageタスクで、カンマ区切りでタスクを連続実行できるように</li>
+            <li>(DBFLUTE-1173){Java/C#}: tableTargetListでもコード生成のみオプションが使えるように</li>
+            <li>(DBFLUTE-1172){Java}: 外だしSQLのDomainEntity利用でNonSpecifiedColumnチェックのオプション</li>
+            <li>(DBFLUTE-1171){Java}: ScalarSelectでリレーションテーブルのカラムを導出できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5M (ごーれ"む")</h2>
+        <p class="releasedate">2014/10/31</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1170){Java/C#}: SchemaHTMLの下の方にDBFluteで作ったことを示す一言を入れる <span class="frm">*11/16パッチ</span></li>
+            <li>(DBFLUTE-1169){Java/C#}: 複合PKの制約上のカラム順序がテーブル上の定義順を違っても差分チェック正しく <span class="frm">*11/16パッチ</span></li>
+            <li>(DBFLUTE-1168){Java}: NonSpecifiedCheckで関連テーブルのnullのカラムをチェックから外す <span class="frm">*11/16パッチ</span></li>
+            <li>(DBFLUTE-1167){Java}: MySQLやPostgreSQLでの一件検索でfetchSize調整して大量検索阻止オプション <span class="frm">*11/13パッチ</span></li>
+            <li>(DBFLUTE-1166){Java}: NonSpecifiedCheckで手動setされたカラムはチェックしない(実装漏れ) <span class="frm">*11/6パッチ</span></li>
+            <li>(DBFLUTE-1165){Java}: SpecifyColumnでSpecifyしてないカラムをgetしたら例外オプション</li>
+            <li>(DBFLUTE-1164){Java}: FKカラムのないfixedConditionだけのadditionalFK</li>
+            <li>(DBFLUTE-1163){Java/C#}: 外だしSQLでCustomizeEntityの区分値ヒント</li>
+            <li>(DBFLUTE-1162){Java}: 1.1開発中さんからのフィードバック</li>
+            <li>(DBFLUTE-1161){Java}: varyingUpdateのself()を二回以上呼べるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5L (ごーる)</h2>
+        <p class="releasedate">2014/09/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1160){Java}: SpringのDI設定をJavaConfigでできるように(dfpropにて)</li>
+            <li>(DBFLUTE-1159){Java/C#}: additionalForeignKeyやclassificationのdfpropを分割できるように</li>
+            <li>(DBFLUTE-1158){Java/C#}: fixedReferrer(業務的many-to-one)のときにReverseFKが生成されないようにする</li>
+            <li>(DBFLUTE-1157){Java/C#}: fixedConditionの埋め込み区分値で区分値グループを指定できるように</li>
+            <li>(DBFLUTE-1156){Java}: ColumnQueryでMySQLのビット絞り込み(オプション)ができるように</li>
+            <li>(DBFLUTE-1155){Java}: ColumnQueryのoptionのaddDay()など二回呼べるように</li>
+            <li>(DBFLUTE-1154){Java}: ColumnQueryのoptionのaddDay()などDreamCruise対応</li>
+            <li>(DBFLUTE-1153){Java}: ColumnQueryでバインドした値にplusしたりaddしたりMysticBinding</li>
+            <li>(DBFLUTE-1152){Java}: 外だしSQLの実行エンジンとしてダミーテーブル名でも動くように</li>
+            <li>(DBFLUTE-1151), (DBFLUTE-1150), (DBFLUTE-1149), (DBFLUTE-1148) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5K (ごーけー)</h2>
+        <p class="releasedate">2014/08/31</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1151){Java}: Springでドルマーク混じりのテーブル名でinitializeCBできるように <span class="frm">*09/13パッチ</span></li>
+            <li>(DBFLUTE-1150){Java/C#}: 区分値のgroupingMapで別のgroupを部品として参照できるように <span class="frm">*09/12パッチ</span></li>
+            <li>(DBFLUTE-1149){Java/C#}: テーブル区分値で数字で始まる要素名でも生成できるように <span class="frm">*09/12パッチ</span></li>
+            <li>(DBFLUTE-1148){Java}: BehaviorのgetDBMeta()を共変で具象クラスを戻すように <span class="frm">*09/12パッチ</span></li>
+            <li>(DBFLUTE-1145){Java/C#}: 外だしSQLのコメントを必須にする未来オプション</li>
+            <li>(DBFLUTE-1144){Java/C#}: 未定義の区分値を拾ってしまったときの未来オプション</li>
+            <li>(DBFLUTE-1143){Java/C#}: DBFluteのModuleアップグレードをするタスク</li>
+            <li>(DBFLUTE-1142){Java/C#}: DBFlute Introを起動するタスク</li>
+            <li>(DBFLUTE-1141){Java}: (Query)DerivedReferrerの条件値でカラムを指定できるように</li>
+            <li>(DBFLUTE-1140){Java}: PartitionByの中でquery()はできないので明示的な例外に</li>
+            <li>(DBFLUTE-1139){Java}: (Specify)DerivedReferrerの中でunionしてさらにDerivedReferrer</li>
+            <li>(DBFLUTE-1138){Java}: (Specify)DerivedReferrerの導出処理の前に足したり掛けたり</li>
+            <li>(DBFLUTE-1137){Java}: SimpleDtoにJacksonのアノテーションを付けられるように</li>
+            <li>(DBFLUTE-1136){Java}: SimpleDtoMapperでDerivedReferrerのプロパティもマッピング</li>
+            <li>(DBFLUTE-1135){Java}: SimpleDtoMapperで共通カラムのマッピングを除外するオプション</li>
+            <li>(DBFLUTE-1134){Java/C#}: PostgreSQLの継承テーブルをReplaceSchemaでdropできるように</li>
+            <li>(DBFLUTE-1133){Java}: Google App Engine (GAE) で動くように</li>
+            <li>(DBFLUTE-1132){Java}: 切れ味鋭い短刀のようなカラム名(FOO0)でも誤動作しないように</li>
+            <li>(DBFLUTE-1131){Java}: Entityの日付型をJodaTimeのLocalDateにできるように</li>
+            <li>(DBFLUTE-1130){Java/C#}: FreeGenのpropertiesの型判定で明示的アノテーション</li>
+            <li>(DBFLUTE-1129){Java/C#}: PostgreSQLの大文字含みのFK制約をReplaceSchemaでdropできるように</li>
+            <li>(DBFLUTE-1128), (DBFLUTE-1129), (DBFLUTE-1130) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1147){Java/C#}: extlibで二つ以上のjarファイルだとコピーされない</li>
+            <li>(DBFLUTE-1146){Java}: 基点テーブル限定OverRelationでManyに攻めたらキャッシュで事故</li>
+            <li>(DBFLUTE-1128) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5J (ごーじぇい、めいじぇい)</h2>
+        <p class="releasedate">2014/06/28</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1130){Java/C#}: FreeGenのpropertiesの型判定で明示的アノテーション <span class="frm">*07/09パッチ</span></li>
+            <li>(DBFLUTE-1129){Java/C#}: PostgreSQLの大文字含みのFK制約をReplaceSchemaでdropできるように <span class="frm">*07/09パッチ</span></li>
+            <li>(DBFLUTE-1128){Java/C#}: PostgreSQLで、CraftDiffありのAlterCheckが落ちる <span class="frm">*07/09パッチ</span></li>
+            <li>(DBFLUTE-1127){Java}: 最新のAtomikosに対応、Identity取得のConnection調整</li>
+            <li>(DBFLUTE-1126){Java}: Behaviorソースコードの軽量化</li>
+            <li>(DBFLUTE-1125){Java}: カラムのValueTypeをMappingValueTypeアノテーションで</li>
+            <li>(DBFLUTE-1124){Java}: PagingSelectAndQuerySplitでDerivedOrderByを考慮</li>
+            <li>(DBFLUTE-1123){Java}: LoadReferrerにloader方式</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1128){Java/C#}: PostgreSQLで、CraftDiffありのAlterCheckが落ちる <span class="frm">*07/03パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5H (ごーえいち)</h2>
+        <p class="releasedate">2014/06/11</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1122){Java}: OverRelationでForeignForeignでバインド変数すると例外発生</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5G (ごーじー)</h2>
+        <p class="releasedate">2014/05/29</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1121){Java}: 不要なCIQやNssを自動生成しないようにする <span class="frm">*06/01パッチ</span></li>
+            <li>(DBFLUTE-1120){Java}: 複合主キーでもScalarConditionが利用できるように</li>
+            <li>(DBFLUTE-1119){Java}: ページングでselect句とwhere句を分割するオプション(MySQL対策)</li>
+            <li>(DBFLUTE-1118){Java}: AdditionalForeignKeyでSetupSelectを抑制するリレーション</li>
+            <li>(DBFLUTE-1117){Java}: OrScopeQueryの中でSetupSelectやOrderByを抑制するオプション</li>
+            <li>(DBFLUTE-1116){Java/C#}: SchemaHTMLで複合ユニークキーのトップとサブの区別をつけるように</li>
+            <li>(DBFLUTE-1115){Java}: ユニークキーでupdate()やinsertOrUpdate()</li>
+            <li>(DBFLUTE-1114){Java}: 関連テーブルのOptionalEntityの先取りオプション</li>
+            <li>(DBFLUTE-1113){Java/C#}: includeQueryMap.dfpropでカラムドリブンでも指定できるように</li>
+            <li>(DBFLUTE-1112){Java/C#}: SchemaSychCheckでCraftDiffを抑制できるオプション</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5F (ごーえふっ)</h2>
+        <p class="releasedate">2014/05/16</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1111){Java/C#}: ReplaceSchemaのTakeFinallyで落ちたらシーケンス調整しないように</li>
+            <li>(DBFLUTE-1110){Java/C#}: ReplaceSchemaのエクセルデータをデフォルトでは右トリムしないように</li>
+            <li>(DBFLUTE-1109){Java}: SubQueryの中で外側のConditionBeanへの間違い操作を防ぐオプション</li>
+            <li>(DBFLUTE-1108){Java/C#}: FKの順序を、FK制約名ではなくFKカラム構成とFK名でソートして固定化</li>
+            <li>(DBFLUTE-1107){Java}: ネストしたLoadReferrerをドット続けてwithNestedReferrer()で</li>
+            <li>(DBFLUTE-1106){Java}: Java8先取り、selectEntity()の戻り値をOptionalEntityに</li>
+            <li>(DBFLUTE-1105){Java}: Play2のようなasyncに対応できるようにスレッドローカルを差し替えられるように</li>
+            <li>(DBFLUTE-1104){Java/C#}: DBFlute自動生成モジュール内部依存ライブラリのもろもろアップグレード</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5D (ごーでぃー)</h2>
+        <p class="releasedate">2014/04/27</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1103){Java/C#}: 区分値のaliasやsubItemに改行コードが含まれていてもOKに</li>
+            <li>(DBFLUTE-1101){Java}: 複合主キーでもDerivedReferrerを利用できるように</li>
+            <li>(DBFLUTE-1093), (DBFLUTE-1094), (DBFLUTE-1095), (DBFLUTE-1096), (DBFLUTE-1097), (DBFLUTE-1098), (DBFLUTE-1099), (DBFLUTE-1100) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1102){Java/C#}: 複合PKの一部が複合UQに含まれてるとUQメタデータがおかしい</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5C (ごーしー)</h2>
+        <p class="releasedate">2014/03/04</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1100){Java/C#}: DBコメントのAlias名デリミタにタブ文字を <span class="frm">*04/17パッチ</span></li>
+            <li>(DBFLUTE-1099){Java/C#}: SchemaHTMLとHistoryHTMLで相互リンク <span class="frm">*03/31パッチ</span></li>
+            <li>(DBFLUTE-1098){Java/C#}: ReplaceSchemaのエクセルでtrimを制御するオプション <span class="frm">*03/31パッチ</span></li>
+            <li>(DBFLUTE-1097){Java/C#}: LoadDataReverseでLargeTextを扱えるように <span class="frm">*03/31パッチ</span></li>
+            <li>(DBFLUTE-1096){Java/C#}: ポイント指定でEntityのカラムのマッピング型を変更できるように <span class="frm">*03/22パッチ</span></li>
+            <li>(DBFLUTE-1095){Java/C#}: ReplaceSchemaのDataAdjustmentでBIGINT型のカラムもいけるように <span class="frm">*03/22パッチ</span></li>
+            <li>(DBFLUTE-1094){Java/C#}: SchemaHTMLで非推奨区分値の明確な表示 <span class="frm">*03/22パッチ</span></li>
+            <li>(DBFLUTE-1093){Java}: MySQLにて、CollateUTF8MB4UnicodeArrangerを提供</li>
+            <li>(DBFLUTE-1085), (DBFLUTE-1086), (DBFLUTE-1088), (DBFLUTE-1089), (DBFLUTE-1090), (DBFLUTE-1091) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1092){Java}: DreamCruiseのinviteでDerivedReferrerが二つ以上あると例外</li>
+            <li>(DBFLUTE-1087) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5B (ごーびー)</h2>
+        <p class="releasedate">2014/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1091){Java/C#}: SchemaHTMLのテーブル名検索で前方一致ヒットを優先表示 <span class="frm">*02/28パッチ</span></li>
+            <li>(DBFLUTE-1090){Java}: コンパイル後のクラスファイルのダイエット計画 <span class="frm">*02/16パッチ</span></li>
+            <li>(DBFLUTE-1089){Java}: ParameterBeanのJavaDocとEclipseでフォルトフォーマッターとの相性 <span class="frm">*02/16パッチ</span></li>
+            <li>(DBFLUTE-1088){Java}: テーブル区分値のBehaviorを自動生成しないオプション <span class="frm">*02/16パッチ</span></li>
+            <li>(DBFLUTE-1086){Java/C#}: MySQLのutf8mb4に対応(同梱JDBCドライバのバージョンアップ) <span class="frm">*01/19パッチ</span></li>
+            <li>(DBFLUTE-1085){Java}: CDIの複数DB対応 <span class="frm">*01/19パッチ</span></li>
+            <li>(DBFLUTE-1084){Java/C#}: LoadDataReverseのFK順序出力でcommonのテーブルも考慮</li>
+            <li>(DBFLUTE-1083){Java}: ListResultBeanでgroupingList()とgroupingMap()</li>
+            <li>(DBFLUTE-1082){Java}: BehaviorReadableインターフェースでreadScalar()を</li>
+            <li>(DBFLUTE-1081){Java}: DBWayを拡張できるようにする</li>
+            <li>(DBFLUTE-1073), (DBFLUTE-1074), (DBFLUTE-1076), (DBFLUTE-1077), (DBFLUTE-1078), (DBFLUTE-1079), (DBFLUTE-1080) <span class="frm">*前回パッチ</span></li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1087){Java/C#}: 自動生成時にSQLServerのコメントがmssql指定じゃないと取得できない <span class="frm">*01/24パッチ</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.5A (ごえー)</h2>
+        <p class="releasedate">2013/09/30</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1080){Java/C#}: ReplaceSchemaのデータ登録でPostgreSQLのfloatとreal型を調整 <span class="frm">*12/01パッチ</span></li>
+            <li>(DBFLUTE-1079){Java/C#}: extlibにjarが無い場合はextlibのコピーをしない(NonSync問題対策) <span class="frm">*12/01パッチ</span></li>
+            <li>(DBFLUTE-1078){Java/C#}: 最後の一つの外だしSQLを削除したときに古いクラスが消えない <span class="frm">*11/17パッチ</span></li>
+            <li>(DBFLUTE-1077){Java/C#}: Referrer参照を抑制するオプション、自動生成時のみの指定あり <span class="frm">*11/17パッチ</span></li>
+            <li>(DBFLUTE-1076){Java/C#}: Oracleでユニークキーに対するFKのメタデータを取得 <span class="frm">*11/17パッチ</span></li>
+            <li>(DBFLUTE-1074){Java/C#}: Oracleのメタデータ取得のパフォーマンス改善 <span class="frm">*11/17パッチ</span></li>
+            <li>(DBFLUTE-1073){Java/C#}: SchemaSyncCheckがJDBCタスクに依存しないようにする <span class="frm">*10/11パッチ</span></li>
+            <li>(DBFLUTE-1072){Java}: BatchInsertとBatchUpdateでModifiedPropertiesが利くように</li>
+            <li>(DBFLUTE-1071){Java}: FixedConditionのOverRelationでInlineViewを利用した最適化</li>
+            <li>(DBFLUTE-1069){Java/C#}: 外だしSQLでカーソル検索とページング検索を両方指定できるように</li>
+            <li>(DBFLUTE-1068){Java/C#}: SchemaHTMLでテーブル名のインクリメンタルサーチ</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1067){Java}: カーソル検索の割り切りベタページング方式で最後のページが処理されない</li>
+            <li>(DBFLUTE-1066){Java}: FixedConditionのOverRelationで同じリレーションを複数使うとカラムが解決されない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4K (けー)</h2>
+        <p class="releasedate">2013/09/09</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1064){Java}: BatchUpdateのSpecifyQueryで全カラム更新指定を</li>
+            <li>(DBFLUTE-1063){Java}: InvalidQueryのチェックを部分的に指定できるようにする</li>
+            <li>(DBFLUTE-1062){Java}: HandyDateでLocaleを考慮したtoDisp()メソッドを追加</li>
+            <li>(DBFLUTE-1060){Java/C#}: 環境タイプを指定したときの+dfpropの挙動を明確化</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4J (じぇい)</h2>
+        <p class="releasedate">2013/08/25</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1059){Java}: DBFluteタスクのシェルがCentOSでも動くように</li>
+            <li>(DBFLUTE-1058){Java}: ソースコードの改行コードをLFに統一(調整オプションあり)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4H</h2>
+        <p class="releasedate">2013/08/04</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1057){Java}: HandyDateでTimeZoneに対応</li>
+            <li>(DBFLUTE-1055){Java/C#}: ArrangeBeforeRepsでOSスクリプトを実行できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1053){Java/C#}: isCheckColumnDefOrderDiff が AlterCheck で効いていない</li>
+            <li>(DBFLUTE-1054){Java/C#}: PropertiesHTMLで二階層上のオーバーライドが検知できない</li>
+            <li>(DBFLUTE-1056){Java}: DreamCruiseのManualOrderでdescが効いていない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4G</h2>
+        <p class="releasedate">2013/07/22</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1052){Java/C#}: 日本語のテーブル名で外だしSQLの解決が(ちょっと)できるように!?</li>
+            <li>(DBFLUTE-1051){Java}: 区分値のインターフェースでグルーピングを扱えるように</li>
+            <li>(DBFLUTE-1050){Java/C#}: 排他制御カラムが明示的に指定されているのに、どのテーブルにも存在しない場合はエラーに</li>
+            <li>(DBFLUTE-1048){Java/C#}: ReplaceSchemaのリソースが空っぽであれば ReplaceSchema できないように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1049){Java}: 非推奨区分値要素を設定するとタイミング次第でReplaceSchemaで落ちる可能性がある <span class="frm">※一つの前のバージョンで追加したDBFLUTE-1047の話</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4F</h2>
+        <p class="releasedate">2013/07/12</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1047){Java}: 区分値で非推奨の区分値要素を指定できるようにした</li>
+            <li>(DBFLUTE-1046){Java}: 業務的one-to-oneの動的パラメーターの必須チェックを強化</li>
+            <li>(DBFLUTE-1045){Java/C#}: 別スキーマ同名テーブルをもう少し自動生成できるようにする</li>
+            <li>(DBFLUTE-1044){Java}: FileTokenの書き込み側(make)をリファクタリング</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4D</h2>
+        <p class="releasedate">2013/06/18</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1042){Java/C#}: AlterCheckのSavePreviousでalterファイルの存在チェック</li>
+            <li>(DBFLUTE-1041){Java}: MySQL, PostgreSQL, H2のlimit/offsetでバインド変数(互換オプションあり)</li>
+            <li>(DBFLUTE-1040){Java}: SQL呼び出しモジュール判別マークの提案クラスをランタイムに追加</li>
+            <li>(DBFLUTE-1039){Java}: SQL失敗例外で本番環境でも呼び出し情報を付与(パフォーマンスや安全性を考慮した上で)</li>
+            <li>(DBFLUTE-1038){Java}: FileTokenでConditionBeanのカーソル検索に合うインターフェースを追加</li>
+            <li>(DBFLUTE-1037){Java}: insertやupdateでもqueryTimeoutを(varying系を利用)</li>
+            <li>(DBFLUTE-1036){Java/C#}: isEntityJavaDocDbCommentValid をデフォルトで true に</li>
+            <li>(DBFLUTE-1035){Java/C#}: OutsideSqlTestのSQLタイトル必須チェックでEMechaデフォルトをNGに</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4C</h2>
+        <p class="releasedate">2013/05/29</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1034){Java/C#}: ReplaceSchemaでdropしないテーブルを指定できるように</li>
+            <li>(DBFLUTE-1033){Java}: CDefでgroupingのリストを取得できるように</li>
+            <li>(DBFLUTE-1032){Java}: 区分値の強制オプションと共通カラムの区分値を共存できるように</li>
+            <li>(DBFLUTE-1031){Java}: MySQLのQueryDeleteで関連テーブルのカラムの条件もサポート</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4B</h2>
+        <p class="releasedate">2013/04/25</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1030){Java/C#}: LoadDataReverseを繰り返し利用しやすいように改善</li>
+            <li>(DBFLUTE-1029){Java/C#}: PropertiesHTMLでファイル名表示でWindowsとMacの環境依存を排除</li>
+            <li>(DBFLUTE-1028){Java/C#}: dfpropのmapスタイルでエスケープを可能に</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.4A</h2>
+        <p class="releasedate">2013/03/24</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1027){Java}: MySQLのカーソル検索をべたページング方式にするオプション</li>
+            <li>(DBFLUTE-1026){Java/C#}: ReplaceSchemaでカラム定義の整合性チェック</li>
+            <li>(DBFLUTE-1025){Java/C#}: ReplaceSchemaのloadingControlMapで日付を一律相対的に調整</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.3</h2>
+        <p class="releasedate">2013/03/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1024){Java/C#}: PropertiesHtmlでFloatLeftっぽい表示</li>
+            <li>(DBFLUTE-1023){Java}: InnerJoinAutoDetectをデフォルト設定に</li>
+            <li>(DBFLUTE-1022){Java/C#}: PropertiesHtmlで暗黙のオーバーライドをチェックできるように</li>
+            <li>(DBFLUTE-1021){Java/C#}: SchemaHTMLの区分値のグループ名にツールチップでコメント表示</li>
+            <li>(DBFLUTE-1020){Java/C#}: SchemaHTMLに区分値の姉妹コードも表示するように</li>
+            <li>(DBFLUTE-1019){Java}: CallbackContextでデバッグログで出してるInvokePathが利用できるように</li>
+            <li>(DBFLUTE-1018){Java/C#}: 改行コードを統一＆オプションでLFにできるようにする</li>
+            <li>(DBFLUTE-1017){Java}: SpecifyColumnで共通カラムだけを除外する指定を</li>
+            <li>(DBFLUTE-1016){Java}: Runtimeにおける不要なDatabaseMetaDataの取得を抑制</li>
+            <li>(DBFLUTE-1014){Java/C#}: 別スキーマ同名テーブルも少しくらいは使えるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.2</h2>
+        <p class="releasedate">2013/02/11</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1015){Java}: EntityやConditionBeanのJavaDocを整理整頓</li>
+            <li>(DBFLUTE-1013){Java/C#}: SchemaHtmlでテーブル詳細の部分にもテーブルコメントを</li>
+            <li>(DBFLUTE-1012){Java/C#}: FreeGenでJSONで定義されたスキーマで自動生成できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.1</h2>
+        <p class="releasedate">2013/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-1011){Java/C#}: propertiesファイルのHTML出力(PropertiesHtml)</li>
+            <li>(DBFLUTE-1010){Java/C#}: ReplaceSchemaのテストデータで日付の相対値指定をできるように</li>
+            <li>(DBFLUTE-1009){Java/C#}: CraftDiffでテーブル区分値の差分を一括チェックできるように</li>
+            <li>(DBFLUTE-1008){Java/C#}: FreeGenでJSONリソースを読めるように</li>
+            <li>(DBFLUTE-1007){Java/C#}: FreeGenのSolrタイプでdynamicFieldを読めるように</li>
+            <li>(DBFLUTE-1006){Java}: FK関係のない業務的one-to-one経由でも暗黙のSpecifyColumnがされるように</li>
+            <li>(DBFLUTE-1005){Java}: バッチ更新で例外発生した時のメッセージにDisplaySqlが一部であることを示す文言入れる</li>
+            <li>(DBFLUTE-1004){Java}: バッチ更新で全カラム更新のメソッドに対してなにかしら怪訝感を入れる</li>
+            <li>(DBFLUTE-1003){Java}: バッチ登録だとデフォルト制約が利用できないことをJavaDocに書く</li>
+            <li>(DBFLUTE-1001){Java}: PKのリストを抽出するextractメソッドを作成する</li>
+            <li>(DBFLUTE-1000){Java/C#}: ReplaceSchemaのXLSファイルの中身の内訳を出力</li>
+            <li>(DBFLUTE-999){Java}: FreeGenでHTMLエスケープっぽいことができるように</li>
+            <li>(DBFLUTE-998){Java}: FreeGenのProperties読み込みの精度を高く</li>
+            <li>(DBFLUTE-995){Java}: テーブルをまたがった複数FKのキーのマッピングもできるように</li>
+            <li>(DBFLUTE-994){Java}: CBの検索結果のEntityキャッシュを二階層以降のEntityでも</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-1002){Java}: MySQLのqueryUpdate()で結合するとVERSION_NOが識別できない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-1.0.0</h2>
+        <p class="releasedate">2012/09/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-993){Java}: SubQueryとUnionQueryを統合的に扱うインターフェース</li>
+            <li>(DBFLUTE-992){Java/C#}: ストアドプロシージャのスキーマ差分でSQLServerにプチ対応</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.9</h2>
+        <p class="releasedate">2012/09/19</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-989){Java}: ライセンス関連のしっかり整備</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-990){Java/C#}: ReplaceSchemaのシステムユーザでの実行のデグレ(前バージョンからの)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.8</h2>
+        <p class="releasedate">2012/09/10</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-988){Java/C#}: HistoryHTMLやSchemaSyncCheckで手作りSQLでデータ差分</li>
+            <li>(DBFLUTE-987){Java/C#}: OutsideSqlTestでSQL全部実行して結果を一覧化</li>
+            <li>(DBFLUTE-986){Java}: ManualOrderで条件によるソートカラムの切り替え</li>
+            <li>(DBFLUTE-985){Java/C#}: Oracle利用時のときのほんのわずかな微調整(デフォルト制約の差分とか)</li>
+            <li>(DBFLUTE-984){Java/C#}: Manageタスクで引数なしのときに番号入力の実行支援</li>
+            <li>(DBFLUTE-983){Java/C#}: DB2利用時のときのほんのわずかな微調整(シーケンス差分とか)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.7F</h2>
+        <p class="releasedate">2012/08/28</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-982){Java/C#}: databaseInfoMap.dfpropでもadditionalUserのような外だしパスワード</li>
+            <li>(DBFLUTE-981){Java/C#}: スキーマ差分にストアドプロシージャを追加</li>
+            <li>(DBFLUTE-980){Java}: RangeOfOptionでカラムの導出計算が指定できるオプション</li>
+            <li>(DBFLUTE-979){Java}: MySQLのネクストキーロック対応でQueryUpdate前にSelectするオプション</li>
+            <li>(DBFLUTE-978){Java/C#}: AlterCheckの差分結果をHTML化</li>
+            <li>(DBFLUTE-977){Java/C#}: SchemaSyncCheckの結果をHTML化</li>
+            <li>(DBFLUTE-976){Java/C#}: スキーマ差分にシーケンスを追加</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.7C</h2>
+        <p class="releasedate">2012/08/13</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-975){Java}: SimpleDtoMapperのキャッシュでhashCode()の重複にも対応</li>
+            <li>(DBFLUTE-974){Java}: ConditionBeanでランキングを導出できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.7B</h2>
+        <p class="releasedate">2012/08/04</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-973){Java/C#}: AlterCheckでチェックされたAlterDDLの管理を強化</li>
+            <li>(DBFLUTE-972){Java/C#}: LoadDataReverseやSchemaSyncCheckを単独実行できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-971){Java/C#}: SchemaSyncCheckがAdditionalSchema処理で例外</li>
+            <li>(DBFLUTE-970){Java/C#}: AlterCheckで旧DBに存在しない区分値でImplicitCheckすると例外</li>
+            <li>(DBFLUTE-969){Java}: 区分値のグルーピング機能である条件下でコンパイルエラー</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.7A</h2>
+        <p class="releasedate">2012/07/24</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-968){Java}: 区分値の要素をグルーピングして判定できるメソッドを生成</li>
+            <li>(DBFLUTE-967){Java}: AlterCheckのSavePreviousで保存したものをZIPに</li>
+            <li>(DBFLUTE-966){Java}: VaryingQueryUpdateでwhere句ダイレクト展開の条件を強制指定</li>
+            <li>(DBFLUTE-965){Java/C#}: ReplaceSchemaの最初のy/nの時に接続DB情報を表示</li>
+            <li>(DBFLUTE-964){Java}: ConditionBeanのSQLの先頭にアプリ固有のコメントを入れられるように</li>
+            <li>(DBFLUTE-963){Java}: 業務的many-to-oneの逆参照を利用可能にする</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.5B</h2>
+        <p class="releasedate">2012/07/07</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-962){Java}: SpringFrameworkのBeansXMLにdefault-lazy-initを付与できるように</li>
+            <li>(DBFLUTE-961){Java}: パラメータコメント内のオプションとプロパティ自動判別の判定調整</li>
+            <li>(DBFLUTE-960){Java}: MySQLのQueryUpdateでJoinを利用できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.5A</h2>
+        <p class="releasedate">2012/05/20</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-958){Java}: ManualOrderでMySQLのBoolean型の区分値の判定を柔軟に</li>
+            <li>(DBFLUTE-957){Java/C#}: 自動生成対象のProcedureが大量にあるとがSql2Entityでエラー</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-959){Java/C#}: ReplaceSchemaのTSV登録でloadingControlのsuppressBatchUpdateが効かない</li>
+            <li>(DBFLUTE-956){Java/C#}: SQLServerでProcedureのtarget指定による絞り込みが効かない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.4C</h2>
+        <p class="releasedate">2012/05/08</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-955){Java/C#}: All-in-Oneテーブル区分値対応の精査</li>
+            <li>(DBFLUTE-953){Java}: SQL実行直前と直後をフックするコールバック</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-954){Java}: SqlResultHandlerでinsert時のログがIdentity取得にならないように</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.4B</h2>
+        <p class="releasedate">2012/04/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-952){Java}: 区分値で姉妹コードにtrueとfalseが指定されていればBoolean指定できるように</li>
+            <li>(DBFLUTE-951){Java}: 区分値で姉妹コードを指定できるように</li>
+            <li>(DBFLUTE-950){Java/C#}: ReplaceSchemaでスキーマをReplaceするSQLのログを抑制するオプション</li>
+            <li>(DBFLUTE-949){Java/C#}: ReplaceSchemaのスキーマ初期化前に実行するSQLを指定できるように</li>
+            <li>(DBFLUTE-948){Java}: SimpleDtoMapperで関連テーブルをマッピングしないオプションを</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.4A</h2>
+        <p class="releasedate">2012/04/15</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-947){Java/C#}: ReplaceSchemaのエクセルデータで空行を無視(ゴミ対策)</li>
+            <li>(DBFLUTE-946){Java}: CursorSelectのときのFetchSize(のデフォルト)を指定できるように</li>
+            <li>(DBFLUTE-945){Java}: VaryingUpdateで日付のインクリメントもできるように</li>
+            <li>(DBFLUTE-944){Java}: SqlLogHandlerやSqlResultHandler周りを大改造</li>
+            <li>(DBFLUTE-943){Java}: ScalarConditionでパーティション条件を指定できるように</li>
+            <li>(DBFLUTE-942){Java}: 業務的one-to-oneで固定条件をInlineViewに定義するオプション</li>
+            <li>(DBFLUTE-941){Java}: ScalarSelectでcountDistinct()をできるようにする</li>
+            <li>(DBFLUTE-940){Java}: OrScopeQuery直下のDateFromToでもand条件が保たれるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.3C</h2>
+        <p class="releasedate">2012/03/14</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-939){Java}: SimpleDtoMapperで逆参照もマッピングするように</li>
+            <li>(DBFLUTE-938){Java}: (Query)DerivedReferrerでDateFromTo</li>
+            <li>(DBFLUTE-937){Java}: 区分値ごとに独自の属性を設定してアプリで利用できるように</li>
+            <li>(DBFLUTE-936){Java/C#}: SchemaHTMLで独自のJavaScriptを埋め込められるように</li>
+            <li>(DBFLUTE-935){Java/C#}: ReplaceSchemaでDDLで落ちても続行するオプションを</li>
+            <li>(DBFLUTE-934){Java/C#}: ReplaceSchemaのDDLで落ちたらすぐにタスク中断例外にする</li>
+            <li>(DBFLUTE-933){Java/C#}: ClassificationResourceでisCheckImplicitSetを利用できるように</li>
+            <li>(DBFLUTE-932){Java}: SimpleDtoMapperに抽象化利用のためのインターフェースを</li>
+            <li>(DBFLUTE-931){Java/C#}: SchemaHTMLで独自のCSSを指定できるように</li>
+            <li>(DBFLUTE-930){Java}: (Query)DerivedReferrerでbetween()で範囲検索できるように</li>
+            <li>(DBFLUTE-929){Java/C#}: Oracleで自スキーマのテーブルと同じ名前の別スキーマのテーブルへのシノニムが</li>
+            <li>(DBFLUTE-928){Java/C#}: Oracleでシノニムで別スキーマにある同じ名前のテーブルへのFKが</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.2D</h2>
+        <p class="releasedate">2012/02/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-926){Java}: Eclipse-3.7 やJDK7で警告がでないようにする</li>
+            <li>(DBFLUTE-925){Java}: HelperのFileTokenの最小限クォートのオプションをヘッダにも反映</li>
+            <li>(DBFLUTE-924){Java/C#}: SchemaHTMLのテーブル名大文字オプション時のリンク切れパターンの調整</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-927){Java}: MySQLのfetch_rows()を使うページングで再検索調整時に誤動作</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.2C</h2>
+        <p class="releasedate">2012/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-923){Java/C#}: columnExceptMapで自動生成時のみ除外オプション</li>
+            <li>(DBFLUTE-922){Java}: 数値や日付の大なり小なり検索でIsNullをorでつなげるオプション</li>
+            <li>(DBFLUTE-921){Java/C#}: 業務的one-to-oneの暗黙の逆参照FKで既に同じテーブルの参照あれば識別子を</li>
+            <li>(DBFLUTE-920){Java}: ParameterBeanのオプションでDateFromToだけでなく汎用的なFromToも</li>
+            <li>(DBFLUTE-919){Java}: DBメタ情報取得周りのちょっとしたパフォーマンス改善</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.2B</h2>
+        <p class="releasedate">2011/12/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-918){Java}: 外だしSQLのInScopeでHashSetなど別のCollection型を利用できるように</li>
+            <li>(DBFLUTE-917){Java}: ConditionBeanの結合条件部分の文字列生成をカスタマイズしやすいように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.2A</h2>
+        <p class="releasedate">2011/11/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-916){Java/C#}: わかりづらいDBMSのエラーメッセージに対し補足アドバイスを</li>
+            <li>(DBFLUTE-915){Java}: FromToOptionで、時間単位や週単位の範囲条件が表現できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.1F</h2>
+        <p class="releasedate">2011/11/08</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-914){Java}: Behaviorの呼び出しログのCallerの候補を拡張できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.1C</h2>
+        <p class="releasedate">2011/10/31</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-913){Java/C#}: AdditionalForeignKeyのfixedConditionでIFコメント</li>
+            <li>(DBFLUTE-912){Java/C#}: ConditionBeanでMySQLのutf8_unicode_ciを利用できるように</li>
+            <li>(DBFLUTE-911){Java/C#}: HistoryHTMLでDBコメントの両端の空白の比較に対応</li>
+            <li>(DBFLUTE-893){Java/C#}: HistoryHTMLで自動生成されたFK制約名(SYSxxxなど)の考慮</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.1B</h2>
+        <p class="releasedate">2011/10/21</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-910){Java/C#}: TakeAssertタスクにおいて最後まで実行して一括アサート</li>
+            <li>(DBFLUTE-909){Java}: EntityでObject#clone()メソッドを実装</li>
+            <li>(DBFLUTE-908){Java/C#}: AdditionalForeignKeyのfixedConditionで改行を維持</li>
+            <li>(DBFLUTE-907){Java}: ドキュメントだけで利用する区分値を設定できるようにするオプション</li>
+            <li>(DBFLUTE-906){Java}: 暗黙の区分値のEntityやReplaceSchemaでの登録される値のチェックオプション</li>
+            <li>(DBFLUTE-905){Java}: CBのselect句のカラムのAliasを文字数制限対応を保ちつつわかりやすく</li>
+            <li>(DBFLUTE-904){Java/C#}: ReplaceSchemaのArrangeBeforeRepsでコピー先clean機能</li>
+            <li>(DBFLUTE-903){Java/C#}: ReplaceSchemaのfilterVariablesMapでダイレクト置換</li>
+            <li>(DBFLUTE-902){Java/C#}: ReplaceSchemaのArrangeBeforeRepsで共通定義利用</li>
+            <li>(DBFLUTE-901){Java}: SimpleDtoのMapperをジェネレーションギャップにする</li>
+            <li>(DBFLUTE-900){Java}: 親テーブルへのnull参照で独自のNullObjectを利用できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.1A</h2>
+        <p class="releasedate">2011/10/07</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-899){Java/C#}: TakeFinallyのデータ整合性チェックだけを実行するタスク</li>
+            <li>(DBFLUTE-898){Java/C#}: ReplaceSchemaのArrangeBeforeRepsでdestにディレクトリ</li>
+            <li>(DBFLUTE-897){Java}: OracleのDBリンクのパッケージプロシージャに対応する</li>
+            <li>(DBFLUTE-896){Java}: 外だしSQLでIFとELSEの間に普通の行コメントを入れられるように</li>
+            <li>(DBFLUTE-895){Java}: 外だしSQLで検索カラムごとのコメントを付与できるように</li>
+            <li>(DBFLUTE-894){Java}: 外だしSQLのBEGINコメントのカンマ除去を空白後でも効くように</li>
+            <li>(DBFLUTE-892){Java}: OracleのDBリンクのプロシージャシノニムに対応する</li>
+            <li>(DBFLUTE-891){Java}: SimpleDTOの自動生成時に削除されたテーブルに対応するクラスを削除</li>
+            <li>(DBFLUTE-889){Java/C#}: LoadDataReverseでTSVに切り替える件数を変更するオプション</li>
+            <li>(DBFLUTE-888){Java}: GWTのためにSimpleDTOのSimpleDateFormatを抑制するオプション</li>
+            <li>(DBFLUTE-887){Java/C#}: ドキュメント上のテーブル名を大文字にするオプション</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.0D</h2>
+        <p class="releasedate">2011/09/11</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-886){Java/C#}: OracleのシノニムでもテーブルやカラムのDBコメントを取得</li>
+            <li>(DBFLUTE-885){Java/C#}: AlterCheckやHistoryHTMLでDBコメントも対象にするオプション</li>
+            <li>(DBFLUTE-884){Java}: ParameterBeanで固定の区分値を指定するオプション</li>
+            <li>(DBFLUTE-882){Java/C#}: AlterCheckやHistoryHTMLでカラムの順序変更も対象にするオプション</li>
+            <li>(DBFLUTE-881){Java/C#}: CBやBhvのSQLのテーブル名やカラム名を強制的に大文字にするオプション</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-883){Java/C#}: SchemaSyncCheckでMySQLなどでDB名が違う場合に例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.0C</h2>
+        <p class="releasedate">2011/08/28</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-880){Java/C#}: ReplaceSchemaのシステムユーザでパスワードファイルがない場合のスキップオプション</li>
+            <li>(DBFLUTE-879){Java}: 埋め込み変数コメントでテスト値の扱いを柔軟に</li>
+            <li>(DBFLUTE-877){Java/C#}: includeQueryMapで共通カラムやバージョンNOのデフォルト除外</li>
+            <li>(DBFLUTE-876){Java}: あるべきマスタテーブルがない場合でも仲間検索ができるように</li>
+            <li>(DBFLUTE-874){Java}: AdditionalForeingnKeyで暗黙の型変換を利用できるように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-878){Java}: 外だしSQLの代理メソッド自動判別でpmb.でないものを除外</li>
+            <li>(DBFLUTE-875){Java}: ConditionBeanでCDefを引数にしたメソッドでnullの場合は条件なし</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.0B</h2>
+        <p class="releasedate">2011/08/20</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-873){Java}: 全てのDBアクセスに対する汎用的なコールバック</li>
+            <li>(DBFLUTE-872){Java/C#}: ReplaceSchemaのデータ登録で型に合わないデータのエラーメッセージ強化</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-871){Java/C#}: ReplaceSchemaのRepsEnvTypeがLoadDataReverseで効かない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.9.0A</h2>
+        <p class="releasedate">2011/08/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-870){Java}: ページングのカウント検索で不要な結合を除去するをデフォルトに</li>
+            <li>(DBFLUTE-869){Java}: ページングのカウント検索を後に実行するをデフォルトに</li>
+            <li>(DBFLUTE-868){Java}: ConditionBeanでNullableな文字列カラムでIsNullOrEmpty</li>
+            <li>(DBFLUTE-866){Java/C#}: ReplaceSchemaのエクセルデータで値のコンバート</li>
+            <li>(DBFLUTE-865){Java/C#}: ReplaceSchemaのplaysqlをプロパティで変更可能に</li>
+            <li>(DBFLUTE-864){Java/C#}: ReplaceSchemaのfilterVariablesMapで絶対パスを示すデフォルト変数</li>
+            <li>(DBFLUTE-861){Java}: InnerJoinAutoDetectのデフォルト化に向けての最終調整</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-867){Java/C#}: ReplaceSchemaのcheckEnvで直後がBeginだと効かない</li>
+            <li>(DBFLUTE-862){Java/C#}: ReplaceSchemaのデータ登録でSQLServerのGUIDが登録できない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.8</h2>
+        <p class="releasedate">2011/07/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-860){Java}: ConditionBeanでInnerJoinを自動判別するオプション</li>
+            <li>(DBFLUTE-858){Java}: ConditionBeanのPagingのカウント検索で不要なjoinを調整できるように</li>
+            <li>(DBFLUTE-857){Java/C#}: MySQLで予約語カラムのクォートをバッククォートにする</li>
+            <li>(DBFLUTE-856){Java}: PagingCountLaterをDBFluteConfigで一律の設定ができるように</li>
+            <li>(DBFLUTE-855){Java}: MySQLにてCBでPagingCountLaterが有効ならfound_rows()関数</li>
+            <li>(DBFLUTE-854){Java}: 区分値メソッドのJavaDocコメントに(nameだけでなく)codeも表示</li>
+            <li>(DBFLUTE-853){Java/C#}: Entityの古いスタイルの区分値メソッドをデフォルトでOFFに</li>
+            <li>(DBFLUTE-852){Java/C#}: SimpleDTOの自動生成出力先でDBFluteクライアントからの相対指定を</li>
+            <li>(DBFLUTE-851){Java/C#}: ReplaceSchemaのシステムユーザで目的指定の最適化を</li>
+            <li>(DBFLUTE-850){Java}: DBFluteに依存しないCDefを自動生成</li>
+            <li>(DBFLUTE-849){Java/C#}: FKやIndexなどの定義順を一定にする(アルファベット順)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-859){Java/C#}: TIMESTAMPというカラム名が排他制御カラムになってしまう</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.7</h2>
+        <p class="releasedate">2011/07/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-848){Java/C#}: AdditionalUser(Reps)のPwdFileがなくてデフォルトもなければ例外に</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-847){Java/C#}: AlterCheckのSavePreviousでWindowsの場合に保存先がズレる</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.6</h2>
+        <p class="releasedate">2011/06/26</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-846){Java}: ColumnQueryで左辺の日付にも加算や切り捨て</li>
+            <li>(DBFLUTE-845){Java}: ColumnQueryで日付の加算や切り捨て</li>
+            <li>(DBFLUTE-843){Java}: DerivedReferrerなどのオプションを引数に持つメソッドではオプションは必須</li>
+            <li>(DBFLUTE-842){Java}: ネストしたDerivedReferrerの直後のサブクエリでもSQLが崩れないように</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-844){Java}: ExistsReferrerの中のColumnQueryでCalculationすると条件値が</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.5</h2>
+        <p class="releasedate">2011/06/18</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFlute-841){Java/C#}: ReplaceSchemaの実行前にDDLファイルなどをかき集めるオプション</li>
+            <li>(DBFlute-840){Java/C#}: ReplaceSchemaで環境タイプごとに実行するDDLを切り替え</li>
+            <li>(DBFlute-839){Java/C#}: ReplaceSchemaのシステムユーザによる実行でパスワードファイル</li>
+            <li>(DBFlute-838){Java/C#}: 一通りの再自動生成をまとめて実行するタスク</li>
+            <li>(DBFlute-837){Java/C#}: Eclipseのリフレッシュをするだけのタスク</li>
+            <li>(DBFlute-836){Java/C#}: DB変更のための全てのDBFluteタスクを実行するタスク</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.4</h2>
+        <p class="releasedate">2011/06/08</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-835){Java}: ScalarSelectでもcoalesceやtruncなどのオプション</li>
+            <li>(DBFLUTE-834){Java/C#}: ReplaceSchemaのAlterCheckをリファクタリング</li>
+            <li>(DBFLUTE-833){Java/C#}: ParameterBeanのAutoDetectでIFコメントやFORコメントからも</li>
+            <li>(DBFLUTE-832){Java/C#}: SQLServer独自の正規表現ワイルドカードをエスケープ</li>
+            <li>(DBFLUTE-831){Java/C#}: Docタスクで二つのスキーマの同期チェックができるように</li>
+            <li>(DBFLUTE-830){Java/C#}: DocタスクのDataXlsTemplateを完全にLoadDataReverseに</li>
+            <li>(DBFLUTE-829){Java/C#}: ReplaceSchemaのデータ登録でディレクトリごとの微調整オプション</li>
+            <li>(DBFLUTE-828){Java/C#}: ParameterBeanの個々のプロパティにコメントを書けるように</li>
+            <li>(DBFLUTE-827){Java/C#}: DocタスクのDataXlsTemplateでFK順序の考慮をもっと精度高く</li>
+            <li>(DBFLUTE-826){Java/C#}: ReplaceSchemaのデータ登録でリトライ処理でデバッグ支援</li>
+            <li>(DBFLUTE-825){Java}: ConditionBeanなどで連動型の暗号化・復号化処理</li>
+            <li>(DBFLUTE-824){Java/C#}: 外だしSQLで間違ったパッケージのBehaviorQueryの検知をもっと早く</li>
+            <li>(DBFLUTE-823){Java}: DBFluteConfig初期化領域としてDBFluteInitializerを拡張可能に</li>
+            <li>(DBFLUTE-822){Java/C#}: Docタスクでも自動リフレッシュ</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.3</h2>
+        <p class="releasedate">2011/05/17</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-821){Java}: ConditionBeanのMySQLの全文検索用のメソッドで条件値をエスケープ</li>
+            <li>(DBFLUTE-820){Java/C#}: ReplaceSchemaのfilterVariablesMapでdatabaseInfoMapの情報を参照</li>
+            <li>(DBFLUTE-818){Java/C#}: SchemaHTMLの主にコメント周りの見た目の微調整</li>
+            <li>(DBFLUTE-817){Java/C#}: ReplaceSchemaで運用後のDB変更のAlter文チェック</li>
+            <li>(DBFLUTE-816){Java/C#}: DocタスクのDataXlsTemplateの上限超え用CSVをフェッチ式に</li>
+            <li>(DBFLUTE-815){Java/C#}: 既存のテストDBからReplaceSchema用のデータをダンプ</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.2</h2>
+        <p class="releasedate">2011/04/18</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-814){Java}: ApplicationBehaviorでSQLファイルの名前でApが付いてもOK</li>
+            <li>(DBFLUTE-813){Java/C#}: アプリケーション外だしSQL(ApplicationOutsideSql)</li>
+            <li>(DBFLUTE-812){Java}: 外だしSQLのIFコメントの代理判定メソッドの実装支援</li>
+            <li>(DBFLUTE-811){Java/C#}: 自動生成対象外のテーブルをSchemaHTMLで扱えるように</li>
+            <li>(DBFLUTE-810){Java/C#}: ReplaceSchemaで独立したobjectTypeTargetList</li>
+            <li>(DBFLUTE-809){Java}: ConditionBeanのManualOrderで演算子の指定を柔軟に</li>
+            <li>(DBFLUTE-808){Java/C#}: ReplaceSchemaで画像のテストデータを登録</li>
+            <li>(DBFLUTE-807){Java/C#}: ReplaceSchemaのTSV登録のconvertValueMap微調整</li>
+            <li>(DBFLUTE-806){Java/C#}: テーブル区分値の定義でFK先のテーブルも利用できるように</li>
+            <li>(DBFLUTE-805){Java/C#}: 別名機能において別名基準のDBコメントの場合の調整</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.1</h2>
+        <p class="releasedate">2011/02/19</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-804){Java}: Eclipse-3.6のデフォルト設定で警告がでないように</li>
+            <li>(DBFLUTE-803){Java}: 子テーブルだけが複合主キーの場合もDerivedReferrerができるように</li>
+            <li>(DBFLUTE-802){Java/C#}: スキーマ名の設定ミスのときのエラーメッセージ強化</li>
+            <li>(DBFLUTE-801){Java}: TypedParameterBeanのCustomizeEntityのscalarオプションでチェック強化</li>
+            <li>(DBFLUTE-800){Java}: TypedParameterBeanのCustomizeEntityでDomainEntity指定</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.8.0</h2>
+        <p class="releasedate">2011/01/31</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-799){Java}: 外だしSQLの表示用SQLでコメントの中のクォーテーションに対応</li>
+            <li>(DBFLUTE-798){Java}: ParameterBeanのクラスコメント(javadoc)をリッチに</li>
+            <li>(DBFLUTE-796){Java/C#}: DBFluteクライアントのreadme.txtの内容など整理整頓</li>
+            <li>(DBFLUTE-795){Java/C#}: DBFluteタスク実行のエラーコードを呼び出し元へ伝播させる</li>
+            <li>(DBFLUTE-794){Java}: 外だしSQLをParameterBeanだけで実行</li>
+            <li>(DBFLUTE-654){Java/C#}: ParameterBeanのプロパティ定義をバインド変数コメントから推測</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.9</h2>
+        <p class="releasedate">2011/01/21</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-793){Java}: CheckInvalidQuery で FromTo などの複数条件値への対応</li>
+            <li>(DBFLUTE-792){Java/C#}: ReplaceSchemaのLoadDataもクォートオプションの対象に</li>
+            <li>(DBFLUTE-791){Java/C#}: ReplaceSchemaの最後のログ(FinalInfo)でLoadDataの情報も</li>
+            <li>(DBFLUTE-790){Java/C#}: テーブル名やカラム名のクォート指定で全テーブル対象オプション</li>
+            <li>(DBFLUTE-789){Java/C#}: JDBCタスクでOracle日本語テーブル名に対応</li>
+            <li>(DBFLUTE-788){Java/C#}: PCの環境変数にANT_HOMEがあってもDBFlute内部のANTを使うようにする</li>
+            <li>(DBFLUTE-787){Java/C#}: ReplaceSchemaでDDL実行エラーがあったらANT実行自体をFailureにする</li>
+            <li>(DBFLUTE-778){Java}: Behavior.queryInsert(query)の作成(つまり、insert into select)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.8</h2>
+        <p class="releasedate">2011/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-786){Java}: バッチ更新のSQLログのリミット数をオプションで指定可能に</li>
+            <li>(DBFLUTE-785){Java}: QueryUpdateやQueryDeleteで不意の全件更新・削除を防ぐ</li>
+            <li>(DBFLUTE-783){Java}: DBFluteConfigで空文字受け入れや無効な値のチェックを一律設定可能に</li>
+            <li>(DBFLUTE-782){Java}: RuntimeExceptionに隠れたSQLExceptionを探せるようにする</li>
+            <li>(DBFLUTE-780){Java}: Behavior.varyingInsert() の作成(Identityカラムへの強制insertなど)</li>
+            <li>(DBFLUTE-781){Java}: PK以外のカラムのためのシーケンス取得メソッド</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-784){Java}: バッチ更新のときのログ出力で一時的にメモリ使用量が増える(デグレ)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.7</h2>
+        <p class="releasedate">2010/12/15</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-777){Java/C#}: WindowsのMySQLで大文字小文字区別モードのときにReplaceSchemaで発生する不可解なエラーを回避</li>
+            <li>(DBFLUTE-776){Java}: 排他制御ありバッチ更新で処理後のEntityにVersionNoを反映</li>
+            <li>(DBFLUTE-775){Java}: JSON通信とEntityとのやり取りをスムーズに(SimpleDtoの自動生成)</li>
+            <li>(DBFLUTE-774){Java/C#}: ReplaceSchemaでSQLServerでデリミタファイル(TSV/CSV)でもIdentityInsert</li>
+            <li>(DBFLUTE-773){Java/C#}: SchemaHTMLでテーブルやカラムに番号を(数が多い場合に見やすい)</li>
+            <li>(DBFLUTE-772){Java/C#}: 業務的many-to-oneに対応(ただし非推奨構造)</li>
+            <li>(DBFLUTE-770){Java}: DerivedReferrerでオプション拡張で独自の集計関数</li>
+            <li>(DBFLUTE-757){Java}: ScalarSelectの中で(Specify)DerivedReferrer</li>
+            <li>(DBFLUTE-751){Java}: DerivedReferrerの中でDerivedReferrer</li>
+            <li>(DBFLUTE-750){Java}: バッチ更新で更新カラムを指定</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-771){Java}: PKなしテーブル(ビューを含む)でUnionQueryでSpecifyColumnを使ってページング検索するとカウント検索で全カラム列挙されてしまう</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.6</h2>
+        <p class="releasedate">2010/12/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-769){Java}: Sybaseでもある程度自動生成ができるようにする(若干サポート)</li>
+            <li>(DBFLUTE-768){Java}: プロシージャのCustomizeEntity自動生成でSQLServerのテーブル値ファンクションに対応</li>
+            <li>(DBFLUTE-767){Java}: 自動組み立てSQLのテーブル名に付与するスキーマ名を動的に切り替え</li>
+            <li>(DBFLUTE-766){Java}: Oracleのプロシージャで構造型パラメータに対応</li>
+            <li>(DBFLUTE-764){Java/C#}: OracleのStruct型のCustomizeEntityを自動生成</li>
+            <li>(DBFLUTE-763){Java}: ValueTypeを同じランタイム内でDBMSごとに管理できるようにする</li>
+            <li>(DBFLUTE-761){Java/C#}: ReplaceSchemaでOracleのTYPEオブジェクトもdrop</li>
+            <li>(DBFLUTE-762){Java}: ValueTypeのバインドメソッドにConnectionを渡す</li>
+            <li>(DBFLUTE-759){Java}: Oracleのプロシージャで配列型パラメータに対応</li>
+            <li>(DBFLUTE-755){Java/C#}: 外だしSQLのページングでselect句の切替え忘れを明示的例外に</li>
+            <li>(DBFLUTE-754){Java}: 複合PKのExistsReferrerが動かない(デグレ)</li>
+            <li>(DBFLUTE-753){Java/C#}: ユニーク制約に対するFKでもLoadReferrer</li>
+            <li>(DBFLUTE-752){Java/C#}: LoadReferrer内のSpecifyColumnで必須カラム解決</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-765){Java/C#}: 親の子のExistsReferrer内で(その)親の別名がバッティング</li>
+            <li>(DBFLUTE-756){Java}: ページングのCountLaterオプションで再検索処理に不具合</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.5</h2>
+        <p class="releasedate">2010/11/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-749){Java/C#}: 外だしSQLでもLoadReferrer</li>
+            <li>(DBFLUTE-748){Java}: Ubuntu でもDBFluteタスクが実行できるように</li>
+            <li>(DBFLUTE-747){Java/C#} ReplaceSchemaのデリミタデータ登録でオプションで改行コードを改行にできるように</li>
+            <li>(DBFLUTE-746){Java}: OracleのDATE型の検索をOracleJDBC依存のDATEで最適化</li>
+            <li>(DBFLUTE-745){Java/C#}: ReplaceSchemaのデータ登録でTSVやCSVもバッチ登録に</li>
+            <li>(DBFLUTE-744){Java}: CLASSというカラム名でも少々動くようにする</li>
+            <li>(DBFLUTE-743){Java/C#}: Firebirdで自動生成をできるようする</li>
+            <li>(DBFLUTE-742){Java/C#}: fixedConditionで別リレーションのテーブルのカラムを利用</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.4</h2>
+        <p class="releasedate">2010/10/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-740){Java}: DerivedReferrerの関数部分でcoalesce関数を指定できるように</li>
+            <li>(DBFLUTE-739){Java}: ColumnQueryの中で(Specify)DerivedReferrer</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-741){Java}: バージョン番号カラムの後ろにカラムが定義されてて、queryUpdate()で無駄なsetVersionNo()したら例外</li>
+            <li>(DBFLUTE-738){Java/C#}: 日付型のPKを参照するFKを持つテーブルでコンパイルエラー</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.3</h2>
+        <p class="releasedate">2010/08/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-737){Java}: ConditionQueryの内部メソッドとカラム名の重複を回避</li>
+            <li>(DBFLUTE-736){Java}: OrScopeQueryの中でAnd条件を</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.2</h2>
+        <p class="releasedate">2010/07/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-733){Java/C#}: CBで無効な条件設定を例外にするモード</li>
+            <li>(DBFLUTE-732){Java/C#}: CBで一件検索のときに絞り込み条件なしは例外に</li>
+            <li>(DBFLUTE-731){Java/C#}: HistoryHTMLでコメントが入れられるように</li>
+            <li>(DBFLUTE-730){Java}: 相対値による更新(varyingUpdate)</li>
+            <li>(DBFLUTE-729){Java/C#}: HistoryHTMLのテーブル名にSchemaHTMLへのリンク</li>
+            <li>(DBFLUTE-725){Java/C#}: AdditionalForeignKeyでコメントを定義できるように</li>
+            <li>(DBFLUTE-726){Java}: カラム対応のメソッドにインデックスの有無を表示</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-735){Java/C#}: SQLServerの照合順序で大文字小文字区別の場合にJDBCタスク例外</li>
+            <li>(DBFLUTE-734){Java/C#}: ClassificationのCodeTypeがString以外でParameterBeanでコンパイルエラー</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.1</h2>
+        <p class="releasedate">2010/06/13</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-724){Java/C#}: ParameterBeanの参照カラムから区分値情報をもらう</li>
+            <li>(DBFLUTE-723){Java}: SQLServerのuniqueidentifierをUUID型として対応</li>
+            <li>(DBFLUTE-722){Java/C#}: SQLServerのファンクションに対応する</li>
+            <li>(DBFLUTE-721){Java/C#}: ConditionBeanで追加条件ありのJOINのONを改行</li>
+            <li>(DBFLUTE-719){Java/C#}: AdditionalForeignKeyで同一テーブル同一カラムのFKを複数指定</li>
+            <li>(DBFLUTE-718){Java/C#}: Pmbのプロパティのパッケージ解決でEntityとかも</li>
+            <li>(DBFLUTE-717){Java}: FORコメントの中でLikeSearchを細かく制御できるように</li>
+            <li>(DBFLUTE-716){Java/C#}: DBFluteタスク実行時のSQL例外のメッセージをリッチに</li>
+            <li>(DBFLUTE-715){Java/C#}: CustomizeEntityのプロパティ型のパッケージ解決でListやMapの要素も</li>
+            <li>(DBFLUTE-714){Java}: 埋め込み変数コメントでテスト値でクォートの有無を判定</li>
+            <li>(DBFLUTE-713){Java}: FORコメントでnullの要素を許容する</li>
+            <li>(DBFLUTE-712){Java/C#}: SQLServerで接続URLの大文字小文字の違い吸収</li>
+            <li>(DBFLUTE-588){Java/C#}: DB変更の内容を表示する差分ドキュメント</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-720){Java/C#}: BizOneToOneのSpecifyで参照されるFKを明示設定しないとデータ取得できない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.7.0</h2>
+        <p class="releasedate">2010/05/31</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-710){Java}: 外だしSQLでBEGINコメントのネスト</li>
+            <li>(DBFLUTE-709){Java}: SQLiteで外だしSQLでAutoPagingができるように</li>
+            <li>(DBFLUTE-708){Java/C#}: SQLiteでCBでNullsFirst/Lastを利用できるように</li>
+            <li>(DBFLUTE-707){Java/C#}: MS AccessでCBでBizOneToOneが扱えるように</li>
+            <li>(DBFLUTE-706){Java/C#}: MS AccessでCBでNotEqualができるように</li>
+            <li>(DBFLUTE-705){Java}: 外だしSQLでコメントを削除するオプション</li>
+            <li>(DBFLUTE-704){Java}: 外だしSQLで空行を削除するオプション</li>
+            <li>(DBFLUTE-703){Java}: ParameterBeanをSerializableに</li>
+            <li>(DBFLUTE-699){Java/C#}: ReplaceSchemaのデータ登録で文字列解析のパフォーマンス向上</li>
+            <li>(DBFLUTE-672){Java}: 外だしSQLのパラメータコメントでループ</li>
+            <li>(DBFLUTE-669){Java/C#}: ReplaceSchemaでアプリごとのデータ</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-702){Java/C#}: MS AccessでPKなしテーブルでJDBCタスクが例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.9</h2>
+        <p class="releasedate">2010/05/15</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-697){Java/C#}: MS AccessでCBの結合で括弧をつける</li>
+            <li>(DBFLUTE-696){Java}: Dateじゃない方のFromTo検索をもっとリッチに</li>
+            <li>(DBFLUTE-695){Java/C#}: MS AccessでPK情報を取得できるようにする</li>
+            <li>(DBFLUTE-694){Java}: OracleとDB2のCBのページング条件をバインドに</li>
+            <li>(DBFLUTE-692){Java/C#}: Entityで空文字をnullに変換するオプション</li>
+            <li>(DBFLUTE-690){Java/C#}: CBで複合PKの等値条件の指定漏れを防ぐメソッド</li>
+            <li>(DBFLUTE-688){Java/C#}: テーブル区分値の要素の名前をフィルタ</li>
+            <li>(DBFLUTE-687){Java}: 例外ハンドリングをカスタマイズできるようにv
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.8</h2>
+        <p class="releasedate">2010/04/20</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-685){Java/C#}: AdditionalSchemaでプロシージャ自動生成の抑制オプション</li>
+            <li>(DBFLUTE-684){Java/C#}: AdditionalSchemaで除外カラムの指定</li>
+            <li>(DBFLUTE-683){Java}: Oracleでシーケンス参照のシノニムもシーケンスキャッシュ</li>
+            <li>(DBFLUTE-682){Java/C#}: additionalSchemaで別データベースのスキーマを指定</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-681){Java}: PostgreSQLでPKなしテーブルのinsertでInteger型でnullで例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.7</h2>
+        <p class="releasedate">2010/04/03</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-677){Java}: 区分値定義上にないコードを検索したら例外にするオプション</li>
+            <li>(DBFLUTE-676){Java}: EntityやCBで区分値設定を強制するオプション</li>
+            <li>(DBFLUTE-675){Java/C#}: Entityの区分値設定をset系メソッドでも</li>
+            <li>(DBFLUTE-674){Java}: プロシージャコールでエスケープの抑制をできるように</li>
+            <li>(DBFLUTE-673){Java}: Sql2Entityでプロシージャの結果セットのEntityを自動生成</li>
+            <li>(DBFLUTE-668){Java}: 自動生成後のRefreshで複数のプロジェクトを指定できるように</li>
+            <li>(DBFLUTE-667){Java/C#}: 環境ごとのDBFluteプロパティで完全上書きでなく拡張できるように</li>
+            <li>(DBFLUTE-664){Java/C#}: ApplicationBehavior(アプリごとのBehavior自動生成)</li>
+            <li>(DBFLUTE-663){Java}: ConditionBeanのsetupSelectをinvokeするメソッド</li>
+            <li>(DBFLUTE-662){Java/C#}: DBMetaのColumnInfoからForeingInfoのリストを取得</li>
+            <li>(DBFLUTE-661){Java/C#}: CBで空文字条件のメソッドをカラム単位で取捨選択できるように</li>
+            <li>(DBFLUTE-659){Java/C#}: 外だしSQLの(別名)タイトルをBehaviorQueryPathのJavaDocに</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-660){Java/C#}: MySQLでLinuxでPKのないテーブルでJDBCタスクで例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.6</h2>
+        <p class="releasedate">2010/03/11</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-658){Java}: DB2のCBのページングでrow_number()を利用</li>
+            <li>(DBFLUTE-657){Java/C#}: PostgreSQLで一つだけのResultSetパラメータのファンクションに対応</li>
+            <li>(DBFLUTE-656){Java}: PostgreSQLのinterval型をサポート</li>
+            <li>(DBFLUTE-649){Java/C#}: DBコメント本体をDBMetaで取得できるように(オプション)</li>
+            <li>(DBFLUTE-648){Java/C#}: テーブルの別名(和名)をDBMetaから取得できるようにする</li>
+            <li>(DBFLUTE-647){Java}: Apache Derbyでタスク終了時にシャットダウンする</li>
+            <li>(DBFLUTE-646){Java}: Apache Derbyのページングでoffsetとfetch構文利用</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.5</h2>
+        <p class="releasedate">2010/02/19</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-645){Java}: 表示用SQL上で紀元前の日付にはBCを付与する</li>
+            <li>(DBFLUTE-644){Java/C#}: ReplaceSchemaの登録データで紀元前の日付も対応</li>
+            <li>(DBFLUTE-643){Java/C#}: DBFluteモジュール配下にアプリ情報を保持しない</li>
+            <li>(DBFLUTE-642){Java/C#}: ReplaceSchemaの登録データの日付表現の妥当性チェックをする</li>
+            <li>(DBFLUTE-639){Java/C#}: ReplaceSchemaでメインスキーマをFKしているサブスキーマをdropできるようにする</li>
+            <li>(DBFLUTE-638){Java/C#}: PK・FK・UQカラムはcolumnExcept不可にする</li>
+            <li>(DBFLUTE-635){Java}: シーケンスキャッシュ機能のバッチ方式をDB2でも</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-641){Java/C#}: DataXlsTemplateで日付型の月と日がゼロ埋めされない場合あり</li>
+            <li>(DBFLUTE-640){Java/C#}: CBのEntityRowHandlerの中でInsertすると例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.4</h2>
+        <p class="releasedate">2010/02/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-633){Java/C#}: ReplaceSchemaのシーケンス調整でdecrementはスキップ</li>
+            <li>(DBFLUTE-632){Java}: Sequenceのキャッシュ機能(オプション)</li>
+            <li>(DBFLUTE-631){Java/C#}: カラムの自動生成除外でテーブル名も指定できるように</li>
+            <li>(DBFLUTE-625){Java/C#}: DBFluteのプロパティのチェック強化(databaseなど)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-626){Java/C#}: NUMERICのAutoMapping機能で19桁以上はBigDecimal</li>
+            <li>(DBFLUTE-630){Java/C#}: SQLServer2000のReplaceSchemaでsystemテーブルを削除しようとする</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.3</h2>
+        <p class="releasedate">2010/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-622){Java/C#}: EntityのtoString()でbyte配列はサイズを表示</li>
+            <li>(DBFLUTE-621){Java/C#}: SchemaHTMLでPKなどの制約名をツールチップで表示</li>
+            <li>(DBFLUTE-620){Java/C#}: SchemaHTMLでfixedCondition情報を表示</li>
+            <li>(DBFLUTE-616){Java}: java.util.Dateの値のインスタンスは純粋なjava.util.Dateにする</li>
+            <li>(DBFLUTE-618){Java/C#}: additionalTableにdbTypeとdefaultとcommentを追加</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-619){Java/C#}: orQueryの仕様バグそして改めorScopeQuery</li>
+            <li>(DBFLUTE-617){Java/C#}: 外だしSQLでUTF-8で日本語使っててBQP使っててJavaソースがShift_JISだと文字化け</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.8.9.9</h2>
+        <p class="releasedate">2010/01/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTENET-18){C#}: OracleでInScopeの1000件問題に対応する</li>
+            <li>(DBFLUTE-622){Java/C#}: EntityのtoString()でbyte配列はサイズを表示</li>
+            <li>(DBFLUTE-621){Java/C#}: SchemaHTMLでPKなどの制約名をツールチップで表示</li>
+            <li>(DBFLUTE-620){Java/C#}: SchemaHTMLでfixedCondition情報を表示</li>
+            <li>(DBFLUTE-618){Java/C#}: additionalTableにdbTypeとdefaultとcommentを追加</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-619){Java/C#}: orQueryの仕様バグそして改めorScopeQuery</li>
+            <li>(DBFLUTE-617){Java/C#}: 外だしSQLでUTF-8で日本語使っててBQP使っててJavaソースがShift_JISだと文字化け</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.2</h2>
+        <p class="releasedate">2009/12/12</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-612){Java/C#}: DB2のプロシージャをサポート</li>
+            <li>(DBFLUTE-611){Java/C#}: Oracle以外のDBもReplaceSchemaでシーケンスをDrop</li>
+            <li>(DBFLUTE-610){Java/C#}: 別パッケージ同名Procedureに対応</li>
+            <li>(DBFLUTE-608){Java/C#}: Procedureの自動生成対象オプションで完全修飾名での指定</li>
+            <li>(DBFLUTE-609){Java/C#}: Procedureでスキーマ間で同名のものはメインスキーマを優先</li>
+            <li>(DBFLUTE-607){Java/C#}: Procedure参照のSynonymを扱えるようにする</li>
+            <li>(DBFLUTE-606){Java/C#}: ReplaceSchemaでProcedureもDrop</li>
+            <li>(DBFLUTE-605){Java/C#}: ReplaceSchemaでOracleのDBLinkをDrop</li>
+            <li>(DBFLUTE-604){Java/C#}: ReplaceSchemaで一部SQLを他のユーザで実行できるように</li>
+            <li>(DBFLUTE-603){Java/C#}: Synonymの補足情報で別スキーマのSynonymも対応</li>
+            <li>(DBFLUTE-600){Java/C#}: DocタスクのDataXlsTemplateでadditionalSchemaも対応</li>
+            <li>(DBFLUTE-599){Java/C#}: Oracleでプロシージャ・ファンクションのシノニムを自動生成しない</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-598){Java/C#}: Sql2EntityのProcedureの取捨選択オプションが効かない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6.1</h2>
+        <p class="releasedate">2009/12/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-595){Java/C#}: ColumnInfoにDB上のデータ型情報を</li>
+            <li>(DBFLUTE-594){Java/C#}: SQLServerでCBのUnionとPagingの同時利用をサポート</li>
+            <li>(DBFLUTE-593){Java}: char(3)のカラムに2桁のデータを格納するようなDBの対処</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-592){Java/C#}: Docタスクのデータ抽出機能でテーブル300個以上で例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.6</h2>
+        <p class="releasedate">2009/11/03</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-591){Java/C#}: MySQLでDBコメントを取得</li>
+            <li>(DBFLUTE-589){Java/C#}: CustomizeEntityのAlias名を関連カラム情報から</li>
+            <li>(DBFLUTE-587){Java}: Oracle日付リテラルをパラメータコメントのテスト値で利用</li>
+            <li>(DBFLUTE-586){Java/C#}: ParameterBeanのオプションでDateFromTo指定</li>
+            <li>(DBFLUTE-585){Java/C#}: ParameterBeanのlikeオプションでlikePrefixなどの固定指定</li>
+            <li>(DBFLUTE-584){Java}: 表示用SQLの日付フォーマットのデフォルトをDB毎に変える</li>
+            <li>(DBFLUTE-582){Java}: 表示用SQLの日付フォーマット拡張でPrefix/Suffixを指定</li>
+            <li>(DBFLUTE-581){Java/C#}: 外だしSQLのタイトルと説明を必須にするオプション</li>
+            <li>(DBFLUTE-580){Java/C#}: 外だしSQLのタイトルと説明をSchemaHTMLに</li>
+            <li>(DBFLUTE-578){Java}: 外だしSQLでSafetyResultのチェック</li>
+            <li>(DBFLUTE-574){Java}: PagingでもSafetyResultのチェック</li>
+            <li>(DBFLUTE-566){Java}: Copyrightが指定されている場合はExクラスにも反映</li>
+            <li>(DBFLUTE-559){Java/C#}: SchemaHTMLにSql2Entityの情報を表示</li>
+            <li>(DBFLUTE-555){Java}: OGNLに依存しないようする</li>
+            <li>(DBFLUTE-525){Java/C#}: OutsideSqlTestでパラメータコメントもできるだけチェック</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.5.5</h2>
+        <p class="releasedate">2009/10/15</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-570){Java/C#}: DI設定ファイルの出力先のプロパティをリファクタ(互換性保つ)</li>
+            <li>(DBFLUTE-569){Java/C#}: 意味が適切でないプロパティ名をリファクタ(互換性保つ)</li>
+            <li>(DBFLUTE-568){Java/C#}: build-xxx.properties改めbuild.properties</li>
+            <li>(DBFLUTE-562){Java/C#}: パフォーマンスチューニングのためのInnerJoinサポート</li>
+            <li>(DBFLUTE-561){Java/C#}: ColumnInfoに共通カラムか否か</li>
+            <li>(DBFLUTE-560){Java/C#}: 豪華なadditionalSchemaMap</li>
+            <li>(DBFLUTE-558){Java/C#}: SchemaHTMLにスキーマ名を表示</li>
+            <li>(DBFLUTE-557){Java/C#}: Sql2Entityで重複EntityやPmbの場合に例外にする</li>
+            <li>(DBFLUTE-554){Java/C#}: ConditionBeanで(LikeSearchのasOrSplit以外の)Or句</li>
+            <li>(DBFLUTE-551){Java/C#}: Sql2Entityでピンポイントで一つだけ実行できるようにする</li>
+            <li>(DBFLUTE-549){Java/C#}: DBFluteタスクのWindows上での実行時にsetlocalする</li>
+            <li>(DBFLUTE-548){Java/C#}: ClassificationResource.dfpropで他の改行表現も対応</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.5.4</h2>
+        <p class="releasedate">2009/09/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-547){Java/C#}: additionalTableだけで自動生成できるようにする</li>
+            <li>(DBFLUTE-546){Java/C#}: JDBCドライバを配置する領域をDBFluteクライアントに</li>
+            <li>(DBFLUTE-542){Java/C#}: ReplaceSchemaのtake-finallyのAssertでdataLoadingType考慮</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-545){Java}: queryUpdate()でPostgreSQLのOIDが更新できない</li>
+            <li>(DBFLUTE-544){Java/C#}: NVARCHARのカラムサイズが取得できない</li>
+            <li>(DBFLUTE-543){Java/C#}: 排他制御カラムのないテーブルでの更新・削除時の例外がおかしい</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.5.3</h2>
+        <p class="releasedate">2009/08/07</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-541){Java/C#}: SQLServerで拡張プロパティを使ってコメント取得</li>
+            <li>(DBFLUTE-540){Java/C#}: ReplaceSchemaのtake-finallyでのAssertで「存在すること」も</li>
+            <li>(DBFLUTE-538){Java/C#}: 仮想ユニーク制約(additionalUniqueKey)を指定できるように</li>
+            <li>(DBFLUTE-537){Java/C#}: fixedConditionでClassificationの設定を参照できるように</li>
+            <li>(DBFLUTE-534){Java}: DerivedReferrerでone-to-many-to-oneのカラム</li>
+            <li>(DBFLUTE-533){Java/C#}: テーブル区分値はEntityのName/Aliasの取得メソッド無し</li>
+            <li>(DBFLUTE-532){Java}: Insert文やUpdate文のカラムの順序をDB定義の通りに</li>
+            <li>(DBFLUTE-531){Java}: ConditionBeanでSelect句のカラムの順序をDB定義の通りに</li>
+            <li>(DBFLUTE-530){Java/C#}: ConditionBeanのSQLのログでSelect句を見やすく</li>
+            <li>(DBFLUTE-528){Java}: SQL実行時の呼び出し階層ログのリファクタ</li>
+            <li>(DBFLUTE-527){Java/C#}: CommonColumnのメソッド呼び出し方式で$$Semicolun$$を不要に</li>
+            <li>(DBFLUTE-522){Java}: ConditionBeanでカラム同士の比較条件</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-535){Java/C#}: (Query)DerivedReferrerで日付型を使うと例外</li>
+            <li>(DBFLUTE-526){Java/C#}: ClassificationDeploymentの設定が共通カラムI/Fに反映されない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.5.2</h2>
+        <p class="releasedate">2009/07/28</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-521){Java}: PostgreSQLでもオプションでfor update nowait</li>
+            <li>(DBFLUTE-518){Java/C#}: ReplaceSchemaでBatchUpdateしないモード</li>
+            <li>(DBFLUTE-517){Java/C#}: EntityのtoString()のリファクタ</li>
+            <li>(DBFLUTE-516){Java/C#}: ConditionBeanでWhere句の有無判定メソッド</li>
+            <li>(DBFLUTE-515){Java/C#}: ReplaceSchemaの最後にシーケンス調整</li>
+            <li>(DBFLUTE-514){Java/C#}: SchemaHTMLで区分値一覧へのリンクをもうちょい丁寧に</li>
+            <li>(DBFLUTE-513){Java}: 複合PKでも簡易条件だけのQueryUpdate/Deleteができるようにする</li>
+            <li>(DBFLUTE-510){Java}: 複合PKでもLoadReferrerができるようにする</li>
+            <li>(DBFLUTE-509){Java}: 複合PKでもCBのExistsSubQueryはできるようにする</li>
+            <li>(DBFLUTE-507){Java}: Behaviorのpulloutで自分へのReferrerも構築</li>
+            <li>(DBFLUTE-506){Java/C#}: テーブルデータ利用の区分値機能でAutoDeploy抑止オプション</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-519){Java/C#}: LoadReferrerの中でunionした場合に無駄な処理がある</li>
+            <li>(DBFLUTE-508){Java/C#}: ReplaceSchemaで自動生成対象外テーブルがDropされない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.5.1</h2>
+        <p class="releasedate">2009/07/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-505){Java}: CDef共通のインターフェースを定義</li>
+            <li>(DBFLUTE-502){Java/C#}: テーブルデータ利用の区分値機能でカラムの自動関連付け</li>
+            <li>(DBFLUTE-501){Java/C#}: SchemaHTMLで複合ユニーク制約がわかるようにする</li>
+            <li>(DBFLUTE-500){Java/C#}: dbflute.logとvelocity.logのBackup名をxxx-backup1.logに</li>
+            <li>(DBFLUTE-498){Java}: FindBugsのデフォルトで警告がでないようにする</li>
+            <li>(DBFLUTE-495){Java/C#}: CallbackContextでSQLの結果をHandleできるように</li>
+            <li>(DBFLUTE-493){Java}: Spring+DBFluteの複数DB対応</li>
+            <li>(DBFLUTE-491){Java/C#}: BehaviorQueryPathじゃない外だしSQLでもdf:entityとdf:pmb</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-499){Java}: ReplaceSchemaでemptyStringColumnMapが効かない</li>
+            <li>(DBFLUTE-497){Java}: updateNonstrict()の二件以上HITした場合に例外にならない</li>
+            <li>(DBFLUTE-496){Java}: FindBugsに二重チェックと怒られる</li>
+            <li>(DBFLUTE-494){Java}: Spring+DBFluteでprojectPrefixを使ったときのBeans定義に間違いあり</li>
+            <li>(DBFLUTE-492){Java}: Spring + DBCPでトランザクションを利用しない場合に不具合あり</li>
+            <li>(DBFLUTE-490){Java/C#}: classificationResource.dfpropの環境変数の扱いが少し間違ってる</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.5</h2>
+        <p class="releasedate">2009/06/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-485){Java}: Pagingの局所的なパフォーマンス向上</li>
+            <li>(DBFLUTE-483){Java}: OracleのFullTextSearchを支援するメソッドをConditionBeanに</li>
+            <li>(DBFLUTE-482){Java}: PostgreSQLのFullTextSearchを支援するメソッドをConditionBeanに</li>
+            <li>(DBFLUTE-481){Java}: PostgreSQLの独自の曖昧検索をLikeSearchOptionに</li>
+            <li>(DBFLUTE-480){Java}: MySQLのFullTextSearchを支援するメソッドをConditionBeanに</li>
+            <li>(DBFLUTE-478){Java}: Spring+DBCP+DBFluteでDataSourceUtils処理を自動化</li>
+            <li>(DBFLUTE-477){Java}: allClassCopyrightの挿入で環境依存の改行コードが使われてしまう</li>
+            <li>(DBFLUTE-476){Java}: 外だしSQLのカーソル検索でValueTypeを利用</li>
+            <li>(DBFLUTE-475){Java}: 独自のValueTypeの指定</li>
+            <li>(DBFLUTE-464){Java/C#}: CustomizeEntityとParameterBeanの名前を自動解決</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-487){Java}: Sql2Entityで不要なParameterBeanとCursorが削除されない</li>
+            <li>(DBFLUTE-486){Java}: OutsideSqlでCustomizeEntityを継承した独自Entityを指定すると例外</li>
+            <li>(DBFLUTE-479){Java/C#}: AdditionalForeignKeyでFixedConditionがある関連でもExistsが作られてしまう</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.4.1</h2>
+        <p class="releasedate">2009/04/21</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-474){Java}: PostgreSQLのUUID型に対応</li>
+            <li>(DBFLUTE-472){Java}: LinuxやMac上でのAntの実行権限問題を解決</li>
+            <li>(DBFLUTE-471){Java/C#}: EntityのhashCode()の実装で31を掛けるようにする</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-469){Java}: 外だしSQLでBEGIN内のIFのネストされたIFのandも消える</li>
+            <li>(DBFLUTE-468){Java/C#}: ログメッセージや例外メッセージの記述ミスを修正</li>
+            <li>(DBFLUTE-463){Java}: OracleのNotInScopeの1000対応はorじゃなくてand</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.4</h2>
+        <p class="releasedate">2009/04/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-465) {Java/C#}: AccessContextでAnonymousを廃止</li>
+            <li>(DBFLUTE-460) {Java/C#}: DataXlsTemplateでExcelのLimitを超える場合はCSV出力</li>
+            <li>(DBFLUTE-458) {Java}: OracleのInScopeが1000件制限に対応</li>
+            <li>(DBFLUTE-457) {Java/C#}: PrefixSearch/LikeSearchで一致方向決めたら自動エスケープ</li>
+            <li>(DBFLUTE-455) {Java}: 手動で並べるOrderBy</li>
+            <li>(DBFLUTE-454) {Java/C#}: AdditionalSchemaのテーブルに対して更新系処理</li>
+            <li>(DBFLUTE-453) {Java/C#}: Oracleで隣のスキーマのカラムコメントを取得</li>
+            <li>(DBFLUTE-452) {Java/C#}: Oracleでシーケンスのシノニムを自動生成しない</li>
+            <li>(DBFLUTE-451) {Java/C#}: Oracleのシノニムで参照テーブルのコメントを取得</li>
+            <li>(DBFLUTE-448) {Java/C#}: ReplaceSchemaでオプションでスキーマ初期化を抑制</li>
+            <li>(DBFLUTE-447) {Java/C#}: ReplaceSchemaでSQLServerでTruncateTable</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-462) {Java}: ConditionBeanでOracleのDATE型の比較で時分秒が考慮されない</li>
+            <li>(DBFLUTE-461) {Java/C#}: ReplaceSchemaでTime型の文字列表現に対応</li>
+            <li>(DBFLUTE-456) {Java/C#}: PostgreSQLでReplaceSchemaのデータでNumericで0/1で例外</li>
+            <li>(DBFLUTE-456) {Java/C#}: ReplaceSchemaのTSV/CSV取り込みでエスケープ考慮</li>
+            <li>(DBFLUTE-450) {Java/C#}: dbflute.logがUTF-8になってない</li>
+            <li>(DBFLUTE-449) {Java/C#}: 自動生成対象外の別スキーマのテーブルへのFKがあると例外</li>
+            <li>(DBFLUTE-446) {Java/C#}: ReplaceSchemaでOracleで接続ユーザとスキーマが違う場合に例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.8.8.8</h2>
+        <p class="releasedate">2009/04/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-460) {Java/C#}: DataXlsTemplateでExcelのLimitを超える場合はCSV出力</li>
+            <li>(DBFLUTE-454) {Java/C#}: AdditionalSchemaのテーブルに対して更新系処理</li>
+            <li>(DBFLUTE-453) {Java/C#}: Oracleで隣のスキーマのカラムコメントを取得</li>
+            <li>(DBFLUTE-452) {Java/C#}: Oracleでシーケンスのシノニムを自動生成しない</li>
+            <li>(DBFLUTE-451) {Java/C#}: Oracleのシノニムで参照テーブルのコメントを取得</li>
+            <li>(DBFLUTE-448) {Java/C#}: ReplaceSchemaでオプションでスキーマ初期化を抑制</li>
+            <li>(DBFLUTE-447) {Java/C#}: ReplaceSchemaでSQLServerでTruncateTable</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-461) {Java/C#}: ReplaceSchemaでTime型の文字列表現に対応</li>
+            <li>(DBFLUTE-456) {Java/C#}: PostgreSQLでReplaceSchemaのデータでNumericで0/1で例外</li>
+            <li>(DBFLUTE-456) {Java/C#}: ReplaceSchemaのTSV/CSV取り込みでエスケープ考慮</li>
+            <li>(DBFLUTE-450) {Java/C#}: dbflute.logがUTF-8になってない</li>
+            <li>(DBFLUTE-449) {Java/C#}: 自動生成対象外の別スキーマのテーブルへのFKがあると例外</li>
+            <li>(DBFLUTE-446) {Java/C#}: ReplaceSchemaでOracleで接続ユーザとスキーマが違う場合に例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.3</h2>
+        <p class="releasedate">2009/03/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-445){Java/C#}: ReplaceSchemaでDDLの例外をもうちょっと綺麗に</li>
+            <li>(DBFLUTE-444){Java/C#}: ReplaceSchemaでOracleのSequenceをDrop</li>
+            <li>(DBFLUTE-443){Java/C#}: OracleのDBリンクのシノニムでColumn/PK/UQの情報取得</li>
+            <li>(DBFLUTE-442){Java/C#}: OracleのSynonymのPK/UQ/ID/FK/Index情報を取得</li>
+            <li>(DBFLUTE-441){Java/C#}: CLOBのUnion不可問題の回避策(MyselfInScopeSubQuery)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-440){Java/C#}: Oracleのシノニムで元テーブルのメタ情報取得でカラム名が重複</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.8.8.7</h2>
+        <p class="releasedate">2009/03/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-445){Java/C#}: ReplaceSchemaでDDLの例外をもうちょっと綺麗に</li>
+            <li>(DBFLUTE-444){Java/C#}: ReplaceSchemaでOracleのSequenceをDrop</li>
+            <li>(DBFLUTE-443){Java/C#}: OracleのDBリンクのシノニムでColumn/PK/UQの情報取得</li>
+            <li>(DBFLUTE-442){Java/C#}: OracleのSynonymのPK/UQ/ID/FK/Index情報を取得</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-440){Java/C#}: Oracleのシノニムで元テーブルのメタ情報取得でカラム名が重複</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.8.8.7</h2>
+        <p class="releasedate">2009/03/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-445){Java/C#}: ReplaceSchemaでDDLの例外をもうちょっと綺麗に</li>
+            <li>(DBFLUTE-444){Java/C#}: ReplaceSchemaでOracleのSequenceをDrop</li>
+            <li>(DBFLUTE-443){Java/C#}: OracleのDBリンクのシノニムでColumn/PK/UQの情報取得</li>
+            <li>(DBFLUTE-442){Java/C#}: OracleのSynonymのPK/UQ/ID/FK/Index情報を取得</li>
+            <li>(DBFLUTE-441){Java/C#}: CLOBのUnion不可問題の回避策(MyselfInScopeSubQuery)</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-440){Java/C#}: Oracleのシノニムで元テーブルのメタ情報取得でカラム名が重複</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.2</h2>
+        <p class="releasedate">2009/02/19</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-439){Java/C#}: LoadReferrerにEntity(一件)のためのオーバーロード</li>
+            <li>(DBFLUTE-438){Java}: Entityから不要なS2Daoアノテーションを除去</li>
+            <li>(DBFLUTE-435){Java/C#}: SchemaHTMLでAdditionalな情報をいい感じに表示</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-434){Java/C#}: MySQLでQueryUpdateのCBの条件なしで例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.8.8.6</h2>
+        <p class="releasedate">2009/02/19</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-435){Java/C#}: SchemaHTMLでAdditionalな情報をいい感じに表示</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-434){Java/C#}: MySQLでQueryUpdateのCBの条件なしで例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.9.1</h2>
+        <p class="releasedate">2009/02/11</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-433){Java}: OracleのWait NやNoWaitオプションで利用可能に</li>
+            <li>(DBFLUTE-432){Java}: 付けるべきところに{@inheritDoc}を付ける</li>
+            <li>(DBFLUTE-428){Java}: ConditionBeanでもselectCursor()</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-430){Java}: 外だしSQLカーソル検索で内部的な初期化が保持されない</li>
+            <li>(DBFLUTE-429){Java}: 0.9.0でPKなしテーブルでInsertありモードにするとコンパイルエラー</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute-0.8.8.5</h2>
+        <p class="releasedate">2009/02/11</p>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-430){Java}: 外だしSQLカーソル検索で内部的な初期化が保持されない</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
+        <h2>DBFlute 0.9.0</h2>
+        <p class="releasedate">2009/02/01</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>(DBFLUTE-425){Java/C#}: DB2のIdentity情報をSYSCAT.COLUMNS表から</li>
+            <li>(DBFLUTE-413){Java}: Oracleのカラムエリアス名の30文字問題の対応</li>
+            <li>(DBFLUTE-397){Java}: allcommonパッケージのJARファイル化</li>
+          </ul>
+        </div>
+        <div class="bug">
+          <h3>BUG</h3>
+          <ul>
+            <li>(DBFLUTE-426){Java/C#}: PostgreSQLでReplaceSchemaでViewを作ると二度目に例外</li>
+          </ul>
+        </div>
+      </div>
+      <div class="relatedpage"><a href="before090.html">0.9.0より前はこちら</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

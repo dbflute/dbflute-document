@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Doc,SchemaHTML,スキーマ情報,スキーマ情報,テーブル一覧,テーブル定義書,区分値一覧,Classification List" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>SchemaHTML | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SchemaHTML</h1>
+	<p>
+		Alto DBFlute のパートです。
+	</p>
+	<div class="relatedpage"><a href="../../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">SchemaHTMLとは？</h2>
+	<p>
+		スキーマのメタデータ(テーブル構成など)を人が見やすい形にまとめたドキュメントです。
+	</p>
+	<div class="detailpage"><a href="../../../../../data/doc/harbor/schema-maihamadb.html">SchemaHTML (schema-maihamadb.html)</a></div>
+	<p>
+		単なるDB定義だけでなく、DBFluteでテーブルやカラムに設定された付加情報なども表示され、
+		既にプロジェクトでERDやテーブル定義書があったとしても、ディベロッパーの実装支援には欠かせないドキュメントとなります。
+		しっかり別名(和名)などを定義すれば、これをこのままテーブル定義書として利用することも考えられるでしょう。
+	</p>
+	<h3 id="basicexample">SchemaHTMLの例</h3>
+	<p class="imgbox">SchemaHTML Example
+		<a href="../../../../../data/doc/harbor/schema-maihamadb.html" title="SchemaHTML Example"><img src="../../../../../data/model/alto/doc/doc-SchemaHtml-List-example.png" alt="SchemaHTML Example" width="550" height="220" /></a>
+	</p>
+
+	<h2 id="tablecolumn">テーブル一覧・カラム情報</h2>
+	<p>
+		自動生成対象となっているテーブルの一覧と、カラムの詳細情報が表示されます。設定されたリレーションのリンクを辿って、関連テーブルを確認することもできます。
+	</p>
+	<div class="detailpage"><a href="../../../../../data/doc/harbor/schema-maihamadb.html#member">SchemaHTML - 会員テーブル</a></div>
+	<h3 id="detailexample">SchemaHTMLのテーブル詳細(会員)の例</h3>
+	<p class="imgbox">SchemaHTMLのテーブル詳細(会員)の例
+		<a href="../../../../../data/doc/harbor/schema-maihamadb.html#member" title="SchemaHTML Table Example"><img src="../../../../../data/model/alto/doc/doc-SchemaHtml-Table-example.png" alt="SchemaHTML Table Example" width="550" height="280" /></a>
+	</p>
+	<h3 id="letsalias">DBコメントに別名(和名)の定義を</h3>
+	<p>
+		DBコメントに別名(和名)が設定されている場合は、それも一緒に表示されるので、積極的に設定することでよりわかりやすいテーブル定義書となるでしょう。
+	</p>
+	<div class="detailpage"><a href="../../../genbafit/implfit/aliasdefinition/index.html">現場フィット - 別名(和名)の定義</a></div>
+	<h3 id="dispspec">もろもろの表現上の捕捉</h3>
+	<p>
+		以下の主な表現上の補足です。
+	</p>
+	<ul>
+		<li>PKは主キー制約、IDはIdentity、UQのユニークキー制約、IXはインデックスを示す</li>
+		<li>カラムの PropertyName は、プログラム上でのプロパティ名を示す</li>
+		<li>カラムの JavaType は、プログラム上で利用するマッピングされたデータ型を示す</li>
+		<li>PK や UQ の "o" で、小さめのイタリックになっている場合は、実際に制約がなく、DBFluteプロパティで付与された情報であることを示す</li>
+		<li>リレーションのリンクで、小さめのイタリックになっている場合は、実際に制約がなく、DBFluteプロパティで付与された情報であることを示す</li>
+		<li>カラム名で、薄い色になっている場合は、共通カラムであることを示す</li>
+		<li>カラム名で、イタリックになっている場合は、排他制御カラムであることを示す</li>
+		<li>PK, UQ, IXでの "o+" は、とある複合キーのトップカラムになっていることを示す <span class="frm">@since 1.0.5G</span></li>
+		<li>PK, UQ, IXでの "+o" は、とある複合キーのサブカラムになっていることを示す <span class="frm">@since 1.0.5G</span></li>
+		<li>PK, UQ, リレーションのリンクなどでは、ツールチップで制約名などの付加情報を確認できる</li>
+	</ul>
+
+	<h2 id="outsidesql">外だしSQL一覧</h2>
+	<p>
+		テーブルと関連付いている外だしSQLの一覧が、テーブルごとに表示されます。テーブル定義の方からこの該当テーブルの外だしSQLの一覧へリンクで辿れます。
+	</p>
+	<div class="detailpage"><a href="../../../../../data/doc/harbor/schema-maihamadb.html#outsidesql">SchemaHTML - OutsideSql</a></div>
+	<p>
+		自動生成対象となっているプロシージャの一覧も表示されます。
+	</p>
+	<div class="detailpage"><a href="../../../../../data/doc/oracle/schema-maihamadb.html#procedure">SchemaHTML(Oracle) - Procedure</a></div>
+	<p>
+		SQLのタイトルや説明を付けていると、よりわかりやすく表示されます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/outsidesql/howto.html#sqltitledesc">外だしSQLの使い方 - SQLのタイトル・説明</a></div>
+
+	<h2 id="classification">区分値一覧</h2>
+	<p>
+		設定された区分値の詳細の一覧が表示されます。カラムとの関連がある場合は、テーブルのカラム情報から関連する区分値の詳細へリンクで辿れます。
+	</p>
+	<div class="detailpage"><a href="../../../../../data/doc/harbor/schema-maihamadb.html#cdef">SchemaHTML - Classification</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

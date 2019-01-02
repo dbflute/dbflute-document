@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンセクション 3 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンセクション 3</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		さて、ハンズオンの続きです。
+	</p>
+	<div class="relatedpage"><a href="./section02.html">(ひとつまえ) ハンズオンセクション 02</a></div>
+	<p>
+		"ConditionBeanの筋トレ" をしていきましょう。
+	</p>
+
+	<h2 id="ready">事前準備</h2>
+	<p>
+		org.docksidestage.handson.exercise.<em class="mark">HandsOn03Test</em> クラスを作成してください。
+		このクラスは UnitContainerTestCase を継承します。また、ERDを開いておくと良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/example/maihamadb.html">MaihamaDB</a></div>
+
+	<h2 id="stretch">ConditionBeanのストレッチ</h2>
+	<p>
+		ConditionBeanの使い方、機能のページを参考にしながら実装しましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/conditionbean/index.html">ConditionBean</a></div>
+	<p>
+		テストが成り立っていることをアサートすることも大事です。
+		また、明示的に指定されていなくても、ログ出力でテストが成り立っていることを目でも確認できるように必要に応じて臨機で入れていくと良いでしょう。
+	</p>
+	<p>
+		Good Luck!
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="forreview">レビューワーを意識してみよう</h2>
+		<p>
+			DBFluteハンズオンのレビューワーがいる人いない人いろいろだと思いますが...
+			いずれにせよ、ハンズオンでコードを書く時は "レビューワー" を意識してみましょう。
+			ぜひ、こちらのブログをお読みください。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160912/reviewable">レビューしやすいコード (Reviewable Code) | jfluteの日記</a></div>
+		<p>
+			<em class="keyword">レビューしやすいコードってどんなコード？</em>
+			を考え続けることが大切です。
+		</p>
+	</div>
+
+	<h2 id="cbsilver">Silverストレッチ</h2>
+	<dl class="textlist">
+		<!-- PrefixSearch, LessThan, SetupSelect -->
+		<dt>[1] 会員名称がSで始まる1968年1月1日以前に生まれた会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータスも取得する</li>
+				<li>生年月日の昇順で並べる</li>
+				<li>会員が1968/01/01以前であることをアサート</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">※"以前" の解釈は、"その日ぴったりも含む" で。</span>
+		</dd>
+		<!-- SetupSelect as Branch and OneToOne, Several OrderBy -->
+		<dt>[2] 会員ステータスと会員セキュリティ情報も取得して会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>若い順で並べる。生年月日がない人は会員IDの昇順で並ぶようにする</li>
+				<li>会員ステータスと会員セキュリティ情報が存在することをアサート</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">※カージナリティを意識しましょう</span>
+		</dd>
+		<!-- Query(Relation) to LikeSearch, InScope, ExtractPKList -->
+		<dt>[3] 会員セキュリティ情報のリマインダ質問で2という文字が含まれている会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員セキュリティ情報のデータ自体は要らない</li>
+				<li>(Actでの検索は本番でも実行されることを想定し、テスト都合でパフォーマンス劣化させないこと)</li>
+				<li>リマインダ質問に2が含まれていることをアサート</li>
+				<li>アサートするために別途検索処理を入れても誰も文句は言わない</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">
+				※修行++: 実装できたら、(もし複数回検索していたら) Assert内の検索が一回になるようにしてみましょう。
+				その際、Act内で検索しているデータを、Assert内でもう一度検索することなく実現してみましょう。
+			</span>
+		</dd>
+		<dd>
+			<span class="frm">
+				※修行#: さらに実装できたら、会員名称とリマインダ質問を会員ごとに一行のログに出力するようにしてみましょう。
+				その際、ArrangeとActには手を入れず、Assert内だけの修正で実現してみましょう。
+			</span>
+		</dd>
+	</dl>
+
+	<h2 id="cbgold">Goldストレッチ</h2>
+	<dl class="textlist">
+		<!-- Query(Relation) to OrderBy -->
+		<dt>[4] 会員ステータスの表示順カラムで会員を並べて検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータスの "表示順" カラムの昇順で並べる</li>
+				<li>会員ステータスのデータ自体は要らない</li>
+				<li>その次には、会員の会員IDの降順で並べる</li>
+				<li>会員ステータスのデータが取れていないことをアサート</li>
+				<li>会員が会員ステータスごとに固まって並んでいることをアサート <span class="frm">(順序は問わない)</span></li>
+			</ul>
+		</dd>
+		<!-- SetupSelect as Nested, Query(Relation) to IsNotNull
+		    , Query(Relation) to OrderBy as Nested and Many -->
+		<dt>[5] 生年月日が存在する会員の購入を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員名称と会員ステータス名称と商品名を取得する(ログ出力)</li>
+				<li>購入日時の降順、購入価格の降順、商品IDの昇順、会員IDの昇順で並べる</li>
+				<li>OrderBy がたくさん追加されていることをログで目視確認すること</li>
+				<li>購入に紐づく会員の生年月日が存在することをアサート</li>
+			</ul>
+		</dd>
+		<!-- LikeSearch, DateFromTo, SpecifyColumn -->
+		<dt>[6] 会員名称に "vi" を含む会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータスも一緒に取得</li>
+				<li>ただし、会員ステータス名称だけ取得できればいい (説明や表示順カラムは不要)</li>
+				<li>2005年10月の1日から3日までに正式会員になった会員を検索</li>
+				<li>"2005/10/01", "2005/10/03" の日付文字列が画面からリクエストされたと想定 <span class="frm">(ArrangeでString型を宣言)</span></li>
+				<li>それら日付を、ArrangeやActの中では一切動かさずに実現すること</li>
+				<li>会員名称と正式会員日時と会員ステータス名称をログに出力</li>
+				<li>会員ステータスがコードと名称だけが取得されていることをアサート</li>
+				<li>会員の正式会員日時が指定された条件の範囲内であることをアサート</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">※Java8 (DBFlute-1.1) なら、assertException(...)を使うとよいでしょう</span>
+		</dd>
+		<dd>
+			<span class="frm">
+				※修行++: 実装できたら、こんどはスーパークラスのメソッド adjustMember_FormalizedDatetime_...()
+				を使って、10月1日ジャスト(時分秒なし)の正式会員日時を持つ会員データを作成してテスト実行してみましょう。
+				もともと一件しかなかった検索結果が「二件」になるはずです。
+			</span>
+		</dd>
+	</dl>
+
+	<h2 id="cbplatinum">Platinumストレッチ</h2>
+	<dl class="textlist">
+		<!-- ColumnQuery, ColumnCalculation -->
+		<dt>[7] 正式会員になってから一週間以内の購入を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員と会員ステータス、会員セキュリティ情報も一緒に取得</li>
+				<li>商品と商品ステータス、商品カテゴリ、さらに上位の商品カテゴリも一緒に取得</li>
+				<li>上位の商品カテゴリ名が取得できていることをアサート</li>
+				<li>購入日時が正式会員になってから一週間以内であることをアサート</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">
+				※修行++: 実装できたら、こんどはスーパークラスのメソッド adjustPurchase_PurchaseDatetime_...()
+				を呼び出し、調整されたデータによって検索結果が一件増えるかどうか確認してみましょう。
+				もし増えないなら、なぜ増えないのか？しっかり分析して、コード上のコメントで分析結果を書き出してみましょう。
+				そして、一週間以内という解釈を無理のない程度に変えて、増えるようにしてみましょう。
+				もともと増えたのであれば、なぜ増えたのか？が把握できていたらOKです。
+			</span>
+		</dd>
+		<!-- FromTo(as Year), OrScopeQuery or OrIsNull, NullsFirst/Last -->
+		<dt>[8] 1974年までに生まれた、もしくは不明の会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"1974/01/01" という日付文字列が画面からリクエストされたと想定</li>
+				<li>Arrange で String の "1974/01/01" を宣言して、Act ではそれを使って検索</li>
+				<li>Arrange, Actでは "1974/01/01" 以外の日付は作らずに条件を実現すること <span class="frm">(日付への変換はOK)</span></li>
+				<li>会員ステータス名称、リマインダ質問と回答、退会理由入力テキストを取得する(ログ出力) ※1</li>
+				<li>若い順だが生年月日が null のデータを最初に並べる</li>
+				<li>生年月日が指定された条件に合致することをアサート <span class="frm">(1975年1月1日なら落ちるように)</span></li>
+				<li>Arrangeで "きわどいデータ" ※2 を作ってみましょう <span class="frm">(Behavior の updateNonstrict() ※3 を使って)</span></li>
+				<li>検索で含まれるはずの "きわどいデータ" が検索されてることをアサート <span class="frm">(アサート自体の保証のため)</span></li>
+				<li>生まれが不明の会員が先頭になっていることをアサート</li>
+			</ul>
+		</dd>
+		<dd>
+			<span class="frm">
+				※1: ログについて、値がない項目は "none" を出力。if文使わないように。ヒント: Java8なら map()
+			</span>
+		</dd>
+		<dd>
+			<span class="frm">
+				※2: 1974年12月31日生まれの人、1975年1月1日生まれの人。前者は検索に含まれて、後者は含まれない。
+				テストデータに存在しない、もしくは、存在に依存するのがためらうほどのピンポイントのデータは、自分で作っちゃうというのも一つの手。
+				(エクササイズ 6 や 7 でやっていた adjust がまさしくそれ: 同じように adjustXxx() という感じでprivateメソッドにしましょう)
+			</span>
+			<div class="relatedpage"><a href="http://dbflute.seasar.org/ja/manual/topic/dbdesign/testdata.html#updatedata">ちょこっと更新でテストデータ作成</a></div>
+		</dd>
+		<dd>
+			<span class="frm">
+				※3: 1 から 9 までの任意の会員IDを選び updateNonstrict() してみましょう。
+				まあ、一桁代の会員IDが存在すること自体への依存は割り切りで。最低限それだけのテストデータで用意されていないとお話にならないってことで。
+			</span>
+		</dd>
+		<dd>
+			<span class="frm">
+				※今後、"きわどいデータ" を作ってアサートを確かなものにするかどうかは自分の判断で。
+			</span>
+		</dd>
+		<!-- InvalidCondition, IsNull, ManualOrder, FromTo(as Month) -->
+		<dt>[9] 2005年6月に正式会員になった会員を先に並べて生年月日のない会員を検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>"2005/06/01" という日付文字列がリクエストされたと想定</li>
+				<li>Arrange で String の "2005/06/01" を宣言して、Act ではそれを使って検索</li>
+				<li>Arrange, Actでは "2005/06/01" 以外の日付は作らずに条件を実現すること <span class="frm">(日付への変換はOK)</span></li>
+				<li>第二ソートキーは会員IDの降順</li>
+				<li>検索された会員の生年月日が存在しないことをアサート</li>
+				<li>2005年6月に正式会員になった会員が先に並んでいることをアサート <span class="frm">(先頭だけじゃなく全体をチェック)</span></li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="paging">CBでページングしてみよう</h2>
+	<p>
+		まずは、ページング検索という概念を学びましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/topic/programming/dbaccess/pagingselect.html">ページング検索</a></div>
+	<p>
+		そして、ConditionBeanを使ったページング検索のエクササイズをやってみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>全ての会員をページング検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータス名称も取得</li>
+				<li>会員IDの昇順で並べる</li>
+				<li>ページサイズは 3、ページ番号は 1 で検索すること</li>
+				<li>会員ID、会員名称、会員ステータス名称をログに出力</li>
+				<li>SQLのログでカウント検索時と実データ検索時の違いを確認</li>
+				<li>総レコード件数が会員テーブルの全件であることをアサート</li>
+				<li>総ページ数が期待通りのページ数(計算で導出)であることをアサート</li>
+				<li>検索結果のページサイズ、ページ番号が指定されたものであることをアサート</li>
+				<li>検索結果が指定されたページサイズ分のデータだけであることをアサート</li>
+				<li>PageRangeを 3 にして PageNumberList を取得し、[1, 2, 3, 4]であることをアサート</li>
+				<li>前のページが存在しないことをアサート</li>
+				<li>次のページが存在することをアサート</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="cursor">CBでカーソル検索ってみよう</h2>
+	<p>
+		まずは、カーソル検索という概念を学びましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/topic/programming/dbaccess/cursorselect.html">カーソル検索</a></div>
+	<p>
+		そして、ConditionBeanを使ったカーソル検索のエクササイズをやってみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>会員ステータスの表示順カラムで会員を並べてカーソル検索</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>会員ステータスの "表示順" カラムの昇順で並べる</li>
+				<li>会員ステータスのデータも取得</li>
+				<li>その次には、会員の会員IDの降順で並べる</li>
+				<li>会員ステータスが取れていることをアサート</li>
+				<li>会員が会員ステータスごとに固まって並んでいることをアサート</li>
+				<li>検索したデータをまるごとメモリ上に持ってはいけない</li>
+				<li>(要は、検索結果レコード件数と同サイズのリストや配列の作成はダメ)</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="innerjoin">InnerJoinAutoDetectってみよう</h2>
+	<p>
+		ConditionBeanには、InnerJoinAutoDetectという機能があります。
+	</p>
+	<p>
+		この機能は既に有効になっています<span class="frm">(@since 1.0.3)</span>。
+		ここではその効用を学びつつ、そもそも結合の特性や、バインド変数の概念を掴んでみましょう。
+	</p>
+	<div class="detailpage"><a href="../../manual/function/ormapper/conditionbean/sidebar/innerjoinautodetect.html">InnerJoinAutoDetect</a></div>
+	<p>
+		いままで書いたエクササイズでもいいですし、新たに適当なテストメソッドを作ってもいいので、ログのSQLを目視で確認して InnerJoinAutoDetect
+		を実感してみるとよいでしょう。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="favoritecomment">コメントを意識してみよう</h2>
+		<p>
+			ハンズオンでは、ソースコードのコメントも意識してみましょう。
+		</p>
+		<p>
+			ぜひ、こちらのブログもお読みください。
+		</p>
+		<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20180625/repeatablecomment">オートマティックおうむ返しコメントより背景や理由を | jfluteの日記</a></div>
+		<p>
+			<em class="keyword">書いておくと嬉しいコメントってどんなコメント？</em>
+			を考え続けることが大切です。
+		</p>
+	</div>
+
+	<h2 id="flower">模範解答的な</h2>
+	<p>
+		模範解答的な実装を紹介しています。(参考までに)
+	</p>
+	<div class="relatedpage"><a href="./flower/flower03.html">模範解答的なセクション 3</a></div>
+
+	<h2 id="nextsection">次のセクション</h2>
+	<p>
+		さて、次のセクションへ
+	</p>
+	<div class="detailpage"><a href="./section04.html">ハンズオンセクション 4</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

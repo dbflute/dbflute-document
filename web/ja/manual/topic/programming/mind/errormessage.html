@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,Java,Date,Timestamp,Calendar,日付,日時,カレンダー" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>プログラミングのマインド - エラーメッセージ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>エラーメッセージには真摯に接する</h1>
+	${indexlist}
+
+	<h2 id="readfirst">まず、読みましょう</h2>
+	<p>
+		エラーメッセージは必ず読みましょう。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20130522/errorsinging">エラーメッセージ読め読め大合唱 | jfluteの日記</a></div>
+	<p>
+		特に、DBFluteの例外メッセージは (できるだけ) ド派手です。Adviceなどの様々な情報を読んで、原因追求に努めましょう。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで、queryにnullを設定してしまったとき @Log</span><code>
+org.dbflute.exception.InvalidQueryRegisteredException: Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+Registered the invalid query. (null or empty)
+
+[Advice]
+The value of null or empty is not allowed to query as default.
+For example: (when checked by default)
+  (x):
+    cb.query().setMemberName_Equal(null); // exception
+    cb.query().setMemberName_Equal(""); // exception
+  (o):
+    cb.query().setMemberName_Equal("Pixy"); // normal query
+  (o):
+    cb.ignoreNullOrEmptyQuery();
+    cb.query().setMemberName_Equal(null); // no condition
+    cb.query().setMemberName_Equal(""); // no condition
+
+[Invalid Query]
+member.MEMBER_ID equal {value=null} : query()
+* * * * * * * * * */
+</code></pre>
+
+	<h2 id="searchbyerror">エラーメッセージで検索してみると？</h2>
+	<p>
+		エラーメッセージを読んでもわからないことは確かにあります。
+	</p>
+	<p>
+		そのときは、そのエラーメッセージでインターネットを検索してみると良いでしょう。
+		そのエラー自体を解説したサイトがあるかもしれません。
+		直接、答えが書いてるとは限りませんが、エラーメッセージの分析に役に立つかもしれません。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

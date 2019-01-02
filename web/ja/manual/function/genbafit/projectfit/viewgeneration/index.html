@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ビュー,VIEW,マテリアライズドビュー,Materialized View" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>View の自動生成 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>View の自動生成</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		テーブルだけでなく、View (ビュー)に対応する Entity や ConditionBean も自動生成することができます。
+		DBFlute からすれば、View は単なる(PKのない)テーブルと言えます。
+	</p>
+	<p>
+		デフォルトの設定で、自動生成されるようになっているため、特別意識せずとも利用できます。
+	</p>
+
+	<h2 id="generate">自動生成対象にする設定</h2>
+	<p>
+		DBFluteプロパティでは、databaseInfoMap.dfprop の objectTypeTargetList にて "VIEW"
+		が指定されていれば自動生成されるようになります。デフォルトの設定で含まれているため、何も設定せずとも自動生成されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html#objecttypetargetlist">dfprop - objectTypeTargetList</a></div>
+	<p>
+		マテリアライズドビュー(MaterializedView)も通常の View と全く同じように扱われます。
+	</p>
+	<p>
+		ちなみに、ReplaceSchema のスキーマ初期化では、View
+		もマテリアライズドビューもしっかり削除されます。また、replaceSchemaDefinitionMap.dfprop の objectTypeTargetList
+		にて ReplaceSchema 固有の設定が指定できます。 
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#objecttypetargetlist">dfprop - objectTypeTargetList(Reps)</a></div>
+
+	<h2 id="additionalpk">PKを設定する</h2>
+	<p>
+		View にはPK制約がありません。ですが、View を構成するSQLの内容によっては、結果セットのユニーク性が明確な場合もあるでしょう。
+		また、"更新可能View" であれば、PK制約情報を付与して Behavior で更新したいでしょう。
+	</p>
+	<p>
+		その場合は additionalPrimaryKeyMap.dfprop にて、PK 情報を付与することで、DBFlute上では
+		PK を持ったテーブルのように扱うことができるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/additionalprimarykey/index.html">additionalPrimaryKeyMap.dfprop</a></div>
+
+	<h2 id="additionalfk">FKを設定する</h2>
+	<p>
+		View にはFK制約がありません。View と通常のテーブルのデータを関連付けてオブジェクトグラフの Entity
+		として扱いたい場合は、 additionalForeignKeyMap.dfprop にて FK 情報を付与すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/additionalforeignkey/index.html">additionalForeignKeyMap.dfprop</a></div>
+
+	<h2 id="additionaluq">ユニーク制約を設定する</h2>
+	<p>
+		View にはユニーク制約(UQ)がありません。View と通常のテーブルのデータを one-to-one として関連付けたい場合は、オブジェクトグラフの Entity
+		additionalUniqueKeyMap.dfprop にて UQ 情報を付与すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/additionaluniquekey/index.html">additionalUniqueKeyMap.dfprop</a></div>
+
+	<h2 id="tablewrap">利用できないテーブルのラップに</h2>
+	<p>
+		これはバッドノウハウですが、例えば、DBFluteでは利用できない(非推奨の)カラム名を持ったテーブルに対し、View
+		経由でアクセスするという回避にも利用できます。
+		通常は非推奨のテーブル名やカラム名を直す方が良いです、どうしてもDBを変更できない事情があるような場合に有効です。DBFlute
+		で利用できる形式のカラム名に構成を直した View を作成し、参照先のテーブルを自動生成対象外にします。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/supported.html#unsupportedname">サポートされない名前</a></div>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html#tableExceptList">dfprop - tableExceptList</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

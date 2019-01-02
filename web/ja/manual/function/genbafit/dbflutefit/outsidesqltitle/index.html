@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>外だしSQLのタイトル (OutsideSqlTitle) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>外だしSQLのタイトル (OutsideSqlTitle)</h1>
+	${indexlist}
+
+	<h2 id="intro">Good Bye, 無言のSQL</h2>
+	<p>
+		無言のプログラムもつらいですが、(他人の作った)無言のSQLはさらに増してつらいものです。
+	</p>
+	<p>
+		DBFluteでは、外だしSQLのタイトルと説明を必須にしています。<span class="frm">@since 1.1.0</span>
+	</p>
+
+	<h2 id="headercomment">外だしSQLのヘッダーコメント</h2>
+	<h3 id="headerformat">ヘッダーコメントの形式</h3>
+	<p>
+		"[タイトル]説明" という形式でタイトルと説明を書きます。<span class="frm">@since 1.1.0-sp6</span>
+	</p>
+<pre><span class="codetitle">e.g. ヘッダーコメントについて @OutsideSql</span><code>
+<span class="comment">/*</span>
+ <span class="comment">[ここにタイトルを書いて！SQLを識別できる業務的なタイトルをー]</span>
+ <span class="comment">ここに説明を書いて！SQLの全体的な特徴とか特殊な点とか注意点とかー</span>
+<span class="comment">*/</span>
+<span class="comment">-- #df:entity#</span>
+
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="oldheaderformat">古いバージョンでのヘッダーコメントの形式</h3>
+	<p>
+		DBFluteの古いバージョンだと、[df:title], [df:description] 形式になります。
+	</p>
+<pre><span class="codetitle">e.g. ヘッダーコメントについて @OutsideSql</span><code>
+<span class="comment">/*</span>
+ <span class="comment">[df:title]</span>
+ <span class="comment">ここにタイトルを書いて！SQLを識別できる業務的なタイトルをー</span>
+ 
+ <span class="comment">[df:description]</span>
+ <span class="comment">ここに説明を書いて！SQLの全体的な特徴とか特殊な点とか注意点とかー</span>
+<span class="comment">*/</span>
+<span class="comment">-- #df:entity#</span>
+
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="outsidesqltest">OutsideSqlTestタスクでチェック</h3>
+	<p>
+		もし、ヘッダーコメントがなかったら、OutsideSqlTestタスクでチェックされます。
+	</p>
+<pre><span class="codetitle">e.g. ヘッダーコメントがなかったら怒られる @OutsideSql</span><code>
+[df-outside-sql-test] org.dbflute.exception.DfRequiredOutsideSqlTitleNotFoundException: Look! Read the message below.
+[df-outside-sql-test] /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+[df-outside-sql-test] The outsideSql title was not found!
+[df-outside-sql-test] 
+[df-outside-sql-test] [Advice]
+[df-outside-sql-test] OutsideSql title is required in this project
+[df-outside-sql-test] because the property 'isRequiredSqlTitle' of outsideSqlMap.dfprop is true.
+[df-outside-sql-test] So you should add title comment in your outside-SQL like this:
+[df-outside-sql-test]   /= = = = = = = = = = = = = = = = = = =
+[df-outside-sql-test]   /*
+[df-outside-sql-test]    [Simple Member Select]       // *here
+[df-outside-sql-test]    This SQL is ...
+[df-outside-sql-test]   */
+[df-outside-sql-test]   -- #df:entity#
+[df-outside-sql-test] 
+[df-outside-sql-test]   -- !df:pmb!
+[df-outside-sql-test]   -- !!AutoDetect!!
+[df-outside-sql-test] 
+[df-outside-sql-test]   select ...
+[df-outside-sql-test]     from ...
+[df-outside-sql-test]    where ...
+[df-outside-sql-test]   = = = = = = = = = = /
+</code></pre>
+
+	<h2 id="dfprop">dfpropによるON/OFF</h2>
+	<p>
+		DBFlute-1.0.x (Java6版) では、もともとデフォルトではありませんでした。
+		dfpropで有効にしていました。
+	</p>
+	<p>
+		outsideSqlMap.dfprop (旧outsideSqlDefinitionMap.dfprop)
+		の、isRequiredSqlTitle と isRequiredSqlDescription です。
+		これが、DBFlute-1.1.x (Java8版) からは、デフォルトが true になりました。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteRuntime,DBFluteランタイム,DBFluteフレームワーク,allcommon" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>allcommon | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>allcommon</h1>
+	${indexlist}
+
+	<h2 id="about">allcommonとは？</h2>
+	<p>
+		DBFluteランタイムと自動生成されるクラス(Entityなど)の架け橋となる
+		<em class="keyword">Generateタスクで自動生成される業務依存の共通クラス</em> です。
+	</p>
+	<dl class="textlist">
+		<dt><a href="#cdef">CDef</a></a></dt><dd>区分値の定義(ENUMの集まり)</dd>
+		<dt><a href="#dbcurrent">DBCurrent</a></dt><dd>現在のDBの定義(種類)</dd>
+		<dt><a href="#dbfluteconfig">DBFluteConfig</a></dt><dd>DBFluteのランタイム環境を調整するコンフィグ</dd>
+		<dt><a href="#dbfluteinitializer">DBFluteInitializer</a></dt><dd>DBFluteの初期化クラス (DIコンポーネント)</dd>
+		<dt><a href="#dbmetainstancehandler">DBMetaInstanceHandler</a></dt><dd>DBMeta のインスタンスを扱うクラス</dd>
+		<dt><a href="#entitydefinedcommoncolumn">EntityDefinedCommonColumn</a></dt><dd>共通カラムが定義されている Entity のためのインターフェース</dd>
+		<dt><a href="#implementedbehaviorselector">ImplementedBehaviorSelector</a></dt><dd>BehaviorSelector の標準的な実装クラス (DIコンポーネント)</dd>
+		<dt><a href="#implementedcommoncolumnautosetupper">ImplementedCommonColumnAutoSetupper</a></dt><dd>CommonColumnAutoSetupper の標準的な実装クラス (DIコンポーネント)</dd>
+		<dt><a href="#implementedinvokerassistant">ImplementedInvokerAssistant</a></dt><dd>InvokerAssistant の標準的な実装クラス (DIコンポーネント)</dd>
+		<dt><a href="#implementedsqlclausecreator">ImplementedSqlClauseCreator</a></dt><dd>SqlClauseCreator の標準的な実装クラス (DIコンポーネント)</dd>
+	</dl>
+
+	<h2 id="cdef">CDef</h2>
+	<p>
+		区分値機能を利用したときに、区分値の情報がENUMとして定義されるクラスです。
+	</p>
+	<p>
+		区分値は基本的にメソッド名解決のメソッドとして利用できるため、アプリケーションではあまり意識することは多くありませんが、
+		複数の区分値要素を指定するConditionBeanのInScopeやNotInScopeにおいては、このCDefを利用します。
+		また、DBFluteの区分値機能の届かない領域で区分値を利用するような場合はこのクラスを利用します。
+		(例えば、DBFluteが自動生成しないクラス(DTOなど)にて区分値を利用する場合)
+	</p>
+	<div class="relatedpage"><a href="../../entity/index.html#classification">Entity - 区分値</a></div>
+	<div class="relatedpage"><a href="../../conditionbean/howto.html#classification">ConditionBean - 区分値</a></div>
+<pre><span class="codetitle">e.g. CDefの利用 @Java</span><code>
+String code = CDef.MemberStatus.Formalized.code();
+</code></pre>
+	<h3>抽象的な取扱い</h3>
+	<p>
+		CDef自体は、CDef内で定義される全ての区分値で実装されるインターフェースであり、区分値を抽象的に取り扱うことができます。
+		(コードや名称などを抽象的に取得することができます)
+	</p>
+<pre><span class="codetitle">e.g. CDefによる抽象的な取扱い @Java</span><code>
+CDef cdef = CDef.MemberStatus.Formalized;
+String code = cdef.code();
+String name = cdef.name();
+String alias = cdef.alias();
+</code></pre>
+	<h3>Classification</h3>
+	<p>
+		CDef インターフェースは、DBFluteランタイム内の Classification
+		インターフェースを拡張しています。この Classification
+		インターフェースは、基本的にはDBFluteランタイム内部で抽象的に取り扱うために利用するもので、アプリで意識する必要はありません。
+	</p>
+<pre><span class="codetitle">e.g. Classificationとして扱う @Java</span><code>
+Classification cls = CDef.MemberStatus.Formalized;
+</code></pre>
+	<h3>DefMeta</h3>
+	<p>
+		区分値自体を表現するENUMとして、DefMeta というクラスが用意されています。ClassificationMeta
+		インターフェースを実装しており、codeOf() メソッドを抽象的に利用することができます。
+	</p>
+<pre><span class="codetitle">e.g. DefMetaを利用して抽象的に codeOf() を利用 @Java</span><code>
+ClassificationMeta meta = CDef.DefMeta.MemberStatus;
+Classification cls = meta.codeOf(code);
+</code></pre>
+	<p>
+		DefMeta は、区分値要素から取得から取得することもできます。
+	</p>
+<pre><span class="codetitle">e.g. DefMetaを区分値要素から取得 @Java</span><code>
+ClassificationMeta meta = CDef.MemberStatus.Formalized.meta();
+</code></pre>
+
+	<h2 id="dbcurrent">DBCurrent</h2>
+	<p>
+		<em class="keyword">アプリケーションでは、基本的に意識する必要のないクラスです。</em>
+	</p>
+	<p>
+		現在のDBのタイプ(OracleやMySQLなど)を保持するクラスです。内部的には該当するDBの DBDef
+		を保持します。<em class="keyword">内部情報を壊すようなプログラムを書いてはいけません。</em>
+	</p>
+
+	<h2 id="dbfluteconfig">DBFluteConfig</h2>
+	<p>
+		DBFluteのランタイム環境を調整するコンフィグです。
+	</p>
+	<div class="detailpage"><a href="./dbfluteconfig.html">DBFluteConfig</a></div>
+
+	<h2 id="dbfluteinitializer">DBFluteInitializer</h2>
+	<p>
+		<em class="keyword">アプリケーションでは、基本的に意識する必要のないクラスです。</em>
+	</p>
+	<p>
+		DBFluteを初期化するクラスです。内部的にはこのクラスのコンストラクタに初期化処理があります。
+		DIコンテナ経由でインスタンスが生成されるため、その時点で自動的に初期化処理が実行されます。
+		<em class="keyword">アプリケーションで new してはいけません。</em>
+	</p>
+	<p>
+		初期化が終わると、(ロック掛け忘れ防止のために) DBFluteConfig にロックを掛けます。
+	</p>
+	<h3>Seasar(S2Container) 利用時</h3>
+	<p>
+		SqlLogRegistryの初期化(オプション)、そして、HotDeploy機能との相性を調整するために、
+		HotDeploy対象になって欲しくないクラスをHotDeploy対象外になるようにしています。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/diway/seasar/index.html#hotdeploy">Seasar(S2Container) - HotDeployの取扱い</a></div>
+	<div class="relatedpage"><a href="../../../../reference/diway/seasar/index.html#sqllogregistry">Seasar(S2Container) - SqlLogRegistryの取扱い</a></div>
+	<h3>Spring Framework 利用時</h3>
+	<p>
+		Commons DBCP に対する DataSourceHandler の初期化処理が行われます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/diway/spring/index.html#commonsdbcp">Spring Framework - Commons DBCPの取扱い</a></div>
+
+	<h2 id="dbmetainstancehandler">DBMetaInstanceHandler</h2>
+	<p>
+		(staticメソッドで)テーブル名から対応する DBMeta インスタンスを取得するためのクラスです。
+		DBFluteの内部的には、ここから DBMeta を取得することが満載です。
+	</p>
+	<p>
+		<em class="keyword">アプリケーションではあまり意識する必要はありませんが</em>、
+		アプリケーションで独自の仕組みを作る際に、テーブル名(だけ)から DBMeta の情報が欲しい場合に利用します。
+	</p>
+	<p>
+		テーブル名は、大文字小文字を区別なし、アンダースコアも吸収、スキーマ名やダブルクォーテーションの囲いも吸収されます。
+	</p>
+<pre><span class="codetitle">e.g. DBMetaInstanceHandlerの利用 {テーブル名} @Java</span><code>
+DBMeta dbmeta = DBMetaInstanceHandler.findDBMeta(<span class="literal">"MEMBER_STATUS"</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. DBMetaInstanceHandlerの利用 {プロパティ名} @Java</span><code>
+DBMeta dbmeta = DBMetaInstanceHandler.findDBMeta(<span class="literal">"memberStatus"</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. DBMetaInstanceHandlerの利用 {スキーマ名付き} @Java</span><code>
+DBMeta dbmeta = DBMetaInstanceHandler.findDBMeta(<span class="literal">"EXAMPLEDB.MEMBER_STATUS"</span>);
+</code></pre>
+	<p>
+		DBMetaは、指定されたテーブルのものだけを初期化(クラスロード)します。
+		そうすることで、アプリケーション起動時一発目のDBアクセスで、全テーブルのDBMetaの初期化(クラスロード)が発生しないようにしています。
+		(DBFluteが内部でこのクラスを利用しています)
+	</p>
+	<p>
+		逆に一括で初期化(クラスロード)するためのメソッドもあります。アプリケーション起動と同時に初期化することで、
+		その後のDBアクセスのパフォーマンスを向上されるためのものです(例えば、結合環境、本番環境など)。
+		但し、それはこのクラスから直接呼び出すのではなく、<em class="keyword">BehaviorSelector に正式にアプリケーションで呼び出してもOKなメソッドがあります</em>。
+	</p>
+
+	<h2 id="entitydefinedcommoncolumn">EntityDefinedCommonColumn</h2>
+	<p>
+		共通カラムが定義されているテーブルの Entity
+		を表現するインターフェースです。テーブルを意識せずに抽象的に共通カラムを取り扱うことができます。
+		Entity インターフェースを拡張したインターフェースとなっています。
+	</p>
+	<p>
+		共通カラムの自動設定も、リフレクションなしで、このインターフェース経由で値を設定しています。
+	</p>
+	<div class="relatedpage"><a href="../../../genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム</a></div>
+
+	<h2 id="implementedbehaviorselector">ImplementedBehaviorSelector</h2>
+	<p>
+		BehaviorSelector の実装クラスです。
+	</p>
+	<div class="relatedpage"><a href="../behaviorselector.html">BehaviorSelector</a></div>
+
+	<h2 id="implementedcommoncolumnautosetupper">ImplementedCommonColumnAutoSetupper</h2>
+	<p>
+		<em class="keyword">アプリケーションでは、基本的に意識する必要のないクラスです。</em>
+	</p>
+
+	<h2 id="implementedinvokerassistant">ImplementedInvokerAssistant</h2>
+	<p>
+		<em class="keyword">アプリケーションでは、基本的に意識する必要のないクラスです。</em>
+	</p>
+
+	<h2 id="implementedsqlclausecreator">ImplementedSqlClauseCreator</h2>
+	<p>
+		<em class="keyword">アプリケーションでは、基本的に意識する必要のないクラスです。</em>
+	</p>
+<p>TODO jflute now writing</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

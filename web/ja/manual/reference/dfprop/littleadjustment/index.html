@@ -1,0 +1,730 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,littleAdjustmentMap.dfprop,微調整" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>littleAdjustmentMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>littleAdjustmentMap</h1>
+	${indexlist}
+
+	<h2 id="about">littleAdjustmentMapとは？</h2>
+	<p>
+		様々な微調整を行うDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の littleAdjustmentMap.dfprop という名前のテキストファイルです。様々なタスクで参照されます。
+	</p>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、様々な key-value 形式のプロパティを定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+	<p>
+		必須のプロパティはありません。
+	</p>
+	<h3 id="isavailableaddingschematotablesqlname">isAvailableAddingSchemaToTableSqlName</h3>
+	<p>
+		スキーマ名をSQLのテーブル名(その他オブジェクト含む)の前に付与するか否か。true
+		を指定した場合、発行されるSQL(外だしSQLは除く)のテーブル名表現が "[schema-name].[table-name]"
+		という形式となります。スキーマ名の付与が必須の環境において有効です。
+	</p>
+	<p>
+		<em class="keyword">AdditionalSchema のテーブルにおいては、この設定が内部的に有効</em>
+		になります(必ず必要なため)。そのため、このプロパティはメインスキーマのオブジェクトのための設定となります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>スキーマ名は自動生成時に埋め込まれる(固定する)ので、<em class="keyword">開発環境・本番環境の違いに注意</em></li>
+				<li>スキーマ名が存在しないDBMSでは利用不可</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isavailableaddingcatalogtotablesqlname">isAvailableAddingCatalogToTableSqlName</h3>
+	<p>
+		カタログ名(データベース名)をSQLのテーブル名(その他オブジェクト含む)の前に付与するか否か。<em class="keyword">isAvailableAddingSchemaToTableSqlName
+		が true になっていることが前提</em> で、このプロパティに true
+		を指定した場合、発行されるSQL(外だしSQLは除く)のテーブル名表現が "[catalog-name].[schema-name].[table-name]"
+		という形式となります。カタログ名(データベース名)の付与が必須の環境において有効です。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#catalog">カタログ(Catalog)</a></div>
+	<p>
+		<em class="keyword">カタログを指定している AdditionalSchema のテーブルにおいては、この設定が内部的に有効</em>
+		になります(必ず必要なため)。そのため、このプロパティはメインスキーマのオブジェクトのための設定となります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - 追加スキーマ</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>カタログ名は自動生成時に埋め込まれる(固定する)ので、<em class="keyword">開発環境・本番環境の違いに注意</em></li>
+				<li>カタログ名が存在しないDBMSでは利用不可</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isavailabledatabasedependency">isAvailableDatabaseDependency</h3>
+	<p>
+		DBMS依存の機能(メソッド)を生成するためのプロパティ。生成されるメソッドは DBMS
+		ごとに変わるため、将来的に別の DBMS
+		に移行する可能性があって、その移行をスムーズにしたい場合は、このプロパティを極力利用しないことをお奨めします。
+	</p>
+	<div class="relatedpage"><a href="../../dbway">DBMSの取扱い</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="isavailabledatabasenativejdbc">isAvailableDatabaseNativeJDBC</h3>
+	<p>
+		DBMS依存のJDBCのクラスを利用して最適化するかどうかのプロパティ。<span class="frm">@since 0.9.7.5</span>
+	</p>
+	<p>
+		例えば、Oracle のDATE型(時分秒あり)に対する検索条件では、java.sql.Timestamp でバインドするよりも、OracleのJDBCのネイティブ型
+		oracle.sql.DATE でバインドする方がインデックス利用効率が良いことが報告されています。このプロパティを利用することで、こういった最適化が利用できます。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/oracle/index.html#oracledate">Oracle - Oracleの日付型の最適化</a></div>
+	<p>
+		また、OracleのPL/SQL表(TABLE型)やVARRAY型などのArray型は、バインドする際にどうしても Oracle
+		のJDBCのネイティブ型を利用する必要があります。このプロパティを利用することで、こういった機能が利用できるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/oracle/index.html#parametertype">Oracle - プロシージャパラメータの型</a></div>
+	<p>
+		このプロパティを有効にすると、自動生成されたクラスの中で、DBMS依存のJDBCのクラスをコンパイルレベルで参照します。
+		ゆえに、プロジェクトのクラスパスでそれらクラスが参照できるようになっていることが求められます。但し、最適化の存在しないDBMSにおいては何も変わりません。
+		このプロパティが導入された最初のバージョンでは、Oracle のみ有効なプロパティとなっています。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/oracle/index.html#oracledate">DBMSの取扱い - Oracle - Oracleの日付型の最適化</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="isavailablenonprimarykeywritable">isAvailableNonPrimaryKeyWritable</h3>
+	<p>
+		PKが存在しないテーブルにも insert できるようにするプロパティ。通常、DBFluteではPKのないテーブルに対しては、
+		Behaviorを使っての更新処理はできません(更新系メソッドが生成されない)。このプロパティを利用することで insert
+		だけはできるようになります。(ただし、デフォルト制約には対応できない insert 文になります)
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/deprecatedfit/nonprimarykeyinsert/index.html">現場フィット - PKのないinsert</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/pkconstraint.html">DB設計 - PK制約について</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		もし、PKの役割をするカラムは存在していてPK制約がないだけの場合は、このプロパティの代わりに
+		additionalPrimaryKey を利用することをお奨めします。
+	</p>
+	<div class="detailpage"><a href="../additionalprimarykey/index.html">additionalPrimaryKeyMap.dfprop</a></div>
+	<h3 id="classificationundefinedhandlingtype">classificationUndefinedHandlingType <span class="frm">@since 1.1</span></h3>
+	<p>
+		DB上に(DBFluteプロパティで)区分値として定義されていない値が検索されたときの挙動を決めるプロパティ。
+		例外にしたり、ログを出したり選択できます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>EXCEPTION or LOGGING or ALLOWED</dd>
+		<dt>デフォルト</dt><dd>LOGGING</dd>
+	</dl>
+	<p>
+		それぞれの値による挙動は以下のとおりです。
+	</p>
+	<dl class="keymainlist">
+		<dt>EXCEPTION</dt><dd>UndefinedClassificationCodeException が throw される</dd>
+		<dt>LOGGING</dt><dd>INFOログが出力され、処理は続行される <span class="frm">(CDefではgetできない)</span></dd>
+		<dt>ALLOWED</dt><dd>特にログも出力されず、処理は続行される <span class="frm">(CDefではgetできない)</span></dd>
+	</dl>
+	<p>
+		DB上の値がDBFluteプロパティで定義された区分値の中に必ず存在するなら(隠れ区分値がなければ)、EXCEPTIONにすると良いでしょう。
+		データバグを発見するのに有効です。通常は隠れ区分値があってはいけないと想定されるので、多くのプロジェクトで活用できると想定されます。
+	</p>
+	<h3 id="ischeckselectedclassification">isCheckSelectedClassification <span class="frm">*old</span></h3>
+	<p>
+		<span class="frm">※DBFlute-1.1.x (Java8版) からは、classificationUndefinedHandlingType の方がメインのプロパティとなります。
+		互換性は維持される想定ですが、classificationUndefinedHandlingType に移行する方が良いでしょう。</span>
+	</p>
+	<p>
+		DB上に(DBFluteプロパティで)区分値として定義されていない値が検索されたときに明示的な例外にするプロパティ。定義されていない値が(検索時に)検知されると
+		IllegalClassificationCodeException が発生する。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		DB上の値がDBFluteプロパティで定義された区分値の中に必ず存在するなら(隠れ区分値がなければ)、
+		データバグを発見するのに有効です。通常は隠れ区分値があってはいけないと想定されるので、多くのプロジェクトで活用できると想定されます。
+		isForceClassificationSetting プロパティと併用すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#isforceclassificationsetting">this - isForceClassificationSetting</a></div>
+	<h3 id="isforceclassificationsetting">isForceClassificationSetting <span class="frm">*old</span></h3>
+	<p>
+		<span class="frm">※DBFlute-1.1.x (Java8版) からは、デフォルトで true になり、classificationDefinitionMap.dfprop にて区分値ごとに調整ができるようになっています。</span>
+	</p>
+	<p>
+		EntityやCBにおいて、区分値の関連付いたカラムのネイティブ型での設定メソッドの可視性を protected にするプロパティ。
+		区分値メソッドの利用を強制させることができます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/classification/index.html">現場フィット - 区分値</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true if 1.1.x, false if 1.0.x</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>共通カラムの区分値カラムは、Entityは public のまま <span class="frm">@since 1.0.4C</span></li>
+				<li>共通カラムの区分値カラムがある場合は利用できない <span class="frm">@until 1.0.4B</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		ただし、DBFluteとは無関係のツールなどでEntityに対して設定処理を行う場合や、
+		既に区分値であることが保証されたパラメータの直接設定などにおいて注意が必要です。
+		そのような場合も必ず CDef (ENUM)経由での設定を行う必要があります。
+	</p>
+	<p>
+		また、もしDB上に区分値定義にない値が存在していてその値を検索した場合、
+		DBFluteも区分値メソッドを使って Entity にセットするため、該当する区分値がないという判断で Entity には null
+		がセットされます。よって、もし隠れ区分値などがある場合は、このプロパティは利用できません。
+		逆に、そのような隠れ区分値はデータ不備であると言い切れるなら(通常は言い切れる)、このプロパティを有効にした上で
+		isCheckSelectedClassification プロパティを有効にすると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="#ischeckselectedclassification">this - isCheckSelectedClassification</a></div>
+	<p>
+		ちなみに、このプロパティを一時的に有効にして、コンパイルエラー経由でネイティブ型での設定メソッドの利用箇所を特定するというツール的な使い方もできます。
+		(区分値をハードコードしている箇所を探すために)
+	</p>
+	<h3 id="isMakeEntityChaseRelation">isMakeEntityChaseRelation <span class="frm">*deleted</span></h3>
+	<p>
+		<span class="frm">※すでに削除されています。</span>
+	</p>
+	<p>
+		null を意識せずにEntityのリレーションを辿るためのメソッドを生成するプロパティ。
+	</p>
+	<p>
+		例えば、会員Entityから会員ステータスEntityの会員ステータス名称を取得する際に、
+		会員ステータスが存在しない可能性がある場合は一旦 "nullチェック" を行ってから取得する必要があります。
+	</p>
+<pre><span class="codetitle">e.g. "nullチェック" をする場合 @Java</span><code>
+MemberStatus memberStatus = member.getMemberStatus();
+<span class="keyword">if</span> (memberStatus != null) {
+    String memberStatusName = memberStatus.getMemberStatusName();
+}
+</code></pre>
+	<p>
+		会員ステータス名称が存在しない場合と会員ステータス自体が存在しない場合とを区別する必要がない場合は、このプロパティを "true"
+		にすることによって生成されるメソッドを利用することでシンプルに記述ができます。"chaseXxx()"
+		メソッドは会員ステータスが存在しない場合でも null を戻さず、"空っぽの会員ステータス" を戻します。
+	</p>
+<pre><span class="codetitle">e.g. "nullチェック" を意識しないで辿る場合 @Java</span><code>
+String memberStatusName = member.chaseMemberStatus().getMemberStatusName();
+</code></pre>
+	<p>
+		利用するWEBフレームワークなどの特徴によって、このメソッドがアプリケーションで統一的に扱えるような場合に有効です。
+		逆に、ターゲットが曖昧な場合はディベロッパーが混乱するだけですので利用しないことをお奨めします。
+	</p>
+	<div class="relatedpage"><a href="../../example/maihamadb.html">MaihamaDB</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>0.9.5.5で廃止されたisMakeEntityTraceRelationプロパティを代替</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isentityconvertemptystringtonull">isEntityConvertEmptyStringToNull</h3>
+	<p>
+		Entityにて、空文字を null に変換するプロパティ。
+	</p>
+	<p>
+		Entity経由の登録・更新データ、検索データに含まれる空文字を null
+		と扱う場合に有効です。全てのカラムにおいて、業務的に空文字は "値がないこと(null)"
+		として取り扱って問題ないことが前提です。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+<pre><span class="codetitle">e.g. 空文字が null に変換される {MEMBER_NAME} @Java</span><code>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberName(<span class="literal">""</span>);
+assertNull(member.getMemberName());
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>get メソッドにて変換された値が戻される</li>
+				<li>(内部的な)インスタンス変数では空文字は保持されている</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="ismakeconditionqueryequalemptystring">isMakeConditionQueryEqualEmptyString</h3>
+	<p>
+		ConditionBeanの検索条件で "カラムの値が空文字であること" という検索条件メソッドを生成するプロパティ。
+	</p>
+	<p>
+		通常、ConditionBeanの検索条件は "null" と "空文字" を無効な値として扱うため、空文字を有効な条件値として利用したい場合は、
+		このプロパティを利用する必要があります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/emptystring/index.html">現場フィット - 空文字の取扱い</a></div>
+<pre><span class="codetitle">e.g. "会員名称が空文字であること" という検索条件を指定する場合 @Java</span><code>
+cb.query().setMemberName_Equal_EmptyString();
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>NotEqualのメソッドも生成される</li>
+				<li>IncludeQueryの設定と組み合わせれば、限定したカラムにだけ生成することが可能</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../includequery/index.html">includeQueryMap.dfprop</a></div>
+	<h3 id="ispagingcountlater">isPagingCountLater</h3>
+	<p>
+		ConditionBean や外だしSQLの Paging において、カウント検索が後に実行されるようになるプロパティ。
+		<span class="frm">@since 0.9.8.8</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html#countlater">ConditionBean - Paging - カウント検索を後に</a></div>
+	<p>
+		デフォルトで有効になっているので、カウント検索を先に実行されるようにする場合は false にします。
+		<span class="frm">@since 0.9.9.0A</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFluteConfigの同名のコンフィグのデフォルト値となって適用される</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="ispagingcountleastjoin">isPagingCountLeastJoin</h3>
+	<p>
+		ConditionBean の Paging のカウント検索で、必要性を自動判別して最小限の結合(Join)にするプロパティ。
+		true にすると全ての ConditionBean が enablePagingCountLeastJoin() が呼び出された状態となります。
+		<span class="frm">@since 0.9.8.8</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html#countlater">ConditionBean - Paging - カウント検索を後に</a></div>
+	<p>
+		デフォルトで有効になっているので、カウント検索での結合の最小限化をしないようにする場合は false にします。
+		<span class="frm">@since 0.9.9.0A</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFluteConfigの同名のコンフィグのデフォルト値となって適用される</li>
+				<li>Union を利用している ConditionBean の場合は無視される</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isinnerjoinautodetect">isInnerJoinAutoDetect</h3>
+	<p>
+		ConditionBean で生成されるSQLの結合で InnerJoin が可能なものを自動判別し、InnerJoin で結合するプロパティ。
+		true にすると全ての ConditionBean が enableInnerJoinAutoDetect() が呼び出された状態となります。
+		<span class="frm">@since 0.9.8.8</span>
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/innerjoinautodetect.html">ConditionBean - InnerJoinAutoDetect</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>true <span class="frm">@since 1.0.3</span></dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFluteConfigの同名のコンフィグのデフォルト値となって適用される</li>
+				<li>Union や SubQuery などの ConditionBean にも反映される</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="istabledispnameuppercase">isTableDispNameUpperCase</h3>
+	<p>
+		SchemaHTML や JavaDoc 上で表示されるテーブル名を強制的に大文字にするプロパティ。
+		ERD管理上はメタ情報が大文字で管理されていながらもDBのメタ情報では小文字で管理されてしまう状況(例えば、MySQLのlower_caseオプション)において、
+		可読性のためにドキュメント上のテーブル名は大文字管理したいという場合に有効です。
+		<span class="frm">@since 0.9.9.1A</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		ただし、DBMS上で管理されているテーブル名と厳密に一致しない文字となる可能性があるため、
+		特にメタデータを利用してテーブル名を比較するような場合は注意する必要があります。
+	</p>
+	<h3 id="istablesqlnameuppercase">isTableSqlNameUpperCase</h3>
+	<p>
+		ConditionBean や Behavior で生成されるSQL上のテーブル名を強制的に大文字にするプロパティ。
+		ERD管理上はメタ情報が大文字で管理されていながらもDBのメタ情報では小文字で管理されてしまう状況(例えば、MySQLのlower_caseオプション)において、
+		可読性のためにSQL上のテーブル名は大文字管理したいという場合に有効です。
+		<span class="frm">@since 0.9.9.0D</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="iscolumnsqlnameuppercase">isColumnSqlNameUpperCase</h3>
+	<p>
+		ConditionBean や Behavior で生成されるSQL上のカラム名を強制的に大文字にするプロパティ。
+		ERD管理上はメタ情報が大文字で管理されていながらもDBのメタ情報では小文字で管理されてしまう状況(例えば、MySQLのlower_caseオプション)において、
+		可読性のためにSQL上のカラム名は大文字管理したいという場合に有効です。
+		<span class="frm">@since 0.9.9.0D</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<h3 id="ismakedeprecated">isMakeDeprecated</h3>
+	<p>
+		非推奨のメソッドを生成するプロパティ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>特別な理由がない限りはこのプロパティは "false" がお奨め</li>
+				<li>非推奨のメソッドは将来のバージョンで完全に削除される可能性あり</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="isspecifycolumnrequired">isSpecifyColumnRequired</h3>
+	<p>
+		ConditionBean の SpecifyColumn を必須にするプロパティ。
+	</p>
+	<div class="relatedpage"><a href="../../function/ormapper/conditionbean/specify/specifycolumn.html">ConditionBean - SpecifyColumn</a></div>
+	<p>
+		SpecifyColumn は、デフォルトで必須ではありませんが、それを必須にすることができます。このプロパティを設定すると、SpecifyColumnを利用していない ConditionBean
+		で検索すると例外 (RequiredSpecifyColumnNotFoundException) が発生します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		DBFluteConfig の SpecifyColumnRequiredExceptDeterminer を設定することで、必須チェックを除外することもできます。
+		例えば、"UnitTestにおける検索は除外する" などを想定しています。
+		また、SpecifyColumnRequiredExceptDeterminer.Bowgun で豪快に設定することもできます。
+	</p>
+	<h3 id="isnonspecifiedcolumnaccessallowed">isNonSpecifiedColumnAccessAllowed</h3>
+	<p>
+		SpecifyColumn をしていないカラムを get しても例外が発生しないようにするプロパティ。
+	</p>
+	<p>
+		SpecifyColumn をしていないカラムを get したとき、1.1.x (Java8版) から例外になるように変更されていますが、それを抑制するための互換プロパティです。
+		1.0.x (Java6版) からの移行時に、既存のコードでそういうコードがあった場合でも例外にならないようにするためのものです。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>isCompatibleBeforeJava8プロパティと同値 <span class="frm">(デフォルトではfalse)</span></dd>
+	</dl>
+	<h3 id="ismakerecentlydeprecated">isMakeRecentlyDeprecated</h3>
+	<p>
+		最近、非推奨になったメソッドを生成するプロパティ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true/false</dd>
+		<dt>デフォルト</dt><dd>true</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>互換性を考慮してデフォルトは "true"</li>
+				<li>特別な理由がない限りはこのプロパティは "false" がお奨め</li>
+				<li>非推奨のメソッドは将来のバージョンで完全に削除される可能性あり</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="extendeddbfluteinitializerclass">extendedDBFluteInitializerClass</h3>
+	<p>
+		DBFluteに関する独自の固定的な初期化処理をしたい場合に設定するプロパティ。
+		主に、どの環境でも有効にしたい固定的な DBFluteConfig の設定を行うために利用します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html">allcommon - DBFluteConfig</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>DBFluteInitializer のサブクラス(FQCN)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>このプロパティを利用するときは慎重に慎重を重ねること</li>
+				<li>DBFluteInitializerのソースを読んで理解してから利用すること</li>
+				<li>DBFluteConfigの設定処理は prologue メソッドをオーバーライドして行うこと</li>
+				<li>prologue メソッドをオーバーライドする際は、super の処理も必ず呼び出すこと</li>
+				<li>DBFlute.NET では無効なプロパティ</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/index.html">DBFluteランタイム</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet/index.html">DBFlute.NET</a></div>
+	<h3 id="extendedimplementedinvokerassistantclass">extendedImplementedInvokerAssistantClass</h3>
+	<p>
+		DBFluteのコアな部分の挙動を独自に拡張したい場合に設定するプロパティ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>ImplementedInvokerAssistant のサブクラス(FQCN)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>このプロパティを利用するときは慎重に慎重を重ねること</li>
+				<li>DBFluteランタイムのソースを読んで理解してから利用すること</li>
+				<li>DBFlute.NET では無効なプロパティ</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/index.html">DBFluteランタイム</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet/index.html">DBFlute.NET</a></div>
+	<h3 id="extendedimplementedcommoncolumnautosetupperclass">extendedImplementedCommonColumnAutoSetupperClass</h3>
+	<p>
+		共通カラムの自動設定の挙動を独自に拡張したい場合に設定するプロパティ。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>ImplementedCommonColumnAutoSetupper のサブクラス(FQCN)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>このプロパティを利用するときは慎重に慎重を重ねること</li>
+				<li>DBFluteランタイムのソースを読んで理解してから利用すること</li>
+				<li>DBFlute.NET では無効なプロパティ</li>
+			</ul>
+		</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/index.html">DBFluteランタイム</a></div>
+	<div class="relatedpage"><a href="../../../topic/dbflutenet/index.html">DBFlute.NET</a></div>
+	<h3 id="shortcharhandlingmode">shortCharHandlingMode</h3>
+	<p>
+		char型のカラムに対して、その桁数に満たない値が設定された場合の挙動を指定します。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/deprecatedfit/shortcharhandling/index.html">現場フィット - char型の桁数不足の取扱い</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt>
+		<dd>
+			NONE, EXCEPTION, RFILL, LFILL
+		</dd>
+		<dt>デフォルト</dt><dd>NONE</dd>
+	</dl>
+	<h3 id="quotetablenamelist">quoteTableNameList</h3>
+	<p>
+		BehaviorやCBなどで自動で発行するSQL上でクォートする対象のテーブルのリストを指定します。また、ReplaceSchema や Generate
+		など DBFlute タスク内で発行するSQLでも(一部)有効です<span class="frm">(@since 0.9.7.9)</span>。
+		主に予約語などを利用しているテーブルに利用します。
+	</p>
+	<p>
+		ただし、DBFlute として予約語に対して積極的なサポートをしているわけではないため、アプリへの適用可否をついてしっかりと確認するように下さい。
+		DBFluteとしては、予約語のテーブル名(カラム名)は強く非推奨として、どうしても名前を変えられない場合は、
+		その予約語のテーブルは自動生成対象外に設定し、そのテーブルを参照する更新可能ビューやシノニムを自動生成対象にするやり方をお奨めします。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/supported.html#quote">DBFluteのサポート情報 - SQL上でもクォートの必要な名前</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブル名のリスト or $$ALL$$</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>$$ALL$$が指定されている場合は、問答無用で全てのテーブルがクォートされる <span class="frm">@since 0.9.7.9</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		classificationDefinitionMap.dfprop のテーブル区分値の定義、table
+		のテーブル名に対しても有効ですが<span class="frm">(@since 0.9.7.9)</span>、where や orderBy
+		などの(SQLの一部としての)フリーテキストの表現の中に含まれるテーブル名は対象外です(その代わり、直接クォートした記述が許可されます)。
+	</p>
+	<div class="relatedpage"><a href="../classificationdefinition/index.html#table">dfprop - プロパティ - table</a></div>
+	<p>
+		また、その他 SQL の一部をフリーテキストで記述するプロパティなどにおいて対象外です。
+		例えば、additionalForeignKeyMap.dfprop の fixedCondition の中のテーブル名などが該当します。
+	</p>
+	<div class="relatedpage"><a href="../additionalforeignkey/index.html#fixedcondition">dfprop - プロパティ - fixedCondition</a></div>
+	<p>
+		このプロパティは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<h3 id="quotecolumnnamelist">quoteColumnNameList</h3>
+	<p>
+		BehaviorやCBなどで自動で発行するSQL上でクォートする対象のカラムのリストを指定します。また、ReplaceSchema や Generate
+		など DBFlute タスク内で発行するSQLでも(一部)有効です<span class="frm">(@since 0.9.7.9)</span>。
+		主に予約語などを利用しているテーブルに利用します。<span class="frm">@since 0.9.7.5</span>
+	</p>
+	<p>
+		ただし、DBFlute として予約語に対して積極的なサポートをしているわけではないため、アプリへの適用可否をしっかりと確認するように下さい。
+		DBFluteとしては、予約語のテーブル名(カラム名)は強く非推奨として、どうしても名前を変えられない場合は、
+		その予約語のカラムは自動生成対象外に設定し、そのカラムを参照する更新可能ビューやシノニムを自動生成対象にするやり方をお奨めします。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/supported.html#quote">DBFluteのサポート情報 - SQL上でもクォートの必要な名前</a></div>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラム名のリスト or $$ALL$$</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>$$ALL$$が指定されている場合は、問答無用で全てのカラムがクォートされる <span class="frm">@since 0.9.7.9</span></li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		classificationDefinitionMap.dfprop のテーブル区分値の定義、code, name, alias, comment
+		のカラム名に対しても有効ですが<span class="frm">(@since 0.9.7.9)</span>、where や orderBy
+		などの(SQLの一部としての)フリーテキストの表現の中に含まれるカラム名に関しては対象外となります(その代わり、直接クォートした記述が許可されます)。
+	</p>
+	<div class="relatedpage"><a href="../classificationdefinition/index.html#code">dfprop - プロパティ - code</a></div>
+	<p>
+		また、その他 SQL の一部をフリーテキストで記述するプロパティなどにおいて対象外です。
+		例えば、additionalForeignKeyMap.dfprop の fixedCondition の中のカラム名などが該当します。
+	</p>
+	<div class="relatedpage"><a href="../additionalforeignkey/index.html#fixedcondition">dfprop - プロパティ - fixedCondition</a></div>
+	<p>
+		このプロパティは TwoEdgedSword 認定のされた機能です。
+	</p>
+	<div class="relatedword"><a href="../../../reference/dictionary/alphabet/wt.html#twoedgedsword">TwoEdgedSword</a></div>
+	<h3 id="relationalnullobjectmap">relationalNullObjectMap</h3>
+	<p>
+		Entity で親テーブル(many-to-one, one-to-one)のデータを取得する際に、そのデータが存在しなかったときに戻す NullObject
+		を定義します。通常は、データが存在しない場合は戻るのは null ですが、独自のインスタンスを戻すことができます。<span class="frm">@since 0.9.9.1B</span>
+	</p>
+	<p>
+		例えば、ConditionBean で会員ステータスを SetupSelect
+		しないで検索した会員において、Member.getMemberStatus()
+		を呼び出したときに、独自のインスタンスを戻すことができます。
+		この仕組みを利用すれば、テーブル区分値のキャッシュなどに活用できます。
+	</p>
+<pre><span class="codetitle">e.g. relationalNullObjectMapの仕様 @littleAdjustmentMap.dfprop</span><code>
+; relationalNullObjectMap = <span class="keyword">map:</span>{
+    ; providerPackage = [package] <span class="comment"># デフォルト: 設定なし</span>
+    ; foreignMap = <span class="keyword">map:</span>{
+        ; [table-name] = [provider-expression]
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 会員ステータスに NullObject を設定 @littleAdjustmentMap.dfprop</span><code>
+; relationalNullObjectMap = <span class="keyword">map:</span>{
+    ; providerPackage = <span class="attribute">$$packageBase$$</span>.nogen.cache
+    ; foreignMap = <span class="keyword">map:</span>{
+        ; MEMBER_STATUS = CachedMemberStatus.get(<span class="attribute">$$PrimaryKey$$</span>)
+    }
+}
+</code></pre>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>providerPackage で指定されたパッケージが Entity で import される</li>
+				<li>providerPackage で $$packageBase$$ と指定すると、DBFluteの自動生成パッケージ(packageBase)に</li>
+				<li>table-name には、NullObject にしたい関連テーブルを指定 (例えば、MEMBER_STATUS)</li>
+				<li>provider-expression にて $$PrimaryKey$$ と指定すると、関連テーブルの主キーに対応する Getter 表現に</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="cursorselectfetchsize">cursorSelectFetchSize</h3>
+	<p>
+		全てのカーソル検索に適用するデフォルトの FetchSize (JDBCのパラメータ) を設定します。
+		カーソル検索におけるパフォーマンスの調整や、JDBCドライバの特殊な仕様に対応する場合に利用します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>プログラム上で記述できるInteger表現(リテラル値など)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>リテラル値のみならず、Integer.MIN_VALUE と指定することもできる</li>
+				<li>DBFluteConfigの同名のコンフィグのデフォルト値となって適用される</li>
+			</ul>
+		</dd>
+	</dl>
+	<p>
+		主に、MySQLのカーソル検索のメモリ対策などで利用します。
+	</p>
+	<div class="relatedpage"><a href="../../dbway/mysql/index.html#cursorselect">MySQLの取扱い - カーソル検索でのメモリ対策</a></div>
+	<h3 id="refreshmap">refreshMap</h3>
+	<p>
+		Eclipseの自動リフレッシュに関する設定を変更します。
+	</p>
+	<p>
+		<span class="frm">※1.0.x (Java6版) までは、refreshDefinitionMap.dfprop
+		という独立したファイルで設定していましたが、1.1.x (Java8版) からは littleAdjustmentMap.dfprop の一部プロパティになりました。</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>EclipseにEMechaプラグインが入っていることが前提</li>
+				<li>projectName でEclipseプロジェクト名を指定</li>
+				<li>requestUrl でEclipseプラグインのEMechaに対するURLを指定</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="optimisticlockmap">optimisticLockMap</h3>
+	<p>
+		排他制御に関する設定を変更します。
+	</p>
+	<p>
+		<span class="frm">※1.0.x (Java6版) までは、optimisticLockDefinitionMap.dfprop
+		という独立したファイルで設定していましたが、1.1.x (Java8版) からは littleAdjustmentMap.dfprop の一部プロパティになりました。</span>
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>map型プロパティの key-value</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>デフォルトでは、VERSION_NO という名前のカラムで排他制御される</li>
+				<li>updateDateFieldName で更新日時カラム名を指定すると、更新日時で排他制御される</li>
+				<li>versionNoFieldName で別のバージョン番号カラム名を指定すると、そのカラムで排他制御される</li>
+			</ul>
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

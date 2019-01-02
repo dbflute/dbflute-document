@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,デバッグログ,DebugLog,SQLのログ,SqlLog" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>デバッグログ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>デバッグログ</h1>
+	${indexlist}
+
+	<h2 id="about">デバッグログとは？</h2>
+	<p>
+		主に開発中に、ディベロッパーがデバッグ用に実行された処理の詳細情報を得るためのログです。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/programming/debuglog.html">プログラミング - デバッグログ</a></div>
+	<p>
+		DBFluteでは、主に <em class="keyword">SQLの実行ログ(SQL自体も含む)</em> を示します。
+	</p>
+
+	<h2 id="setting">デバッグログの設定</h2>
+	<p>
+		DBFluteでは、<em class="keyword">Commons Logging</em> を利用し、DEBUGレベルでログを出力しています。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/friends/commonslogging.html">Commons Logging</a></div>
+	<p>
+		ここでは、Commons Logging 対応ライブラリである <em class="keyword">Log4j</em>
+		を前提に説明をします。その他、説明上の前提がありますが、実際に利用するときにこの通りである必要はありません。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/friends/log4j.html">Log4j</a></div>
+    <ul>
+    	<li>Commons Logging の実行ライブラリとして Log4j を利用</li>
+    	<li>"log4j.properties" を利用(XMLではない)</li>
+    	<li>"console" という名前の Appender が設定されている</li>
+    </ul>
+    <h3 id="dbflutepackage">DBFluteパッケージをログ出力の対象に</h3>
+	<p>
+	    DBFluteパッケージをログ出力の対象にすることで、SQL実行ログが出力されます。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteパッケージをログ出力の対象にする @log4j.properties</span><code>
+log4j.logger.<span class="point">org.seasar.dbflute</span> = ALL, console
+</code></pre>
+	<p>
+		例えば、DIコンテナに Seasar を利用していて org.seasar
+		が既にログ出力の対象になっている場合は、DBFluteパッケージを明示的に設定する必要はありません。
+		(明示的に OFF にしない限り、親パッケージの設定が継承されるはずです)
+	</p>
+	<h3 id="loglayout">ログレイアウトを調整</h3>
+	<p>
+		ログレイアウトをしっかり調整することで、デバッグログがさらに見やすいものになります。
+		例えば、ログ出力したクラスやメソッド名にソースファイル上の行番号などを表示することで、
+		そのログメッセージの意味がわかりやすいものとなると同時に、トレースする際にその情報が多いに役に立ちます。
+	</p>
+<pre><span class="codetitle">e.g. foo アペンダのログレイアウトをいい感じに @log4j.properties</span><code>
+log4j.appender.foo=org.apache.log4j.ConsoleAppender
+<span class="abbreviation">...</span>
+log4j.appender.foo.layout=org.apache.log4j.PatternLayout
+log4j.appender.foo.layout.ConversionPattern=<span class="point">%d [%t]-%-5p (%C{1}#%M():%L) - %m%n</span>
+</code></pre>
+	<p>
+		ツールなどで Log4j の設定ファイルも自動生成されるような場合、簡易なレイアウトになっていることもありますので、
+		内容を確認してしっかり設定をすることが推奨されます。
+	</p>
+<pre><span class="codetitle">e.g. ログレイアウトをいい感じにした場合のログ @log4j.properties</span><code>
+<span class="abbreviation">...</span>:29:16,989 [main]-INFO  (DBFluteInitializer#announce():56) - ...Initializing DBFlute components
+<span class="abbreviation">...</span>:29:16,996 [main]-INFO  (DBFluteConfig#unlock():568) - ...Unlocking the configuration of DBFlute
+<span class="abbreviation">...</span>:29:16,997 [main]-INFO  (DBFluteConfig#setDataSourceHandler():287) - ...Setting dataSourceHandler: SpringDBCPDataSourceHandler(for Spring and Commons-DBCP)
+<span class="abbreviation">...</span>:29:16,997 [main]-INFO  (DBFluteConfig#lock():558) - ...Locking the configuration of DBFlute
+<span class="abbreviation">...</span>:29:18,077 [main]-DEBUG (XLog#log():41) - ...Initializing sqlExecution for the key 'MEMBER:selectList(MemberCB):Member'
+<span class="abbreviation">...</span>:29:18,259 [main]-DEBUG (XLog#log():41) - SqlExecution Initialization Cost: [00m00s183ms]
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="sqlexeclog">DBFluteのSQL実行ログ</h2>
+	<p>
+		主な要素は以下の通りです。
+	</p>
+	<dl class="textlist">
+		<dt>Behaviorの呼び出しメソッド</dt>
+		<dd>どの Behavior の、どのメソッドが呼び出されたかがタイトル風に出力されます。</dd>
+		<dt>Behaviorを呼び出したクラスの情報</dt>
+		<dd>
+			どのクラスのどのメソッドの何行目で Behavior のメソッドを呼び出したかが出力されます。
+			Pageクラス、Actionクラス、Serviceクラス、Facadeクラス、Logicクラスから呼び出された場合に情報が出力されます。
+		</dd>
+		<dt>実行されるSQLの表示用SQL</dt>
+		<dd>
+			実行されるSQLの表示用SQL(DisplaySql)が出力されます。(SQLが実行される直前に)
+			<div class="relatedpage"><a href="../displaysql/index.html">現場フィット - DisplaySql</a></div>
+		</dd>
+		<dt>実行されたSQLの結果概要</dt>
+		<dd>
+			呼び出された Behavior のメソッドが処理コスト(実質的にSQLの処理コストの近似値となる)、
+			(検索などの)結果件数、結果データの一部情報(リスト検索の場合は一件目のみ)が出力されます。
+		</dd>
+	</dl>
+<pre><span class="codetitle">e.g. DBFluteのSQLの実行ログ(ConditionBean) {MEMBER} @Console</span><code>
+- /===========================================================================
+-                                                       MemberBhv.selectList()
+-                                                       =====================/
+- MemberAdminPage.initialize():43 --> ...
+- <span class="keyword">select</span> dfloc.MEMBER_ID as MEMBER_ID, dfloc.MEMBER_NAME as MEMBER_NAME, dfloc.MEMBER_ACCOUNT as MEMBER_ACCOUNT, dfloc.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE, dfloc.FORMALIZED_DATETIME as FORMALIZED_DATETIME, dfloc.BIRTHDATE as BIRTHDATE, dfloc.REGISTER_DATETIME as REGISTER_DATETIME, dfloc.REGISTER_USER as REGISTER_USER, dfloc.REGISTER_PROCESS as REGISTER_PROCESS, dfloc.UPDATE_DATETIME as UPDATE_DATETIME, dfloc.UPDATE_USER as UPDATE_USER, dfloc.UPDATE_PROCESS as UPDATE_PROCESS, dfloc.VERSION_NO as VERSION_NO, dfrel_0.MEMBER_STATUS_CODE as MEMBER_STATUS_CODE_0, dfrel_0.MEMBER_STATUS_NAME as MEMBER_STATUS_NAME_0, dfrel_0.DISPLAY_ORDER as DISPLAY_ORDER_0
+-   <span class="keyword">from</span> MEMBER dfloc
+-     <span class="keyword">left outer join</span> MEMBER_STATUS dfrel_0 <span class="keyword">on</span> dfloc.MEMBER_STATUS_CODE = dfrel_0.MEMBER_STATUS_CODE
+-  <span class="keyword">where</span> dfloc.MEMBER_NAME like <span class="literal">'S%'</span> <span class="keyword">escape</span> <span class="literal">'|'</span>
+-  <span class="keyword">order by</span> dfloc.MEMBER_ID <span class="keyword">asc</span>
+- ===========/ [00m00s016ms (4) first={1,Stojkovic,Pixy,FML,2007-12-01 02:01:10.0,1965-03-02 15:00:00.0,2008-01-23 13:38:25.989,replace-schema,replace-schema,2008-01-23 13:38:25.991,replace-schema,replace-schema,1}]
+</code></pre>
+	<p>
+		この要素の中の、"実行されるSQLの表示用SQL" を <em class="keyword">QueryLog</em>、それ以外の要素をまとめて
+		<em class="keyword">ExecuteStatusLog</em> と呼びます。
+	</p>
+	<p>
+		これらログを DEBUG ではなく、オプションで INFO レベルで出力するように変更することも可能です。また、QueryLog は QLog
+		というクラス、ExecuteStatusLog は XLog というクラスから出力されますので、Log4j の設定でそれらクラスを利用して制御できます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#queryloglevelinfo">DBFluteConfig - queryLogLevelInfo</a></div>
+	<div class="relatedpage"><a href="../../../ormapper/runtime/allcommon/dbfluteconfig.html#executestatusloglevelinfo">DBFluteConfig - executeStatusLogLevelInfo</a></div>
+
+	<h2 id="various">DBFluteの様々なログ</h2>
+	<p>
+		TODO jflute now writing
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		dbflute-basic-example では、実際にデバッグログの設定がされていて、テストケース実行時にそのログをコンソールで確認することができます。
+		(他のほとんどのExampleでも同様に設定されています)
+	</p>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

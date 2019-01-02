@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,disableRelationMappingCache" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DisableRelationMappingCache | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DisableRelationMappingCache</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		アーキテクト向けの機能です。
+	</p>
+	<div class="relatedword"><a href="../../../../reference/dictionary/alphabet/wa.html#architect">Architect (アーキテクト)</a></div>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		関連テーブルのEntityのインスタンスの(一回のDBアクセス内における)キャッシュを利用せずに、同じPK値だとしても別々のインスタンスを生成してパフォーマンスを落としてしまう機能です<span class="frm">(@since 1.0.1)</span>。
+		ちなみに、ここでいうキャッシュは一回のDBアクセス内における短い期間の一時的なキャッシュであり、他のスレッドや他のDBアクセスで共有されるキャッシュではありません。
+	</p>
+	<p>
+		setupSelect(Relation)を使って取得されるmany-to-oneの関連テーブル、例えば、会員に対する会員ステータスは、
+		複数の会員Entityから同じステータスの会員ステータスEntityを参照します。
+		そのとき、同じステータスであれば、会員ステータスEntityのインスタンスは全て同じインスタンスとなります。
+		これは、DBFluteのマッピング処理にて関連テーブルのEntityがキャッシュされているからです。
+	</p>
+	<p>
+		このキャッシュを利用せずに、同じ会員ステータスであってもインスタンスをそれぞれ別にさせることができる、というのか DisableRelationMappingCache です。
+		他の機能と相性が悪い可能性があります。例えば、LoadReferrerで親テーブルの子テーブル(会員ステータスの会員ログイン)を取得しようとしたとき、
+		同じ会員ステータスでもインスタンスが違うことが原因で、全ての会員ステータスEntityに会員ログインが紐付くとは限りません。
+	</p>
+	<p>
+		万が一でも、使いたくない機能ですが、万が一キャッシュをすることがアプリにとって都合が悪い、もしくは、キャッシュがあることで
+		DBFlute 内部のマッピングのロジックに不都合がある場合に、取り急ぎの回避的な用途で利用できます。
+	</p>
+	<p>
+		ディベロッパー向けに思えますが、アーキテクトへの相談無しに利用してはいけません。そういう意味で、"アーキテクト向けの機能" と謳っています。
+	</p>
+	<h3 id="twoedgedsword">諸刃の剣</h3>
+	<p>
+		TwoEdgedSword 認定のされた機能です。自分を斬りつけて最も痛い思いをする可能性のある機能です。
+		意味もなくこのメソッドを呼んではいけません。
+	</p>
+	<div class="inucolumn">
+		<h3 id="alreadyfixed">この機能が必要になった問題は既に直った</h3>
+		<p>
+			この機能が必要になった問題は、この機能が反映された同じバージョンで既に直っています。
+			よって、この機能は本当に不要と言えるかもしれませんが、念のため残しました。
+		</p>
+		<p>
+			業務的many-to-oneで、基点テーブル側のFKカラムが複合PKの関連テーブルに対して足りてなくて(A, BというPKカラムがあって、基点テーブルがAに対するカラムしか持っていない)、
+			別の関連テーブルのカラム(Bに対応するカラム)と複合的に合わせて初めて参照することができるパターン。
+			fixedConditionに別の関連テーブルのカラムを使った結合条件を足して many-to-one とするわけですが、
+			localColumnNameのカラム(ここではAカラム)だけではキャッシュのキーにならないため、マッピングがずれる問題がありました。
+			言葉で説明しても「ピン」と来ないかもしれません。そのくらいレアなケースです。
+		</p>
+		<p>
+			この問題は、既に解決されました。キャッシュのキーハンドリングのロジックを変更したことで、
+			キャッシュを有効にしたままでも、このレアケースに対応できるようにしました。
+			当然、通常パターンを含むそれ以外のパターンに影響がないことを前提での修正です(テストケースもさらに増やしました)。
+		</p>
+	</div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		disableRelationMappingCache() を呼び出します。
+	</p>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<dl class="textlist">
+		<dt>引数の指定</dt>
+		<dd>
+			なし
+		</dd>
+	</dl>
+	<h3 id="deprecated">非推奨メソッド</h3>
+	<p>
+		deprecated になっています。将来的に削除されるわけではありませんが、"安易に使ってくれるな" ということを示します。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

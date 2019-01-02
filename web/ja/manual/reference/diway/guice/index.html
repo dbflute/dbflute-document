@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Google Guice,取扱い,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>Google Guiceの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Google Guiceの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>Google Guice 1.0 or 2.0 <span class="frm">(no-aop OK)</span></dd>
+	</dl>
+
+	<h2 id="diclass">DI設定クラス (DBFluteModule)</h2>
+	<p>
+		DBFluteは、Generateタスクにて DBFluteのコンポーネントの登録処理が実装されている <em class="keyword">DBFluteModule</em>
+		を自動生成します。主には、Behavior と allcommon のクラスが登録されます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html#disetting">Generate - DI設定ファイルも自動生成</a></div>
+	<p>
+		この DBFluteModule が <em class="keyword">アプリケーションのDI設定ファイルから参照されるように設定</em>
+		することで、アプリケーションのコンポーネントからDBFluteのコンポーネント(主にBehavior)が利用できるようになります。
+	</p>
+	<div class="relatedpage"><a href="../../../../environment/setup/injection.html#guice">セットアップ - DI環境の調整</a></div>
+<pre><span class="codetitle">e.g. DBFluteモジュールの初期化 @Java</span><code>
+List&lt;Module&gt; moduleList = ...
+DataSource dataSource = ...
+moduleList.add(<span class="keyword">new</span> DBFluteModule(dataSource));
+Injector injector = Guice.createInjector(moduleList.toArray(<span class="keyword">new</span> Module[]{}));
+</code></pre>
+
+	<h2 id="diway">DIの方法 (Behavior)</h2>
+	<p>
+		DI管理されているコンポーネントクラスにおいて、Behavior のプロパティを定義し、@Inject
+		アノテーションを付与するとインジェクトされます。他にも方法はありますのでアプリケーションで統一的な実装をするようにして下さい。
+	</p>
+<pre><span class="codetitle">e.g. Inject アノテーションの利用 {Pageクラス} @Java</span><code>
+<span class="keyword">public class</span> XxxPage {
+    <span class="keyword">protected</span> MemberBhv <span class="attribute">memberBhv</span>;
+
+    <span class="point">@Inject</span>
+    <span class="keyword">public void</span> setMemberBhv(MemberBhv memberBhv) {
+        <span class="keyword">this</span>.<span class="attribute">memberBhv</span> = memberBhv;
+    }
+}
+</code></pre>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		Google Guice を使ったExample実装 <em class="keyword">dbflute-guice-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

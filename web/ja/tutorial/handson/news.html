@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオンニュース" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>ハンズオンニュース | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンニュース</h1>
+	${indexlist}
+
+	<h2 id="20151010">Lasta Di に変更</h2>
+	<p>
+		ハンズオン環境で利用しているDIコンテナが、Seasar から Lasta Di に変わりました。<span class="frm">(Java8以降)</span>
+	</p>
+	<div class="relatedpage"><a href="../../lastaflute/lastadi/index.html">Lasta Di</a></div>
+	<ol>
+		<li>pom.xmlを修正、Seasar関連のものを削除して、Lasta Diを追加</li>
+		<li>maven-eclipse.bat|sh を叩く</li>
+		<li>UnitContainerTestCase の import 文を編成 (seasar 部分を lastadi に)</li>
+		<li>src/test/resources のファイルをすべて削除、.gitkeep (空のテキストファイル) だけ配置</li>
+		<li>src/main/resources に、<em class="smallmark">app.xml, jdbc.xml, lasta_di.properties, logback.xml</em> を追加</li>
+		<li>basicInfoMap.dfprop 似て、targetContainer を <em class="smallmark">lasta_di</em> にして、再自動生成</li>
+	</ol>
+	<p>
+		pom.xmlは、以下をコピーして、該当箇所に設定しましょう。
+	</p>
+<pre><span class="codetitle">e.g. pom.xmlのproperties @pom.xml</span><code>
+	&lt;properties&gt;
+		<span class="point">&lt;lasta.di.version&gt;0.7.0&lt;/lasta.di.version&gt;</span>
+		<span class="abbreviation">...</span>
+	&lt;/properties&gt;
+</code></pre>
+	<p>
+		dependenciesは、もうまるごと差し替え。
+	</p>
+<pre><span class="codetitle">e.g. pom.xmlのdependencies @pom.xml</span><code>
+	&lt;dependencies&gt;
+		&lt;!-- = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = --&gt;
+		&lt;!--                                                                Main Framework --&gt;
+		&lt;!--                                                                 = = = = = = = --&gt;
+		&lt;!-- dbflute --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.dbflute&lt;/groupId&gt;
+			&lt;artifactId&gt;dbflute-runtime&lt;/artifactId&gt;
+			&lt;version&gt;${dbflute.version}&lt;/version&gt;
+		&lt;/dependency&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;mysql&lt;/groupId&gt;
+			&lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+			&lt;version&gt;${mysql.jdbc.version}&lt;/version&gt;
+			&lt;scope&gt;runtime&lt;/scope&gt;
+		&lt;/dependency&gt;
+
+		&lt;!-- lasta di --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.lastaflute&lt;/groupId&gt;
+			&lt;artifactId&gt;lasta-di&lt;/artifactId&gt;
+			&lt;version&gt;${lasta.di.version}&lt;/version&gt;
+		&lt;/dependency&gt;
+
+		&lt;!-- = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = --&gt;
+		&lt;!--                                                               Partner Library --&gt;
+		&lt;!--                                                               = = = = = = = = --&gt;
+		&lt;!-- transaction --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;javax.transaction&lt;/groupId&gt;
+			&lt;artifactId&gt;javax.transaction-api&lt;/artifactId&gt;
+			&lt;version&gt;1.2&lt;/version&gt;
+			&lt;scope&gt;provided&lt;/scope&gt;
+		&lt;/dependency&gt;
+
+		&lt;!-- logging --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+			&lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
+			&lt;version&gt;1.1.3&lt;/version&gt;
+		&lt;/dependency&gt;
+
+		&lt;!-- = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = --&gt;
+		&lt;!--                                                                       Testing --&gt;
+		&lt;!--                                                                       = = = = --&gt;
+		&lt;!-- unit test --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;junit&lt;/groupId&gt;
+			&lt;artifactId&gt;junit&lt;/artifactId&gt;
+			&lt;version&gt;4.8.2&lt;/version&gt; &lt;!-- is latest version without hamcrest --&gt;
+			&lt;scope&gt;test&lt;/scope&gt;
+		&lt;/dependency&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.dbflute.utflute&lt;/groupId&gt;
+			&lt;artifactId&gt;utflute-lasta-di&lt;/artifactId&gt;
+			&lt;version&gt;${utflute.version}&lt;/version&gt;
+			&lt;scope&gt;test&lt;/scope&gt;
+		&lt;/dependency&gt;
+	&lt;/dependencies&gt;
+</code></pre>
+	<p>
+		src/main/resources は、用意されています。
+	</p>
+	<div class="detailpage"><a href="http://dbflute.seasar.org/download/patch/handson/20151010_lasta_di/hands-on-lasta_di-resources.zip">hands-on-lasta_di-resources.zip</a></div>
+
+	<h2 id="20150311">org.docksidestageに変更</h2>
+	<p>
+		エクササイズのクラスを配置するパッケージが org.dbflute から
+		<em class="keyword">org.docksidestage</em> に変更されました。(おるぐ、どっくさいどすてーじ)
+	</p>
+	<p>
+		org.dbfluteだと、DBFluteランタイムのパッケージとアプリを想定したパッケージが同じになり、
+		参考実装として紛らわしくなってしまうため、アプリを想定したパッケージをまったく別のパッケージにすることにしました。
+	</p>
+	<p>
+		すでに org.dbflute でハンズオンしている方は、別にそのままで構いません。
+	</p>
+	<h3 id="todockside">docksidestageに移行するなら</h3>
+	<p>
+		もし、移行される場合は、以下の修正をします。
+	</p>
+	<dl class="keymainlist">
+		<dt>basicInfoMap.dfprop</dt><dd>packageBase を org.docksidestage.handson.dbflute に修正</dd>
+		<dt>log4j.properties</dt><dd>Logger設定に org.docksidestage を追加</dd>
+		<dt>convention.dicon</dt><dd>rootパッケージを org.docksidestage.handson に修正</dd>
+		<dt>Javaパッケージ</dt><dd>一斉に、org.docksidestage に変更 <span class="frm">※リファクタリング機能を使って</span></dd>
+	</dl>
+	<p>
+		そして、manage.bat|sh の renewal (1) を実行してすべて自動生成し直し。
+	</p>
+	<h3 id="tomaihamadb">データベースの名前も maihamadb に</h3>
+	<p>
+		また、データベースの名前が、exampledb から maihamadb に変わっています。もし、移行される場合は、以下を修正します。
+	</p>
+	<dl class="keymainlist">
+		<dt>databaseInfoMap.dfprop</dt><dd>urlのDB名をmaihamadb、userとpasswordをmaihamadb</dd>
+		<dt>jdbc.dicon</dt><dd>urlのDB名をmaihamadb、userとpasswordをmaihamadb</dd>
+		<dt>build.properties</dt><dd>exampledb を maihamadb に</dd>
+		<dt>maven-eclipse.bat|sh</dt><dd>exampledb を maihamadb に</dd>
+		<dt>DBFluteクライアント</dt><dd>dbflute_exampledbディレクトリを を dbflute_maihamadb に</dd>
+	</dl>
+	<p>
+		そして、manage.bat|sh の replace-schema (0) を実行し、テストケースも実行。
+	</p>
+
+	<h2 id="20140921">JavaEditorTemplatesを更新</h2>
+	<p>
+		(2014/09/21)
+	</p>
+	<p>
+		セクション１で設定した JavaEditorTemplates が更新されました。
+	</p>
+	<p>
+		以下の、JavaEditorTemplatesの設定ファイルをダウンロードし、import し直してください。
+		すべての template を選択して Remove して空っぽにしてから差し替えます<span class="frm">(でないと二重に登録されてしまう)</span>。
+	</p>
+	<dl class="textlist">
+		<dt><a href="http://dbflute.seasar.org/download/patch/handson/20140921_templates/java-editor-templates.xml">java-editor-templates.xml</a></dt>
+		<dd>Java8の文法で便利な補完が用意されています。</dd>
+	</dl>
+
+	<h2 id="20140606">セクション４にエクササイズを追加</h2>
+	<p>
+		(2014/06/06)
+	</p>
+	<h3 id="20140606scalar">区分値メソッドを使って実装に追加</h3>
+	<p>
+		セクション４の "区分値メソッドを使って実装" の部分にエクササイズを追加しました。
+	</p>
+	<div class="detailpage"><a href="./section04.html#clsimpl">セクション４ - 区分値メソッドを使って実装</a></div>
+	<dl class="textlist">
+		<dt>追加されたエクササイズ</dt><dd>銀行振込で購入を支払ったことのある、会員ステータスごとに一番若い会員を検索</dd>
+	</dl>
+	<h3 id="20140606payment">購入支払テーブルを利用</h3>
+	<p>
+		購入支払テーブルを利用するので、以前のニュースで流れた PURCHASE_PAYMENT の追加が必要です。
+	</p>
+	<div class="relatedpage"><a href="#20140601">this - PURCHASE_PAYMENT を追加</a></div>
+
+	<h2 id="20140603">会員フォローイングと会員支払の調整</h2>
+	<h3 id="20140603finished10">セクション１０が終わっている人</h3>
+	<p>
+		会員フォローイングのデータをしっかり用意しました。
+		セクション１０の会員フォローイングのデータをコピーしてエクセルの MEMBER_FOLLOWING シートのデータを上書き貼付けして
+		ReplaceSchema してください。
+	</p>
+	<div class="detailpage"><a href="./section10.html#followingddl">セクション１０ - 会員フォローイングの定義とデータ</a></div>
+	<h3 id="20140603finished11second">セクション１１のオンパレードは続くが終わってる人</h3>
+	<p>
+		"手渡しだけでも払い過ぎてるのに未払い..." みたいな条件が追加されています。
+	</p>
+
+	<h2 id="20140602">MySQLスクリプトを改良</h2>
+	<p>
+		(2014/06/02)
+	</p>
+	<p>
+		MySQL用の起動バッチやログインシェルなどを改良しました。ファイルの中身を以下の内容で置き換えてください。
+	</p>
+	<p>
+		Windowsの場合、Eclipse 上では "右クリック - Open With - Text Editor"
+		で開いて修正します。ただし、その後ダブルクリックしても Text Editor
+		が開いてしまいますので、同じように右クリックから Default Editor で開き直します(実行し直します)。 
+	</p>
+	<h3 id="20140602boot">起動スクリプト</h3>
+	<p>
+		起動スクリプトはこちら
+	</p>
+<pre><span class="codetitle">e.g. boot-mysql.bat @WindowsScript</span><code>
+%~d0
+cd %~p0
+
+start /b cmd /c .\mysql\bin\mysqld --defaults-file=.\my.cnf -nt
+</code></pre>
+<pre><span class="codetitle">e.g. boot-mysql.sh @Shell</span><code>
+#!/bin/bash
+
+cd `dirname $0`
+
+./mysql/bin/mysqld --defaults-file=./my.cnf
+</code></pre>
+	<h3 id="20140602close">シャットダウンスクリプト</h3>
+	<p>
+		シャットダウンスクリプト (close-mysql.sh (Macの方) は特に何も変わりません。)
+	</p>
+<pre><span class="codetitle">e.g. close-mysql.bat @WindowsScript</span><code>
+%~d0
+cd %~p0
+
+.\mysql\bin\mysqladmin --defaults-file=.\my.cnf -u root shutdown
+
+pause
+</code></pre>
+	<h3 id="20140602login">ログインスクリプト</h3>
+	<p>
+		ログインスクリプトはこちら
+	</p>
+<pre><span class="codetitle">e.g. login-mysql-root.bat @WindowsScript</span><code>
+%~d0
+cd %~p0
+
+.\mysql\bin\mysql --defaults-file=.\my.cnf --user=root --default-character-set=sjis
+
+pause
+</code></pre>
+<pre><span class="codetitle">e.g. login-mysql-root.sh @Shell</span><code>
+#!/bin/bash
+
+cd `dirname $0`
+
+./mysql/bin/mysql --defaults-file=./my.cnf --user=root --default-character-set=utf8
+</code></pre>
+	<p>
+		そして、my.ini は利用されなくなりました。WindowsでもMacでも my.cnf が利用されますので、my.ini は削除しても構いません。
+	</p>
+
+	<h2 id="20140601">PURCHASE_PAYMENT を追加</h2>
+	<p>
+		(2014/06/01)
+	</p>
+	<p>
+		PURCHASEのone-to-manyの子テーブルとして、PURCHASE_PAYMENTを追加しました。
+		これにて、会員から子テーブルの子テーブルを表現することができるようになり、さらなる難しい問題を作ることができるようになりました。
+	</p>
+	<h3 id="20140601until3">まだ、セクション３までの人</h3>
+	<p>
+		以下の DDL とエクセルデータを、お手持ちのものと差し替えてください。
+	</p>
+	<dl class="textlist">
+		<dt><a href="http://dbflute.seasar.org/download/patch/handson/20140601_payment/playsql-createschema-ddl-1st.zip">playsql-createschema-ddl-1st.zip</a></dt>
+		<dd>ReplaceSchemaで流すDDL (replace-schema-10-basic.sqlなど)</dd>
+		<dt><a href="http://dbflute.seasar.org/download/patch/handson/20140601_payment/playsql-loaddata-ut.zip">playsql-loaddata-ut.zip</a></dt>
+		<dd>ReplaceSchemaで登録するテストデータ (30-product.xlsなど)</dd>
+	</dl>
+	<p>
+		したら、ctrl + shift + R の manage で、1番の renewal タスクを実行してください。
+	</p>
+	<h3 id="20140601finished4">セクション４が終わってて、セクション１０はまだの人</h3>
+	<p>
+		セクション３までの人の zip で DDL やエクセルを差し替えるのは同じです。
+	</p>
+	<p>
+		セクション４の区分値の定義に、区分値が追加されているので追加してください。
+		新しい区分値である PaymentMethod を追加、そして、PAYMENT_METHOD_CODE に関連付けます。
+	</p>
+	<div class="detailpage"><a href="./section04.html#morecls">セクション４ - さらに区分値を活用して実装</a></div>
+	<p>
+		セクション８の、排他制御なしの削除のエクササイズが少し変わっています。
+		そのままだと (当然のことながら) 購入削除でFK制約違反になってしまいますので、頑張って削除してみましょう
+	</p>
+	<h3 id="20140601finished10">セクション１０が終わっている人</h3>
+	<p>
+		DB変更が終わっているので、セクション３までの人の zip の内容を差分で反映してください。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>replace-schema-10-basic.sql</dt><dd>PURCHASE_PAYMENT の create 文を追加</dd>
+		<dt>replace-schema-10-basic.sql</dt><dd>PURCHASE_PAYMENT のインデックスを追加</dd>
+		<dt>20-member.xls の MEMBER</dt><dd>会員名称 Og2000 を "アカギ" に、アカウントを "Akagi" に</dd>
+		<dt>30-product.xls の PURCHASE</dt><dd>ストイコビッチさんのデータが増えているのでコピー</dd>
+		<dt>30-product.xls に新しいシート</dt><dd>PURCHASE_PAYMENT のシートをそのままコピー</dd>
+	</dl>
+	<p>
+		また、セクション４の区分値の PaymentMethod を追加＆関連付けしてください。
+	</p>
+	<div class="detailpage"><a href="./section04.html#morecls">セクション４ - さらに区分値を活用して実装</a></div>
+	<p>
+		セクション１１の "オンパレードの第一歩" で購入支払の仕様が増えていますのでチャレンジを！
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

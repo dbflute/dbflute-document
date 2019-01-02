@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,複合主キー,複数主キー,複合PK,複合PrimaryKey" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>複合主キーの対策 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>複合主キーの対策</h1>
+	${indexlist}
+
+	<h2 id="about">複合主キーの特徴と対策</h2>
+	<p>
+		主にサロゲートキーと一緒に話題になることの多いものです。
+		DBFluteではサロゲートキーで複合主キーを排除することが推奨されています。
+	</p>
+	<div class="detailpage"><a href="../../../../topic/dbdesign/surrogatekey.html">DB設計 - サロゲートキーと複合主キー</a></div>
+	<p>
+		ただし、それでも現実には複合主キーと対面することは多いものです。特に DBFlute
+		は、既に運用しているシステムでDB変更が多くて、メンテナンスが大変なのでDBFluteに切り替える、ということでレガシーシステムにも採用されることが珍しくありません。
+	</p>
+	<p>
+		DBFluteでは、複合主キーによるフレームワークのサービスの低下を最小限食い止めるようにしています。
+	</p>
+
+	<h2 id="unsupported">複合主キーによる機能制限</h2>
+	<p>
+		そもそも、どのような機能に制限が出るのか、以下の通りです。
+	</p>
+	<ul>
+		<li>InScopeRelation が利用できない</li>
+		<li>(Specify)DerivedReferrer が利用できない</li>
+		<li>(Query)DerivedReferrer が利用できない</li>
+		<li>NotExistsReferrer が利用できない (ExistsReferrer は可)</li>
+		<li>ScalarCondition が利用できない</li>
+		<li>シーケンスを使った Entity へのPK値の自動設定が利用できない</li>
+		<li>QueryUpdate が利用できない</li>
+		<li>QueryDelete が利用できない</li>
+	</ul>
+	<p>
+		主には、サブクエリ(特にInScopeのサブクエリ)を使って実現する機能が軒並み利用できなくなります。
+		もっと実装コストを掛ければ対応できそうなものもあれば、相当の実装コストを掛けても実現が難しいものもあります。
+	</p>
+
+	<h2 id="handling">複合主キーへのできるだけの対応</h2>
+	<p>
+		それでも、できるだけの対応をしています。
+	</p>
+	<dl class="textlist">
+		<dt>結合条件の自動付与</dt>
+		<dd>
+			これは、SQLの自動組み立てのできるO/Rマッパではほとんど当たり前のことですが、ConditionBean
+			では結合条件は単一であろうが複合であろうが意識せずに実装できます。結合条件における条件落ちを防ぐことができます。
+		</dd>
+		<dt>相関サブクエリ条件の自動付与</dt>
+		<dd>
+			複合主キーでも ExistsReferrer が利用できます。もともとできなかったものですが、よく使われる機能なので対応しています。
+			相関サブクエリ条件における条件落ちを防ぐことができます。ただし、同様に相関サブクエリで実現する
+			NotExistsReferrer や DerivedReferrer は対応できていません。
+		</dd>
+		<dt>LoadReferrer の対応</dt>
+		<dd>
+			こちらも、もともとできなかったものですが、よく使われる機能なので対応しています。
+		</dd>
+		<dt>PK抽象化メソッド</dt>
+		<dd>
+			ConditionBean や Behavior には、幾つかのPK抽象化メソッドをがあります。ConditionBean の cb.addOrderBy_PK_Asc()
+			cb.acceptPrimaryKey(pk) や Behavior の selectByPKValue()
+			や cb.acceptPrimaryKey()、Behavior の selectByPKValue()
+			などです。PKの条件落ちのバグなどを比較的抑えやすい機能です。 
+			<div class="relatedpage"><a href="../../../ormapper/conditionbean/various/primarykeyabstraction.html">CB - PrimaryKeyAbstraction</a></div>
+			<div class="relatedpage"><a href="../../../ormapper/behavior/various/primarykeyabstraction.html">Bhv - PrimaryKeyAbstraction</a></div>
+		</dd>
+	</dl>
+	<p>
+		dbflute-multipledb-seasar-example にて、Example があります。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/example/index.html#pointenv">DBFlute Example - 特定環境</a></div>
+
+	<div class="inucolumn">
+		<h2 id="compoundpkheadache">複合主キー対応のジレンマ</h2>
+		<p>
+			フレームワークとしては、こういった推奨されない環境(少なくとものそのフレームワークでは)に対する対応をどこまでするのか、常にジレンマがあります。
+			複合主キー対応は、フレームワーク開発における意識の矛盾の代表的な例です。
+		</p>
+		<ul>
+			<li>DBFluteを利用することによる別のレイヤへの制限を(できるだけ)発生させたくない</li>
+			<li>DBFluteで対応してるからって、何も考えずに複合主キーを許容してもらいたくない</li>
+		</ul>
+		<p>
+			この二つは常に対立します。また、複合主キーの問題に限りません。
+		</p>
+		<p>
+			幸い DBFlute は自動生成ツール一体型なので、比較的柔軟性があります。とりあえずはデフォルトでは推奨される方式を優先した仕様にし、
+			オプションで非推奨の環境にも対応できる、という形を心がけています。(もちろん、全てがそういうわけではありませんが)
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,ReplaceSchema,replace-schema,replace schema,スキーマの作成,テーブルの作成,create table" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>ReplaceSchemaタスク | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ReplaceSchemaタスク</h1>
+	<p>
+		Alto DBFlute のパートです。
+	</p>
+	<div class="relatedpage"><a href="../../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">ReplaceSchemaタスクとは？</h2>
+	<p>
+		DBスキーマの(再)構築を自動化するDBFluteタスクです。
+	</p>
+	<p>
+		<em class="keyword">スキーマ作成(初期化)・データ登録・データ整合性チェック</em> というプロセスを自動化します。
+	</p>
+	<h3 id="conceptimage">ReplaceSchemaタスクの概念図</h3>
+	<p class="imgbox">図 : ReplaceSchemaタスクの概念図
+		<a href="../../../../../data/model/reps-RepsConcept-view.png" title="ReplaceSchemaタスクの概念図"><img src="../../../../../data/model/reps-RepsConcept-view.png" alt="ReplaceSchemaタスクの概念図" width="550" height="350" /></a>
+	</p>
+	<h3 id="merit">利用するメリット</h3>
+	<dl class="textlist">
+		<dt>DBの初期構築や再構築の自動化、統一化</dt>
+		<dd>
+			DBFlute(ReplaceSchema)を使っているプロジェクトであれば、どこにいっても ReplaceSchema
+			を実行することでテーブルが作成され、テストデータも一気に登録。
+			DB変更の開発環境への反映も、Subversion から最新状態を更新して ReplaceSchema
+			すればDBもテストデータも最新に。再構築の初期化時はFK制約も考慮してテーブルが drop されるため、遠慮なくFK制約のメリットを享受できます。
+		</dd>
+		<dd>
+			独自の仕組みになりがちなDB構築処理、これを統一化することで新加入のディベロッパーの開発環境構築もスムーズに。.NETプロジェクトでも DBFlute.NET
+			を利用していれば、Javaプロジェクトと.NETプロジェクトでメンバーが行き来しても迷うことはないでしょう。
+		</dd>
+		<dt>テストデータの一元管理、ディベロッパー間での再利用</dt>
+		<dd>
+			DB変更の影響はプログラムではなく、テストデータも大きく影響します。
+			分散されて定義が冗長していると、テストデータの修正だけで大きなコストとなってしまいます。
+			また、一元化されていても insert 文ではカラム追加もままなりません。
+			<em class="keyword">ReplaceSchemaはDB変更に強いテストデータ管理</em> を提案します。
+			<div class="detailpage"><a href="../../../../topic/dbdesign/testdata.html">テストデータについて</a></div>
+		</dd>
+		<dd>
+			マスタデータに限らず、トランザクション系のテストデータをしっかりと一元管理することが大事です。
+			DBAの目の届かない領域にある不整合なデータでテストされてもあまり効率的ではありません。
+		</dd>
+		<dd>
+			また、プログラムは懸命に再利用を考慮していても、各ディベロッパーが同じようなテストデータを作成してバラバラに管理していたら片手落ちです。
+			テストデータ自体も共有して再利用することで作成コストを抑えて、DB変更時のテストデータへの影響範囲を小さくすることが大事です。
+		</dd>
+		<dt>再現可能なテストデータ</dt>
+		<dd>
+			そして、いつでもテストデータを基底となる元の状態に戻すことができるのも大事です。どれだけDB上でアプリ上でデータをいじっても、データを壊しても、
+			ReplaceSchema を実行すればすぐにもとの状態に戻すことができる。また、他の人と同じ状態のテストデータをすぐに(ローカルDBなどで)再現できる。
+		</dd>
+		<dd>
+			ReplaceSchema は、<em class="keyword">テストデータを再現可能な状態として残していく</em> という概念を提供します。
+		</dd>
+		<dt>テストデータの品質の維持</dt>
+		<dd>
+			さんざんデバッグしたあげく、結局のところ原因はテストデータが変だった。珍しい話ではありません。
+		</dd>
+		<dd>
+			例えば、正式会員だけであればメールアドレスがユニークになる、という業務的制約があるとします。
+			これは DBMS の制約としてはチェックできないもので、当然アプリでそうならないように制御するわけですが、
+			テストデータを作成するときも不整合なデータを作らないように気をつける必要があります。
+			しかしながら、アプリの実装のときに比べてその意識はどうしても低くなりがちで、
+			そして、ケアレスミスでできた不整合なデータでテストしても、そのテストは有効なものではありません。
+		</dd>
+		<dd>
+			ReplaceSchemaではテストデータの業務的な制約をチェックするための枠組みが用意されています。
+			できる限りテストデータ不備によるディベロッパーの余計なコストを払わないようにしたいものです。
+		</dd>
+		<dt>しっかりとログに残る</dt>
+		<dd>
+			ログをしっかり残していることが意外に重要です。軽く見られがちなDB構築処理、スクリプトなどで手早く独自に実装されがちですが、DDLの実行やテストデータの登録など、
+			ケアレスミスの発生しやすい領域です。しっかりと不正なDDL、不整合なテストデータのデバッグがしやすい環境になっていることが大事です。
+			自分自身でのデバッグはもちろん、DDL作成者、テストデータ作成者などに発生したエラーを相談するときなど、しっかりとトレースされているログがものを言います。
+			それを独自の実装でやろうとすると意外にコストが掛かるもの、"DB環境構築処理の実装" にたっぷり時間をくれるマネージャはなかなかいません。
+		</dd>
+	</dl>
+	<h3 id="timing">主な実行タイミング</h3>
+	<ul>
+		<li>開発用DBスキーマの作成</li>
+		<li>DB変更の発生</li>
+		<li>テストデータの変更・追加</li>
+		<li>結合テスト用DBスキーマ作成</li>
+		<li>結合テスト用テストデータの変更・追加</li>
+		<li>本番用DBスキーマ作成</li>
+		<li>本番運用後のDB変更(開発用DB)</li>
+	</ul>
+
+	<h2 id="execute">実行コマンド</h2>
+	<p>
+		DBFluteクライアント配下の <em class="keyword">replace-schema.(bat|sh)</em> をコマンドから実行します。
+		実行すると "DBが初期化される" 旨を伝えるメッセージが出ます。"y" で続行します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#command">タスク実行コマンド</a></div>
+
+	<h2 id="environment">環境構築</h2>
+	<p>
+		DBFluteのセットアップの後、<em class="keyword">テーブル作成のためのDDL、データ登録のためのエクセル、最終チェックのためのSQL</em>
+		を(処理概要のページを参考に)準備して配置することで実行可能となります。
+	</p>
+	<div class="relatedpage"><a href="../../../../../environment/setup/index.html">DBFluteのセットアップ</a></div>
+	<div class="relatedpage"><a href="#overview">this - 処理概要</a></div>
+	<h3 id="migratereps">ReplaceSchemaへの移行</h3>
+	<p>
+		既に開発中や運用中のシステムで、テストデータがテストDBにしか存在していないような状態から ReplaceSchema
+		への移行を支援する機能が別途存在します。
+	</p>
+	<div class="detailpage"><a href="../doc/loaddatareverse.html">LoadDataReverse</a></div>
+
+	<h2 id="overview">処理概要</h2>
+	<p>
+		ReplaceSchemaタスクを実行すると処理が始まります。
+	</p>
+	<ul class="flowlist">
+		<li><a href="#initialize">1. スキーマ初期化</a></li>
+		<li><a href="#createtable">2. テーブル作成</a></li>
+		<li><a href="#loaddata">3. データ登録</a></li>
+		<li><a href="#takefinally">4. 最終チェック</a></li>
+	</ul>
+	<h3 id="initialize">1. スキーマ初期化</h3>
+	<p>
+		該当スキーマ上のテーブルやビューなどをdropします。
+	</p>
+	<p>
+		メタ情報を利用してalter文(FK制約など)やdrop文(テーブルやビュー)を実行するため、古い定義が残ったりせず全てがdropされます。
+		初期構築の場合は特に何も処理されません。
+	</p>
+	<div class="detailpage"><a href="./initializeschema.html">ReplaceSchema - スキーマ初期化</a></div>
+	<h3 id="createtable">2. テーブル作成</h3>
+	<p>
+		配置されたDDL文を順番に実行します。
+	</p>
+	<div class="detailpage"><a href="./createtable.html">ReplaceSchema - テーブル作成</a></div>
+	<h3 id="loaddata">3. データ登録</h3>
+	<p>
+		配置されたデータ(エクセルやTSV、CSVなど)を順番に登録します。
+	</p>
+	<div class="detailpage"><a href="./loaddata.html">ReplaceSchema - データ登録</a></div>
+	<h3 id="takefinally">4. 最終チェック</h3>
+	<p>
+		データ登録後に配置された(最終チェック用の)SQLを実行します。<br />
+		主にはデータの整合性チェックをします。
+	</p>
+	<div class="detailpage"><a href="./takefinally.html">ReplaceSchema - 最終チェック</a></div>
+
+	<h2 id="livingdbmigration">運用後のDB変更</h2>
+	<p>
+		ReplaceSchema とからめて、運用後のDB変更を支援する機能もあります。
+	</p>
+	<div class="detailpage"><a href="./livingdbmigration.html">運用後のDB変更</a></div>
+
+	<h2 id="supplement">補足</h2>
+	<h3 id="tasklog">実行ログ</h3>
+	<p>
+		ReplaceSchemaは、タスクの中で最もログを意識する必要のあるタスクと言えます。
+		エラー発生時などは "コンソールのログ" もしくは "[DBFluteクライアント]/log/dbflute.log"
+		を参考にエラー原因を特定します。
+	</p>
+	<div class="relatedpage"><a href="../index.html#log">DBFluteタスク - 実行ログ</a></div>
+	<div class="relatedpage"><a href="./logging.html">ReplaceSchemaタスクのログ</a></div>
+	<h3 id="friends">他のO/Rマッパとの組み合わせ</h3>
+	<p>
+		このタスクはO/Rマッパーとして機能には依存せず、単独で利用可能です。
+		(他のO/Rマッパとも組み合わせて利用することが可能です)
+	</p>
+	<h3 id="sqlserverwinauth">SQLServerのWindows認証での注意</h3>
+	<p>
+		SQLServerに対してWindows認証で接続した場合の ReplaceSchema 実行に関して注意点があります。
+	</p>
+	<div class="detailpage"><a href="../../../../reference/dbway/sqlserver/index.html#sqlserverwinauth">SQLServer - SQLServerのWindows認証での注意</a></div>
+	<h3 id="beforereps">実行前の調整</h3>
+	<p>
+		ReplaceSchema実行前に、ファイルコピーなどの調整(アレンジ操作)ができます。<span class="frm">@since 0.9.8.5</span>
+	</p>
+	<div class="detailpage"><a href="./arrangebeforereps.html">ReplaceSchema実行前の調整</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

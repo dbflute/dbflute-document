@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFluteプロパティ,DBFluteProperty,additionalUniqueKeyMap.dfprop,UniqueKey,ユニーク制約,UQ制約,Unique Constraint" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>additionalUniqueKeyMap | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>additionalUniqueKeyMap</h1>
+	${indexlist}
+
+	<h2 id="about">additionalUniqueKeyMapとは？</h2>
+	<p>
+		実質的なUQ(UniqueKey)の関連がありながらも実際にはUQ制約が存在しないテーブルおよびビューについて、
+		DBFluteが生成するEntityにてUQとして扱えるようにするDBFluteプロパティ。DBFluteクライアントの dfprop
+		配下の additionalUniqueKeyMap.dfprop という名前のテキストファイルです。主に Generateタスク
+		を実行する際に参照され、実際にUQ制約が存在しないテーブルでも、このプロパティの設定を行うことでUQを持ったEntityを生成できます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/generator/task/generate/index.html">Generateタスク</a></div>
+	<h3 id="ifnot">UQ制約がない場合のDBFlute</h3>
+	<p>
+		UQ制約がない場合(かつ、このプロパティを利用しない場合)は、"one-to-oneの関連"
+		を扱うことができません(DBFluteがone-to-oneであることを認識できない)。
+		UQ制約自体に多くのメリットがあるため、基本的にはUQ制約がしっかりDB側に付与されていることが推奨されます。
+	</p>
+	<div class="relatedpage"><a href="../../../topic/dbdesign/uqconstraint">DB設計 - UQ制約について</a></div>
+	<h3 id="mainpattern">主な利用パターン</h3>
+	<dl class="textlist">
+		<dt>UQ制約は存在しないが実質的にUQである</dt>
+		<dd>
+			基本的にはUQ制約がしっかりDB側に付与されていることが推奨されますが、
+			DB側の事情によってUQ制約が存在しない場合(かつ、実質的なUQがある場合)にこのプロパティが有効です。
+		</dd>
+		<dt>ビューなどそもそもUQ情報を持たないオブジェクト</dt>
+		<dd>
+			参照先のテーブルなどがUQ制約を持っている場合(ビューの構造的・要件的にそのUQを扱いたい場合)にこのプロパティが有効です。
+		</dd>
+	</dl>
+
+	<h2 id="property">プロパティ</h2>
+	<p>
+		<em class="keyword">map型プロパティ</em> で、"<em class="keyword">UQの名前</em>" (任意だがユニークである必要がある)とそれに対するテーブル名とカラム名を定義します。
+	</p>
+	<div class="relatedpage"><a href="../mapprop.html">map型プロパティ</a></div>
+<pre><span class="codetitle">additionalUniqueKeyMapの仕様 @additionalUniqueKeyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; [UQ-name] = <span class="keyword">map:</span>{
+        ; tableName = [table-name]
+        ; columnName = [column-name for UQ]
+    }
+    ; ...
+}
+</code></pre>
+	<p>
+		以下、(*)の付いたプロパティは必須です。
+	</p>
+	<h3 id="fkname">UQ-name (*)</h3>
+	<p>
+		UQの名前を指定します。mapのキーになっていて、ユニークである必要があります。
+		習慣的に、実際にDBに存在するUQ制約を含めてもユニークな名前(かつ、大文字で "UQ_" で始まるもの)を付けることをお奨めします。
+	</p>
+	<h3 id="tablename">tableName (*)</h3>
+	<p>
+		UQ制約を設定するテーブル名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>テーブルの名前 (自動生成対象になっていること)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (但し実体と合わせることを推奨)</li>
+			</ul>
+		</dd>
+	</dl>
+	<h3 id="columnname">columnName (*)</h3>
+	<p>
+		UQとして扱うカラム名を指定します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>カラムの名前 (自動生成対象になっていること)</dd>
+		<dt>デフォルト</dt><dd>なし</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>大文字小文字の区別なし (但し実体と合わせることを推奨)</li>
+				<li>複合UQの場合は、"/" (スラッシュ)区切りで複数のカラムを指定</li>
+			</ul>
+		</dd>
+	</dl>
+
+	<h2 id="example">Example</h2>
+<pre><span class="codetitle">e.g. 会員の会員アカウントにUQ_MEMBERというUQ制約を付与する場合 @additionalUniqueKeyMap.dfprop</span><code>
+; UQ_MEMBER = <span class="keyword">map:</span>{
+    ; tableName = MEMBER ; columnName = MEMBER_ACCOUNT
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 会員の会員アカウントと生年月日をUQ制約を付与する場合 @additionalUniqueKeyMap.dfprop</span><code>
+; UQ_MEMBER_ACCOUNT_BIRTHDATE = <span class="keyword">map:</span>{
+    ; tableName = MEMBER ; columnName = MEMBER_ACCOUNT/BIRTHDATE
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

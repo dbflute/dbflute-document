@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,外だしSQL,OutsideSql,機能,Example,dynamicBinding(),動的バインド変数,不定数の条件,埋め込み変数コメントにバインド変数" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>(外だしSQL)dynamicBinding() | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>(外だしSQL)dynamicBinding()</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		主に、検索条件の個数がアプリの入力値によって変動する不定数の検索条件のために、パラメータコメントの解析を実行時に行って
+		<em class="keyword">動的なバインド変数コメントを利用できるようにするオプション</em> です。
+	</p>
+	<p>
+		会話上では、<em class="keyword">(外だしSQLの)だいなみっくばいんでぃんぐ</em> と表現します。
+	</p>
+	<div class="inucolumn">
+		<h3 id="deprecated">このオプションは非推奨機能となりました</h3>
+		<p>
+			以下の利用により、このオプションは非推奨機能となりました。<span class="frm">@since 0.9.7.0</span>
+		</p>
+		<ul>
+			<li>FORコメントがサポートされた <span class="frm">@since 0.9.7.0</span></li>
+			<li>このオプションを利用しなくても埋め込み変数コメントの中でバインド変数コメント(その他、IFコメントなども)を利用できるようになった
+				<span class="frm">@since 0.9.7.0</span>
+			</li>
+		</ul>
+		<p>
+			将来においてこのオプション機能が削除される可能性があります。
+		</p>
+	</div>
+	<div class="relatedpage"><a href="../pmcomment.html#forcomment">パラメータコメント - FORコメント</a></div>
+	<div class="relatedpage"><a href="../pmcomment.html#embeddedvariable">パラメータコメント - 埋め込み変数コメント</a></div>
+	<h3>外だしSQLの解析は基本一度だけ</h3>
+	<p>
+		外だしSQLは、DBFlute内部にて基本的には一度だけ解析され、どのようなパラメータコメントを持っているのかなどを保持し、
+		処理が呼び出されたときにすぐにSQLを実行できるようにしています。もし、呼び出しのたびに解析していたら、毎回解析コストが掛かってしまいます。
+	</p>
+	<p>
+		但し、その状態だと、パラメータコメント、特にバインド変数コメントに関して、静的な情報として扱われているため、
+		呼び出しの度に変わる不定数の条件には対応できません。
+		例えば、埋め込み変数コメントの中に、バインド変数コメントを含めても、バインド変数として認識されません。
+		バインド変数を利用せずに条件値をそのまま埋め込んだ文字列で実行すると、要件次第ですが、セキュリティ的にもパフォーマンス的にも良くありません。
+	</p>
+	<div class="relatedpage"><a href="../../../../topic/programming/dbaccess/bindvariable.html">Topic - バインド変数</a></div>
+	<h3>解析を呼び出しのたびに行う</h3>
+	<p>
+		DBFluteでは、動的なバインド変数を実現するために、
+		(明示的なオプションとして)呼び出しの度にパラメータコメントを解析するような挙動に変更するオプションが用意されています。
+	</p>
+	<p>
+		例えば、埋め込み変数コメントの中にバインド変数コメントを含めても、
+		バインド変数として認識されるようにできます(但し、ネストしたプロパティでは不可。例えば、"pmb.fooDto.barName")。
+	</p>
+	<p>
+		この場合、解析コストに関しては、局所的ということで割り切る必要があります。
+	</p>
+	<div class="inucolumn">
+		<h3>パラメータコメントの解析コスト</h3>
+		<p>
+			SQLがよほど巨大(パラメータコメントの数が5000や10000)でない限りはほんのわずかの処理ではあるので、
+			実際に利用してみて(明らかな)パフォーマンス上の違和感がないようであればあまり気にする必要はないと考えられます。
+		</p>
+	</div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="methodcall">メソッドの呼び出し</h3>
+	<p>
+		outsideSql()メソッドの後、<em class="keyword">dynamicBinding()</em>
+		メソッドを呼び出します。この機能はオプションであり、様々なメソッドで利用できます。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの動的バインド変数をリスト検索で利用 (Eclipseでコード補完) @Java</span><code>
+<span class="attribute">memberBhv</span>.o <span class="comment">// .o と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().d <span class="comment">// .d と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().<span class="point">dynamicBinding()</span>.s <span class="comment">// .s と打って enter</span>
+--
+<span class="attribute">memberBhv</span>.outsideSql().dynamicBinding().selectList(<span class="abbreviation">...</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. 外だしSQLの動的バインド変数を様々なメソッドと組み合わせ @Java</span><code>
+<span class="attribute">memberBhv</span>.outsideSql().dynamicBinding().manualPaging().selectPage(<span class="abbreviation">...</span>)
+<span class="attribute">memberBhv</span>.outsideSql().dynamicBinding().cursorHandling().selectCursor(<span class="abbreviation">...</span>)
+</code></pre>
+	<h3 id="othersetup">外だしSQLとParameterBean</h3>
+<pre><span class="codetitle">e.g. 外だしSQLに動的なSQL文の一部を展開する埋め込み変数コメントを定義 @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!String dynamicClause!!</span>
+<span class="comment">-- !!Map&lt;String, String&gt; dynamicMap:like!!</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+  <span class="comment">/*$pmb.dynamicClause*/</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>テスト値は、2Way-SQLの実現を意識して調整(省略もOK)</li>
+	</ul>
+<pre><span class="codetitle">e.g. 外だしSQLに動的なSQL文の一部を展開するパラメータを設定 @Java</span><code>
+Map&lt;String, String&gt; dynamicMap = <span class="keyword">new</span> HashMap&lt;String, String&gt;();
+StringBuilder sb = <span class="keyword">new</span> StringBuilder();
+<span class="keyword">for</span> (<span class="abbreviation">...</span>) {
+    String key = <span class="literal">"key"</span> + index;
+    sb.append(<span class="literal">" and FOO like /*pmb.dynamicMap."</span>)
+            .append(key).append(<span class="literal">"*/null"</span>);
+    dynamicMap.put(key, currentValue);
+}
+pmb.setDynamicClause(sb.toString());
+pmb.setDynamicMap(dynamicMap, <span class="keyword">new</span> LikeSearchOption().likeContain());
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

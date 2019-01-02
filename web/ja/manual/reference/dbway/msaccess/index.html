@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,MS Access,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>MS Accessの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>MS Accessの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>MS Access 2000 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>なし</dd>
+		<dt>(推奨)JDBCドライバ</dt><dd>SUN JDK内のもの <span class="frm">(Exampleで利用)</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+	<p>
+		DBFluteの MS Access 対応は、(正式サポートではない)準サポートです。
+	</p>
+	<div class="relatedpage"><a href="../index.html#semisupport">準サポートのDBMS</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = sun.jdbc.odbc.JdbcOdbcDriver
+    ; url      = jdbc:odbc:[dbname]
+    ; schema   = 
+    ; user     = 
+    ; password = 
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はそもそも対応する概念がないため設定不要</li>
+		<li>schema はそもそも対応する概念がないため設定不要</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-msaccess-exampleの場合 {dbname=exampledb} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = sun.jdbc.odbc.JdbcOdbcDriver
+    ; url      = jdbc:odbc:exampledb
+    ; schema   = 
+    ; user     = 
+    ; password = 
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		<em class="keyword">TODO jflute now writing</em>
+	</p>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		<em class="keyword">TODO jflute now writing</em>
+	</p>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">TODO jflute now writing</em>
+	</p>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBeanでは、MS-Accessにおける更新ロックの取得はサポートされていません。
+	</p>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">*未検証</em>
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<p>
+		MS Accessに関しては特になし
+	</p>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="nullsfirstlast">NullsFirst/Last</h3>
+	<p>
+		nulls first/last 構文をサポートしていないため、case when 構文を使って NullsFirst/Last
+		を実現しています。union 句での case when 構文がサポートされないため、UnionQuery と NullsFirst/Last を合わせてることはできません。
+		(また、パフォーマンス上の懸念が多少あるので、大量データのときには注意して下さい)
+	</p>
+	<h3 id="cannotusecb">ConditionBeanがほぼ全滅</h3>
+	<p>
+		left outer joinの構文が特殊で、ConditionBean
+		の機能の多くが利用できません。外だしSQLを中心に利用することをお奨めします。
+	</p>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		MS Access を使ったExample実装 <em class="keyword">dbflute-msaccess-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにMS Accessと付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<p>
+		<em class="keyword">TODO jflute now writing</em>
+	</p>
+
+	<h2 id="supplement">MS Access補足資料</h2>
+	<p>
+		<em class="keyword">TODO jflute now writing</em>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

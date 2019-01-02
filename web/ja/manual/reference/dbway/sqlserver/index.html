@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,SQLServer,取扱い,JDBC,接続設定,URL,テーブル値ファンクション,table valued function,Transact-SQL,T-SQL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>SQLServerの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>SQLServerの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>SQLServer 2005 以上 (*1)</dd>
+		<dt>JDBCドライバの同梱</dt><dd>なし</dd>
+		<dt>(推奨)JDBCドライバ</dt><dd>sqljdbc.jar (or sqljdbc4.jar) <span class="frm">(Exampleで利用)</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+	<p>
+		*1: SQLServer 2000 での動作も(ある程度の)考慮はされてはいますが、検証環境は存在しません。
+	</p>
+	<p>
+		DBFluteモジュール自体が動作するJREが 5.0 の場合は sqljdbc.jar
+		を、6.0 の場合は sqljdbc4.jar を使う必要がありますのでご注意下さい(同梱していない理由の一つ)。 
+	</p>
+	<p>
+		その他ベンダのJDBCドライバに関しては、動作は未確認です。
+	</p>
+	<p>
+		Windows認証に関しては様々な注意点があります。
+	</p>
+	<div class="detailpage"><a href="#sqlserverwinauth">this - SQLServerのWindows認証での注意</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = com.microsoft.sqlserver.jdbc.SQLServerDriver
+    ; url      = jdbc:sqlserver://[host]:[port];databaseName=[dbname];
+    ; schema   = dbo
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はURLから自動判別されるため設定不要</li>
+		<li>schema は独自のスキーマを利用しない限りは dbo と指定</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-sqlserver-exampleの場合 {host=localhost,port=1433} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = com.microsoft.sqlserver.jdbc.SQLServerDriver
+    ; url      = jdbc:sqlserver://localhost:1433;databaseName=exampledb;
+    ; schema   = dbo
+    ; user     = exampledb
+    ; password = exampledb
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>char, varchar, nchar, nvarchar, text</dd>
+		<dt>java.lang.Integer</dt><dd>int, smallint, tinyint, {numeric(1-9, 0)}</dd>
+		<dt>java.lang.Long</dt><dd>bigint, {numeric(10-18, 0)}</dd>
+		<dt>java.math.BigDecimal</dt><dd>smallmoney, float, real, numeric(n, m), money</dd>
+		<dt>java.util.Date</dt><dd>なし</dd>
+		<dt>java.sql.Time</dt><dd>なし</dd>
+		<dt>java.sql.Timestamp</dt><dd>datetime, smalldatetime, timestamp</dd>
+		<dt>java.lang.Boolean</dt><dd>bit</dd>
+		<dt>byte[]</dt><dd>binary, varbinary</dd>
+	</dl>
+	<h3 id="automapping">自動マッピング</h3>
+	<p>
+		numeric に関しては、自動マッピング機能が利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/typemapping/automapping.html">現場フィット - TypeMapping-AutoMapping</a></div>
+	<h3 id="unsupportedtype">未サポートのデータ型</h3>
+	<dl class="keymainlist">
+		<dt>uniqueidentifier</dt><dd>文字列として利用可能 <span class="frm">(ex. "FD8C7155-3A0A-DB11-BAC4-001...")</span></dd>
+		<dt>xml</dt><dd>XML表現の文字列として利用可能 <span class="frm">(ex. "&lt;foo/&gt;")</dd>
+		<dt>sql_variant</dt><dd>利用不可 (今後のサポートは未定)</dd>
+	</dl>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">Identity</em> を利用します。
+	</p>
+	<p>
+		Identity情報はメタデータから取得できるので、設定なしで利用可能です。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+	<p>
+		ConditionBeanでは limit 処理として "<em class="keyword">top n</em>"
+		を利用しています。offset 処理は <em class="keyword">カーソルのループスルー</em> を利用します。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wl.html#limit">limit</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#offset">offset</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wl.html#loopthrough">ループスルー(LoopThrough)</a></div>
+	<p>
+		カーソルのポインタシフトを利用していない理由は、offset 処理でのループスルーは、(limit
+		処理でのループスルーに比べて)大きなパフォーマンス劣化に繋がりにくい、ということによる割り切りです。
+		カーソルスキップを利用したい場合は、StatementConfig を利用してResultSetタイプを ScrollInsensitive に設定して下さい。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/statementconfig.html">ConditionBean - StatementConfig</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#pointershift">ポインタシフト(PointerShift)</a></div>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="point">top</span> <span class="literal">100</span> ...
+  <span class="keyword">from</span> ...
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="point">select</span> *
+  <span class="point">from</span> (
+<span class="point">select</span> plain.*, <span class="point">row_number() over(</span><span class="keyword">order by</span> ...<span class="point">)</span> <span class="keyword">as</span> rn
+  <span class="point">from</span> (
+<span class="keyword">select</span> ...
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> ...
+ <span class="keyword">where</span> ...
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="point">order by</span> ...
+       ) plain
+       ) ext
+ <span class="point">where</span> ext.rn &gt; <span class="comment">/*pmb.pageStartIndex*/</span><span class="literal">80</span>
+   <span class="point">and</span> ext.rn &lt;= <span class="comment">/*pmb.pageEndIndex*/</span><span class="literal">100</span>
+ <span class="point">order by</span> ext.rn <span class="point">asc</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>SQLServer2000では row_number() 関数が無いので、autoPaging() を利用すること</li>
+	</ul>
+	<p>
+		TypedParameterBean における ManualPaging の自動判別ロジックは、"row_number()"
+		という文字列が含まれることです。(大文字小文字は区別せず)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">from [table] with (updlock)</em> を利用します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc <span class="point">with (updlock)</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>基点テーブルだけに付与されるため、ロックは基点テーブルのみに掛かります。</li>
+	</ul>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">ストアドプロシージャ</em> を(DBFluteの機能としての)プロシージャとしてサポートしています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+	<dl class="keymainlist">
+		<dt>INパラメータ</dt><dd>サポート</dd>
+		<dt>OUTパラメータ</dt><dd>サポート</dd>
+		<dt>INOUTパラメータ</dt><dd>サポート</dd>
+		<dt>プロシージャリターン</dt><dd>サポート</dd>
+		<dt>ResultSetパラメータ</dt><dd>JDBCドライバにて未サポート <span class="frm">※のようである</span></dd>
+		<dt>ResultSetリターン</dt><dd>DBMSにて未サポート <span class="frm">※テーブル値ファンクションはNotParamResult</span></dd>
+		<dt>NotParamResult</dt><dd>サポート <span class="frm">※テーブル値ファンクション(@since 0.9.7.6)も含む</span></dd></dd>
+		<dt>パッケージプロシージャ</dt><dd>DBMSにて未サポート <span class="frm">※そもそもパッケージの概念なし</span></dd>
+		<dt>プロシージャシノニム</dt><dd>DBMSにて未サポート <span class="frm">※そもそもシノニムの概念なし</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetparameter">ResultSetパラメータ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetreturn">ResultSetリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+	<h3 id="nextprocedure">別スキーマのプロシージャ</h3>
+	<p>
+		別スキーマのプロシージャもオプションで自動生成でき...<em class="keyword">*未検証</em>
+	</p>
+	<div class="detailpage"><a href="#additionalschema">this - 別スキーマの利用</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/whahihuheho.html#betsuschema">別スキーマ(AdditionalSchema)</a></div>
+	<h3 id="targetprocedure">自動生成対象プロパティの有効項目</h3>
+	<div class="relatedpage"><a href="../../dfprop/outsidesqldefinition/index.html#targetprocedure">dfprop - プロシージャの自動生成対象プロパティ</a></div>
+	<dl class="keymainlist">
+		<dt>Catalog</dt><dd>利用不可 (別データベースのプロシージャをサポートしてないため)</dd>
+		<dt>Schema</dt><dd>サポート</dd>
+		<dt>Name</dt><dd>サポート</dd>
+	</dl>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<p>
+		SQLServerに関しては特になし
+	</p>
+
+	<h2 id="originaluse">DBMS独自の利用方法</h2>
+	<h3 id="additionalschema">別スキーマの利用</h3>
+	<p>
+		別スキーマのテーブルを自動生成でき...<em class="keyword">*未検証</em>
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherschema">別スキーマ(OtherSchema)</a></div>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="nullsfirstlast">NullsFirst/Lastの実現</h3>
+	<p>
+		nulls first/last 構文をサポートしていないため、case when 構文を使って NullsFirst/Last
+		を実現しています。union 句での case when 構文がサポートされないため、UnionQuery と NullsFirst/Last を合わせてることはできません。
+		(また、パフォーマンス上の懸念が多少あるので、大量データのときには注意して下さい)
+	</p>
+	<h3 id="customizemetadata">CustomizeEntityの対応テーブル</h3>
+	<p>
+		CustomizeEntityのそれぞれのカラムが、元は何のテーブルの何のカラムから派生したものか、通常はJDBCのメタデータから取得できるため、	Sql2Entity
+		内で自動解決し、JavaDocコメント上などで表示されます。但し、SQLServerに関してはこのメタデータが取得できません。
+		これによって、機能の利用の仕方が少しだけ変わるものがあります。外だしSQLでの LoadReferrer
+		では、このことによりPKマークで "元は何のテーブルのカラムだったのか" を明示的に指定する必要があります。 
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/behavior/select/loadreferrer.html#outsidesql">Behavior - 外だしSQLでもLoadReferrer</a></div>
+	<h3 id="sqlserverwinauth">SQLServerのWindows認証での注意</h3>
+	<p>
+		SQLServerのWindows認証を利用して接続する場合は、JDBCドライバに対応するWindows認証用のライブラリのセットアップが別途必要となります。
+		どのようなライブラリが必要なのかは、利用しているJDBCドライバに依存します。例えば、jTDS であれば
+		ntlmauth.dll、Microsoft純正のJDBCドライバであれば sqljdbc_auth.dll をパスが通った場所に置いておく必要があると JIRA で報告されています。
+	</p>
+	<div class="detailpage"><a href="https://www.seasar.org/issues/browse/DBFLUTENET-15">JIRA(外部サイト) - DBFLUTENET-15</a></div>
+	<p>
+		一方で、SQLServerに対してWindows認証で接続した場合に ReplaceSchema が正常に動作しないことが報告されています。
+		Windows認証を止めてSQLServer認証に変えるか、DBFluteを改変して動作するようにするかなどの回避策が JIRA の課題として議論されています。
+	</p>
+	<div class="detailpage"><a href="https://www.seasar.org/issues/browse/DBFLUTENET-15">JIRA(外部サイト) - DBFLUTENET-15</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		SQLServer を使ったExample実装 <em class="keyword">dbflute-sqlserver-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにSQLServerと付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<dl class="textlist">
+		<dt>SQLServer2000でsysobjectsなどのテーブルの(自動)除外</dt>
+		<dd>
+			SQLServer2000だと、sysobjectsなどの(システム)テーブルが自動生成対象になってしまうため、
+			DBFluteで明示的に(自動で)除外されるようにしました。
+		</dd>
+	</dl>
+
+	<h2 id="supplement">SQLServer補足資料</h2>
+	<h3>Identity設定</h3>
+<pre><span class="codetitle">e.g. Identity設定 {MEMBER_IDにIdentity} @SQL</span><code>
+<span class="keyword">create table</span> (
+    MEMBER_ID <span class="dbtype">INTEGER</span> <span class="attribute">IDENTITY NOT NULL PRIMARY KEY</span>,
+    ...
+) ;
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>ConditionBean at a Glance | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ConditionBean at a Glance</h1>
+	<div class="relatedpage"><a href="../../../../ja/manual/function/ormapper/conditionbean/hitomecb.html">to Japanese Page</a></div>
+	${indexlist}
+
+	<h2 id="function">ConditionBean Functions</h2>
+	<h3 id="select">Retrieving Data</h3>
+<pre><span class="codetitle">Retrieving Data @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+
+<span class="comment">// &lt;&lt;&lt; SetupSelect(Relation), SpecifyColumn &gt;&gt;&gt;</span>
+cb.setupSelect_MemberStatus(); <span class="comment">// retrieving tables via one-to-many relationship</span>
+cb.specify().specifyMemberStatus().columnMemberStatusName(); <span class="comment">// retrieving a specific column</span>
+cb.setupSelect_MemberSecurityAsOne(); <span class="comment">// retrieving tables via one-to-one</span>
+cb.setupSelect_MemberServiceAsOne().withServiceRank(); <span class="comment">// retrieving nested tables</span>
+cb.setupSelect_MemberAddress(currentDate); <span class="comment">// retrieving tables that are practically one-to-one</span>
+
+<span class="comment">// &lt;&lt;&lt; (Specify)DerivedReferrer &gt;&gt;&gt;</span>
+<span class="comment">// Retrieving derived columns from child tables (correlated subqueries)</span>
+<span class="comment">//  e.g. latest login time via PC</span>
+cb.specify().<span class="point">derivedMemberLoginList()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+    <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+        subCB.specify().<span class="point">columnLoginDatetime()</span>;
+        subCB.query().setMobileLoginFlg_Equal_False();
+    }
+}, <span class="point">Member.ALIAS_latestLoginDatetime</span>); <span class="comment">// press ctrl+1 to autocomplete if you have EMecha installed</span>
+<span class="comment">// you can make adjustments using SQL functions when necessary</span>
+<span class="comment">//}, Member.ALI..., new <span class="point">DerivedReferrerOption()</span>.coalesce("1192-01-01"));</span>
+
+<span class="comment">// &lt;&lt;&lt; LoadReferrer &gt;&gt;&gt; ※after a SELECT clause</span>
+<span class="comment">// Retrieving data from child tables (one-to-many)</span>
+<span class="comment">//  e.g. Retrieving the purchase data, in descending order, of each member (Load)</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb); <span class="comment">// List Search</span>
+<span class="attribute">memberBhv</span>.<span class="point">loadPurchaseList</span>(memberList, <span class="keyword">new</span> ConditionBeanSetupper&lt;Pu<span class="abbreviation">...</span>CB&gt;() {
+    <span class="keyword">public void</span> setup(PurchaseCB cb) {
+        cb.query().addOrderBy_PurchaseDatetime_Desc();
+    }
+});
+<span class="comment">// Use LoadReferrerOption to retrieve a child table of a child table</span>
+<span class="comment">//LoadReferrerOption&lt;MemberCB, Member&gt; option
+<span class="comment">//        = new <span class="point">LoadReferrerOption</span>&lt;MemberCB, Member&gt;();</span>
+<span class="comment">//option.setConditionBeanSetupper(...);</span>
+<span class="comment">//option.setEntityListSetupper(...);</span>
+<span class="comment">//memberBhv.loadPurchaseList(memberList, <span class="point">option</span>);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="query">Filtering Data</h3>
+<pre><span class="codetitle">Filtering Data @Java</span><code>
+<span class="abbreviation">...</span>
+
+<span class="comment">// Equalities</span>
+cb.query().setMemberId_Equal(<span class="literal">1</span>); <span class="comment">// MEMBER_ID = 1</span>
+cb.query().setMemberStatusCode_Equal_FormalizedMember(); <span class="comment">// using category tables</span>
+
+<span class="comment">// Inequalities</span>
+cb.query().setMemberId_NotEqual(<span class="literal">1</span>); <span class="comment">// MEMBER_ID &lt;&gt; 1</span>
+cb.query().setMemberStatusCode_NotEqual_FormalizedMember(); <span class="comment">// using category tables</span>
+cb.query().setMemberId_GreaterThan(<span class="literal">3</span>); <span class="comment">// MEMBER_ID &gt; 3</span>
+cb.query().setMemberId_LessThan(<span class="literal">3</span>); <span class="comment">// MEMBER_ID &lt; 3</span>
+cb.query().setMemberId_GreaterEqual(<span class="literal">3</span>); <span class="comment">// MEMBER_ID &gt;= 3</span>
+cb.query().setMemberId_LessEqual(<span class="literal">3</span>); <span class="comment">// MEMBER_ID &lt;= 3</span>
+
+<span class="comment">// IN lists (in ('a', 'b'))</span>
+cb.query().setMemberId_InScope(memberIdList);
+cb.query().setMemberStatusCode_InScope_AsMemberStatus(cdefList); <span class="comment">// using category tables</span>
+<span class="comment">// NOT IN (...)</span>
+<span class="comment">// cb.query().setMemberId_NotInScope(...)</span>
+
+<span class="comment">// Fuzzy searches (with escape key)</span>
+cb.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>); <span class="comment">// begins-with search (LIKE 'S%' ESCAPE '|')</span>
+cb.query().setMemberName_LikeSearch(<span class="literal">"vi"</span>
+    , <span class="keyword">new</span> LikeSearchOption().likeContain()); <span class="comment">// this-and-that options</span>
+cb.query().setMemberName_LikeSearch(<span class="literal">"to vi"</span>
+    , <span class="keyword">new</span> LikeSearchOption().likeContain().splitByBlank());<span class="comment">// contains "to" and "vi"</span>
+cb.query().setMemberName_LikeSearch(<span class="literal">"to vi"</span>
+    , <span class="keyword">new</span> LikeSearchOption().likeContain().splitByBlank().asOrSplit());<span class="comment">// contains "to" or "vi"</span>
+<span class="comment">// NOT LIKE '...'</span>
+<span class="comment">cb.query().setMemberName_NotLikeSearch(...)</span>
+
+<span class="comment">// Null checks, etc.</span>
+cb.query().setBirthdate_IsNull();
+cb.query().setBirthdate_IsNotNull();
+cb.query().setMemo_IsNullOrEmpty();
+
+<span class="comment">// The standard FromTo method (for dates)</span>
+<span class="comment">//  e.g. from October to December (all-inclusive)</span>
+Date fromMonth = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/10/01"</span>).getDate();
+Date toMonth = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/12/01"</span>).getDate();
+cb.query().setFormalizedDatetime_FromTo(fromMonth, toMonth
+        , <span class="keyword">new</span> FromToOption().compareAsMonth()); <span class="comment">// this-and-that options</span>
+
+<span class="comment">// Using the OrIsNull option</span>
+<span class="comment">//  e.g. until 2005 (all-inclusive)</span>
+Date toYear = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/01/01"</span>).getDate();
+cb.query().setFormalizedDatetime_FromTo(<span class="keyword">null</span>, toYear
+        , <span class="keyword">new</span> FromToOption().compareAsYear().orIsNull());
+
+<span class="comment">// The frequently-used DateFromTo method</span>
+<span class="comment">//  e.g. from 10/1 to 10/3 (all-inclusive) ※equivalent to the compareAsDate() option</span>
+Date fromDate = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/10/01"</span>).getDate();
+Date toDate = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/10/03"</span>).getDate();
+cb.query().setFormalizedDatetime_DateFromTo(fromDate, toDate);
+
+<span class="comment">// The standard RangeOf method (for numbers)</span>
+<span class="comment">//  e.g. from 30 to 70 (or null)</span>
+cb.query().setMemberAge_RangeOf(30, 70, <span class="keyword">new</span> RangeOfOption().orIsNull());
+
+<span class="comment">// &lt;&lt;&lt; ExistsReferrer &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using child tables (EXISTS (SELECT ...))</span>
+<span class="comment">//  e.g. members with purchases of ¥2000 and above</span>
+cb.query().<span class="point">existsPurchaseList</span>(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+    }
+});
+<span class="comment">// NOT EXISTS (SELECT...))</span>
+<span class="comment">// cb.query().notExistsPurchaseList(...)</span>
+
+<span class="comment">// &lt;&lt;&lt; InScopeRelation &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using IN lists (IN (SELECT ...))</span>
+<span class="comment">//  e.g. members with purchases of ¥2000 and above</span>
+cb.query().<span class="point">inScopePurchaseList</span>(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+    }
+});
+<span class="comment">// NOT IN (SELECT ...)</span>
+<span class="comment">// cb.query().notInScopePurchaseList(...)</span>
+
+<span class="comment">// &lt;&lt;&lt; (Query)DerivedReferrer &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using derived columns of child tables (correlated subqueries)</span>
+<span class="comment">//  e.g. members with paid purchases, the maximum purchase price of which is ¥2000 and above</span>
+cb.query().<span class="point">derivedPurchaseList()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.specify().<span class="point">columnPurchasePrice()</span>;
+        subCB.query().setPaymentCompleteFlg_Equal_True();
+    }
+}).<span class="point">greaterEqual</span>(<span class="literal">2000</span>);
+<span class="comment">// you can make adjustments to derived columns using SQL functions when necessary</span>
+<span class="comment">//}, new <span class="point">DerivedReferrerOption()</span>.coalesce(0)).greaterEqual(...);</span>
+
+<span class="comment">// &lt;&lt;&lt; ScalarCondition &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using derived columns (normal subqueries)</span>
+<span class="comment">//  e.g. members with the same birthdate as the youngest formalized member</span>
+cb.query().<span class="point">scalar_Equal()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        subCB.specify().<span class="point">columnBirthdate()</span>;
+        subCB.query().setMemberStatusCode_Equal_Formalized();
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; ScalarConditionPartitionBy &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using derived columns and categories (correlated subqueries)</span>
+<span class="comment">//  e.g. the youngest member per member status</span>
+cb.query().<span class="point">scalar_Equal()</span>.<span class="point">max</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        subCB.specify().<span class="point">columnBirthdate()</span>;
+    }
+}).<span class="point">partitionBy</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnMemberStatusCode()</span>;
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; MyselfInScope &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using IN lists with values from the same table (used only under special conditions)</span>
+cb.query().myselfInScope(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) {
+        <span class="comment">//subCB.specify().column...()</span> <span class="comment">// defaults to the PK column when not specified</span>
+        subCB.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// the filter condition</span>
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; ColumnQuery &gt;&gt;&gt;</span>
+<span class="comment">// Filtering using the values of two columns from the same table</span>
+<span class="comment">//  e.g. members whose birthdates are earlier than their formalization dates</span>
+cb.<span class="point">columnQuery</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate()</span>;
+    }
+}).<span class="point">lessThan</span>(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">columnFormalizedDatetime()</span>;
+    }
+});
+<span class="comment">// you can make adjustments to the values using SQL functions when necesary</span>
+<span class="comment">//}).convert(new <span class="point">ColumnConversionOption</span>().truncTime().addDay(7));</span>
+
+<span class="comment">// &lt;&lt;&lt; OrScopeQuery &gt;&gt;&gt;</span>
+<span class="comment">// The OR operator (conditions are joined by AND by default)</span>
+<span class="comment">//  e.g. members whose names start with "S" or "J", or whose MEMBER_ID is equal to 3</span>
+cb.<span class="point">orScopeQuery</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+        orCB.query().setMemberName_PrefixSearch(<span class="literal">"J"</span>);
+        orCB.query().setMemberId_Equal(<span class="literal">3</span>);
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; OrScopeQueryAndPart &gt;&gt;&gt;</span>
+<span class="comment">// Using AND operators within OR operators</span>
+<span class="comment">//  e.g. members who have withdrawn or whose MEMBER_ID is greater than or equal to 100 and with null formalized dates</span>
+cb.<span class="point">orScopeQuery</span>(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB orCB) {
+        orCB.query().setMemberStatusCode_Equal_Withdrawal();
+        orCB.<span class="point">orScopeQueryAndPart</span>(<span class="keyword">new</span> AndQuery&lt;MemberCB&gt;() {
+            <span class="keyword">public void</span> query(MemberCB andCB) {
+                andCB.query().setMemberId_GreaterEqual(<span class="literal">100</span>);
+                andCB.query().setFormalizedDatetime_IsNull();
+            }
+        };
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; UnionQuery &gt;&gt;&gt;</span>
+<span class="comment">// Using the UNION clause</span>
+<span class="comment">//  e.g. searching for members whose birthdates are on or after 2005 using UNION</span>
+cb.<span class="point">union</span>(<span class="keyword">new</span> UnionQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB unionCB) {
+        Date targetDate = <span class="keyword">new</span> HandyDate(<span class="literal">"2005/01/01"</span>).getDate();
+        unionCB.query().setBirthdate_GreaterEqual</span>(targetDate);
+    }
+});
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="orderby">Sorting Data</h3>
+<pre><span class="codetitle">Sorting Data @Java</span><code>
+<span class="abbreviation">...</span>
+
+cb.query().addOrderBy_MemberId_Asc(); <span class="comment">// ascending sort</span>
+cb.query().addOrderBy_FormalizedDatetime_Desc(); <span class="comment">// descending sort</span>
+cb.query().addOrderBy_Birthdate_Desc().withNullsFirst(); <span class="comment">// with null values first</span>
+cb.query().addOrderBy_Birthdate_Desc().withNullsLast(); <span class="comment">// with null values last</span>
+
+<span class="comment">// &lt;&lt;&lt; ManualOrder &gt;&gt;&gt;</span>
+<span class="comment">// Sorting manually using conditions</span>
+<span class="comment">//  e.g. putting data modified within the last 24 hours first</span>
+ManualOrderBean mob = <span class="keyword">new</span> ManualOrderBean();
+Date date24before = <span class="keyword">new</span> HandyDate(currentDate()).addDay(<span class="literal">-1</span>).getDate();
+mob.<span class="point">when_GreaterThan</span>(date24before); <span class="comment">// date modified &gt; 24 hours ago</span>
+cb.query().addOrderBy_UpdateDatetime_Asc().<span class="point">withManualOrder</span>(mob);
+
+<span class="comment">// &lt;&lt;&lt; SpecifiedDerivedOrderBy &gt;&gt;&gt;</span>
+<span class="comment">// Sorting using derived columns</span>
+<span class="comment">//  e.g. sorting by last login</span>
+cb.query().addSpecifiedDerivedOrderBy_Desc(Member.ALIAS_latestLoginDatetime);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="style">Search types</h3>
+<pre><span class="codetitle">Search types @Java</span><code>
+<span class="abbreviation">...</span>
+
+<span class="comment">// Count</span>
+<span class="keyword">int</span> count = <span class="attribute">memberBhv</span>.selectCount(cb);
+
+<span class="comment">// Item search (returns null if not found)</span>
+Member member = <span class="attribute">memberBhv</span>.selectEntity(cb);
+
+<span class="comment">// Item search (throws an Exception if not found)</span>
+Member member =  = <span class="attribute">memberBhv</span>.selectEntityWithDeletedCheck(cb);
+
+<span class="comment">// List search</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+
+<span class="comment">// Paging</span>
+PagingResultBean&lt;Member&gt; page = <span class="attribute">memberBhv</span>.selectPage(cb);
+
+<span class="comment">// &lt;&lt;&lt; ScalarSelect &gt;&gt;&gt;</span>
+<span class="comment">// Using derived values</span>
+<span class="comment">//  e.g. the youngest formalized member</span>
+Date max = <span class="attribute">memberBhv</span>.<span class="point">scalarSelect</span>(Date.<span class="keyword">class</span>).<span class="point">max</span>(<span class="keyword">new</span> ScalarQuery&lt;Me<span class="abbreviation">...</span>CB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB cb) {
+        cb.specify().<span class="point">columnBirthdate</span>(); <span class="comment">// latest birthdate</span>
+        cb.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// search only for formalized members</span>
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; CursorSelect &gt;&gt;&gt;</span>
+<span class="comment">// Using cursors (fetch one record at a time)</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectCursor</span>(cb, <span class="keyword">new</span> EntityRowHandler&lt;Member&gt;() {
+    <span class="keyword">public void</span> <span class="point">handle</span>(Member entity) {
+        Integer memberId = entity.getMemberId();
+        String memberName = entity.getMemberName();
+        <span class="abbreviation">...</span>
+    }
+});
+
+<span class="comment">// &lt;&lt;&lt; QueryDelete &gt;&gt;&gt;</span>
+<span class="attribute">memberBhv</span>.queryDelete(cb);
+
+<span class="comment">// &lt;&lt;&lt; QueryUpdate &gt;&gt;&gt;</span>
+Member member = <span class="keyword">new</span> Member();
+member.setMemberStatusCode_ProvisionalMember();
+<span class="attribute">memberBhv</span>.queryUpdate(member, cb);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="option">Other options</h3>
+<pre><span class="codetitle">Other options @Java</span><code>
+<span class="abbreviation">...</span>
+
+<span class="comment">// throw an exception if a condition value is null or an empty String (ignored by default)</span>
+cb.checkInvalidQuery();
+
+<span class="comment">// acquire a table lock (for updates)</span>
+cb.lockForUpdate();
+
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="specialthanks">Special Thanks</h2>
+	<p>
+		Cruz, thank you for your translation.
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

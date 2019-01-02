@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,UTFlute,JUnit,単体テスト,UnitTest" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>UTFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>UTFlute</h1>
+	<p>
+		DBFluteプロジェクトが提供するライブラリ UTFlute のページ。
+	</p>
+	${indexlist}
+
+	<h2 id="about">UTFluteとは？</h2>
+	<h3 id="zuvari">ずばり言うと</h3>
+	<p>
+		UTFlute は、<em class="keyword">自分で new したものにDIできる JUnit 拡張</em> です。
+	</p>
+<pre><span class="codetitle">e.g. 自分で new した Action に DI だけして index() を実行 @Java</span><code>
+<span class="comment">// ## Arrange ##</span>
+FooAction action = <span class="keyword">new</span> FooAction();
+<span class="point">inject</span>(action);
+
+<span class="comment">// ## Act ##</span>
+action.index();
+</code></pre>
+
+	<h2 id="feature">UTFluteの特徴</h2>
+	<h3 id="zatto">ざっとこんな感じです</h3>
+	<dl class="keymainlist">
+		<dt>inject()</dt><dd>自分で new したものに DI する</dd>
+		<dt>registerMock()</dt><dd>inject()でDIされるコンポーネントをMockに</dd>
+		<dt>markHere()</dt><dd>ここを通ったことをassertするための仕組み <span class="frm">(plain)</span></dd>
+		<dt>cannonball()</dt><dd>マルチスレッド実行、10スレッドでよーいドン！ <span class="frm">(plain)</span></dd>
+		<dt>policeStoryOf...()</dt><dd>JavaクラスやJSPファイルなどを走査して好きなようにチェック <span class="frm">(plain)</span></dd>
+		<dt>テストクラスDI</dt><dd>テストクラスのフィールドにコンポーネントをDI</dd>
+		<dt>自動トランザクション</dt><dd>テストケースごとに強制Rollbackトランザクション</dd>
+		<dt>コンテナキャッシュ</dt><dd>一回の実行単位でDIコンテナの起動は一回だけ</dd>
+	</dl>
+	<h3 id="refblog">ブログが参考になります</h3>
+	<p>
+		サンプルコードがブログに載っています。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20140319/1395227927">外部サイト - jfluteの日記 - UTFluteでいろいろ</a></div>
+	<h3 id="refexample">Exampleも参考になります</h3>
+	<p>
+		DBFlute Example では豪快に使っています。
+	</p>
+	<div class="detailpage"><a href="../../../reference/example/index.html">DBFlute Example</a></div>
+
+	<h2 id="setup">UTFluteのセットアップ</h2>
+	<p>
+		まず、Maven の dependency の設定をして...
+	</p>
+<pre><span class="codetitle">e.g. LastaFluteを使っている場合の UTFlute の dependency 設定 @pom.xml</span><code>
+    &lt;dependency&gt;
+      &lt;groupId&gt;<span class="literal">org.dbflute.utflute</span>&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="point">utflute-lastaflute</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="literal">0.8.7</span>&lt;/version&gt;
+      &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+</code></pre>
+	<p>
+		UnitTest上でのDI環境が準備されたスーパークラスを作成します。
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスを作成、DI設定を変えたり @Java</span><code>
+<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> <span class="point">ContainerTestCase</span> {
+
+    @Override
+    <span class="keyword">protected</span> String prepareConfigFile() { <span class="comment">// これは Seasar の場合</span>
+        <span class="keyword">return</span> <span class="literal">"test_app.dicon"</span>; <span class="comment">// テスト用のdiconを読み込むように変更</span>
+    }
+}
+</code></pre>
+	<p>
+		詳しくは、専用のページにて。
+	</p>
+	<div class="detailpage"><a href="./setup.html">UTFluteのセットアップ</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,用語集,Dictionary,辞書" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute用語集 R | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute用語集 R</h1>
+	<p>
+		"R" で始まる用語に関するページです。
+	</p>
+	${indexlist}
+
+	<h2 id="resultset" class="dicword">ResultSet (結果セット)</h2>
+	<p>
+		主に検索されたレコードの集合体のこと、もしくは、JDBCにおける ResultSet
+		クラス(インターフェース)のことを示します。様々な場面で利用されます。
+	</p>
+
+	<h2 id="resultsetparameter" class="dicword">ResultSetパラメータ <span class="frm">for プロシージャ</span></h2>
+	<p>
+		プロシージャにおける、OUTパラメータ経由で取得する ResultSet (結果セット)のこと(概念)を、DBFluteではこのように呼びます。
+		主に、Oracle、PostgreSQLがサポートしています。パラメータを増やすことで複数の ResultSet を戻せるのが特徴です。
+		JDBCでは、OUTパラメータの結果がそのまま ResultSet となります。
+	</p>
+<pre><span class="codetitle">e.g. ResultSetパラメータを利用して複数の ResultSet を戻すプロシージャ {PostgreSQL} @Procedure</span><code>
+<span class="keyword">create or replace function</span> SP_RESULT_SET_PARAMETER_MORE(
+  cur_member <span class="attribute">out</span> <span class="dbtype">refcursor</span>
+  , cur_member_status <span class="attribute">out</span> <span class="dbtype">refcursor</span>)
+<span class="keyword">as</span>
+$BODY$
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur_member <span class="keyword">for</span>
+    <span class="keyword">select</span> * <span class="keyword">from</span> MEMBER;
+  <span class="keyword">open</span> cur_member_status <span class="keyword">for</span>
+    <span class="keyword">select</span> * <span class="keyword">from</span> MEMBER_STATUS;
+<span class="keyword">end</span>;
+$BODY$ LANGUAGE <span class="literal">'plpgsql'</span>;
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+
+	<h2 id="resultsetreturn" class="dicword">ResultSetリターン <span class="frm">for プロシージャ</span></h2>
+	<p>
+		プロシージャにおける、プロシージャリターン経由で取得する ResultSet (結果セット)のこと(概念)を、DBFluteではこのように呼びます。
+		主に、PostgreSQLがサポートしています。必ず一つの ResultSet しか戻せないのが特徴です。JDBCでは、OUTパラメータと同じように扱うことで利用できます。
+	</p>
+<pre><span class="codetitle">e.g. ResultSetリターンを利用して ResultSet を戻すプロシージャ {PostgreSQL} @Procedure</span><code>
+<span class="keyword">create or replace function</span> SP_RETURN_RESULT_SET()
+<span class="keyword">returns</span> <span class="dbtype">refcursor</span> <span class="keyword">as</span>
+$BODY$
+<span class="keyword">declare</span>
+  cur_member <span class="dbtype">refcursor</span>;
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur_member <span class="keyword">for</span>
+    <span class="keyword">select</span> *
+      <span class="keyword">from</span> MEMBER;
+  <span class="keyword">return</span> cur_member;
+<span class="keyword">end</span>;
+$BODY$ LANGUAGE <span class="literal">'plpgsql'</span>;
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/procedurepmb.html">Sql2Entity - ProcedurePmb</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

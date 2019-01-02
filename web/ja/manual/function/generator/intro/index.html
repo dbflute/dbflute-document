@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBFlute Intro,イントロ,支援ツール" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>DBFlute Intro (いんとろ) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute Intro (いんとろ)</h1>
+	<p>
+		Alto DBFlute の利用を支援するための、IDEなどに依存しない独立したGUIツールです。
+	</p>
+	<div class="relatedpage"><a href="../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	${indexlist}
+
+	<h2 id="about">DBFlute Introとは？</h2>
+	<p>
+		アプリの外側で活躍するDBFluteの機能 (Alto DBFlute) を、インストールから実行までGUIだけで実行できるツールです。
+		Javaの実行環境(JRE)さえあれば利用できる導入しやすいツールです。
+	</p>
+	<div class="relatedpage"><a href="../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	<p>
+		Github で開発されているオープンソースです。
+		DBFlute本体とは、独立した運用がされていますので、本家のサイトにも注目です。<span class="frm">(ということで、ここでは、簡単な利用方法の説明だけをしていきます)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-intro">DBFlute Intro | Github</a></div>
+	<p>
+		以下のようにリリースされています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>2019/01/01</dt><dd><em class="mark">0.3.3</em> :: AlterCheckの調整、SchemaPolicyCheckの設定</dd>
+		<dt>2018/12/01</dt><dd><em class="mark">0.3.2</em> :: ReplaceSchema, AlterCheckの実行</dd>
+		<dt>2018/10/21</dt><dd><em class="mark">0.3.1</em> :: Java11 で実行できるように</dd>
+		<dt>2018/09/24</dt><dd><em class="mark">0.3.0</em> :: riot.jsに移行、細かい改善</dd>
+		<dt>2018/09/01</dt><dd><em class="mark">0.2.3</em> :: 起動IPを指定できるように <span class="frm">(for デコメントサーバー)</span></dd>
+		<dt>2018/06/30</dt><dd><em class="mark">0.2.2</em> :: デコメントサーバーモードをサポート</dd>
+		<dt>2018/05/20</dt><dd><em class="mark">0.2.1</em> :: デコメントの改善、ハコメントのデビュー</dd>
+		<dt>2018/01/01</dt><dd><em class="mark">0.2.0</em> :: デコメントのプロダクションリリース</dd>
+		<dt>2017/11/26</dt><dd><em class="mark">0.1.3</em> :: デコメントのファーストリリース</dd>
+		<dt>2017/05/05</dt><dd><em class="mark">0.1.2</em> :: DBFluteのセットアップ、SchemaHTMLなど基本を一通り</dd>
+	</dl>
+
+	<h2 id="download">Introのダウンロード</h2>
+	<p>
+		インストールという概念はありません。単にファイル (.jar) を一つダウンロードするだけです。
+	</p>
+	<p>
+		Githubのリリースページから最新版をダウンロードできます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>Introのリリースページ</dt><dd><a href="https://github.com/dbflute/dbflute-intro/releases">dbflute-intro Releases | Github</a></dd>
+	</dl>
+	<p>
+		そして、例えば以下のよう感じで、どこかのディレクトリに入れておくと良いでしょう。
+	</p"ja/manual/function/generator/intro/index.html">
+<pre><span class="codetitle">e.g. DBFlute Intro のjarファイルを dbflute-intro ディレクトリ配下に @Directory</span><code>
+<span class="abbreviation">...</span>
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute-intro
+ |  |
+ |  |-<span class="point">dbflute-intro.jar</span>
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		もし、DBFlute を "O/Rマッパー" としても利用する想定であれば、クラスを自動生成するプロジェクトの直下に置きましょう。
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro のjarファイルを maihama プロジェクトディレクトリ配下に @Directory</span><code>
+<span class="abbreviation">...</span>
+ |-maihama
+ |  |-src/main/java
+ |  |-src/main/resources
+ |  |-<span class="abbreviation">...</span>
+ |  |-<span class="point">dbflute-intro.jar</span>
+ |  |-<span class="abbreviation">...</span>
+ |  |-pom.xml
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		特にバージョン番号は付けていません。アップグレードするときは上書きしてしまいましょう。起動するとメイン画面の下の方に表示される System Info
+		にバージョンが表示されます。常に最新を使っていきましょう。
+	</p>
+
+	<h2 id="useflow">使い方の流れ</h2>
+	<ol>
+		<li><em class="keyword"><a href="#bootintro">DBFlute Intro を起動</a></em></li>
+		<li><em class="keyword"><a href="#welcome">まずは Welcome !</a></em></li>
+		<li><em class="keyword"><a href="#firstdoc">とりあえず、テーブル定義ドキュメント <span class="frm">(SchemaHTML)</span></a></em></li>
+		<li><em class="keyword"><a href="#dbchange">DB変更したら、またドキュメント生成 <span class="frm">(HistoryHTML)</span></a></em></li>
+	</ol>
+
+	<h2 id="bootintro">DBFlute Intro を起動</h2>
+	<dl class="shortkeymainlist">
+		<dt>Mac/Windows</dt><dd>コマンドラインから... <em class="bigmark">java -jar dbflute-intro.jar</em></dd>
+	</dl>
+	<p>
+		<span class="frm">※javaコマンドが叩ける必要があります。</span>
+	</p>
+
+	<h2 id="welcome">まずは Welcome !</h2>
+	<p>
+		DBFlute Intro を起動すると、<em class="keyword">DBFluteをセットアップするための最低限必要な情報</em>
+		を入力する画面が <em class="mark">ブラウザ</em> で表示されます。<span class="frm">(起動に少し時間がかかるのでお待ちください)</span>
+	</p>
+	<h3 id="welcomesnapshot">Welcome画面</h3>
+	<p class="imgbox">Welcome画面
+		<a href="../../../../data/snapshot/intro/welcome/intro-welcome-initial-snapshot.png" title="DBFluteIntro Welcome Initial"><img src="../../../../../data/snapshot/intro/welcome/intro-welcome-initial-snapshot.png" alt="DBFluteIntro Welcome Initial" width="550" height="360" /></a>
+	</p>
+	<h3 id="welcomeitem">セットアップするための最低限の項目</h3>
+	<dl class="shortkeymainlist">
+		<dt>*Project Name</dt><dd>DBFluteクライアントのプロジェクト名、通常はスキーマ名を指定</dd>
+		<dt>*DBMS</dt><dd>対象のデータベースの種類 e.g. MySQL, PostgreSQL, Oracle</dd>
+		<dt>*JDBC Driver</dt><dd>JDBCドライバのクラス名、DBMSを選択すると自動入力される</dd>
+		<dt>JDBC Driver Path</dt><dd>JDBCドライバのjarファイルのパス (補足あり)</dd>
+		<dt>*URL</dt><dd>JDBCでデータベースに接続するためのURL (補足あり)</dd>
+		<dt>Schema</dt><dd>接続するスキーマ、OracleやDB2などでは必須</dd>
+		<dt>*User</dt><dd>データベースに接続するときのユーザ</dd>
+		<dt>Password</dt><dd>データベースに接続するときのパスワード</dd>
+	</dl>
+	<h3 id="welcomejdbcjar">JDBCドライバのパスの補足</h3>
+	<p>
+		DBFlute Intro は "JDBCドライバ" を利用して接続するため、JDBCドライバが DBFlute
+		に同梱されていないDBMS(同梱が許されていないDBMS)の場合は、自分でダウンロードする必要があります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>MySQL</dt><dd>同梱されているので指定不要</dd>
+		<dt>PostgreSQL</dt><dd>同梱されているので指定不要</dd>
+		<dt>Oracle</dt><dd>"ojdbc7.jar ダウンロード" で検索してダウンロード画面へ</dd>
+		<dt>DB2</dt><dd>"db2jcc.jar ダウンロード" で検索してダウンロード画面へ</dd>
+		<dt>SQLServer</dt><dd>"sqljdbc4.jar ダウンロード" で検索してダウンロード画面へ</dd>
+		<dt>H2 Database</dt><dd>同梱されているので指定不要</dd>
+		<dt>Apache Derby</dt><dd>"derby ダウンロード" で検索してダウンロード画面へ</dd>
+	</dl>
+	<h3 id="welcomejdbcurl">JDBC接続URLの補足</h3>
+	<p>
+		DB接続のURLは、DBMSを選択することで自動入力されるURLひな形の xxx
+		部分にデータベース名もしくはスキーマ名を入力します。例えば、以下のような感じになります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>MySQL</dt><dd>jdbc:mysql://localhost:3306/maihamadb</dd>
+		<dt>PostgreSQL</dt><dd>jdbc:postgresql://localhost:5432/maihamadb</dd>
+		<dt>Oracle</dt><dd>jdbc:oracle:thin:@localhost:1521:XE</dd>
+		<dt>DB2</dt><dd>jdbc:db2://localhost:50000/dfexdb</dd>
+		<dt>SQLServer</dt><dd>jdbc:sqlserver://localhost:1433;databaseName=maihamadb;</dd>
+		<dt>H2 Database</dt><dd>jdbc:h2:file:../src/main/resources/maihamadb/maihamadb</dd>
+		<dt>Apache Derby</dt><dd>jdbc:derby:../src/main/resources/librarydb;create=true</dd>
+	</dl>
+	<h3 id="welcomeormapper">O/Rマッパーのための項目</h3>
+	<p>
+		O/Rマッパーとしての利用も想定しているなら、"O/R Mapper Option" を押して追加項目も調整しましょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>*Language</dt><dd>自動生成クラスのプログラミング言語 e.g. Java</dd>
+		<dt>*DI Container</dt><dd>自動生成クラスが利用するDIコンテナ e.g. Lasta Di, Spring</dd>
+		<dt>*Generation Package</dt><dd>自動生成クラスのパッケージ e.g. org.docksidestage.dbflute</dd>
+	</dl>
+	<h3 id="welcomeconnectastest">connect as test で接続テスト</h3>
+	<p>
+		"connect as test" にチェックを入れた状態で Create
+		すると、入力された情報で実際にデータベースにテスト接続しにいきます。
+		接続できない場合は、入力情報に間違いがある可能性があるので入力し直しましょう。 
+	</p>
+	<h3 id="welcomecreate">Create ボタンで Create</h3>
+	<p>
+		Create ボタンを押すと、最新版の "DBFluteエンジン"
+		をダウンロードして、入力された情報を元にDBFluteクライアントをセットアップします。
+	</p>
+	<p>
+		成功すれば、その作成したDBFluteクライアントの操作画面に自動で遷移します。
+		DBFlute Intro の war ファイルと同じディレクトリを見ると、DBFluteクライアントとDBFluteエンジンがあるはずです。
+		<span class="frm">(mydbfluteの下には、intro_resourcesというディレクトリがあり、Intro自体のログなどが出力されています)</span>
+	</p>
+<pre><span class="codetitle">e.g. DBFlute Intro のwarファイルを maihama プロジェクトディレクトリ配下に @Directory</span><code>
+<span class="abbreviation">...</span>
+ |-<span class="subpoint">dbflute_maihamadb</span>
+ |
+ |-<span class="subpoint">mydbflute</span>
+ |  |-<span class="subpoint">dbflute-1.1.1</span>
+ |  |-intro_resources
+ |  |  |-log
+ |  |  |  |-app_intro.log
+ |
+ |-dbflute-intro.jar
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="firstdoc">とりあえず、テーブル定義ドキュメント <span class="frm">(SchemaHTML)</span></h2>
+	<p>
+		Welcome画面で Create が終わると、DBFluteクライアントのOperate画面が表示されます。この画面で様々な DBFlute
+		の操作ができますが、まずはドキュメントを生成しましょう。
+	</p>
+	<h3 id="operatesnapshot">Operate画面の初期状態</h3>
+	<p class="imgbox">Operate画面
+		<a href="../../../../../data/snapshot/intro/operate/intro-operate-initial-snapshot.png" title="DBFluteIntro Operate Initial"><img src="../../../../../data/snapshot/intro/operate/intro-operate-initial-snapshot.png" alt="DBFluteIntro Operate Initial" width="550" height="340" /></a>
+	</p>
+	<h3 id="operategeneratedoc">ドキュメントの生成ボタン</h3>
+	<p>
+		"Generate Documents (jdbc, doc)" を叩いてみましょう。
+		<span class="frm">(DBFluteクライアントを経由して、JDBCタスクとDocタスクが実行され、実際にデータベースにアクセスしてドキュメントを自動生成します)</span>
+	</p>
+	<p>
+		少し待つと、"テーブル定義ドキュメント (SchemaHTML)" へのリンクが表示されます。
+	</p>
+	<h3 id="operatesnapshot">Operate画面のドキュメントリンクあり</h3>
+	<p class="imgbox">Operate画面のドキュメントリンクあり
+		<a href="../../../../../data/snapshot/intro/operate/intro-operate-linkdoc-snapshot.png" title="DBFluteIntro Operate LinkDoc"><img src="../../../../../data/snapshot/intro/operate/intro-operate-linkdoc-snapshot.png" alt="DBFluteIntro Operate LinkDoc" width="550" height="330" /></a>
+	</p>
+	<h3 id="schemahtmllink">ドキュメントリンクをクリック</h3>
+	<p>
+		したら、"Open the table layout, SchemaHTML" のリンクをクリックしてみましょう。
+	</p>
+	<p>
+		ブラウザ上の別タブで SchemaHTML が表示されます。
+	</p>
+	<p class="imgbox">SchemaHTML Example
+		<a href="../../../../data/doc/harbor/schema-maihamadb.html" title="SchemaHTML Example"><img src="../../../../data/model/alto/doc/doc-SchemaHtml-List-example.png" alt="SchemaHTML Example" width="550" height="220" /></a>
+	</p>
+
+	<h2 id="dbchange">DB変更したら、またドキュメント生成 <span class="frm">(HistoryHTML)</span></h2>
+	<p>
+		DBが変わったら、またドキュメント生成をしましょう。
+	</p>
+	<h3 id="latestschemahtml">最新のSchemaHTML</h3>
+	<p>
+		ドキュメント生成ボタンを押して SchemaHTML を開くと、新しいスキーマの情報が表示されます。
+	</p>
+	<p>
+		このように、ボタンを押せばすぐに最新状態のドキュメントが生成できます。
+	</p>
+	<h3 id="historyhtmllink">HistoryHTML表示リンク</h3>
+	<p>
+		そして、HistoryHTMLリンクをクリックしてみましょう。DB変更の履歴が表示されます。
+	</p>
+	<p class="imgbox">HistoryHTMLの例
+		<a href="../../../../data/doc/harbor/history-maihamadb.html" title="HistoryHTML Example"><img src="../../../../data/model/alto/doc/doc-HistoryHtml-example.png" alt="HistoryHTML Example" width="550" height="700" /></a>
+	</p>
+
+	<h2 id="miscfunc">Introのいろいろな機能</h2>
+	<h3 id="decomment">DBコメントにデコメント</h3>
+	<p>
+		Intro経由で開いたSchemaHTML上で、DBコメントを追加・修正できます。
+	</p>
+	<div class="detailpage"><a href="./decomment.html">Decomment (でこめんと) on Intro</a></div>
+	<h3 id="hacomment">DBコメントにハコメント</h3>
+	<p>
+		Intro経由で開いたHistoryHTML上で、履歴コメントを追加・修正できます。
+	</p>
+	<div class="detailpage"><a href="./hacomment.html">Hacomment (はこめんと) on Intro</a></div>
+
+	<div class="inucolumn">
+		<h2 id="structure">DBFlute本体はどこに？</h2>
+		<p>
+			DB接続環境を保持している "DBFluteクライアント" と、ダウンロードされた "DBFluteエンジン"
+			は、DBFlute Intro のすぐ近くで以下のような感じで配置されています。
+		</p>
+<pre><span class="codetitle">e.g. DBFlute Intro のファイルを dbflute-intro 配下に @Directory</span><code>
+どこかのディレクトリ
+ |-<span class="abbreviation">...</span>
+ |
+ |-dbflute-intro
+ |  |-<span class="subpoint">dbflute_xxx</span>      <span class="comment">// DB名が yourdb なら dbflute_yourdb</span>
+ |  |  |-dfprop        <span class="comment">// DB接続情報が保持されている、その他もろもろの設定</span>
+ |  |  |-log           <span class="comment">// DBFlute実行時のログ</span>
+ |  |  |-<span class="abbreviation">...</span>
+ |  |
+ |  |-mydbflute
+ |  |  |-<span class="subpoint">dbflute-1.x.x</span>
+ |  |
+ |  |-<span class="point">dbflute-intro.jar</span>
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+		<p>
+			DBFluteクライアントは、DB接続情報などDBFluteのもろもろの設定です。一つのDBにつき、一つのクライアント(ディレクトリ)が作成されます。
+		</p>
+		<div class="relatedpage"><a href="../../generator/client/index.html">DBFluteクライアント</a></div>
+		<p>
+			DBFluteエンジンは DBFlute の本体そのものであり、DBFlute Intro も人も直接ここのファイルをさわることは基本的にありません。
+		</p>
+		<div class="relatedpage"><a href="../../generator/module/index.html">DBFluteモジュール</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

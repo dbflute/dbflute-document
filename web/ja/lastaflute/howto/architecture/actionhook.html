@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>気軽な前後処理 ActionHook | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>気軽な前後処理 ActionHook</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="overview">ActionHookとは？</h2>
+	<p>
+		Actionでは、Interceptorはあまり使わず、もっと気軽に前後処理を実装できる ActionHook
+		という機能が用意されています。別のクラスではなく、Action自身に前後処理を書きます。
+	</p>
+	<p>
+		Interceptorは便利ですが、あまり乱用するとすぐにカオスになりがちで、ディベロッパーからの精神的距離も遠く、修正の敷居が高いものです。
+		また、できるだけ Action を <span class="frm">(Javassistで)</span>
+		エンハンスさせずに素のクラスとしてキープすることで、スタックトレースの汚れや起動スピードの劣化を抑制できます。
+	</p>
+	<p>
+		互いのメリット・デメリットを加味して、LastaFluteのポリシーとして適した方法はどちらだろう？と考慮した上で、ActionHook を用意しました。
+	</p>
+
+	<h2 id="hook">hookメソッド</h2>
+	<h3 id="beforefinally">hookBefore(), hookFinally()</h3>
+	<p>
+		LastaFluteでは、全ての Action クラスがが共通のスーパークラスを継承することを推奨しています。
+		よって、すでに hookBefore(), hookFinally() というメソッドが定義済みの状態となるので、
+		それをオーバーライドして、リクエスト時に前後処理を挟むことができます。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>hookBefore()</dt><dd>FormやBodyのマッピングの後、Executeメソッドよりも前に呼ばれる</dd>
+		<dt>hookFinally()</dt><dd>正常終了でもバリデーションエラーでも例外でも最後に必ず呼ばれる</dd>
+	</dl>
+	<p>
+		いずれも Action のトランザクションの外側です。
+	</p>
+	<p>
+		hookBefore() にて、有効な ActionResponse (isDefined()がtrueになるもの) を戻すと、その
+		Action はその時点で終了となり、呼ばれるはずだった Execute メソッドは呼び出されません。
+		何か業務的なチェック処理で前提を満たしていないときに別の画面に飛ばすようなケースで利用します。
+	</p>
+	<p>
+		hookFinally() は、システム例外でも業務例外でも呼び出されます。
+		引数の ActionRuntime にて、例外が発生の有無や、ActionResponseの戻りの判定などを行うことができるので、それを使って必要に応じて分岐させます。
+	</p>
+	<h3 id="imageflow">流れのイメージ</h3>
+	<p>
+		こういう感じです。
+	</p>
+<pre><span class="codetitle">e.g. flow image @Java</span><code>
+<span class="keyword">try</span> {
+    godHandPrologue()
+    <span class="spotlight"><span class="point">hookBefore()</span></span>
+    <span class="subpoint">*execute action</span>
+} <span class="keyword">catch</span> (<span class="abbreviation">...</span>) {
+    godHandMonologue()
+} <span class="keyword">finally</span> {
+    <span class="spotlight"><span class="point">hookFinally()</span></span>
+    godHandEpilogue()
+}
+</code></pre>
+
+	<h2 id="superhook">スーパークラスでのHook</h2>
+	<p>
+		主には、抽象のスーパークラスで利用することが想定されます。
+	</p>
+	<h3 id="superhookimpl">Actionクラス間で共通</h3>
+	<p>
+		スーパークラスで定義することで、そのスーパークラスを継承している Action 間で共通の Hook 処理となります。
+		よって、プロジェクト全体で Hook したいときは、プロジェクトの BaseAction, アプリごとに Hook したいときは、アプリの BaseAction で実装するとよいでしょう。
+		<span class="frm">(Maihamaプロジェクトであれば、MaihamaBaseAction と DocksideBaseAction)</span>
+	</p>
+	<p>
+		Exampleテンプレートだと、すでに [App]BaseAction にて、Hookメソッドが定義されています。
+		こちらに Action 間で共通のオリジナル Hook 処理を追加していくとよいでしょう。
+	</p>
+<pre><span class="codetitle">e.g. Maihamaプロジェクトの MaihamaBaseAction の hook たち @Java</span><code>
+@Override
+<span class="keyword">public</span> ActionResponse hookBefore(ActionRuntime runtime) {
+    <span class="abbreviation">...</span> <span class="comment">(your orignal hook implementation here)</span>
+    <span class="keyword">return super</span>.hookBefore(runtime);
+}
+
+@Override
+<span class="keyword">public void</span> hookFinally(ActionRuntime runtime) {
+    <span class="keyword">super</span>.hookFinally(runtime);
+    <span class="abbreviation">...</span> <span class="comment">(your orignal hook implementation here)</span>
+}
+</code></pre>
+
+	<h2 id="subhook">サブクラスでのHook <span class="frm">(末端のActionクラス)</span></h2>
+	<p>
+		末端の具象クラスのActionでも、オーバーライドすることができます。
+	</p>
+	<h3 id="subhookimpl">Executeメソッド間で共通</h3>
+	<p>
+		この場合は、Action間ではなく、<em class="keyword">その Action の Execute メソッド間で共通の Hook 処理</em>
+		として利用することができます。
+	</p>
+<pre><span class="codetitle">e.g. hook in concrete Action @Java</span><code>
+@Override
+<span class="keyword">public</span> ActionResponse hookBefore(ActionRuntime runtime) {
+    <span class="abbreviation">...</span> <span class="comment">(your orignal hook implementation here)</span>
+    <span class="keyword">return super</span>.hookBefore(runtime);
+}
+
+@Override
+<span class="keyword">public void</span> hookFinally(ActionRuntime runtime) {
+    <span class="keyword">super</span>.hookFinally(runtime);
+    <span class="abbreviation">...</span> <span class="comment">(your orignal hook implementation here)</span>
+}
+</code></pre>
+	<p>
+		画面描画処理など、どの Execute メソッドでも実行しなければ
+	</p>
+	<h3 id="dontforgetsuper">superを呼び忘れないで</h3>
+	<p>
+		<em class="keyword">superの呼び忘れ注意！</em> <span class="frm">(共通処理が消えてしまいます)</span>
+		IDEの補完でオーバーライドすれば安心です。
+	</p>
+<pre><span class="codetitle">e.g. オーバーライドの補完、Eclipseの場合 @Java</span><code>
+hoo <span class="comment">// と入力して、ctrl+space の補完で、オーバーライドしたいメソッドを選ぶ</span>
+--
+<span class="comment">// ずどーん</span>
+@Override
+<span class="keyword">public</span> ActionResponse hookBefore(ActionRuntime runtime) {
+    <span class="comment">// TODO Auto-generated method stub</span>
+    <span class="keyword">return super</span>.hookBefore(runtime);
+}
+</code></pre>
+
+	<h2 id="setuphtmldata">描画データは setupHtmlData() で</h2>
+	<h3 id="commondispdata">画面を表示する上で最低限必要なデータ</h3>
+	<p>
+		複数の画面で共通となる、画面を表示する上で最低限必要なデータを準備する処理、例えば、ヘッダーの表示情報やリストボックスの値など、これらは
+		hookFinally() + runtime.isForwardToHtml()
+		で実現することができますが、使うプロジェクトであればその組み合わせは何度も登場する定型的なものになると予想されます。
+	</p>
+	<h3 id="sosetupmethod">setupHtmlData()でOK</h3>
+	<p>
+		そのために、あらかじめ <em class="mark">setupHtmlData()</em> というメソッドが用意されていますので、
+		そのメソッドをオーバーライドし、その中で描画データの準備をするとよいでしょう。
+	</p>
+<pre><span class="codetitle">e.g. Actionのサブクラスにて、画面描画処理をsetupHtmlData()で実装 @Java</span><code>
+@Override
+<span class="keyword">protected void</span> setupHtmlData(ActionRuntime runtime) {
+    <span class="keyword">super</span>.setupHtmlData(runtime);
+    runtime.registerData(<span class="abbreviation">...</span>, <span class="abbreviation">...</span>); <span class="comment">// そのHTMLを描画するための準備処理</span>
+}
+</code></pre>
+	<p>
+		実質的に、hookFinally() + runtime.isForwardToHtml() と同じです。
+	</p>
+	<h3 id="supersetupway">スーパークラスならヘッダー情報とか</h3>
+	<p>
+		スーパークラスであれば、ヘッダーやフッターなど共通の部分を表示するためのデータが想定されます。
+	</p>
+	<h3 id="subsetupway">サブクラスならリストボックスとか</h3>
+	<p>
+		サブクラスであれば、Executeメソッド間で共通の、最低限その画面を表示するためのデータ、例えばリストボックスの値などが想定されます。
+		バリデーションエラーが発生したときも準備する必要がありますから、つどつど Action の中でコピーするのではなく、この
+		setupHtmlData() で実装するとよいでしょう。
+	</p>
+
+	<h2 id="runtime">ActionRuntimeとは？</h2>
+	<p>
+		その Action への処理の状態を保持したオブジェクトで、Actionの定義情報に加え、いま実行されたフォワード先、リダイレクト先、発生した例外などを調べることができます。
+	</p>
+	<p>
+		TODO jflute 書き途中
+	</p>
+
+	<h2 id="bizexception">業務例外は組み込み Hook の中で</h2>
+	<p>
+		TODO jflute 書き途中
+	</p>
+	<p>
+		とりあえず、MessageKeyApplicationException を継承したクラスを投げれば業務例外として扱われます。
+	</p>
+	<p>
+		JsonResponseのActionであれば、ApiFailureHook の handleApplicationException() が呼ばれます。
+	</p>
+
+	<h2 id="godhand">GodHand とは？</h2>
+	<p>
+		気になりましたか？
+	</p>
+	<p>
+		TODO jflute 書き途中
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

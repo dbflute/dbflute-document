@@ -1,0 +1,13 @@
+@charset "UTF-8";
+
+@import "./sub.css";
+
+#content h1, h2, h3, h4, h5, h6 {
+	color: #440022;
+}
+#content h1 {
+	background: #fcffff url("../image/parts/lahead-flutist.png") no-repeat bottom left;
+}
+#content h2 {
+	background: transparent url(../image/parts/lahead-score.png) no-repeat;
+}

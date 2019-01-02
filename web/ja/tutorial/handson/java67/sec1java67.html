@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>Java6,7のセクション1切り出し | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Java6,7のセクション1切り出し</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteハンズオン、セクション1の Java6,7専用部分を切り出したページです。
+	</p>
+
+	<h2 id="dfclient6">DBFluteクライアントの作成</h2>
+	<p>
+		<em class="bigmark">(Java6,7)</em>
+	</p>
+	<p>
+		EMechaの機能を利用して、DBFluteエンジンをダウンロード、DBFluteクライアントを作成します。
+		<span class="frm">(講師によるDBFlute環境のお話あり)</span>
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/generator/client/index.html">DBFluteクライアント</a></div>
+	<div class="relatedpage"><a href="../../manual/function/generator/engine/index.html">DBFluteエンジン (モジュール)</a></div>
+	<p>
+		プロジェクトを右クリックして、"New" - "Other" で "DBFlute Wizards" の "DBFlute New Client"
+		を選択してウィザード画面を起動し、以下の内容を入力してください。
+	</p>
+	<div class="relatedpage"><a href="../../manual/function/helper/emecha/newclient/index.html">EMecha - DBFluteクライアントの新規作成</a></div>
+	<dl class="valuemainlist">
+		<dt>Client Project</dt><dd>maihamadb</dd>
+		<dt>Database</dt><dd>mysql</dd>
+		<dt>DI Container</dt><dd>seasar</dd>
+		<dt>Package Base</dt><dd>org.docksidestage.handson.dbflute</dd>
+		<dt>Driver</dt><dd>com.mysql.jdbc.Driver</dd>
+		<dt>Url</dt><dd>jdbc:mysql://localhost:43376/maihamadb</dd>
+		<dt>Schema</dt><dd>※空っぽ</dd>
+		<dt>User</dt><dd>maihamadb</dd>
+		<dt>Password</dt><dd>maihamadb</dd>
+		<dt>DBFlute Version</dt><dd>※"Latest Version" ボタンを押すと値が入る</dd>
+	</dl>
+	<p>
+		そして、"Download DBFlute" ボタンを押し、最新版のDBFluteがダウンロードしてください(若干待ちます)。そして、Finish
+		すると、プロジェクト直下に dbflute_example(DBFluteクライアント) と mydbflute(DBFluteエンジン) が配置されています。
+		<span class="frm">(もし、mydbflute配下にDBFluteのzipファイルが残っていたら削除してOKです。プラグインが削除し切れてないだけです)</span>
+	</p>
+	
+	<h2 id="backto">セクション1 に戻る</h2>
+	<p>
+		さて、次のセクション1へ戻りましょう
+	</p>
+	<div class="detailpage"><a href="../section01.html">ハンズオン セクション 01</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

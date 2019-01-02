@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,PostgreSQL,JDBC,接続設定,URL" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>PostgreSQLの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>PostgreSQLの取扱い</h1>
+	${indexlist}
+
+	<h2 id="basic">基本情報</h2>
+	<dl class="valuemainlist">
+		<dt>対応バージョン</dt><dd>PostgreSQL 8.1 以上</dd>
+		<dt>JDBCドライバの同梱</dt><dd>あり</dd>
+		<dt>(同梱)JDBCドライバ</dt><dd>postgresql-8.4-701.jdbc3.jar</dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+
+	<h2 id="setting">データベース接続設定</h2>
+	<p>
+		データベース接続設定(databaseInfoMap.dfprop)について。
+	</p>
+<pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = org.postgresql.Driver
+    ; url      = jdbc:postgresql://[host]:[port]/[dbname]
+    ; schema   = [schema]
+    ; user     = [dbuser]
+    ; password = [dbpassword]
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>catalog はURLから自動判別されるため設定不要</li>
+		<li>schema は独自のスキーマを利用しない限りは public と指定</li>
+		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
+	</ul>
+	<p>
+		以下、実際のExampleプロジェクトでの設定例です。
+	</p>
+<pre><span class="codetitle">e.g. dbflute-postgresql-exampleの場合 {host=localhost,port=5432,dbname=exampledb} @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = org.postgresql.Driver
+    ; url      = jdbc:postgresql://localhost:5432/exampledb
+    ; schema   = public
+    ; user     = exampledb
+    ; password = exampledb
+}
+</code></pre>
+	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+
+	<h2 id="datatype">データ型マッピング</h2>
+	<p>
+		データベース上のデータ型とプログラム型との(デフォルトの)マッピングについて。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.lang.String</dt><dd>char, varchar, text</dd>
+		<dt>java.lang.Integer</dt><dd>serial, integer, {numeric(1-9, 0)}</a></dd>
+		<dt>java.lang.Long</dt><dd>bigserial, bigint, {numeric(10-18, 0)}</dd>
+		<dt>java.math.BigDecimal</dt><dd>real, float8, decimal, numeric(n, m)</dd>
+		<dt>java.util.Date</dt><dd>date</dd>
+		<dt>java.sql.Time</dt><dd>time, timetz</dd>
+		<dt>java.sql.Timestamp</dt><dd>timestamp</dd>
+		<dt>java.lang.Boolean</dt><dd>boolean</dd>
+		<dt>byte[]</dt><dd>bytea, oid(*1)</dd>
+	</dl>
+	<p>
+		*1: DBFluteの処理として、OIDに関連付くDB上のリソースを update や delete 時に削除することはありません。
+	</p>
+	<h3 id="unsupportedtype">未サポートのデータ型</h3>
+	<dl class="keymainlist">
+		<dt>array</dt><dd>String(など!?)にマッピングされてしまう</dd>
+		<dt>money</dt><dd>BigDecimalにマッピングされるが利用不可 (PSQLException)</dd>
+		<dt>bit</dt><dd>Booleanにマッピングされるが利用不可 (PSQLException)</dd>
+		<dt>Interval</dt><dd>PGIntervalを使わないと利用できない!? (PSQLException) <em class="keyword">※未検証</em></dd>
+		<dt>幾何データ型全般</dt><dd>(point, line, lseg, ...) <em class="keyword">※未検証</em></dd>
+		<dt>ネットワークアドレス型</dt><dd>(cidr, inet, macaddr) <em class="keyword">※未検証</em></dd>
+	</dl>
+	<div class="detailpage"><a href="../index.html#unsupportedtype">DBMSごとの取扱い - 未サポートのデータ型</a></div>
+
+	<h2 id="autoincrement">主キーでの自動採番</h2>
+	<p>
+		自動採番(連番)の仕組みとして <em class="keyword">シーケンス</em> を利用します。
+	</p>
+	<h3 id="autosequence">serial 型と bigserial 型は設定レス</h3>
+	<p>
+		通常シーケンスは明示的にテーブルとの関連付けをDBFluteプロパティに設定する必要がありますが、<em class="keyword">serial</em>
+		型および <em class="keyword">bigserial</em> 型を利用する場合は、DBFluteが <em class="keyword">その関連付けを自動判別</em>
+		しているので設定は不要です。 
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/autoincrement/index.html">現場フィット - AutoIncrement</a></div>
+	<div class="detailpage"><a href="../../../function/generator/task/replaceschema/loaddata.html#isincrementsequencetodatamax">ReplaceSchema - データ登録 - シーケンス値の調整</a></div>
+
+	<h2 id="paging">ページング検索の条件</h2>
+	<p>
+		<em class="keyword">limit</em>、<em class="keyword">offset</em> を利用します。
+	</p>
+	<h3 id="cbpaging">ConditionBeanのPaging</h3>
+<pre><span class="codetitle">e.g. ConditionBeanでページング検索 {81-100} @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc  
+ <span class="keyword">order by</span> dfloc.MEMBER_NAME <span class="keyword">asc</span> 
+ <span class="point">offset</span> 80 <span class="point">limit</span> 20
+</code></pre>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/sidebar/paging.html">ConditionBean - Paging</a></div>
+	<h3 id="outsidesqlpaging">OutsideSqlのManualPaging</h3>
+<pre><span class="codetitle">e.g. OutsideSqlのManualPagingでページング検索 {81-100} @OutsideSql</span><code>
+<span class="comment">/*IF pmb.isPaging()*/</span>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+<span class="comment">-- ELSE select count(*)</span>
+<span class="comment">/*END*/</span>
+  <span class="keyword">from</span> <span class="abbreviation">...</span>
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> <span class="abbreviation">...</span>
+ <span class="point">offset</span> <span class="comment">/*pmb.pageStartIndex*/</span><span class="literal">80</span> <span class="point">limit</span> <span class="comment">/*pmb.fetchSize*/</span><span class="literal">20</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		TypedParameterBean における ManualPaging の自動判別ロジックは、"offset" かつ "limit"
+		という文字列が含まれることです。(大文字小文字は区別せず)
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/outsidesql/select/selectpagemanual.html">OutsideSql - manualPaging().selectPage()</a></div>
+	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/parameterbean.html#typed">TypedParameterBean</a></div>
+
+	<h2 id="updatelock">更新ロックの取得</h2>
+	<p>
+		ConditionBean の lockForUpdate() では、<em class="keyword">for update</em> を利用します。
+	</p>
+<pre><span class="codetitle">e.g. ConditionBeanで更新ロックの取得 (cb.lockForUpdate()) @DisplaySql</span><code>
+<span class="keyword">select</span> <span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="abbreviation">...</span>
+   <span class="keyword">and</span> <span class="abbreviation">...</span>
+ <span class="point">for update</span>
+</code></pre>
+
+	<h2 id="procedure">プロシージャ</h2>
+	<p>
+		<em class="keyword">ストアドファンクション</em> を(DBFluteの機能としての)プロシージャとしてサポートしています。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/procedurecall/index.html">現場フィット - プロシージャコール</a></div>
+	<dl class="keymainlist">
+		<dt>INパラメータ</dt><dd>サポート</dd>
+		<dt>OUTパラメータ</dt><dd>サポート</dd>
+		<dt>INOUTパラメータ</dt><dd>サポート</dd>
+		<dt>プロシージャリターン</dt><dd>サポート</dd>
+		<dt>ResultSetパラメータ</dt><dd>サポート</dd>
+		<dt>ResultSetリターン</dt><dd>サポート</dd>
+		<dt>NotParamResult</dt><dd>DBMSにて未サポート</dd>
+		<dt>パッケージプロシージャ</dt><dd>DBMSにて未サポート <span class="frm">※そもそもパッケージの概念なし</span></dd>
+		<dt>プロシージャシノニム</dt><dd>DBMSにて未サポート <span class="frm">※そもそもシノニムの概念なし</span></dd>
+	</dl>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wp.html#procedurereturn">プロシージャリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetparameter">ResultSetパラメータ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetreturn">ResultSetリターン</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+	<h3 id="nextprocedure">別スキーマのプロシージャ</h3>
+	<p>
+		別スキーマのプロシージャもオプションで自動生成できます。
+	</p>
+	<div class="detailpage"><a href="#additionalschema">this - 別スキーマの利用</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/whahihuheho.html#betsuschema">別スキーマ(AdditionalSchema)</a></div>
+	<h3 id="targetprocedure">自動生成対象プロパティの有効項目</h3>
+	<dl class="keymainlist">
+		<dt>Catalog</dt><dd>利用不可 <span class="frm">(メタデータとしてカタログ名が取得できないため)</span></dd>
+		<dt>Schema</dt><dd>サポート</dd>
+		<dt>Name</dt><dd>サポート</dd>
+	</dl>
+	<div class="relatedpage"><a href="../../dfprop/outsidesqldefinition/index.html#targetprocedure">dfprop - プロシージャの自動生成対象プロパティ</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wc.html#catalog">Catalog(カタログ)</a></div>
+	<p>
+		カタログ(データベース)名で自動生成対象を調整したい場合は、databaseInfoMap.dfprop の
+		AdditionalSchema の設定で(うまく)調整することで代替できます。
+	</p>
+	<div class="detailpage"><a href="../../dfprop/databaseinfo/index.html#additionalschemamap">dfprop - additionalSchemaMap</a></div>
+
+	<h2 id="dependency">データベース依存機能</h2>
+	<p>
+		データベース依存機能を有効にした場合の利用可能な機能について。
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/implfit/databasedependency">現場フィット - データベース依存機能(メソッド)の利用</a></div>
+	<h3>"for update nowait" を利用する</h3>
+	<p>
+		PostgreSQL独自の "for update nowait" を利用できます。
+	</p>
+<pre><span class="codetitle">e.g. selectした行をロック @Java</span><code>
+cb.<span class="point">lockForUpdateNoWait</span>();
+Member member = memberBhv.selectEntityWithDeletedCheck(cb);
+<span class="comment">// select ... from MEMBER ... for update nowait</span>
+</code></pre>	
+	<h3 id="fulltextsearch">ConditionBeanで全文検索</h3>
+	<p>
+		"Ludia + Senna" の利用を想定した "%%" 構文を使った全文検索の条件を指定できます。
+	</p>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wl.html#ludia">Ludia</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/ws.html#senna">Senna</a></div>
+<pre><span class="codetitle">e.g. 会員名称を "foo" で全文検索 @Java</span><code>
+cb.query().<span class="point">match</span>(MemberDbm.getInstance().columnMemberName(), "foo");
+<span class="comment">// where dfloc.MEMBER_NAME %% 'foo'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 会員名称を "foo" で全文検索 @Java</span><code>
+List&lt;String&gt; columnList = new ArrayList&lt;String&gt;();
+columnList.add(MemberDbm.getInstance().columnMemberName());
+columnList.add(MemberDbm.getInstance().columnMemberAccount());
+cb.query().<span class="point">match</span>(columnList, "foo");
+<span class="comment">// where dfloc.MEMBER_NAME %% 'foo' or dfloc.ACCOUNT %% 'foo'</span>
+</code></pre>
+	<p>
+		条件値が null もしくは空文字の場合は、ConditionBeanの基本仕様と同じく条件は無効になります。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/conditionbean/howto.html#basicspec">ConditionBeanの使い方 - 基本仕様</a></div>
+	<p>
+		DBFluteConfigの設定で、古いタイプの演算子 "@@" 構文を利用することもできます。
+	</p>
+	<div class="relatedpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#fulltextsearchoperand">DBFluteConfig - fullTextSearchOperand</a></div>
+
+	<h2 id="originaluse">DBMS独自の利用方法</h2>
+	<h3 id="additionalschema">別スキーマの利用</h3>
+	<p>
+		<em class="keyword">別スキーマのテーブルを自動生成できます</em>。(別カタログ(別データベース)のスキーマも可)
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/projectfit/additionalschema/index.html">現場フィット - AdditionalSchema</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wa.html#additionalschema">追加スキーマ(AdditionalSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherschema">別スキーマ(OtherSchema)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#othercatalog">別カタログ(OtherCatalog)</a></div>
+	<div class="relatedword"><a href="../../dictionary/alphabet/wo.html#otherdatabase">別データベース(OtherDatabase)</a></div>
+	<h3 id="ilikesearch">大文字小文字を吸収する曖昧検索 (ilike)</h3>
+	<p>
+		PostgreSQL独自の大文字小文字を吸収する曖昧検索 "ilike" 構文を利用することができます。
+	</p>
+<pre><span class="codetitle">e.g. 会員名称が大文字小文字区別なしで "s" で始まる会員を検索 (ilike構文) @Java</span><code>
+cb.query().setMemberName_LikeSearch(<span class="literal">"s"</span>, <span class="keyword"> new</span> LikeSearchOption() {
+    @Override
+    <span class="keyword">public</span> ExtensionOperand getExtensionOperand() {
+        <span class="keyword">return</span> WayOfPostgreSQL.OperandOfLikeSearch.<span class="point">CASE_INSENSITIVE</span>;
+    }
+}.likePrefix());
+</code></pre>
+	<p>
+		プロジェクトで複数箇所で統一的に利用する場合は、LikeSearchOptionを拡張したプロジェクト独自クラスを定義して、それを横展開すると良いでしょう。
+	</p>
+
+	<h2 id="attention">DBMS独自の注意点</h2>
+	<h3 id="derivedonetoone">導出的one-to-oneのインラインビュー化</h3>
+	<p>
+		PostgreSQL では、join の on 句に相関サブクエリを記述することができないため(Oracle10gで確認)、
+		導出的one-to-oneを利用する場合は、固定条件(fixedCondition)をインラインビューにする必要があります。
+	</p>
+	<div class="detailpage"><a href="../../../function/genbafit/implfit/bizonetoone/index.html#derivedonetoone">現場フィット - 業務的one-to-one - 導出的one-to-one</a></div>
+	<h3 id="customizemetadata">CustomizeEntityの対応テーブル</h3>
+	<p>
+		CustomizeEntityのそれぞれのカラムが、元は何のテーブルの何のカラムから派生したものか、通常はJDBCのメタデータから取得できるため、	Sql2Entity
+		内で自動解決し、JavaDocコメント上などで表示されます。但し、PostgreSQLに関してはこのメタデータが取得できません。
+		これによって、機能の利用の仕方が少しだけ変わるものがあります。外だしSQLでの LoadReferrer
+		では、このことによりPKマークで "元は何のテーブルのカラムだったのか" を明示的に指定する必要があります。 
+	</p>
+	<div class="detailpage"><a href="../../../function/ormapper/behavior/select/loadreferrer.html#outsidesql">Behavior - 外だしSQLでもLoadReferrer</a></div>
+	<h3 id="extensionhandling">Extension利用時の微調整</h3>
+	<p>
+		pg_trgm などの extension を利用する場合に、スキーマ初期化前に extension を事前に drop
+		する必要があります。スキーマ初期化の際に、pg_trgm 独自のプロシージャを drop してしまい、例外になるためです(PostgreSQL-9.1にて確認)。
+	</p>
+	<p>
+		replaceSchemaDefinitionMap.dfprop の initializeFirstSqlList にて、drop文を設定しておくと、ReplaceSchema
+		のスキーマ初期化前にそのSQLが実行されます。<span class="frm">@since 0.9.9.4B</span>
+	</p>
+<pre><span class="codetitle">e.g. スキーマ初期化前に extension を drop @replaceSchemaDefinitionMap.dfprop</span><code>
+<span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
+<span class="comment"># o initializeFirstSqlList: (NotRequired - Default list:{})</span>
+<span class="comment">#  You can execute the SQL statements before initializing schema.</span>
+<span class="comment">#</span>
+; initializeFirstSqlList = <span class="keyword">list:</span>{
+    ; drop extension if exists pg_trgm cascade 
+}
+<span class="comment"># - - - - - - - - - -/</span>
+</code></pre>
+	<div class="detailpage"><a href="../../dfprop/replaceschemadefinition/index.html#initializefirstsqllist">dfprop - initializeFirstSqlList</a></div>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		PostgreSQL を使ったExample実装 <em class="keyword">dbflute-postgresql-example</em> があります。
+	</p>
+	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
+
+	<h2 id="internal">DBFlute内部での取扱い</h2>
+	<p>
+		DBFlute内部でどのようにPostgreSQLと付き合っているか、特殊なパターンを挙げます。
+		将来的に同じ状況・同じ方法かどうかは保証されませんので、ここに書かれることに依存した利用はしないようにして下さい。
+		(DBFluteを深く理解するためのドキュメントと思って下さい)
+	</p>
+	<dl class="textlist">
+		<dt>OIDのValueType</dt>
+		<dd>
+			PostgreSQLのOIDは、通常のバイナリ型の時とは違うValueTypeを使う必要がありますが、その指定をEntityの定数アノテーションにて行っています。
+			自動生成時にOIDか否かを判断し、該当カラムに付与します。
+			一方で、プラグインValueTypeとしてOID専用のValueTypeを、初期化時(TnValueTypeFactoryImplの初期化)に登録しています。
+		</dd>
+		<dt>ResultSetパラメータのメタデータ</dt>
+		<dd>
+			ResultSetパラメータを一つだけ利用したプロシージャのメタデータに、(なぜか)存在しないResultSet戻り値の情報が含まれます。
+			二つ以上利用する場合は問題なく、引数が一つのときのみ発生します。
+			PostgreSQLの仕様として、ResultSetパラメータとResultSet戻り値を同時に定義することができないため、
+			そのようなメタデータが取得された場合は、ResultSet戻り値をメタデータから除去するようにして、正常に利用できるようにしています。
+		</dd>
+		<dt>テーブルの継承 (inherit)</dt>
+		<dd>
+			ReplaceSchemaでテーブルをdropするときに、継承関係にある子テーブルを先にdropします<span class="frm">(@since 1.0.5K)</span>。
+		</dd>
+	</dl>
+
+	<h2 id="supplement">PostgreSQL補足資料</h2>
+	<h3>シーケンスと連動する連番型</h3>
+	<p>
+		serial 型および bigserial 型は正確にはデータ型ではありません。内部で
+		integer 型とシーケンスとの割当を行う表記法です。
+	</p>
+	<p class="codeintro">
+		以下の二つの例は、同じことを示します。
+	</p>
+<pre><span class="codetitle">e.g. create文で serial 型を利用 @SQL</span><code>
+<span class="keyword">create table</span> tablename (
+    colname <span class="dbtype">serial</span>
+) ;
+</code></pre>
+<pre><span class="codetitle">e.g. create文で serial 型と同じ設定 @SQL</span><code>
+<span class="keyword">create sequence</span> tablename_colname_seq;
+<span class="keyword">create table</span> tablename (
+    colname <span class="dbtype">integer</span> <span class="attribute">DEFAULT</span> nextval('tablename_colname_seq') <span class="attribute">NOT NULL</span>
+) ;
+</code></pre>
+	<h3>シーケンスを作成</h3>
+<pre><span class="codetitle">e.g. シーケンスを作成 {SEQ_MEMBER} @SQL</span><code>
+<span class="keyword">create sequence</span> SEQ_MEMBER <span class="keyword">start</span> 1 <span class="keyword">increment</span> 1;
+</code></pre>
+	<h3>シーケンスを取得</h3>
+<pre><span class="codetitle">e.g. シーケンスを取得 {SEQ_MEMBER} @SQL</span><code>
+<span class="keyword">select</span> <span class="attribute">nextval</span> (<span class="literal">'SEQ_MEMBER'</span>)
+</code></pre>
+	<h3>ストアドファンクションを作成</h3>
+<pre><span class="codetitle">e.g. パラメータなしのファンクションを作成 @SQL</span><code>
+<span class="keyword">create or replace function</span> SP_NO_PARAMETER()
+<span class="keyword">returns</span> <span class="dbtype">integer</span> <span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  <span class="keyword">return</span> <span class="literal">1</span>;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. パラメータありのファンクションを作成 @SQL</span><code>
+<span class="keyword">create or replace function</span> SP_IN_OUT_PARAMETER(
+  v_in_varchar <span class="attribute">in</span> <span class="dbtype">varchar</span>
+  , v_out_varchar <span class="attribute">out</span> <span class="dbtype">varchar</span>
+  , v_inout_varchar <span class="attribute">out</span> <span class="dbtype">varchar</span>)
+<span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  v_out_varchar := <span class="literal">'ddd'</span>;
+  v_inout_varchar := <span class="literal">'eee'</span>;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. ResultSetパラメータ(一つ)のファンクションを作成 @SQL</span><code>
+<span class="keyword">create or replace function</span> SP_RESULT_SET_PARAMETER(cur <span class="attribute">out</span> <span class="dbtype">refcursor</span>)
+<span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur <span class="keyword">for select</span> MEMBER_ID, MEMBER_NAME, UPDATE_DATETIME <span class="keyword">from</span> MEMBER;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+<pre><span class="codetitle">e.g. ResultSet戻り値のファンクションを作成 @SQL</span><code>
+<span class="keyword">create or replace function</span> SP_RETURN_RESULT_SET()
+<span class="keyword">returns</span> <span class="dbtype">refcursor</span> <span class="keyword">as</span>
+<span class="attribute">$BODY$</span>
+<span class="keyword">declare</span>
+  cur <span class="dbtype">refcursor</span>;
+<span class="keyword">begin</span>
+  <span class="keyword">open</span> cur <span class="keyword">for select</span> MEMBER_ID, MEMBER_NAME, UPDATE_DATETIME <span class="keyword">from</span> MEMBER;
+  <span class="keyword">return</span> cur;
+<span class="keyword">end</span>;
+<span class="attribute">$BODY$</span> <span class="keyword">LANGUAGE</span> <span class="literal">'plpgsql'</span>;
+</code></pre>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

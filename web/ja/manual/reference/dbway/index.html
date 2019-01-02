@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,DBMS,取扱い,違い,Example,JDBC" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>DBMSごとの取扱い | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBMSごとの取扱い</h1>
+	<p>
+		接続設定(databaseInfoMap.dfprop)やDBMSごとの機能・挙動の違いの情報について
+	</p>
+	${indexlist}
+
+	<h2 id="dbms">取り扱っているDBMS</h2>
+	<p>
+		実際に利用するDBMSのページは必ずご覧下さい。
+	</p>
+	<ul>
+		<li><a href="./mysql/index.html">MySQL</a></li>
+		<li><a href="./postgresql/index.html">PostgreSQL</a></li>
+		<li><a href="./oracle/index.html">Oracle</a></li>
+		<li><a href="./db2/index.html">DB2</a></li>
+		<li><a href="./sqlserver/index.html">SQLServer</a></li>
+		<li><a href="./h2/index.html">H2 Database</a></li>
+		<li><a href="./derby/index.html">Apache Derby</a></li>
+		<li><a href="./sqlite/index.html">SQLite</a> ※準サポート</li>
+		<li><a href="./msaccess/index.html">MS-Access</a> ※準サポート</li>
+	</ul>
+
+	<h2 id="example">Exampleのススメ</h2>
+	<p>
+		DBMSごとのExample実装があります。
+	</p>
+	<div class="detailpage"><a href="../example/index.html#database">Exampleプロジェクト - データベース(DBMS)</a></div>
+
+	<h2 id="semisupport">準サポートのDBMS</h2>
+	<p>
+		準サポートのDBMSでは、サポートされていない機能が(多く)存在する可能性があります。
+	</p>
+	
+	<h2 id="unsupportedtype">未サポートのデータ型</h2>
+	<p>
+		DBFluteにて未サポートのデータ型の多くはデフォルトの java.lang.String
+		にマッピングされます。文字列として扱うことのできる型であれば、そのまま利用出来ます(DBMSごとのページを参考に)。但し、"INDEXがしっかりと利用されるか"
+		などの細かい挙動に関しては利用前にしっかりと検証することをお奨めします。
+	</p>
+	<p>
+		オプションで未サポートのデータ型を任意の型もしくは独自の型にマッピングすることが可能です。
+	</p>
+	<div class="detailpage"><a href="../../function/genbafit/projectfit/typemapping/dbtypemapping.html">現場フィット - TypeMapping - DBTypeMapping</a></div>
+	<div class="detailpage"><a href="../../function/genbafit/projectfit/typemapping/originaltype.html">現場フィット - TypeMapping - OriginalType</a></div>
+
+	<h2 id="themelink">テーマごとのリンク集</h2>
+	<h3 id="setting">データベース接続設定</h3>
+	<p>
+		<a href="./mysql/index.html#setting">MySQL</a>,
+		<a href="./postgresql/index.html#setting">PostgreSQL</a>,
+		<a href="./oracle/index.html#setting">Oracle</a>,
+		<a href="./db2/index.html#setting">DB2</a>,
+		<a href="./sqlserver/index.html#setting">SQLServer</a>,
+		<a href="./h2/index.html#setting">H2 Database</a>,
+		<a href="./derby/index.html#setting">Apache Derby</a>
+	</p>
+	<h3 id="datatype">データ型マッピング</h3>
+	<p>
+		<a href="./mysql/index.html#datatype">MySQL</a>,
+		<a href="./postgresql/index.html#datatype">PostgreSQL</a>,
+		<a href="./oracle/index.html#datatype">Oracle</a>,
+		<a href="./db2/index.html#datatype">DB2</a>,
+		<a href="./sqlserver/index.html#datatype">SQLServer</a>,
+		<a href="./h2/index.html#datatype">H2 Database</a>,
+		<a href="./derby/index.html#datatype">Apache Derby</a>
+	</p>
+	<h3 id="autoincrement">主キーでの自動採番</h3>
+	<p>
+		<a href="./mysql/index.html#autoincrement">MySQL</a>,
+		<a href="./postgresql/index.html#autoincrement">PostgreSQL</a>,
+		<a href="./oracle/index.html#autoincrement">Oracle</a>,
+		<a href="./db2/index.html#autoincrement">DB2</a>,
+		<a href="./sqlserver/index.html#autoincrement">SQLServer</a>,
+		<a href="./h2/index.html#autoincrement">H2 Database</a>,
+		<a href="./derby/index.html#autoincrement">Apache Derby</a>
+	</p>
+	<h3 id="paging">ページング検索の条件</h3>
+	<p>
+		<a href="./mysql/index.html#paging">MySQL</a>,
+		<a href="./postgresql/index.html#paging">PostgreSQL</a>,
+		<a href="./oracle/index.html#paging">Oracle</a>,
+		<a href="./db2/index.html#paging">DB2</a>,
+		<a href="./sqlserver/index.html#paging">SQLServer</a>,
+		<a href="./h2/index.html#paging">H2 Database</a>,
+		<a href="./derby/index.html#paging">Apache Derby</a>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,タスク,Task,Doc,DataXlsTemplate,データエクセルテンプレート,エクセルデータの土台,エクセルデータの雛形,エクセルデータのひな形,データダンプ,Dump" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DataXlsTemplate | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DataXlsTemplate</h1>
+	${indexlist}
+
+	<div class="inucolumn">
+		<h2 id="notice">LoadDataReverseとして再出発</h2>
+		<p>
+			この DataXlsTemplate は、LoadDataReverse という機能に変更されました<span class="frm">(@since 0.9.8.4)</span>。
+		</p>
+		<div class="detailpage"><a href="./loaddatareverse.html">LoadDataReverse</a></div>
+		<p>
+			以降の内容は、それまでのバージョンを利用されている方のためのページとなります。
+		</p>
+	</div>
+
+	<h2 id="about">DataXlsTemplateとは？</h2>
+	<p>
+		DB上の(一部の)データをエクセルデータに出力したもので、オプションによりDocタスクで自動生成されます。
+		主に以下の二つの目的があります。
+	</p>
+	<ul>
+		<li><em class="keyword">エクセル形式でデータベースの中のデータを閲覧する</em></li>
+		<li><em class="keyword">ReplaceSchema のデータ登録で利用するエクセルデータの土台</em></li>
+	</ul>
+	<h3 id="notdump">厳密なデータダンプではない</h3>
+	<p>
+		<em class="keyword">この機能は、本番の業務データの移行などで利用できるデータダンプ(DataDump)ではありません</em>。
+		人の目で見る、もしくは、手動での調整を入れて ReplaceSchema
+		におけるエクセルデータの土台にする、という目的のものです。
+		もし、業務の一環としてのデータダンプを目的とするなら、もっとデータの精密度を高めたり、もっと色々な状況に対応できるようにしたりする必要があるでしょう。
+	</p>
+
+	<h2 id="howto">DataXlsTemplateの作成方法</h2>
+	<h3 id="recordlimit">出力レコード数の設定(出力設定)</h3>
+	<p>
+		この機能は、オプションです。documentDefinitionMap.dfprop の dataXlsTemplateMap の recordLimit
+		を設定すると DBFluteクライアント/output/doc/data 配下に dataxls[セクション番号]-xxx.xls という形式の名前で出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#dataxlstemplatemap">dfprop - dataXlsTemplateMap</a></div>
+	<h3 id="commoncolumn">共通カラムの出力有無</h3>
+	<p>
+		デフォルトでは共通カラムは出力されません。ReplaceSchema
+		には共通カラムに対して自動設定を行うための機能が備わっているため、エクセルデータの土台として不要となることが考えられます。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/loaddata.html#defaultvaluemap">データ登録 - デフォルト値の設定(dataprop)</a></div>
+	<p>
+		共通カラムを出力したい場合は、documentDefinitionMap.dfprop の dataXlsTemplateMap の isContainsCommonColumn を有効にします。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#dataxlstemplatemap">dfprop - dataXlsTemplateMap</a></div>
+
+	<h2 id="fkorder">FK順序の考慮</h2>
+	<p>
+		ReplaceSchemaのエクセルデータの土台のためという目的を考慮して、FK順序を "ある程度"
+		考慮して順番でテーブルのデータが出力されます。
+		完全に厳密ではありませんが、単純な関連であればそのままの順番で ReplaceSchema に適用できるでしょう。
+	</p>
+	<div class="relatedpage"><a href="#loaddatareverse">this - LoadDataReverse</a></div>
+
+	<h2 id="largename">長いテーブル名の考慮</h2>
+	<p>
+		エクセルのシート名に利用できる文字数に、(約)30文字までという制限があります。
+		それを超えるテーブル名がある場合は、ReplaceSchema の長いテーブル名対応の機能に沿った tableNameMap.dataprop
+		を生成します。その場合のシート名は DBFlute が決め打った仮の名前になっているので、これを土台にする場合は手動で微調整すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/loadxls.html#tablenamemap">エクセルデータ - エクセルシート名制限回避の設定(dataprop)</a></div>
+
+	<h2 id="largedata">大量件数のデータの場合</h2>
+	<h3 id="overexcel">エクセルの最大行数を超えた場合</h3>
+	<p>
+		DBFluteがサポートしているエクセルの最大行数が 655xx なので、出力最大レコード数を 65000
+		と決め打ちで絞っています。もし、それを超える件数のデータが入っていて、かつ、recordLimit
+		をそれ以上に設定した場合は、別途 TSV データとして出力されます。<span class="frm">@since 0.9.8.3</span>
+	</p>
+	<p>
+		TSV データへの出力は、一件ずつのフェッチ式になっているため、大量件数でもメモリ不足になることは基本的にありません。
+	</p>
+	<h3 id="manydata">全体的に行数が多い場合</h3>
+	<p>
+		逆に、エクセルの最大行数を超えていない場合で、全体的なテーブルの累積行数が多いとメモリ不足になる可能性があります。
+		<span class="frm">(エクセルへの書き込みはライブラリの都合上、フェッチ式になっていないため)</span>
+	</p>
+	<p>
+		その場合、タスクのメモリ設定を調整することで実行できるようになる可能性がありますが、
+		基本的には DataXlsTemplate そのような大容量のデータを落とすための機能ではありません。
+	</p>
+	<div class="relatedpage"><a href="../index.html#memory">DBFluteタスク - タスクのメモリ設定</a></div>
+
+	<h2 id="loaddatareverse">LoadDataReverse</h2>
+	<h3 id="reverseview">概要</h3>
+	<p>
+		ReplaceSchema のエクセルデータの土台のためという目的をさらに飛躍させて、
+		DB上のデータをそのまま ReplaceSchema で利用しようという機能です。<span class="frm">@since 0.9.8.3</span>
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/index.html">ReplaceSchema</a></div>
+	<p>
+		例えば、既に開発中でテストデータがDB上にしか存在していないような場合で、かつ、そのテストデータがテストする上でとても重要というような場合。
+		ReplaceSchema に移行するためには、そのテストデータを抽出して ReplaceSchema がデータ登録できる形式に調整してあげる必要があります。
+		何もなしでそれをやろうとすると大変ですが、DataXlsTemplate の LoadDataReverse がその作業を支援します。
+	</p>
+	<h3 id="loaddatareverseimage">LoadDataReverse概念図</h3>
+	<p class="imgbox">図 : LoadDataReverse概念図
+		<a href="../../../../../data/model/reps-LoadDataReverse-view.png" title="LoadDataReverse概念図"><img src="../../../../../data/model/reps-LoadDataReverse-view.png" alt="LoadDataReverse概念図" width="550" height="330" /></a>
+	</p>
+	<h3 id="howtoreverse">利用方法</h3>
+	<p>
+		documentDefinitionMap.dfprop の dataXlsTemplateMap の isLoadDataReverse を有効にし、Docタスクを実行します。
+		すると、DataXlsTemplate が output/doc 配下ではなく、ReplaceSchema の playsql 配下のデータ領域に直接出力されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#dataxlstemplatemap">dfprop - dataXlsTemplateMap</a></div>
+	<h3 id="outputreps">ReplaceSchema領域へ出力</h3>
+	<p>
+		Docタスクを実行した際のタスクログ(コンソール or dbflute.log)に、抽出されたテーブルとレコード件数が表示され、
+		エクセルデータが作成されます。(Eclipse上のリフレッシュは手動で)
+	</p>
+	<dl class="textlist">
+		<dt>出力先ディレクトリ</dt>
+		<dd><em class="keyword">DBFluteクライアント/playsql/data/[現在のdataLoadingType]/firstxls</em></dd>
+		<dd>dataLoadingTypeは、デフォルトでは ut</dd>
+		<dt>ファイル名</dt>
+		<dd>loadxls[セクション番号]-xxx.xls</dd>
+		<dd>セクション番号は 01 始まり</dd>
+	</dl>
+	<p>	
+		firstxls ディレクトリに出力されます。これは、通常の xls
+		ディレクトリとは違い、TSVやCSVのデータ登録よりも先に実行されるエクセルデータの配置領域です。
+	</p>
+	<div class="relatedpage"><a href="../replaceschema/loadxls.html#xlsfiledir">データ登録(エクセル) - エクセルファイルの配置</a></div>
+	<p>
+		セクションは、FK制約の階層構造を参考に、他のテーブルへの依存の少ないテーブルから上位のセクションに割り振られます。
+		よって、厳密ではありませんが、FK制約の階層構造のレイヤ数の分、セクション(エクセルファイル)が作成されます。
+		例えば、ExampleDB では、2 階層となり二つのセクションができあがります。実業務の複雑なテーブル構造では、セクションが 7, 8
+		ともっと増えることが想定されます。(10 を超えることもあるでしょう)
+	</p>
+	<p>
+		また、追加スキーマ(AdditionalSchema)やビュー(VIEW)対応のテーブルの出力は抑制されます。
+	</p>
+	<h3 id="manually">手動による調整</h3>
+	<p>
+		この時点で、シンプルなテーブル構造、シンプルなデータであれば、このまま ReplaceSchema
+		でデータ登録することも可能です。firstxls なので、TSVやCSV、通常のxlsよりも先に登録されます。
+		ただ、実業務では多くの場合そのようにはならないでしょうし、セクションの割り振りなどは業務上のカテゴリを無視してものとなっているため、
+		実際には手動で調整する必要があるでしょう。
+	</p>
+	<ul>
+		<li>業務カテゴリごとにエクセルファイルを構成し直す <span class="frm">(ファイル名変えたり、シートを移動したり)</span></li>
+		<li>固定的な環境共通のマスタデータとテストデータを分ける <span class="frm">(マスタは common に)</span></li>
+		<li>FK制約の階層をどうしても自動で解決できなかったものの順序を調整</li>
+		<li>(必要に応じて) firstxls から xls に移動 <span class="frm">(メインは xls なので)</span></li>
+		<li>この機能でサポートされていないデータ型のデータを調整 <span class="frm">(画像などのバイナリ型など)</span></li>
+	</ul>
+	<p>
+		これらの調整ができて、DDLなどの他の要素の準備も整ったら、ReplaceSchemaへの移行完了です。
+	</p>
+	<h3 id="goodoption">適切なオプションで出力</h3>
+	<p>
+		一部データだけだとFK制約で落ちる可能性があり、既に成り立っているテストデータであれば共通カラムのデータも重要であることが考えられます。
+		全てのデータが欲しいのであれば、recordList はマイナス値にし、共通カラムのデータが必要であれば isContainsCommonColumn を true にします。
+	</p>
+	<p>
+		isLoadDataReverse は一時的に true にして、出力し終わったら false に戻していつもの DataXlsTemplate
+		に、という利用が想定されます。ぜひ、この機能を活用して ReplaceSchema でのテストデータ管理を実現しましょう。
+	</p>
+
+	<h2 id="spec">細かい仕様</h2>
+	<p>
+		細かい仕様を把握して、どのような調整を行えば良いのか判断していきましょう。
+	</p>
+	<dl class="textlist">
+		<dt>バイナリ型のデータは全て null で出力</dt>
+		<dd>バイナリ型のデータはサポートされず、全て null として出力されます。</dd>
+		<dd>
+			テストデータとして必要な場合は、手動で準備します。
+			<div class="relatedpage"><a href="./loaddata.html#binary">データ登録 - バイナリデータの登録</a></div>
+		</dd>
+		<dt>JDBCタスクで取得されるテーブルが対象</dt>
+		<dd>
+			自動生成対象外(JDBCタスクの時点で対象外)となっているテーブルのデータは出力されません。
+			そのテーブルのデータも出力したい場合は、一時的にそのテーブルも自動生成対象にする必要があります。
+			<div class="relatedpage"><a href="../../../../reference/dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+		</dd>
+		<dt>ビュー(VIEW)は対象外</dt>
+		<dd>
+			ビュー(VIEW)はデータ出力対象外です。
+			当然のことと言えば当然ですが、ビューをシノニムの代わりに使っているような場合は、MigrateReps
+			タスクのときだけ一時的にその参照先テーブルを出力対象にする必要があります。
+			<span class="frm">(だいぶ前より、MigrateRepsタスクはLoadDataReverseタスクに置き換えられています at 2018/05/08)</span>
+		</dd>
+		<dt>シノニム(SYNONYM)は出力対象</dt>
+		<dd>
+			シノニム(SYNONYM)はデータ出力対象です。ただし、シノニムが自動生成対象になっていることが前提です。
+			シノニムの参照先テーブルも自動生成対象となっている場合は、重複してデータが出力されますので、手動調整でどちらか片方を削除する必要があります。
+		</dd>
+		<dt>追加スキーマのテーブルは対象外</dt>
+		<dd>
+			AdditionalSchema で定義されている追加スキーマのテーブルは対象外です。
+			そもそも ReplaceSchema で取り扱うスキーマはメインスキーマであることが基本なためです。
+		</dd>
+		<dt>FK制約の順序考慮は厳密ではない</dt>
+		<dd>
+			テーブル間で複雑な参照関係を持っている場合に、FK制約の順序考慮が厳密にならない可能性があります。
+			その場合は、手動でエクセルのシートの順序を変えたり、エクセルファイル構成を変えたりと調整する必要があります。
+		</dd>
+		<dt>厳密な精度は保証されない</dt>
+		<dd>例えば、日付型は以下のような形式で出力されます。</dd>
+		<dd>
+			<ul class="supplementlist">
+				<li>DATE : yyyy/MM/dd <span class="frm">(Oracleは HH:mm:ss も追加)</span></li>
+				<li>TIMESTAMP : yyyy/MM/dd HH:mm:ss.SSS</li>
+				<li>TIME : HH:mm:ss</li>
+			</ul>
+		</dd>
+		<dd>
+			もし、TIMESTAMP型がこの書式を超える細かい精度を持っていると、その精度は失われます。
+		</dd>
+		<dd>
+			その他の型は、単なるJDBCドライバの時点で文字列に変換したものを利用します。
+			JDBCドライバや文字列に直した時の特徴的な仕様によって、精度が失われる可能性はあります。
+		</dd>
+		<dd>
+			これら精度を厳密に移行したい場合は、手動で調整する必要があります。
+			また、あくまでテストデータの移行というのを大前提としているので、実業務の本番データの移行などでは利用できません。
+		</dd>
+		<dt>その他、メジャーでない型はサポートされない</dt>
+		<dd>
+			例えば、PostgreSQL の OID 型など、取扱いの難しいものなどはサポートされません。
+			明示的にサポートしていないわけではなく、そういった型がある場合、単にJDBCドライバの時点で文字列に変換したものが出力されます。
+			よって、JDBCドライバがその文字列を再解析できる場合は、ReplaceSchema でその文字列のままで登録できるかもしれません。
+		</dd>
+	</dl>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">Under Construction</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

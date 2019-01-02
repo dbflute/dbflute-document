@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>移行 0.8.8.x to 0.9.0 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 0.8.8.x to 0.9.0</h1>
+	${indexlist}
+
+	<h2 id="basic">お約束の注意点</h2>
+	<dl class="textlist">
+		<dt>古いバージョンの削除</dt>
+		<dd>古いバージョンのDBFluteランタイム(JAR)が[WEB-INF/lib]の下などに残らないように</dd>
+		<dt>タスクを実行し忘れないように</dt>
+		<dd>Generateタスクだけでなく、(外だしSQLがある場合は)Sql2Entityタスクも実行</dd>
+	</dl>
+
+	<h2 id="env">環境上の注意点</h2>
+	<h3>S2Daoの代わりにDBFluteランタイム@Java</h3>
+	<p>
+		今回はそれなりの移行が発生するため「0.8.8.x」は安定したバージョンとして残ります。
+		「プロジェクトで安定を求めている or 移行やってる時間がない」場合はそのまま「0.8.8.x」をご利用下さい。
+	</p>
+	<p>
+		今回のバージョンより「s2dao.jar」を利用せず、代わりに「dbflute-runtime.jar」を利用するようになります。
+		「s2dao.jar」は残っていても構いませんが、DBFluteは全く利用しません。(同様の機構が「dbflute-runtime.jar」に含まれている)
+	</p>
+	<p>
+		移行手順は以下の通り：
+	</p>
+	<ul>
+		<li>A. JARファイルの準備</li>
+		<li>B. 既存allcommonパッケージの削除</li>
+		<li>C. 自動生成の実行</li>
+		<li>D. 一括インポート文の編成</li>
+		<li>E. 微調整</li>
+	</ul>
+	<h4>A. JARファイルの準備</h4>
+	<p>
+		Maven2を利用している場合は、pom.xmlのdependenciesに以下を追加します。
+	</p>
+	<pre><code>
+&lt;dependency&gt;
+	&lt;groupId&gt;org.seasar.dbflute&lt;/groupId&gt;
+	&lt;artifactId&gt;dbflute-runtime&lt;/artifactId&gt;
+	&lt;version&gt;0.9.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+	<p>
+		Maven2を利用していない場合は、以下のURLからJARファイルをダウンロードしてビルドパスに含めます。
+	</p>
+	<pre><code>
+http://maven.seasar.org/maven2/org/seasar/dbflute/dbflute-runtime/0.9.0/dbflute-runtime-0.9.0.jar  
+</code></pre>
+	<p>
+		既存の「s2dao.jar」は不要となります(DBFlute以外の目的で利用している場合は残して構いません)。
+	</p>
+	<h4>B. 既存allcommonパッケージの削除</h4>
+	<p>
+		以前のバージョンで自動生成済みのallcommonパッケージを一旦全て削除して下さい。
+		ほとんどのクラスがJARファイルに取り込まれており、今回のバージョンから自動生成されるallcommonのクラスは10クラスほどです。
+	</p>
+	<h4>C. 自動生成の実行</h4>
+	<p>
+		DBFlute-0.9.0を使って自動生成します。こちらは通常通りのオペレーションとなります。{JDBC/Generate/Sql2Entity}
+	</p>
+	<h4>D. 一括インポート文の編成</h4>
+	<p>
+		DBFluteを利用しているプログラム(アプリコード)全てに対してEclipseの「インポート文の編成」を実行して下さい。
+		右クリックメニューより選択したパッケージ配下のクラス全てに一括で実行が可能です。
+	</p>
+	<p>
+		DBFluteのクラスに対しては「cbean.cq」パッケージに対して「インポート文の編成」を実行して下さい。
+		但し、Extendedのクラスに対して独自の処理を入れている場合はそちらも対象となります。
+	</p>
+	<h4>E. 微調整</h4>
+	<p>
+		ほとんどの場合、この時点で移行は完了ですが、通常利用では利用しないDBFluteの内部クラスを利用している場合など
+		まだコンパイルエラーになる可能性があります。これらは一つ一つ臨機に解決するようにして下さい。
+	</p>
+	<h4>注意：クラス名にプレフィックスを付与している場合</h4>
+	<p>
+		DBFluteの「projectPrefix」機能を利用していて、例えば、Entityが「LdEntity」、
+		ConditionBeanが「LdConditionBean」とかになっている場合です。
+	</p>
+	<p>
+		この場合はそのまま「一括インポート文の編成」をやってもあまり効果がありません。
+		以下の置換を別途ツールなどでやってから「一括インポート文の編成」するようにして下さい。
+		('Ld'部分はprojectPrefixの値で)
+	</p>
+	<ul>
+		<li>cbean.cqパッケージにて：LdConditionQuery → ConditionQuery</li>
+		<li>cbean.cqパッケージにて：LdSqlClause → SqlClause</li>
+		<li>アプリコードに対して：LdLikeSearchOption → LikeSearchOption</li>
+		<li>アプリコードに対して：LdListResultBean → ListResultBean</li>
+		<li>アプリコードに対して：LdPagingResultBean → PagingResultBean</li>
+		<li>アプリコードに対して：LdSubQuery → SubQuery</li>
+		<li>アプリコードに対して：LdUnionQuery → UnionQuery</li>
+	</ul>
+
+	<h2 id="impl">実装上の注意点</h2>
+	<p>
+		特になし
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

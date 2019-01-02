@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Behavior,selectByPKValue,主キーによる一件検索,nullあり,ConditionBean" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>selectByPKValue(pk) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>selectByPK(pk)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		<em class="keyword">PK値で null を戻す可能性のある一件検索</em>
+		をします。検索結果が存在する場合としない場合で業務的な処理を分岐させる必要があるような場合に利用します。
+	</p>
+	<p>
+		会話上では、<em class="keyword">せれくとばいぴーけー</em>
+		と表現します。といいつつ長いので、どちらかというと <em class="keyword">ばいぴーけー</em> という方が通じやすく呼びやすいかもしれません。
+	</p>
+	<h3 id="light">ささやかなメソッド</h3>
+	<p>
+		PK値での検索に向いていそうでいながら、関連テーブルの取得とか、その他ConditionBeanによるオプションが使えないので、
+		非常にシンプルな一件検索でしか利用できないのも事実です。ささやかな便利メソッドと考えてよいでしょう。
+	</p>
+	<p>
+		複合主キーの場合は、PK値の指定漏れが発生しないメソッドとして活用できますが、
+		ConditionBean自体にもPK値を等値条件として受け取るメソッドが用意されており、そこまでこのメソッドの存在感を高めるものにはなりません。
+	</p>
+	<div class="relatedpage"><a href="../../conditionbean/various/primarykeyabstraction.html#equal">CB - PrimaryKeyAbstraction - PKの等値条件</a></div>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		Behaviorの <em class="keyword">selectByPK()</em>
+		を呼び出し、PKの値を指定します。
+	</p>
+<pre><span class="codetitle">e.g. selectByPKValue()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
+<span class="attribute">memberBhv</span>.selBP <span class="comment">// .selBP と打って enter</span>
+--
+<span class="comment">// セミコロン ';' を打って ctrl(or command) + 2 そして L</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectByPK(cb)</span>;
+--
+Member member = <span class="attribute">memberBhv</span>.selectByPK(cb);
+<span class="keyword">if</span> (member != null) { 
+    <span class="abbreviation">...</span> <span class="comment">// 存在した場合の処理</span>
+} <span class="keyword">else</span> {
+    <span class="abbreviation">...</span> <span class="comment">// 存在しなかった場合の処理</span>
+}
+</code></pre>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="argument">引数</h3>
+	<p>
+		該当のBehaviorに対応するテーブルのPKの値で。複合主キーの場合は引数が複数になります。
+	</p>
+	<p>
+		PK値のどれか一つにでもnullを指定した場合は例外発生します。
+	</p>
+	<h3 id="result">戻り値</h3>
+	<p>
+		selectEntity(cb) と同じです。
+	</p>
+	<div class="detailpage"><a href="./selectentity.html">selectEntity(cb)</a></div>
+	<h3 id="exception">例外</h3>
+	<p>
+		selectEntity(cb) と同じです。
+	</p>
+	<div class="detailpage"><a href="./selectentity.html">selectEntity(cb)</a></div>
+	<h3 id="override">オーバーライド</h3>
+	<p>
+		selectList() と同じような要領となります。
+	</p>
+	<div class="detailpage"><a href="./selectlist.html#override">selectList(cb) - オーバーライド</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,query,orderBy,order by,並び順,ソート,昇順,降順" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>OrderBy | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>OrderBy</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="basicconcept">基本概念</h3>
+	<p>
+		並び順(ソート)を設定します。
+	</p>
+	<p>
+		会話上では、<em class="keyword">おーだーばい</em> と表現します。
+	</p>
+
+	<h2 id="howto">実装方法</h2>
+	<h3 id="implflow">実装の流れ</h3>
+	<p>
+		query() の後、<em class="keyword">addOrderBy_[column-name]_[Asc or Desc]()</em>
+		を呼び出し、条件値を指定します。
+	</p>
+<pre><span class="codetitle">e.g. 昇順のOrderByの実装手順 (Eclipseでコード補完) {MEMBER_ID} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.q <span class="comment">// .q と打って enter</span>
+--
+cb.query()
+--
+<span class="comment">// 1. .addOB まで打つとカラム選択</span>
+<span class="comment">// 2. MI (MemberId) でカラム確定</span>
+<span class="comment">// 3. A or D (Asc or Desc) で enter</span>
+cb.query().addOBMIA
+--
+cb.query().<span class="point">addOrderBy_MemberId_Asc()</span>;
+</code></pre>
+	<h3 id="relation">関連テーブルに対するソート</h3>
+	<p>
+		関連テーブルに対するソートは、Query(Relation) を利用することで実現できます。
+	</p>
+	<div class="relatedpage"><a href="../relation.html">Query(Relation)</a></div>
+
+	<h2 id="methodspec">メソッド仕様</h2>
+	<h3 id="basicspec">基本仕様</h3>
+	<p>
+		指定した分だけ order by 句にカラムが列挙されます。列挙される順番は指定した順番と同じです。
+	</p>
+	<h3 id="severalcall">同カラムに対する複数条件の指定</h3>
+	<p>
+		同カラムでも指定した分だけ列挙されます。
+	</p>
+	<h3 id="nullorder">null の値に対する扱い</h3>
+	<p>
+		null の値が先にくるのか後にくるのかは DBMS の仕様に依存します。
+		アプリでその動作を固定させたい場合は、NullsFirst(Last) を利用します。
+	</p>
+	<div class="relatedpage"><a href="./nullsfirstlast.html">NullsFirst(Last)</a></div>
+
+	<h2 id="supported">サポートされる型</h2>
+	<p>
+		全ての型に対してサポートされます。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

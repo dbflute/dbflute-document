@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/lasub.css";</style>
+	<title>組み込みログイン制御 (Login Control) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>組み込みログイン制御 (Login Control)</h1>
+	<p>
+		LastaFluteの特徴の一つです。
+	</p>
+	<div class="relatedpage"><a href="../../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../../tutorial/laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="embeddedlogic">組み込みのログイン実装</h3>
+	<p>
+		ログインの実装が組み込まれています。<em class="mark">TypicalLoginAssist</em>
+		を継承して、アプリごとにフィットさせた Assist クラスを作成します。必須ではないですが、カスタマイズも可能なのでオススメです。
+	</p>
+	<h3 id="embeddedcheck">ログインチェックも組み込み</h3>
+	<p>
+		Actionのスーパークラスである <em class="mark">TypicalAction</em> の中でログインチェックが組み込まれています。
+		組み込みのログインロジックを使って自動的にログインチェックがかかるようになっています。
+	</p>
+	<h3 id="architecture">ログインコントロールの概念マップ</h3>
+	<p class="imgbox">
+		<a href="../../../../data/model/lastaflute/function/login/lastaflute-login-control-map.png" title="LastaFlute LoginControl"><img src="../../../../data/model/lastaflute/function/login/lastaflute-login-control-map.png" alt="LastaFlute LoginControl" width="550" height="380" /></a>
+	</p>
+
+	<h2 id="loginaction">ログイン画面のAction</h2>
+	<p>
+		ログイン画面の Action は、以下のような実装となります。
+	</p>
+<pre><span class="codetitle">e.g. ログインのActionの実装、MaihamaプロジェクトのDocksideアプリにて @Java</span><code>
+@Resource
+<span class="keyword">private</span> DocksideLoginAssist <span class="attribute">docksideLoginAssist</span>;
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index() {
+    <span class="keyword">if</span> (getUserBean().isPresent()) { <span class="comment">// すでにログイン済みなら</span>
+        <span class="keyword">return</span> redirect(MypageAction.<span class="keyword">class</span>); <span class="comment">// マイページへ</span>
+    }
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Signin_SigninHtml</span>).useForm(SigninForm.<span class="keyword">class</span>);
+}
+
+@Execute
+<span class="keyword">public</span> HtmlResponse signin(SigninForm <span class="localvar">form</span>) { <span class="comment">// ログインボタン押した</span>
+    validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; moreValidate(<span class="localvar">form</span>, <span class="localvar">messages</span>), () -&gt; {
+        <span class="localvar">form</span>.clearSecurityInfo(); <span class="comment">// ダメならパスワード消して...</span>
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Signin_SigninHtml</span>); <span class="comment">// ログイン画面もう一回</span>
+    });
+
+    <span class="comment">// DB検索して、セッションにユーザー情報を入れて、ログイン履歴残して...</span>
+    <span class="comment">// ログイン必須画面で拒否されて飛ばされてきてたら、そっちへログインリダイレクト</span>
+    <span class="keyword">return</span> <span class="attribute">docksideLoginAssist</span>.<span class="point">loginRedirect</span>(createCredential(<span class="localvar">form</span>)
+            , op -> op.rememberMe(<span class="localvar">form</span>.<span class="attribute">rememberMe</span>) <span class="comment">// 第三引数: 必要ならクッキー</span>
+            , () -> { <span class="comment">// 第三引数: OKのときのリダイレクト先</span>
+        <span class="keyword">return</span> redirect(MypageAction.<span class="keyword">class</span>); <span class="comment">// 通常はマイページへ</span>
+    });
+}
+
+<span class="comment">// アノテーションによる必須チェックの後、実際にログインできるかどうかバリデーション</span>
+<span class="keyword">private void</span> moreValidate(SigninForm <span class="localvar">form</span>, DocksideMessages <span class="localvar">messages</span>) {
+    <span class="keyword">if</span> (isNotEmpty(<span class="localvar">form</span>.<span class="attribute">email</span>) && isNotEmpty(<span class="localvar">form</span>.<span class="attribute">password</span>)) {
+        <span class="keyword">if</span> (!<span class="attribute">docksideLoginAssist</span>.checkUserLoginable(<span class="localvar">form</span>.<span class="attribute">email</span>, <span class="localvar">form</span>.<span class="attribute">password</span>)) {
+            <span class="localvar">messages</span>.addErrorsLoginFailure(<span class="literal">"email"</span>);
+        }
+    }
+}
+
+<span class="keyword">private</span> UserPasswordCredential createCredential(SigninForm <span class="localvar">form</span>) {
+    <span class="keyword">return new</span> UserPasswordCredential(<span class="localvar">form</span>.<span class="attribute">account</span>, <span class="localvar">form</span>.<span class="attribute">password</span>);
+}
+</code></pre>
+	<p>
+		ログインの処理は、<em class="mark">[App]LoginAssist</em> に集約されています。
+	</p>
+
+	<h2 id="loginrequired">ログイン必須チェック</h2>
+	<h3 id="loginrequiredbyhook">ActionHookでチェックされる</h3>
+	<p>
+		ログイン必須画面にログインしていない状態でのアクセスを防ぐ仕組みは、ActionHook
+		の godHandPrologue() で行われています。その中から、TypicalGodHandPrologue#performPrologue() が呼ばれています。
+	</p>
+	<div class="relatedpage"><a href="./actionhook.html">気軽な前後処理 ActionHook</a></div>
+<pre><span class="codetitle">e.g. ActionHookでのログインチェックの実装 @Java</span><code>
+<span class="keyword">public</span> ActionResponse performPrologue(ActionRuntime <span class="localvar">runtime</span>) { <span class="comment">// fixed process</span>
+    arrangeThreadCacheContextBasicItem(<span class="localvar">runtime</span>);
+    arrangePreparedAccessContext(<span class="localvar">runtime</span>);
+    arrangeCallbackContext(<span class="localvar">runtime</span>); <span class="comment">// should be after access-context (using access context's info)</span>
+    <span class="point">checkLoginRequired(runtime)</span>; <span class="comment">// should be after access-context (may have update)</span>
+    arrangeThreadCacheContextLoginItem(<span class="localvar">runtime</span>);
+    <span class="keyword">return</span> ActionResponse.undefined();
+}
+
+<span class="abbreviation">...</span>
+
+<span class="comment">/**
+ * Check the login required for the requested action.
+ * @param runtime The runtime meta of action execute to determine required action. (NotNull)
+ * @throws LoginRequiredException When it fails to access the action for non-login.
+ */</span>
+<span class="keyword">protected void</span> checkLoginRequired(ActionRuntime <span class="localvar">runtime</span>) <span class="keyword">throws</span> LoginRequiredException {
+    <span class="attribute">loginManager</span>.ifPresent(<span class="localvar">nager</span> -&gt; {
+        <span class="localvar">nager</span>.checkLoginRequired(createLogingHandlingResource(<span class="localvar">runtime</span>));
+    });
+}
+</code></pre>
+	<p>
+		すべての Action にて、loginManager の checkLoginRequired() が呼ばれます。
+	</p>
+	<p>
+		ここでの loginManager の実体は [App]LoginAssist のことです。LoginAssist は LoginManager インターフェースを implements
+		しているので、フレームワークの中では、LoginManagerとして取り扱っています。
+	</p>
+	<h3 id="loginrequiredexception">ログイン必須例外がthrowされる</h3>
+	<p>
+		ログインしていない状態で、ログイン必須のActionにアクセスした場合は、checkLoginRequired() が LoginRequiredException を throw します。
+	</p>
+	<p>
+		LastaFlute組み込みの例外クラスで、LaApplicationException を継承しているため業務例外として扱われます。
+		どのように例外ハンドリングされるのか？細かく追いたい場合は ApplicationExceptionResolver や ApiFailureHook を読むと良いでしょう。
+	</p>
+	<p>
+		HtmlResponseのActionであれば、自動でログイン画面に遷移します。その後、正常にログインされたら、もともとアクセスしようとした画面に遷移します。
+		<span class="frm">(ログインリダイレクトと呼んでいます)</span>
+	</p>
+
+	<h2 id="loginassist">とにかく LoginAssist</h2>
+	<p>
+		どうやら、この [App]LoginAssist がとにかくログインの処理を一手に引き受けているようです。
+	</p>
+	<p>
+		ログインのAction や ActionHook でのログイン必須チェックから呼び出されます。
+		こちらに、認証処理やセッションの設定、RememberMeのクッキーの設定、ログイン履歴など、ログインに必要な処理が詰め込まれています。
+	</p>
+	<h3 id="asssithierarchy">LoginAssistの階層構造</h3>
+	<p>
+		それぞれのWebプロジェクトに LoginAssist があり、例えば Maihama プロジェクトの Dockside
+		Webアプリであれば、DocksideLoginAssist となります。
+	</p>
+<pre><span class="codetitle">e.g. LoginLogic の階層構造、Maihamaプロジェクトなら @Structure</span><code>
+LoginManager  <span class="comment">// ログインの操作が定義されているインターフェース</span>
+ |   |
+ |   +------------------------------------------------------------+
+ |                                                                |
+ |                                                                |
+ |-TypicalLoginAssist <span class="comment">// フレームワーク提供の典型的なベースクラス</span>          |
+    |                                                             |
+    |-<span class="subpoint">MaihamaLoginAssist</span> <span class="comment">// プロジェクト共通のベースクラス</span>               |
+       |                                                          |
+       |      +---------------------------------------------------+
+       |      |
+       |      |
+       |     PrimaryLoginManager <span class="comment">// 主要のLoginManager (複数あったら一つだけに)</span>
+       |      |
+       |-<span class="spotlight"><span class="point">DocksideLoginAssist</span></span> <span class="comment">// Webアプリのクラス (スマートデプロイ対象)</span>
+</code></pre>
+	<p>
+		LastaFluteが提供する TypicalLoginAssist に、おおよそのロジックが組み込まれていて、それぞれのプロジェクトにフィットさせる部分を、
+		サブクラスで実装していくような形です。
+	</p>
+	<p>
+		なので、DocksideLoginAssist にはあまり実装はたくさんありません。
+		どのテーブルにアクセスするのか？どこに履歴を残すのか？など、ピンポイントで必要な情報をスーパークラスに渡してあげるだけになります。
+		もちろん、とある処理だけをオーバーライドして独自の挙動にすることもできます(権限チェックなどはそのように)。
+	</p>
+	<p>
+		PrimaryLoginManager は、ひとつのWEBアプリ内で LoginAssist
+		が複数あったときに、主要な Assist をユニークに識別するためのインターフェースです。
+		そういう状況にならない限りはあまり重要なものではありませんが、しっかりと付けておきましょう。
+	</p>
+	<h3 id="asssitfitting">LoginAssistの現場フィット</h3>
+	<p>
+		アプリにフィットさせるための [App]LoginAssist のポイントはこちら。
+	</p>
+	<dl class="keymainlist">
+		<dt>PKの型</dt><dd>Genericで指定、メソッドの引数に影響 <span class="frm">(Exampleテンプレートでは Integer)</span></dd>
+		<dt>ユーザー検索</dt><dd>ログインユーザの検索処理、doFindLoginUser()など</dd>
+		<dt>UserBeanの調整</dt><dd>[App]UserBeanの実装、LoginAssistでnewしたり</dd>
+		<dt>ログイン履歴の処理</dt><dd>saveLoginHistory() でいい感じに</dd>
+		<dt>アプリ固有のクラス指定</dt><dd>getUserBeanType() や getLoginActionType() など</dd>
+	</dl>
+	<h3 id="assistmethod">LoginAssistのpublicメソッド</h3>
+	<p>
+		大きくは以下の四つ：
+	</p>
+	<dl class="keymainlist">
+		<dt>checkUserLoginable()</dt><dd>ログインできるか判定する <span class="frm">(ログイン画面のActionのバリデーション)</span></dd>
+		<dt>login()</dt><dd>単純にログイン処理だけ <span class="frm">(APIスタイルのログイン画面のAction)</span></dd>
+		<dt>loginRedirect()</dt><dd>ログイン処理とログインリダイレクト <span class="frm">(HTMLスタイルのログイン画面のAction)</span></dd>
+		<dt>checkLoginRequired()</dt><dd>ログイン必須チェックを行う <span class="frm">(ActionHookから呼ばれる想定)</span></dd>
+	</dl>
+	<p>
+		さらには、引数が違うだけのオーバーロードのメソッドや、多種多様なログイン処理を行うメソッド、
+		ログイン処理やチェック処理の一部だけを行う部品的なメソッドなどがあります。
+	</p>
+	<dl class="keymainlist">
+		<dt>identityLogin()</dt><dd>ユーザーIDを指定してログイン処理 <span class="frm">(事前にユーザーが特定できてる場合)</span></dd>
+		<dt>givenLogin()</dt><dd>Entityを指定してにログイン処理 <span class="frm">(事前にユーザー情報を持っている場合)</span></dd>
+		<dt>logout()</dt><dd>ログアウト処理 <span class="frm">(クッキーも削除、セッションはまるごとinvalidate)</span></dd>
+		<dt>findLoginUser()</dt><dd>ログインできるユーザーを探す <span class="frm">(ログインできなければempty)</span></dd>
+	</dl>
+	<p>
+		メソッドの一覧が見たければ、<em class="smallmark">LoginManager</em> のソースを読むとよいでしょう。
+		詳しい処理に関しては、<em class="smallmark">TypicalLoginAssist</em> を読んでみましょう。
+	</p>
+	<h3 id="abouttypical">Typicalは提案!?</h3>
+	<p>
+		厳密には、TypicalLoginAssist を使わなければならないわけではありません。基本的に Typical
+		と付いているものは、もし現場にフィットするなら使ってみてください、というニュアンスのものです。
+		ですが、多くの処理をオーバーライドなどで拡張できるようにしているので、よほど特殊でなければフィットさせることができるのではないかと想定しています。
+	</p>
+
+	<h2 id="permission">権限チェックの実装</h2>
+	<h3 id="permissionextpoint">拡張ポイントが用意されている</h3>
+	<p>
+		権限チェックの仕組み自体は、かなり業務に特化する部分なので特に組み込みでの用意はありませんが、
+		ログインロジックのプロセスの一環として組み込める拡張ポイントが用意されています。
+	</p>
+	<h3 id="permissionmethod">checkPermission()</h3>
+	<p>
+		ログインチェックの処理の中で、ログイン状態のときに必ず呼ばれるメソッドがあります。
+		そのメソッドの中で権限チェックをすることで、ログインしていてもその画面で必要な権限がないアクセスを弾くことができます。
+	</p>
+	<p>
+		[App]LoginAssist が継承している TypicalLoginAssist にて、checkPermission()
+		というメソッドが定義されていて、デフォルトでは中身は空っぽです。
+	</p>
+<pre><span class="codetitle">e.g. checkPermission()のそのままのコード @Java</span><code>
+<span class="comment">/**
+ * Check the permission of the login user. (called in login status) &lt;br&gt;
+ * If the request cannot access the action for permission denied, throw LoginRequiredException.
+ * @param resource The resource of login handling to determine. (NotNull)
+ * @throws LoginRequiredException When it fails to access the action for permission denied.
+ */</span>
+<span class="keyword">protected void</span> checkPermission(LoginHandlingResource <span class="localvar">resource</span>) {
+    <span class="comment">// no check as default, you can override</span>
+}
+</code></pre>
+	<p>
+		checkPermission() は、<em class="keyword">既にログイン済み、もしくは、いま RememberMe したばかり</em> のときに呼び出されます。
+	</p>
+	<h3 id="permissionoverride">オーバーライドして権限チェック</h3>
+	<p>
+		それぞれの [App]LoginAssist にて、 この checkPermission() をオーバーライドして、権限チェックをするとよいでしょう。
+		権限エラーの場合は、LoginRequiredException を throw します。
+	</p>
+<pre><span class="codetitle">e.g. checkPermission()で権限チェックして、ダメなら例外 @Java</span><code>
+@Override
+<span class="keyword">protected void</span> checkPermission(LoginHandlingResource <span class="localvar">resource</span>) {
+    <span class="abbreviation">...</span> = <span class="localvar">resource</span>.getExecuteMethod(); <span class="comment">// (いい感じに使って判定)</span>
+    <span class="keyword">if</span> (<span class="abbreviation">...</span>) { <span class="comment">// 権限なければ</span>
+        <span class="keyword">throw new</span> LoginRequiredException(<span class="literal">"デバッグ用メッセージ、何かいい感じに"</span>);
+    }
+}
+</code></pre>
+	<h3 id="permissionsettings">どの画面がどんな権限？</h3>
+	<p>
+		ここは様々な方法がありますが、一例として、アノテーションに付けるやり方があります。
+	</p>
+<pre><span class="codetitle">e.g. Executeメソッドにアノテーションでロールを紐付ける @Java</span><code>
+@Execute()
+<span class="point">@Permission</span>({CDef.Role.<span class="attribute">営業</span>, CDef.Role.<span class="attribute">企画</span>}) <span class="comment">// 営業と企画の役割の人が実行できる</span>
+<span class="keyword">public</span> HtmlResponse index() {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. Executeメソッドに付ける権限のアノテーション @Java</span><code>
+<span class="comment">// (アノテーションに付けるアノテーションはいい感じに)</span>
+<span class="keyword">public @interface</span> Permission {
+
+    CDef.Role[] value();
+}
+</code></pre>
+	<p>
+		ロールはテーブル区分値として定義しておきます。自動生成された CDef をアノテーションで指定できるようにして、checkPermission()
+		の中でそのアノテーションの値を取得して、ログインユーザーのロールと照らし合わせてアクセス可能かどうかを判定します。
+	</p>
+	<p>
+		もちろん、必ずこのやり方である必要はありません。例えば、データベースの中で、画面(Executeメソッド)とロールを紐づけてもよいでしょう。
+		データベースの中で権限設定を閉じこめることができて、動的にも修正できるのがメリットです。
+		ただ、画面が増えたときにそのテーブルのデータもメンテナンスしてあげないといけないので、インクリメンタル開発の現場ではちょっと運用が煩雑になります。
+		アノテーション方式であればプログラム作成時に自然と権限が付与されるので、定義し忘れのトラブルは少ないでしょう。
+	</p>
+	<h3 id="permissionbyblog">アクセス権限まとめブログ</h3>
+	<p>
+		ユーザーの方が、アクセス権限に関してブログでまとめて頂いています。
+		そちらもぜひ参考にすると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="#userblog">this - ユーザーの方のブログをご紹介</a></div>
+
+	<h2 id="nondb">RDB以外のもので認証するなら？</h2>
+	<p>
+		LoginAssistクラスにて、RDBに検索している箇所を別の認証サービスを使ったプログラムに差し替えます。
+		Assistクラスを使う側(Actionなど)では、RDBなのか別の認証サービスなのかは意識しないようにするのがオススメです。
+	</p>
+	<p>
+		具体的には、LoginAssistクラスの checkCredential() や resolveCredential() や doFindLoginUser()
+		で、RDBにアクセスしてユーザーを認証している処理を、別のものに差し替えます。
+	</p>
+	<p>
+		例えば、RemoteAPi を使って認証することも想定されます。
+	</p>
+	<div class="relatedpage"><a href="./remoteapicall.html">定まったリモートAPI呼び出し (RemoteApi Call)</a></div>
+
+	<div class="inucolumn">
+		<h2 id="userblog">ユーザーの方のブログをご紹介</h2>
+		<p>
+			実際に業務で LastaFlute を利用されていた方が素敵なブログを書いてくださっているのでご紹介します。
+			ありがとうございます！<span class="frm">(リンクの承諾も頂いています)</span> 
+		</p>
+		<ul>
+			<li><a href="http://oza-note.xyz/authority-management-by-lastaflute">LastaFluteでアクセス権限管理   | おざノート</a></li>
+		</ul>
+		<p>
+			アクセス権限以外の話題も書いてくださっています。
+		</p>
+		<div class="relatedpage"><a href="../action/lathymeleaf.html#userblog">LastaFlute の Thymeleaf - ユーザーの方のブログをご紹介</a></div>
+		<div class="relatedpage"><a href="../startup/multi.html#userblog">Startup as Multi-Project - ユーザーの方のブログをご紹介</a></div>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

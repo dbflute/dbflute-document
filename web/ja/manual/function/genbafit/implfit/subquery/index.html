@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,サブクエリ,相関サブクエリ,SubQuery,subquery,副問い合わせ,副問合せ,ネストしたselect" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>サブクエリ | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>サブクエリ</h1>
+	<p>
+		ConditionBeanにおける定型化されたサブクエリの利用について説明をします。
+	</p>
+	${indexlist}
+
+	<h2 id="typesafe">タイプセーフなサブクエリ</h2>
+	<p>
+		ConditionBean ではサブクエリもサポートされています。
+		サブクエリと聞くと複雑なイメージがありますが、実は業務で使うサブクエリの多くは要件的にパターン化されています。
+		また、複雑なイメージとは裏腹に利用頻度は意外に多く、実際にバグが非常に生まれやすい部分でもあります。
+		そういったことから、ConditionBean では積極的に、<em class="keyword">パターン化されているサブクエリを定型化してタイプセーフに扱う</em>
+		ことができるようにしています。
+	</p>
+
+	<h2 id="existsreferrer">子テーブルの条件で絞り込み</h2>
+	<p>
+		例えば、2000円以上の(一回の)購入をしたことのある会員を検索する、というような条件。これは、exsits
+		句の相関サブクエリで実現します。この機能を ExistsReferrer と呼びます。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/query/existsreferrer.html">ConditionBean - ExistsReferrer</a></div>
+<pre><span class="codetitle">e.g. 2000円以上の購入をしたことのある会員 @Java</span><code>
+cb.query().existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        <span class="comment">// 2000円以上の購入をしたことのある会員</span>
+        subCB.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 2000円以上の購入をしたことのある会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> <span class="keyword">exists</span> (<span class="keyword">select</span> sub1loc.MEMBER_ID
+                 <span class="keyword">from</span> PURCHASE sub1loc
+                <span class="keyword">where</span> <span class="point">sub1loc.MEMBER_ID = dfloc.MEMBER_ID</span>
+                  <span class="keyword">and</span> sub1loc.PURCHASE_PRICE &gt;= <span class="literal">2000</span>
+       )
+</code></pre>
+
+	<h2 id="derivedreferrer">子テーブルの導出カラム</h2>
+	<p>
+		子テーブルの導出カラムに対してアプローチする機能、データ取得と絞り込み条件で二つあります。
+	</p>
+	<h3 id="specifyderivedreferrer">子テーブルの導出カラム(データ取得)</h3>
+	<p>
+		例えば、それぞれの会員の最終ログイン日時を会員のデータと一緒に取得する、というような検索。これは、select
+		句での相関サブクエリで実現します。この機能を (Specify)DerivedReferrer と呼びます。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/specify/derivedreferrer.html">ConditionBean - (Specify)DerivedReferrer</a></div>
+<pre><span class="codetitle">e.g. (Specify)DerivedReferrerを使って(モバイル除く)最終ログイン日時も取得 @Java</span><code>
+cb.specify().derivedMemberLoginList().max(<span class="keyword">new</span> SubQuery&lt;MemberLoginCB&gt;() {
+    <span class="keyword">public void</span> query(MemberLoginCB subCB) {
+        subCB.specify().<span class="point">columnLoginDatetime()</span>; <span class="comment">// 導出カラムの指定</span>
+        subCB.query().setMobileLoginFlg_Equal_False(); <span class="comment">// 絞り込み条件</span>
+    }
+}, Member.ALIAS_latestLoginDatetime);
+
+List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb);
+<span class="keyword">for</span> (Member member : memberList) {
+    Date latestLoginDatetime = member.<span class="point">getLatestLoginDatetime()</span>;
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. (Specify)DerivedReferrerを使って(モバイル除く)最終ログイン日時も取得 @DisplaySql</span><code>
+<span class="keyword">select</span> dfloc.MEMBER_ID as c1, dfloc.MEMBER_NAME as c2, <span class="abbreviation">...</span>
+     , (<span class="keyword">select</span> max(sub1loc.LOGIN_DATETIME)
+          <span class="keyword">from</span> MEMBER_LOGIN sub1loc 
+         <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+           <span class="keyword">and</span> sub1loc.MOBILE_LOGIN_FLG = <span class="literal">0</span>
+       ) <span class="keyword">as</span> LATEST_LOGIN_DATETIME
+  <span class="keyword">from</span> MEMBER dfloc
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="queryderivedreferrer">子テーブルの導出カラム(絞り込み条件)</h3>
+	<p>
+		例えば、最大購入価格が10000円以上の会員を検索、というような条件。これは、where
+		句での相関サブクエリで実現します。この機能を (Query)DerivedReferrer と呼びます。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/query/derivedreferrer.html">ConditionBean - (Query)DerivedReferrer</a></div>
+<pre><span class="codetitle">e.g. (Query)DerivedReferrerを使って(支払済み)最大購入価格が10000円以上の会員を取得 @Java</span><code>
+cb.specify().derivedPurchaseList().max(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        subCB.specify().columnPurchasePrice(); <span class="comment">// 導出カラムの指定</span>
+        subCB.query().setPaymentCompleteFlg_Equal_True(); <span class="comment">// 絞り込み条件</span>
+    }
+}).<span class="point">greaterEqual</span>(<span class="literal">10000</span>) <span class="comment">// 引数に条件値を設定</span>
+</code></pre>
+<pre><span class="codetitle">e.g. (Query)DerivedReferrerを使って(支払済み)最大購入価格が10000円以上の会員を取得 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> (<span class="keyword">select</span> sum(sub1loc.PURCHASE_PRICE)
+          <span class="keyword">from</span> PURCHASE sub1loc
+         <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+           <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">1</span>
+       ) &gt;= <span class="literal">10000</span>
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="scalarcondition">導出値との比較で絞り込み</h2>
+	<p>
+		例えば、一番若い会員のデータを検索(生年月日と最大の生年月日の等値)、というような条件。これは、where 句での基点テーブル(対応テーブル)のサブクエリで実現します。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/query/scalarcondition.html">ConditionBean - ScalarCondition</a></div>
+<pre><span class="codetitle">e.g. ScalarConditionを使って一番若い正式会員(のレコード)を取得 @Java</span><code>
+cb.query().scalar_Equal().max(<span class="keyword">new</span> SubQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> query(MemberCB subCB) { <span class="comment">// 一番若い正式会員</span>
+        subCB.specify().<span class="point">columnBirthdate()</span>; <span class="comment">// 比較対象カラムの指定</span>
+        subCB.query().setMemberStatusCode_Equal_Formalized(); <span class="comment">// 絞り込み条件</span>
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. ScalarConditionを使って一番若い正式会員(のレコード)を取得 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> dfloc.BIRTHDATE = (<span class="keyword">select</span> max(sub1loc.BIRTHDATE)
+                              <span class="keyword">from</span> MEMBER sub1loc
+                             <span class="keyword">where</span> sub1loc.MEMBER_STATUS_CODE = <span class="literal">'FML'</span>
+       )
+<span class="abbreviation">...</span>
+</code></pre>
+
+	<h2 id="inscoperelation">関連テーブルの条件で絞り込み</h2>
+	<p>
+		InScope (in句) での関連テーブルのサブクエリ(相関でない)を利用して、基点テーブルを絞り込みます。
+		これは代替機能であり、親テーブルに対して利用した場合は Query(Relation)
+		で絞り込み条件を付与したときと結果は同じになり、子テーブルに対して利用した場合は ExistsReferrer
+		と結果は同じになります。パフォーマンスなどの要件で、SQLでの展開の仕方を微調整したいときに有効です。
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/query/inscoperelation.html">ConditionBean - InScopeRelation</a></div>
+
+	<h2 id="columnquery">カラムと導出カラム</h2>
+	<p>
+		カラム同士の比較条件ができる ColumnQuery と (Specify)DerivedReferrer
+		のコラボレーションにより、ColumnQuery の指定するカラムを導出カラムにすることで柔軟な比較ができます。 
+	</p>
+	<div class="detailpage"><a href="../../../ormapper/conditionbean/query/columnquery.html">ConditionBean - ColumnQuery</a></div>
+<pre><span class="codetitle">e.g. 生まれる前、もしくは生まれた瞬間に購入をしたことのある会員 @Java</span><code>
+<span class="abbreviation">...</span>
+cb.columnQuery(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().columnBirthdate();
+    }
+}).lessEqual(<span class="keyword">new</span> SpecifyQuery&lt;MemberCB&gt;() {
+    <span class="keyword">public void</span> specify(MemberCB cb) {
+        cb.specify().<span class="point">derivedPurchaseList()</span>.min(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+            <span class="keyword">public void</span> query(PurchaseCB subCB) {
+                subCB.specify().<span class="point">columnPurchaseDatetime()</span>;
+                subCB.query().setPaymentCompleteFlg_Equal_True();
+            }
+        }, <span class="keyword">null</span>); <span class="comment">// エリアス名は利用しないので null 固定</span>
+    }
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 生まれる前、もしくは、生まれた瞬間に(支払済み)購入をしたことのある会員 @DisplaySql</span><code>
+<span class="abbreviation">...</span>
+  <span class="keyword">from</span> MEMBER dfloc
+ <span class="keyword">where</span> dfloc.BIRTHDATE &lt;= (<span class="keyword">select</span> min(sub1loc.PURCHASE_DATETIME)
+                             <span class="keyword">from</span> PURCHASE sub1loc 
+                            <span class="keyword">where</span> sub1loc.MEMBER_ID = dfloc.MEMBER_ID
+                              <span class="keyword">and</span> sub1loc.PAYMENT_COMPLETE_FLG = <span class="literal">1</span>
+       )
+
+</code></pre>
+	<div class="inucolumn">
+		<h3 id="applicable">応用の利く機能</h3>
+		<p>
+			幾つかの機能の組み合わせとリレーションを辿ったサブクエリを活用すると、色々な条件を表現することができます。
+			多少、小難しいので、全てのディベロッパーがそこまで使いこなす必要はありませんが、
+			組み立てを極めていくとかなり高度なDBアクセスまでがタイプセーフ実装の範疇とすることができます。
+		</p>
+		<p>
+			特にこの ColumnQuery は、サブクエリとのコラボレーションを存分に発揮できるとても柔軟性の高い機能です。どういった条件が実現できるのか？
+			ディベロッパー自身が探って発見していけると、サブクエリを構造的に捉えるきっかけにもなるかと思います。
+		</p>
+	</div>
+
+	<h2 id="format">サブクエリもフォーマット</h2>
+	<p>
+		ConditionBean で組み立てたサブクエリは、しっかり人の見やすい形にフォーマットされます。
+		逆にそれができないと、いくらタイプセーフだからといって、本当に自分が意図したクエリになっているかどうかが不安になって仕方ありません。
+		ログのSQLをコピーしてSQLツールに貼り付けてフォーマットできなくはないですが多少面倒ですし、
+		なかなかサブクエリまで綺麗にフォーマットしてくれるツールも多くはありません。
+	</p>
+	<p>
+		それも踏まえた上での実現を内部的な実装で行っています。
+		階層も解決された ConditionBean のサブクエリ、もし気が向けば、サブクエリがどうできあがっているのか、ソースを追っかけてみると新鮮かも知れません。
+	</p>
+
+	<h2 id="outsidesql">外だしSQLの土台にも利用</h2>
+	<p>
+		最初から外だしSQLで書く、と決まっている場合でも、この ConditionBean
+		のサブクエリの機能を使って実装し、組み立てられた表示用SQLをもとに、外だしSQLにおけるサブクエリの土台にするという技もあります。
+		サブクエリは一から書くと大変な上に、非常に間違いやすいものです。かつ、間違ったときに間違いを発見しにくいものです。ConditionBean
+		でのサブクエリ実装に慣れてしまえば、このようなやり方で自身の外だしSQLの実装を支援することができます。
+	</p>
+	<div class="relatedpage"><a href="../../../ormapper/conditionbean/cbscope.html#flowb">ConditionBeanのスコープ - B. ConditionBeanでとりあえず実装</a></div>
+
+	<div class="inucolumn">
+		<h2 id="closure">クロージャが欲しくなります</h2>
+		<p>
+			特にサブクエリの実装を見ると、Java にクロージャが欲しくなります。C# では、delegate
+			があるため、これよりも少しシンプルな記述ができますが、Java
+			ではどうしても無名インナークラス形式で、お決まりのメソッド宣言が必要になります。
+			今後の Java の動向から目が離せません。
+		</p>
+<pre><span class="codetitle">e.g. 2000円以上の購入をしたことのある会員 (C# では delegate で実現) @C#</span><code>
+cb.Query().ExistsPurchaseList(<span class="keyword">delegate</span>(PurchaseCB subCB) {
+    <span class="comment">// 2000円以上の購入をしたことのある会員</span>
+    subCB.Query().SetPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
+});
+</code></pre>
+		<p>
+			ただ、実装の手間という意味合いでは、特に Eclipse-3.5
+			以上を利用している分には、あまりストレスを感じません。IDE
+			の補完機能でこの無名インナークラスのコールバック実装を支援してくれるため、一度覚えるとスムーズに実装できるからです。
+			逆に VisualStudio だとこういった支援がなく、実装後は読みやすさはあるものの、実装は意外に手間です。
+		</p>
+<pre><span class="codetitle">e.g. Eclipse-3.5 以上でコールバック実装のコード補完 @Java</span><code>
+<span class="comment">// "new " (new + 空白一つ) と打って ctrl + space そして enter</span>
+cb.query().existsPurchaseList(<span class="point">new </span>)
+--
+<span class="comment">// 実装メソッドの空実装が自動生成される (Eclipse-3.5 以上)</span>
+cb.query().existsPurchaseList(<span class="keyword">new</span> SubQuery&lt;PurchaseCB&gt;() {
+    
+    <span class="keyword">public void</span> query(PurchaseCB subCB) {
+        <span class="comment">// TODO Auto-generated method stub</span>
+        
+    }
+})
+</code></pre>
+		<p>
+			Java、C# 共に、実装後の読みやすさ、スムーズな実装、これが両立する日を待ち望んでいます。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

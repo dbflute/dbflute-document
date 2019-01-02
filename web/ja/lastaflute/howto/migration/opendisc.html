@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,Tutorial,Deveploer,Architect" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteの検討事項 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteの検討事項</h1>
+	<p>
+		これはすでに "おもいで" です。
+	</p>
+	${indexlist}
+
+	<h2 id="actionreturn">Action の return</h2>
+	<h3 id="returnjsp">JSPやJSONを戻すとき</h3>
+	<p>
+		戻り値 String にしない(互換は保つかも)。JsonResponseとかも new するのではなく、asJson()などを用意する。
+		基本、asなんとか()でResponseを戻せる。
+	</p>
+<pre><span class="codetitle">e.g. JSPやJSONを戻すとき @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index() { <span class="comment">// 一覧画面の表示</span>
+    <span class="keyword">return</span> <span class="point">asHtml</span>(<span class="attribute">path_Mypage_Mypage_jsp</span>);
+}
+
+@Execute
+<span class="keyword">public</span> JsonResponse index() { <span class="comment">// JSON戻す</span>
+    ProductContentBean <span class="localvar">bean</span> = ...
+    <span class="keyword">return</span> <span class="point">asJson</span>(<span class="localvar">bean</span>);
+}
+
+@Execute
+<span class="keyword">public</span> StreamResponse index() { <span class="comment">// Stream戻す</span>
+    InputStream <span class="localvar">ins</span> = ...
+    <span class="keyword">return</span> <span class="point">asStream</span>(<span class="literal">"dbflute.pdf"</span>).stream(<span class="localvar">ins</span>); <span class="comment">// octet-stream</span>
+}
+
+<span class="comment">// JSONのいろいろオプション</span>
+<span class="keyword">return</span> <span class="subpoint">asJson</span>(<span class="localvar">bean</span>).header(<span class="literal">"dream"</span>, <span class="literal">"cruise"</span>);
+
+<span class="comment">// Streamのいろいろオプション</span>
+<span class="keyword">return</span> <span class="subpoint">asStream</span>(<span class="literal">"dbflute.pdf"</span>).data(<span class="localvar">bytes</span>); <span class="comment">// byte array</span>
+<span class="keyword">return</span> <span class="subpoint">asStream</span>(<span class="literal">"dbflute.pdf"</span>).stream(<span class="localvar">ins</span>).contentType(<span class="literal">"dream/cruise"</span>);
+<span class="keyword">return</span> <span class="subpoint">asStream</span>(<span class="literal">"dbflute.pdf"</span>).stream(<span class="localvar">ins</span>).header(<span class="literal">"dream"</span>, <span class="literal">"cruise"</span>);
+</code></pre>
+	<p>
+		ただし、Redirect や Forward はいままでと同じ。
+		HtmlResponseってところが悩み。同じメソッドで分岐でリダイレクトしたりJSPで戻したりすると思うので。
+	</p>
+<pre><span class="codetitle">e.g. xxx @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse abc() {
+    <span class="keyword">return</span> <span class="subpoint">redirect</span>(MypageIndexAction.class);
+}
+</code></pre>
+	<h3 id="returndata">JSPへのデータの渡し方</h3>
+	<p>
+		public変数で渡すのやめ。.renderWith() でつなげて、dataオブジェクトに登録する。
+	</p>
+<pre><span class="codetitle">e.g. xxx @Directory</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse list() { <span class="comment">// 一覧画面の表示</span>
+    List&lt;ProductRowBean&gt; <span class="localvar">beans</span> = ... <span class="comment">// DBFluteでリスト検索して詰め替え</span>
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductList_jsp</span>).<span class="point">renderWith</span>(<span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.<span class="subpoint">register</span>(<span class="literal">"beans"</span>, <span class="localvar">beans</span>);
+    });
+}
+
+@Execute(urlPattern=<span class="literal">"{productId}"</span>)
+<span class="keyword">public</span> HtmlResponse edit() { <span class="comment">// 編集入力画面の表示</span>
+    ProductEditForm <span class="localvar">form</span> = ... <span class="comment">// DBFluteで一件検索して詰め替え</span>
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductInput_jsp</span>).<span class="point">renderWith</span>(<span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.<span class="subpoint">registerForm</span>(<span class="attribute">productForm</span>); <span class="comment">// ★Formは明示登録する？</span>
+    });
+}
+</code></pre>
+
+	<h2 id="validation">バリデーションするとき</h2>
+	<p>
+		HibernateValidatorのアノテーションをActionFormのプロパティに付与するアノテーションベース方式と、
+		相関バリデーションのためのプログラムベース方式をサポートする。
+	</p>
+	<p>
+		Executeアノテーションでごちゃごちゃ指定するのやめて、メソッド内でメソッド呼ぶ。
+	</p>
+<pre><span class="codetitle">e.g. アノテーションベースのバリデーションだけ @Directory</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse confirm() { <span class="comment">// 確認画面: formをもらって、formの内容を表示</span>
+    <span class="comment">// バリデーションして、だめなら編集画面に戻るぞー</span>
+    <span class="point">validate</span>(<span class="attribute">productForm</span>, () -> asHtml(<span class="attribute">path_Product_ProductInput_jsp</span>));
+
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductInput_jsp</span>).renderWith(<span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.registerForm(<span class="attribute">productForm</span>); <span class="comment">// ★Formは明示登録する？</span>
+    });
+}
+</code></pre>
+<pre><span class="codetitle">e.g. アノテーションベースとプログラムベースの組み合わせ @Directory</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse confirm() { <span class="comment">// 確認画面: formをもらって、formの内容を表示</span>
+    <span class="subpoint">validateWith</span>(<span class="attribute">productForm</span>, () -> <span class="point">doValidate()</span>, () -> {
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductInput_jsp</span>);
+    });
+    <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductConfirm_jsp</span>).renderWith(<span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.registerForm(<span class="attribute">productForm</span>);
+    });
+}
+
+<span class="keyword">protected</span> DocksideMessages <span class="subpoint">doValidate()</span> { <span class="comment">// publicである必要はまったくない</span>
+    DocksideMessages <span class="localvar">messages</span> = Messages();
+    <span class="keyword">if</span> (<span class="attribute">productForm</span>.memberName<span class="abbreviation">...</span>) {
+        <span class="localvar">messages</span>.addErrorsNantoka(<span class="abbreviation">...</span>);
+    }
+    <span class="keyword">return</span> <span class="localvar">messages</span>;
+}
+</code></pre>
+	<p>
+		バリデーションエラーのときは、例外が発生してフレームワーク内で asHtml() が指定されている Lambda
+		をコールバックするので、アプリでは分岐を書く必要はない。
+	</p>
+	<p>
+		バリデーションエラーのときの描画のための検索とかは、Lambdaの中でご自由に。
+		Executeアノテーションでのinputだとそれがやりづらくてしょうがなかった。
+	</p>
+
+	<h2 id="definerender">最低限描画データ準備の共通化</h2>
+	<p>
+		それぞれの Execute で用意するメインの描画データとは別に、その画面を表示するために必要な最低限のデータ (これを最低限描画データと呼ぶ)
+		を準備するための領域を用意する。主には、リストボックスの値とか。
+	</p>
+	<p>
+		バリデーションエラーのときでも、描画データを持ってくる必要があるため、素のSAStrutsだと input でフォワードさせることがよくあった。
+		それがスパゲッティになりやすいので、SAFluteでは、callbackFinally() での isForwardingToJsp() でその処理を共通化していた。
+		LastaFluteでは目的を明確にさせたメソッドの中でやるようにしている。
+	</p>
+<pre><span class="codetitle">e.g. アノテーションベースとプログラムベースの組み合わせ @Directory</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index() { <span class="comment">// 確認画面: formをもらって、formの内容を表示</span>
+    <span class="abbreviation">...</span>
+}
+
+<span class="comment">// どのメソッドでも共通の、JSPごとのリソースを定義する</span>
+<span class="comment">// 実際には、callbackFinally() での isForwardingToJsp() の中で呼ばれる</span>
+@Override
+<span class="keyword">protected void</span> defineRenderResource(RenderDef renderDef) 
+    renderDef.define(<span class="attribute">path_Product_ProductList_jsp</span>, <span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.register(<span class="literal">"productStatusList"</span>, selectProductStatusList());
+    }
+    renderDef.define(<span class="attribute">path_Product_ProductInput_jsp</span>, <span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.register(<span class="literal">"productStatusList"</span>, selectProductStatusList());
+    }
+    renderDef.define(<span class="attribute">path_Product_ProductConfirm_jsp</span>, <span class="localvar">data</span> -> {
+        <span class="localvar">data</span>.register(<span class="literal">"productStatusList"</span>, selectProductStatusList());
+    }
+}
+</code></pre>
+	
+	<h2 id="dixmlhierarchy">Di XML の階層構造</h2>
+<pre><span class="codetitle">e.g. Di XML の階層構造 @Java</span><code>
+app.dicon*
+ |-convention.dicon   // #later want to remove
+ |-dbflute.dicon*
+ |  |-j2ee.dicon      // #later renamed to transaction.dicon
+ |     |-jta.dicon    // #thinking embedded?
+ |     |-jdbc.dicon*
+ |     |  (|-selectable_datasource.dicon) // provided by lastaflute (option)
+ |     |-tx_aop.dicon
+ |-lastaflute.dicon
+    |-lastaflute_core.dicon
+    |-lastaflute_db.dicon
+    |-lastaflute_web.dicon
+
+lasta_di.dicon
+ |-redefiner.dicon
+ |-[smartdeploy.dicon] // hotdeploy.dicon, warmdeploy.dicon, cooldeploy.dicon
+    |-convention.dicon // NamingConvention
+    |-creator.dicon
+    |  |-if my_creator.dicon*
+    |  |-if lastafw_creator.dicon    // provided by lastaflute
+    |-customizer.dicon
+       |-if my_customizer.dicon*
+       |-if lastafw_customizer.dicon // provided by lastaflute
+       |-embedded_customizer.dicon
+          |-tx_customizer.dicon
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ConditionBean,DB Design,DB設計" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DB設計のチェックスタイル (SchemaPolicyCheck) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DB設計のチェックスタイル (SchemaPolicyCheck)</h1>
+	<p>
+		SchemaPolicyCheckとは？schemaPolicyMap.dfpropの概要などについて説明をします。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/schemapolicy/index.html">schemaPolicyMap.dfprop</a></div>
+	${indexlist}
+
+	<h2 id="dbreviewcost">DB設計のレビューコスト</h2>
+	<h3 id="toofreedesign">自由過ぎるDB設計はいかが？</h3>
+	<p>
+		例えば、このようなDB設計を見たことはないでしょうか？
+	</p>
+	<ul>
+		<li>フラグが BOOLEAN だったり INTEGER だったり</li>
+		<li>フラグにNotNull制約が付いてないものがある</li>
+		<li>テーブル名やカラム名の大文字小文字がバラバラ</li>
+		<li>PKのないテーブルがある</li>
+		<li>FK制約名の形式がバラバラ</li>
+	</ul>
+	<p>
+		システムの挙動としては致命的ではないにしても、非常に勘違いを誘発しそうなテーブルやカラムが乱立していると、
+		様々な細かいリスクを抱えることになります。しかも、DBはなかなか思い切って修正できないものです。
+		<span class="frm">(DBFluteでDB変更しやすいとしても、既にリリース済のシステムであれば気軽にとはいきません)</span>
+	</p>
+	<p>
+		なので、このようなDB設計にならないように、DBに長けた先輩が一生懸命レビューしたりするわけです。
+	</p>
+	<h3 id="reviewpresurecost">レビュータスクとプレッシャーはいかが？</h3>
+	<p>
+		レビューは非常に大事です。DB設計は、論理で自動で定まるようなものではない "デザイン"
+		ですから、一貫性のあるスキーマにするためには、伝承やコミュニケーションがキーポイントになるでしょう。
+	</p>
+	<p>
+		ですが、レビューはタダではありません。DBに長けている方のそれなりの時間を奪います。
+		業務のことも理解しないとレビューできませんので、レビューするためのインプットも必要です。
+	</p>
+	<p>
+		また、DBは変更コストが高く、パフォーマンス問題も引き起こしやすいものなので、レビューするにはかなり気を使います。
+		"レビューでOKだったからもう大丈夫" と太鼓判を押されてしまいがちですから、相当なプレッシャーではあります。
+		<span class="frm">(本来、レビューは補助的なもので、あくまで大きな責任はレビューイーが持つものではありますが...)</span>
+	</p>
+	<p>
+		そのコストとプレッシャーがレビューワーの限界を超えてしまうと、レビューワーの他のタスクに支障が出るかもしれませんし、
+		レビューワーがそうならないようにするために自然とレビューの精度を落とさざるを得なくなります。
+		すると、先ほど紹介したような一貫性のないDB設計をレビューで見逃してしまう可能性が大きくなるのです。
+	</p>
+	<h3 id="typicalreview">レビューの指摘は定型的なものばかり!?</h3>
+	<p>
+		レビューで指摘される内容の多くが、定型的なものばかりというケースも珍しくありません。先ほど紹介したような...
+		"_FLGになってないよ" とか "NotNull制約付いてなくない？" とか "テーブル名のケース統一して" とか "PK制約付け忘れてるよ"
+		とか "FK制約名はこういう風にして" とか。
+	</p>
+	<p>
+		それだけレビュー会の半分以上の時間が奪われてしまうこともあります。それを避けるために、レビューワーは
+		"本当はこうして欲しいんだけど細かいこと言ってたらキリがないな" ということで見逃すのです。
+		<span class="frm">(また、"細かいことばっかり言ってる人だなぁ" と思われてしまうのを避ける心理も働きます)</span>
+	</p>
+	<h3 id="highlevelreview">高度なレビューに集中してもらいたい</h3>
+	<p>
+		そういう定型的な指摘は、プログラミングの世界でやってるのと同様に、ツールで自動化をするのが良いでしょう。
+		という発想で生まれたのが、DBFlute の <em class="mark">SchemaPolicyCheck</em> になります。 
+	</p>
+	<p>
+		そのプロジェクトにおけるポリシー定義をすると、Docタスクにてチェックされるようになります。
+	</p>
+<pre><span class="codetitle">e.g. _FLGカラムのデータ型は BOOLEAN であること @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        <span class="abbreviation">...</span>
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> dbType is BOOLEAN
+            <span class="abbreviation">...</span>
+        }
+    }
+}
+</code></pre>
+<pre><span class="codetitle">e.g. _FLGカラムのデータ型は BOOLEAN のはずなのに、INTEGERだったとき @Console</span><code>
+org.dbflute.exception.DfSchemaPolicyCheckViolationException: Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+<span class="abbreviation">...</span>
+
+<span class="keyword">[Violation]</span>
+column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
+ |-but INTEGER: (購入.支払完了フラグ)PURCHASE.PAYMENT_COMPLETE_FLG INTEGER(10) (NotNull)
+ +-but INTEGER: (サービスランク.新規受け入れ可能フラグ)SERVICE_RANK.NEW_ACCEPTABLE_FLG INTEGER(10) (NotNull)
+* * * * * * * * * */
+</code></pre>
+	<p>
+		<em class="keyword">優れたレビューワーのレビュー時間は、業務的な指摘やパフォーマンス配慮の指摘に集中してもらいたいものです。</em>
+	</p>
+
+	<h2 id="schemapolicyflow">SchemaPolicyCheckを使おう</h2>
+	<h3 id="checkflowoverview">チェックの大まかな流れ</h3>
+	<p>
+		大まかな流れです。
+	</p>
+	<ol>
+		<li><a href="#schemapolicymap">schemaPolicyMap.dfprop でポリシー設定</a></li>
+		<li><a href="#executedoc">Docタスクを叩く (sh manage.sh doc)</a></li>
+		<li><a href="#confirmviolog">ポリシー違反を、コンソールの例外メッセージで確認</a></li>
+	</ol>
+	<h3 id="schemapolicymap">1. schemaPolicyMap.dfprop でポリシー設定</h3>
+	<p>
+		[DBFluteクライアント]/dfpropディレクトリ配下に、schemaPolicyMap.dfprop という名前のテキストファイル (UTF-8) を作成します。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/schemapolicy/index.html">schemaPolicyMap.dfprop</a></div>
+	<p>
+		試しに、一つだけでも良いのでチェックしてみましょう。
+	</p>
+<pre><span class="codetitle">e.g. _FLGカラムはNotNull制約が付いていること @schemaPolicyMap.dfprop</span><code>
+<span class="comment"># /---------------------------------------------------------------------------
+# schemaPolicyMap: (Default map:{})
+#
+# The definition of schema policy.
+# You can check your schema as the policy.
+# The table and column names are treated as case insensitive.
+#
+# Example:
+# map:{
+#     ; tableExceptList = list:{}
+#     ; tableTargetList = list:{}
+#     ; columnExceptMap = map:{}
+#     ; isMainSchemaOnly = false
+#     
+#     ; wholeMap = map:{
+#         ; themeList = list:{ uniqueTableAlias ; sameColumnAliasIfSameColumnName }
+#     }
+#     ; tableMap = map:{
+#         ; themeList = list:{ hasPK ; upperCaseBasis ; identityIfPureIDPK }
+#         ; statementList = list:{
+#             ; if tableName is $$ALL$$ then fkName is prefix:FK_$$table$$
+#         }
+#     }
+#     ; columnMap = map:{
+#         ; themeList = list:{ upperCaseBasis }
+#         ; statementList = list:{
+#             ; if columnName is suffix:_FLAG then bad
+#             ; if columnName is suffix:_FLG then notNull
+#             ; if columnName is suffix:_FLG then dbType is INTEGER 
+#             ; if columnName is suffix:_FLG then classification 
+#         }
+#     }
+# }
+#
+# *The line that starts with '#' means comment-out.
+#</span>
+<span class="keyword">map:</span>{
+    ; tableExceptList = list:{}
+    ; tableTargetList = list:{}
+    ; columnExceptMap = map:{}
+    ; isMainSchemaOnly = false
+
+    ; <span class="localvar">wholeMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{}
+    }
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{}
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+        }
+    }
+    ; <span class="localvar">columnMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{}
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            ; <span class="keyword">if</span> columnName <span class="keyword">is</span> <span class="attribute">suffix:</span>_FLG <span class="keyword">then</span> notNull
+        }
+    }
+}
+<span class="comment"># ----------------/</span>
+</code></pre>
+	<h3 id="executedoc">2. Docタスクを叩く (sh manage.sh doc)</h3>
+	<p>
+		そして、Docタスクを叩きます。<span class="frm">(すでに "JDBCタスク" で、メタデータが取得されていることが前提です)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/doc/index.html">Docタスク</a></div>
+<pre><span class="codetitle">e.g. Docタスクを実行するManageタスク @Command</span><code>
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh <span class="literal">doc</span>
+</code></pre>
+	<p>
+		SchemaHTML や HistoryHTML が自動生成された直後に、SchemaPolichCheck
+		が実行され、schemaPolicyMap.dfprop のポリシーに合致するかどうかの検査が行われます。
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/doc/schemahtml.html">SchemaHTML</a></div>
+	<div class="relatedpage"><a href="../../../generator/task/doc/historyhtml.html">HistoryHTML</a></div>
+	<h3 id="confirmviolog">3. ポリシー違反を、コンソールの例外メッセージで確認</h3>
+	<p>
+		もし、ポリシー違反のDB設計になっていたら、Docタスクがエラーで中断し、コンソールに例外メッセージが出力されます。
+		<span class="frm">(log/dbflute.logにも記録されています)</span>
+	</p>
+	<p>
+		試しに、わざとポリシー違反を一つ作ってみて、例外メッセージを確認してみると良いでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>[Advice]</dt><dd>自然言語によるアドバイス</dd>
+		<dt>[Schema Policy]</dt><dd>定義されているすべてのポリシー</dd>
+		<dt>[Violation]</dt><dd>ポリシー違反の結果 <span class="frm">(ここに注目！)</span></dd>
+	</dl>
+<pre><span class="codetitle">e.g. _FLGカラムはNotNull制約が付いているはずなのに、付いていないとき @Console</span><code>
+org.dbflute.exception.DfSchemaPolicyCheckViolationException: Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+The schema policy has been violated.
+
+<span class="keyword">[Advice]</span>
+Make sure your violating schema (ERD and DDL).
+And after that, execute renewal (or regenerate) again.
+(tips: The schema policy is on schemaPolicyMap.dfprop)
+
+<span class="keyword">[Schema Policy]</span>
+tableExceptList: []
+tableTargetList: []
+columnExceptMap: {}
+isMainSchemaOnly: false
+wholeMap: {themeList=[]}
+tableMap:
+  themeList: []
+  statementList:
+columnMap:
+  themeList: []
+  statementList:
+    <span class="subpoint">if columnName is suffix:_FLG then notNull</span>
+
+<span class="keyword">[Violation]</span>
+column.statement: if columnName is suffix:_FLG then notNull
+ +-<span class="point">The column should be not-null</span>: (購入.支払完了フラグ)PURCHASE.PAYMENT_COMPLETE_FLG INTEGER(10) (NullAllowed)
+* * * * * * * * * */
+</code></pre>
+	<p>
+		DBを直してから、もう一度 Doc タスクを叩き直します。エラーで落ちなければOKです。
+	</p>
+	<h3 id="setyourworld">プロジェクトのポリシーを設定していこう</h3>
+	<p>
+		それでは、schemaPolicyMap.dfpropのドキュメントを参考に、自分たちのプロジェクトにおけるDB設計の定型的な業務ポリシーを設定していきましょう。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/schemapolicy/index.html">schemaPolicyMap.dfprop</a></div>
+	<p>
+		dfprop上にコメント書いたり、エラー時に表示される "補足コメント" などを充実させて、いざチェックに引っかかってしまった時に、DB設計者が迷わないようにしておきましょう。
+	</p>
+
+	<h2 id="repscheck">ReplaceSchemaの段階でチェック</h2>
+	<h3 id="earliercheck">もっと早くチェックしたい</h3>
+	<p>
+		ReplaceSchemaを利用している場合、Docよりも前に実行されるReplaceSchemaの時点で検知してもらいたいと思うかもしれません。
+	</p>
+	<h3 id="policyinreps">isCheckSchemaPolicyInReps</h3>
+	<p>
+		replaceSchemaMap.dfprop にて、isCheckSchemaPolicyInReps を true
+		にすると、ReplaceSchemaの中のDDLを実行した直後(テストデータを入れる直前)に SchemaPolicyCheck が実行されます。
+	</p>
+	<h3 id="copydoc">Docでのチェックの分身である</h3>
+	<p>
+		厳密には、DocタスクとReplaceSchemaタスクとでは、SchemaPolicyCheck のスコープが少し変わります。
+		なので、Docタスクが要らないわけではありません。
+	</p>
+	<p>
+		ReplaceSchemaでのチェックは、そのReplaceSchemaで対象としているスキーマのみがチェック対象になります。
+		その他、もしReplaceSchemaの時点ではチェックがしづらいものがあれば、それはチェック処理がスキップされます。
+	</p>
+	<p>
+		あくまで、チェックのタイミング早めるために、ReplaceSchemaの時点で可能なチェックだけを先に持っていったということです。
+		<span class="frm">(実際には、ほとんどチェック内容は同じになりますが、扱いとしては分身です)</span>
+	</p>
+
+	<h2 id="firstdate">これから追加されるものだけチェック</h2>
+	<p>
+		チェックが便利だと思っても、すでにたくさんのポリシーバラバラなテーブルやカラムがたくさんあるような場合は、
+		なかなかチェックを適用できません。どんどんチェックをコメントアウトしていって、ほとんど意味のないチェックになってしまいがちです。
+	</p>
+	<p>
+		そんなときは、firstDate条件を使って、<em class="keyword">これから追加されるテーブルやカラムだけチェックする</em>
+		という風にすると良いでしょう。<span class="frm">(既存のテーブルやカラムは諦めるか保留するという前提で)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/schemapolicy/index.html#migration">schemaPolicyMap.dfprop - 運用途中からの導入</a></div>
+<pre><span class="codetitle">e.g. firstDateを使って、これから追加されるテーブルだけチェック @schemaPolicyMap.dfprop</span><code>
+<span class="comment"># 2018/05/04より未来に追加されたテーブルは、FK制約名は FK_[テーブル名] で始まること</span>
+; <span class="keyword">if</span> <span class="point">firstDate</span> <span class="keyword">is</span> <span class="attribute">after:</span><span class="literal">2018/05/04</span> <span class="keyword">then</span> fkName <span class="keyword">is</span> <span class="attribute">prefix:</span>FK_<span class="attribute">$$table$$</span>
+</code></pre>
+	<p>
+		除外設定とうまく併用して、既存DBに合わせていきましょう。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="astool">DBFlute関係なくツールとして使う</h2>
+		<p>
+			DBFluteを使っていないプロジェクトでも、SchemaPolicyCheck
+			だけをツールとして利用したい場合は、以下のような流れで利用すると良いでしょう。
+		</p>
+		<ol>
+			<li><em class="mark">DBFlute Intro</em> をダウンロードして配置、起動</li>
+			<li>Welcome画面で、DBFluteクライアントを作成</li>
+			<li>そのDBFluteクライアントにて、<em class="mark">schemaPolicyMap.dfprop</em> を作成 <span class="frm">(ここは画面経由ではなく直接)</span></li>
+			<li>DBFlute Intro のクライアント画面で、<em class="mark">Docタスク</em> を叩く</li>
+		</ol>
+		<p>
+			DBFlute のドキュメント自動生成(Docタスク)と同時に SchemaPolicyCheck
+			が実行されますので、DBFlute Introで環境を整えて実行すると良いでしょう。
+		</p>
+		<p>
+			ただ、schemaPolicyMap.dfprop の作成は、Introの画面では作成できず、Windows の Explorer や Mac の Finder 上などで、手動でファイルを作成することになります。
+		</p>
+		<div class="relatedpage"><a href="../../../../reference/dfprop/schemapolicy/index.html">schemaPolicyMap.dfprop</a></div>
+		<p>
+			もし、ツールとしての利用のニーズが高い場合は、dfpropの作成部分も DBFlute Intro で対応していきたいですね。
+			<span class="frm">(使ってるから欲しいぞ、という声がありましたら、ぜひ挙げてください！)</span>
+		</p>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="alsolonely">ひとりDB設計者でもチェック</h2>
+		<p>
+			複数人のDB設計ではなく、ひとりでDB設計をするにしても、チェックはあった方が良いです。
+		</p>
+		<p>
+			一貫性という意味では、チェックがなくても担保はしやすいかもしれませんが、
+			ケアレスミスなどはやはり発生するので自己レビューはするわけで、そのレビューコストがかかります。
+			でも、自己レビューは抜けが多くなりがちです。ケアレスミスも見逃してしまうかもしれません。
+		</p>
+		<p>
+			また、50テーブルや100テーブル以上のDB設計をしていくとなると、ひとりで設計していても一貫性を保つのは大変なことです。
+			"前どうしてたっけ？" と周りのテーブルを見直すのもそれなり時間がかかりますので、そのうち新しいポリシーが作られ、一貫性を失っていきます。
+		</p>
+		<p>
+			ぜひ、気軽に PolicyCheck していきましょう。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

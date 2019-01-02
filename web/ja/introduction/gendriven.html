@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,自動生成ドリブン,GenerationDriven" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>自動生成ドリブン | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>自動生成ドリブン</h1>
+	<p>
+		DBFluteの基本アーキテクチャである <em class="keyword">自動生成ドリブン</em> について説明します。
+	</p>
+	${indexlist}
+
+	<h2 id="basic">DBFluteにおける自動生成</h2>
+	<h3 id="driven">自動生成ドリブン</h3>
+	<p>
+		DBFluteは、自動生成されたクラスがあって初めて動作するO/Rマッパです。
+		(自動生成なしで)ライブラリだけ準備して、とりあえず簡単なDBアクセス、ということはできません。
+	</p>
+	<p>
+		それは、DBFluteが <em class="keyword">(データベース)スキーマとプログラムとの同期</em>
+		を重視し、開発中、もしくは、運用中(二次開発など)のDB変更に対する耐久性を提供するためです。
+		逆に言うと、DB変更というものが現実問題どうしても発生してしまうということ、また、DB変更が与えるプログラムへの影響(デグレの恐怖、修正のコストなど)、
+		これらがシステム開発の成否に影響する、とても大きな問題だという認識をDBFluteは持っています。
+	</p>
+	<p class="imgbox">図 : 自動生成ドリブンの概念図
+		<a href="../../data/model/allcore/dbflute-concept-generatedriven-view.png" title="自動生成ドリブンの概念図"><img src="../../data/model/allcore/dbflute-concept-generatedriven-view.png" alt="自動生成ドリブンの概念図" width="550" height="360" /></a>
+	</p>
+	<h3 id="direction">自動生成の方向</h3>
+	<p>
+		DBFluteにおける自動生成とは、(データベース)スキーマ情報を元にしたテーブルに対応するクラスの自動生成を示します。
+		その逆方向であるクラスからのテーブルの自動生成はサポートされていません。よって、DBFlute(のドキュメント)において、例えば、"テーブルの自動生成"
+		と言った場合は、テーブルの create table を示すのではなく、"テーブル対応のクラスの自動生成"
+		を示します。(その他、"プロシージャの自動生成" や "シノニムの自動生成" なども同様です)
+	</p>
+	<p>
+		ReplaceSchemaタスクでのテーブル作成は、明示的に記述された create table
+	 	文を実行するものであり、自動生成という言葉で表現されることはありません。
+	</p>
+
+	<h2 id="tolerance">DB変更に強い</h2>
+	<p>
+		DBFluteにおける基本的なDBアクセスの例(ConditionBean)は以下のようになります。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/conditionbean/about.html">ConditionBeanについて</a></div>
+<pre><span class="codetitle">e.g. 会員テーブルの会員名称が 'Stojkovic' であること {MEMBER, MEMBER_NAME} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().setMemberName_Equal(<span class="literal">"Stojkovic"</span>);
+Member member = <span class="attribute">memberBhv</span>.selectEntity(cb);
+</code></pre>
+	<p>
+		もし、開発中にDB変更が発生して、会員テーブルの会員名称のカラム名が "MEMBER_NAME" から、"LAST_NAME" と "FIRST_NAME"
+		に分割されるとしたらどうしましょう？真っ先にやらなければならないのは、プログラムへの影響範囲の特定です。古い "MEMBER_NAME"
+		というカラム名に依存している箇所を見つけて、新しい名前に直す必要があります。それが一つでも抜けてしまったら、"DB変更によるデグレ"
+		となってしまいます。この影響範囲の特定が、実はかなり骨の折れる作業であり、また、マネジメント的にも予期せぬ工数になりがちです。
+	</p>
+	<p>
+		DBFluteでは、<em class="keyword">その影響範囲の特定をコンパイルエラーで探す</em>
+		というのを基本としています。会員名称のカラム名への参照は、setMemberName_Equal()
+		というように、メソッド名になっています。DB変更が発生したら、新しいスキーマ情報を取得してクラスを再自動生成します。
+		すると、この古い名前でのメソッドは削除され、新しい名前でのメソッドが新たに作成されます。
+		つまり、このDBアクセス部分のプログラムはコンパイルエラーとなり、テスト実行するまでもなく影響範囲が特定できます。
+	</p>
+<pre><span class="codetitle">e.g. DB変更が発生して、再自動生成した直後 {MEMBER, MEMBER_NAME} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">setMemberName_Equal</span>(<span class="literal">"Stojkovic"</span>); <span class="comment">// compile error</span>
+Member member = <span class="attribute">memberBhv</span>.selectEntity(cb);
+<span class="abbreviation">...</span> = member.<span class="point">getMemberName()</span>; <span class="comment">// compile error</span>
+</code></pre>
+	<p>
+		このコンパイルエラーになった箇所を、コンパイルが通るように(新しいカラムを利用するように)直せば良いのです。
+	</p>
+<pre><span class="codetitle">e.g. 再自動生成した後に新しいカラムを利用するように修正 {MEMBER, MEM_NAME} @Java</span><code>
+MemberCB cb = <span class="keyword">new</span> MemberCB();
+cb.query().<span class="point">setLastName_Equal</span>(<span class="literal">"Stojkovic"</span>);
+Member member = <span class="attribute">memberBhv</span>.selectEntity(cb);
+<span class="abbreviation">...</span> = member.<span class="point">getLastName()</span>;
+</code></pre>
+	<h3>外だしSQLでもDB変更に強い</h3>
+	<p>
+		これは、ConditionBeanというタイプセーフなDBアクセスAPIだけでなく、SQLをベタに書く "外だしSQL"
+		(OutsideSql)でも同様のことを言えます。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/outsidesql/about.html">外だしSQL(OutsideSql)について</a></div>
+	<p>
+		外だしSQLは、2Way-SQL で実装されるため、一括のテスト実行をすることで、カラム名などの影響範囲を簡単に特定できます。
+		DBFluteでは、OutsideSqlTestタスクを実行することで、全ての外だしSQLを 2Way-SQL
+		として実行し、その結果で影響範囲を知ることができます。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2Way-SQL</a></div>
+<pre><span class="codetitle">e.g. 2Way-SQLなので、そのまま実行して古いカラムの特定ができる {MEMBER, MEMBER_NAME} @OutsideSql</span><code>
+<span class="keyword">select</span> member.MEMBER_ID
+     , member.<span class="point">MEMBER_NAME</span> <span class="comment">-- execution error</span>
+  <span class="keyword">from</span> MEMBER member
+ <span class="keyword">where</span> member.BIRTHDATE = <span class="comment">/*pmb.birthdate*/</span><span class="literal">'1960-04-12'</span>
+</code></pre>
+<pre><span class="codetitle">e.g. 古いカラムを直して、再実行(実行エラーなし) {MEMBER, MEM_NAME} @OutsideSql</span><code>
+<span class="keyword">select</span> member.MEMBER_ID
+     , member.<span class="point">LAST_NAME</span> <span class="comment">-- OK</span>
+  <span class="keyword">from</span> MEMBER member
+ <span class="keyword">where</span> member.BIRTHDATE = <span class="comment">/*pmb.birthdate*/</span><span class="literal">'1960-04-12'</span>
+</code></pre>
+	<p>
+		また、プログラム上での影響範囲の特定に関しては、DBFluteでは、外だしSQL(のselect句)に対応するクラスを自動生成してプログラムで利用するため、
+		select句の構造が変わったら、ConditionBeanの時と同じように再自動生成(Sql2Entityタスクを実行)すれば、影響範囲をコンパイルエラーとして特定できます。
+	</p>
+<pre><span class="codetitle">e.g. 外だしSQLの結果を利用しているプログラム(古いカラム) {MEMBER, MEMBER_NAME} @Java</span><code>
+List&lt;SimpleMember&gt; memberList = memberBhv.outsideSql().selectList(...);
+<span class="keyword">for</span> (SimpleMember member : memberList) {
+    <span class="abbreviation">...</span> = member.<span class="point">getMemberName()</span>; <span class="comment">// compile error</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. 外だしSQLの結果を利用しているプログラム(新しいカラム) {MEMBER, MEM_NAME} @Java</span><code>
+List&lt;SimpleMember&gt; memberList = memberBhv.outsideSql().selectList(...);
+<span class="keyword">for</span> (SimpleMember member : memberList) {
+    <span class="abbreviation">...</span> = member.<span class="point">getLastName()</span>;
+}
+</code></pre>
+	<div class="inucolumn">
+		<h2 id="letschange">DB変更は必要悪！？</h2>
+		<p>
+			多くのディベロッパーにとって "DB変更はイヤなもの" と感じることでしょう。
+			できる限り発生して欲しくないものでありますが、しかしながら、発生してしまう以上は、それは(その時点では)そのシステムにとって必要なことなのです。
+		</p>
+		<p>
+			データベースはアプリよりも何倍も長生きと言われ、アプリは無くなっても、(新しいアプリと共に)データベースはそのまま生き続けることが多々あります。
+			最初の設計時点でどうしても見つけられなかった(理想の)テーブル構造、これを開発中に見つけてしまった、いや、見つけることができた。
+			後戻りできないシステム運用開始前に見つけることができたのはとても幸運なことであります。
+		</p>
+		<p>
+			心配なのは、プログラムへの影響が大きいために、その "より良いものにするDB変更"
+			が実際に反映されないという状況です。そのギャップによって運用後の二次開発で痛い思いをするかもしれません。
+			もしくは、何年後か後、同じデータベースを使って別のアプリを開発するところで(誰かが)痛い思いをするかもしれません。
+			せっかく見つけたDB変更、これが反映されないのはそのシステム全体の不利益です。
+		</p>
+		<p>
+			そういうことからも、DBFluteは、"ぜひとも反映させたいDB変更"
+			を反映させやすくするツールとも言えます。間接的な <em class="keyword">DB設計者のためのツール</em>
+			と言えるかもしれません。
+			実際に、DBFluteを使っているプロジェクトでのDB設計は、そうでないプロジェクトよりも遥かにやりやすいもので(作者体験談)、
+			DB設計の仕事をするときは、必ずDBFluteが欲しいと思うようになっています。
+		</p>
+	</div>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

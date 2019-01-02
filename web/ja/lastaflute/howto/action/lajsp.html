@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,JSP,Java Server Pages" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFlute の JSP | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFlute の JSP</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	${indexlist}
+
+	<h2 id="jsppath">JspPath FreeGen</h2>
+	<p>
+		まず、JSPを作成 <span class="frm">(まだ空っぽでもOK)</span>
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>ファイル名</dt><dd>Formタグが飛ばすURLに対応 <span class="frm">※ボタン名は除外</span></dd>
+		<dt>配置ディレクトリ</dt><dd>ファイル名のprefix</dd>
+	</dl>
+	<p>
+		la:form で action属性を省略したときにリクエストされるURL。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>product/<em class="mark">product_list</em>.jsp</dt><dd>/product/list/</dd>
+		<dt>profile/<em class="mark">profile_password_change</em>.jsp</dt><dd>/profile/password/change/</dd>
+		<dt>mypage/<em class="mark">mypage</em>.jsp</dt><dd>/mypage/</dd>
+	</dl>
+	<p>
+		そして、DBFlute の FreeGen を叩く！すると、パス定義が自動生成されて補完できるようになる。
+	</p>
+<pre><span class="codetitle">e.g. Template File Location @Directory</span><code>
+src/main/webapp
+ |-WEB-INF
+    |-view <span class="comment">// HtmlTemplateの配置場所</span>
+    |  |-product <span class="comment">// productパッケージに対応</span>
+    |  |  |-<span class="subpoint">product_list.jsp</span>     <span class="comment">// /product/list/</span>
+    |  |  |-product_purchase.jsp <span class="comment">// /product/purchase/</span>
+    |  |
+    |  |-profile
+    |  |  |-<span class="subpoint">profile_password_change.jsp</span> <span class="comment">// /profile/password/change/</span>
+    |  |  |-profile_withdrawal.jsp      <span class="comment">// /profile/withdrawal/</span>
+    |  |
+    |  |-mypage
+    |  |  |-<span class="subpoint">mypage.jsp</span> <span class="comment">// /mypage/</span>
+    |  |
+    |  |-root.jsp <span class="comment">// '/'</span>
+    |
+    |-web.xml
+</code></pre>
+<pre><span class="codetitle">e.g. you can use Template Path for HtmlResponse @Java</span><code>
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index() {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> asHtml(<span class="point">path_Mypage_MypageJsp</span>); <span class="comment">// is static definition</span>
+    }
+</code></pre>
+
+	<h2 id="taglib">JSP Taglib</h2>
+	<p>
+		TODO jflute
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
