@@ -2,13 +2,13 @@ DBFlute Document
 =======================
 This project manages all documents of DBFlute.  
 
-*How to fix web-site documents
+#How to fix web-site documents
 
 The 'web' directory has HTML files for public site.  
 Fix the HTML files directly.  
 (see 'web/readme_ja.txt' for HTML policy)
 
-*How to deploy and publish
+#How to deploy and publish
 
 1. write HTML documents in 'web' directory.
 2. execute 'html' task of 'script/build-document.xml' by Apache Ant
