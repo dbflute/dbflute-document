@@ -96,17 +96,17 @@ List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectL
 --
 
 <span class="comment">// メソッドが補完されて、引数の "memberList" が選択状態に</span>
-<span class="attribute">memberBhv</span>.<span class="point">loadPurchaseList</span>(<span class="localvar">memberList</span>, refCBLambda);
+<span class="attribute">memberBhv</span>.<span class="point">loadPurchase</span>(<span class="localvar">memberList</span>, refCBLambda);
 --
 
 <span class="comment">// tab を一回押して、第二引数の方を "refCBLambda" を選択状態に</span>
 <span class="comment">// そして、_ll で補完 (DBFlute補完テンプレートが有効なら)</span>
-<span class="attribute">memberBhv</span>.loadPurchaseList(<span class="localvar">memberList</span>, <span class="subpoint">_ll</span>);
+<span class="attribute">memberBhv</span>.loadPurchase(<span class="localvar">memberList</span>, <span class="subpoint">_ll</span>);
 --
 
 <span class="comment">// Lambda引数名は purchaseCB にして...</span>
 <span class="comment">// 最後にセミコロン ";" を忘れずに</span>
-<span class="attribute">memberBhv</span>.loadPurchaseList(<span class="localvar">memberList</span>, <span class="localvar">purchaseCB</span> -&gt; {
+<span class="attribute">memberBhv</span>.loadPurchase(<span class="localvar">memberList</span>, <span class="localvar">purchaseCB</span> -&gt; {
    <span class="localvar">purchaseCB</span>.query().setPurchasePrice_GreaterEqual(<span class="literal">2000</span>);
    <span class="localvar">purchaseCB</span>.query().addOrderBy_PurchaseDatetime_Desc();
 });
