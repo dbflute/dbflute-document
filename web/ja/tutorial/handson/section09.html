@@ -156,7 +156,7 @@
 		<dd>PagingResultBean&lt;PartOfMember&gt; selectPartOfMember()</dd>
 		<dd>
 			<ul class="supplementlist">
-				<li>会員名称に "vi" を含む会員を対象に検索</li>
+				<li>会員名称が "S" で始まる会員を対象に検索</li>
 				<li>ページサイズは 4、ページ番号は 1 で検索すること</li>
 				<li>指定された ParameterBean で検索して、検索結果を戻す</li>
 			</ul>
@@ -212,12 +212,8 @@
 				<li>会員名称に "vi" を含む会員を対象に検索</li>
 				<li>会員名称に "vi" が含まれていることをアサート</li>
 				<li>期待通りのSQLがログに出力されることを目視確認する</li>
-				<li>期待通りの総レコード数であることを目視確認する ※1</li>
 				<li>検索したカラム全てのデータをログ出力</li>
 			</ul>
-		</dd>
-		<dd>
-			<span class="frm">※1: 一時的にpageSizeを99999にして実行した実データ検索の件数が総レコード数と言える</span>
 		</dd>
 	</dl>
 	<h3 id="theoutside">外だしSQLならでは</h3>
@@ -232,6 +228,10 @@
 		ページサイズは 4 でページ番号は 1 で検索してみましょう。
 	</p>
 	<div class="relatedpage"><a href="../../manual/topic/programming/dbaccess/pagingselect.html">ページング検索</a></div>
+	<p>
+		そして、期待通りの総レコード数であることを目視確認してみてください。
+		<span class="frm">(一時的に pageSize を 99999 にして実行した実データ検索の件数が総レコード数と言えます)</span>
+	</p>
 
 	<h2 id="commentrequired">外だしSQLのコメントを必須に</h2>
 	<p>
