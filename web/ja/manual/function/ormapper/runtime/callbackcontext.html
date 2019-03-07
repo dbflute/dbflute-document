@@ -25,14 +25,107 @@
 
 <div id="content"><!-- __content-start__ -->
 	<h1>CallbackContext</h1>
+	<div class="relatedpage"><a href="../entity/dbmeta/index.html">DBMeta</a></div>
 	${indexlist}
 
 	<h2 id="about">CallbackContextとは？</h2>
+	<h3 id="intro">おおよそ、このような感じ</h3>
 	<p>
-		
+		DBFlute の Behavior のDBアクセスの処理の中で、共通的な処理を挟み込むためのクラスです。
+		内部的にはスレッドローカルを利用して、指定された処理をフレームワーク内部まで届けます。
+	</p>
+	<p>
+		このような Hook が用意されています。
+	</p>
+	<dl class="keymainlist">
+		<dt><a href="#bhvcommand">BehaviorCommandHook</a></dt><dd>Behaviorの入り口メソッドに近いレイヤでの前後Hook <span class="frm">(多目的)</span></dd>
+		<dt><a href="#sqlfire">SqlFireHook</a></dt><dd>BehaviorのSQL実行直前レイヤでの前後Hook <span class="frm">(多目的)</span></dd>
+		<dt><a href="#sqllog">SqlLogHandler</a></dt><dd>(SQL実行前に) "SQLのログ" に対するHook</dd>
+		<dt><a href="#sqlresult">SqlResultHandler</a></dt><dd>(SQL実行後に) "SQLの結果" に対するHook <span class="frm">(Entityマッピング後)</span></dd>
+		<dt><a href="#sqlstring">SqlStringFilter</a></dt><dd>(SQL実行前に) "SQL文字列"に対するHook</dd>
+	</dl>
+	<p>
+		多目的な Hook に加えて、特定のリソースを取り扱うための Handler, Filter が用意されています。
+		業務要件やHookタイミングの実装上の都合に合わせて、使い分けると良いでしょう。
+	</p>
+	<h3 id="basicuse">基本的な使い方をベタベタな実装で学ぶ</h3>
+	<p>
+		スレッドローカルでの処理なので、挟み込むように設定します。とりあえず、ベタベタな実装を見てみましょう。
+		<span class="frm">(説明のためのベタベタなので、実際はこのように書くことはないです: 詳しくは後述)</span>
+	</p>
+<pre><span class="codetitle">e.g. CallbackContextのベタベタな実装 @Java</span><code>
+CallbackContext.setBehaviorCommandHookOnThread(<span class="keyword">new</span> BehaviorCommandHook() { <span class="comment">// ここで設定して...</span>
+    @Override
+    <span class="keyword">public void</span> hookBefore(BehaviorCommandMeta meta) {
+        <span class="comment">// ここで事前処理</span>
+    }
+
+    @Override
+    <span class="keyword">public void</span> hookFinally(BehaviorCommandMeta meta, RuntimeException cause) {
+        <span class="comment">// ここで事後処理</span>
+    }
+});
+<span class="keyword">try</span> {
+    <span class="abbreviation">...</span> = memberBhv.selectList(cb -&gt; { <span class="comment">// この処理の中でHookが実行される</span>
+        cb.query()<span class="abbreviation">...</span>
+    });
+} <span class="keyword">finally</span> {
+    CallbackContext.clearBehaviorCommandHookOnThread(); <span class="comment">// 最後はクリア</span>
+}
+</code></pre>
+	<p>
+		実際には、横断的に適用したいことがほとんどなので、このように個別に設定することはないでしょう。
+		後で外したら付け足したりすることを想定すると、アプリの業務的なコードの中で意識で使うべきではなく、アプリの仕組み部分の中で解決されるようにするのが現実的です。
+		<span class="frm">(例えば、Webフレームワークの横断的な前後処理を入れられるInterceptorに相当する部分などにおいて)</span>
+	</p>
+	<h3 id="manyset">多重登録もできるけどclearに注意</h3>
+	<p>
+		同じ種類のインターフェースを複数回登録できます。
+		例えば、BehaviorCommandHook のインスタンスを二つ作って、二つとも set した場合、二つとも実行されます。
+	</p>
+	<p>
+		フレームワーク側(外側)で、すでに BehaviorCommandHook を利用しているときでも、アプリ側(内側)で独自の Hook を set することができます。 
+	</p>
+	<p>
+		ただし、clearするとすべて一括でクリアされるので、フレームワーク側(外側)で必ずクリアされるのであれば、アプリ側(内側)ではクリアはしないようにします。
+		<span class="frm">(内側がそれを意識しないといけないというのは、ちょっと良くないですね...フレームワーク側では常にclearするようにしておいて、アプリ側では気にせずsetするというようにすると良いでしょう)</span>
 	</p>
 
-<p>TODO jflute now writing</p>
+	<h2 id="bhvcommand">BehaviorCommandHook</h2>
+	<h3 id="bhvcommandabout">BehaviorCommandとは？</h3>
+	<p>
+		Behavior の selectList() や update() などのそれぞれのDBアクセスメソッドに対応する処理を BehaviorCommand
+		と呼び、DBFlute内部ではそれぞれのメソッドに対応する処理を BehaviorCommand インターフェースで抽象的に取り扱うようにしています。
+	</p>
+	<h3 id="bhvcommandbasic">BehaviorCommandHookの基本情報</h3>
+	<p>
+		Behaviorの入り口メソッドに近いレイヤでの前後Hookで、多目的なインターフェースです。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>用途</dt><dd>多目的</dd>
+		<dt>実行レイヤ</dt><dd>Behaviorの入り口メソッド <span class="frm">(selectList()など)</span> に近いところ</dd>
+		<dt>実行タイミング</dt><dd>DBアクセス処理の実行前と実行後、例外発生時も実行後に含む</dd>
+		<dt>コールバック引数</dt><dd>BehaviorCommandMeta, 実行されたBehaviorやCBの情報など取得できる</dd>
+	</dl>
+	<p>
+		Behavior自体がDIコンテナのDIコンポーネントなので、DIコンテナのAOP機能で前後処理を実現することもできますが、AOPはクラスエンハンスの負荷が発生しやすいので、DBFluteの仕組みだけで前後処理を実現できるようにしています。
+		<span class="frm">(Behaviorに関しては、ダメでもはないけどできるだけ Interceptor は仕掛けたくない)</span>
+	</p>
+	<h3 id="bhvcommandmeta">BehaviorCommandMetaとは？</h3>
+	<p>
+		BehaviorCommandHookのコールバック引数として、BehaviorCommandMetaインターフェースが利用できます。
+		該当テーブルの DBMeta (テーブルのメタデータ) や、検索系なのか？更新系なのか？などの判定ができます。
+	</p>
+	<div class="relatedpage"><a href="../entity/dbmeta/index.html">DBMeta</a></div>
+
+	<h2 id="sqlfire">SqlFireHook</h2>
+
+	<h2 id="sqllog">SqlLogHandler</h2>
+
+	<h2 id="sqlresult">SqlResultHandler</h2>
+
+	<h2 id="sqlstring">SqlStringFilter</h2>
+
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">

@@ -25,6 +25,8 @@
 
 <div id="content"><!-- __content-start__ -->
 	<h1>DBMeta</h1>
+	<div class="relatedpage"><a href="../index.html">Entity</a></div>
+	<div class="relatedpage"><a href="../../runtime/callbackcontext.html">CallbackContext</a></div>
 	${indexlist}
 
 	<h2 id="about">DBMetaとは？</h2>
@@ -32,9 +34,7 @@
 		EntityごとのDBのメタデータを保持するオブジェクトです。<em class="keyword">でーびーめた</em> と呼びます。
 	</p>
 	<p>
-		Entityと同様に
-		<em class="keyword">テーブル対応のDBMeta</em> と <em class="keyword">SQL対応のDBMeta</em>
-		と分けることができます。
+		Entityと同様に <em class="keyword">テーブル対応のDBMeta</em> と <em class="keyword">SQL対応のDBMeta</em> と分けることができます。
 	</p>
 	<dl class="valuemainlist">
 		<dt>テーブル対応のDBMeta</dt><dd>DomainDBMeta</dd>
@@ -63,30 +63,118 @@
 		DBMetaは、全てシングルトンパターンで実装されています。
 	</p>
 <pre><span class="codetitle">e.g. 会員のDBMetaインスタンスを取得 @Java</span><code>
-MemberDbm dbm = MemberDbm.<span class="point">getInstance()</span>;
+MemberDbm <span class="localvar">dbm</span> = MemberDbm.<span class="point">getInstance()</span>;
+List&lt;ColumnInfo&gt; <span class="localvar">columnInfoList</span> = <span class="localvar">dbm</span>.getColumnInfoList();
+</code></pre>
+	<p>
+		抽象的なレイヤ <span class="frm"> (e.g. CallbackContext) </span>で利用する場合は、DBMetaインターフェースで取り扱います。
+	</p>
+	<div class="relatedpage"><a href="../../runtime/callbackcontext.html#bhvcommand">CallbackContext - BehaviorCommandHook</a></div>
+<pre><span class="codetitle">e.g. BehaviorCommandHookのmetaよりDBMetaインスタンスを取得 @Java</span><code>
+<span class="keyword">public void</span> hookBefore(BehaviorCommandMeta <span class="localvar">meta</span>) {
+    DBMeta <span class="localvar">dbmeta</span> = <span class="localvar">meta</span>.<span class="point">getDBMeta()</span>;
+    List&lt;ColumnInfo&gt; <span class="localvar">columnInfoList</span> = <span class="localvar">dbmeta</span>.getColumnInfoList();
+}
 </code></pre>
 	
-	<h2 id="tableinfo">テーブル情報</h2>
+	<h2 id="tableinfo">テーブル情報 (DBMeta)</h2>
+	<p>
+		ひとつの DBMeta インスタンスが、ひとつのテーブルのメタデータを表現します。
+		ゆえに、DBMetaから対応するテーブル情報を取得することができます。
+	</p>
+	<h3 id="tableinfobasic">テーブル名など基本情報</h3>
+	<p>
+		DBMetaから、テーブル名などの基本的な情報を取得することができます。
+	</p>
 	<dl class="textlist">
-		<dt>getTableDbName()</dt>
+		<dt>String getTableDbName()</dt>
 		<dd>DB上で扱われている(そのままの)テーブル名</dd>
-		<dt>getTablePropertyName()</dt>
+		<dt>String getTableDispName()</dt>
+		<dd>ドキュメント上で表示されるテーブル名</dd>
+		<dt>String getTablePropertyName()</dt>
 		<dd>プログラム側で利用されるテーブルのプロパティ名</dd>
-		<dt>getTableSqlName()</dt>
+		<dt>String getTableSqlName()</dt>
 		<dd>
 			SQLを発行するために最適化されているテーブル名。状況によってスキーマ名が付与されたり、クォートされたりする。主に
 			Behavior や ConditionBean で自動で組み立てられるSQLで利用される。
 		</dd>
-		<dt>getTableAlias()</dt>
+		<dt>String getTableAlias()</dt>
 		<dd>テーブルの(主にローカル言語による)別名。オプションで利用できるようになる。</dd>
-		<dt>getTableComment()</dt>
+		<dt>String getTableComment()</dt>
 		<dd>テーブルのコメント。オプションで利用できるようになる。</dd>
 	</dl>
-	<h2 id="columninfo">カラム情報</h2>
-<p>TODO jflute now writing</p>
-	<h2 id="structure">DBMetaの構造</h2>
+	<h3 id="tableinfocolumn">テーブルのカラムを扱う</h3>
+	<p>
+		DBMetaから、カラム情報を判定したり取得したりすることができます。
+	</p>
+	<dl class="textlist">
+		<dt>boolean hasColumn(String columnFlexibleName)</dt>
+		<dd>指定されたカラム名の文字列で、カラムが存在するかどうか判定</dd>
+		<dt>ColumnInfo findColumnInfo(String columnFlexibleName)</dt>
+		<dd>指定されたカラム名の文字列で、該当するカラム情報を取得</dd>
+		<dt>List&lt;ColumnInfo&gt; getColumnInfoList()</dt>
+		<dd>指定されたカラム名の文字列で、該当するカラム情報を取得</dd>
+	</dl>
+	<div class="relatedpage"><a href="#columninfo">カラム情報 (ColumnInfo)</a></div>
+	<h3 id="tableinfopk">テーブルの主キーを扱う (PrimaryInfo)</h3>
+	<h3 id="tableinfouq">テーブルのユニーク制約を扱う (UniqueInfo)</h3>
+	<h3 id="tableinforel">テーブルのリレーションシップを扱う (RelationInfo)</h3>
 
-<p>TODO jflute now writing</p>
+	<h2 id="columninfo">カラム情報 (ColumnInfo)</h2>
+	<p>
+		一つのカラムを表現するクラスが ColumnInfo です。
+	</p>
+	<h3 id="columninfoget">カラム情報の取得</h3>
+	<p>
+		特定のカラムを意識して取得することもできますし...
+	</p>
+<pre><span class="codetitle">e.g. 会員テーブルの会員名称カラムのカラム情報を取得 @Java</span><code>
+MemberDbm <span class="localvar">dbm</span> = MemberDbm.getInstance();
+ColumnInfo <span class="localvar">memberNameInfo</span> = <span class="localvar">dbm</span>.<span class="point">columnMemberName()</span>; <span class="comment">// for MEMBER_NAME column</span>
+String <span class="localvar">columnDbName</span> = <span class="localvar">memberNameInfo</span>.getColumnDbName(); <span class="comment">// is "MEMBER_NAME"</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		抽象的に取得することもできます。
+	</p>
+<pre><span class="codetitle">e.g. DBMetaインスタンスよりカラムの一覧を取得 @Java</span><code>
+DBMeta <span class="localvar">dbmeta</span> = <span class="localvar">meta</span>.getDBMeta();
+List&lt;ColumnInfo&gt; <span class="localvar">columnInfoList</span> = <span class="localvar">dbmeta</span>.<span class="point">getColumnInfoList()</span>;
+<span class="keyword">for</span> (ColumnInfo <span class="localvar">col</span> : <span class="localvar">columnInfoList</span>) {
+    String <span class="localvar">columnDbName</span> = <span class="localvar">col</span>.getColumnDbName();
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="columninforeadwrite">EntityのカラムデータをREAD/WRITEする</h3>
+	<p>
+		ColumnInfoを使って、抽象的にEntityからカラムのデータをREAD/WRITEできます。
+	</p>
+	<dl class="textlist">
+		<dt>&lt;PROPERTY&gt; PROPERTY read(Entity entity)</dt>
+		<dd>引数で指定されたEntityインスタンスから、該当カラムのデータをgetする</dd>
+		<dt>void write(Entity entity, Object value)</dt>
+		<dd>引数で指定されたEntityインスタンスに、引数で指定したデータを該当カラムにsetする</dd>
+	</dl>
+<pre><span class="codetitle">e.g. カラムデータの抽象的なREAD/WRITEを見せるための意味のないコード @Java</span><code>
+Entity <span class="localvar">entity</span> = <span class="abbreviation">...</span> <span class="comment">// 例えば、new Member() とか</span>
+DBMeta <span class="localvar">dbmeta</span> = <span class="localvar">entity</span>.getDBMeta(); <span class="comment">// Entity から直接 DBMeta も取得できる</span>
+List&lt;ColumnInfo&gt; <span class="localvar">columnInfoList</span> = <span class="localvar">dbmeta</span>.getColumnInfoList();
+<span class="keyword">for</span> (ColumnInfo <span class="localvar">col</span> : <span class="localvar">columnInfoList</span>) {
+    Object <span class="localvar">value</span> = <span class="localvar">col</span>.<span class="point">read</span>(<span class="localvar">entity</span>); <span class="comment">// getterメソッドを呼び出している</span>
+    <span class="localvar">col</span>.<span class="point">write</span>(<span class="localvar">entity</span>, <span class="localvar">value</span>); <span class="comment">// setterメソッドを呼び出している</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+
+	<h2 id="withbehavior">抽象的なBehaviorと連携</h2>
+	<p>
+		DBMetaと抽象的なBehaviorを使うことで、検索や更新処理を抽象的に実行することもできます。
+	</p>
+	<p>
+		DIコンポーネントである "BehaviorSelectorインターフェース" から、指定されたテーブルに該当する "Behaviorインスタンス"
+		を、"BehaviorReadableインターフェース" として取得できます。
+	</p>
+	<p>TODO jflute now writing</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
