@@ -157,7 +157,7 @@ List&lt;ColumnInfo&gt; <span class="localvar">columnInfoList</span> = <span clas
 	</dl>
 <pre><span class="codetitle">e.g. カラムデータの抽象的なREAD/WRITEを見せるための意味のないコード @Java</span><code>
 Entity <span class="localvar">entity</span> = <span class="abbreviation">...</span> <span class="comment">// 例えば、new Member() とか</span>
-DBMeta <span class="localvar">dbmeta</span> = <span class="localvar">entity</span>.getDBMeta(); <span class="comment">// Entity から直接 DBMeta も取得できる</span>
+DBMeta <span class="localvar">dbmeta</span> = <span class="localvar">entity</span>.asDBMeta(); <span class="comment">// Entity から直接 DBMeta も取得できる</span>
 List&lt;ColumnInfo&gt; <span class="localvar">columnInfoList</span> = <span class="localvar">dbmeta</span>.getColumnInfoList();
 <span class="keyword">for</span> (ColumnInfo <span class="localvar">col</span> : <span class="localvar">columnInfoList</span>) {
     Object <span class="localvar">value</span> = <span class="localvar">col</span>.<span class="point">read</span>(<span class="localvar">entity</span>); <span class="comment">// getterメソッドを呼び出している</span>
