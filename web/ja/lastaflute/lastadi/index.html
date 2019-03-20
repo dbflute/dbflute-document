@@ -151,7 +151,7 @@ com.example
 	</p>
 
 	<h2 id="transaction">Transaction</h2>
-	<h3 id="tximpl">Implementation</h3>
+	<h3 id="tximpl">Implementation <span class="frm">(for Architect)</span></h3>
 	<p>
 		Lasta Di has the original JTA implementation, which is related to connection pool.
 	</p>
@@ -164,7 +164,7 @@ com.example
 		if you use Lasta Di with LastaFlute, you can use the extended implementation classes which have more rich functions.
 		(e.g. HookedTransactionManager, HookedUserTransaction, RomanticTransaction)
 	</p>
-	<h3 id="txanno">javax.transaction.Transactional</h3>
+	<h3 id="txanno">javax.transaction.Transactional <span class="frm">(for Developer)</span></h3>
 	<p>
 		javax.transaction.Transactional is supported.
 		You can use it as default in several Quick component (e.g. Logic, Service).
@@ -175,7 +175,16 @@ com.example
 	</p>
 	<p>
 		Attention, the annotation process is implemented by interceptor (AOP) so you can use it at public method.
-		While, Lasta Di can support "this" call of AOP so you can use the annotation in the same class.
+		And Lasta Di can support "this" call of AOP so you can use the annotation in the same class.
+	</p>
+<pre><span class="codetitle">e.g. Transactional annotation use @Java</span><code>
+<span class="point">@Transactional</span>
+<span class="keyword">public void</span> registerMember() {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		<span class="frm">(While, if you use LastaFlute, you can use the interface TransactionStage instead of the annotation)</span>
 	</p>
 
 	<h2 id="prop">lasta_di.properties</h2>
