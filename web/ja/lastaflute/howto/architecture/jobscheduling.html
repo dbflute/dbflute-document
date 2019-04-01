@@ -192,7 +192,7 @@ org.docksidestage
 <pre><span class="codetitle">e.g. Sea to Land in AllJobScheduler @Java</span><code>
 @Override
 <span class="keyword">public void</span> schedule(LaCron <span class="localvar">cron</span>) {
-    <span class="subpoint">LaScheduledJob</span> <span class="localvar">seaJob</span> = cron.register(<span class="literal">"* * * * *"</span>, SeaJob.<span class="keyword">class</span>, waitIfConcurrent(), op -&gt; {});
+    <span class="subpoint">RegisteredJob</span> <span class="localvar">seaJob</span> = cron.register(<span class="literal">"* * * * *"</span>, SeaJob.<span class="keyword">class</span>, waitIfConcurrent(), op -&gt; {});
     <span class="localvar">cron</span>.register(<span class="literal">"* * * * *"</span>, LandJob.<span class="keyword">class</span>, waitIfConcurrent(), <span class="localvar">op</span> -&gt; {
         <span class="localvar">op</span>.<span class="point">triggeredBy</span>(<span class="localvar">seaJob</span>);
     });
