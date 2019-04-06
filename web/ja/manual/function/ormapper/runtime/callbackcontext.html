@@ -69,8 +69,11 @@ CallbackContext.setBehaviorCommandHookOnThread(<span class="keyword">new</span> 
     <span class="abbreviation">...</span> = memberBhv.selectList(cb -&gt; { <span class="comment">// この処理の中でHookが実行される</span>
         cb.query()<span class="abbreviation">...</span>
     });
-} <span class="keyword">finally</span> {
-    CallbackContext.clearBehaviorCommandHookOnThread(); <span class="comment">// 最後はクリア</span>
+} <span class="keyword">finally</span> { <span class="comment">// 最後にちゃんと終了</span>
+    CallbackContext.terminateLastBehaviorCommandHookOnThread();
+
+    <span class="comment">// 1.1.9まではclearしかなかった。クリアだと多重登録したもの全部消えちゃう</span>
+    <span class="comment">//CallbackContext.clearBehaviorCommandHookOnThread();</span>
 }
 </code></pre>
 	<p>
@@ -87,7 +90,14 @@ CallbackContext.setBehaviorCommandHookOnThread(<span class="keyword">new</span> 
 		フレームワーク側(外側)で、すでに BehaviorCommandHook を利用しているときでも、アプリ側(内側)で独自の Hook を set することができます。 
 	</p>
 	<p>
-		ただし、clearするとすべて一括でクリアされるので、もしレイヤごとに段階的に set していくのであれば、フレームワーク側(外側)で必ずクリアされるようにしておいて、アプリ側(内側)ではクリアはしないすると良いでしょう。
+		<span class="frm">(@since 1.2.0)</span>
+		finallyでの終了は、terminateLast...() を使いましょう。同じ階層(レイヤ)でsetしたものだけを終了させることができます。
+		これを使うことで、階層(レイヤ)をあまり気にせず多重登録することができます。
+		とはいえ、あまりsetする箇所を散在させるのはわかりづらさを生むので、<span class="frm">(多重登録は単純に部品化のための機能と捉えて)</span>可能な限り一元管理して、アプリ(内側)ではその部分をオーバーライドで拡張して処理を付け足すように実装したほうが良いでしょう。
+	</p>
+	<p>
+		<span class="frm">(@until 1.1.9)</span>
+		ただし、clearするとすべて一括でクリアされるので、もしレイヤごとに段階的に set していくのであれば、フレームワーク側(外側)で必ずクリアされるようにしておいて、アプリ側(内側)ではクリアはしないようにすると良いでしょう。
 		だがしかし、多重登録できるとはいえ、そもそも CallbackContext の設定箇所は一元管理する方が良いです<span class="frm">(多重登録は単純に部品化のための機能と捉えて)</span>。
 		もしフレームワーク側で利用しているのであれば、アプリでその部分をオーバーライドで拡張して処理を付け足すように実装したほうが良いでしょう。
 	</p>
