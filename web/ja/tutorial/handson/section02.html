@@ -304,16 +304,45 @@ PROJECT_ROOT
 			</ul>
 		</dd>
 	</dl>
+	<h3 id="actasmain">## Act ## がメインコードのつもりで</h3>
+	<p>
+		本来、UnitTestというのは、mainコード (src/main/java) を、testコード (src/test/java)
+		で呼び出して、検証をするというものですが、セクション５までは、シンプルな形で DBFlute
+		を体験してもらうために、<em class="keyword">Act が main コード</em>
+		と想定して、Assert をしていきます。
+	</p>
+<pre><span class="codetitle">e.g. セクション５までは Arrange, Act, Assert の Act がメインコード @Java</span><code>
+<span class="comment">## Arrange ##</span>
+
+<span class="comment">## Act ##</span>
+<span class="comment">// ここが本番サーバーで動くコードのつもり (メインコード)</span>
+
+<span class="comment">## Assert ##</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="showbylog">log()でテスト自体の挙動の確認を</h3>
 	<p>
 		アサートだけでなく、テストコード自体が想定通りか？を確認する意味でのログの出力も実装すると良いでしょう。
 		テストコード内では、<em class="mark">log()メソッド</em> が利用できます。
 		ログに何を出力するかは自由です。ただ、<em class="keyword">ログも綺麗に</em> 出しましょう。
+		Slf4jライクなプレースホルダー "{}" も使えるので積極的に使っていきましょう。
 	</p>
+<pre><span class="codetitle">e.g. log()メソッドでSlf4jライクなプレースホルダー "{}" を @Java</span><code>
+log(<span class="literal">"memberName: {}, birthdate: {}"</span>, <span class="localvar">memberName</span>, <span class="localvar">birthdate</span>);
+</code></pre>
+	<h3 id="todocomment">todoコメントを使っていきましょう</h3>
 	<p>
-		本来、UnitTestというのは、mainコード (src/main/java) を、testコード (src/test/java)
-		で呼び出して、検証をするというものですが、セクション５までは、シンプルな形で DBFlute
-		を体験してもらうために、<em class="keyword">Arrange と Act が main コード</em>
-		と想定して、Assert をしていきます。
+		もし、わからなくて保留して先に進むときや質問があるときは、後で忘れずに戻って来れるようにするために、todoコメントを活用しましょう。
+		セクション１で入れた補完テンプレートの <em class="mark">_todo</em> を使えば自分の名前や日付などが自動で入りますのでぜひ使ってみましょう。
+		<span class="frm">(todoコメントは、誰の？いつ頃の？というのが後でわからなくなりがちなので)</span>
+	</p>
+<pre><span class="codetitle">e.g. 保留するときはコード上にtodoコメントを！ @Java</span><code>
+<span class="comment">// TODO jflute できたっぽいけど、ここなぜ動くのかわからないので後で調べる (2019/04/07)</span>
+cb.query().setMemberName_LikeSearch<span class="abbreviation">...</span>
+cb.query().addOrderBy_<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
 	</p>
 	<div class="inucolumn">
 		<h3 id="completion">コード補完を駆使して実装</h3>
