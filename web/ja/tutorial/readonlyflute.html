@@ -334,7 +334,7 @@ ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span cl
 		また、ConditionBeanは何のカラムでつなげれば良いのか知っているので、結合条件の指定も不要です。
 	</p>
 	
-<pre><span class="codetitle">e.g. MEMBERからPRODUCT_STATUSをいきなり指定はできない @Java</span><code>
+<pre><span class="codetitle">e.g. 目的 (select句、where句) を指示すれば、手段 (join句) は自動で解決される @Java</span><code>
 ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
     <span class="comment">// MEMBER_STATUSをデータ取得したい(select句に並べたい)のであれば、</span>
     <span class="comment">// joinは自然と必要なのでわざわざ指定する必要はない (joinだけ指定するメソッドはない)</span>
