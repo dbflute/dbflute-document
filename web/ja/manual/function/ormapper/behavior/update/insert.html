@@ -48,13 +48,13 @@
 		を呼び出し、Entityを指定します。
 	</p>
 <pre><span class="codetitle">e.g. insert()の実装手順 (Eclipseでコード補完) {MEMBER} @Java</span><code>
-Member member = <span class="keyword">new</span> Member();
+Member <span class="localvar">member</span> = <span class="keyword">new</span> Member();
 <span class="comment">//member.setMemberId(1);</span> <span class="comment">// 自動採番の場合は不要</span>
-member.setMemberName(<span class="literal">"Stojkovic"</span>);
-member.setMemberAccount(<span class="literal">"Pixy"</span>);
-member.setMemberStatusCode_Provisional();
+<span class="localvar">member</span>.setMemberName(<span class="literal">"Stojkovic"</span>);
+<span class="localvar">member</span>.setMemberAccount(<span class="literal">"Pixy"</span>);
+<span class="localvar">member</span>.setMemberStatusCode_Provisional();
 
-member.set<span class="abbreviation">...</span> <span class="comment">// null で登録する場合は設定は不要</span>
+<span class="localvar">member</span>.set<span class="abbreviation">...</span> <span class="comment">// null で登録する場合は設定は不要</span>
 
 <span class="comment">//member.setRegisterUser(user);</span> <span class="comment">// 共通カラムは自動設定(設定が有効なら)</span>
 <span class="comment">//member.setRegister...</span>
@@ -64,7 +64,7 @@ member.set<span class="abbreviation">...</span> <span class="comment">// null �
 --
 <span class="attribute">memberBhv</span>.<span class="point">insert</span>(member);
 
-Integer memberId = member.getMemberId(); <span class="comment">// 自動採番の場合は採番値が取得できる</span>
+Integer <span class="localvar">memberId</span> = <span class="localvar">member</span>.getMemberId(); <span class="comment">// 自動採番の場合は採番値が取得できる</span>
 </code></pre>
 
 	<h2 id="methodspec">メソッド仕様</h2>

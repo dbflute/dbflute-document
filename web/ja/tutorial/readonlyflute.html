@@ -1,0 +1,462 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ひとめ,hitome" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>読むだけDBFlute | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>読むだけDBFlute</h1>
+	<p>
+		DBFluteのコードを読むだけの人のためのチュートリアルです。
+		JavaやSQLはある程度わかることを前提としています。
+	</p>
+	${indexlist}
+
+	<h2 id="letsbegin">まずはじめに知ろう</h2>
+	<h3 id="gendriven">DBFluteはクラスを自動生成している</h3>
+	<p>
+		DBFluteは、自動生成されたクラスがあって初めて動作するO/Rマッパです。
+		アプリのプログラムの中では、自動生成されたクラスがメインで登場します。
+	</p>
+	<div class="relatedpage"><a href="../introduction/gendriven.html">自動生成ドリブン</a></div>
+	<p class="imgbox">図 : 自動生成ドリブンの概念図
+		<a href="../../data/model/allcore/dbflute-concept-generatedriven-view.png" title="自動生成ドリブンの概念図"><img src="../../data/model/allcore/dbflute-concept-generatedriven-view.png" alt="自動生成ドリブンの概念図" width="550" height="360" /></a>
+	</p>
+	<h3 id="maincastclass">主な登場人物クラス</h3>
+	<p>
+		一つのテーブルに付き、以下のクラスが一つずつ自動生成されます。
+	</p>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/ormapper/behavior/index.html">Behavior</a> (Bhv)</dt><dd>検索や更新メソッドを持つ入り口クラス <span class="frm">(DIコンポーネント)</span></dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> (CB)</dt><dd>検索条件を表現するクラス <span class="frm">(Behaviorのメソッドの引数で使われる)</span></dd>
+		<dt><a href="../manual/function/ormapper/entity/index.html">Entity</a></dt><dd>一レコードを表現する入れ物クラス <span class="frm">(検索結果や更新値などで使われる)</span></dd>
+	</dl>
+	<p>
+		テーブルごとに生成されるクラス名はこのようになります。
+	</p>
+	<dl class="keymainlist">
+		<dt>MEMBERテーブル</dt><dd>MemberBhv.java, MemberCB.java, Member.java</dd>
+		<dt>PURCHASEテーブル</dt><dd>PurchaseBhv.java, PurchaseCB.java, Purchase.java</dd>
+		<dt>MEMBER_LOGINテーブル</dt><dd>MemberLoginBhv.java, MemberLoginCB.java, MemberLogin.java</dd>
+	</dl>
+
+	<h2 id="behavior">Behavior (Bhv)</h3>
+	<p>
+		Behaviorは、検索や更新メソッドを持つ入り口クラスとなります。
+	</p>
+	<h3 id="behaviorfound">まず、Behaviorを見つけよう</h3>
+	<p>
+		ActionクラスやLogicクラスなどで、Behaviorが出てきたら基本的にそのテーブルを基点としてDBアクセスしていると考えて良いです。
+		なので、まずは Behavior を見つけましょう。
+	</p>
+	<p>
+		BehaviorはDIコンポーネントなので、インスタンスはDIで設定されますので、インスタンス変数のDI定義を見ると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. MEMBERテーブルのBehaviorをDI (LastaFluteの場合) @Java</span><code>
+<span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> <span class="abbreviation">...</span> {
+
+    @Resource <span class="comment">// このアノテーションはDIコンテナによって変わる</span>
+    <span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>; <span class="comment">// MEMBERテーブルのBehaviorをDI</span>
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="behaviormethodintro">Behaviorのメソッドに注目</h3>
+	<p>
+		Behaviorの呼び出しているメソッドに注目しましょう。
+	</p>
+<pre><span class="codetitle">e.g. MEMBERテーブルをリスト検索: selectList() @Java</span><code>
+<span class="comment">// memberBhv の selectList() を呼び出しているので、</span>
+<span class="comment">// MEMBERテーブルに対してリスト検索をしている</span>
+<span class="comment">// 引数の cb が検索条件を表現する ConditionBean</span>
+ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberStatus();
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+});
+</code></pre>
+	<p>
+		メソッド名は、SQLの操作 (e.g. select, update) の名前に近いものになっています。
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt>selectXxx()</dt><dd>検索系メソッド: selectList(), selectEntity()</dd>
+		<dt>insert()</dt><dd>登録系メソッド: insert(), insertOrUpdate(), batchInsert()</dd>
+		<dt>update()</dt><dd>更新系メソッド: update(), updateNonstrict(), batchUpdate(), queryUpdate()</dd>
+		<dt>delete()</dt><dd>削除系メソッド: delete(), deleteNonstrict(), batchDelete(), queryDelete()</dd>
+		<dt>loadXxx()</dt><dd>子テーブル検索メソッド: load(), loadPurchase(), loadMemberLogin()</dd>
+	</dl>
+	<p>
+		多少、用途によってメソッド名は変わりますが、selectという単語が入っていたらselect, updateという単語が入っていたらupdate, というように捉えても問題ありません。
+	</p>
+	<p>
+		子テーブルの検索だけ、特別な扱いで load... というメソッドになっています。こちらは、子テーブルに関するアプローチのところで詳しく後述します。
+	</p>
+	<h3 id="behaviorselectmethod">Behaviorの検索メソッドたち</h3>
+	<p>
+		リスト検索、一件検索、ページング検索、カーソル検索など、検索スタイル(戻り形式の違い)によってメソッドが変わります。
+		ただ、いずれに基本的には ConditionBean を引数に検索条件を指定します。
+	</p>
+<pre><span class="codetitle">e.g. 会員ID "1" 番で会員を一件検索 (関連テーブルの会員ステータスも一緒に取得) @Java8</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル : なし</span>
+<span class="comment">// 絞り込み条件 : 会員IDが "1" 番である => 絶対に存在する</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+memberBhv.<span class="point">selectEntity</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">alwaysPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    String memberAccount = <span class="localvar">member</span>.getMemberAccount();
+    LocalDate birthdate = <span class="localvar">member</span>.getBirthdate(); <span class="comment">// *Java TimeAPI</span>
+    LocalDateTime formalizedDatetime = <span class="localvar">member</span>.getFormalizedDatetime();
+}); <span class="comment">// なければ例外 (エラーメッセージでSQLが表示される)</span>
+
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル : なし</span>
+<span class="comment">// 絞り込み条件 : 会員IDが "1" 番である => 存在しないかもしれない</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+<span class="attribute">memberBhv</span>.<span class="point">selectEntity</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> <span class="localvar">cb</span>.acceptPK(<span class="literal">1</span>)).<span class="point">ifPresent</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> {
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="abbreviation">...</span>
+}).<span class="point">orElse</span>(() <span class="keyword">-&gt;</span> {
+    <span class="comment">// 存在しないときの処理をここで</span>
+});
+</code></pre>
+<pre><span class="codetitle">e.g. 色々な絞り込み条件で会員をリスト検索 (関連テーブルもいろいろと) @Java8</span><code>
+<span class="abbreviation">...</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// 一緒に取得する関連テーブル:</span>
+<span class="comment">//  o 会員ステータス => 絶対に存在する</span>
+<span class="comment">//  o 会員退会情報 => 存在しないかもしれない</span>
+<span class="comment">//  o 会員サービスと、その親テーブルのサービスランク => 絶対に存在する</span>
+<span class="comment">// 絞り込み条件:</span>
+<span class="comment">//  o 会員名称が "S" で始まる</span>
+<span class="comment">//  o 会員ステータスが "正式会員" である (区分値メソッド)</span>
+<span class="comment">//  o 支払い済みで200円以上の購入をしたことがある会員 (one-to-many)</span>
+<span class="comment">// ソート条件:</span>
+<span class="comment">//  o 生年月日の降順 (でも null は後ろにね)</span>
+<span class="comment">//  o 会員IDの昇順</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberStatus();
+    <span class="localvar">cb</span>.setupSelect_MemberServiceAsOne().withServiceRank();
+
+    <span class="comment">// LikeSearchOptionだって、Lambdaコールバック</span>
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().setMemberStatusCode_Equal_Formalized();
+
+    <span class="localvar">cb</span>.query().existsPurchase(<span class="localvar">purchaseCB</span> <span class="keyword">-&gt;</span> {
+        <span class="localvar">purchaseCB</span>.query().setPurchasePrice_GreaterEqual(<span class="literal">200</span>);
+        <span class="localvar">purchaseCB</span>.query().setPaymentCompleteFlg_Equal_True();
+    });
+
+    <span class="localvar">cb</span>.query().addOrderBy_Birthdate_Desc().withNullsLast();
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+}); <span class="comment">// そのまま回すだけなら、ここから forEach() や stream() しちゃってもOK</span>
+
+<span class="localvar">memberList</span>.<span class="point">forEach</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> { <span class="comment">// でもまあ、とりあえず変数に受け取ってから回してみる</span>
+    Integer memberId = <span class="localvar">member</span>.getMemberId();
+    String memberName = <span class="localvar">member</span>.getMemberName();
+    <span class="abbreviation">...</span>
+
+    <span class="comment">// 関連テーブルの Entity も OptionalEntity (カージナリティを見てメソッド選ぶべし)</span>
+    <span class="localvar">member</span>.getMemberStatus().<span class="point">alwaysPresent</span>(<span class="localvar">status</span> <span class="keyword">-&gt;</span> {
+        String statusName = <span class="localvar">status</span>.getMemberStatusName();
+        <span class="abbreviation">...</span>
+    });
+    <span class="localvar">member</span>.getMemberWithdrawalAsOne().<span class="point">ifPresent</span>(<span class="localvar">withdrawal</span> <span class="keyword">-&gt;</span> {
+        LocalDateTime withdrawalDatetime = <span class="localvar">withdrawal</span>.getWithdrawalDatetime();
+        <span class="abbreviation">...</span>
+    });
+});
+</code></pre>
+	<p>
+		メソッドの詳細やどんなメソッドがあるか？に関しては、Behaviorのページを見ると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/behavior/index.html">Behavior</a></div>
+	<p>
+		ただ、これだけ抑えておけばひとまず読めるでしょう、という代表的なメソッドを列挙します。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt><a href="../manual/function/ormapper/behavior/select/selectlist.html">selectList()</a></dt><dd>リスト検索: List&lt;Entity&gt;型で受け取る</dd>
+		<dt><a href="../manual/function/ormapper/behavior/select/selectentity.html">selectEntity()</a></dt><dd>一件検索: 一つのEntity型で受け取る、PK検索などで利用</dd>
+		<dt><a href="../manual/function/ormapper/behavior/select/selectpage.html">selectPage()</a></dt><dd>ページング検索: PagingResultBean&lt;Entity&gt;型で受け取る</dd>
+		<dt><a href="../manual/function/ormapper/behavior/select/selectcursor.html">selectCursor()</a></dt><dd>カーソル検索: コールバックで一件ずつEntityを受け取る</dd>
+		<dt><a href="../manual/function/ormapper/behavior/select/loadreferrer.html">load(...)</a></dt><dd>子テーブル検索: 検索結果に対して子テーブルの情報を付与する <span class="frm">(詳しくは後述)</span></dd>
+	</dl>
+	<p>
+		ConditionBeanについては、詳しくは後述します。
+	</p>
+	<h3 id="behaviorupdatemethod">Behaviorの更新系メソッドたち</h3>
+	<p>
+		登録、更新、削除、そして、排他制御ありなし、バッチ更新、条件更新などの用途によってメソッドが変わります。
+		ただ、いずれに基本的には Entity を引数にレコードを指定します。
+	</p>
+<pre><span class="codetitle">e.g. MEMBERテーブルに一件登録する @Java</span><code>
+Member <span class="localvar">member</span> = <span class="keyword">new</span> Member();
+<span class="comment">//member.setMemberId(1);</span> <span class="comment">// 自動採番の場合は不要</span>
+<span class="localvar">member</span>.setMemberName(<span class="literal">"Stojkovic"</span>);
+<span class="localvar">member</span>.setMemberAccount(<span class="literal">"Pixy"</span>);
+<span class="localvar">member</span>.setMemberStatusCode_Provisional();
+
+<span class="localvar">member</span>.set<span class="abbreviation">...</span> <span class="comment">// null で登録する場合は設定は不要</span>
+
+<span class="comment">//member.setRegisterUser(user);</span> <span class="comment">// 共通カラムは自動設定(設定が有効なら)</span>
+<span class="comment">//member.setRegister...</span>
+<span class="comment">//member.setVersionNo(versionNo);</span> <span class="comment">// バージョン番号は自動で初期値に</span>
+
+<span class="attribute">memberBhv</span>.<span class="point">insert</span>(member);
+
+Integer <span class="localvar">memberId</span> = <span class="localvar">member</span>.getMemberId(); <span class="comment">// 自動採番の場合は採番値が取得できる</span>
+</code></pre>
+	<p>
+		メソッドの詳細やどんなメソッドがあるか？に関しては、Behaviorのページを見ると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../manual/function/ormapper/behavior/index.html">Behavior</a></div>
+	<p>
+		ただ、これだけ抑えておけばひとまず読めるでしょう、という代表的なメソッドを列挙します。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt><a href="../manual/function/ormapper/behavior/update/insert.html">insert()</a></dt><dd>一件登録: 一つのEntityを受け取ってinsertする</dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/update.html">update()</a></dt><dd>一件更新: 一つのEntityを受け取ってupdateする <span class="frm">(対象テーブルなら排他制御あり)</span></dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/updatenonstricut.html">updateNonstrict()</a></dt><dd>一件更新: update()と同じだが排他制御対象テーブルでも排他制御なしで更新</dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/delete.html">delete()</a></dt><dd>一件削除: 一つのEntityを受け取ってdeleteする <span class="frm">(対象テーブルなら排他制御あり)</span></dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/deletenonstrict.html">deleteNonstrict()</a></dt><dd>一件削除: delete()と同じだが排他制御対象テーブルでも排他制御なしで削除</dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/batchinsert.html">batchInsert()</a></dt><dd>バッチ登録: 複数のEntityを受け取って一気にinsertする</dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/queryupdate.html">queryUpdate()</a></dt><dd>クエリ更新: EntityとConditionBeanを受け取って条件に合致の更新をする</dd>
+		<dt><a href="../manual/function/ormapper/behavior/update/querydelete.html">queryDelete()</a></dt><dd>クエリ削除: EntityとConditionBeanを受け取って条件に合致の更新をする</dd>
+	</dl>
+
+	<h2 id="conditionbean">ConditionBean</h2>
+	<p>
+		検索条件を表現するクラスです。
+	</p>
+	<h3 id="conditionbeancall">自分でnewせずコールバックで指定</h3>
+	<p>
+		ConditionBeanは、Behaviorの引数で指定されますが、自分でインスタンスをnewするのではなく、Lambdaのコールバック引数としてフレームワークから提供されます。
+	</p>
+<pre><span class="codetitle">e.g. MEMBERテーブルをリスト検索するのに、ConditionBeanを指定 @Java</span><code>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="point">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="localvar">cb</span>.setupSelect_MemberStatus();
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+});
+</code></pre>
+	<p>
+		cb とか memberCB とか見かけたら、それが ConditionBean です。cb というシンプルな名前の場合は、そのBehaviorが基点としてテーブルのConditionBeanだと考えて良いです。
+	</p>
+	<h3 id="conditionbeanthree">CBの三つの代表的な操作</h3>
+	<p>
+		まず、以下の三つの代表的な操作を知りましょう。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>cb.setupSelect_...()</dt><dd>データ取得: 関連テーブルのカラムをselect句に並べる</dd>
+		<dt>cb.query().set...</dt><dd>絞り込み: where句での絞り込み条件を指定</dd>
+		<dt>cb.query().addOrderBy_...()</dt><dd>並び替え: order by句でのソート条件を指定</dd>
+	</dl>
+<pre><span class="codetitle">e.g. ConditionBeanの基本の検索 @Java</span><code>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment">// データ取得: select句 (+ join句)</span>
+    <span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment">// MEMBER_STATUSをselect句に並べて、Java上でデータを扱う</span>
+    <span class="localvar">cb</span>.setupSelect_MemberStatus();
+
+    <span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment">// 絞り込み: where句 (+ join句)</span>
+    <span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment">// MEMBER_NAMEの前方一致の絞り込み</span>
+    <span class="localvar">cb</span>.query().setMemberName_LikeSearch(<span class="literal">"S"</span>, <span class="localvar">op</span> <span class="keyword">-&gt;</span> <span class="localvar">op</span>.likePrefix());
+    <span class="localvar">cb</span>.query().queryMemberServiceAsOne() <span class="comment">// MEMBER_SERVICEのポイント数が100以上</span>
+            .setServicePointCount_GreaterEqual(<span class="literal">100</span>);
+
+    <span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment">// 絞り込み: order by句 (+ join句)</span>
+    <span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+    <span class="comment">// MEMBER_STATUSの表示順の昇順、そして、MEMBER_IDの昇順</span>
+    <span class="localvar">cb</span>.query().queryMemberStatus().addOrderBy_DisplayOrder_Asc();
+    <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
+});
+</code></pre>
+	<ul class="codeoutro">
+		<li>基点テーブルのカラムはデフォルトでselect句に列挙されます</li>
+		<li>cb.query() は、絞り込み条件、ソート条件の目印と考えてOKです</li>
+	</ul>
+	<h3 id="conditionbeanonfk">ConditionBeanはFKを知っている</h3>
+	<p>
+		ConditionBeanの最大の特徴として、RDB上のFK (リレーションシップ) の情報を使っていることです。
+		どのテーブルが、どのテーブルを、どのカラムで参照しているか？これらを知っています。
+	</p>
+	<h4>リレーションシップのないテーブルは指定できない</h4>
+	<p>
+		まず、リレーションシップになっているテーブルのみメソッドとして選ぶことができます。
+		逆に言うと、全くつながりのないテーブル同士を絡めた検索をすることはできません。
+	</p>
+<pre><span class="codetitle">e.g. MEMBERからPRODUCT_STATUSをいきなり指定はできない @Java</span><code>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="comment">// これはコンパイルエラー、リレーションシップのないテーブルは指定できない</span>
+    <span class="localvar">cb</span>.<span class="point">setupSelect_ProductStatus()</span>;
+});
+</code></pre>
+	<p>
+		例えば、MEMBERテーブルからいきなりPRODUCT_STATUSテーブルを指定することはできません。
+		そもそもそういったメソッドが自動生成されません。
+	</p>
+	<h4>明示的にjoin句を指定することはない</h4>
+	<p>
+		また、リレーションシップの操作をするとき、明示的にjoin句を指定することはありません。
+	</p>
+	<p>
+		例えば、setupSelectでselect句に関連テーブルのカラムを並べるのであれば、自然とその関連テーブルのjoinは必要です。
+		同様に、query()でwhere句で関連テーブルのカラムを利用するのであれば、自然とjoinは必要です。
+		ゆえに、わざわざアプリケーションでjoinを指示しなくてもConditionBeanがjoin句を構築してくれます。
+		また、ConditionBeanは何のカラムでつなげれば良いのか知っているので、結合条件の指定も不要です。
+	</p>
+	
+<pre><span class="codetitle">e.g. MEMBERからPRODUCT_STATUSをいきなり指定はできない @Java</span><code>
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.selectList(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+    <span class="comment">// MEMBER_STATUSをデータ取得したい(select句に並べたい)のであれば、</span>
+    <span class="comment">// joinは自然と必要なのでわざわざ指定する必要はない (joinだけ指定するメソッドはない)</span>
+    <span class="localvar">cb</span>.<span class="point">setupSelect_MemberStatus()</span>;
+
+    <span class="comment">// MEMBER_SERVICEを絞り込みで使いたい(where句で使いたい)のであれば、</span>
+    <span class="comment">// joinは自然と必要なのでわざわざ指定する必要はない (joinだけ指定するメソッドはない)</span>
+    <span class="localvar">cb</span>.query().<span class="point">queryMemberServiceAsOne()</span>
+            .setServicePointCount_GreaterEqual(<span class="literal">100</span>);
+});
+</code></pre>
+	<p>
+		ConditionBeanは、SQLから比べて一つ目的レベルが上がったAPIだと言えます。どんなデータが欲しいのか？どんな絞り込みをしたいのか？
+		を純粋に指定してもらって、そのために発行するSQLはConditionBeanが持っている情報をフル活用して構築するというものです。
+	</p>
+	<h3 id="conditionbeaninfo">ConditionBeanの情報ページ</h3>
+	<p>
+		ConditionBeanでどんな条件を指定できるのか？それぞれのメソッドの詳細は？については、ConditionBeanのページを見ると良いです。
+	</p>
+	<dl class="valuemainlist">
+		<dt>トップページ</dt><dd><a href="../manual/function/ormapper/conditionbean/index.html">ConditionBean</a> <span class="frm">*ここがすべて</span></dd>
+		<dt>ひとめで</dt><dd><a href="../manual/function/ormapper/conditionbean/hitomecb.html">ひとめでConditionBean</a> <span class="frm">*お手軽リファレンス</span></dd>
+	</dl>
+	<p>
+		ある程度、ConditionBeanのコツを掴めてパッと見ればわかるような人であれば、"ひとめでConditionBean" のページでサクッと探すと良いでしょう。
+	</p>
+
+	<h2 id="onetomany">子テーブルのアプローチ <span class="frm">(one-to-many)</span></h2>
+	<p>
+		子テーブルは、その特性上SQLでの扱いも難しいため、DBFluteでも特別な扱いになっています。
+	</p>
+	<h3 id="onetomanythree">子テーブルに対する三つの機能</h3>
+	<dl class="keymainlist">
+		<dt><a href="../manual/function/ormapper/behavior/select/loadreferrer.html">LoadReferrer</a></dt><dd>データ取得: 子テーブルのカラムデータを取得する</dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/query/existsreferrer.html">ExistsReferrer</a></dt><dd>絞り込み: 子テーブルのカラムで基点テーブルを絞り込む</dd>
+		<dt><a href="../manual/function/ormapper/conditionbean/specify/derivedreferrer.html">DerivedReferrer</a></dt><dd>導出カラム: 子テーブルの導出カラムを取得したり絞り込んだり</dd>
+	</dl>"ja/tutorial/readonlyflute.html"
+
+	<h2 id="outsidesql">外だしSQL (OutsideSql)</h2>
+	<p>
+		さて、DBFluteは、ConditionBeanだけじゃなくて、ベタにSQLを書いてDBアクセスする手段も持ち合わせています。
+		タイプセーフな実装と組み合わせて適材適所で使い分けるのがオススメの方法となっています。ゆえに、時々外だしSQLで検索されているコードも見かけることがあると思います。
+	</p>
+	<h3 id="outsideinfo">外だしSQLの情報ページ</h3>
+	<dl class="shortvaluemainlist">
+		<dt>トップページ</dt><dd><a href="../manual/function/ormapper/outsidesql/index.html">外だしSQL(OutsideSql)</a> <span class="frm">*2Way-SQL</span></dd>
+		<dt>使い方</dt><dd><a href="../manual/function/ormapper/outsidesql/howto.html">外だしSQLの使い方</a> <span class="frm">*とにかく実装したいなら</span></dd>
+		<dt>外だしで使うタスク</dt><dd><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entityタスク</a> <span class="frm">*SQL対応Entityの自動生成</span></dd>
+	</dl>
+	<h3 id="osqlflow">外だしSQLの実装の流れ</h3>
+	<ol>
+		<li>
+			外だしSQLを <em class="keyword"><a href="../manual/function/ormapper/outsidesql/about.html#pmcomment">パラメータコメント</a></em> を使って
+			<em class="keyword"><a href="../manual/function/ormapper/outsidesql/about.html#twowaysql">2Way-SQL</a></em> で書く
+		</li>
+		<li>
+			<em class="keyword"><a href="../manual/function/generator/task/sql2entity/index.html">Sql2Entity</a></em> を実行して
+			<em class="keyword"><a href="../manual/function/generator/task/sql2entity/customizeentity.html">CustomizeEntity</a></em> と
+			<em class="keyword"><a href="../manual/function/generator/task/sql2entity/parameterbean.html">ParameterBean</a></em> を自動生成
+		</li>
+		<li>Behaviorの outsideSql() メソッドから実行</li>
+	</ol>
+	<h3 id="osqlexample">外だしSQLの実装Example <span class="frm">(2Way-SQL)</span></h3>
+<pre><span class="codetitle">e.g. 2Way-SQLでの実装 (CustomizeEntity と ParameterBean を利用) @OutsideSql</span><code>
+<span class="comment">/*</span>
+ <span class="comment">[df:title]</span>
+ <span class="comment">単なるシンプルな会員検索</span>
+ 
+ <span class="comment">[df:description]</span>
+ <span class="comment">これはDBFluteドキュメント上のExampleであり、</span>
+ <span class="comment">正直、このくらいなら ConditionBean で実装してしまうだろう。</span>
+<span class="comment">*/</span>
+<span class="comment">-- #df:entity#</span>
+
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+
+<span class="keyword">select</span> mb.MEMBER_ID
+     , mb.MEMBER_NAME
+     , stat.MEMBER_STATUS_NAME
+  <span class="keyword">from</span> MEMBER mb
+    <span class="keyword">left outer join</span> MEMBER_STATUS stat
+      <span class="keyword">on</span> mb.MEMBER_STATUS_CODE = stat.MEMBER_STATUS_CODE
+ <span class="comment">/*BEGIN*/</span>
+ <span class="keyword">where</span>
+   <span class="comment">/*IF pmb.memberId != null*/</span>
+   mb.MEMBER_ID = <span class="comment">/*pmb.memberId*/</span><span class="literal">3</span>
+   <span class="comment">/*END*/</span>
+   <span class="comment">/*IF pmb.memberName != null*/</span>
+   <span class="keyword">and</span> mb.MEMBER_NAME <span class="keyword">like</span> <span class="comment">/*pmb.memberName*/</span><span class="literal">'M%'</span>
+   <span class="comment">/*END*/</span>
+ <span class="comment">/*END*/</span>
+ <span class="keyword">order by</span> mb.BIRTHDATE <span class="keyword">desc</span>, mb.MEMBER_ID <span class="keyword">asc</span>
+</code></pre>
+	<dl class="shortkeymainlist">
+		<dt>#df:entity#</dt><dd>SQL対応のEntityを自動生成するというマーク</dd>
+		<dt>!df:pmb!</dt><dd>SQLに渡すパラメーターを詰めるBeanを自動生成するというマーク</dd>
+		<dt>!!AutoDetect!!</dt>SQLに渡すパラメーターのプロパティを自動判別するというマーク</dd>
+	</dl>
+	<h3 id="osqlcall">外だしSQLの呼び出し <span class="frm">(Javaから)</span></h3>
+<pre><span class="codetitle">e.g. リスト検索 (TypedParameterBean) {名前が 'S' で始まる会員を検索｝@Java</span><code>
+SimpleMemberPmb pmb = <span class="keyword">new</span> SimpleMemberPmb();
+pmb.setMemberName_PrefixSearch(<span class="literal">"S"</span>);
+
+<span class="comment">// 外だしSQLの実行 (MemberBhv_selectSimpleMember.sql)</span>
+List&lt;SimpleMember&gt; memberList
+        = <span class="attribute">memberBhv</span>.outsideSql().selectList(pmb);
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

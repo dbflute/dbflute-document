@@ -99,7 +99,7 @@ memberBhv.<span class="point">selectEntity</span>(<span class="localvar">cb</spa
 <span class="comment">//  o 生年月日の降順 (でも null は後ろにね)</span>
 <span class="comment">//  o 会員IDの昇順</span>
 <span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
-ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
+ListResultBean&lt;Member&gt; <span class="localvar">memberList</span> = <span class="attribute">memberBhv</span>.<span class="point">selectList</span>(<span class="localvar">cb</span> <span class="keyword">-&gt;</span> {
     <span class="localvar">cb</span>.setupSelect_MemberStatus();
     <span class="localvar">cb</span>.setupSelect_MemberServiceAsOne().withServiceRank();
 
@@ -116,7 +116,7 @@ ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</spa
     <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
 }); <span class="comment">// そのまま回すだけなら、ここから forEach() や stream() しちゃってもOK</span>
 
-memberList.<span class="point">forEach</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> { <span class="comment">// でもまあ、とりあえず変数に受け取ってから回してみる</span>
+<span class="localvar">memberList</span>.<span class="point">forEach</span>(<span class="localvar">member</span> <span class="keyword">-&gt;</span> { <span class="comment">// でもまあ、とりあえず変数に受け取ってから回してみる</span>
     Integer memberId = <span class="localvar">member</span>.getMemberId();
     String memberName = <span class="localvar">member</span>.getMemberName();
     <span class="abbreviation">...</span>
