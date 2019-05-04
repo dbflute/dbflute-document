@@ -42,9 +42,7 @@
 
 <span class="comment">// これは、JsonResponseのときのログ</span>
 2017-08-20 01:16:36,433 [qtp2068434592-17] INFO  (InOutLogger@log():50) - POST /wx/request/json/body/ WxRequestJsonBodyAction@index() (2017-08-20 01:16:36.312) [00m00s121ms] {Apache-HttpClient/4.5.2 (Java/1.8.0_131)}
-requestBody:
-{sea: "mystic"}
-
+requestBody:{sea: "mystic"}
 responseBody:
 {
   "body": {
@@ -117,9 +115,7 @@ responseBody:
 
 <span class="comment">// これは、JsonResponseのときのログ</span>
 2017-08-20 01:16:36,433 [qtp2068434592-17] INFO  (InOutLogger@log():50) - POST /wx/request/json/body/ WxRequestJsonBodyAction@index() (2017-08-20 01:16:36.312) [00m00s121ms] {Apache-HttpClient/4.5.2 (Java/1.8.0_131)}
-requestBody:
-{sea: "mystic"}
-
+requestBody:{sea: "mystic"}
 responseBody:
 {
   "body": {
@@ -144,14 +140,14 @@ responseBody:
 		<li>メールの送信回数 (mailCount) <span class="frm">(メールを送信していれば)</span></li>
 	</ul>
 	<p>
-		出し始めたらキリがないので、このくらいにしております。あくまで本番でいざってときのデバッグに役に立つものが出せればと言うところで。
+		出し始めたらキリがないので、このくらいにしております。<span class="frm">(あくまで本番でいざってときのデバッグに役に立つ代表的なものを出しているつもりです)</span>
 	</p>
 	<p>
-		また、ログ出力は非同期ではありませんが、HtmlResponseのときのリダイレクトを除き、レスポンスを書き込んだ後にログ出力なのでリクエスト側に遅延は発生しません。
-		<span class="frm">(アプリケーションサーバーによって挙動が変わるかもしれませんが、TomcatとJettyで確認しています)</span>
+		ログ出力は非同期ではありませんが、HtmlResponseのときのリダイレクトを除き、レスポンスを書き込んだ後にログ出力なのでリクエスト側に遅延は発生しません<span class="frm">(アプリケーションサーバーによって挙動が変わるかもしれませんが、TomcatとJettyで確認しています)</span>。
+		InOutLogOptionにて、非同期にすることもできます。
 	</p>
 	<p>
-		このメソッドは、何度も呼び出される可能性があるので、基本的には true or false 固定で。
+		ヘッダーはデフォルトでは出していませんが、InOutLogOptionにて項目指定で出力されます。<span class="frm">(@since LastaFlute-1.1.2)</span>
 	</p>
 <!-- __content-end__ --></div></div>
 
