@@ -366,6 +366,10 @@
 		テストコードのアサートにて、同じく FileToken を使ってそのファイルを読み込んでログに出力してみましょう。
 		<span class="frm">(講師によるコードリーディングの小話あり)</span>
 	</p>
+	<p>
+		だいぶコード量が増えネストも深くなってきます。適度にprivateメソッドなどに切り出して、Logicのpublicメソッドのコードの見通しを良くしましょう。
+		IDEにメソッドの切り出しのショートカットが用意されていますので、ぜひ使ってみましょう。<span class="frm">(Eclipseであれば、切り出す行を選択して ctrl+1, extract to method)</span>
+	</p>
 	<h3 id="miraclebonus">ミラクルボーナスステージ</h3>
 	<p>
 		もし、ミラクルものすごい頑張れるのであれば、セクション３のカーソル検索の実装に、TSV出力処理を追加してみましょう。
@@ -393,6 +397,14 @@
 		<dt>Project Name</dt><dd>dbflute-hands-on</dd>
 		<dt>Request URL</dt><dd>http://localhost:8386/</dd>
 	</dl>
+	<div class="inucolumn">
+		<h3>どの単位でメソッドにするか？どういう名前にするか？</h3>
+		<p>
+			プログラミングの "かたち" に関しては、正解がありません。それはデザインだからです。
+			どうすればわかりやすいか？どうすれば勘違いしにくいか？常に考え続けることが大切です。
+		</p>
+		<div class="detailpage"><a href="https://jflute.hatenadiary.jp/entry/20170623/desigraming">プログラマーに求められるデザイン脳 | jfluteの日記</a></div>
+	</div>
 
 	<h2 id="procedure">ストアドプロシージャも外だしSQL</h2>
 	<p>
