@@ -103,6 +103,10 @@ memberBhv.outsideSql().cursorHandling()
     <span class="abbreviation">...</span> <span class="comment">// 別のテーブルに登録</span>
 }
 </code></pre>
+	<p>
+		トランザクションの指定の仕方は、利用しているDIコンテナなどによって変わります。
+		<span class="frm">(DBFlute自体はトランザクション制御に関与はせず、連携するフレームワークにトランザクション制御を任せています)</span>
+	</p>
 
 	<div class="inucolumn">
 		<h2 id="resulttype">データの受け取り方の違い</h2>

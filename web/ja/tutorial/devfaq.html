@@ -97,8 +97,13 @@
 	</div>
 
 	<h2 id="normal">普通のFAQ</h2>
+	<h3 id="transaction">トランザクションはどう指定するの？</h3>
 	<p>
-		TODO jflute 書き途中
+		トランザクション(Transaction)の指定方法は、連携するフレームワークによって変わります。
+	</p>
+	<p>
+		DBFlute自体は、トランザクション制御に関与はせず、DIコンテナなど連携するフレームワークに任せています。
+		例えば、Spring Frameworkを使っていれば<span class="frm">(正しく連携されていれば)</span>、DBFluteのDBアクセスはSpringが管理するトランザクション内で実行されます。
 	</p>
 <!-- __content-end__ --></div></div>
 
