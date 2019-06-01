@@ -56,7 +56,7 @@ cb.specify().<span class="point">derivedMemberLoginList()</span>.<span class="po
 <span class="comment">// 子テーブルのデータを取得する (one-to-many)</span>
 <span class="comment">//  e.g. それぞれの会員に紐付く購入データを、購入日時の降順で検索(Load)</span>
 ListResultBean&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb); <span class="comment">// リスト検索</span>
-<span class="attribute">memberBhv</span>.<span class="point">loadPurchaseList</span>(memberList, <span class="keyword">new</span> ConditionBeanSetupper&lt;Pu<span class="abbreviation">...</span>CB&gt;() {
+<span class="attribute">memberBhv</span>.<span class="point">loadPurchase</span>(memberList, <span class="keyword">new</span> ConditionBeanSetupper&lt;Pu<span class="abbreviation">...</span>CB&gt;() {
     <span class="keyword">public void</span> setup(PurchaseCB cb) {
         cb.query().addOrderBy_PurchaseDatetime_Desc();
     }
