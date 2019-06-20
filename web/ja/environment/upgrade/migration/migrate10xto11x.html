@@ -76,7 +76,9 @@
 		Windowsであっても必ずコマンドラインから実行する必要があります。
 	</p>
 <pre><span class="codetitle">e.g. manage にて、バージョン指定で upgrade @Command</span><code>
-<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh 94 <span class="point">1.1.0</span>
+<span class="comment">// (1.1.xの最新版バージョンを指定しましょう)</span>
+
+<span class="abbreviation">...</span>$ <span class="keyword">sh</span> manage.sh 94 <span class="point">1.2.0</span>
 </code></pre>
 	<p>
 		この時点では、自動生成はまだやりません。
@@ -86,12 +88,14 @@
 		1.1.xのDBFluteランタイムを用意します。
 	</p>
 <pre><span class="codetitle">e.g. DBFluteランタイム-1.1.0のdependencyを定義 @pom.xml</span><code>
+<span class="comment">// (1.1.xの最新版バージョンを指定しましょう)</span>
+
 &lt;dependencies&gt;
     <span class="abbreviation">...</span>
     <span class="subpoint">&lt;dependency&gt;</span>
         &lt;groupId&gt;<span class="literal">org.dbflute</span>&lt;/groupId&gt;
         &lt;artifactId&gt;<span class="literal">dbflute-runtime</span>&lt;/artifactId&gt;
-        &lt;version&gt;<span class="literal">1.1.0</span>&lt;/version&gt;
+        &lt;version&gt;<span class="literal">1.2.0</span>&lt;/version&gt;
     <span class="subpoint">&lt;/dependency&gt;</span>
     <span class="abbreviation">...</span>
 &lt;/dependencies&gt;
