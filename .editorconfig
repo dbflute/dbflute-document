@@ -3,7 +3,10 @@ root = true
 [*]
 indent_style = space
 charset = utf-8
-end_of_line = lf
+# invalid to avoid IntelliJ headache
+# this project has mixed lines by historical reason
+# so uses IDE settings (LF at new text only)
+#end_of_line = lf
 
 [*.{html,xml,css}]
 indent_style = tab
