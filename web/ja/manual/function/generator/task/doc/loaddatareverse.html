@@ -70,7 +70,7 @@
 		<span class="frm">(recordLimit は -1 で)</span>
 	</p>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#loaddatareversemap">dfprop - loadDataReverseMap</a></div>
-<pre><span class="codetitle">e.g. 単に出力するだけの設定 @documentDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. 単に出力するだけの設定 @documentMap.dfprop</span><code>
     <span class="abbreviation">...</span>
 
     ; loadDataReverseMap = <span class="keyword">map:</span>{
@@ -231,6 +231,28 @@ dbflute_exampledb
 	</p>
 	<div class="relatedpage"><a href="../index.html#memory">DBFluteタスク - タスクのメモリ設定</a></div>
 
+	<h2 id="totsvall">すべてTSVで出力するには？</h2>
+	<p>
+		例えば、XLS管理からすべてTSV管理に移行したり、その後も LoadDataReverse
+		を使い続ける場合などは、loadDataReverseMap の xlsLimit を 0 にします。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/documentdefinition/index.html#loaddatareversemap">dfprop - loadDataReverseMap</a></div>
+<pre><span class="codetitle">e.g. すべてTSVで出力する場合の設定: xlsLimit @documentMap.dfprop</span><code>
+    <span class="abbreviation">...</span>
+
+    ; loadDataReverseMap = <span class="keyword">map:</span>{
+        ; <span class="abbreviation">...</span>
+        ; <span class="point">xlsLimit</span> = <span class="literal">0</span>
+    }
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		XLSからTSVへ切り替える境界値を 0 にすることで、すべてTSVに切り替わります。
+	</p>
+	<p>
+		Github上でテストデータのレビューをしたり、DB変更を複数人で並列に行ったりするようなケースでは、テストデータはTSVで管理すると良いでしょう。
+	</p>
+
 	<h2 id="spec">細かい仕様</h2>
 	<p>
 		細かい仕様を把握して、どのような調整を行えば良いのか判断していきましょう。
@@ -302,7 +324,7 @@ dbflute_exampledb
 		エクセル形式でデータを閲覧するためや、データを加工して多目的に利用するなど、ReplaceSchemaと関係なく "単にデータ出力するだけ" の利用もできます。
 	</p>
 	<p>
-		その場合は、documentDefinitionMap.dfprop の loadDataReverseMap にて、isReplaceSchemaDirectUse は false にして実行します。
+		その場合は、documentMap.dfprop の loadDataReverseMap にて、isReplaceSchemaDirectUse は false にして実行します。
 	</p>
 <pre><span class="codetitle">e.g. 単に出力するだけの設定 @documentDefinitionMap.dfprop</span><code>
     <span class="abbreviation">...</span>
