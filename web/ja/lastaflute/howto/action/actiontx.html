@@ -241,8 +241,8 @@
 		TransactionStageのメソッドには、幾つかの種類があります。
 	</p>
 	<dl class="keymainlist">
-		<dt>required()</dt><dd>外側にトランザクションがあれば継承</dd>
-		<dt>requiresNew()</dt><dd>関係なくトランザクションを必ず発行</dd>
+		<dt>required()</dt><dd>外側に Transaction があれば継承</dd>
+		<dt>requiresNew()</dt><dd>関係なく Transaction を必ず発行</dd>
 		<dt>selectable()</dt><dd>そのどっちかを引数で指定</dd>
 	</dl>
 	<p>
@@ -270,6 +270,106 @@
 			ちなみに、アノテーションによるトランザクション制御も実はできます。
 		</p>
 	</div>
+
+	<h2 id="updateneedstx">更新処理はTransaction必須!?</h2>
+	<p>
+		LastaFluteでは、<em class="keyword">insert,update,deleteなどの更新処理は Transaction で実行すること</em> を強く推奨しています。
+	</p>
+	<h3 id="nontxupdateexp">NonTransactionalUpdateException <span class="frm">(Translated)</span></h3>
+	<p>
+		ActionのデフォルトTransactionがあるので、自然とTransactionの中で更新することになるのであまり気にすることはないですが、明示的にデフォルトTransactionを抑制したり、Jobクラスからの実行の場合、そのまま更新処理をすると
+		<em class="keyword">更新にはTransactionが必要だよ例外</em> が発生する可能性があります。
+	</p>
+<pre><span class="codetitle">e.g. NonTransactionalUpdateException by AccessContextNotFoundException @Log</span><code>
+2019-07-14 01:28:16,176 [qtp815320891-15] ERROR (RequestLoggingFilter@logError():1050) - *ServletException occurred.
+/= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =: /member/edit/
+<span class="abbreviation">...</span>
+  ; url=http://localhost:8090/harbor/member/edit/
+<span class="abbreviation">...</span>
+  [param] memberAccount=Genius
+  [param] memberId=2
+  [param] memberName=Savicevic
+<span class="abbreviation">...</span>
+  [header] Date=Sat, 13 Jul 2019 16:28:15 GMT
+  [header] Last-Modified=Thu, 04 Jul 2019 07:46:50 GMT
+= = = = = = = = = =/ [00m00s285ms] #2efafc2e
+org.lastaflute.db.dbflute.exception.<span class="point">NonTransactionalUpdateException</span>: Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+<span class="subpoint">The update process without transaction was found.</span>
+
+[Advice]
+Update (contains insert, delete) should be executed in transaction.
+Check your settings and implementations of the process.
+* * * * * * * * * */
+	at org.lastaflute.core.exception.ExceptionTranslator.throwNonTransactionalUpdateException(ExceptionTranslator.java:132)
+	at org.lastaflute.core.exception.ExceptionTranslator.translateException(ExceptionTranslator.java:112)
+	<span class="abbreviation">...</span>
+	<span class="abbreviation">...</span>
+	<span class="abbreviation">...</span>
+Caused by: org.dbflute.exception.<span class="subpoint">AccessContextNotFoundException</span>: Look! Read the message below.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+<span class="subpoint">The access context was not found on thread.</span>
+
+[Advice]
+Set up the value before DB access (using common column auto set-up)
+You should set it up at your application's interceptor or filter.
+For example:
+  try {
+      AccessContext context = new AccessContext();
+      context.setAccessLocalDateTime(accessLocalDateTime);
+      context.setAccessUser(accessUser);
+      context.setAccessProcess(accessProcess);
+      AccessContext.setAccessContextOnThread(context);
+      return invocation.proceed();
+  } finally {
+      AccessContext.clearAccessContextOnThread();
+  }
+* * * * * * * * * */
+	at org.dbflute.hook.AccessContext.throwAccessContextNotFoundException(AccessContext.java:448)
+	at org.dbflute.hook.AccessContext.getAccessUserOnThread(AccessContext.java:332)
+	<span class="abbreviation">...</span>
+	<span class="abbreviation">...</span>
+	<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="accesscontextexp">AccessContextNotFoundException <span class="frm">(Caused by)</span></h3>
+	<p>
+		AccessContextNotFoundExceptionは、NonTransactionalUpdateExceptionの原因例外となっています。
+		<span class="frm">(スタックトレースにて Caused by で表示される)</span>
+	</p>
+	<p>
+		DBFluteの共通カラムの自動設定のための AccessContext は、Transactionが開始されたら初期化され、Transactionが終了したら破棄されます。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/function/genbafit/implfit/commoncolumn/index.html">現場フィット - 共通カラム (CommonColumn)</a></div>
+	<p>
+		つまり、共通カラムの自動設定は、Transaction内でのみ有効となります。
+		ゆえに、Transactionが実行されていない状態で更新処理をした場合、AccessContextNotFoundException
+		が発生し、NonTransactionalUpdateException に翻訳されます。
+	</p>
+	<p>
+		厳密には共通カラムが設定されていないテーブルの更新だと例外にはなりませんが、共通カラムが定義されているであろうメジャーなテーブルでチェックされれば十分と捉えてこのようにしています。
+		<span class="frm">(将来のバージョンで厳密なチェックをするオプションなどを実装するかもしれませんが、実装コストも掛かるので費用対効果次第)</span>
+	</p>
+	<h3 id="nontxcheck">この例外を見かけたら...</h3>
+	<p>
+		この例外を見かけたら、以下のことを確認してみましょう。
+	</p>
+	<ul>
+		<li>ActionのデフォルトTransactionを外していないか？</li>
+		<li>JobクラスでTransactionStageを使わずに更新処理をしていないか？</li>
+		<li>TransactionStageの使い方が間違っていないか？</li>
+	</ul>
+	<p>
+		そもそも Transaction が掛かっているかどうかは、デバッグログのBeginログの有無で確認できます。
+	</p>
+<pre><span class="codetitle">e.g. transaction begin logging @Log</span><code>
+<span class="abbreviation">...</span>
+(LaTransaction@begin():69) - <span class="point">Begin transaction</span>: [FormatId=<span class="abbreviation">...</span>, GlobalId=<span class="abbreviation">...</span>, BranchId=]
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+<span class="abbreviation">...</span>
+(LaTransaction@commit():181) - <span class="subpoint">Commit transaction</span>: [FormatId=<span class="abbreviation">...</span>, GlobalId=<span class="abbreviation">...</span>, BranchId=]
+<span class="abbreviation">...</span>
+</code></pre>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
