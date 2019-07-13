@@ -175,7 +175,8 @@
 		どちらでフォーマットしてもほぼ同じになるようになっています。<span class="frm">("IDEはお好きように" という開発スタイルがしやすいように)</span>
 	</p>
 	<dl class="longkeymainlist">
-		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/codeStyleSettings.xml">codeStyleSettings.xml</a></dt><dd>調整されたプロジェクトのコードフォーマットの設定</dd>
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/codeStyles/codeStyleConfig.xml">codeStyleConfig.xml</a></dt><dd>コードスタイルのコンフィグ (Project.xmlを参照)</dd>
+		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/codeStyles/Project.xml">codeStyleSettings.xml</a></dt><dd>調整されたプロジェクトのコードフォーマットの設定</dd>
 		<dt><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/.idea/saveactions_settings.xml">saveactions_settings.xml</a></dt><dd>Save Actinosの設定</dd>
 	</dl>
 	<p>
@@ -197,9 +198,11 @@
  |-src/test/java
  |-<span class="abbreviation">...</span>
  |-<span class="subpoint">.idea</span>
+ |  |-codeStyles
+ |  |  |-<span class="subpoint">codeStyleConfig.xml</span>
+ |  |  |-<span class="subpoint">Project.xml</span>
  |  |-inspectionProfiles
  |  |  |-<span class="abbreviation">...</span>
- |  |-<span class="subpoint">codeStyleSettings.xml</span>
  |  |-<span class="subpoint">saveactions_settings.xml</span>
  |-<span class="abbreviation">...</span>
 </code></pre>
@@ -210,9 +213,11 @@
 [repository-root] <span class="comment">// if multi project</span>
  |-<span class="abbreviation">...</span>
  |-<span class="subpoint">.idea</span>
+ |  |-codeStyles
+ |  |  |-<span class="subpoint">codeStyleConfig.xml</span>
+ |  |  |-<span class="subpoint">Project.xml</span>
  |  |-inspectionProfiles
  |  |  |-<span class="abbreviation">...</span>
- |  |-<span class="subpoint">codeStyleSettings.xml</span>
  |  |-<span class="subpoint">saveactions_settings.xml</span>
  |-maihama-dockside
  |-maihama-hangar
@@ -241,8 +246,9 @@
 <pre><span class="codetitle">e.g. IntelliJのgitignore戦略 @gitignore</span><code>
 <span class="comment"># IntelliJ IDEA</span>
 **/.idea/*
+!**/.idea/codeStyles
 !**/.idea/inspectionProfiles
-!**/.idea/codeStyleSettings.xml
+!**/.idea/encodings.xml
 !**/.idea/misc.xml
 !**/.idea/saveactions_settings.xml
 **/*.iml
