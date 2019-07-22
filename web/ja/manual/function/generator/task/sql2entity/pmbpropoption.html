@@ -327,9 +327,16 @@ pmb.<span class="point">setToFormalizedDate_ToDate</span>(toDate(<span class="li
  <span class="keyword">where</span> PAYMENT_COMPLETE_FLG = <span class="comment">/*pmb.paymentCompleteTrue*/</span><span class="literal">0</span>
 </code></pre>
 	<p>
-		InScope に対して固定の(複数の)区分値を指定することもできます。区分要素を "," で追加します。
+		InScope に対して固定の(複数の)区分値を指定することもできます。区分要素を "," で追加します。<span class="frm">(@since 1.2.1 :: それまでコンパイルエラーになってしまっていました)</span>
 	</p>
-<pre><span class="codetitle">e.g. memberStatusCode で Formalized と Provisional を固定に関連付け @OutsideSql</span><code>
+<pre><span class="codetitle">e.g. memberStatusCode で Formalized と Provisional を固定に関連付け (自動判別) @OutsideSql</span><code>
+<span class="comment">-- !df:pmb!</span>
+<span class="comment">-- !!AutoDetect!!</span>
+ <span class="abbreviation">...</span>
+ <span class="keyword">where</span> MEMBER_STATUS_CODE <span class="keyword">in</span>
+     <span class="comment">/*pmb.validStatusList:<span class="point">cls(MemberStatus.Formalized, Provisional)</span>*/</span>(<span class="literal">'FML'</span>)
+</code></pre>
+<pre><span class="codetitle">e.g. memberStatusCode で Formalized と Provisional を固定に関連付け (明示的宣言) @OutsideSql</span><code>
 <span class="comment">-- !df:pmb!</span>
 <span class="comment">-- !!List&lt;String&gt; validStatusList:<span class="point">cls(MemberStatus.Formalized, Provisional)</span>!!</span>
  <span class="abbreviation">...</span>
