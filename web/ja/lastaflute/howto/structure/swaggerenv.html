@@ -354,6 +354,43 @@ into(<span class="literal">'WEB-INF/classes'</span>) {
 		そのファイルを war ファイルの中に含めます。ゆえに、テストをスキップして war を作成すると、その情報が入りません。
 		<em class="keyword">テストはスキップしないようにしましょう。</em>
 	</p>
+
+	<h2 id="ssl">SSL環境でのSwagger利用</h2>
+	<h3 id="httporhttps">Swagger UI の HTTP? or HTTPS?</h3>
+	<p>
+		LastaFluteでの Swagger は、HttpServletRequest の getScheme() を元に、HTTP か HTTPS かを判断しています。
+		ゆえに、例えば Tomcat が HTTPS であることを知らなければ、Swagger UI でのリクエストは HTTP になります。
+	</p>
+	<h3 id="telltomcat">Tomcat に schema を教えてあげる</h3>
+	<p>
+		解決方法はいくつかありますが、ひとつの方法として、Tomcat自身に HTTPS を教えてあげると良いでしょう。
+		インストールTomcatであれば、Tomcat自身の設定ファイルで scheme が指定できるはずです。
+		また、TomcatBoot であれば、[app]_env.properties 経由で設定できます。
+	</p>
+	<p>
+		まず、[App]Bootにて、TomcatBootと.propertiesを連動させます。
+	</p>
+<pre><span class="codetitle">e.g. [App]Bootにて、TomcatBootと.propertiesを連動させる @Java</span><code>
+<span class="abbreviation">...</span>
+boot.configure(<span class="literal">"fortress_config.properties"</span>, <span class="literal">"fortress_env.properties"</span>); <span class="comment">// e.g. URIEncoding</span>
+</code></pre>
+	<p>
+		そして、[app]_env.propertiesにてTomcatBootのschema関連の設定をします。
+		<span class="frm">(secureやproxyPortは要件に応じて)</span>
+	</p>
+<pre><span class="codetitle">e.g. [app]_env.propertiesにて、TomcatBootのschema関連の設定 @Properties</span><code>
+<span class="comment"># ----------------------------------------------------------
+#                                                     Tomcat
+#                                                     ------</span>
+<span class="comment"># The scheme of tomcat</span>
+tomcat.scheme = https
+
+<span class="comment"># The secure of tomcat</span>
+tomcat.secure = true
+
+<span class="comment"># The proxy port of tomcat</span>
+tomcat.proxyPort = 443
+</code></pre>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
