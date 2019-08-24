@@ -211,6 +211,66 @@ String getFooBar();
 			こういったことがフレームワークのインクリメンタル開発には求められます。
 		</p>
 	</div>
+
+	<h2 id="envvar">環境変数からプロパティを取得</h2>
+	<h3 id="secureanddynamic">セキュアな情報や環境動的な情報</h3>
+	<p>
+		本番環境では、DB接続情報を.propertiesファイルから取得するのではなく、本番サーバーの環境変数から取得したいこともあります。
+		(例えば、DB接続のパスワードのようなセキュアな情報や、サーバーの状態によってつどつどDB接続URLが変わるようなケースなど)
+	</p>
+	<p>
+		このような場合は、PropertyFilter を使うと良いでしょう。
+	</p>
+	<h3 id="propertyfilter">PropertyFilterの実装</h3>
+	<p>
+		...mylasta.direction.sponsorパッケージ配下(任意)に、PropertyFilter をimplementsした [App]PropertyFilter
+		を作成します。<span class="frm">(ここでは例えば jdbc.url を環境変数から取得するように実装)</span>
+	</p>
+<pre><span class="codetitle">e.g. PropertyFilterの実装クラス、Docksideプロジェクトにて @Java</span><code>
+<span class="keyword">public class</span> DocksidePropertyFilter <span class="keyword">implements</span> PropertyFilter {
+
+    @Override
+    <span class="keyword">public</span> String filter(String propertyKey, String propertyValue) {
+        <span class="keyword">if</span> (propertyKey.equals(DocksideConfig.<span class="attribute">JDBC_URL</span>) && <span class="literal">"$$env$$"</span>.equals(propertyValue)) {
+            <span class="comment">// e.g. [app]_env.properties</span>
+            <span class="comment">//  jdbc.url = $$env$$</span>
+            String envKey = <span class="literal">"JDBC_URL"</span>;
+            String envValue = System.getenv(envKey);
+            <span class="keyword">if</span> (envValue == <span class="keyword">null</span>) {
+                <span class="keyword">throw new</span> IllegalStateException("Not found the environment value: " + envKey);
+            }
+            <span class="keyword">return</span> envValue;
+        }
+        <span class="keyword">return</span> propertyValue;
+    }
+}
+</code></pre>
+	<p>
+		[app]_env_production.properties (本番用) にて、該当のプロパティの値を、環境変数を使うマークにします。
+		<span class="frm">(ここでは例えば $$env$$ をマークに)</span>
+	</p>
+<pre><span class="codetitle">e.g. [app]_env_production.propertiesにて、環境変数を使うように指定 @Properties</span><code>
+<span class="comment"># The URL of database connection for JDBC</span>
+jdbc.url = $$env$$
+</code></pre>
+	<p>
+		[App]FwAssistantDirector の prepareAssistDirection() にて、directPropertyFilter() を使って [App]PropertyFilter を登録します。
+	</p>
+<pre><span class="codetitle">e.g. [App]FwAssistantDirector で PropertyFilter を登録 @Java</span><code>
+    @Override
+    <span class="keyword">protected void</span> prepareAssistDirection(FwAssistDirection direction) {
+        <span class="abbreviation">...</span>
+        direction.directPropertyFilter(createPropertyFilter());
+    }
+
+    <span class="keyword">protected</span> FortressPropertyFilter createPropertyFilter() {
+        <span class="keyword">return new</span> FortressPropertyFilter();
+    }
+</code></pre>
+	<p>
+		実装の仕方は自由なので、$$env$$ という固定のマークではなく、例えば $$env: [環境変数名]$$ というように .properties の中で環境変数名を指定できるようにしても良いでしょう。
+		<span class="frm">(上記の実装例は、理解のしやすさのために単純な実装にしています)</span>
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
