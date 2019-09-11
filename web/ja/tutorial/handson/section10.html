@@ -153,7 +153,7 @@
 <span class="keyword">update</span> MEMBER_SERVICE <span class="keyword">set</span> MEMBER_SERVICE_ID = MEMBER_ID;
 <span class="keyword">alter table</span> MEMBER_SERVICE <span class="keyword">add primary key</span> (MEMBER_SERVICE_ID);
 <span class="keyword">alter table</span> MEMBER_SERVICE <span class="keyword">add constraint</span> FK_MEMBER_SERVICE_MEMBER 
-    <span class="keyword">foreign key</span> (MEMBER_ID) <span class="keyword">references</span> MEMBER (MEMBER_ID);
+    <span class="keyword">foreign key</span> (MEMBER_ID) <span class="keyword">references</span> `MEMBER` (MEMBER_ID);
 <span class="keyword">alter table</span> MEMBER_SERVICE <span class="keyword">modify column</span> MEMBER_SERVICE_ID <span class="dbtype">INTEGER</span> AUTO_INCREMENT <span class="keyword">NOT NULL</span>;
 <span class="keyword">alter table</span> MEMBER_SERVICE <span class="keyword">add constraint</span> UQ_MEMBER_SERVICE <span class="keyword">unique</span> (MEMBER_ID);
 </code></pre>
@@ -207,10 +207,10 @@
 ) <span class="keyword">COMMENT</span>='会員フォローイング: とある会員が他の会員をフォローできる。すると、フォローした会員の購入履歴が閲覧できる。';
 
 <span class="keyword">alter table</span> MEMBER_FOLLOWING <span class="keyword">add constraint</span> FK_MEMBER_FOLLOWING_MY_MEMBER 
-    <span class="keyword">foreign key</span> (MY_MEMBER_ID) <span class="keyword">references</span> MEMBER (MEMBER_ID);
+    <span class="keyword">foreign key</span> (MY_MEMBER_ID) <span class="keyword">references</span> `MEMBER` (MEMBER_ID);
 
 <span class="keyword">alter table</span> MEMBER_FOLLOWING <span class="keyword">add constraint</span> FK_MEMBER_FOLLOWING_YOUR_MEMBER 
-    <span class="keyword">foreign key</span> (YOUR_MEMBER_ID) <span class="keyword">references</span> MEMBER (MEMBER_ID);
+    <span class="keyword">foreign key</span> (YOUR_MEMBER_ID) <span class="keyword">references</span> `MEMBER` (MEMBER_ID);
 
 <span class="keyword">create index</span> IX_MEMBER_FOLLOWING_UNIQUE_REVERSE <span class="keyword">on</span> MEMBER_FOLLOWING(YOUR_MEMBER_ID, MY_MEMBER_ID);
 <span class="keyword">create index</span> IX_MEMBER_FOLLOWING_FOLLOW_DATETIME <span class="keyword">on</span> MEMBER_FOLLOWING(FOLLOW_DATETIME);

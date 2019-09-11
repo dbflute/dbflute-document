@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>ハンズオンのjfluteレビュー | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンのjfluteレビュー</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteハンズオンで、jfluteレビューを受ける方へ
+	</p>
+
+	<h2 id="env">環境構築</h2>
+	<h3 id="gitrepo">Gitリポジトリの準備</h3>
+	<p>
+		レビューワー・レビューイー双方がコミット権限のあるgitを用意してください。
+	</p>
+	<p>
+		以下の二つが考えられます。
+	</p>
+	<ul>
+		<li>A. レビューイーのGithubアカウントでフォークしてレビューワーに権限を付与 <span class="frm">(公開レビュー)</span></li>
+		<li>B. 別のgitリポジトリにハンズオンをコピー (そして双方に権限を付与) <span class="frm">(公開・非公開はgit次第)</span></li>
+	</ul>
+	<p>
+		<span class="frm">(組織的にレビュー運用している場合は、大抵は "B" の可能性が高いので周りに確認をしましょう)</span>
+	</p>
+	<p>
+		以下がオフィシャルリポジトリです。フォークもしくはコピーする場合はこちらから:
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>GITリポジトリ</dt><dd>https://github.com/dbflute-session/dbflute-hands-on.git</dd>
+		<dt>プロジェクト</dt><dd>dbflute-hands-on</dd>
+	</dl>
+	<h3 id="gitignore">gitignoreの調整</h3>
+	<p>
+		レビューワーもローカルで同じように動作させたいです。オフィシャルのハンズオンプロジェクトはコミットすることを前提としていないので .gitignore を調整します。
+		<span class="frm">(すでに調整済のプロジェクトを利用される方はこちら不要です。周りに確認してみましょう)</span>
+	</p>
+	<p>
+		まず、プロジェクト直下の .gitignore から以下のように除外対象を削除します。
+	</p>
+	<ul>
+		<li>Eclipse欄の /.settings /.project の2つ</li>
+		<li>DBFlute欄の /dbflute_maihamadb /mydbflute の2つ</li>
+		<li>application欄の /pom.xml の1つ</li>
+	</ul>
+	<p>
+		加えて、以下の.gitignoreファイルをまるごと削除します。
+	</p>
+	<ul>
+		<li>src/main/java/org/docksidestage/handson/.gitignore</li>
+		<li>src/main/resources/.gitignore</li>
+		<li>src/main/resources/org/docksidestage/handson/.gitignore</li>
+		<li>src/test/java/org/docksidestage/handson/.gitignore</li>
+	</ul>
+	<p>
+		除外対象を削除するということは、それをコミット対象にしたいということです。
+		主に、EclipseやMavenの設定、DBFlute自体、自動生成や手動作成されるJavaのクラスなどをコミット対象にします。
+		一方で、コミット対象にしないものの代表としては、MySQLの本体が挙げられます。(OSに依存するものは各環境で用意すべきなのでコミットしない)
+	</p>
+
+	<h2 id="review">レビューのやり取り</h2>
+	<h3 id="reviewcomment">レビューコメント追加 by レビューワー</h3>
+	<p>
+		レビューイーがコミットしたことをレビューワーに知らせると、レビューワーの方でFetch&Pullしてレビューします。そして、以下のようなレビューコメントを入れます。
+	</p>
+<pre><span class="codetitle">e.g. レビューコメント追加 by レビューワー @Java</span><code>
+<span class="comment">// TODO you これはこうです by jflute</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="fixdone">確認して修正したらdone by レビューイー</h3>
+	<p>
+		レビューイーは時折 Fetch&Pull してレビューの有無を確認し、優先して修正してください。
+		そのとき、todoコメントは done と一言入れて残しておいてください。
+		<span class="frm">(todo自体を消すとどんなレビューをしたかわからなくなるため、todoは残しておきます)</span>
+	</p>
+<pre><span class="codetitle">e.g. 確認して修正したらdone by レビューイー @Java</span><code>
+<span class="comment">// TODO done you これはこうです by jflute</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="noticeread">お知らせ・読み物課題コメント by レビューワー</h3>
+	<p>
+		お知らせや読み物課題と言った、コードアクションではないtodoもあります。この場合は読んで理解できたらdoneをしてください。
+	</p>
+<pre><span class="codetitle">e.g. お知らせ・読み物課題コメント by レビューワー @Java</span><code>
+<span class="comment">// TODO you [お知らせ]こうなんですよぅ by jflute</span>
+<span class="abbreviation">...</span>
+<span class="comment">// TODO you [読み物課題]このURLのサイトを読んでおいてください by jflute</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="noticeread">わからないところがあったらtodo by レビューイー</h3>
+	<p>
+		飛ばして先に進んだり、できたけど自信がないとか疑問に思うようなところは、自分用のtodoコメントを入れておきましょう。ただのコメントだと後で忘れてしまうものです。
+	</p>
+<pre><span class="codetitle">e.g. わからないところがあったらtodo by レビューイー @Java</span><code>
+<span class="comment">// TODO you うーむー、ここがこれこれこうでわからん。ので後で</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		セクション１での補完テンプレートを入れていれば、<em class="mark">_todo</em> => ctrl+space でtodoコメントを補完できますので、ぜひ使っていってください。
+	</p>
+	<h3 id="askquestion">聞いてみたいことがあったらtodo by レビューイー</h3>
+	<p>
+		コード上のtodoコメントで質問してください。<em class="mark">_trev</em> => ctrl+space で相手を指定するtodoを補完できます。
+		技術的な話をリモートで質問するのもトレーニングの一つです。背景や論点などを整理してしっかり伝えることができるか？まあ、気負わずにやってみてください。
+	</p>
+<pre><span class="codetitle">e.g. 聞いてみたいことがあったらtodo by レビューイー @Java</span><code>
+<span class="comment">// TODO jflute これこれこうでわからんのですが、これってこれこれこういうこと？ by you</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="findothers">似たようなところが他にもないか探す by レビューイー</h3>
+	<p>
+		todoをされた箇所だけじゃなく、それと同等のコードが他にもあったらそちらも直すようにしましょう。
+	</p>
+	<p>
+		実業務でも、バグが出て直してすぐに別のところで全く同じバグがあって直して...の繰り返しはしたくないものです。
+		<em class="keyword">ひとつ指摘されたら似たようなところが他にもないか探す</em> という習慣が大切です。
+	</p>
+
+	<h2 id="codepolicy">コードポリシー</h2>
+	<p>
+		jfluteのレビューを受けるために、以下のことを意識お願いします。
+	</p>
+	<h3 id="codingtheme">コーディングテーマ</h3>
+	<p>
+		こちらのブログのとおりです。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160912/reviewable">レビューしやすいコード (Reviewable Code) | jfluteの日記</a></div>
+	<h3 id="editorwarning">エディター警告の解決</h3>
+	<p>
+		Eclipse や IntelliJ のエディター上の警告が残っている状態でコミットしないように気を付けましょう。
+		<span class="frm">(自動チェックされるものをレビューするのは無駄なので)</span>
+	</p>
+	<p>
+		現場によっては、checkstyleが効いていることもあるでしょう。checkstyleの警告が残らないようにしましょう。
+		警告をどう直したらいいのかわからないときは、todoコメントで質問をしてください。
+	</p>
+	<h3 id="javadoc">最低限のJavaDoc</h3>
+	<p>
+		新しくクラスを作ったときは、クラスのJavaDocを付けて @author を付与します。(@au => ctrl+space で補完)
+		もちろん、JavaDocらしい気の利いたコメントを書いてもOKです。<span class="frm">(単に少なくともauthorだけは入れて欲しいというところです)</span>
+	</p>
+<pre><span class="codetitle">e.g. 最低限のJavaDoc, セクション２で最初のauthor @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		ハンズオンではあまりありえない状況ですが、他の人が作ったクラスに (レビューコメント以外で) 手を入れる場合は、@author を下に追加します。
+	</p>
+<pre><span class="codetitle">e.g. 最低限のJavaDoc, セクション２でauthorの追加 @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ * @author stojkovic
+ */</span>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		誰が修正をしたのかって別にgitのHistoryを見ればわかる話ではありますが、クラスファイルを開いたらすぐに目に入ってくるというのがポイントです。
+		特にインクリメンタルな開発の場合、とある人が途中まで作ったものを別の人が引き継いだりと複数の人が関わることが多く、緊急の場面でのコードリーディングも多いと想定されるので、すぐに「話しかけたい人」がわかるというのが大切だと考えています。
+		また、複数の人がクロスしてクラスを修正していると、ササッとその場限りで都合のよい無責任実装が積み上がっていきやすいものです。手を動かして記名することで少しでも「自分が関わったクラスなんだ」という意識を高めることも目的の一つです。
+	</p>
+	<h3 id="emptyline">空行マネジメント</h3>
+	<p>
+		空行には「区切り」という明確な役割があります。
+	</p>
+	<p>
+		いい加減に空けたり詰めたりすると「見た目で理解しづらいコード」になってしまいます。
+		必ずこうしなければならないというルールがあるわけではありませんが、まずは統一性を大切に、そして、ぱっと見で読み手がコードの意図を汲み取りやすい空行を心がけましょう。
+	</p>
+	<p>
+		また、ディスプレイは横長のものが多く、縦が短いものです。無駄な空行は削除(Eclipseならctrl+D)していきましょう。ただ、もちろん意味のあるものはOKだし、空けるべきと思ったところは積極的に空けましょう。
+	</p>
+<pre><span class="codetitle">e.g. 空行マネジメントされたデモコード @Java</span><code>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    <span class="keyword">public void</span> test_demo() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        String prefix = <span class="literal">"S"</span>;
+
+        <span class="comment">// ## Act ##</span>
+        List&lt;Member&gt; memberList = memberBhv.selectList(cb -> {
+            cb.setupSelect_MemberStatus();
+            cb.query().setMemberName_LikeSearch(prefix, op -&gt; op.likePrefix());
+            cb.query().existsPurchase(purchaseCB -&gt; {
+                purchaseCB.query().setPaymentCompleteFlg_Equal_True();
+            });
+            cb.query().addOrderBy_Birthdate_Desc();
+        });
+
+        <span class="comment">// ## Assert ##</span>
+        assertHasAnyElement(memberList);
+        memberList.forEach(member -&gt; {
+            String memberName = member.getMemberName();
+            log(memberName);
+            assertTrue(memberName.startsWith(prefix));
+        });
+    }
+}
+</code></pre>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
