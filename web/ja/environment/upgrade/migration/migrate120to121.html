@@ -54,9 +54,9 @@
 		ただし、DBFluteをアップグレードした後に一度も AlterCheck を実行していなければ、unreleased-checked-alter
 		に移行されませんので、そのときは checked-alter...zip のままです。<span class="frm">(アップグレード後の最初のAlterCheckのときに移行されます)</span>
 	</p>
-	<h3 id="alterupgrade">AlterCheck, フェーズ途中でアップグレードしてもOK</h3>
+	<h3 id="alterupgrade">AlterCheck, スプリント途中でアップグレードしてもOK</h3>
 	<p>
-		フェーズの途中でアップグレードしても問題ありません。
+		スプリントの途中でアップグレードしても問題ありません。
 	</p>
 	<p>
 		AlterCheckの時、checked-alter...zip
@@ -64,7 +64,8 @@
 		そして、チェック成功で保存されるときにするときに unreleased-checked-alter に集約され、checked-alter...zip が skipped になり、自動的に移行がされます。
 	</p>
 	<p>
-		SavePreviousの時も、checked-alter...zip があったらあったで finished されます。
+		SavePreviousの時も、checked-alter...zip があったらあったで finished されます。その次の AlterCheck のときに
+		unreleased-checked-alter 方式に自然と移行されます。
 	</p>
 
 	<h2 id="impl">実装上の注意点</h2>
