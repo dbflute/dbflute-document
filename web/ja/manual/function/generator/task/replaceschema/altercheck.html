@@ -49,15 +49,15 @@
 	</p>
 	<h3 id="worddef">言葉の定義</h3>
 	<p>
-		例えば、二週間ごとに開発とリリースを繰り返す <em class="mark">インクリメンタル開発</em> として、その一つの <em class="mark">フェーズ</em> の中で複数のDB変更が発生することを想定して説明をしていきます。
+		例えば、二週間ごとに開発とリリースを繰り返す <em class="mark">インクリメンタル開発</em> として、その一つの <em class="mark">スプリント</em> の中で複数のDB変更が発生することを想定して説明をしていきます。
 	</p>
 	<dl class="shortkeymainlist">
 		<dt>PreviousDDL</dt>
-		<dd>ひとつ前のフェーズのリリース直後の本番DBを再現できるフルDDL <span class="frm">(+ データ)</span></dd>
+		<dd>ひとつ前のスプリントのリリース直後の本番DBを再現できるフルDDL <span class="frm">(+ データ)</span></dd>
 		<dt>AlterDDL</dt>
-		<dd>いまのフェーズのDB変更を実現する差分DDL <span class="frm">(+ スクリプト)</span></dd>
+		<dd>いまのスプリントのDB変更を実現する差分DDL <span class="frm">(+ スクリプト)</span></dd>
 		<dt>NextDDL</dt>
-		<dd>いまのフェーズの最新のスキーマを再現できるフルDDL <span class="frm">(+ データ)</span></dd>
+		<dd>いまのスプリントの最新のスキーマを再現できるフルDDL <span class="frm">(+ データ)</span></dd>
 	</dl>
 	<p>
 		"フルDDL" は、ERDツールなどから自動生成される create table 文が主体のもので、ReplaceSchema で実行されることを想定しています。
@@ -70,8 +70,8 @@
 		DB変更のために二つのDBFluteタスクが用意されています。
 	</p>
 	<dl class="shortkeymainlist">
-		<dt>SavePrevious</dt><dd>PreviousDDLを保存、前回リリース直後に実施、フェーズ内で一回だけ</dd>
-		<dt>AlterCheck</dt><dd>AlterDDLをチェック、DB変更のたびに実施、フェーズ内で複数回あり得る</dd>
+		<dt>SavePrevious</dt><dd>PreviousDDLを保存、前回リリース直後に実施、スプリント内で一回だけ</dd>
+		<dt>AlterCheck</dt><dd>AlterDDLをチェック、DB変更のたびに実施、スプリント内で複数回あり得る</dd>
 	</dl>
 	<p>
 		SavePreviousを実行する人と、AlterCheckを実行する人が同じ人とは限りません<span class="frm">(実行するタイミングが全然違う)</span>。
@@ -79,10 +79,10 @@
 	</p>
 	<h3 id="checkflow">チェックの流れ</h3>
 	<p>
-		ひとつのフェーズの中で "3回" DB変更があるとした場合、おおまかな流れはこのようになります。
+		ひとつのスプリントの中で "3回" DB変更があるとした場合、おおまかな流れはこのようになります。
 	</p>
 	<ol>
-		<li>リリース作業: 前回フェーズのDB変更を本番DBに反映</li>
+		<li>リリース作業: 前回スプリントのDB変更を本番DBに反映</li>
 		<li>PreviousDDLを保存: <em class="mark">SavePrevious</em></li>
 		<li><span class="frm">(...通常の開発)</span></li>
 		<li>DB変更作業: ERDの修正などでNextDDLを更新</li>
@@ -150,7 +150,7 @@ dbflute_maihamadb
 
 	<h2 id="saveprevious">リリース直後に SavePrevious</h2>
 	<p>
-		<em class="keyword">ひとつのフェーズで一回だけ！</em>
+		<em class="keyword">ひとつのスプリントで一回だけ！</em>
 	</p>
 	<p>
 		DB変更する前(前回リリース直後)に、DB変更前のDBを復元できる DDL
@@ -187,9 +187,9 @@ dbflute_maihamadb
 		万が一、開発前にこの課程を忘れてしまった場合でも、後でバージョン管理システムから直前のバージョンを取得して
 		SavePrevious しても AlterCheck は利用できます。
 	</p>
-	<h3 id="finishedalter">前のフェーズのAlterDDLをfinish</h3>
+	<h3 id="finishedalter">前のスプリントのAlterDDLをfinish</h3>
 	<p>
-		SavePreviousは、これからのフェーズの準備を整える役割もあります。前のフェーズのAlterDDLを回収して history の ZIP に固めます。
+		SavePreviousは、これからのスプリントの準備を整える役割もあります。前のスプリントのAlterDDLを回収して history の ZIP に固めます。
 	</p>
 	<dl class="textlist">
 		<dt>DBFlute-1.2.1 より</dt>
@@ -198,12 +198,12 @@ dbflute_maihamadb
 		<dt>DBFlute-1.2.0 まで</dt><dd>checked-alter...zip を finished-alter...zip に変更</dd>
 	</dl>
 	<p>
-		これにより、新たなフェーズの AlterCheck を実施することができます。
+		これにより、新たなスプリントの AlterCheck を実施することができます。
 	</p>
 
 	<h2 id="altercheck">DB変更したら AlterCheck</h2>
 	<p>
-		<em class="keyword">ひとつのフェーズで何度でも</em>
+		<em class="keyword">ひとつのスプリントで何度でも</em>
 	</p>
 	<h3 id="useintro">AlterCheckやるならIntro推奨</h3>
 	<p>
@@ -280,10 +280,10 @@ dbflute_maihamadb
 		この時点で、playsql/migration配下に <em class="mark">alter</em> というディレクトリが自動で作成され、AlterDDLを記述するための <em class="mark">alter-schema.sql</em> が自動配置されています。
 	</p>
 	<p>
-		そのファイルの中身は、同じフェーズ内で最初のDB変更か？二回目のDB変更か？によって変わります。
+		そのファイルの中身は、同じスプリント内で最初のDB変更か？二回目のDB変更か？によって変わります。
 	</p>
 	<dl class="keymainlist">
-		<dt>フェーズ内で最初のDB変更</dt><dd>alter-schema.sql は空っぽ</dd>
+		<dt>スプリント内で最初のDB変更</dt><dd>alter-schema.sql は空っぽ</dd>
 		<dt>すでに別の人がDB変更</dt><dd>alter-schema.sql に別の人のDB変更のDDLが書かれている</dd>
 	</dl>
 <pre><span class="codetitle">e.g. alter の alter-schema.sql (AlterDDL) の自動配置 @playsql</span><code>
@@ -297,7 +297,7 @@ dbflute_maihamadb
     |  |-<span class="abbreviation">...</span>
 </code></pre>
 	<p>
-		もし、同じフェーズ内ですでに別の人がDB変更をしていたら、その内容が復元されます。
+		もし、同じスプリント内ですでに別の人がDB変更をしていたら、その内容が復元されます。
 		SQLファイルは分割できるので複数ファイルが展開される可能性もあります。
 	</p>
 <pre><span class="codetitle">e.g. alter-schema-[チケット番号].sql 形式で、別の人のSQLファイルが復元された場合 @playsql</span><code>
@@ -399,7 +399,7 @@ dbflute_maihamadb
     |  |-schema
 </code></pre>
 	<p>
-		リリースが終わって次のフェーズのSavePreviosが実行されるまでは、そのフェーズのすべてのDB変更のAlterDDLが unreleased-checked-alter
+		リリースが終わって次のスプリントのSavePreviosが実行されるまでは、そのスプリントのすべてのDB変更のAlterDDLが unreleased-checked-alter
 		に保存されています。本番DBにリリース作業をする人は、このディレクトリのSQLファイルを参照します。
 	</p>
 	<h4>DBFlute-1.2.0 までは ZIPファイルにまとめられる</h4>
@@ -420,7 +420,7 @@ dbflute_maihamadb
     |  |-schema
 </code></pre>
 	<p>
-		リリースが終わって次のフェーズのSavePreviosが実行されるまでは、そのフェーズのすべてのDB変更のAlterDDLが checked-alter の ZIP
+		リリースが終わって次のスプリントのSavePreviosが実行されるまでは、そのスプリントのすべてのDB変更のAlterDDLが checked-alter の ZIP
 		に保存されています。本番DBにリリース作業をする人は、このZIPのSQLファイルを参照します。
 	</p>
 	<h3 id="aftercheck">(7. 正常終了後のDBの状態)</h3>
