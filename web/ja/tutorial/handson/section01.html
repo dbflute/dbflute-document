@@ -36,6 +36,7 @@
 	</p>
 
 	<h2 id="preread">まず読みましょう</h2>
+	<h3 id="aboutdbflute">DBFluteのこと</h3>
 	<p>
 		DBFluteのことをざっくり押さえておきましょう。
 	</p>
@@ -43,6 +44,11 @@
 		<dt><a href="http://dbflute.seasar.org/ja/introduction/index.html">DBFluteの紹介 | DBFlute</a></dt><dd>DBFluteオフィシャルの紹介ページ</dd>
 		<dt><a href="https://speakerdeck.com/jflute/dbflute-bridges-between-db-and-app">架け橋DBFlute | SpeakerDeck</a></dt><dd>講演会でのスライド資料</dd>
 	</dl>
+	<h3 id="jflutereview">jfluteによるレビューのこと</h3>
+	<p>
+		jfluteにレビューしてもらう方は、こちらをお読みください。
+	</p>
+	<div class="detailpage"><a href="./review/jflutereview.html">ハンズオンのjfluteレビュー</a></div>
 
 	<h2 id="firstenv">前提環境</h2>
 	<h3 id="jdk">JDKのインストール <span class="frm">(もし、なければ)</span></h3>
@@ -529,6 +535,26 @@ PROJECT_ROOT
 		<dt>user</dt><dd>maihamadb</dd>
 		<dt>password</dt><dd>maihamadb</dd>
 	</dl>
+	<h4>MySQL-8.0.17以降の予約語対応</h4>
+	<p>
+		MySQL-8.0.17より MEMBER が予約語となりましたので、(該当バージョンであれば)その対応を入れます。
+		<em class="mark">littleAdjustmentMap.dfprop</em> のプロパティ値を修正します。<em class="keyword">(忘れずに)</em>
+	</p>
+<pre><span class="codetitle">e.g. quoteTableNameList の設定 @littleAdjustmentMap.dfprop</span><code>
+    <span class="abbreviation">...</span>
+
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o quoteTableNameList: (NotRequired - Default list:{})
+    #  The list of table DB names that need to be quoted. Specified tables is quoted on auto-generated SQL.
+    #</span>
+    ; quoteTableNameList = <span class="keyword">list:</span>{ <span class="literal">MEMBER</span> }
+    <span class="comment"># - - - - - - - - - -/</span>
+
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		これにより、DBFluteが管理しているSQLにて、MEMBERがエスケープされるようになります。
+	</p>
 	<h3 id="replaceschema">ReplaceSchemaの実行</h3>
 	<p>
 		アプリユーザとスキーマ(テーブル構造を含む)を作成するために、ReplaceSchemaを利用します。
