@@ -423,7 +423,39 @@ dbflute_maihamadb
 		リリースが終わって次のスプリントのSavePreviosが実行されるまでは、そのスプリントのすべてのDB変更のAlterDDLが checked-alter の ZIP
 		に保存されています。本番DBにリリース作業をする人は、このZIPのSQLファイルを参照します。
 	</p>
-	<h3 id="aftercheck">(7. 正常終了後のDBの状態)</h3>
+	<h3 id="recheck">(7. チェック成功後にAlterDDLを修正するなら)</h3>
+	<p>
+		"DB変更自体の手直し" のケースと、"AlterDDLのちょこっと修正" のケースで少し分かれます。
+	</p>
+	<h4>DB変更自体の手直し <span class="frm">(NextDDLもAlterDDLも修正)</span></h4>
+	<p>
+		このページの手順の "0. DB変更でNextDDLを更新" を繰り返します。
+		新しいSQLファイルを作る必要はないので、AlterCheck後に復元されたSQLファイルを修正してAlterCheckしましょう。
+	</p>
+	<p>
+		ただし、AlterCheckの差分が出ないレベルの手直し <span class="frm">(例えばDBコメントのちょい修正やFK制約名の修正など)</span>
+		は、AlterCheckを実行しても差分にならずに成功してしまい、前に書いたSQLファイルがalterディレクトリに復元されません。
+	</p>
+	<p>
+		なので、unreleased-checked-alter配下のSQLファイルを手動で
+		(READONLY_のprefixを除去して) alterディレクトリにコピーして、alterディレクトリ内で修正してから AlterCheck ください。
+		<span class="frm">(ちなみに、DBFlute Introであれば、AlterCheck実行せずに復元されるので、このような手間は発生しません)</span>
+	</p>
+	<h4>AlterDDLのちょこっと修正 <span class="frm">(AlterDDLのみ修正)</span></h4>
+	<p>
+		DB変更自体(NextDDL)はそのままでAlterDDLの書き方やSQLコメントの修正だけのときも、unreleased-checked-alter配下のSQLファイルを手動で
+		(READONLY_のprefixを除去して) alterディレクトリにコピーして、alterディレクトリ内で修正してから AlterCheck ください。
+		<span class="frm">(ちなみに、DBFlute Introであれば、AlterCheck実行せずに復元されるので、このような手間は発生しません)</span>
+	</p>
+	<p>
+		差分に関係のない修正だとしても、ミスや勘違いも十分あり得ますので、unreleased-checked-alterを直接修正せずに、必ず AlterCheck のオペレーションを経由しましょう。
+		<span class="frm">(ミスや勘違いで本番DBのメンテナンスでトラブルになるよりかは、いまここで少しの手間をかけたほうが良いです)</span>
+	</p>
+	<h4>やはり DBFlute Intro で作業するのがオススメ</h4>
+	<p>
+		こういった細かいユースケースへの対応も、DBFlute Intro経由でのオペレーションの方が安全にできますので、特別な理由がない限りは DBFlute Intro を使うほうが良いでしょう。
+	</p>
+	<h3 id="aftercheck">(8. 正常終了後のDBの状態)</h3>
 	<p>
 		AlterCheck正常終了後のDBは、PreviousDB に AlterDDL を適用させたものとなっています。
 		そのままアプリを起動してテストを行えば、より本番に近い状態のテスト環境として利用できます。
