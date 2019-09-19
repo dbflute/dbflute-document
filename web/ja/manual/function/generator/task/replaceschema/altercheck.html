@@ -437,14 +437,14 @@ dbflute_maihamadb
 		は、AlterCheckを実行しても差分にならずに成功してしまい、前に書いたSQLファイルがalterディレクトリに復元されません。
 	</p>
 	<p>
-		なので、unreleased-checked-alter配下のSQLファイルを手動で
-		(READONLY_のprefixを除去して) alterディレクトリにコピーして、alterディレクトリ内で修正してから AlterCheck ください。
+		なので、その場合は unreleased-checked-alter ディレクトリ配下のSQLファイルを手動で
+		(READONLY_のprefixを除去して) alterディレクトリにコピーして修正して AlterCheck しましょう。
 		<span class="frm">(ちなみに、DBFlute Introであれば、AlterCheck実行せずに復元されるので、このような手間は発生しません)</span>
 	</p>
 	<h4>AlterDDLのちょこっと修正 <span class="frm">(AlterDDLのみ修正)</span></h4>
 	<p>
 		DB変更自体(NextDDL)はそのままでAlterDDLの書き方やSQLコメントの修正だけのときも、unreleased-checked-alter配下のSQLファイルを手動で
-		(READONLY_のprefixを除去して) alterディレクトリにコピーして、alterディレクトリ内で修正してから AlterCheck ください。
+		(READONLY_のprefixを除去して) alterディレクトリにコピーして修正して AlterCheck しましょう。
 		<span class="frm">(ちなみに、DBFlute Introであれば、AlterCheck実行せずに復元されるので、このような手間は発生しません)</span>
 	</p>
 	<p>
