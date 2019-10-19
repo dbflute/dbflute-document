@@ -183,10 +183,21 @@ dbflute_yourdb
 				AlterCheckに失敗した場合、失敗した理由を確認し、再度AlterDDLを修正しなければなりません。
 				修正の鍵となる2つの情報がStep2画面上から確認できます。これらの情報はAlterCheckが失敗したあとから確認できるようになります。
 			</p>
-			<ul>
-				<li>Check Result HTML</li>
-				<li>AlterCheckの最終実行ログ（AlterCheck失敗ダイアログに表示されていたもの）</li>
-			</ul>
+			<dl class="textlist">
+				<dt>Check Result HTML</dt>
+				<dd>
+					PreviousDDLにAlterDDLを流したあとに、NextDDLと差分があった場合にDBFlute Engineによって作成されるHTMLファイルです。
+					DDL間にどのような差分があったのかがわかるようなドキュメントになっています。
+					このHTMLファイルは、DDL間に差分があったという理由で以外でAlterCheckに失敗した場合は作成されません。
+				</dd>
+
+				<dt>AlterCheckの最終実行ログ</dt>
+				<dd>
+					Check Result HTMLだけでAlterCheckにしっぱした理由がわからない場合はこちらを確認してください。
+					AlterCheckが失敗した理由が詳細に記載されています。
+					「どのAlterDDLの実行に失敗したのたのか」や、「DB接続に失敗した」などのAlterCheck失敗に関する様々な原因を確認することができます。
+				</dd>
+			</dl>
 			<p class="imgbox">AlterCheck失敗理由の確認
 				<a href="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" alt="DBFluteIntro Top" width="550" /></a>
 			</p>
