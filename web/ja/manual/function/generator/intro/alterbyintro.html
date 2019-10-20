@@ -1,113 +1,88 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta name="keywords" content="DBFlute,DBFlute Intro,イントロ,支援ツール,DB変更,AlterCheck" />
-	<link rel="stylesheet" type="text/css" href="../../../../../css/sub.css" />
-	<!--[if IE 6.0]>
-	<link rel="stylesheet" type="text/css" href="../../../../../css/cb/sub.css" />
-	<![endif]-->
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
 	<title>AlterCheck を Intro で | DBFlute</title>
 </head>
 <body>
 <div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
 
-	<div id="mainbar">
-		<div id="header">
-			<div class="navi-upper"><a href="../../../../../ja/sitemap.html">SiteMap</a>|<a href="http://d.hatena.ne.jp/jflute/">Author's Blog</a></div>
-			<div class="navi-main">
-				<ul>
-					<li class="hd-introduction"><a href="../../../../../ja/introduction/index.html"><img src="../../../../../image/parts/navi/link-intro.png" alt="Introduction" width="75" height="32" /></a></li>
-					<li class="hd-tutorial"><a href="../../../../../ja/tutorial/index.html"><img src="../../../../../image/parts/navi/link-tuto.png" alt="Tutorial" width="56" height="24" /></a>
-						<ul>
-							<li class="hd-architect"><a href="../../../../../ja/tutorial/architect.html"><img src="../../../../../image/parts/navi/link-arch.png" alt="for Architect" width="80" height="24" /></a></li>
-							<li class="hd-developer"><a href="../../../../../ja/tutorial/developer.html"><img src="../../../../../image/parts/navi/link-dev.png" alt="for Developer" width="87" height="24" /></a></li>
-						</ul>
-					</li>
-					<li class="hd-environment"><a href="../../../../../ja/environment/index.html"><img src="../../../../../image/parts/navi/link-env.png" alt="Environment" width="84" height="25" /></a>
-						<ul>
-							<li class="hd-install"><a href="../../../../../ja/environment/setup/index.html"><img src="../../../../../image/parts/navi/link-setup.png" alt="Setup" width="42" height="24" /></a></li>
-							<li class="hd-upgrade"><a href="../../../../../ja/environment/upgrade/index.html"><img src="../../../../../image/parts/navi/link-upgrade.png" alt="Upgrade" width="61" height="25" /></a></li>
-						</ul>
-					</li>
-					<li class="hd-manual"><a href="../../../../../ja/manual/index.html"><img src="../../../../../image/parts/navi/link-manual.png" alt="Manual" width="62" height="25" /></a></li>
-				</ul>
-			</div>
-		</div>
+<div id="content"><!-- __content-start__ -->
+	<h1>AlterCheck を Intro で</h1>
+	<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
+	<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
+	${indexlist}
 
-		<div id="content"><!-- __content-start__ -->
-			<h1>AlterCheck を Intro で</h1>
-			<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
-			<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
-			<ul class="indexlist">
-				<li><a href="#about">AlterCheckとは？</a></li>
-				<li><a href="#where">AlterCheckの画面はどこにある？</a></li>
-				<li>
-					<a href="#operation">操作の流れ</a>
-					<ul>
-						<li><a href="#precondition">DBFlute Introを起動</a></li>
-						<li><a href="#step1">Step1. AlterSQL を準備する</a></li>
-						<li><a href="#step2">Step2. AlterCheckを実行する</a></li>
-						<li><a href="#next" >Step1画面に戻ったら</a></li>
-					</ul>
-				</li>
-			</ul>
+	<h2 id="about">AlterCheckとは？</h2>
+	<p>
+		DB変更を加えるときに、差分DDLが妥当かどうかをReplaceSchemaを利用して検証するDBFlute Engineの機能です。AlterCheckそのものの詳しい内容はこちらをお読みください。
+	<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
+	</p>
 
-			<h2 id="about">AlterCheckとは？</h2>
-			<p>
-				DB変更を加えるときに、差分DDLが妥当かどうかをReplaceSchemaを利用して検証するDBFlute Engineの機能です。AlterCheckそのものの詳しい内容はこちらをお読みください。
-			<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
-			</p>
+	<h2 id="where">AlterCheckの画面はどこにある？</h2>
+	<p>
+		サイドメニューにある、「AlterCheck」リンクからAlterCheck画面に移動することができます。
+	</p>
+	<p class="imgbox">AlterCheck画面
+		<a href="../../../../../data/snapshot/intro/alter/alter-top.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-top.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
 
-			<h2 id="where">AlterCheckの画面はどこにある？</h2>
-			<p>
-				サイドメニューにある、「AlterCheck」リンクからAlterCheck画面に移動することができます。
-			</p>
-			<p class="imgbox">AlterCheck画面
-				<a href="../../../../../data/snapshot/intro/alter/alter-top.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-top.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
+	<h2 id="operation">操作の流れ</h2>
+	<p>
+		AlterCheckは大きく分けて2つのステップに分かれています。
+	</p>
+	<ul>
+		<li>DBFlute Introを起動</li>
+		<li>Step1. AlterCheckの下準備をする</li>
+		<li>Step2. AlterCheckを実行する</li>
+	</ul>
 
-			<h2 id="operation">操作の流れ</h2>
-			<p>
-				AlterCheckは大きく分けて2つのステップに分かれています。
-			</p>
-			<ul>
-				<li>DBFlute Introを起動</li>
-				<li>Step1. AlterCheckの下準備をする</li>
-				<li>Step2. AlterCheckを実行する</li>
-			</ul>
+	<h3 id="precondition">DBFlute Introを起動</h3>
+	<p>
+		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。
+	</p>
 
-			<h3 id="precondition">DBFlute Introを起動</h3>
-			<p>
-				manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。
-			</p>
+	<h3 id="step1">Step1. AlterCheckの下準備をする</h3>
+	<p>
+		この画面で行う操作は2つあります。
+	</p>
+	<ul>
+		<li>リリース前のAlterDDLを確認する</li>
+		<li>AlterCheckの準備をする</li>
+	</ul>
+	<p class="imgbox">Step1画面
+		<a href="../../../../../data/snapshot/intro/alter/alter-step1.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
 
-			<h3 id="step1">Step1. AlterCheckの下準備をする</h3>
-			<p>
-				この画面で行う操作は2つあります。
-			</p>
-			<ul>
-				<li>リリース前のAlterDDLを確認する</li>
-				<li>AlterCheckの準備をする</li>
-			</ul>
-			<p class="imgbox">Step1画面
-				<a href="../../../../../data/snapshot/intro/alter/alter-step1.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
-
-			<h4>リリース前のAlterDDLを確認する</h4>
-			<p>
-				Step1の画面で表示されているのは、（他の人が作業した）未リリースでチェック済みのAlterDDLの一覧です。
-				ファイル名をクリックすることで、AlterDDLの中身を確認することができます。この時点で、自分の入れたいDB変更がすでに入っていないか（重複していないか）確認してください。
-			</p>
-			<p class="imgbox">Step1画面でリリース前のAlterDDLの中身を確認する
-				<a href="../../../../../data/snapshot/intro/alter/alter-step1-check-alterddl.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1-check-alterddl.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
-			<p>
-				GUIで操作する以上、あまり意識する必要はありませんが、表示しているAlterDDLの実態となるファイルは以下のディレクトリに配置されているものです。<br>
-				<span class="frm">unreleased-checked-alter 配下にあるファイルは、SQLファイルのみ表示しています。</span>
-			</p>
-			<pre><span class="codetitle"> AlterDDLの保存場所</span><code>
+	<h4>リリース前のAlterDDLを確認する</h4>
+	<p>
+		Step1の画面で表示されているのは、（他の人が作業した）未リリースでチェック済みのAlterDDLの一覧です。
+		ファイル名をクリックすることで、AlterDDLの中身を確認することができます。この時点で、自分の入れたいDB変更がすでに入っていないか（重複していないか）確認してください。
+	</p>
+	<p class="imgbox">Step1画面でリリース前のAlterDDLの中身を確認する
+		<a href="../../../../../data/snapshot/intro/alter/alter-step1-check-alterddl.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1-check-alterddl.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
+	<p>
+		GUIで操作する以上、あまり意識する必要はありませんが、表示しているAlterDDLの実態となるファイルは以下のディレクトリに配置されているものです。<br>
+		<span class="frm">unreleased-checked-alter 配下にあるファイルは、SQLファイルのみ表示しています。</span>
+	</p>
+	<pre><span class="codetitle"> AlterDDLの保存場所</span><code>
 dbflute_yourdb
  |-playsql
     |-migration <span class="comment">// AlterCheck用のディレクトリのトップ</span>
@@ -126,41 +101,39 @@ dbflute_yourdb
              |-<span class="subpoint">READONLY_alter-schema.sql</span>
              |-<span class="subpoint">READONLY_alter-schema-[チケット番号].sql</span>
 </code></pre>
+	<h4>AlterCheckの準備をする</h4>
+	<p>
+		新たにDB変更を加えAlterDDLを作成したい場合は、作成するAlterDDLのファイル名を入力して、<em class="mark">Begin</em>ボタンを押してください。
+		リリース前のSQLを修正したい場合は、<em class="mark">Fix</em>ボタンを押してください。
+		この操作を行うと、DBFluteクライアントプロジェクト内部でAlterCheckをする準備が整い、Step2に進みます。<br>
+	</p>
+	<p class="imgbox">Step1画面でAlterCheckの準備をする
+		<a href="../../../../../data/snapshot/intro/alter/alter-step1-prepare.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1-prepare.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
 
+	<h3 id="step2">Step2. AlterCheckを実行する</h3>
+	<p>
+		この画面で行う操作は3つあります。
+	</p>
+	<ul>
+		<li>AlterDDLを編集する</li>
+		<li>AlterCheckを実行する</li>
+		<li>AlterCheck失敗の理由を確認する</li>
+	</ul>
+	<p class="imgbox">Step2画面
+		<a href="../../../../../data/snapshot/intro/alter/alter-step2.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
 
-			<h4>AlterCheckの準備をする</h4>
-			<p>
-				新たにDB変更を加えAlterDDLを作成したい場合は、作成するAlterDDLのファイル名を入力して、<em class="mark">Begin</em>ボタンを押してください。
-				リリース前のSQLを修正したい場合は、<em class="mark">Fix</em>ボタンを押してください。
-				この操作を行うと、DBFluteクライアントプロジェクト内部でAlterCheckをする準備が整い、Step2に進みます。<br>
-			</p>
-			<p class="imgbox">Step1画面でAlterCheckの準備をする
-				<a href="../../../../../data/snapshot/intro/alter/alter-step1-prepare.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1-prepare.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
-
-			<h3 id="step2">Step2. AlterCheckを実行する</h3>
-			<p>
-				この画面で行う操作は3つあります。
-			</p>
-			<ul>
-				<li>AlterDDLを編集する</li>
-				<li>AlterCheckを実行する</li>
-				<li>AlterCheck失敗の理由を確認する</li>
-			</ul>
-			<p class="imgbox">Step2画面
-				<a href="../../../../../data/snapshot/intro/alter/alter-step2.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
-
-			<h4>AlterDDLを編集する</h4>
-			<p>
-				Step2画面では、編集中のAlterDDL一覧が表示されています。<em class="mark"> (now prepared)</em> と末尾に書かれているファイルが、Step1でファイル名を入力することで作成されたファイルです。<br>
-				編集中のAlterDDLが格納されているディレクトリをみなさんのOSに搭載されているファイルエクスプローラで開くには、<em class="mark">SQL Files Directory</em> ボタンを押します。
-				ここから、任意のエディタを利用して、AlterDDLを編集してください。
-			</p>
-			<p class="imgbox">Step2画面でAlterDDLを編集する（Macの例）
-				<a href="../../../../../data/snapshot/intro/alter/alter-step2-open.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-open.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
-			<pre><span class="codetitle">ボタンを押すと開くディレクトリの場所</span><code>
+	<h4>AlterDDLを編集する</h4>
+	<p>
+		Step2画面では、編集中のAlterDDL一覧が表示されています。<em class="mark"> (now prepared)</em> と末尾に書かれているファイルが、Step1でファイル名を入力することで作成されたファイルです。<br>
+		編集中のAlterDDLが格納されているディレクトリをみなさんのOSに搭載されているファイルエクスプローラで開くには、<em class="mark">SQL Files Directory</em> ボタンを押します。
+		ここから、任意のエディタを利用して、AlterDDLを編集してください。
+	</p>
+	<p class="imgbox">Step2画面でAlterDDLを編集する（Macの例）
+		<a href="../../../../../data/snapshot/intro/alter/alter-step2-open.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-open.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
+	<pre><span class="codetitle">ボタンを押すと開くディレクトリの場所</span><code>
 dbflute_yourdb
  |-playsql
     |-migration <span class="comment">// AlterCheck用のディレクトリのトップ</span>
@@ -168,136 +141,60 @@ dbflute_yourdb
              |-<span class="subpoint">alter-schema.sql</span>
              |-<span class="subpoint">alter-schema-[チケット番号].sql</span>
 </code></pre>
-			<h4>AlterCheckを実行する</h4>
-			<p>
-				AlterDDLの編集が終わったら、<em class="mark">Execute AlterCheck</em> ボタンを押してください。
-				確認ダイアログが表示され、OKボタンを押すとAlterCheckを実行されます。
-				AlterCheckが正常に終わった場合に、Step1画面に自動的に戻ります。
-			</p>
-			<p class="imgbox">Step2画面でAlterDDLを実行する（Macの例）
-				<a href="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
+	<h4>AlterCheckを実行する</h4>
+	<p>
+		AlterDDLの編集が終わったら、<em class="mark">Execute AlterCheck</em> ボタンを押してください。
+		確認ダイアログが表示され、OKボタンを押すとAlterCheckを実行されます。
+		AlterCheckが正常に終わった場合に、Step1画面に自動的に戻ります。
+	</p>
+	<p class="imgbox">Step2画面でAlterDDLを実行する（Macの例）
+		<a href="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
 
-			<h4>AlterCheck失敗の理由を確認する</h4>
-			<p>
-				AlterCheckに失敗した場合、失敗した理由を確認し、再度AlterDDLを修正しなければなりません。
-				修正の鍵となる2つの情報がStep2画面上から確認できます。これらの情報はAlterCheckが失敗したあとから確認できるようになります。
-			</p>
-			<dl class="textlist">
-				<dt>Check Result HTML</dt>
-				<dd>
-					PreviousDDLにAlterDDLを流したあとに、NextDDLと差分があった場合にDBFlute Engineによって作成されるHTMLファイルです。
-					DDL間にどのような差分があったのかがわかるようなドキュメントになっています。
-					このHTMLファイルは、DDL間に差分があったという理由で以外でAlterCheckに失敗した場合は作成されません。
-				</dd>
+	<h4>AlterCheck失敗の理由を確認する</h4>
+	<p>
+		AlterCheckに失敗した場合、失敗した理由を確認し、再度AlterDDLを修正しなければなりません。
+		修正の鍵となる2つの情報がStep2画面上から確認できます。これらの情報はAlterCheckが失敗したあとから確認できるようになります。
+	</p>
+	<dl class="textlist">
+		<dt>Check Result HTML</dt>
+		<dd>
+			PreviousDDLにAlterDDLを流したあとに、NextDDLと差分があった場合にDBFlute Engineによって作成されるHTMLファイルです。
+			DDL間にどのような差分があったのかがわかるようなドキュメントになっています。
+			このHTMLファイルは、DDL間に差分があったという理由で以外でAlterCheckに失敗した場合は作成されません。
+		</dd>
 
-				<dt>AlterCheckの最終実行ログ</dt>
-				<dd>
-					Check Result HTMLだけでAlterCheckにしっぱした理由がわからない場合はこちらを確認してください。
-					AlterCheckが失敗した理由が詳細に記載されています。
-					「どのAlterDDLの実行に失敗したのたのか」や、「DB接続に失敗した」などのAlterCheck失敗に関する様々な原因を確認することができます。
-				</dd>
-			</dl>
-			<p class="imgbox">AlterCheck失敗理由の確認
-				<a href="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" alt="DBFluteIntro Top" width="550" /></a>
-			</p>
+		<dt>AlterCheckの最終実行ログ</dt>
+		<dd>
+			Check Result HTMLだけでAlterCheckにしっぱした理由がわからない場合はこちらを確認してください。
+			AlterCheckが失敗した理由が詳細に記載されています。
+			「どのAlterDDLの実行に失敗したのたのか」や、「DB接続に失敗した」などのAlterCheck失敗に関する様々な原因を確認することができます。
+		</dd>
+	</dl>
+	<p class="imgbox">AlterCheck失敗理由の確認
+		<a href="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" alt="DBFluteIntro Top" width="550" /></a>
+	</p>
 
-			<h3 id="next">Step1画面に戻ったら...</h3>
-			<p>
-				晴れてAlterCheckがうまくいきました！！<br>
-				またDB変更をする場合は、Step1画面から作業を繰り返してください。
-			</p>
-		<!-- __content-end__ --></div>
-	</div>
+	<h3 id="next">Step1画面に戻ったら...</h3>
+	<p>
+		晴れてAlterCheckがうまくいきました！！<br>
+		またDB変更をする場合は、Step1画面から作業を繰り返してください。
+	</p>
+<!-- __content-end__ --></div></div>
 
-	<div id="sidebar">
-		<div class="logo"><a href="../../../../../"><img src="../../../../../image/parts/logo.png" alt="dbflute-logo" width="240" height="110" /></a></div>
-		<ul>
-			<li><a href="../../../../../ja/manual/function/generator/index.html">自動生成ツール</a>
-				<ul>
-					<li><a href="../../../../../ja/manual/function/generator/client/index.html">DBFluteクライアント</a></li>
-					<li><a href="../../../../../ja/manual/function/generator/engine/index.html">DBFluteエンジン</a></li>
-					<li><a href="../../../../../ja/manual/function/generator/task/index.html">DBFluteタスク</a>
-					<li class="upper-space"><a href="../../../../../ja/manual/function/generator/task/generate/index.html">Generate</a></li>
-					<li><a href="../../../../../ja/manual/function/generator/task/sql2entity/index.html">Sql2Entity</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/function/generator/task/replaceschema/index.html">ReplaceSchema</a></li>
-					<li><a href="../../../../../ja/manual/function/generator/task/manage/index.html">Manage</a></li>
-					<li><a href="../../../../../ja/manual/function/generator/task/doc/schemahtml.html">SchemaHTML</a></li>
-				</ul>
-			</li>
-			<li><a href="../../../../../ja/manual/function/ormapper/index.html">O/Rマッパ</a>
-				<ul>
-					<li><a href="../../../../../ja/manual/function/ormapper/behavior/index.html">Behavior</a></li>
-					<li><a href="../../../../../ja/manual/function/ormapper/conditionbean/index.html">ConditionBean</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/function/ormapper/outsidesql/index.html">OutsideSql</a></li>
-					<li><a href="../../../../../ja/manual/function/ormapper/entity/index.html">Entity</a></li>
-					<li><a href="../../../../../ja/manual/function/ormapper/runtime/index.html">DBFluteランタイム</a></li>
-				</ul>
-			</li>
-			<li>
-				<a href="../../../../../ja/manual/function/genbafit/index.html">現場フィット</a>
-				<ul>
-					<li><a href="../../../../../ja/manual/function/genbafit/implfit/index.html">アプリ実装の全体最適</a></li>
-					<li><a href="../../../../../ja/manual/function/genbafit/projectfit/index.html">プロジェクト構成対応</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/function/genbafit/runtimefit/index.html">実行時共通要件の実現</a></li>
-					<li><a href="../../../../../ja/manual/function/genbafit/deprecatedfit/index.html">非推奨な構造フォロー</a></li>
-					<li><a href="../../../../../ja/manual/function/genbafit/dbflutefit/index.html">DBFluteサポート</a></li>
-				</ul>
-			</li>
-			<li><a href="../../../../../ja/manual/function/helper/index.html">支援ツール</a>
-				<ul>
-					<li><a href="../../../../../ja/manual/function/generator/intro/index.html">DBFlute Intro</a></li>
-					<li><a href="../../../../../ja/manual/function/helper/emecha/index.html">EMecha (Eclipse Plugin)</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/function/helper/maven/index.html">Maven DBFlute Plugin</a></li>
-					<li><a href="../../../../../ja/manual/function/helper/saflute/index.html">SAFlute</a></li>
-					<li><a href="../../../../../ja/manual/function/helper/utflute/index.html">UTFlute</a></li>
-				</ul>
-			</li>
-			<li><a href="../../../../../ja/manual/reference/index.html">リファレンス</a>
-				<ul>
-					<li><a href="../../../../../ja/manual/reference/dbway/index.html">DBMSごとの取扱い</a></li>
-					<li><a href="../../../../../ja/manual/reference/diway/index.html">DIコンテナごとの取扱い</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/reference/dfprop/index.html">DBFluteプロパティ</a></li>
-					<li><a href="../../../../../ja/manual/reference/dictionary/index.html">DBFlute用語集</a></li>
-					<li><a href="../../../../../ja/manual/reference/example/index.html">DBFlute Example</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/reference/faq/index.html">FAQ</a></li>
-					<li><a href="../../../../../ja/manual/reference/troubleshooting/index.html">トラブルシューティング</a></li>
-				</ul>
-			</li>
-			<li><a href="../../../../../ja/manual/topic/index.html">トピック</a>
-				<ul>
-					<li><a href="../../../../../ja/manual/topic/dbdesign/index.html">DB設計</a></li>
-					<li><a href="../../../../../ja/manual/topic/programming/index.html">プログラミング</a></li>
-					<li><a href="../../../../../ja/manual/topic/friends/index.html">他のフレームワーク</a></li>
-					<li class="upper-space"><a href="../../../../../ja/manual/topic/office/index.html">事務的な話</a></li>
-					<li><a href="../../../../../ja/manual/topic/dbflutenet/index.html">DBFlute.NET</a></li>
-				</ul>
-			</li>
-		</ul>
-
-	</div>
-
-	<div id="footer">
-		<div><a href="../../../../../ja/sitemap.html">SiteMap</a> <a href="http://d.hatena.ne.jp/jflute">Author's Blog</a><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></div>
-		<ul class="footer-navi">
-			<li class="hd-introduction"><a href="../../../../../ja/introduction/index.html">Introduction</a></li>
-			<li class="hd-tutorial"><a href="../../../../../ja/tutorial/index.html">Tutorial</a>
-				<ul>
-					<li class="hd-architect"><a href="../../../../../ja/tutorial/architect.html">for Architect</a></li>
-					<li class="hd-developer"><a href="../../../../../ja/tutorial/developer.html">for Developer</a></li>
-				</ul>
-			</li>
-			<li class="hd-environment"><a href="../../../../../ja/environment/index.html">Environment</a>
-				<ul>
-					<li class="hd-install"><a href="../../../../../ja/environment/setup/index.html">Setup</a></li>
-					<li class="hd-upgrade"><a href="../../../../../ja/environment/upgrade/index.html">Upgrade</a></li>
-				</ul>
-			</li>
-			<li class="hd-manual"><a href="../../../../../ja/manual/index.html">Manual</a></li>
-		</ul>
-
-	</div>
-
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
 </div>
 </body>
 </html>
