@@ -32,11 +32,24 @@
 	${indexlist}
 
 	<h2 id="about">DBFlute Introとは？</h2>
+	<h3 id="guidbflute">GUIでDBFluteを利用できるツール</h3>
 	<p>
 		アプリの外側で活躍するDBFluteの機能 (Alto DBFlute) を、インストールから実行までGUIだけで実行できるツールです。
 		Javaの実行環境(JRE)さえあれば利用できる導入しやすいツールです。
 	</p>
 	<div class="relatedpage"><a href="../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	<h3 id="usecase">想定される利用ケース</h3>
+	<p>
+		大きく二つになります。
+	</p>
+	<dl class="keymainlist">
+		<dt>Alto DBFluteスタイル</dt><dd>Intro経由でDBFluteのDB管理支援機能(Alto DBFlute)を使う</dd>
+		<dt>ORM DBFluteスタイル</dt><dd>DBFluteをO/Rマッパーとして使う上でIntroで補助操作する</dd>
+	</dl>
+	<p>
+		<span class="frm">※ドキュメントは主に、Alto DBFluteスタイルを中心に書いています。</span>
+	</p>
+	<h3 id="opensouce">オープンソースとして運用</h3>
 	<p>
 		Github で開発されているオープンソースです。
 		DBFlute本体とは、独立した運用がされていますので、本家のサイトにも注目です。<span class="frm">(ということで、ここでは、簡単な利用方法の説明だけをしていきます)</span>
@@ -62,6 +75,7 @@
 	</dl>
 
 	<h2 id="download">Introのダウンロード</h2>
+	<h3 id="downloadonejar">jarファイルをひとつ <span class="frm">(for Alto DBFluteスタイル)</span></h3>
 	<p>
 		インストールという概念はありません。単にファイル (.jar) を一つダウンロードするだけです。
 	</p>
@@ -73,7 +87,7 @@
 	</dl>
 	<p>
 		そして、例えば以下のよう感じで、どこかのディレクトリに入れておくと良いでしょう。
-	</p"ja/manual/function/generator/intro/index.html">
+	</p>
 <pre><span class="codetitle">e.g. DBFlute Intro のjarファイルを dbflute-intro ディレクトリ配下に @Directory</span><code>
 <span class="abbreviation">...</span>
  |-<span class="abbreviation">...</span>
@@ -85,7 +99,7 @@
  |-<span class="abbreviation">...</span>
 </code></pre>
 	<p>
-		もし、DBFlute を "O/Rマッパー" としても利用する想定であれば、クラスを自動生成するプロジェクトの直下に置きましょう。
+		後に、DBFlute を "O/Rマッパー" <span class="frm">(ORM DBFluteスタイル)</span> としても利用する想定であれば、クラスを自動生成するプロジェクトの直下に置きましょう。
 	</p>
 <pre><span class="codetitle">e.g. DBFlute Intro のjarファイルを maihama プロジェクトディレクトリ配下に @Directory</span><code>
 <span class="abbreviation">...</span>
@@ -103,6 +117,14 @@
 		特にバージョン番号は付けていません。アップグレードするときは上書きしてしまいましょう。起動するとメイン画面の下の方に表示される System Info
 		にバージョンが表示されます。常に最新を使っていきましょう。
 	</p>
+	<h3 id="downloadbyengine">Introタスクでダウンロード <span class="frm">(for ORM DBFluteスタイル)</span></h3>
+	<p>
+		すでに DBFlute がセットアップ済みで、普段からDBFluteタスクを直接実行している状態であれば、Manageタスクの 88 (intro)
+		からダウンロードすると良いでしょう。同時に起動もします。<span class="frm">(もし最新版があれば上書きダウンロードされるので、アップグレードを気にする必要はありません)</span>
+	</p>
+	<p>
+		ただ、ORM DBFluteスタイルでも、DBFluteの初回セットアップをIntroで行うなら、Alto DBFluteスタイルと同じです。jarファイルをダウンロードして配置しましょう。
+	</p>
 
 	<h2 id="useflow">使い方の流れ</h2>
 	<ol>
@@ -113,11 +135,20 @@
 	</ol>
 
 	<h2 id="bootintro">DBFlute Intro を起動</h2>
+	<h3 id="bootbyjavacommand">Javaコマンドから起動 <span class="frm">(for Alto DBFluteスタイル)</span></h3>
 	<dl class="shortkeymainlist">
 		<dt>Mac/Windows</dt><dd>コマンドラインから... <em class="bigmark">java -jar dbflute-intro.jar</em></dd>
 	</dl>
 	<p>
 		<span class="frm">※javaコマンドが叩ける必要があります。</span>
+	</p>
+	<h3 id="bootbyengine">Introタスクから起動 <span class="frm">(for ORM DBFluteスタイル)</span></h3>
+	<p>
+		すでに DBFlute がセットアップ済みで、普段からDBFluteタスクを直接実行している状態であれば、Manageタスクの 88 (intro)
+		でダウンロードと同時に起動できます。その場合、Welcome画面はスキップされてトップ画面が表示されます。<span class="frm">(次の "まずは Welcome !" は読み飛ばしましょう)</span>
+	</p>
+	<p>
+		ただ、ORM DBFluteスタイルでも、DBFluteの初回セットアップをIntroで行うなら、Alto DBFluteスタイルと同じです。jarファイルをコマンドから起動しましょう。
 	</p>
 
 	<h2 id="welcome">まずは Welcome !</h2>
