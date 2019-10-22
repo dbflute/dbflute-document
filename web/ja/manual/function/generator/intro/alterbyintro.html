@@ -54,11 +54,11 @@
 
 
 	<h2 id="step1">Step1. AlterCheckの下準備をする</h2>
-	<h3 id="step1-0">DBFlute Introを起動</h3>
+	<h3 id="bootintro">DBFlute Introを起動</h3>
 	<p>
 		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。
 	</p>
-	<h3 id="step1-1">Step1画面での操作</h3>
+	<h3 id="step1operation">Step1画面での操作</h3>
 	<p>
 		この画面で行う操作は2つあります。
 	</p>
@@ -70,7 +70,7 @@
 		<a href="../../../../../data/snapshot/intro/alter/alter-step1.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
 
-	<h3 id="step1-2">リリース前のAlterDDLを確認する</h3>
+	<h3 id="checkalterddl">リリース前のAlterDDLを確認する</h3>
 	<p>
 		Step1の画面で表示されているのは、（他の人が作業した）未リリースでチェック済みのAlterDDLの一覧です。
 		ファイル名をクリックすることで、AlterDDLの中身を確認することができます。この時点で、自分の入れたいDB変更がすでに入っていないか（重複していないか）確認してください。
@@ -101,7 +101,7 @@ dbflute_yourdb
              |-<span class="subpoint">READONLY_alter-schema.sql</span>
              |-<span class="subpoint">READONLY_alter-schema-[チケット番号].sql</span>
 </code></pre>
-	<h3 id="step1-3">AlterCheckの準備をする</h3>
+	<h3 id="preparealterddl">AlterCheckの準備をする</h3>
 	<p>
 		新たにDB変更を加えAlterDDLを作成したい場合は、作成するAlterDDLのファイル名を入力して、<em class="mark">Begin</em>ボタンを押してください。
 		リリース前のSQLを修正したい場合は、<em class="mark">Fix</em>ボタンを押してください。
@@ -112,7 +112,7 @@ dbflute_yourdb
 	</p>
 
 	<h2 id="step2">Step2. AlterCheckを実行する</h2>
-	<h3 id="step2-0">Step1画面での操作</h3>
+	<h3 id="step2operation">Step1画面での操作</h3>
 	<p>
 		この画面で行う操作は3つあります。
 	</p>
@@ -125,7 +125,7 @@ dbflute_yourdb
 		<a href="../../../../../data/snapshot/intro/alter/alter-step2.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
 
-	<h3 id="step2-1">AlterDDLを編集する</h3>
+	<h3 id="editalterddl">AlterDDLを編集する</h3>
 	<p>
 		Step2画面では、編集中のAlterDDL一覧が表示されています。<em class="mark"> (now prepared)</em> と末尾に書かれているファイルが、Step1でファイル名を入力することで作成されたファイルです。<br>
 		編集中のAlterDDLが格納されているディレクトリをみなさんのOSに搭載されているファイルエクスプローラで開くには、<em class="mark">SQL Files Directory</em> ボタンを押します。
@@ -142,7 +142,7 @@ dbflute_yourdb
              |-<span class="subpoint">alter-schema.sql</span>
              |-<span class="subpoint">alter-schema-[チケット番号].sql</span>
 </code></pre>
-	<h3 id="step2-2">AlterCheckを実行する</h3>
+	<h3 id="executealtercheck">AlterCheckを実行する</h3>
 	<p>
 		AlterDDLの編集が終わったら、<em class="mark">Execute AlterCheck</em> ボタンを押してください。
 		確認ダイアログが表示され、OKボタンを押すとAlterCheckを実行されます。
@@ -152,7 +152,7 @@ dbflute_yourdb
 		<a href="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
 
-	<h3 id="step2-3">AlterCheck失敗の理由を確認する</h3>
+	<h3 id="checkfailure">AlterCheck失敗の理由を確認する</h3>
 	<p>
 		AlterCheckに失敗した場合、失敗した理由を確認し、再度AlterDDLを修正しなければなりません。
 		修正の鍵となる2つの情報がStep2画面上から確認できます。これらの情報はAlterCheckが失敗したあとから確認できるようになります。
