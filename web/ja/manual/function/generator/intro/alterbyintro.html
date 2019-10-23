@@ -37,7 +37,8 @@
 
 	<h2 id="where">AlterCheckの画面はどこにある？</h2>
 	<p>
-		サイドメニューにある、「AlterCheck」リンクからAlterCheck画面に移動することができます。
+		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。<br>
+		サイドメニューにある、<em class="mark">AlterCheck</em>リンクからAlterCheck画面に移動することができます。
 	</p>
 	<p class="imgbox">AlterCheck画面
 		<a href="../../../../../data/snapshot/intro/alter/alter-top.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-top.png" alt="DBFluteIntro Top" width="550" /></a>
@@ -54,10 +55,7 @@
 
 
 	<h2 id="step1">Step1. AlterCheckの下準備をする</h2>
-	<h3 id="bootintro">DBFlute Introを起動</h3>
-	<p>
-		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。
-	</p>
+
 	<h3 id="step1operation">Step1画面での操作</h3>
 	<p>
 		この画面で行う操作は2つあります。
@@ -110,7 +108,43 @@ dbflute_yourdb
 	<p class="imgbox">Step1画面でAlterCheckの準備をする
 		<a href="../../../../../data/snapshot/intro/alter/alter-step1-prepare.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1-prepare.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
+	<p>
+		AlterCheckの準備は、内部的にはDBFlute Engineのバージョンによって以下のことを行なっています。
+	</p>
+	<dl class="textlist">
+		<dt>@until DBFlute-1.2.0</dt>
+		<dd>AlterDDLを編集するディレクトリに、checked-alter...zip の中にあるCheck済みのAlterDDLを解凍して配置する。</dd>
 
+		<dt>@since DBFlute-1.2.1</dt>
+		<dd>AlterDDLを編集するディレクトリに、unreleased-checked-alterディレクトリの中にあるCheck済みのAlterDDLをコピーする。ただし、コピーするときに ファイル名からREADONLY_を削る。</dd>
+	</dl>
+	<p>
+		準備後、DBFluteクライアントは以下のようになディレクトリ構成になっています。
+	</p>
+	<pre><span class="codetitle">e.g. AlterCheckのディレクトリ構造の全体ざっくり @Directory</span><code>
+dbflute_maihamadb
+ |-playsql
+    |-data <span class="comment">// ReplaceSchemaの登録データのディレクトリ</span>
+    |
+    |-migration <span class="comment">// AlterCheck用のディレクトリのトップ</span>
+       |
+       |-<span class="point">alter</span>  <span class="comment">// AlterDDLを編集するディレクトリ (一時作業領域なのでgitignore推奨)</span>
+       |  |-<span class="subpoint">alter-schema.sql</span>
+       |  |-<span class="subpoint">alter-schema-[チケット番号].sql</span>
+       |
+       |-history <span class="comment">// AlterCheckのSQLファイルの履歴ディレクトリ</span>
+          |  |
+          |  |-[日時]
+          |     | <span class="comment">// 未リリースでチェック済みのAlterDDL @until DBFlute-1.2.0</span>
+          |     |-checked-alter...zip
+          |
+          | <span class="comment">// 未リリースでチェック済みのAlterDDL @since DBFlute-1.2.1</span>
+          |-<span class="point">unreleased-checked-alter</span>
+             |-DONT_EDIT_HERE.dfmark
+             |-for-previous-20120804-1746.dfmark
+             |-<span class="subpoint">READONLY_alter-schema.sql</span>
+             |-<span class="subpoint">READONLY_alter-schema-[チケット番号].sql</span>
+</code></pre>
 	<h2 id="step2">Step2. AlterCheckを実行する</h2>
 	<h3 id="step2operation">Step1画面での操作</h3>
 	<p>
