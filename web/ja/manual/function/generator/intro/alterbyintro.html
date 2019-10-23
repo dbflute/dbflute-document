@@ -29,34 +29,51 @@
 	<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
 	${indexlist}
 
-	<h2 id="about">AlterCheckとは？</h2>
+	<h2 id="overview">Introで!? の概要</h2>
+	<h3 id="supportedver">対応バージョン</h3>
+	<p>
+		DBFlute Intro-0.3.6 よりサポートされています。対応する DBFlute は、AlterCheckがリニューアルされたバージョン 1.2.1 以降でも、それよりも前のバージョンでも、どちらでも動作します。
+	</p>
+	<h3 id="whatisaltercheck">そもそも AlterCheck とは？</h3>
 	<p>
 		DB変更を加えるときに、差分DDLが妥当かどうかをReplaceSchemaを利用して検証するDBFlute Engineの機能です。AlterCheckそのものの詳しい内容はこちらをお読みください。
 	</p>
 	<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
-
-	<h2 id="where">AlterCheckの画面はどこにある？</h2>
+	<h3 id="whatisintro">そもそも DBFlute Intro とは？</h3>
 	<p>
-		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。<br>
-		サイドメニューにある、<em class="mark">AlterCheck</em>リンクからAlterCheck画面に移動することができます。
+		DBFlute を GUI (Webアプリ) で操作できるツールです。
+		DBFluteの物理的な構造をあまり知らなくても(覚えてなくても)、DBFluteタスクを実行したり、設定ファイルを修正したりすることができます。
+	</p>
+	<div class="relatedpage"><a href="./index.html">DBFlute Intro</a></div>
+	<h3 id="goodpoint">Intro経由だと何が嬉しい？</h3>
+	<p>
+		AlterCheckの作業は、DBFlute規約であるディレクトリやファイルの物理構造を意識する必要があります。
+		毎日行うような作業でもないので、常にドキュメントを読みながらの不慣れな状態での作業となり、ケアレスミスも時に発生しするでしょう。
+	</p>
+	<p>
+		DBFlute Intro の画面を使えば、そういった物理構造をあまり意識する必要がありません。UIによるレールを敷いて、ケアレスミスが極力減るようにデザインされています。
+	</p>
+	<h3 id="where">AlterCheckの画面はどこにある？</h3>
+	<p>
+		manage.sh|bat の 88 (intro) を実行して、Introを起動しましょう。<span class="frm">(常に最新版が起動します)</span>
 	</p>
 	<div class="relatedpage"><a href="./index.html#bootintro">DBFlute Intro を起動</a></div>
+	<p>
+		サイドメニューにある、<em class="mark">AlterCheck</em>リンクからAlterCheck画面に移動することができます。
+	</p>
 	<p class="imgbox">AlterCheck画面
 		<a href="../../../../../data/snapshot/intro/alter/alter-top.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-top.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
-
-	<h2 id="operation">操作の流れ</h2>
+	<h3 id="flow">操作の流れ、2つのステップ</h3>
 	<p>
 		AlterCheckは大きく分けて2つのステップに分かれています。
 	</p>
 	<ul>
-		<li>Step1. AlterCheckの下準備をする</li>
-		<li>Step2. AlterCheckを実行する</li>
+		<li><a href="#step1"><em class="mark">Step1. AlterCheckの下準備をする</em></a></li>
+		<li><a href="#step2"><em class="mark">Step2. AlterCheckを実行する</em></a></li>
 	</ul>
 
-
 	<h2 id="step1">Step1. AlterCheckの下準備をする</h2>
-
 	<h3 id="step1operation">Step1画面での操作</h3>
 	<p>
 		この画面で行う操作は2つあります。
@@ -146,6 +163,7 @@ dbflute_maihamadb
              |-<span>READONLY_alter-schema.sql</span>
              |-<span>READONLY_alter-schema-[チケット番号].sql</span>
 </code></pre>
+
 	<h2 id="step2">Step2. AlterCheckを実行する</h2>
 	<h3 id="step2operation">Step1画面での操作</h3>
 	<p>
@@ -159,7 +177,6 @@ dbflute_maihamadb
 	<p class="imgbox">Step2画面
 		<a href="../../../../../data/snapshot/intro/alter/alter-step2.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
-
 	<h3 id="editalterddl">AlterDDLを編集する</h3>
 	<p>
 		Step2画面では、編集中のAlterDDL一覧が表示されています。<em class="mark"> (now prepared)</em> と末尾に書かれているファイルが、Step1でファイル名を入力することで作成されたファイルです。<br>
@@ -186,7 +203,6 @@ dbflute_yourdb
 	<p class="imgbox">Step2画面でAlterDDLを実行する（Macの例）
 		<a href="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-execute.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
-
 	<h3 id="checkfailure">AlterCheck失敗の理由を確認する</h3>
 	<p>
 		AlterCheckに失敗した場合、失敗した理由を確認し、再度AlterDDLを修正しなければなりません。
@@ -210,8 +226,7 @@ dbflute_yourdb
 	<p class="imgbox">AlterCheck失敗理由の確認
 		<a href="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-failure-log.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
-
-	<h2 id="next">Step1画面に戻ったら...</h2>
+	<h3 id="next">Step1画面に戻ったら...</h3>
 	<p>
 		晴れてAlterCheckがうまくいきました！！<br>
 		またDB変更をする場合は、Step1画面から作業を繰り返してください。
