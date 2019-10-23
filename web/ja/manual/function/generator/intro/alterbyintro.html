@@ -32,8 +32,8 @@
 	<h2 id="about">AlterCheckとは？</h2>
 	<p>
 		DB変更を加えるときに、差分DDLが妥当かどうかをReplaceSchemaを利用して検証するDBFlute Engineの機能です。AlterCheckそのものの詳しい内容はこちらをお読みください。
-	<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
 	</p>
+	<div class="relatedpage"><a href="../task/replaceschema/altercheck.html">AlterCheck</a></div>
 
 	<h2 id="where">AlterCheckの画面はどこにある？</h2>
 	<p>
@@ -73,14 +73,14 @@
 		Step1の画面で表示されているのは、（他の人が作業した）未リリースでチェック済みのAlterDDLの一覧です。
 		ファイル名をクリックすることで、AlterDDLの中身を確認することができます。この時点で、自分の入れたいDB変更がすでに入っていないか（重複していないか）確認してください。
 	</p>
-	<p class="imgbox">Step1画面でリリース前のAlterDDLの中身を確認する
+	<p class="imgbox">e.g. Step1画面でリリース前のAlterDDLの中身を確認する
 		<a href="../../../../../data/snapshot/intro/alter/alter-step1-check-alterddl.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step1-check-alterddl.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
 	<p>
 		GUIで操作する以上、あまり意識する必要はありませんが、表示しているAlterDDLの実態となるファイルは以下のディレクトリに配置されているものです。<br>
 		<span class="frm">unreleased-checked-alter 配下にあるファイルは、SQLファイルのみ表示しています。</span>
 	</p>
-	<pre><span class="codetitle"> AlterDDLの保存場所</span><code>
+	<pre><span class="codetitle">e.g. AlterDDLの保存場所</span><code>
 dbflute_yourdb
  |-playsql
     |-migration <span class="comment">// AlterCheck用のディレクトリのトップ</span>
@@ -168,7 +168,7 @@ dbflute_maihamadb
 	<p class="imgbox">Step2画面でAlterDDLを編集する（Macの例）
 		<a href="../../../../../data/snapshot/intro/alter/alter-step2-open.png" title="DBFluteIntro Top"><img src="../../../../../data/snapshot/intro/alter/alter-step2-open.png" alt="DBFluteIntro Top" width="550" /></a>
 	</p>
-	<pre><span class="codetitle">ボタンを押すと開くディレクトリの場所</span><code>
+	<pre><span class="codetitle">e.g. ボタンを押すと開くディレクトリの場所</span><code>
 dbflute_yourdb
  |-playsql
     |-migration <span class="comment">// AlterCheck用のディレクトリのトップ</span>
