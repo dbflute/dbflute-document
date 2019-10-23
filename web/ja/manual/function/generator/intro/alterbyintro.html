@@ -119,9 +119,9 @@ dbflute_yourdb
 		<dd>AlterDDLを編集するディレクトリに、unreleased-checked-alterディレクトリの中にあるCheck済みのAlterDDLをコピーする。ただし、コピーするときに ファイル名からREADONLY_を削る。</dd>
 	</dl>
 	<p>
-		準備後、DBFluteクライアントは以下のようになディレクトリ構成になっています。
+		準備後、DBFluteクライアントは以下のようになディレクトリ構造になっています。
 	</p>
-	<pre><span class="codetitle">e.g. AlterCheckのディレクトリ構造の全体ざっくり @Directory</span><code>
+	<pre><span class="codetitle">e.g. AlterCheck準備後のディレクトリ構造</span><code>
 dbflute_maihamadb
  |-playsql
     |-data <span class="comment">// ReplaceSchemaの登録データのディレクトリ</span>
@@ -139,11 +139,11 @@ dbflute_maihamadb
           |     |-checked-alter...zip
           |
           | <span class="comment">// 未リリースでチェック済みのAlterDDL @since DBFlute-1.2.1</span>
-          |-<span class="point">unreleased-checked-alter</span>
+          |-<span>unreleased-checked-alter</span>
              |-DONT_EDIT_HERE.dfmark
              |-for-previous-20120804-1746.dfmark
-             |-<span class="subpoint">READONLY_alter-schema.sql</span>
-             |-<span class="subpoint">READONLY_alter-schema-[チケット番号].sql</span>
+             |-<span>READONLY_alter-schema.sql</span>
+             |-<span>READONLY_alter-schema-[チケット番号].sql</span>
 </code></pre>
 	<h2 id="step2">Step2. AlterCheckを実行する</h2>
 	<h3 id="step2operation">Step1画面での操作</h3>
