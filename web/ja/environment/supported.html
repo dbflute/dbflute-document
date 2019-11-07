@@ -29,9 +29,10 @@
 
 	<h2 id="language">対応プログラミング言語</h2>
 	<ul>
-		<li>Java-5.0 <span class="frm">@until 0.9.9.5B</span></li>
-		<li>Java-6.0</li>
-		<li>Java-7.0</li>
+		<li>Java5 <span class="frm">@until 0.9.9.5B</span></li>
+		<li>Java6 <span class="frm">@until 1.0.x</span></li>
+		<li>Java7 <span class="frm">@until 1.0.x</span></li>
+		<li>Java8 以降  <span class="frm">@since 1.1.0</span></li>
 		<li>C#-3.0 <span class="frm">*DBFlute.NETにてサポート</span></li>
 	</ul>
 	<div class="relatedpage"><a href="../manual/topic/dbflutenet">DBFlute.NET</a></div>
@@ -66,12 +67,27 @@
 		<li>Firebird <span class="frm">@since 0.9.7.5</span></li>
 		<li>Sybase <span class="frm">@since 0.9.7.6</span></li>
 	</ul>
+	<div class="inucolumn">
+		<h3 id="mysqlforkdb">Aurora や Percona は？</h3>
+		<p>
+			MySQLのフォークである <em class="mark">Amazon Aurora</em> や <em class="mark">Percona</em> は、正式サポートの中に明記されていませんが、それらDBMSがMySQLとの互換性を保っている限り動作するでしょう。
+			<span class="frm">(MySQLのJDBCドライバーで、MySQLと変わらずアクセスできる限り)</span>
+		</p>
+		<p>
+			もし将来、それらDBMSでMySQLと違う挙動が発生して困ることがあれば、フィードバックを頂ければ可能な範囲でDBFlute側で対応したいとは思います。
+			個人的に見聞きする範囲で、実際に Amazon Aurora や Percona を DBFlute で使っている現場もありますので。
+		</p>
+		<p>
+			他でも、互換性を保っているフォークDBに関しては、このようなスタンスです。フォーク元のDBMSがDBFluteのサポート対象であれば、DBFluteでも利用できるでしょうと考えます。
+		</p>
+	</div>
 
 	<h2 id="dicontainer">対応DIコンテナ</h2>
 	<ul>
-		<li>Seasar-2.4.x</li>
-		<li>Spring-3.0.x</li>
-		<li>Guice-3.x</li>
+		<li>Lasta Di</li>
+		<li>Spring Framework</li>
+		<li>Google Guice</li>
+		<li>Seasar</li>
 		<li>CDI (JSR-299)</li>
 	</ul>
 
