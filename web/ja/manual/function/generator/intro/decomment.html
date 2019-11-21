@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<meta name="keywords" content="DBFlute,DBFlute Intro,イントロ,支援ツール,Decomment" />
+	<meta name="keywords" content="DBFlute,DBFlute Intro,イントロ,支援ツール,Decomment" />	
 	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
 	<title>Decomment (でこめんと) on Intro | DBFlute</title>
 </head>
@@ -390,15 +390,24 @@ java <span class="point">-Dintro.decomment.server</span>=<span class="keyword">t
 		<dt>DBFlute</dt><dd><em class="mark">1.1.8</em> (patch 2018/06/30) 以上</dd>
 		<dt>DBFlute Intro</dt><dd><em class="mark">0.2.2</em> 以上</dd>
 	</dl>
-	<h3 id="autocommitpiece">溜まったpieceファイルは？</h3>
+	<h3 id="servergituse">デコメントサーバーでgitと自動連携</h3>
 	<p>
-		デコメントを登録すると、どんどんサーバーにpieceファイルが溜まっていきます。
-		それを放っておいても共有されませんので、例えば Jenkins
-		などを使い、定期的にpieceファイルがgitにコミットされるようにすると良いでしょう。
+		git管理のプロジェクトの場合、登録されたデコメントをgitで共有したいですし、また、(定期的に)git上の最新のDBの状態を取り込んだ方が良いです。
+	</p>
+	<p>
+		まず、サーバー上でgitからcheckoutされた、デコメント対象のDBFluteクライアントが存在するディレクトリで、DBFlute Intro を実行するようにしましょう。
+		<span class="frm">(gitのDBFluteクライアントと連携するために)</span>
+	</p>
+	<p>
+		そして、サーバーにどんどん溜まっていくpieceファイルを、例えば Jenkins
+		などを使って、定期的にgitにコミットされるようにすると良いでしょう。
+	</p>
+	<p>
+		一方で、定期的に git pull するような仕組みもあると良いでしょう。
 	</p>
 	<h3 id="changehostport">IPアドレスやポート番号を変更したい場合</h3>
 	<p>
-		IPアドレスは、Javaのシステムプロパティ <em class="mark">intro.host</em> で、変更することができます。<span class="frm">(@since 0.2.3)</span>
+		IPアドレスは、Javaのシステムプロパティ <em class="mark">intro.port</em> で、変更することができます。<span class="frm">(@since 0.2.3)</span>
 	</p>
 <pre><span class="codetitle">e.g. DBFlute Intro をIPアドレス 999.999.999.999 で起動 @Command</span><code>
 java -Dintro.decomment.server=<span class="keyword">true</span> <span class="point">-Dintro.host</span>=<span class="literal">999.999.999.999</span> -jar dbflute-intro.jar
