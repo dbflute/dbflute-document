@@ -406,11 +406,12 @@ cb.query().setFormalizedDatetime_FromTo(fromDate, toDate
 	<p>
 		例えば、"1969年までに生まれた、もしくは null" というような条件を設定できます。
 		不明な値(null)を業務的に小さい方に含めたり、はたまた大きい方に含めたりする場合に有効です。
+		<span class="frm">(条件値がfrom-toの片側だけの場合は、allowOneSide()も一緒に)</span>
 	</p>
 <pre><span class="codetitle">e.g. fromDate を LessThan に変更して FromTo {BIRTHDATE} @Java</span><code>
 Date toDate = <span class="abbreviation">...</span> <span class="comment">// 1969/01/01</span>
 cb.query().setBirthdate_FromTo(<span class="keyword">null</span>, toDate
-        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.compareAsYear().<span class="point">orIsNull()</span>);
+        , <span class="localvar">op</span> -&gt; <span class="localvar">op</span>.allowOneSide().compareAsYear().<span class="point">orIsNull()</span>);
 
 <span class="comment">// e.g. (BIRTHDATE < '1970-01-01' or BIRTHDATE is null)</span>
 </code></pre>
