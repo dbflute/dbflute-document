@@ -403,8 +403,39 @@ java <span class="point">-Dintro.decomment.server</span>=<span class="keyword">t
 		などを使って、定期的にgitにコミットされるようにすると良いでしょう。
 	</p>
 	<p>
-		一方で、定期的に git pull するような仕組みもあると良いでしょう。
+		実際に利用されている現場より、参考コードを頂きました。<span class="frm">(U-NEXTさん、ありがとうございます！)</span>
 	</p>
+<pre><span class="codetitle">e.g. decommentサーバーで、pieceファイルを自動でコミットするスクリプトの参考コード @Bash</span><code>
+#!/bin/sh
+today=`date +%Y%m%d%H`
+should_commit=false
+<span class="keyword">echo</span> "[START SCRIPT]    piece file同期スクリプトを開始します : `date '+%F-%T'`"
+<span class="keyword">echo</span> "git checkout alter_db branch"
+<span class="keyword">git</span> checkout alter_db
+<span class="keyword">echo</span> "git pull from alter_db branch"
+<span class="keyword">git</span> pull https://xxx:xxx@github.com/xxx/xxx.git
+<span class="keyword">for</span> i <span class="keyword">in</span> "$@"
+<span class="keyword">do</span>
+  dbname=$i
+  <span class="keyword">if</span> test -z "`git status ./${dbname}/schema/ --porcelain`"; then # 変更がないと文字列が還らずtrue
+    <span class="keyword">echo</span> "[NO PIECE:${dbname}] piece fileがありません"
+  <span class="keyword">else</span>
+    #処理
+    <span class="keyword">git</span> add ./"$i"/schema/decomment/piece/
+    <span class="keyword">git</span> add ./"$i"/schema/hacomment/
+    <span class="keyword">echo</span> "[ADD PIECE:${dbname}] piece fileをaddします"
+    should_commit=true
+  <span class="keyword">fi</span>
+<span class="keyword">done</span>
+<span class="keyword">if</span> $should_commit; <span class="keyword">then</span>
+  <span class="keyword">echo</span> "[PUSH TO REMOTE] 収集したpieceをpushします"
+  <span class="keyword">git</span> commit -m"DBFluteIntro piece file　を収集反映 ${today}00"
+  <span class="keyword">git</span> push origin alter_db
+<span class="keyword">else</span>
+  <span class="keyword">echo</span> "[NO PIECE TO COMMIT] piece fileの変更がありませんでした"
+<span class="keyword">fi</span>
+<span class="keyword">echo</span> "[START END] piece file同期スクリプトを終了します : `date '+%F-%T'`"
+</code></pre>
 	<h3 id="changehostport">IPアドレスやポート番号を変更したい場合</h3>
 	<p>
 		IPアドレスは、Javaのシステムプロパティ <em class="mark">intro.port</em> で、変更することができます。<span class="frm">(@since 0.2.3)</span>
