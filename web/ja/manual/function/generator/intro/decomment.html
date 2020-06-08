@@ -410,10 +410,12 @@ java <span class="point">-Dintro.decomment.server</span>=<span class="keyword">t
 today=`date +%Y%m%d%H`
 should_commit=false
 <span class="keyword">echo</span> "[START SCRIPT]    piece file同期スクリプトを開始します : `date '+%F-%T'`"
-<span class="keyword">echo</span> "git checkout alter_db branch"
+<span class="keyword">echo</span> "git refresh and checkout alter_db branch"
+<span class="keyword">git</span> fetch
+<span class="keyword">git</span> checkout master
+<span class="keyword">git</span> branch -D alter_db
 <span class="keyword">git</span> checkout alter_db
-<span class="keyword">echo</span> "git pull from alter_db branch"
-<span class="keyword">git</span> pull https://xxx:xxx@github.com/xxx/xxx.git
+
 <span class="keyword">for</span> i <span class="keyword">in</span> "$@"
 <span class="keyword">do</span>
   dbname=$i
