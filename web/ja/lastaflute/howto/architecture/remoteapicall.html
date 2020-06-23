@@ -191,15 +191,32 @@
 	<h3 id="includesremoteapi">Behavior を定義する DI xml を定義</h3>
 	<p>
 		app.xml で remote_api.xml を include します。ただし、remote_api.xml は手動で作成します。
-		まず最初の段階では何もコンポーネントのない状態で作成します。
 	</p>
 <pre><span class="codetitle">e.g. include RemoteApi Di xml @app.xml</span><code>
-&lt;components>
+&lt;components&gt;
 	&lt;include path="convention.xml"/&gt;
 	&lt;include path="dbflute.xml"/&gt;
 	&lt;include path="lastaflute.xml"/&gt;
 	<span class="point">&lt;include path="remote_api.xml"/&gt;</span>
-&lt;/components>
+&lt;/components&gt;
+</code></pre>
+	<p>
+		最初の段階では何もコンポーネントのない状態で作成しましょう。<span class="frm">(RemoteApi の Behavior を作ったら、このファイルに登録していきます)</span>
+	</p>
+<pre><span class="codetitle">e.g. make RemoteApi Di xml as empty @remote_api.xml</span><code>
+&lt;components namespace="remote_api"&gt;
+    &lt;include path="lastaflute.xml"/&gt;
+&lt;/components&gt;
+</code></pre>
+	<p>
+		RemoteApi behavior を実装したら、コンポーネント登録していきます。
+	</p>
+<pre><span class="codetitle">e.g. define RemoteApi behavior @remote_api.xml</span><code>
+&lt;components namespace="remote_api"&gt;
+    &lt;include path="lastaflute.xml"/&gt;
+
+    <span class="point">&lt;component name="remoteHarborBhv" class="org.docksidestage.remote.harbor.RemoteHarborBhv"/&gt;</span>
+&lt;/components&gt;
 </code></pre>
 
 	<h2 id="howtobehavior">Behaviorの実装の仕方</h2>
@@ -336,6 +353,18 @@ org.docksidestage
 	<p>
 		たっぷりこの後、独立セクションでお送りいたします。
 	</p>
+	<h3 id="definedixml">remote_api.xml にコンポーネント登録</h3>
+	<p>
+		Behaviorを作成したら Di xml (e.g. remote_api.xml) に登録しましょう。
+		<span class="frm">(remote_api.xmlは通常は手動で作成されるファイルなので、現場によってファイル名などが違う可能性はあります)</span>
+	</p>
+<pre><span class="codetitle">e.g. define RemoteApi behavior @remote_api.xml</span><code>
+&lt;components namespace="remote_api"&gt;
+    &lt;include path="lastaflute.xml"/&gt;
+
+    <span class="point">&lt;component name="remoteHarborBhv" class="org.docksidestage.remote.harbor.RemoteHarborBhv"/&gt;</span>
+&lt;/components&gt;
+</code></pre>
 
 	<h2 id="howtorequest">requestメソッドの実装の仕方</h2>
 	<h3 id="requestmethodname">requestメソッドのメソッド名</h3>
