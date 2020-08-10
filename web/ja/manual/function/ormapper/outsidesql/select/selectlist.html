@@ -115,6 +115,93 @@ ListResultBean&lt;String&gt; valueList =
 	<p>
 		スカラ値での検索においても、検索結果がない場合の扱いについては全く同じです。
 	</p>
+
+	<h2 id="bypagingsql">ページングのSQLでリスト検索</h2>
+	<h3 id="bypagingsqlabout">大量データ検索の抑制のため？</h3>
+	<p>
+		ページング検索のSQLをリスト検索でも使いたい、というような場合、少し工夫が必要です。
+	</p>
+	<p>
+		通常、ページング検索のSQLはリスト検索では利用できません。自動生成された TypedParameterBean が ListHandlingPmb
+		インターフェースと関連付かないので、selectList()の引数でコンパイルエラーになるようになっています。
+	</p>
+	<p>
+		ページング検索を想定しているSQLなのであれば、そのままページング条件なしに検索すると大量データ検索になる可能性があるため、安全のために共有できないようになっています。
+		業務要件的にも、同じになることはほとんどないだろうという想定です。あるとすれば、リスト検索ではなくカーソル検索を想定しています。ページング検索とカーソル検索は共有できます。
+		<span class="frm">(まずは、カーソル検索の方がマッチするのでは？ということを考えると良いでしょう)</span>
+	</p>
+	<div class="relatedpage"><a href="./selectcursor.html#bypagingsql">ページングのSQLでカーソル検索</a></div>
+	<p>
+		ただ、業務要件的に固定条件が入って大量データ検索にならないことが保証されているような場合であれば、ページング検索のSQLをリスト検索でも使いたくなることはあるかもしれません。
+	</p>
+	<h3 id="bypagingsqlhowto">ExクラスにてListHandlingPmbとboolean制御</h3>
+	<p>
+		ManualPagingの外だしSQLのページング条件部分にて、リスト検索時はページング条件が無効になるように isListHandling() の条件分岐を入れます。
+		<span class="frm">(代理判定メソッドの自動判別の機能を使っています)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/pmbautodetect.html#alternatebool">代理判定メソッドの自動判別</a></div>
+<pre><span class="codetitle">e.g. ページングのSQLの中に、リスト検索のための条件分岐を指定 @SQL-File</span><code>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> PURCHASE_MAX_PRICE <span class="keyword">desc nulls last</span>, mb.MEMBER_ID <span class="keyword">asc</span>
+ <span class="comment">/*IF !pmb.<span class="point">isListHandling()</span>*/</span>
+ <span class="keyword">limit</span> <span class="comment">/*pmb.fetchSize*/</span>20 <span class="keyword">offset</span> <span class="comment">/*pmb.pageStartIndex*/</span>80
+ <span class="comment">/*END*/</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>ページング条件の制御のために、必ず ManualPaging である必要があります</li>
+	</ul>
+	<p>
+		ParameterBean のExクラスにて、ListHandlingPmbインターフェースをimplementsして、共有のためのboolean制御を行います。
+		<span class="frm">(少し特殊ですので、別の人が見たときに迷わせないようにコメントを書いておきましょう。このドキュメントへのURLを記載しておくと良いです)</span>
+	</p>
+<pre><span class="codetitle">e.g. ParameterBean のExクラスにて、ListHandlingPmbとboolean制御 @Java</span><code>
+<span class="abbreviation">...</span>
+<span class="comment"> * @author DBFlute(AutoGenerator)
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> PagingWithListMemberPmb <span class="keyword">extends</span> BsPagingWithListMemberPmb <span class="comment">// can select list</span>
+        <span class="keyword">implements</span> ListHandlingPmb&lt;MemberBhv, PagingWithListMember&gt; {
+
+    <span class="keyword">private boolean</span> <span class="attribute">listHandling</span>;
+
+    @Override
+    <span class="keyword">public boolean</span> isPaging() { <span class="comment">// not to depend on framework default value</span>
+        <span class="keyword">return</span> <span class="keyword">super</span>.isPaging() || <span class="attribute">listHandling</span>; <span class="comment">// always true if list handling</span>
+    }
+
+    @Override
+    <span class="keyword">public boolean</span> isListHandling() { <span class="comment">// to suppress paging condition</span>
+        <span class="keyword">return</span> <span class="attribute">listHandling</span>;
+    }
+
+    <span class="comment">/**
+     * Use parameter-bean for list handling.
+     */</span>
+    <span class="keyword">public void</span> forListHandling() {
+        <span class="attribute">listHandling</span> = <span class="keyword">true</span>;
+    }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>ListHandlingPmbのジェネリック型は、Bsクラスと同じものを</li>
+		<li>isPaging()のオーバーライドは必須ではないが、フレームワークのデフォルト値に依存しないように</li>
+		<li>クラスのJavaDocにauthorを付けるポリシーの場合は、ここでも忘れずに</li>
+	</ul>
+	<p>
+		そして、リスト検索を実行するときに(だけ)、forListHandling() メソッドを呼びます。
+	</p>
+<pre><span class="codetitle">e.g. リスト検索であることを示して外だしSQLを実行 @Java</span><code>
+PagingWithListMemberPmb pmb = <span class="keyword">new</span> PagingWithListMemberPmb();
+pmb.<span class="point">forListHandling()</span>;
+
+ListResultBean&lt;PagingWithListMember&gt; memberList = memberBhv.outsideSql().selectList(pmb);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		手動による制御なので、ページング検索側のプログラムも含めて、しっかりテストをしましょう。
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">

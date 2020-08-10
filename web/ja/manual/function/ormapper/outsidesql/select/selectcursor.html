@@ -150,6 +150,83 @@ memberBhv.outsideSql()
 		を利用しますので、select 句のカラムが一つだけでも TypeSafeCursor
 		を自動生成して、それを利用してデータを受け取ります。
 	</p>
+
+	<h2 id="bypagingsql">ページングのSQLでカーソル検索</h2>
+	<h3 id="bypagingsqlabout">ManualPagingだと工夫が必要</h3>
+	<p>
+		ページング検索のSQLをカーソル検索でも使いたい、というような場合、以下のような対応になります。
+	</p>
+	<dl class="keymainlist">
+		<dt>AutoPaging</dt><dd>気にせず利用できる</dd>
+		<dt>ManualPaging</dt><dd>少し工夫が必要</dd>
+	</dl>
+	<p>
+		ParameterBean自体は、ページングとカーソルの両方を定義した上で自動生成することができますが、ManualPaging
+		だと実行時にページング条件がそのまま残ってしまいます。<span class="frm">(DBFluteは、ManualPagingのページング条件だけを自動で抑制することはできないので)</span>
+	</p>
+	<h3 id="bypagingsqlhowto">Exクラスにてboolean制御</h3>
+	<p>
+		ManualPagingの外だしSQLのページング条件部分にて、カーソル検索時はページング条件が無効になるように isCursorHandling() の条件分岐を入れます。
+		<span class="frm">(代理判定メソッドの自動判別の機能を使っています)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../generator/task/sql2entity/pmbautodetect.html#alternatebool">代理判定メソッドの自動判別</a></div>
+<pre><span class="codetitle">e.g. ページングのSQLの中に、カーソル検索のための条件分岐を指定 @SQL-File</span><code>
+ <span class="comment">/*IF pmb.isPaging()*/</span>
+ <span class="keyword">order by</span> PURCHASE_MAX_PRICE <span class="keyword">desc nulls last</span>, mb.MEMBER_ID <span class="keyword">asc</span>
+ <span class="comment">/*IF !pmb.<span class="point">isCursorHandling()</span>*/</span>
+ <span class="keyword">limit</span> <span class="comment">/*pmb.fetchSize*/</span>20 <span class="keyword">offset</span> <span class="comment">/*pmb.pageStartIndex*/</span>80
+ <span class="comment">/*END*/</span>
+ <span class="comment">/*END*/</span>
+</code></pre>
+	<p>
+		ParameterBean のExクラスにて、共有のためのboolean制御を行います。
+		<span class="frm">(少し特殊ですので、別の人が見たときに迷わせないようにコメントを書いておきましょう。このドキュメントへのURLを記載しておくと良いです)</span>
+	</p>
+<pre><span class="codetitle">e.g. ParameterBean のExクラスにて、ListHandlingPmbとboolean制御 @Java</span><code>
+<span class="abbreviation">...</span>
+<span class="comment"> * @author DBFlute(AutoGenerator)
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> PagingWithCursorMemberPmb <span class="keyword">extends</span> BsPagingWithListMemberPmb {
+
+    <span class="keyword">private boolean</span> <span class="attribute">cursorHandling</span>;
+
+    @Override
+    <span class="keyword">public boolean</span> isPaging() { <span class="comment">// not to depend on framework default value</span>
+        <span class="keyword">return</span> <span class="keyword">super</span>.isPaging() || <span class="attribute">cursorHandling</span>; <span class="comment">// always true if cursor handling</span>
+    }
+
+    @Override
+    <span class="keyword">public boolean</span> isCursorHandling() { <span class="comment">// to suppress paging condition</span>
+        <span class="keyword">return</span> <span class="attribute">cursorHandling</span>;
+    }
+
+    <span class="comment">/**
+     * Use parameter-bean for cursor handling.
+     */</span>
+    <span class="keyword">public void</span> forCursorHandling() {
+        <span class="attribute">cursorHandling</span> = <span class="keyword">true</span>;
+    }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>isPaging()のオーバーライドは必須ではないが、フレームワークのデフォルト値に依存しないように</li>
+		<li>クラスのJavaDocにauthorを付けるポリシーの場合は、ここでも忘れずに</li>
+	</ul>
+	<p>
+		そして、カーソル検索を実行するときに(だけ)、forCursorHandling() メソッドを呼びます。
+	</p>
+<pre><span class="codetitle">e.g. カーソル検索であることを示して外だしSQLを実行 @Java</span><code>
+PagingWithCursorMemberPmb pmb = <span class="keyword">new</span> PagingWithCursorMemberPmb();
+pmb.<span class="point">forCursorHandling()</span>;
+
+memberBhv.outsideSql().selectCursor(pmb, <span class="abbreviation">...</span>);
+
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		手動による制御なので、ページング検索側のプログラムも含めて、しっかりテストをしましょう。
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
