@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>javatry (じゃゔぁとらい) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>javatry (じゃゔぁとらい)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		Javaの "わりと初心者" の方からできるエクササイズです。<span class="frm">(DBFluteは登場しませんが、プログラミングの基礎スキルがあってこそフレームワークが使いこなせるものです)</span>
+	</p>
+	<h3 id="target">こんな方にオススメ</h3>
+	<ul>
+		<li>Javaの本は少し読んでみた程度のプログラミング初心者</li>
+		<li>他のプログラミング言語は少しやってるけど、Javaは知らない</li>
+		<li>Java何年も書いてるけど、クラス設計や例外ハンドリングなど不安</li>
+	</ul>
+	<p>
+		と、一応は書いてみましたが...
+	</p>
+	<p>
+		<em class="keyword">Javaの経験に関係なくプログラミングの基礎的なエッセンスを学びたい方にオススメです。</em>
+	</p>
+	<h3 id="handson">ハンズオンで学ぶ</h3>
+	<p>
+		実際に、Javaを書いて動かせる環境を作って学んでいくハンズオンです。
+	</p>
+	<p class="imgbox">図 : javatryの環境
+		<a href="../../data/model/tutorial/javatry/javatry-handson-environment-example.jpg" title="javatryの環境"><img src="../../data/model/tutorial/javatry/javatry-handson-environment-example.jpg" alt="javatryの環境" width="550" height="320" /></a>
+	</p>
+	<h3 id="quizstyle">クイズ形式のエクササイズ</h3>
+	<p>
+		まずは、クイズ形式のエクササイズで準備運動しましょう。
+	</p>
+<pre><span class="codetitle">e.g. クイズ形式のエクササイズ @Java</span><code>
+<span class="comment">/**
+ * What string is sea variable at the method end? &lt;br&gt;
+ * (メソッド終了時の変数 sea の中身は？)
+ */</span>
+<span class="keyword">public void</span> test_variable_reassigned_basic() {
+    String sea = <span class="literal">"mystic"</span>;
+    String land = <span class="literal">"oneman"</span>;
+    sea = land;
+    land = land + <span class="literal">"'s dreams"</span>;
+    log(sea); <span class="comment">// your answer? =&gt;</span> 
+}
+</code></pre>
+	<h3 id="codingstyle">コーディング形式のエクササイズ</h3>
+	<p>
+		そして、コーディング形式のエクササイズでコードも書いていきましょう。
+	</p>
+<pre><span class="codetitle">e.g. コーディング形式のエクササイズ @Java</span><code>
+<span class="comment">/**
+ * What is color name length of first color-box? &lt;br&gt;
+ * (最初のカラーボックスの色の名前の文字数は？)
+ */</span>
+<span class="keyword">public void</span> test_length_basic() {
+}
+
+　↓↓↓
+
+<span class="keyword">public void</span> test_length_basic() {
+    List&lt;ColorBox&gt; colorBoxList = <span class="keyword">new</span> YourPrivateRoom().getColorBoxList();
+    String answer = colorBoxList.stream()
+            .findFirst()
+            .map(colorBox -&gt; colorBox.getColor().getColorName())
+            .map(colorName -&gt; colorName.length() + <span class="literal">" ("</span> + colorName + <span class="literal">")"</span>)
+            .orElse(<span class="literal">"*not found"</span>);
+    log(answer);
+}
+</code></pre>
+
+	<h2 id="setup">javatryの環境構築</h2>
+	<h3 id="gitclone">1. javatryリポジトリをgit clone</h3>
+	<p>
+		xxx
+	</p>
+	<dl class="keymainlist">
+	</dl>
+	<h3 id="importproject">2. Eclipse/IntelliJなどでimport</h3>
+	<p>
+		xxx
+	</p>
+	<h3 id="testtest">3. テストメソッドの実行で動作確認</h3>
+	<p>
+		xxx
+	</p>
+	<h3 id="yoursettings">好みもあるけどオススメの設定</h3>
+	<p>
+		xxx
+	</p>
+	<dl class="textlist">
+		<dt>Package Presentation の調整 (Eclipseの場合)</dt>
+		<dd>
+			Eclipse のデフォルトは、Package Presentation が Flat
+			で、パッケージがたくさんあるプロジェクトだと、ずらーっと並んで見づらいと感じることがあります。
+			特にjavatryはパッケージ階層が多いので Hierarchical の方が扱いやすいかもしません。
+		</dd>
+		<dd>
+			Hierarchical に変更する場合は、(Java パースペクティブの)パッケージエクスプローラの右上の下矢印っぽいマークの部分
+			(View Menu) から、Package Presentation の Hierarchical を選択します。
+		</dd>
+	</dl>
+
+	<h2 id="howto">javatryの進め方</h2>
+	<h3 id="stepstep">Step01から進めていく</h3>
+	<p>
+		src/test/java 配下の org.docksidestage.javatry パッケージに、エクササイズのクラスが用意されています。
+		まずは、Step01VariableTest.javaをエディターで開きましょう。
+	</p>
+<pre><span class="codetitle">e.g. classes for javatry exercise @Directory</span><code>
+src/test/java
+ |-org.docksidestage
+ |  |-javatry      <span class="comment">// xxx</span>
+ |  |  |-basic     <span class="comment">// xxx</span>
+ |  |  |  |-Step01VariableTest.java     <span class="comment">// xxx</span>
+ |  |  |  |-Step02IfForTest.java     <span class="comment">// xxx</span>
+ |  |  |-colorbox  <span class="comment">// xxx</span>
+ |  |  |-debug     <span class="comment">// xxx</span>
+ |  |  |-framework <span class="comment">// xxx</span>
+ |  |-unit     <span class="comment">// xxx</span>
+ |
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="javadocclass">クラスのJavaDocを読んで、ぜひauthorを</h3>
+	<p>
+		xxx
+	</p>
+	<h3 id="javadocmethod">メソッドのJavaDocを読んで、ここエクササイズ！</h3>
+	<p>
+		xxx
+	</p>
+
+	<h2 id="quizexercise">クイズ形式のエクササイズ</h2>
+	
+	<h2 id="codingexercise">コーディング形式のエクササイズ</h2>
+
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
