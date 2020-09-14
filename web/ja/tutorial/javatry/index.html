@@ -132,32 +132,147 @@
 		まずは、Step01VariableTest.javaをエディターで開きましょう。
 	</p>
 <pre><span class="codetitle">e.g. classes for javatry exercise @Directory</span><code>
-src/test/java
+src/test/java      <span class="comment">// テストコードのディレクトリ、エクササイズはこちら</span>
  |-org.docksidestage
- |  |-javatry      <span class="comment">// xxx</span>
- |  |  |-basic     <span class="comment">// xxx</span>
- |  |  |  |-Step01VariableTest.java     <span class="comment">// xxx</span>
- |  |  |  |-Step02IfForTest.java     <span class="comment">// xxx</span>
- |  |  |-colorbox  <span class="comment">// xxx</span>
- |  |  |-debug     <span class="comment">// xxx</span>
- |  |  |-framework <span class="comment">// xxx</span>
+ |  |-javatry      <span class="comment">// エクササイズのパッケージ</span>
+ |  |  |-basic     <span class="comment">// 基本エクササイズのパッケージ</span>
+ |  |  |  |-<span class="point">Step01VariableTest.java</span>     <span class="comment">// 最初のエクササイズ、変数について</span>
+ |  |  |  |-Step02IfForTest.java     <span class="comment">// 次のエクササイズ、if文/for文について</span>
+ |  |  |  |-<span class="abbreviation">...</span>
+ |  |  |
+ |  |  |-colorbox  <span class="comment">// カラーボックスチャレンジのパッケージ</span>
+ |  |  |-debug     <span class="comment">// デバッグチャレンジのパッケージ</span>
+ |  |  |-framework <span class="comment">// フレームワークチャレンジのパッケージ</span>
  |  |-unit     <span class="comment">// xxx</span>
  |
  |-<span class="abbreviation">...</span>
 </code></pre>
 	<h3 id="javadocclass">クラスのJavaDocを読んで、ぜひauthorを</h3>
 	<p>
-		xxx
+		クラス宣言 (public class クラス名) の直上のコメントを、クラスのJavaDocと呼びます。
+		エクササイズに関する説明などが書いてあるので、まず最初に読みましょう。
 	</p>
-	<h3 id="javadocmethod">メソッドのJavaDocを読んで、ここエクササイズ！</h3>
+<pre><span class="codetitle">e.g. javadoc of Step01VariableTest.java @Directory</span><code>
+<span class="comment">/**
+ * The test of variable. &lt;br&gt;
+ * Operate exercise as javadoc. If it's question style, write your answer before test execution. &lt;br&gt;
+ * (javadocの通りにエクササイズを実施。質問形式の場合はテストを実行する前に考えて答えを書いてみましょう)
+ * @author jflute
+ * @author your_name_here
+ */</span>
+<span class="keyword">public class</span> Step01VariableTest <span class="keyword">extends</span> PlainTestCase {
+</code></pre>
 	<p>
-		xxx
+		javatryでは、クラスのJavaDocコメントに author を付けてもらうようにしています。
+		"@author your_name_here" の your_name_here の部分を自分の名前に修正しましょう。
 	</p>
+	<div class="relatedpage"><a href="../handson/review/jflutereview.html#javadoc">ハンズオンのjfluteレビュー - 最低限のJavaDoc</a></div>
+<pre><span class="codetitle">e.g. changing your author @Directory</span><code>
+<span class="abbreviation">...</span>
+<span class="comment"> * @author your_name_here</span>
+　↓
+<span class="comment"> * @author sea</span>
+</code></pre>
+	<h3 id="javadocmethod">メソッドのJavaDocを読んで、エクササイズ！</h3>
+	<p>
+		<em class="keyword">"test_" で始まるpublicメソッド</em> 一つ一つがエクササイズです。
+		メソッドのJavaDocに要件が書いてあるので、それを読んで実施していきましょう。
+	</p>
+<pre><span class="codetitle">e.g. read javadoc of method, do your exercise @Directory</span><code>
+<span class="comment">/**
+ * What string is sea variable at the method end? &lt;br&gt;
+ * (メソッド終了時の変数 sea の中身は？)
+ */</span>
+<span class="keyword">public void</span> test_variable_basic() { <span class="comment">// first exercise</span>
+    String sea = <span class="literal">"mystic"</span>;
+    log(sea); <span class="comment">// your answer? =&gt; mystic</span>
+}
+
+<span class="comment">/** Same as the previous method question. (前のメソッドの質問と同じ) */</span>
+<span class="keyword">public void</span> test_variable_initial() { <span class="comment">// second exercise</span>
+    String sea = <span class="literal">"mystic"</span>;
+    Integer land = <span class="literal">8</span>;
+    String piari = <span class="keyword">null</span>;
+    String dstore = <span class="literal">"mai"</span>;
+    sea = sea + land + piari + <span class="literal">":"</span> + dstore;
+    log(sea); <span class="comment">// your answer? =&gt; <span class="comment">
+}
+</code></pre>
+	<p>
+		エクササイズは、主に二つの形式で構成されています。
+	</p>
+	<dl class="keymainlist">
+		<dt><a href="#quizexercise">クイズ形式</a></dt>コードを読んで質問に答える<dd></dd>
+		<dt><a href="#codingexercise">コーディング形式</a></dt>コードを書いて要件を満たす<dd></dd>
+	</dl>
 
 	<h2 id="quizexercise">クイズ形式のエクササイズ</h2>
-	
+	<h3 id="quizflow">エクササイズの流れ</h3>
+	<p>
+		JavaDocに質問が書かれていた場合は、クイズ形式です。
+	</p>
+	<ol>
+		<li>コードを読んで、your answer に答えを書く <span class="frm">e.g. your answer? =&gt; [答え]</span></li>
+		<li>メソッドを実行してコンソールに表示される答えを見る</li>
+		<li>学ぶ</li>
+	</ol>
+<pre><span class="codetitle">e.g. read javadoc of method, do your exercise @Directory</span><code>
+<span class="comment">/**
+ * What string is sea variable at the method end? &lt;br&gt;
+ * (メソッド終了時の変数 sea の中身は？)
+ */</span>
+<span class="keyword">public void</span> test_variable_basic() { <span class="comment">// first exercise</span>
+    String sea = <span class="literal">"mystic"</span>;
+    log(sea); <span class="comment">// your answer? =&gt; </span>
+}
+</code></pre>
+	<h3 id="readandanswer">コードを読んでanswer</h3>
+	<p>
+		コードを読んで、answerを書きましょう。
+	</p>
+<pre><span class="codetitle">e.g. read javadoc of method, do your exercise @Directory</span><code>
+<span class="abbreviation">...</span>
+log(sea); <span class="comment">// your answer? =&gt; </span>
+　↓
+log(sea); <span class="comment">// your answer? =&gt; <span class="point">mystic</span></span>
+</code></pre>
+	<h3 id="executeandlog">実行してログを確認</h3>
+	<p>
+		そして、テストメソッドを実行して、コンソールに出力されるログ (log()によって出力される文字列) を確認しましょう。
+	</p>
+	<div class="relatedpage"><a href="#howtoexecute">this - テストメソッドの実行方法</a></div>
+	<p>
+		
+	</p>
+	<h3 id="quizlearning">クイズ形式の学び方</h3>
+	<p>
+		ただ、学び方は自由です。プログラミングの本を読みながらでもいいですし、インターネットで調べながらでもいいですし、答えを見てから考えてもいいです。
+	</p>
+	<p>
+		大事なのは、解答することではなく、理解をしてスキルアップすることです。
+	</p>
 	<h2 id="codingexercise">コーディング形式のエクササイズ</h2>
 
+	<h2 id="howtoexecute">テストメソッドの実行方法</h2>
+	<h3 id="execoneclipse">Eclipse上での実行</h3>
+	<h4>Quick JUnitプラグインが入っていれば...</h4>
+	<p>
+		メソッド内にカーソルを置いて <em class="mark">control + 0 (ゼロ)</em>
+		を押すと、そのメソッドだけ実行できます。 
+	</p>
+	<p>
+		Quick JUnit は、Eclipse上のメニューの Help - Eclipse Marketplace... において、"Quick JUnit"
+		で検索すれば簡単にインストールできるはずです。javatryでは強くオススメします。
+	</p>
+	<h4>Quick JUnitが入ってないと？</h4>
+	<p>
+		Quick JUnit を使わなくても、右クリックメニューの Run As から実行できますが、対象のメソッドだけでなく、クラス内のすべてのメソッドが実行されてしまうので、ログが見づらいです。
+		javatryでは、Quick JUnit の利用を強くオススメします。
+	</p>
+	<h3 id="execonintellij">IntelliJ IDEA上での実行</h3>
+	<p>
+		対象メソッドの宣言部分から、何かしらクリックして簡単に実行できるはずです。
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
