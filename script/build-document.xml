@@ -75,25 +75,58 @@
 			</fileset>
 		</copy>
 
+		<mkdir dir="${www.dir}/data"/>
+		<copy todir="${www.dir}/data" overwrite="true">
+			<fileset dir="./output/data">
+				<include name="**/*.png"/>
+				<include name="**/*.jpg"/>
+			</fileset>
+		</copy>
+
 		<mkdir dir="${www.dir}/image"/>
 		<copy todir="${www.dir}/image" overwrite="true">
 			<fileset dir="${web.dir}/image">
-				<include name="**/*.gif"/><include name="**/*.png"/><include name="**/*.jpg"/>
+				<include name="**/*.gif"/>
+				<include name="**/*.png"/>
+				<include name="**/*.jpg"/>
 			</fileset>
 		</copy>
 
 		<mkdir dir="${www.dir}/ja"/>
 		<copy todir="${www.dir}/ja" overwrite="true">
-			<fileset dir="./output/ja"><include name="**/*.html"/><include name="**/*.png"/></fileset>
+			<fileset dir="./output/ja">
+				<include name="**/*.html"/>
+			</fileset>
 		</copy>
-		<copy todir="${www.dir}/data" overwrite="true">
-			<fileset dir="./output/data"><include name="**/*.html"/><include name="**/*.png"/></fileset>
+
+		<mkdir dir="${www.dir}/ja/data"/>
+		<copy todir="${www.dir}/ja/data" overwrite="true">
+			<fileset dir="./output/ja/data">
+				<include name="**/*.png"/>
+				<include name="**/*.jpg"/>
+			</fileset>
 		</copy>
+
+		<mkdir dir="${www.dir}/ja/modeling"/>
+		<copy todir="${www.dir}/ja/modeling" overwrite="true">
+			<fileset dir="./output/ja/modeling">
+				<include name="**/*.png"/>
+				<include name="**/*.jpg"/>
+			</fileset>
+		</copy>
+
+		<mkdir dir="${www.dir}/lastaflute"/>
 		<copy todir="${www.dir}/lastaflute" overwrite="true">
-			<fileset dir="./output/lastaflute"><include name="**/*.html"/><include name="**/*.png"/></fileset>
+			<fileset dir="./output/lastaflute">
+				<include name="**/*.html"/>
+			</fileset>
 		</copy>
+
+		<mkdir dir="${www.dir}/manual"/>
 		<copy todir="${www.dir}/manual" overwrite="true">
-			<fileset dir="./output/manual"><include name="**/*.html"/><include name="**/*.png"/></fileset>
+			<fileset dir="./output/manual">
+				<include name="**/*.html"/>
+			</fileset>
 		</copy>
 
 		<!-- index.html.ja for www  -->
