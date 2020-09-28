@@ -94,35 +94,80 @@
 </code></pre>
 
 	<h2 id="setup">javatryの環境構築</h2>
-	<h3 id="gitclone">1. javatryリポジトリをgit clone</h3>
 	<p>
-		xxx
+		エクササイズの実施さえできれば、必ずしもこの手順でなくてもよいです。
+	</p>
+	<p>
+		ここでは、自身のエクササイズ結果をgitで管理するために、Github上でのフォークを使った手順を書いています。
+	</p>
+	<h3 id="forkjavatry">1. 本家javatryリポジトリをフォーク</h3>
+	<p>
+		本家javatryリポジトリを、自身のGithubアカウントにフォークします。
+	</p>
+	<dl class="valuemainlist">
+		<dt>Repository</dt><dd><a href="https://github.com/dbflute-session/javatry">https://github.com/dbflute-session/javatry</a></dd>
+	</dl>
+	<p>
+		<span class="frm">※もし、社内限定のgitリポジトリなどにjavatryが用意されている場合は、そちらを利用しましょう。</span>
+	</p>
+	<h3 id="gitclone">2. フォークしたjavatryリポジトリをgit clone</h3>
+	<p>
+		自身のGithubアカウントにフォークしたjavatryリポジトリをgit cloneします。
+	</p>
+	<p>
+		git cloneができれば、gitクライアントは何でもよいです。もし、EclipseやIntelliJなどで直接git cloneとimportを同時にやってもよいです。
 	</p>
 	<dl class="keymainlist">
 	</dl>
-	<h3 id="importproject">2. Eclipse/IntelliJなどでimport</h3>
+	<h3 id="importproject">3. Eclipse/IntelliJなどでimport</h3>
 	<p>
-		xxx
+		Eclipse や IntelliJ などの IDE にて、git cloneされた javatry を import しましょう。
 	</p>
-	<h3 id="testtest">3. テストメソッドの実行で動作確認</h3>
 	<p>
-		xxx
+		javatryは、Mavenと呼ばれるビルドツールで管理されています。利用しているIDEで、ビルド環境を有効にしましょう。
+		IDEのバージョンやエディションにも依りますが、自動的に解決されることも多いです。
 	</p>
-	<h3 id="yoursettings">好みもあるけどオススメの設定</h3>
 	<p>
-		xxx
+		最初は、依存ライブラリを自動ダウンロードするので、少し時間がかかる可能性があります。
+	</p>
+	<h3 id="testtest">4. テストメソッドの実行で動作確認</h3>
+	<p>
+		動作確認のために、Step01VariableTest.java をIDE上のエディターで開き、最初のテストメソッドである "test_variable_basic()メソッド" をテスト実行してみましょう。
+		テストメソッドの実行方法は、後述しています。
+	</p>
+	<div class="relatedpage"><a href="#howtoexecute">this - テストメソッドの実行方法</a></div>
+	<p>
+		実行してコンソールに "mystic" と出力されたら環境構築成功です。
+	</p>
+	<h3 id="yoursettings">option: 好みもあるけどオススメの設定</h3>
+	<p>
+		IDE上の設定は任意ですが、オススメの設定を少し書いておきます。
 	</p>
 	<dl class="textlist">
-		<dt>Package Presentation の調整 (Eclipseの場合)</dt>
+		<dt>Package Presentation の調整 <span class="frm">(Eclipseの場合)</span></dt>
 		<dd>
-			Eclipse のデフォルトは、Package Presentation が Flat
+			Eclipseのデフォルトは、Package Presentation が Flat
 			で、パッケージがたくさんあるプロジェクトだと、ずらーっと並んで見づらいと感じることがあります。
 			特にjavatryはパッケージ階層が多いので Hierarchical の方が扱いやすいかもしません。
 		</dd>
 		<dd>
-			Hierarchical に変更する場合は、(Java パースペクティブの)パッケージエクスプローラの右上の下矢印っぽいマークの部分
+			Hierarchical に変更する場合は、(Javaパースペクティブの) パッケージエクスプローラの右上の下矢印っぽいマークの部分
 			(View Menu) から、Package Presentation の Hierarchical を選択します。
 		</dd>
+		<dt>エディターテンプレートを設定</dt>
+		<dd>
+			入れておくと何かと便利なコード補完のテンプレートを設定しましょう。
+		</dd>
+		<dd>
+			Eclipseの場合、Preferences の <em class="keyword">Java - Editor - Templates</em> を選択。
+			まず、既存のテンプレートをすべて選択して、Remove してください<span class="frm">(これをやらないと二重に登録される可能性あり)</span>。
+			そして、"Import..." にて <em class="smallmark">[javatryプロジェクト]/etc/tools/eclipse/java-editor-templates.xml</em> を取り込んでください。
+			コード書くときに色々と良いことがあります。
+		</dd>
+		<dd>
+			IntelliJ用のテンプレートも用意しています。<span class="frm">(Eclipseに比べて少ないですが...)</span>
+			<div class="relatedpage"><a href="../onjava8.html#intellij">さあ、補完してみよう！ - IntelliJ IDEA なら</a></div>
+		</dd>	
 	</dl>
 
 	<h2 id="howto">javatryの進め方</h2>
@@ -209,7 +254,7 @@ src/test/java      <span class="comment">// テストコードのディレクト
 	<h2 id="quizexercise">クイズ形式のエクササイズ</h2>
 	<h3 id="quizflow">エクササイズの流れ</h3>
 	<p>
-		JavaDocに質問が書かれていた場合は、クイズ形式です。
+		JavaDocに <em class="keyword">質問</em> が書かれていた場合は、クイズ形式です。
 	</p>
 	<ol>
 		<li>コードを読んで、your answer に答えを書く <span class="frm">e.g. your answer? =&gt; [答え]</span></li>
@@ -230,7 +275,7 @@ src/test/java      <span class="comment">// テストコードのディレクト
 	<p>
 		コードを読んで、answerを書きましょう。
 	</p>
-<pre><span class="codetitle">e.g. read javadoc of method, do your exercise @Directory</span><code>
+<pre><span class="codetitle">e.g. write your asnwer there @Directory</span><code>
 <span class="abbreviation">...</span>
 log(sea); <span class="comment">// your answer? =&gt; </span>
 　↓
@@ -241,9 +286,6 @@ log(sea); <span class="comment">// your answer? =&gt; <span class="point">mystic
 		そして、テストメソッドを実行して、コンソールに出力されるログ (log()によって出力される文字列) を確認しましょう。
 	</p>
 	<div class="relatedpage"><a href="#howtoexecute">this - テストメソッドの実行方法</a></div>
-	<p>
-		
-	</p>
 	<h3 id="quizlearning">クイズ形式の学び方</h3>
 	<p>
 		ただ、学び方は自由です。プログラミングの本を読みながらでもいいですし、インターネットで調べながらでもいいですし、答えを見てから考えてもいいです。
@@ -251,7 +293,42 @@ log(sea); <span class="comment">// your answer? =&gt; <span class="point">mystic
 	<p>
 		大事なのは、解答することではなく、理解をしてスキルアップすることです。
 	</p>
+
 	<h2 id="codingexercise">コーディング形式のエクササイズ</h2>
+	<h3 id="codingflow">エクササイズの流れ</h3>
+	<p>
+		JavaDocに <em class="keyword">コーディング要件</em> が書かれていた場合は、コーディング形式です。
+	</p>
+	<p>
+		要件の通りに、コードを追加/修正していきましょう。
+	</p>
+<pre><span class="codetitle">e.g. read javadoc of method, do your coding exercise @Directory</span><code>
+<span class="comment">/**
+ * Change foreach statement to List's forEach() (keep result after fix) &lt;br&gt;
+ * (foreach文をforEach()メソッドへの置き換えてみましょう (修正前と修正後で実行結果が同じになるように))
+ */</span>
+<span class="keyword">public void</span> test_iffor_refactor_foreach_to_forEach() {
+    List&lt;String&gt; stageList = prepareStageList();
+    String sea = <span class="keyword">null</span>;
+    <span class="keyword">for</span> (String stage : stageList) {
+        <span class="keyword">if</span> (stage.startsWith(<span class="literal">"br"</span>)) {
+            <span class="keyword">continue</span>;
+        }
+        sea = stage;
+        <span class="keyword">if</span> (stage.contains(<span class="literal">"ga"</span>)) {
+            <span class="keyword">break</span>;
+        }
+    }
+    log(sea); <span class="comment">// should be same as before-fix</span>
+}
+</code></pre>
+	<h3 id="codingleaning">コーディング形式の学び方</h3>
+	<p>
+		明らかに理解してコーディングできた場合は良いですが、レビューワーがいるのですれば、コードを見てもらってアドバイスをもらうと良いでしょう。
+	</p>
+	<p>
+		javatryのリポジトリをフォークしている、他の方のコードを読むのも勉強になります。
+	</p>
 
 	<h2 id="howtoexecute">テストメソッドの実行方法</h2>
 	<h3 id="execoneclipse">Eclipse上での実行</h3>
@@ -266,13 +343,14 @@ log(sea); <span class="comment">// your answer? =&gt; <span class="point">mystic
 	</p>
 	<h4>Quick JUnitが入ってないと？</h4>
 	<p>
-		Quick JUnit を使わなくても、右クリックメニューの Run As から実行できますが、対象のメソッドだけでなく、クラス内のすべてのメソッドが実行されてしまうので、ログが見づらいです。
-		javatryでは、Quick JUnit の利用を強くオススメします。
+		Quick JUnit を使わなくても、右クリックメニューの Run As から実行できますが、対象のメソッドだけでなく、クラス内のすべてのメソッドが実行されてしまう可能性があるので、ログが見づらいです。
+		javatryでは、Quick JUnit の利用を強くオススメします。<span class="frm">(Eclipseのバージョンに依るかもしれません)</span>
 	</p>
 	<h3 id="execonintellij">IntelliJ IDEA上での実行</h3>
 	<p>
-		対象メソッドの宣言部分から、何かしらクリックして簡単に実行できるはずです。
+		対象メソッドの宣言部分から、何かしらクリックして簡単に実行できるはずです。オフィシャルドキュメントを参考にしましょう。
 	</p>
+	<div class="relatedpage"><a href="https://pleiades.io/help/idea/performing-tests.html">テストの実行﻿ | IntelliJ IDEA</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
