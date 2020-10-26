@@ -150,6 +150,24 @@
 }
 </code></pre>
 	<p>
+		ctrl+9 <span class="frm">(Eclipseなら)</span> でテストクラスを自動生成します。
+		作成場所は src/test/java で、パッケージはLogicクラスと同じにします<span class="frm">(自動生成で自然とそうなるはずです)</span>。
+		自動生成語、クラス宣言などはハンズオンのやり方に合わせて修正しましょう。
+	</p>
+<pre><span class="codetitle">e.g. テストクラスを自動生成、クラス宣言を微調整 @Java</span><code>
+<span class="keyword">package</span> org.docksidestage.handson.logic;
+<span class="abbreviation">...</span>
+<span class="comment">/**
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn06LogicTest <span class="keyword">extends</span> UnitContainerTestCase {
+
+    <span class="keyword">public void</span> test_<span class="abbreviation">...</span>() { <span class="comment">// _testで補完</span>
+        <span class="abbreviation">...</span>
+    }
+}
+</code></pre>
+	<p>
 		テストクラスでのロジックの利用方法は、以下のようにします。
 	</p>
 <pre><span class="codetitle">e.g. テストクラスでロジッククラスを生成して利用 @Java</span><code>
