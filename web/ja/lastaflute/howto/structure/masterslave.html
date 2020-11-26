@@ -328,6 +328,15 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		しょっちゅう出てくる問題ではないと思うので、問題が出てくるまでお茶を濁すか、ローカルだけは SlaveDBAccessorNothing
 		を使うようにするとか、工夫が必要でしょう。<span class="frm">(ローカルで簡単にmaster/slaveができちゃえば一番世話ないですが)</span>
 	</p>
+	<h3 id="multipledb">複数DB構成だと、どうする？</h3>
+	<p>
+		いくつか注意が必要です。ざっくり書いておきます
+	</p>
+	<ul>
+		<li>組込みjdbc.xmlではないので、jdbc+.xmlじゃなく、jdbc-[スキーマ名].xml を作成することになる</li>
+		<li>コンポーネント名が、シンプルだとバッティングするので、[スキーマ名]DataSource など修飾することになる</li>
+		<li>SlaveDBAccessor や MasterBasisSelectableDataSource もスキーマごとにクラスを作った方が良い</li>
+	</ul>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
