@@ -347,7 +347,8 @@ Member member = memberBhv.<span class="point">selectEntityWithDeletedCheck</span
 		該当のBehaviorに対応するテーブルの Entity となります。
 	</p>
 	<p>
-		検索結果が一件もない場合は、null となります。
+		検索結果が一件もない場合は、empty の Optional となります<span class="frm">(Java8)</span>。
+		検索結果が一件もない場合は、null となります<span class="frm">(Java6)</span>。
 	</p>
 	<h3 id="exception">例外</h3>
 	<dl class="textlist">
