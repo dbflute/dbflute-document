@@ -335,7 +335,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<ul>
 		<li>組込みjdbc.xmlではないので、jdbc+.xmlじゃなく、jdbc-[スキーマ名].xml を作成することになる</li>
 		<li>コンポーネント名が、シンプルだとバッティングするので、[スキーマ名]DataSource など修飾することになる</li>
-		<li>SlaveDBAccessor や MasterBasisSelectableDataSource もスキーマごとにクラスを作った方が良い</li>
+		<li>SlaveDBAccessor をスキーマごとにクラスを作って、mySchemaKeyword() をオーバーライド</li>
 	</ul>
 <!-- __content-end__ --></div></div>
 
