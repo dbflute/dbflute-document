@@ -343,12 +343,19 @@ Member member = memberBhv.<span class="point">selectEntityWithDeletedCheck</span
 		検索条件がない検索をする場合でも、必ずConditionBeanのインスタンスが必要です。
 	</p>
 	<h3 id="result">戻り値</h3>
+	<h4>Java8版の戻り値はOptionalEntity</h4>
+	<p>
+		該当のBehaviorに対応するテーブルの Entity を包んだ OptionalEntity となります。
+	</p>
+	<p>
+		検索結果が一件もない場合は、empty の Optional となります<span class="frm">(Java8版)</span>。
+	</p>
+	<h4>Java6版の戻り値はそのままEntity</h4>
 	<p>
 		該当のBehaviorに対応するテーブルの Entity となります。
 	</p>
 	<p>
-		検索結果が一件もない場合は、empty の Optional となります<span class="frm">(Java8)</span>。
-		検索結果が一件もない場合は、null となります<span class="frm">(Java6)</span>。
+		検索結果が一件もない場合は、null となります<span class="frm">(Java6版)</span>。
 	</p>
 	<h3 id="exception">例外</h3>
 	<dl class="textlist">
