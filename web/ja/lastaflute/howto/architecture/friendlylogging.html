@@ -490,9 +490,9 @@ java.lang.IllegalStateException: test error
 		また、SQL発行回数がある一定のしきい値(デフォルトで30)を超えると、WARNレベルのログが出力されます。
 		エラーにはなりませんが、本番環境でもチェックされて検出しやすくなっています。
 	</p>
-<pre><span class="codetitle">e.g. あまりにひどい発行回数はWARNで警告 @Log</span><code>
+<pre><span class="codetitle">e.g. あまりにひどい発行回数はWARNで警告、123回実行しているケース @Log</span><code>
 
-<span class="abbreviation">...</span>-WARN (<span class="abbreviation">...</span>) - *Too many SQL executions: <span class="point">{total=81, selectCB=3, entityUpdate=78, queryUpdate=0, outsideSql=0, procedure=0}</span> in MemberListAction.doSearch()
+<span class="abbreviation">...</span>-WARN (<span class="abbreviation">...</span>) - *Too many SQL executions: <span class="point">123/30</span> in MemberListAction.doSearch()
 
 </code></pre>
 	<p>
