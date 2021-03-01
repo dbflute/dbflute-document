@@ -275,6 +275,9 @@
 	<p>
 		LastaFluteでは、<em class="keyword">insert,update,deleteなどの更新処理は Transaction で実行すること</em> を強く推奨しています。
 	</p>
+	<p>
+		<span class="frm">(update()だけの処理...と思ってたら後でdelete()/insert()に変わったり、業務的に別の処理が追加されたりなどなど)</span>
+	</p>
 	<h3 id="nontxupdateexp">NonTransactionalUpdateException <span class="frm">(Translated)</span></h3>
 	<p>
 		ActionのデフォルトTransactionがあるので、自然とTransactionの中で更新することになるのであまり気にすることはないですが、明示的にデフォルトTransactionを抑制したり、Jobクラスからの実行の場合、そのまま更新処理をすると
