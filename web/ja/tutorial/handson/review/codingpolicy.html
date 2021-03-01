@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>ハンズオンのコーディングポリシー | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>ハンズオンのコーディングポリシー</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteハンズオンやjavatryなどで推奨されるコーディングポリシーを用意しています。
+	</p>
+	<div class="relatedpage"><a href="../index.html">DBFluteハンズオン</a></div>
+	<p>
+		実際の開発現場では違うコーディングポリシーになるかもしれませんが、それぞれの行った先のポリシーにすぐに合わせて実装ができるというのも重要なスキルの一つです。
+	</p>
+	<p>
+		研修用のコードであっても、全くの自由ではなく、何かしらのコーディングポリシーを意識しながらプログラミングする習慣を付けましょう。
+	</p>
+
+	<h2 id="reviewable">1. レビューしやすいコード</h2>
+	<p>
+		様々なコーディングポリシーの根底にあるコーディングテーマです。参考ブログを読んでください。
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160912/reviewable">レビューしやすいコード (Reviewable Code) | jfluteの日記</a></div>
+	<p>
+		<br>
+		<em class="keyword">レビューワーに負担をかけないコードとは？</em> それを考えながら実装しましょう。
+	</p>
+
+	<h2 id="editorwarning">2. エディター警告の解決</h2>
+	<p>
+		Eclipse や IntelliJ のエディター上の警告が残っている状態でコミットしないように気を付けましょう。
+		<span class="frm">(自動チェックできるものを人間がレビューするのは時間がもったいないです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/handson/handson-eclipse-warning-example1-unused.png" title="Eclipse Waring Example"><img src="../../../../data/snapshot/handson/handson-eclipse-warning-example1-unused.png" alt="Eclipse Waring Example" width="550" height="180" /></a>
+	</p>
+	<p>
+		警告ではなく提案やヒントのようなものであれば無視しても構いませんが、それらを放置し過ぎて警告ノイズにならないように注意しましょう。
+		警告ノイズが多くなる場合は、そもそもエディターの設定を調整しましょう。
+		<span class="frm">(特にIntelliJでは、デフォルトで細か過ぎる提案が多い印象です)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../manual/topic/friends/intellij/index.html#shareinspections">IntelliJ - Inspections設定の共有</a></div>
+	<p>
+		低レベルなミスを未然に防げれば、もっと大事なことにレビュー時間を使うことができます。
+	</p>
+
+	<h2 id="minjavadoc">3. 最低限のクラスJavaDoc</h2>
+	<p>
+		一行だけでも良いので、クラスの内容を表現するコメントを書きましょう。
+	</p>
+	<p>
+		そして、クラスのJavaDocに @author を付与しましょう。
+		<span class="frm">(Eclipseなら @au => ctrl+space で補完)</span>
+	</p>
+<pre><span class="codetitle">e.g. 最低限のJavaDoc, 一行コメントとauthor @Java</span><code>
+<span class="comment">/**
+ * 商品一覧検索画面のAction
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> <span class="abbreviation">...</span> {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		他の人が作ったクラスを <span class="frm">(レビューコメント以外で)</span> 修正した場合は、@author を下に追加します。
+	</p>
+<pre><span class="codetitle">e.g. jfluteが作ったクラスにstojkovicが修正を入れた場合 @Java</span><code>
+<span class="comment">/**
+ * 商品一覧検索画面のAction
+ * @author jflute
+ * @author stojkovic
+ */</span>
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> <span class="abbreviation">...</span> {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		誰が修正をしたのか？というのは別にgitのHistoryを見ればわかる話ではありますが、クラスファイルを開いたらすぐに目に入ってくるというのがポイントです。
+	</p>
+	<p>
+		特にインクリメンタルな開発の場合、とある人が途中まで作ったものを別の人が引き継いだりと複数の人が関わることが多く、緊急の場面でのコードリーディングも多いと想定されるので、すぐに「話しかけたい人」がわかるというのが大切だと考えています。
+	</p>
+	<p>
+		また、複数の人がクラスを修正していると、その場限りで都合のよい無責任実装が積み上がっていきやすいものです。手を動かして記名することで少しでも「自分が関わったクラスなんだ」という意識を高めることも目的の一つです。
+	</p>
+
+	<h2 id="emptyline">4. 空行マネジメント</h2>
+	<p>
+		空行には「区切り」という明確な役割があります。
+	</p>
+	<p>
+		いい加減に空けたり詰めたりすると <em class="keyword">見た目で理解しづらいコード</em> になってしまいます。
+		必ずこうしなければならないというルールがあるわけではありませんが、まずは統一性を大切に、そして、ひと目で読み手がコードの意図を理解しやすい空行を心がけましょう。
+	</p>
+	<p>
+		また、ディスプレイは横長のものが多く、縦が短いものです。無駄な空行は削除(Eclipseならctrl+D)していきましょう。もちろん意図のある空行であれば遠慮なく空けていきましょう。
+	</p>
+	<h3 id="emptylinebad">空行マネジメントされてない例 ×</h3>
+	<p>
+		統一感の問題もあるので、必ずしもすべてダメというわけではありませんが、特にindex()メソッドでは処理の意味的な区切りが少々不明瞭です。
+	</p>
+<pre><span class="codetitle">e.g. 空行マネジメントされていないコード、LastaFluteのExampleの場合 @Java</span><code>
+
+<span class="comment">/**
+ * 商品一覧検索画面のAction
+ * @author jflute
+ *
+ */</span>
+ 
+@AllowAnyoneAccess
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> HarborBaseAction {
+    @Resource
+    <span class="keyword">private</span> ProductBhv <span class="attribute">productBhv</span>;
+
+
+    @Resource
+    <span class="keyword">private</span> PagingAssist <span class="attribute">pagingAssist</span>;
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(OptionalThing&lt;Integer&gt; pageNumber, ProductSearchForm form) {
+        validate(form, messages -&gt; {}, () -&gt; {
+
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>);
+        });
+        PagingResultBean&lt;Product&gt; page = selectProductPage(pageNumber.orElse(1), form);
+        List&lt;ProductSearchRowBean&gt; beans = page.stream().map(product -&gt; {
+            <span class="keyword">return</span> mappingToBean(product);
+
+        }).collect(Collectors.toList());
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>).renderWith(data -&gt; {
+            data.register("beans", beans);
+
+            <span class="attribute">pagingAssist</span>.registerPagingNavi(data, page, form);
+
+        });
+    }
+}
+</code></pre>
+	<h3 id="emptylinegood">空行マネジメントされている例 ○</h3>
+	<p>
+		対してこちらは、処理の意味的な区切りと空行が一致しています。
+	</p>
+	<p>
+		もちろん、意味的な区切りというのは個人差が出るものなので、あくまで参考例ですが、何かしら自分の中で統一感のある空行マネジメントを意識をして欲しいというところです。
+	</p>
+<pre><span class="codetitle">e.g. 空行マネジメントされたデモコード、LastaFluteのExampleの場合 @Java</span><code>
+
+<span class="comment">/**
+ * 商品一覧検索画面のAction
+ * @author jflute
+ */</span>
+@AllowAnyoneAccess
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> HarborBaseAction {
+
+    @Resource
+    <span class="keyword">private</span> ProductBhv <span class="attribute">productBhv</span>;
+    @Resource
+    <span class="keyword">private</span> PagingAssist <span class="attribute">pagingAssist</span>;
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(OptionalThing&lt;Integer&gt; pageNumber, ProductSearchForm form) {
+        validate(form, messages -&gt; {}, () -&gt; {
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>);
+        });
+
+        PagingResultBean&lt;Product&gt; page = selectProductPage(pageNumber.orElse(1), form);
+        List&lt;ProductSearchRowBean&gt; beans = page.stream().map(product -&gt; {
+            <span class="keyword">return</span> mappingToBean(product);
+        }).collect(Collectors.toList());
+
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>).renderWith(data -&gt; {
+            data.register("beans", beans);
+            <span class="attribute">pagingAssist</span>.registerPagingNavi(data, page, form);
+        });
+    }
+}
+</code></pre>
+	<p>
+		DBFluteハンズオンのコードの例も挙げておきます。
+	</p>
+<pre><span class="codetitle">e.g. 空行マネジメントされたデモコード、DBFluteハンズオンの場合 @Java</span><code>
+
+<span class="comment">/**
+ * DBFluteハンズオンのセクション２のテストクラス
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    @Resource
+    <span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
+
+    <span class="keyword">public void</span> test_demo() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        String prefix = <span class="literal">"S"</span>;
+
+        <span class="comment">// ## Act ##</span>
+        List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb -> {
+            cb.setupSelect_MemberStatus();
+            cb.query().setMemberName_LikeSearch(prefix, op -&gt; op.likePrefix());
+            cb.query().existsPurchase(purchaseCB -&gt; {
+                purchaseCB.query().setPaymentCompleteFlg_Equal_True();
+            });
+            cb.query().addOrderBy_Birthdate_Desc();
+        });
+
+        <span class="comment">// ## Assert ##</span>
+        assertHasAnyElement(memberList);
+        memberList.forEach(member -&gt; {
+            String memberName = member.getMemberName();
+            log(memberName);
+            assertTrue(memberName.startsWith(prefix));
+        });
+    }
+}
+</code></pre>
+
+	<h2 id="backgroundcomment">5. 背景コメント</h2>
+	<p>
+		まず、コメントを積極的に書きましょう。研修用のコードだと、コメントが忘れ去られがちです。研修用でも本番と同じ気持ちで、レビューワーのために。
+	</p>
+	<p>
+		そして特に、<em class="keyword">背景コメントを書きましょう</em>。参考ブログを読んでください。
+	</p>
+	<div class="detailpage"><a href="https://jflute.hatenadiary.jp/entry/20180625/repeatablecomment">オートマティックおうむ返しコメントより背景や理由を | jfluteの日記</a></div>
+	<p>
+		<span class="frm">(コードから読み取れない情報こそ、コメントで補足されてると読み手は嬉しいものです)</span>
+	</p>
+	<h3 id="dbcomment">DBコメントもコメント</h3>
+	<p>
+		コメントは、コードだけとは限りません。<span class="frm">(DBにもコメントが入れられます)</span>
+	</p>
+	<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20170628/letsdbcomment">コードにコメント書くのにDBにコメント書かないの？ | jfluteの日記</a></div>
+	<h3 id="namingcomment">メソッド名や変数名もコメント</h3>
+	<p>
+		コメントは、コメントだけとは限りません。<span class="frm">(メソッド名や変数名もコメントと言えます)</span>
+	</p>
+	<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20181013/flgornuance">なんとかフラグというboolean変数名 | jfluteの日記</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

@@ -154,95 +154,11 @@
 		バックアップも兼ねて、帰る前にはコミット＆プッシュしましょう。夜中にjfluteがレビューするかもしれません。
 	</p>
 
-	<h2 id="codepolicy">コードポリシー</h2>
+	<h2 id="codepolicy">コーディングポリシー</h2> <!-- keep "codepolicy" for compatibile -->
 	<p>
-		jfluteのレビューを受けるために、以下のことを意識お願いします。
+		jfluteのレビューを受けるために、ハンズオンのコーディングポリシーへの意識お願いします。
 	</p>
-	<h3 id="codingtheme">コーディングテーマ</h3>
-	<p>
-		こちらのブログのとおりです。
-	</p>
-	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160912/reviewable">レビューしやすいコード (Reviewable Code) | jfluteの日記</a></div>
-	<h3 id="editorwarning">エディター警告の解決</h3>
-	<p>
-		Eclipse や IntelliJ のエディター上の警告が残っている状態でコミットしないように気を付けましょう。
-		<span class="frm">(自動チェックされるものをレビューするのは無駄なので)</span>
-	</p>
-	<p>
-		現場によっては、checkstyleが効いていることもあるでしょう。checkstyleの警告が残らないようにしましょう。
-		警告をどう直したらいいのかわからないときは、todoコメントで質問をしてください。
-	</p>
-	<h3 id="javadoc">最低限のJavaDoc</h3>
-	<p>
-		新しくクラスを作ったときは、クラスのJavaDocを付けて @author を付与します。(@au => ctrl+space で補完)
-		もちろん、JavaDocらしい気の利いたコメントを書いてもOKです。<span class="frm">(単に少なくともauthorだけは入れて欲しいというところです)</span>
-	</p>
-<pre><span class="codetitle">e.g. 最低限のJavaDoc, セクション２で最初のauthor @Java</span><code>
-<span class="comment">/**
- * @author jflute
- */</span>
-<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
-    <span class="abbreviation">...</span>
-}
-</code></pre>
-	<p>
-		ハンズオンではあまりありえない状況ですが、他の人が作ったクラスに (レビューコメント以外で) 手を入れる場合は、@author を下に追加します。
-	</p>
-<pre><span class="codetitle">e.g. 最低限のJavaDoc, セクション２でauthorの追加 @Java</span><code>
-<span class="comment">/**
- * @author jflute
- * @author stojkovic
- */</span>
-<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
-    <span class="abbreviation">...</span>
-}
-</code></pre>
-	<p>
-		誰が修正をしたのかって別にgitのHistoryを見ればわかる話ではありますが、クラスファイルを開いたらすぐに目に入ってくるというのがポイントです。
-		特にインクリメンタルな開発の場合、とある人が途中まで作ったものを別の人が引き継いだりと複数の人が関わることが多く、緊急の場面でのコードリーディングも多いと想定されるので、すぐに「話しかけたい人」がわかるというのが大切だと考えています。
-		また、複数の人がクロスしてクラスを修正していると、ササッとその場限りで都合のよい無責任実装が積み上がっていきやすいものです。手を動かして記名することで少しでも「自分が関わったクラスなんだ」という意識を高めることも目的の一つです。
-	</p>
-	<h3 id="emptyline">空行マネジメント</h3>
-	<p>
-		空行には「区切り」という明確な役割があります。
-	</p>
-	<p>
-		いい加減に空けたり詰めたりすると「見た目で理解しづらいコード」になってしまいます。
-		必ずこうしなければならないというルールがあるわけではありませんが、まずは統一性を大切に、そして、ぱっと見で読み手がコードの意図を汲み取りやすい空行を心がけましょう。
-	</p>
-	<p>
-		また、ディスプレイは横長のものが多く、縦が短いものです。無駄な空行は削除(Eclipseならctrl+D)していきましょう。ただ、もちろん意味のあるものはOKだし、空けるべきと思ったところは積極的に空けましょう。
-	</p>
-<pre><span class="codetitle">e.g. 空行マネジメントされたデモコード @Java</span><code>
-<span class="comment">/**
- * @author jflute
- */</span>
-<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
-
-    <span class="keyword">public void</span> test_demo() <span class="keyword">throws</span> Exception {
-        <span class="comment">// ## Arrange ##</span>
-        String prefix = <span class="literal">"S"</span>;
-
-        <span class="comment">// ## Act ##</span>
-        List&lt;Member&gt; memberList = memberBhv.selectList(cb -> {
-            cb.setupSelect_MemberStatus();
-            cb.query().setMemberName_LikeSearch(prefix, op -&gt; op.likePrefix());
-            cb.query().existsPurchase(purchaseCB -&gt; {
-                purchaseCB.query().setPaymentCompleteFlg_Equal_True();
-            });
-            cb.query().addOrderBy_Birthdate_Desc();
-        });
-
-        <span class="comment">// ## Assert ##</span>
-        assertHasAnyElement(memberList);
-        memberList.forEach(member -&gt; {
-            String memberName = member.getMemberName();
-            log(memberName);
-            assertTrue(memberName.startsWith(prefix));
-        });
-    }
-}
-</code></pre>
+	<div class="detailpage"><a href="./codingpolicy.html">ハンズオンのコーディングポリシー</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
