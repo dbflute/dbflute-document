@@ -161,6 +161,29 @@
 	<p class="imgbox">図 : preferencesの項目にERFlute
 		<a href="../../../../../data/snapshot/helper/erflute/erflute-install-preferences-snapshot.png" title="preferencesの項目にERFlute"><img src="../../../../../data/snapshot/helper/erflute/erflute-install-preferences-snapshot.png" alt="preferencesの項目にERFlute" width="550" height="360" /></a>
 	</p>
+	<h3 id="eclipse202012">Eclipse-202012以降で動かない場合</h3>
+	<p>
+		Eclipse-202012(4.18)以降において、Eclipseを起動してもERFluteが認識されないという報告があります。
+		ERFluteが使っている Eclipse GEF のバージョンが古く、新しい Eclipse では古いGEFが利用できないことが原因だと推測されています。
+	</p>
+	<p>
+		古い GEF を明示的にインストールすると、動作する可能性があります。
+	</p>
+	<ol>
+		<li>Eclipseのメニューの <em class="mark">Help - Install New Software...</em> を選択</li>
+		<li>GEF-Legacy の更新サイトのURLを <em class="mark">Work with:</em> に入力して、GEFにチェックを付ける</li>
+		<li>Next, Next でインストール (Eclipseの再起動を求められるので再起動)</li>
+	</ol>
+	<dl class="textlist">
+		<dt>GEF-Legacyの更新サイトのURL</dt>
+		<dd><em class="mark">http://download.eclipse.org/tools/gef/updates/legacy/releases/</em></dd>
+	</dl>
+	<p class="imgbox">図 : Eclipseの更新サイトによるインストールメニューを選択
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-install-supplement-updatesite-entry-snapshot.png" title="Eclipseの更新サイトによるインストールメニューを選択"><img src="../../../../../data/snapshot/helper/erflute/erflute-install-supplement-updatesite-entry-snapshot.png" alt="Eclipseの更新サイトによるインストールメニューを選択" width="550" height="360" /></a>
+	</p>
+	<p class="imgbox">図 : Eclipseの更新サイトによるインストールのURL入力
+		<a href="../../../../../data/snapshot/helper/erflute/erflute-install-supplement-updatesite-url-snapshot.png" title="Eclipseの更新サイトによるインストールのURL入力"><img src="../../../../../data/snapshot/helper/erflute/erflute-install-supplement-updatesite-url-snapshot.png" alt="Eclipseの更新サイトによるインストールのURL入力" width="550" height="360" /></a>
+	</p>
 
 	<h2 id="howto">ERFluteの使い方</h2>
 	<p>
