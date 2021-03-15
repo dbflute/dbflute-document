@@ -41,13 +41,28 @@
 
 	<h2 id="reviewable">1. レビューしやすいコード</h2>
 	<p>
-		様々なコーディングポリシーの根底にあるコーディングテーマです。参考ブログを読んでください。
+		様々なコーディングポリシーの根底にあるコーディングテーマです。
+	</p>
+	<dl class="textlist">
+		<dt>コードを最初に読む人は？</dt><dd><em class="keyword">ずばり、レビューワー</em></dd>
+		<dt>レビューしやすいコードだと？</dt>
+		<dd><em class="keyword">→ レビューが早く抜けが少ない</em></dd>
+		<dd><em class="keyword">　→ レビューでバグを発見しやすい</em></dd>
+		<dd><em class="keyword">　　→ 経験浅い人のコードもリリースしやすい</em></dd>
+		<dd><em class="keyword">　　→ 経験豊富な人も責任の重いコードを書きやすい</em></dd>
+	</dl>
+	<p>
+		リリース前にバグが発見できれば安全なわけです。
+		最初からバグのないコードを書く努力も大切ですが、バグを発見してもらいやすいコードであれば、品質の高い状態でリリースできるのです。
+	</p>
+	<p>
+		レビューがしやすいコードは、ビジネス意識の高いコードと言えます。そしてそれは、開発者自身を助けることにもなります。
+		レビューしやすいコードとは？それを考えながら実装しましょう。
+	</p>
+	<p>
+		もっと奥が深いものです。ぜひ参考ブログも読んでみてください。
 	</p>
 	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160912/reviewable">レビューしやすいコード (Reviewable Code) | jfluteの日記</a></div>
-	<p>
-		<br>
-		<em class="keyword">レビューワーに負担をかけないコードとは？</em> それを考えながら実装しましょう。
-	</p>
 
 	<h2 id="editorwarning">2. エディター警告の解決</h2>
 	<p>
@@ -241,20 +256,21 @@
 		まず、コメントを積極的に書きましょう。研修用のコードだと、コメントが忘れ去られがちです。研修用でも本番と同じ気持ちで、レビューワーのために。
 	</p>
 	<p>
-		そして特に、<em class="keyword">背景コメントを書きましょう</em>。参考ブログを読んでください。
-	</p>
-	<div class="detailpage"><a href="https://jflute.hatenadiary.jp/entry/20180625/repeatablecomment">オートマティックおうむ返しコメントより背景や理由を | jfluteの日記</a></div>
-	<p>
+		そして特に、<em class="mark">背景コメント</em> を書きましょう。"なぜ、そのように実装しているか？" を知りたいです。
 		<span class="frm">(コードから読み取れない情報こそ、コメントで補足されてると読み手は嬉しいものです)</span>
 	</p>
+	<p>
+		ぜひ、参考ブログを読んでください。
+	</p>
+	<div class="detailpage"><a href="https://jflute.hatenadiary.jp/entry/20180625/repeatablecomment">オートマティックおうむ返しコメントより背景や理由を | jfluteの日記</a></div>
 	<h3 id="dbcomment">DBコメントもコメント</h3>
 	<p>
-		コメントは、コードだけとは限りません。<span class="frm">(DBにもコメントが入れられます)</span>
+		コメントは、コードだけとは限りません。DBのテーブルやカラムにもコメントは書けます。
 	</p>
 	<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20170628/letsdbcomment">コードにコメント書くのにDBにコメント書かないの？ | jfluteの日記</a></div>
 	<h3 id="namingcomment">メソッド名や変数名もコメント</h3>
 	<p>
-		コメントは、コメントだけとは限りません。<span class="frm">(メソッド名や変数名もコメントと言えます)</span>
+		コメントは、コメントだけとは限りません。メソッド名や変数名も重要なコメントの一つです。
 	</p>
 	<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20181013/flgornuance">なんとかフラグというboolean変数名 | jfluteの日記</a></div>
 <!-- __content-end__ --></div></div>
