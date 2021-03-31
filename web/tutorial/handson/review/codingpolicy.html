@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,ハンズオン,hands-on" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>Coding Policy of Hands-on | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Coding Policy of Hands-on</h1>
+	${indexlist}
+	<div class="relatedpage"><a href="../../../ja/tutorial/handson/review/codingpolicy.html">to Japanese page</a></div>
+
+	<h2 id="overview">Overview</h2>
+	<p>
+		I have compiled this recommended coding policy for DBFlute Hands-on and javatry.
+	</p>
+	<div class="relatedpage"><a href="../index.html">DBFlute Hands-on</a></div>
+	<p>
+		Your actual development team may have a different coding policy. Still, the ability to adapt quickly to your workplace's policies and write code accordingly is also an important skill.
+	</p>
+	<p>
+		Instead of coding however you want, try and get used to writing code based on some sort of coding policy — even with the code you write for this training.
+	</p>
+
+	<h2 id="reviewable">1. Reviewable Code</h2>
+	<p>
+		This is the general theme behind various coding policies.
+	</p>
+	<dl class="textlist">
+		<dt>Who is the first to read code?</dt><dd><em class="keyword">Needless to say, it's the reviewer.</em></dd>
+		<dt>If the code is reviewable,</dt>
+		<dd><em class="keyword">→ the review will be faster and more thorough</em></dd>
+		<dd><em class="keyword">　→ it will be easier to find bugs</em></dd>
+		<dd><em class="keyword">　　→ it will be easier to release the code, even those written by inexperienced programmers</em></dd>
+		<dd><em class="keyword">　　→ it will be easier for an experienced programmer to write critical code</em></dd>
+	</dl>
+	<p>
+		It is safer if bugs can be found and fixed before a piece of code is released.
+		And though it is also important to strive to write code without any bugs in the first place,
+		making it easy to identify areas that may produce bugs would help ensure that you release code of higher quality.
+	</p>
+	<p>
+		You can say that reviewable code is market-ready code.
+		And it can also be of help to the programmer themself.
+		But what exactly is reviewable code? Keep that question in mind when you develop software.
+	</p>
+	<p>
+		But there is more to it than that. Please read my blog for more info.
+	</p>
+	<div class="detailpage"><a href="http://d.hatena.ne.jp/jflute/20160912/reviewable">レビューしやすいコード (Reviewable Code) | jfluteの日記</a></div>
+
+	<h2 id="editorwarning">2. Resolving IDE Warnings</h2>
+	<p>
+		Be careful not to commit code when IDE like Eclipse or IntelliJ displays warnings.
+		<span class="frm">(It's a waste of time for humans to review things that can be checked automatically.)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/handson/handson-eclipse-warning-example1-unused.png" title="Eclipse Waring Example"><img src="../../../../data/snapshot/handson/handson-eclipse-warning-example1-unused.png" alt="Eclipse Waring Example" width="550" height="180" /></a>
+	</p>
+	<p>
+		It's alright to ignore suggestions and hints from the IDE,
+		but make sure you don't leave too much of them that it clutters up your IDE.
+		Adjust your IDE's settings if you are getting too much unnecessary warnings.
+		<span class="frm">(In particular, I have found that IntelliJ makes a lot of unnecessarily specific suggestions.)</span>
+	</p>
+	<div class="relatedpage"><a href="../../../ja/manual/topic/friends/intellij/index.html#shareinspections">IntelliJ - My Inspections Settings</a></div>
+	<p>
+		Time can be spent reviewing more important aspects of the code if low-level mistakes are corrected beforehand.
+	</p>
+
+	<h2 id="minjavadoc">3. Write Class Javadocs, Even If Only the Bare Minimum</h2>
+	<p>
+		Write a comment expressing the contents of the class, even if it's just one line.
+	</p>
+	<p>
+		Also, use the @author tag for class Javadocs. <span class="frm">(type @au, and autocomplete with ctrl + space, if you're using Eclipse)</span>
+	</p>
+<pre><span class="codetitle">e.g. Minimal JavaDoc, one-line comment and author @Java</span><code>
+<span class="comment">/**
+ * Action Class for the Product List Search Page
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> <span class="abbreviation">...</span> {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		Add an @author tag if you modified a class written by somebody else <span class="frm">(except for review comments)</span>.
+	</p>
+<pre><span class="codetitle">e.g. when stojkovic modifies a class written by jflute @Java</span><code>
+<span class="comment">/**
+ * * Action Class for the Product List Search Page
+ * @author jflute
+ * @author stojkovic
+ */</span>
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> <span class="abbreviation">...</span> {
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<p>
+		You can also look at the commit history to find out who modified a file, but the point is to make it known as soon as you open the file.
+	</p>
+	<p>
+		You may have to take over developing from someone else, especially in incremental development environments.
+		More often than not, multiple people will be involved in a piece of code.
+		And there will be many situations where you have to read code in an emergency.
+		So I think it's important to know "who to talk to" immediately.
+	</p>
+	<p>
+		When multiple people modify a piece of code, it becomes easier to be irresponsible and write code that only works for limited scenarios.
+		Another purpose for this is to make you conscious that you are involved in the code by deliberately signing it.
+	</p>
+
+	<h2 id="emptyline">4. Empty Line Management</h2>
+	<p>
+		Empty lines play the distinct role of demarcation.
+	</p>
+	<p>
+		Randomly inserting or deleting empty lines will make <em class="keyword">the structure of your code hard to understand</em>.
+		There are no absolute rules to be followed, but try to, first of all, be consistent,
+		and bear in mind to make it easy to understand the intention of your code at a glance.
+	</p>
+	<p>
+		Most computer displays are wide but short, so delete unnecessary empty lines (ctrl + D on Eclipse).
+		But of course, don't hesitate to use empty lines when there is reason for them.
+	</p>
+	<h3 id="emptylinebad">Example of Bad Empty Line Management ×</h3>
+	<p>
+		Not to say the following is completely wrong, since consistency should also be considered,
+		but the division between processes is unclear, especially in the index() method.
+	</p>
+<pre><span class="codetitle">e.g. Code with poorly managed empty lines, using LastaFlute's example @Java</span><code>
+
+<span class="comment">/**
+ * Action Class for the Product List Search Page
+ * @author jflute
+ *
+ */</span>
+ 
+@AllowAnyoneAccess
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> HarborBaseAction {
+    @Resource
+    <span class="keyword">private</span> ProductBhv <span class="attribute">productBhv</span>;
+
+
+    @Resource
+    <span class="keyword">private</span> PagingAssist <span class="attribute">pagingAssist</span>;
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(OptionalThing&lt;Integer&gt; pageNumber, ProductSearchForm form) {
+        validate(form, messages -&gt; {}, () -&gt; {
+
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>);
+        });
+        PagingResultBean&lt;Product&gt; page = selectProductPage(pageNumber.orElse(1), form);
+        List&lt;ProductSearchRowBean&gt; beans = page.stream().map(product -&gt; {
+            <span class="keyword">return</span> mappingToBean(product);
+
+        }).collect(Collectors.toList());
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>).renderWith(data -&gt; {
+            data.register("beans", beans);
+
+            <span class="attribute">pagingAssist</span>.registerPagingNavi(data, page, form);
+
+        });
+    }
+}
+</code></pre>
+	<h3 id="emptylinegood">Example of Good Empty line Management ○</h3>
+	<p>
+		In contrast, Empty lines match the division between processes in the following code.
+	</p>
+	<p>
+		Of course, everyone has their own opinion on what meaningful demarcation is, so this is only for reference.
+		But I hope that you consciously manage Empty lines with some sort of consistency.
+	</p>
+<pre><span class="codetitle">e.g. Demo code with well managed Empty lines, using LastaFlute's Example @Java</span><code>
+
+<span class="comment">/**
+ * Action Class for the Product List Search Page
+ * @author jflute
+ */</span>
+@AllowAnyoneAccess
+<span class="keyword">public class</span> ProductListAction <span class="keyword">extends</span> HarborBaseAction {
+
+    @Resource
+    <span class="keyword">private</span> ProductBhv <span class="attribute">productBhv</span>;
+    @Resource
+    <span class="keyword">private</span> PagingAssist <span class="attribute">pagingAssist</span>;
+
+    @Execute
+    <span class="keyword">public</span> HtmlResponse index(OptionalThing&lt;Integer&gt; pageNumber, ProductSearchForm form) {
+        validate(form, messages -&gt; {}, () -&gt; {
+            <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>);
+        });
+
+        PagingResultBean&lt;Product&gt; page = selectProductPage(pageNumber.orElse(1), form);
+        List&lt;ProductSearchRowBean&gt; beans = page.stream().map(product -&gt; {
+            <span class="keyword">return</span> mappingToBean(product);
+        }).collect(Collectors.toList());
+
+        <span class="keyword">return</span> asHtml(<span class="attribute">path_Product_ProductListHtml</span>).renderWith(data -&gt; {
+            data.register("beans", beans);
+            <span class="attribute">pagingAssist</span>.registerPagingNavi(data, page, form);
+        });
+    }
+}
+</code></pre>
+	<p>
+		Let me give an example using DBFlute's hands-on code.
+	</p>
+<pre><span class="codetitle">e.g. Demo code with well managed Empty lines, using DBFlute's Example @Java</span><code>
+
+<span class="comment">/**
+ * DBFlute Hands-on Section 2 Test Class
+ * @author jflute
+ */</span>
+<span class="keyword">public class</span> HandsOn02Test <span class="keyword">extends</span> UnitContainerTestCase {
+
+    @Resource
+    <span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
+
+    <span class="keyword">public void</span> test_demo() <span class="keyword">throws</span> Exception {
+        <span class="comment">// ## Arrange ##</span>
+        String prefix = <span class="literal">"S"</span>;
+
+        <span class="comment">// ## Act ##</span>
+        List&lt;Member&gt; memberList = <span class="attribute">memberBhv</span>.selectList(cb -> {
+            cb.setupSelect_MemberStatus();
+            cb.query().setMemberName_LikeSearch(prefix, op -&gt; op.likePrefix());
+            cb.query().existsPurchase(purchaseCB -&gt; {
+                purchaseCB.query().setPaymentCompleteFlg_Equal_True();
+            });
+            cb.query().addOrderBy_Birthdate_Desc();
+        });
+
+        <span class="comment">// ## Assert ##</span>
+        assertHasAnyElement(memberList);
+        memberList.forEach(member -&gt; {
+            String memberName = member.getMemberName();
+            log(memberName);
+            assertTrue(memberName.startsWith(prefix));
+        });
+    }
+}
+</code></pre>
+
+	<h2 id="backgroundcomment">5. Comments that Provide Context</h2>
+	<p>
+		First of all, write as much comments as you can. It is easy to forget to write comments when coding for a training course.
+		But try to write code during your training as if you were actually coding for work, for the sake of the reviewer.
+	</p>
+	<p>
+		In particular, write <em class="mark">comments that provide context</em>.
+		Reviewers want to know why the code was written the way it is.
+		<span class="frm">(Comments providing information that cannot readily be deduced from the code are most helpful to reviewers.)</span>
+	</p>
+	<p>
+		Please do read the following blog for more information.
+	</p>
+	<div class="detailpage"><a href="https://jflute.hatenadiary.jp/entry/20180625/repeatablecomment">オートマティックおうむ返しコメントより背景や理由を | jfluteの日記</a></div>
+	<h3 id="dbcomment">Database Comments are also Comments</h3>
+	<p>
+		Comments are not restricted to code. You can also write comments for a database table or column.
+	</p>
+	<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20170628/letsdbcomment">コードにコメント書くのにDBにコメント書かないの？ | jfluteの日記</a></div>
+	<h3 id="namingcomment">Function and Variable Names are also Comments</h3>
+	<p>
+		Comments are not restricted to code. Function and variable names are also important comments.
+	</p>
+	<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20181013/flgornuance">なんとかフラグというboolean変数名 | jfluteの日記</a></div>
+
+	<h2 id="specialthanks">Special Thanks</h2>
+	<p>
+		Cruz, thank you for your translation.
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

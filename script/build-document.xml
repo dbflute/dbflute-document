@@ -129,6 +129,13 @@
 			</fileset>
 		</copy>
 
+		<mkdir dir="${www.dir}/tutorial"/>
+		<copy todir="${www.dir}/tutorial" overwrite="true">
+			<fileset dir="./output/tutorial">
+				<include name="**/*.html"/>
+			</fileset>
+		</copy>
+
 		<!-- index.html.ja for www  -->
 		<copy tofile="${www.dir}/index.html.ja" file="${web.dir}/index.ja.html" overwrite="true"/>
 		<delete dir="./output" quiet="true"/>
@@ -169,6 +176,7 @@
 			<fileset dir="${preview.dir}/ja"><exclude name="**/.*"/></fileset>
 			<fileset dir="${preview.dir}/lastaflute"><exclude name="**/.*"/></fileset>
 			<fileset dir="${preview.dir}/manual"><exclude name="**/.*"/></fileset>
+			<fileset dir="${preview.dir}/tutorial"><exclude name="**/.*"/></fileset>
 		</delete>
 
 		<mkdir dir="${preview.dir}/css"/>
@@ -198,6 +206,9 @@
 		</copy>
 		<copy todir="${preview.dir}/manual" overwrite="true">
 			<fileset dir="./output/manual"><include name="**/*.html"/><include name="**/*.png"/></fileset>
+		</copy>
+		<copy todir="${preview.dir}/tutorial" overwrite="true">
+			<fileset dir="./output/tutorial"><include name="**/*.html"/><include name="**/*.png"/></fileset>
 		</copy>
 
 		<!-- index.ja.html for preview  -->
