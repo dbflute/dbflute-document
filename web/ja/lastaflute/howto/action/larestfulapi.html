@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development,Transaction,トランザクション" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>規約縛りのRESTful API | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>規約縛りのRESTful API</h1>
+	<div class="relatedpage"><a href="../../index.html">LastaFlute</a></div>
+	<div class="relatedpage"><a href="./lajsonapi.html">素早さのJSON API</a></div>
+	<div class="relatedpage"><a href="../architecture/exceptionhandling.html">開拓の例外ハンドリング</a></div>
+	<div class="relatedpage"><a href="../architecture/objsafeprop.html">LastaFluteのタイプセーフProperties</a></div>
+	${indexlist}
+
+	<h2 id="howtoaction">RESTful API の Action</h2>
+	<p>
+		RestfulRouterが設定されていることが前提です。<span class="frm">(デフォルト設定では動作しません)</span>
+	</p>
+	<div class="relatedpage"><a href="#restfulrouter">this - RestfulRouterの設定</a></div>
+	<h3 id="restfulanno">@RestfulActionを付与</h3>
+	<p>
+		Actionには、@RestfulActionアノテーションを付けます。
+	</p>
+<pre><span class="codetitle">e.g. action with @RestfulAction annotation for /products/ @Java</span><code>
+<span class="point">@RestfulAction</span>
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<h3 id="restfulmethod">@ExecuteメソッドにはHTTP Methodを付与</h3>
+	<p>
+		メソッド名の先頭で HTTP Method を表現します。小文字で付けて $ (だらー) で区切ります。
+	</p>
+	<div class="relatedpage"><a href="./index.html#httpmethod">LastaFlute の Action - HTTP Method Restriction</a></div>
+	<p>
+		$以降の業務的なメソッド名は(基本的に)index固定です。<span class="frm">(ただし特殊利用方法あり、後述)</span>
+	</p>
+<pre><span class="codetitle">e.g. action execute with HTTP method for /products/ @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="point">get$index</span>(Integer <span class="localvar">productId</span>) {
+<span class="abbreviation">...</span>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;Void&gt; <span class="point">post$index</span>(ProductsPostBody body) {
+<span class="abbreviation">...</span>
+</code></pre>
+	<h3 id="overloadget">リストと一件だけはOverloadメソッドで</h3>
+	<p>
+		通常LastaFluteの@ExecuteメソッドではOverloadはできませんが、RESTfulのリスト検索と一件検索のメソッドだけは、Overloadができます。
+		つまり、get$index()を二つ定義することができます。
+	</p>
+<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$index</span>(ProductsSearchForm <span class="localvar">form</span>) {
+<span class="abbreviation">...</span>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>) {
+<span class="abbreviation">...</span>
+</code></pre>	
+	<h3 id="singleexample">シングルリソースのExample e.g. /products/</h3>
+	<p>
+		例えば、/products/ というリソースがひとつの場合のActionの実装Exampleです。
+	</p>
+<pre><span class="codetitle">e.g. action for single resource e.g. /products/ @Java</span><code>
+<span class="subpoint">@RestfulAction</span>
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+
+    // ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========
+    @Resource
+    <span class="keyword">private</span> ProductsCrudAssist <span class="attribute">productsCrudAssist</span>;
+    @Resource
+    <span class="keyword">private</span> ProductsMappingAssist <span class="attribute">productsMappingAssist</span>;
+
+    // ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$index</span>(ProductsListForm <span class="localvar">form</span>) {
+        validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
+        List&lt;Product&gt; <span class="localvar">productList</span> = <span class="attribute">productsCrudAssist</span>.selectProductList(<span class="localvar">form</span>);
+        List&lt;ProductsResult&gt; <span class="localvar">resultList</span> = <span class="attribute">productsMappingAssist</span>.mappingToListResult(<span class="localvar">productList</span>);
+        <span class="keyword">return</span> asJson(<span class="localvar">resultList</span>);
+    }
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>) {
+        Product <span class="localvar">product</span> = <span class="attribute">productsCrudAssist</span>.selectProductById(productId);
+        ProductsResult <span class="localvar">result</span> = <span class="attribute">productsMappingAssist</span>.mappingToSingleResult(product);
+        <span class="keyword">return</span> asJson(<span class="localvar">result</span>);
+    }
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;Void&gt; <span class="subpoint">post$index</span>(ProductsPostBody <span class="localvar">body</span>) {
+        validate(<span class="localvar">body</span>, <span class="localvar">messages</span> -&gt; {});
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> JsonResponse.asEmptyBody();
+    }
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;Void&gt; <span class="subpoint">put$index</span>(Integer <span class="localvar">productId</span>, ProductsPutBody <span class="localvar">body</span>) {
+        validate(<span class="localvar">body</span>, <span class="localvar">messages</span> -&gt; {});
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> JsonResponse.asEmptyBody();
+    }
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;Void&gt; <span class="subpoint">delete$index</span>(Integer <span class="localvar">productId</span>) {
+        <span class="abbreviation">...</span>
+        <span class="keyword">return</span> JsonResponse.asEmptyBody();
+    }
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+	<h3 id="overloadget">マルチリソースは？ e.g. /products/1/purchases/2/</h3>
+	<p>
+		マルチリソースのときは、リソース名の途中に挟み込まれるパスパラメーターを気にせず、リソース名でクラス名を構築します。
+		そして、パスパラメーターは引数で左から順番に定義していきます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>Actionクラス名</dt><dd>ProductsPurchasesAction</dd>
+		<dt>Executeメソッド</dt><dd>get$index(Integer productId, Long purchaseId)</dd>
+	</dl>
+<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+@RestfulAction
+<span class="keyword">public class</span> <span class="subpoint">ProductsPurchasesAction</span> <span class="keyword">extends</span> ShowbaseBaseAction {
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsPurchasesResult&gt;&gt;
+            <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>, ProductsPurchasesSearchForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductsPurchasesResult&gt;
+            <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>, Long <span class="localvar">purchasesId</span>) {
+    <span class="abbreviation">...</span>
+</code></pre>	
+	<p>
+		つまり、通常のActionでの /products/purchases/1/2/ に相当する定義をします。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
