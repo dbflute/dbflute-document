@@ -144,6 +144,8 @@
 	font-style: italic;
 	font-size: 77%;/*10px*/
 	vertical-align: top;
+	display: inline-block; /* to enable padding */
+	padding-bottom: 0.6em; /* for code beginning */
 }
 #content ol span.codetitle, #content ul span.codetitle, #content dl span.codetitle {
 	font-size: 90%;/*10px*/
