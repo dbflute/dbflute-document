@@ -371,6 +371,73 @@
 		</p>
 	</div>
 
+	<h2 id="httpstatus">HTTP Statusの設定</h2>
+	<p>
+		TODO jflute now writing...
+	</p>
+	<h3 id="successstatus">成功系のHTTP Statusの設定方法</h3>
+	<p>
+		まず、デフォルトでは、成功系はすべて200です。
+	</p>
+	<p>
+		例えば、POSTの場合は201で、PUTやDELETEなどで戻りがない場合に204を戻したいなら...
+	</p>
+	<dl class="keymainlist">
+		<dt>規約ベース方式</dt><dd>ActionHookでExecuteメソッドの構造から自動で判別するように</dd>
+		<dt>アノテーション方式</dt><dd>Executeアノテーションで successHttpStatus属性を指定</dd>
+	</dl>
+	<h4>規約ベース方式</h4>
+	<p>
+		規約ベース方式なら、TypicalStructuredSuccessHttpStatusHandlerというクラスが用意されています。これは ActionHook
+		の hookFinally() で使うと良いでしょう。<span class="frm">(もし、アプリ要件に合うのであれば)</span>
+	</p>
+<pre><span class="codetitle">e.g. TypicalStructuredSuccessHttpStatusHandler in hookFinally() @Java</span><code>
+@Override
+<span class="keyword">public void</span> hookFinally(ActionRuntime runtime) {
+    <span class="keyword">super</span>.hookFinally(runtime);
+
+    <span class="comment">// for RESTful HTTP status as conventional way e.g. POST:201, DELETE(no return):204</span>
+    <span class="keyword">new</span> TypicalStructuredSuccessHttpStatusHandler().<span class="point">reflectHttpStatusIfNeeds</span>(runtime);
+}
+</code></pre>
+	<p>
+		組み込みのHandlerが合わなければ、自前で似たような実装をすると良いでしょう。
+	</p>
+	<p>
+		ただ、SwaggerUIの情報と同期をするためには、SwaggerActionのSwaggerGeneratorのoptionにて、そのHandlerを連携させてあげる必要があります。
+		<span class="frm">(詳しくは、SwaggerOptionクラスのコードにて)</span>
+	</p>
+	<h4>アノテーション方式</h4>
+	<p>
+		アノテーション方式なら、Executeアノテーションで successHttpStatus属性を指定します。ただし、こちらはつどつど指定することになるので、ケアレスミスは発生しやすくなります。
+	</p>
+<pre><span class="codetitle">e.g. successHttpStatus on @Execute annotation @Java</span><code>
+@Execute(<span class="point">successHttpStatus</span> = @HttpStatus(value = <span class="literal">201</span>, desc = <span class="literal">"new product is created"</span>))
+<span class="keyword">public</span> JsonResponse&lt;Void&gt;s post$index(ProductsPostBody body) {
+</code></pre>
+	<p>
+		かなりゴツゴツしているのは、説明(desc)を必須にしているからです。明示的に指定するということは、何かしら説明が必要なケースであろうと想定されるためです。
+	</p>
+	<p>
+		という "ゴツゴツさ" から、すべてをアノテーション方式だけでやるというのはオススメしません。規約ベース方式の中で、特殊ケースのときにだけ使うというのが良いでしょう。
+	</p>
+	<p>
+		SwaggerUIの情報とは自動的に同期されます。
+	</p>
+	<h4>asJson方式???</h4>
+	<p>
+		asJson(...).httpStatus(201)のメソッドはオススメしません。
+		Executeメソッド内での設定なので動的な変化などには対応しやすいですが、レアな要件だと想定されますし、SwaggerUIの情報とは同期が取れませんので、RESTful API
+		で HTTP Status にこだわっているのであれば、使わないほうが良いと思われます。
+	</p>
+	<h3 id="failurestatus">例外系のHTTP Statusの設定方法</h3>
+	<p>
+		まず、デフォルトでは、業務例外とクライアント例外はすべて400(一部404)で、システム例外はすべて500です。
+	</p>
+	<p>
+		TODO jflute setupBusinessHttpStatusMap()のこと書く
+	</p>
+
 	<h2 id="restfulrouter">RestfulRouterの設定</h2>
 	<h3 class="adjustmentprovider">ActionAdjustmentProviderにてrouterを</h3>
 	<p>
