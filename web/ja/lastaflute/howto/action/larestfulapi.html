@@ -31,6 +31,48 @@
 	<div class="relatedpage"><a href="../architecture/objsafeprop.html">LastaFluteのタイプセーフProperties</a></div>
 	${indexlist}
 
+	<h2 id="restfullasta">LastaでのRESTful API</h2>
+	<p>
+		LastaFlute-1.2.1よりサポートしています。
+	</p>
+	<h3 id="overviewway">ざっくり概要</h3>
+	<p>
+		
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>前提となる設定</dt><dd>ActionAdjustmentProviderでRestfulRouterを設定</dd>
+		<dt>Action</dt><dd>Actionクラスに@RestfulActionアノテーションを付ける</dd>
+		<dt>HTTP Method</dt><dd>Executeメソッドにget$index()とHTTP Methodを付ける</dd>
+		<dt>リストと一件</dt><dd>リストと一件だけはOverloadメソッドで、どちらもget$index()</dd>
+		<dt>ネストリソース</dt><dd>リソース名をクラス名でつなげて、パスパラメーターは順番で引数に</dd>
+		<dt>ハイフンつなぎ</dt><dd>@RestfulActionのhyphenate属性で指定</dd>
+		<dt>イベントsuffix</dt><dd>@RestfulActionのallowEventSuffix=trueにしてget$sea()</dd>
+		<dt>HTTP Status</dt><dd>規約ベースやアノテーション属性指定などいろいろ</dd>
+	</dl>
+	<h3 id="overviewexample">ざっくりExample</h3>
+	<p>
+		ひとまず、Actionクラスはこのような感じになります。
+	</p>
+	<p>
+		Exampleプロジェクトである lastaflute-example-maihamaサービスの maihama-showbaseアプリにてExampleがありますので、そちらもご覧ください。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/java/org/docksidestage/app/web/products/ProductsAction.java">maihama-showbase - ProductsAction.java | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/java/org/docksidestage/app/web/products/purchases/ProductsPurchasesAction.java">maihama-showbase - ProductsPurchasesAction.java | Github</a></div>
+<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+<span class="point">@RestfulAction</span>
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$index</span>(ProductsSearchForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>) {
+    <span class="abbreviation">...</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;Void&gt; <span class="point">post$index</span>(ProductsPostBody body) {
+    <span class="abbreviation">...</span>
+</code></pre>	
+
 	<h2 id="howtoaction">RESTful API の Action</h2>
 	<p>
 		RestfulRouterが設定されていることが前提です。<span class="frm">(デフォルト設定では動作しません)</span>
@@ -73,11 +115,38 @@
 <span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>) {
 <span class="abbreviation">...</span>
 </code></pre>	
-	<h3 id="singleexample">シングルリソースのExample e.g. /products/</h3>
+	<h3 id="overloadget">ネストリソースは？ <span class="frm">e.g. /products/1/purchases/2/</span></h3>
+	<p>
+		ネストリソースのときは、リソース名の途中に挟み込まれるパスパラメーターを気にせず、リソース名でクラス名を構築します。
+		そして、パスパラメーターは引数で左から順番に定義していきます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>Actionクラス名</dt><dd>ProductsPurchasesAction</dd>
+		<dt>Executeメソッド</dt><dd>get$index(Integer productId, Long purchaseId)</dd>
+	</dl>
+<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+@RestfulAction
+<span class="keyword">public class</span> <span class="subpoint">ProductsPurchasesAction</span> <span class="keyword">extends</span> ShowbaseBaseAction {
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsPurchasesResult&gt;&gt;
+            <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>, ProductsPurchasesSearchForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductsPurchasesResult&gt;
+            <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>, Long <span class="localvar">purchasesId</span>) {
+    <span class="abbreviation">...</span>
+</code></pre>	
+	<p>
+		つまり、通常のActionでの /products/purchases/1/2/ に相当する定義をします。
+	</p>
+
+	<h2 id="exampleaction">ActionのExampleコード</h2>
+	<h3 id="rootexample">ルートリソースのExample <span class="frm">e.g. /products/</span></h3>
 	<p>
 		例えば、/products/ というリソースがひとつの場合のActionの実装Exampleです。
 	</p>
-<pre><span class="codetitle">e.g. action for single resource e.g. /products/ @Java</span><code>
+<pre><span class="codetitle">e.g. action for root resource e.g. /products/ @Java</span><code>
 <span class="subpoint">@RestfulAction</span>
 <span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
 
@@ -96,15 +165,15 @@
     <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$index</span>(ProductsListForm <span class="localvar">form</span>) {
         validate(<span class="localvar">form</span>, <span class="localvar">messages</span> -&gt; {});
         List&lt;Product&gt; <span class="localvar">productList</span> = <span class="attribute">productsCrudAssist</span>.selectProductList(<span class="localvar">form</span>);
-        List&lt;ProductsResult&gt; <span class="localvar">resultList</span> = <span class="attribute">productsMappingAssist</span>.mappingToListResult(<span class="localvar">productList</span>);
-        <span class="keyword">return</span> asJson(<span class="localvar">resultList</span>);
+        List&lt;ProductsResult&gt; <span class="localvar">listResult</span> = <span class="attribute">productsMappingAssist</span>.mappingToListResult(<span class="localvar">productList</span>);
+        <span class="keyword">return</span> asJson(<span class="localvar">listResult</span>);
     }
 
     @Execute
     <span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>) {
         Product <span class="localvar">product</span> = <span class="attribute">productsCrudAssist</span>.selectProductById(productId);
-        ProductsResult <span class="localvar">result</span> = <span class="attribute">productsMappingAssist</span>.mappingToSingleResult(product);
-        <span class="keyword">return</span> asJson(<span class="localvar">result</span>);
+        ProductsResult <span class="localvar">singleResult</span> = <span class="attribute">productsMappingAssist</span>.mappingToSingleResult(product);
+        <span class="keyword">return</span> asJson(<span class="localvar">singleResult</span>);
     }
 
     @Execute
@@ -130,19 +199,25 @@
     <span class="abbreviation">...</span>
 }
 </code></pre>
-	<h3 id="overloadget">マルチリソースは？ e.g. /products/1/purchases/2/</h3>
+	<h3 id="nestexample">ネストリソースのExample <span class="frm">e.g. /products/1/purchases/</span></h3>
 	<p>
-		マルチリソースのときは、リソース名の途中に挟み込まれるパスパラメーターを気にせず、リソース名でクラス名を構築します。
-		そして、パスパラメーターは引数で左から順番に定義していきます。
+		例えば、/products/1/purchases/ というリソースがふたつの場合のActionの実装Exampleです。
 	</p>
-	<dl class="valuemainlist">
-		<dt>Actionクラス名</dt><dd>ProductsPurchasesAction</dd>
-		<dt>Executeメソッド</dt><dd>get$index(Integer productId, Long purchaseId)</dd>
-	</dl>
-<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+<pre><span class="codetitle">e.g. action for nest resource /products/1/purchases/ @Java</span><code>
 @RestfulAction
 <span class="keyword">public class</span> <span class="subpoint">ProductsPurchasesAction</span> <span class="keyword">extends</span> ShowbaseBaseAction {
 
+    // ===================================================================================
+    //                                                                           Attribute
+    //                                                                           =========
+    @Resource
+    <span class="keyword">private</span> ProductsPurchasesCrudAssist <span class="attribute">productsPurchasesCrudAssist</span>;
+    @Resource
+    <span class="keyword">private</span> ProductsPurchasesMappingAssist <span class="attribute">productsPurchasesMappingAssist</span>;
+
+    // ===================================================================================
+    //                                                                             Execute
+    //                                                                             =======
     @Execute
     <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsPurchasesResult&gt;&gt;
             <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>, ProductsPurchasesSearchForm <span class="localvar">form</span>) {
@@ -151,10 +226,183 @@
     <span class="keyword">public</span> JsonResponse&lt;ProductsPurchasesResult&gt;
             <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>, Long <span class="localvar">purchasesId</span>) {
     <span class="abbreviation">...</span>
-</code></pre>	
+</code></pre>
+	<ul class="codeoutro">
+		<li>メソッド名の前の改行は、単にドキュメントのデザインの都合上、横長だと見づらいので入れてるだけ</li>
+	</ul>
+
+	<h2 id="hyphenate">ハイフンつなぎリソース名</h2>
 	<p>
-		つまり、通常のActionでの /products/purchases/1/2/ に相当する定義をします。
+		通常のLastaFluteのActionではハイフンつなぎの単語をサポートしていませんが、
+		RESTful APIではURLの形式に縛りがあるため、ハイフンを使いたくなる場面が増えると想定し、サポートしています。
 	</p>
+	<p>
+		例えば、/products/1/my-purchases/ のとき、@RestfulActionのhyphenate属性にて、ハイフンでつないだときの表現である my-purchases
+		を指定します。Actionのクラス名では、ハイフン区切りでキャメルケースにします。
+	</p>
+<pre><span class="codetitle">e.g. action for nest resource /products/1/my-purchases/ @Java</span><code>
+@RestfulAction(<span class="point">hyphenate</span>=<span class="literal">"my-purchases"</span>)
+<span class="keyword">public class</span> ProductsMyPurchasesAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<p>
+		TODO jflute これから対応する (2021/06/06 Sunday)
+	</p>
+
+	<h2 id="eventsuffix">イベントsuffixでの回避</h2>
+	<h3 id="defaultnoevent">デフォルトでは[HTTP Method]$index()のみ</h3>
+	<p>
+		基本的に、ActionのExecuteメソッドは、必ず [HTTP Method]$index() で固定です。$より右はindex以外の名前を使うことはできません。
+	</p>
+	<h3 id="eventdilemma">イベントごとのジレンマ</h3>
+	<p>
+		ただ、RESTfulの思想からは外れても<span class="frm">(外れるのかどうか厳密にはわからないですが)</span>、同じ HTTP Method
+		の処理でも、どうしても業務で発生するイベントごとにメソッドを分けたくなった場合、例えば、会員テーブルに対して...
+	</p>
+	<div class="relatedpage"><a href="http://dbflute.seasar.org/ja/data/model/maihamadb-erd.png">MaihamaDB</a></div>
+	<p>
+		イベントごとに検索条件も検索結果も大きく変わるような場合、get$index(Form)
+		に集約すると巨大な最小公倍数のFormやJsonResultになってしまうかもしれません。
+		<span class="frm">(パフォーマンスもそうですし、わかりやすさの面からメンテナンス性の低下が想定されます)</span>
+	</p>
+	<p>
+		もしくは、以下のようにイベントごとに更新する項目が違うような場合、patch$index(Body)
+		に集約すると巨大な最小公倍数のBodyになってしまうかもしれません。
+	</p>
+	<ul>
+		<li>正式会員になったとき、正式会員日時に現在日時を入れて会員ステータスを正式会員にする</li>
+		<li>会員情報編集の生年月日の入力で、生年月日に値が入る</li>
+	</ul>
+	<p>
+		put$index(body)で単に受け取ったままを更新するだけという風にしてイベントを意識しないやり方もありますが、それだとDBの業務ルールを呼び出しサービスに依存させてしまうことになるので、それが許容できなければなりません。
+		<span class="frm">(DBのルールを散財させるとDB変更がしづらくなると想定されます)</span>
+	</p>
+	<h3 id="allowevent">イベントsuffixでの回避</h3>
+	<p>
+		それぞれ、集約したままでも色々な回避策はあります。
+		検索に関しては、取捨選択するようなパラメーターを受け取るようにしたり、諦めたりなど。
+		更新に関しては、イベントを表現するパラメーターを受け取るようにしたり、そもそもそういうジレンマが発生しないようなDB設計をしたりなど。
+	</p>
+	<p>
+		ただもし、URLを分けてメソッドも分けることで解決するのであれば、@RestfulAction の allowEventSuffix を true
+		にすることで、get$sea() や get$land() というようなメソッドを作ることができます。
+	</p>
+	<dl class="keymainlist">
+		<dt>get$index(form)</dt><dd>/products/ <span class="frm">(そのまま)</span></dd>
+		<dt>get$sea(form)</dt><dd>/products/sea/</dd>
+		<dt>get$land(form)</dt><dd>/products/land/</dd>
+		<dt>get$index(Integer)</dt><dd>/products/1/ <span class="frm">(そのまま)</span></dd>
+		<dt>get$sea(Integer)</dt><dd>/products/1/sea/</dd>
+		<dt>get$land(Integer)</dt><dd>/products/1/land/</dd>
+	</dl>
+<pre><span class="codetitle">e.g. action for nest resource /products/1/my-purchases/ @Java</span><code>
+@RestfulAction(<span class="point">allowEventSuffix</span>=<span class="keyword">true</span>)
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$sea</span>(ProductsSeaSearchForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$land</span>(ProductsLandSearchForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		さきほどの、会員の更新の例だと...
+	</p>
+	<dl class="keymainlist">
+		<dt>patch$formalized(body)</dt><dd>/members/1/formalized <span class="frm">(正式会員になったときの更新)</span></dd>
+		<dt>patch$birthdate(body)</dt><dd>/members/1/birthdate <span class="frm">(生年月日情報の更新)</span></dd>
+	</dl>
+	<p>
+		というように分けることになります。名前や粒度をどうするかはアプリでの慣習次第です。
+	</p>
+	<p>
+		TODO jflute これから対応する (2021/06/06 Sunday)
+	</p>
+	<h3 id="eventbyrouter">イベントsuffixが使えるかはrouter次第</h3>
+	<p>
+		ただし、この機能は RestfulRouter の実装に依存します。選択する Router によっては動作しません。
+		例えば、文字列のパスパラメーターを許容する Router だと、イベントsuffixがパスパタメーターと区別が付かなくなり動作しません。
+		なので、パスパラメーターは必ず数値であることが前提になります。
+	</p>
+	<div class="inucolumn">
+		<h3 id="crudusecase">RESTのCRUD枠にユースケースを当てはめてるのか？</h3>
+		<p>
+			そもそも、そのJSON APIは、CRUD要件のものなのか？ユースケース要件のものなのか？
+		</p>
+		<p>
+			例えば、"会員を登録する" というユースケースがあって、DB的には "会員" に加え "会員セキュリティ" と "会員サービス"
+			などの関連テーブルinsertしないといけない場合、POST /members/ では何をするのか？
+		</p>
+		<p>
+			呼び出しサービスで、会員と会員セキュリティと会員サービスとリソースごとにリクエストを飛ばし、DBのトランザクションは諦めるか？自前でロールバックする仕組みを導入するか？
+			などの工夫をするのであれば、その JSON API はCRUD要件のものと言え、RESTのCRUDにマッチしやすいので特に迷うことは少ないでしょう。
+			ただもちろん、その手前のレイヤにてユースケースやDBルールを解決するサービスが必要です。
+			<span class="frm">(その呼び出しサービスの方で、ごちゃごちゃしないように注意を)</span>
+		</p>
+		<p>
+			一方で、POST /members/ を会員登録とみなし、その中でそのユースケースに関するDBの処理をすべて行うのであれば、その JSON API
+			はユースケース要件のものと言え、RESTのCRUD枠にユースケースに当てはめていると言えるでしょう。
+		</p>
+		<p>
+			その場合は、イベントごとのジレンマが発生しやすいと想定しています。いびつにならないように、気をつけて実装ポリシーを決めていきましょう。
+			jfluteとしては、引数リモコンパターンのようなAPIにならないことを望みます。
+		</p>
+		<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20160905/argremocon">メンテ不能の強者、引数リモコンパターン | jfluteの日記</a></div>
+	</div>
+	<div class="inucolumn">
+		<h3 id="resourceordb">リソースはDBそのもの？DBインターフェース？</h3>
+		<p>
+			先ほど、正式会員になったときの更新、membersのPATCHではなく、formalizeds(造語)のPOSTとも言えるかもしれません。
+		</p>
+		<dl class="textlist">
+			<dt>リソースがDB構造が一致 <span class="frm">(リソースはDBそのもの)</span></dt>
+			<dd>会員テーブルの更新だから、あくまで PATCH /members/1/(formalized/) で更新</dd>
+			<dd>でもDB変更で MEMBER_FORMALIZED というテーブルに切り出されたらAPIも変更する？</dd>
+			<dt>リソースがDB構造が似てるだけ <span class="frm">(リソースはDBインターフェース)</span></dt>
+			<dd>内部的には会員テーブルの更新だけど、外向けには formalizeds というリソースがあるつもりで POST /members/1/formalizeds/ で登録(更新)</dd>
+			<dd>DB変更で切り出されてもAPIに影響なし。ただし、DBの構造に似てるとはいえ、リソース設計は独立してしっかりやる必要あり</dd>
+		</dl>
+		<p>
+			この辺のニュアンスも、イベントごとのジレンマに影響しそうですね。
+		</p>
+		<p>
+			DBFluteとしては、あまりDB変更がしづらくなる構成はオススメではありません。
+		</p>
+	</div>
+
+	<h2 id="restfulrouter">RestfulRouterの設定</h2>
+	<h3 class="adjustmentprovider">ActionAdjustmentProviderにてrouterを</h3>
+	<p>
+		LastaFluteは、デフォルトではRestfulActionに対応していません。
+	</p>
+	<p>
+		ActionAdjustmentProvider の customizeActionUrlMapping() と customizeActionUrlReverse() で RestfulRouterを設定する必要があります。
+	</p>
+	<div class="relatedpage"><a href="./adjustment.html">ActionやJSONの微調整</a></div>
+	<p>
+		Exampleプロジェクトである lastaflute-example-maihamaサービスの maihama-showbaseアプリにてExampleがありますので、そちらを参考に設定しましょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/java/org/docksidestage/mylasta/direction/sponsor/ShowbaseActionAdjustmentProvider.java">maihama-showbase - ShowbaseActionAdjustmentProvider.java | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/6b19b1d4c73570b80e7f36acfcd176cd4284fbc8/maihama-showbase/src/main/java/org/docksidestage/mylasta/direction/sponsor/planner/ShowbaseActionOptionAgent.java">maihama-showbase - ShowbaseActionOptionAgent.java | Github</a></div>
+	<h3 class="selectrouter">どのRestfulRouterを使う？</h3>
+	<p>
+		RestfulRouterは、実装方法に選択肢があるため、アプリの要件にあったものを選びます。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>NumericBasedRestfulRouter</dt><dd>IDが必ず数値であることを前提</dd>
+		<dt>PairBasedRestfulRouter</dt><dd>リソース名とIDがペアで構成されることを前提</dd>
+	</dl>
+	<p>
+		例えば、NumericBasedRestfulRouterの方は、IDが必ず数値である必要がありますが、イベントsuffixを使うことができます。
+		一方で、PairBasedRestfulRouterは、イベントsuffixは使えませんが、文字列のIDを利用することができます。
+	</p>
+	<p>
+		その他細かい挙動の違いがあるので、必要に応じてコードを読みましょう。
+		<span class="frm">(2021/06/06時点では、NumericBasedRestfulRouterの方を力入れています)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/path/restful/router/NumericBasedRestfulRouter.java">lastaflute - NumericBasedRestfulRouter.java | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/path/restful/router/PairBasedRestfulRouter.java">lastaflute - PairBasedRestfulRouter.java | Github</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
