@@ -310,8 +310,8 @@
 		さきほどの、会員の更新の例だと...
 	</p>
 	<dl class="keymainlist">
-		<dt>patch$formalized(body)</dt><dd>/members/1/formalized <span class="frm">(正式会員になったときの更新)</span></dd>
-		<dt>patch$birthdate(body)</dt><dd>/members/1/birthdate <span class="frm">(生年月日情報の更新)</span></dd>
+		<dt>patch$formalized(body)</dt><dd>/members/1/formalized/ <span class="frm">(正式会員になったときの更新)</span></dd>
+		<dt>patch$birthdate(body)</dt><dd>/members/1/birthdate/ <span class="frm">(生年月日情報の更新)</span></dd>
 	</dl>
 	<p>
 		というように分けることになります。名前や粒度をどうするかはアプリでの慣習次第です。
@@ -359,7 +359,7 @@
 			<dt>リソースがDB構造が一致 <span class="frm">(リソースはDBそのもの)</span></dt>
 			<dd>会員テーブルの更新だから、あくまで PATCH /members/1/(formalized/) で更新</dd>
 			<dd>でもDB変更で MEMBER_FORMALIZED というテーブルに切り出されたらAPIも変更する？</dd>
-			<dt>リソースがDB構造が似てるだけ <span class="frm">(リソースはDBインターフェース)</span></dt>
+			<dt>リソースはDB構造と似てるだけ <span class="frm">(リソースはDBインターフェース)</span></dt>
 			<dd>内部的には会員テーブルの更新だけど、外向けには formalizeds というリソースがあるつもりで POST /members/1/formalizeds/ で登録(更新)</dd>
 			<dd>DB変更で切り出されてもAPIに影響なし。ただし、DBの構造に似てるとはいえ、リソース設計は独立してしっかりやる必要あり</dd>
 		</dl>
