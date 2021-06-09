@@ -43,27 +43,28 @@
 <pre><span class="codetitle">接続設定の仕様 @databaseInfoMap.dfprop</span><code>
 <span class="keyword">map:</span>{
     ; driver   = com.mysql.jdbc.Driver
-    ; url      = jdbc:mysql://[host]:[port]/[dbname]
+    ; url      = jdbc:mysql://[host]:[port]/[dbname]?[key]=[value]&[key]=[value]
     ; schema   = 
     ; user     = [dbuser]
     ; password = [dbpassword]
 }
 </code></pre>
 	<ul class="codeoutro">
+		<li>url の ? 以降はオプション</li>
 		<li>catalog はURLから自動判別されるため設定不要</li>
 		<li>schema は未使用(空指定でOK)</li>
 		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
 	</ul>
 	<p>
-		以下、実際のExampleプロジェクトでの設定例です。
+		以下、実際のテストプロジェクトでの設定例です。
 	</p>
-<pre><span class="codetitle">e.g. dbflute-mysql-exampleの場合 {host=localhost,port=3306} @databaseInfoMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. dbflute-test-dbms-mysqlの場合 {host=localhost,port=43306} @databaseInfoMap.dfprop</span><code>
 <span class="keyword">map:</span>{
     ; driver   = com.mysql.jdbc.Driver
-    ; url      = jdbc:mysql://localhost:3306/exampledb
+    ; url      = jdbc:mysql://localhost:43306/maihamadb?allowPublicKeyRetrieval=true&sslMode=DISABLED
     ; schema   = 
-    ; user     = exampledb
-    ; password = exampledb
+    ; user     = maihamadb
+    ; password = maihamadb
 }
 </code></pre>
 	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
