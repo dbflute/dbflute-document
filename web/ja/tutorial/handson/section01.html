@@ -530,11 +530,17 @@ PROJECT_ROOT
 	</p>
 	<dl class="valuemainlist">
 		<dt>driver</dt><dd>com.mysql.jdbc.Driver</dd>
-		<dt>url</dt><dd>jdbc:mysql://localhost:43376/maihamadb</dd>
+		<dt>url</dt><dd>jdbc:mysql://localhost:43376/maihamadb?allowPublicKeyRetrieval=true&sslMode=DISABLED</dd>
 		<dt>schema</dt><dd>※空っぽ</dd>
 		<dt>user</dt><dd>maihamadb</dd>
 		<dt>password</dt><dd>maihamadb</dd>
 	</dl>
+	<p>
+		<span class="frm">
+			※urlプロパティが長いですが、"jdbc:" から "sslMode=DISABLED" まで、改行空白の無いひとつの値です。
+		</span>
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/dfprop/databaseinfo/index.html#url">databaseInfoMap - url (*)</a></div>
 	<h4>MySQL-8.0.17以降の予約語対応</h4>
 	<p>
 		MySQL-8.0.17より MEMBER が予約語となりましたので、(該当バージョンであれば)その対応を入れます。
@@ -586,7 +592,7 @@ PROJECT_ROOT
     #</span>
     ; additionalUserMap = <span class="keyword">map:</span>{
         ; system = <span class="keyword">map:</span>{
-            ; url = <span class="literal">jdbc:mysql://localhost:43376</span>
+            ; url = <span class="literal">jdbc:mysql://localhost:43376?allowPublicKeyRetrieval=true&sslMode=DISABLED</span>
             ; user = <span class="literal">root</span>
             ; password = <span class="literal">df:dfprop/system-password.txt|</span>
         }

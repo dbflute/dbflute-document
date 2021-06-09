@@ -48,13 +48,26 @@
 	</p>
 	<h3 id="driver">driver (*)</h3>
 	<p>
-		JDBCドライバのクラス名(FQCN)。
+		JDBCドライバのクラス名(FQCN)。DBMSごとにクラス名が違います。
 	</p>
 	<div class="relatedword"><a href="../../dictionary/alphabet/wf.html#fqcn">FQCN</a></div>
+<pre><span class="codetitle">e.g. MySQLでのJDBCドライバのクラス名 @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; driver   = <span class="literal">com.mysql.jdbc.Driver</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
 	<h3 id="url">url (*)</h3>
 	<p>
-		接続URL。
+		DBに接続するためのJDBC URL。DBMSごとにURLの形式が違います。
 	</p>
+<pre><span class="codetitle">e.g. MySQLでのJDBC URL, localhostのmaihamadbに接続、SSL接続OFF @databaseInfoMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+    ; url      = <span class="literal">jdbc:mysql://localhost:3306/maihamadb?allowPublicKeyRetrieval=true&sslMode=DISABLED</span>
+    <span class="abbreviation">...</span>
+}
+</code></pre>
 	<h3 id="catalog">catalog</h3>
 	<p>
 		接続カタログ(データベース)。接続URLから自動判別される DBMS
