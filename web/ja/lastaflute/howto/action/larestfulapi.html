@@ -33,11 +33,14 @@
 
 	<h2 id="restfullasta">LastaでのRESTful API</h2>
 	<p>
-		LastaFlute-1.2.1よりサポートしています。
+		LastaFlute-1.2.1 よりサポートしています。
+	</p>
+	<p>
+		<span class="frm">※合わせて、LastaMeta-0.5.1, UTFlute-0.9.3 以上を利用しましょう</span>
 	</p>
 	<h3 id="overviewway">ざっくり概要</h3>
 	<p>
-		
+		@RestfulActionアノテーション付けて、LastaFluteの規約に沿ってメソッド定義していきます。
 	</p>
 	<dl class="shortkeymainlist">
 		<dt>前提となる設定</dt><dd>ActionAdjustmentProviderでRestfulRouterを設定</dd>
@@ -236,17 +239,57 @@
 		通常のLastaFluteのActionではハイフンつなぎの単語をサポートしていませんが、
 		RESTful APIではURLの形式に縛りがあるため、ハイフンを使いたくなる場面が増えると想定し、サポートしています。
 	</p>
+	<h3 id="hyphenateattribute">hyphenate属性でハイフンつなぎを設定</h3>
 	<p>
-		例えば、/products/1/my-purchases/ のとき、@RestfulActionのhyphenate属性にて、ハイフンでつないだときの表現である my-purchases
-		を指定します。Actionのクラス名では、ハイフン区切りでキャメルケースにします。
+		例えば、/ballet-dancers/1/studios/2/ のとき、@RestfulActionのhyphenate属性にてハイフンでつないだときの表現である
+		ballet-dancers を設定します。Actionのクラス名では、ハイフン区切りをキャメルケースにします。
 	</p>
-<pre><span class="codetitle">e.g. action for nest resource /products/1/my-purchases/ @Java</span><code>
-@RestfulAction(<span class="point">hyphenate</span>=<span class="literal">"my-purchases"</span>)
-<span class="keyword">public class</span> ProductsMyPurchasesAction <span class="keyword">extends</span> ShowbaseBaseAction {
+<pre><span class="codetitle">e.g. action for hyphenated resource /ballet-dancers/1/studios/2/ @Java</span><code>
+@RestfulAction(<span class="point">hyphenate</span>=<span class="literal">"ballet-dancers"</span>)
+<span class="keyword">public class</span> BalletDancersStudiosAction <span class="keyword">extends</span> ShowbaseBaseAction {
 </code></pre>
 	<p>
-		TODO jflute これから対応する (2021/06/06 Sunday)
+		パッケージは、普通のLastaFluteの規約通り、Actionのクラス名にそのまま相当する構成にします。
 	</p>
+<pre><span class="codetitle">e.g. package for hyphenated resource /ballet-dancers/1/studios/2/ @Directory</span><code>
+app.web
+ |-ballet
+ |  |-dancers
+ |  |  |-studios
+ |  |  |  |-<span class="subpoint">BalletDancersStudiosAction.java</span>
+</code></pre>
+	<h3 id="multiplehyphenate">ハイフンつなぎが複数ある場合</h3>
+	<p>
+		例えば、/ballet-dancers/1/favorite-studios/2/ のとき、hyphenate属性で二つ設定します。
+	</p>
+<pre><span class="codetitle">e.g. action for hyphenated resource /ballet-dancers/1/favorite-studios/2/ @Java</span><code>
+@RestfulAction(<span class="point">hyphenate</span>={<span class="literal">"ballet-dancers"</span>, <span class="literal">"favorite-studios"</span>})
+<span class="keyword">public class</span> BalletDancersFavoriteStudiosAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<h3 id="onecharacterhyphenate">一文字のハイフンつなぎの場合</h3>
+	<p>
+		例えば、/a-dancers/1/b-studios/2/ のとき、Actionのクラス名で大文字が連続します。
+	</p>
+<pre><span class="codetitle">e.g. action for hyphenated resource /a-dancers/1/b-studios/2/ @Java</span><code>
+@RestfulAction(<span class="point">hyphenate</span>={<span class="literal">"a-dancers"</span>, <span class="literal">"b-studios"</span>})
+<span class="keyword">public class</span> ADancersBStudiosAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<h3 id="onecharacterhyphenate">同じ組み合わせがもう一度登場する場合</h3>
+	<p>
+		例えば、/ballet-dancers/1/favorite-ballet-dancers/2/ のときでも、それぞれ設定します。
+	</p>
+<pre><span class="codetitle">e.g. action for hyphenated resource /ballet-dancers/1/favorite-ballet-dancers/2/ @Java</span><code>
+@RestfulAction(<span class="point">hyphenate</span>={<span class="literal">"ballet-dancers"</span>, <span class="literal">"favorite-ballet-dancers"</span>})
+<span class="keyword">public class</span> BalletDancersFavoriteBalletDancersAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<h3 id="stricthyphenate">hyphenate属性の検証</h3>
+	<p>
+		Action生成時に、LastaFlute内でhyphenate属性が厳しく検証されます。
+	</p>
+	<ul>
+		<li>hyphenate属性で利用できない文字 <span class="frm">(e.g. 小文字半角英数ハイフン以外)</span> があれば例外</li>
+		<li>hyphenate属性で指定したリソース名が、クラス名になかったら例外</li>
+	</ul>
 
 	<h2 id="eventsuffix">イベントsuffixでの回避</h2>
 	<h3 id="defaultnoevent">デフォルトでは[HTTP Method]$index()のみ</h3>
@@ -316,9 +359,6 @@
 	<p>
 		というように分けることになります。名前や粒度をどうするかはアプリでの慣習次第です。
 	</p>
-	<p>
-		TODO jflute これから対応する (2021/06/06 Sunday)
-	</p>
 	<h3 id="eventbyrouter">イベントsuffixが使えるかはrouter次第</h3>
 	<p>
 		ただし、この機能は RestfulRouter の実装に依存します。選択する Router によっては動作しません。
@@ -372,9 +412,6 @@
 	</div>
 
 	<h2 id="httpstatus">HTTP Statusの設定</h2>
-	<p>
-		TODO jflute now writing...
-	</p>
 	<h3 id="successstatus">成功系のHTTP Statusの設定方法</h3>
 	<p>
 		まず、デフォルトでは、成功系はすべて200です。
@@ -432,11 +469,23 @@
 	</p>
 	<h3 id="failurestatus">例外系のHTTP Statusの設定方法</h3>
 	<p>
-		まず、デフォルトでは、業務例外とクライアント例外はすべて400(一部404)で、システム例外はすべて500です。
+		まず、LastaFluteのデフォルトでは、業務例外とクライアント例外はすべて400 (一部404)
+		となり、システム例外はすべて500ですが、ApiFailureHookの実装次第で、そのロジックを自由に調整できます。
 	</p>
 	<p>
-		TODO jflute setupBusinessHttpStatusMap()のこと書く
+		例えば、例外時レスポンスのJSONポリシーが "Failure統一クライアントメッセージ" で TypicalFaicliApiFailureHook
+		を利用している場合は、setupBusinessHttpStatusMap()をオーバーライドすることで、特定の例外クラスに対して特定のHTTPステータスを関連付けることができます。
 	</p>
+	<div class="relatedpage"><a href="../impldesign/jsonfaicli.html">JSON API, Failure統一クライアントメッセージ</a></div>
+	<div class="relatedpage"><a href="../impldesign/jsonfaihy.html">JSON API, Failure統一ハイブリッドメッセージ</a></div>
+<pre><span class="codetitle">e.g. override setupBusinessHttpStatusMap of TypicalFaicliApiFailureHook @Java</span><code>
+@Override
+<span class="keyword">protected void</span> setupBusinessHttpStatusMap(Map&lt;Class&lt;?&gt;, Integer&gt; <span class="localver">failureMap</span>) {
+    <span class="comment">// you can add mapping of failure status with exception here</span>
+    <span class="localver">failureMap</span>.put(AccessTokenUnauthorizedException.<span class="keyword">class</span>, HttpServletResponse.<span class="attribute">SC_UNAUTHORIZED</span>);
+    <span class="localver">failureMap</span>.put(AccessUnderstoodButRefusedException.<span class="keyword">class</span>, HttpServletResponse.<span class="attribute">SC_FORBIDDEN</span>);
+}
+</code></pre>
 
 	<h2 id="restfulrouter">RestfulRouterの設定</h2>
 	<h3 class="adjustmentprovider">ActionAdjustmentProviderにてrouterを</h3>
@@ -466,7 +515,7 @@
 	</p>
 	<p>
 		その他細かい挙動の違いがあるので、必要に応じてコードを読みましょう。
-		<span class="frm">(2021/06/06時点では、NumericBasedRestfulRouterの方を力入れています)</span>
+		<span class="frm">(2021/06/06時点では、NumericBasedRestfulRouterの方に力を入れています)</span>
 	</p>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/path/restful/router/NumericBasedRestfulRouter.java">lastaflute - NumericBasedRestfulRouter.java | Github</a></div>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/path/restful/router/PairBasedRestfulRouter.java">lastaflute - PairBasedRestfulRouter.java | Github</a></div>
