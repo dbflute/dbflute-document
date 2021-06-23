@@ -43,6 +43,12 @@
 		Actionのスーパークラスである <em class="mark">TypicalAction</em> の中でログインチェックが組み込まれています。
 		組み込みのログインロジックを使って自動的にログインチェックがかかるようになっています。
 	</p>
+	<p>
+		つまり、ログイン制御の設定をしたら、(デフォルトでは)ログイン画面以外はすべてログイン必須となります。
+	</p>
+	<p>
+		もし、ログイン画面以外でログインしていない状態でのアクセスを許す場合は、そのActionに @AllowAnyoneAccess アノテーションを付与します。
+	</p>
 	<h3 id="architecture">ログインコントロールの概念マップ</h3>
 	<p class="imgbox">
 		<a href="../../../../data/model/lastaflute/function/login/lastaflute-login-control-map.png" title="LastaFlute LoginControl"><img src="../../../../data/model/lastaflute/function/login/lastaflute-login-control-map.png" alt="LastaFlute LoginControl" width="550" height="380" /></a>
@@ -146,6 +152,31 @@
 		HtmlResponseのActionであれば、自動でログイン画面に遷移します。その後、正常にログインされたら、もともとアクセスしようとした画面に遷移します。
 		<span class="frm">(ログインリダイレクトと呼んでいます)</span>
 	</p>
+
+	<h2 id="nonloginaction">ログインなしアクセスを許すAction</h2>
+	<p>
+		ログイン制御を有効にしたアプリでは、ログイン画面以外のActionはログインが必須になります。
+	</p>
+	<h3 id="allowanyoneaction">Actionクラスに@AllowAnyoneAccessアノテーションを</h3>
+	<p>
+		ログイン画面以外のActionでも、ログインしていない状態でアクセスを許したい場合は、Actionクラスに @AllowAnyoneAccess を付与します。
+	</p>
+<pre><span class="codetitle">e.g. ログイン必須ではないActionに、@AllowAnyoneAccessアノテーションを付与 @Java</span><code>
+<span class="point">@AllowAnyoneAccess</span>
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<p>
+		<span class="frm">※ @AAA と打って補完すると楽に打ち込めます</span>
+	</p>
+	<h3 id="allowanyoneaction">Executeメソッドに@AllowAnyoneAccessアノテーションを</h3>
+	<p>
+		メソッド単位で制御したい場合は、Executeメソッドの方に付与します。
+	</p>
+<pre><span class="codetitle">e.g. ログイン必須ではないExecuteメソッドに、@AllowAnyoneAccessアノテーションを付与 @Java</span><code>
+<span class="point">@AllowAnyoneAccess</span>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsRowResult&gt;&gt; get$index(ProductsSearchForm form) {
+</code></pre>
 
 	<h2 id="loginassist">とにかく LoginAssist</h2>
 	<p>
