@@ -49,7 +49,7 @@
 		<dt>リストと一件</dt><dd>リストと一件だけはOverloadメソッドで、どちらもget$index()</dd>
 		<dt>ネストリソース</dt><dd>リソース名をクラス名でつなげて、パスパラメーターは順番で引数に</dd>
 		<dt>ハイフンつなぎ</dt><dd>@RestfulActionのhyphenate属性で指定</dd>
-		<dt>イベントsuffix</dt><dd>@RestfulActionのallowEventSuffix=trueにしてget$sea()</dd>
+		<dt>EventSuffix</dt><dd>@RestfulActionのallowEventSuffix=trueにしてget$sea()</dd>
 		<dt>HTTP Status</dt><dd>規約ベースやアノテーション属性指定などいろいろ</dd>
 	</dl>
 	<h3 id="overviewexample">ざっくりExample</h3>
@@ -291,7 +291,7 @@ app.web
 		<li>hyphenate属性で指定したリソース名が、クラス名になかったら例外</li>
 	</ul>
 
-	<h2 id="eventsuffix">イベントsuffixでの回避</h2>
+	<h2 id="eventsuffix">EventSuffixでの回避</h2>
 	<h3 id="defaultnoevent">デフォルトでは[HTTP Method]$index()のみ</h3>
 	<p>
 		基本的に、ActionのExecuteメソッドは、必ず [HTTP Method]$index() で固定です。$より右はindex以外の名前を使うことはできません。
@@ -319,7 +319,7 @@ app.web
 		put$index(body)で単に受け取ったままを更新するだけという風にしてイベントを意識しないやり方もありますが、それだとDBの業務ルールを呼び出しサービスに依存させてしまうことになるので、それが許容できなければなりません。
 		<span class="frm">(DBのルールを散財させるとDB変更がしづらくなると想定されます)</span>
 	</p>
-	<h3 id="allowevent">イベントsuffixでの回避</h3>
+	<h3 id="allowevent">EventSuffixでの回避</h3>
 	<p>
 		それぞれ、集約したままでも色々な回避策はあります。
 		検索に関しては、取捨選択するようなパラメーターを受け取るようにしたり、諦めたりなど。
@@ -359,10 +359,10 @@ app.web
 	<p>
 		というように分けることになります。名前や粒度をどうするかはアプリでの慣習次第です。
 	</p>
-	<h3 id="eventbyrouter">イベントsuffixが使えるかはrouter次第</h3>
+	<h3 id="eventbyrouter">EventSuffixが使えるかはrouter次第</h3>
 	<p>
 		ただし、この機能は RestfulRouter の実装に依存します。選択する Router によっては動作しません。
-		例えば、文字列のパスパラメーターを許容する Router だと、イベントsuffixがパスパタメーターと区別が付かなくなり動作しません。
+		例えば、文字列のパスパラメーターを許容する Router だと、EventSuffixがパスパタメーターと区別が付かなくなり動作しません。
 		なので、パスパラメーターは必ず数値であることが前提になります。
 	</p>
 	<div class="inucolumn">
@@ -510,8 +510,8 @@ app.web
 		<dt>PairBasedRestfulRouter</dt><dd>リソース名とIDがペアで構成されることを前提</dd>
 	</dl>
 	<p>
-		例えば、NumericBasedRestfulRouterの方は、IDが必ず数値である必要がありますが、イベントsuffixを使うことができます。
-		一方で、PairBasedRestfulRouterは、イベントsuffixは使えませんが、文字列のIDを利用することができます。
+		例えば、NumericBasedRestfulRouterの方は、IDが必ず数値である必要がありますが、EventSuffixを使うことができます。
+		一方で、PairBasedRestfulRouterは、EventSuffixは使えませんが、文字列のIDを利用することができます。
 	</p>
 	<p>
 		その他細かい挙動の違いがあるので、必要に応じてコードを読みましょう。
