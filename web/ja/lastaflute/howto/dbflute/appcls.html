@@ -249,6 +249,17 @@ src/main/resources
 		<dt>スキーマ名</dt><dd>そのDB区分値が所属しているDBFluteのクライアント名</dd>
 		<dt>区分値名</dt><dd>そのDB区分値の名前 <span class="frm">(classificationDefinitionMap.dfpropに定義されている名前)</span></dd>
 	</dl>
+	<h4>DBFlute-1.2.5 以降</h4>
+	<p>
+		appclsなら、(DBではなく)同アプリ内のnamedcls区分値を参照できます。<span class="frm">(@since DBFlute-1.2.5)</span>
+	</p>
+	<p>
+		その場合、スキーマ名が namedcls の名前になります。
+		例えば、namedclsのdfpropファイル名が [app]_leonardo_cls.dfprop であれば、スキーマ名は leonardo_cls になります。
+	</p>
+	<p>
+		<span class="frm">(namedcls から namedcls を参照する場合は、FreeGenでの評価順序に依存します)</span>
+	</p>
 	<h3 id="reftype">関連のルール(refType)の設定</h3>
 	<p>
 		どういう関連なのかを指定します。
@@ -258,6 +269,44 @@ src/main/resources
 		<dt>exists</dt><dd>アプリ区分値の要素が、そのDB区分値に含まれている <span class="frm">(定義のチェック)</span></dd>
 		<dt>matches</dt><dd>アプリ区分値の要素セットが、そのDB区分値の要素セットと完全一致 <span class="frm">(定義のチェック)</span></dd>
 	</dl>
+	<h4>DBFlute-1.2.5 以降</h4>
+	<p>
+		includedしつつ、区分値要素の一部属性をオーバーライドできます。<span class="frm">(@since DBFlute-1.2.5)</span>
+	</p>
+<pre><span class="codetitle">e.g. refClsでincludedしつつ一部属性をオーバーライド @dfprop</span><code>
+<span class="comment"># maihamadb@MemberStatus includes { FML, WDL, PRV }</span>
+<span class="comment"># overriding FML's name attribute by the literal element</span>
+<span class="comment"># overriding PRV's alias, sisterCode, subItemMap attributes by the literal element</span>
+; AppAmphi = <span class="keyword">list:</span>{
+    ; <span class="keyword">map:</span>{ topComment=<span class="literal">test of included with overriding, expected merged</span> ; codeType=<span class="literal">String</span> }
+    ; <span class="keyword">map:</span>{ refCls=<span class="literal">maihamadb@MemberStatus</span> ; refType=<span class="subpoint">included</span> }
+    ; <span class="keyword">map:</span>{ code=<span class="literal">FML</span> ; <span class="subpoint">override=true</span> ; name=<span class="literal">OneMan</span> }
+    ; <span class="keyword">map:</span>{ code=<span class="literal">PRV</span> ; <span class="subpoint">override=true</span> ; alias=<span class="literal">Castle</span> ; sisterCode=<span class="literal">Route</span> ; subItemMap=<span class="keyword">map:</span>{order=<span class="literal">9</span>} }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>maihamadb@MemberStatusで、FML, WDL, PRV が include される</li>
+		<li>includeされたFMLのname属性だけがオーバーライドされる <span class="frm">(aliasなどはそのまま)</span></li>
+		<li>includeされたPRVのalias,sisterCode,subItemMap属性がオーバーライドされる <span class="frm">(nameはそのまま)</span></li>
+		<li>override属性なしで同じコードを定義した場合は、自動生成時にエラーになる</li>
+	</ul>
+	<p>
+		オーバーライドができるようになったことで、refTypeの使い方が以下のようになります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>要素セットが同じ</dt><dd>refType=<em class="mark">included</em> (必要に応じて属性オーバーライド)</dd>
+		<dt>要素セットが増える</dt><dd>refType=<em class="mark">included</em>, 追加する独自要素を直接記述で定義</dd>
+		<dt>要素セットが減る</dt><dd>refType=<em class="mark">exists</em>, 要素は直接記述で定義 <span class="frm">(属性値の変更可能)</span></dd>
+	</dl>
+	<p>
+		あまり <em class="mark">matches</em> の使うケースがなくなってしまいました。あえて使うとすれば、要素セットが同じで間違って独自要素を追加されないようにチェックするときに、matches
+		が向いています。そこまで気にしないのであれば、includeで十分です。<span class="frm">(将来、includeに要素選択機能が入れば、existsもあまり要らなくなるかもしれませんね...)</span>
+	</p>
+	<p>
+		一方で、"要素セットが減りつつも独自要素が増える" ような場合は、どの refType でも表現ができません。
+		<span class="frm">(そのときは、ぜひ要望を出してください。どのくらい必要性があるのかわからないので、まだ実装していません)</span>
+	</p>
+	<h4>LastaFlute-1.2.4 まで</h4>
 	<p>
 		通常は、<em class="mark">included</em> を使うことが多いでしょう。DB区分値の要素に加えて、固有の要素を追加するような場合などを想定しています。
 		<span class="frm">(全く同じなのであれば、そもそもアプリ区分値を作る必要性がないので)</span>
