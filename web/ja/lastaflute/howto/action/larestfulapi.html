@@ -61,7 +61,7 @@
 	</p>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/java/org/docksidestage/app/web/products/ProductsAction.java">maihama-showbase - ProductsAction.java | Github</a></div>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/src/main/java/org/docksidestage/app/web/products/purchases/ProductsPurchasesAction.java">maihama-showbase - ProductsPurchasesAction.java | Github</a></div>
-<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+<pre><span class="codetitle">e.g. RESTful action for /products/ @Java</span><code>
 <span class="point">@RestfulAction</span>
 <span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
 
@@ -127,7 +127,7 @@
 		<dt>Actionクラス名</dt><dd>ProductsPurchasesAction</dd>
 		<dt>Executeメソッド</dt><dd>get$index(Integer productId, Long purchaseId)</dd>
 	</dl>
-<pre><span class="codetitle">e.g. you can use overload method for get$index() /products/ @Java</span><code>
+<pre><span class="codetitle">e.g. you can handle nest resources /products/1/purchases/2/ @Java</span><code>
 @RestfulAction
 <span class="keyword">public class</span> <span class="subpoint">ProductsPurchasesAction</span> <span class="keyword">extends</span> ShowbaseBaseAction {
 
