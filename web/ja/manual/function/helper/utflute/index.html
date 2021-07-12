@@ -75,20 +75,18 @@ action.index();
     &lt;dependency&gt;
       &lt;groupId&gt;<span class="literal">org.dbflute.utflute</span>&lt;/groupId&gt;
       &lt;artifactId&gt;<span class="point">utflute-lastaflute</span>&lt;/artifactId&gt;
-      &lt;version&gt;<span class="literal">0.8.7</span>&lt;/version&gt;
+      &lt;version&gt;<span class="literal">0.9.2</span>&lt;/version&gt;
       &lt;scope&gt;test&lt;/scope&gt;
     &lt;/dependency&gt;
 </code></pre>
 	<p>
 		UnitTest上でのDI環境が準備されたスーパークラスを作成します。
 	</p>
-<pre><span class="codetitle">e.g. 独自のスーパークラスを作成、DI設定を変えたり @Java</span><code>
-<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> <span class="point">ContainerTestCase</span> {
-
-    @Override
-    <span class="keyword">protected</span> String prepareConfigFile() { <span class="comment">// これは Seasar の場合</span>
-        <span class="keyword">return</span> <span class="literal">"test_app.dicon"</span>; <span class="comment">// テスト用のdiconを読み込むように変更</span>
-    }
+	<p>
+		Actionクラスなどweb依存したクラスをテストする想定であれば、スーパークラスでは WebContainerTestCase を継承します。
+	</p>
+<pre><span class="codetitle">e.g. 独自のスーパークラスを作成、WebContainerTestCaseを継承 @Java</span><code>
+<span class="keyword">public abstract class</span> UnitContainerTestCase <span class="keyword">extends</span> <span class="point">WebContainerTestCase</span> {
 }
 </code></pre>
 	<p>
