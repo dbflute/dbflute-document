@@ -299,14 +299,11 @@ app.web
 	<h3 id="eventdilemma">イベントごとのジレンマ</h3>
 	<p>
 		ただ、RESTfulの思想からは外れても<span class="frm">(外れるのかどうか厳密にはわからないですが)</span>、同じ HTTP Method
-		の処理でも、どうしても業務で発生するイベントごとにメソッドを分けたくなった場合、例えば、会員テーブルに対して...
-	</p>
-	<div class="relatedpage"><a href="http://dbflute.seasar.org/ja/data/model/maihamadb-erd.png">MaihamaDB</a></div>
-	<p>
-		イベントごとに検索条件も検索結果も大きく変わるような場合、get$index(Form)
+		の処理でも、どうしても業務で発生するイベントごとにメソッドを分けたくなった場合...例えば会員テーブルに対してイベントごとに検索条件も検索結果も大きく変わるような場合、get$index(Form)
 		に集約すると巨大な最小公倍数のFormやJsonResultになってしまうかもしれません。
 		<span class="frm">(パフォーマンスもそうですし、わかりやすさの面からメンテナンス性の低下が想定されます)</span>
 	</p>
+	<div class="relatedpage"><a href="http://dbflute.seasar.org/ja/data/model/maihamadb-erd.png">MaihamaDB</a></div>
 	<p>
 		もしくは、以下のようにイベントごとに更新する項目が違うような場合、patch$index(Body)
 		に集約すると巨大な最小公倍数のBodyになってしまうかもしれません。
