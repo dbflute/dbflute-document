@@ -269,44 +269,73 @@ src/main/resources
 		<dt>exists</dt><dd>アプリ区分値の要素が、そのDB区分値に含まれている <span class="frm">(定義のチェック)</span></dd>
 		<dt>matches</dt><dd>アプリ区分値の要素セットが、そのDB区分値の要素セットと完全一致 <span class="frm">(定義のチェック)</span></dd>
 	</dl>
-	<h4>DBFlute-1.2.5 以降</h4>
+	<h4>includedしつつ一部属性を上書き <span class="frm">(@since DBFlute-1.2.5)</span></h4>
 	<p>
-		includedしつつ、区分値要素の一部属性をオーバーライドできます。<span class="frm">(@since DBFlute-1.2.5)</span>
+		includedしつつ、区分値要素の一部属性を上書き(override)できます。
 	</p>
 <pre><span class="codetitle">e.g. refClsでincludedしつつ一部属性をオーバーライド @dfprop</span><code>
 <span class="comment"># maihamadb@MemberStatus includes { FML, WDL, PRV }</span>
 <span class="comment"># overriding FML's name attribute by the literal element</span>
 <span class="comment"># overriding PRV's alias, sisterCode, subItemMap attributes by the literal element</span>
-; AppAmphi = <span class="keyword">list:</span>{
+; AppDohotel = <span class="keyword">list:</span>{
     ; <span class="keyword">map:</span>{ topComment=<span class="literal">test of included with overriding, expected merged</span> ; codeType=<span class="literal">String</span> }
     ; <span class="keyword">map:</span>{ refCls=<span class="literal">maihamadb@MemberStatus</span> ; refType=<span class="subpoint">included</span> }
     ; <span class="keyword">map:</span>{ code=<span class="literal">FML</span> ; <span class="subpoint">override=true</span> ; name=<span class="literal">OneMan</span> }
     ; <span class="keyword">map:</span>{ code=<span class="literal">PRV</span> ; <span class="subpoint">override=true</span> ; alias=<span class="literal">Castle</span> ; sisterCode=<span class="literal">Route</span> ; subItemMap=<span class="keyword">map:</span>{order=<span class="literal">9</span>} }
+    ; <span class="keyword">map:</span>{ code=<span class="literal">MYS</span> ; name=<span class="literal">Mystic</span> ; alias=<span class="literal">Hangar</span> ; comment=<span class="literal">Rhythms</span> ; subItemMap=map:{order=<span class="literal">88</span>} }
 }
 </code></pre>
 	<ul class="codeoutro">
 		<li>maihamadb@MemberStatusで、FML, WDL, PRV が include される</li>
-		<li>includeされたFMLのname属性だけがオーバーライドされる <span class="frm">(aliasなどはそのまま)</span></li>
-		<li>includeされたPRVのalias,sisterCode,subItemMap属性がオーバーライドされる <span class="frm">(nameはそのまま)</span></li>
-		<li>override属性なしで同じコードを定義した場合は、自動生成時にエラーになる</li>
+		<li>includeされたFMLのname属性だけが上書きされる <span class="frm">(aliasなどはそのまま)</span></li>
+		<li>includeされたWDLは特に上書きする属性はないのでincludedされたそのままの属性値になる</li>
+		<li>includeされたPRVのalias,sisterCode,subItemMap属性が上書きされる <span class="frm">(nameはそのまま)</span></li>
+		<li>override属性なしで同じコードを定義した場合は自動生成時にエラー (この例ではそのケースはない)</li>
+		<li>MYSは普通に追加の要素として登録される</li>
 	</ul>
+	<h4>existsしつつ一部属性を継承 <span class="frm">(@since DBFlute-1.2.5)</span></h4>
 	<p>
-		オーバーライドができるようになったことで、refTypeの使い方が以下のようになります。
+		exists/matchesしつつ、区分値要素の一部属性を参照先から継承(inherit)できます。
+	</p>
+<pre><span class="codetitle">e.g. refClsでexistsチェックしつつ一部属性を継承 @dfprop</span><code>
+<span class="comment"># maihamadb@MemberStatus links { FML, WDL, PRV }</span>
+<span class="comment"># inheriting FML's all attributes by the literal element</span>
+<span class="comment"># inheriting PRV's name, sisterCode, subItemMap attributes by the literal element</span>
+; AppAmphi = <span class="keyword">list:</span>{
+    ; <span class="keyword">map:</span>{ topComment=<span class="literal">test of included with overriding, expected merged</span> ; codeType=<span class="literal">String</span> }
+    ; <span class="keyword">map:</span>{ refCls=<span class="literal">maihamadb@MemberStatus</span> ; refType=<span class="subpoint">exists</span> }
+    ; <span class="keyword">map:</span>{ code=<span class="literal">FML</span> ; <span class="subpoint">inherit=true</span> }
+    ; <span class="keyword">map:</span>{ code=<span class="literal">PRV</span> ; <span class="subpoint">inherit=true</span> ; alias=<span class="literal">Castle</span> ; comment=<span class="literal">ParadeTwoYears</span> }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>maihamadb@MemberStatusで、FML, WDL, PRV が existsチェックの期待値になる</li>
+		<li>直接記述したFMLはすべての属性がMemberStatusから継承される <span class="frm">(オーソドックスなパターン)</span></li>
+		<li>直接記述したPRVはname,comment属性は記述されたそのままに、alias属性やsisterCodeなどが継承される</li>
+		<li>inherit属性なしで同じコードを定義した場合は、直接記述したものだけが属性になる</li>
+		<li>refType=matchesでも全く同じように利用できる</li>
+	</ul>
+	<h4>refTypeの使い分け <span class="frm">(@since DBFlute-1.2.5)</span></h4>
+	<p>
+		上書きや継承ができるようになったことで、refTypeの使い分けが以下のようになります。
 	</p>
 	<dl class="shortkeymainlist">
-		<dt>要素セットが同じ</dt><dd>refType=<em class="mark">included</em> (必要に応じて属性オーバーライド)</dd>
-		<dt>要素セットが増える</dt><dd>refType=<em class="mark">included</em>, 追加する独自要素を直接記述で定義</dd>
-		<dt>要素セットが減る</dt><dd>refType=<em class="mark">exists</em>, 要素は直接記述で定義 <span class="frm">(属性値の変更可能)</span></dd>
+		<dt>要素セットが増える</dt><dd>refType=<em class="mark">included</em>, カスタマイズ属性はoverride, 追加要素は直接記述</dd>
+		<dt>要素セットが減る</dt><dd>refType=<em class="mark">exists</em>, 基本inheritでカスタマイズ属性だけ定義</dd>
+		<dt>要素セットが同じ</dt><dd>refType=<em class="mark">matches</em> 基本inheritでカスタマイズ属性だけ定義</dd>
 	</dl>
 	<p>
-		あまり <em class="mark">matches</em> の使うケースがなくなってしまいました。あえて使うとすれば、要素セットが同じで間違って独自要素を追加されないようにチェックするときに、matches
-		が向いています。そこまで気にしないのであれば、includeで十分です。<span class="frm">(将来、includeに要素選択機能が入れば、existsもあまり要らなくなるかもしれませんね...)</span>
+		まず、どのrefTypeでもカスタマイズ属性を定義できるので、それでどのrefTypeを使うか？を気にする必要はほとんどありません。
+		<span class="frm">(カスタマイズ属性が多いか少ないかで、やりやすいさの違いはあるかもしれませんが)</span>
+	</p>
+	<p>
+		ゆえに、アプリ区分値で定義したい要素セットが参照先の区分値に対して増える？減る？同じ？で考えても良いでしょう。
 	</p>
 	<p>
 		一方で、"要素セットが減りつつも独自要素が増える" ような場合は、どの refType でも表現ができません。
-		<span class="frm">(そのときは、ぜひ要望を出してください。どのくらい必要性があるのかわからないので、まだ実装していません)</span>
+		<span class="frm">(そのときは、ぜひ要望を出してください。必要性があるのかわからないので、まだ実装していません)</span>
 	</p>
-	<h4>DBFlute-1.2.4 まで</h4>
+	<h4>DBFlute-1.2.4 までの使い分け <span class="frm">(@until DBFlute-1.2.4)</span></h4>
 	<p>
 		通常は、<em class="mark">included</em> を使うことが多いでしょう。DB区分値の要素に加えて、固有の要素を追加するような場合などを想定しています。
 		<span class="frm">(全く同じなのであれば、そもそもアプリ区分値を作る必要性がないので)</span>
@@ -327,6 +356,9 @@ src/main/resources
 		<dt>static fromDBCls(dbCls)</dt><dd>引数で指定されたDBのCDefからAppCDefを探す</dd>
 		<dt>toDBCls()</dt><dd>いまのAppCDefの区分値要素に対応するDBのCDefの要素を探す</dd>
 	</dl>
+	<p>
+		<span class="frm">※namedcls参照の場合は、メソッド名の DB が Ref に変わります。(@since DBFlute-1.2.5)</span>
+	</p>
 
 	<h2 id="thymeleaf">Thymeleafとの連携</h2>
 	<p>
