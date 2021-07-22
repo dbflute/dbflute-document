@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipseのワークスペースとプロジェクト | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseのワークスペースとプロジェクト</h1>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	${indexlist}
+
+	<h2 id="workprojdiff">ワークスペース設定とプロジェクト設定</h2>
+	<h3 id="workprojexample">それぞれの設定、例えば？</h3>
+	<dl class="longvaluemainlist">
+		<dt>ワークスペース設定</dt><dd>エディター背景色、git clone時のディレクトリ、コード補完の設定</dd>
+		<dt>プロジェクト設定</dt><dd>テキストエンコーディング、Javaバージョン、フォーマッター設定</dd>
+	</dl>
+	<h3 id="workprojrole">設定の役割、共有できるかどうか？</h3>
+	<dl class="longvaluemainlist">
+		<dt>ワークスペース設定</dt><dd>workspaceディレクトリのEclipse設定、個人設定、まずまず共有しない</dd>
+		<dt>プロジェクト設定</dt><dd>プロジェクト自体のEclipse設定、個人に依存しない、できれば共有したい</dd>
+	</dl>
+	<h3 id="workprojhowtoopen">設定画面の開き方</h3>
+	<dl class="longvaluemainlist">
+		<dt>ワークスペース設定</dt><dd>メニューのPreferences <span class="frm">(Macなら command+, (カンマ))</span></dd>
+		<dt>プロジェクト設定</dt><dd>プロジェクトを選択して右クリックのProperties <span class="frm">(Macなら選択して alt+enter)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="./shortcut/operationcut.html#setting">操作ショートカット - 設定周り</a></div>
+	<h3 id="workprojsavingplace">設定の保存ディレクトリ</h3>
+	<dl class="longvaluemainlist">
+		<dt>ワークスペース設定</dt><dd>workspaceディレクトリの.metadata (通常Gitの管理対象外)</dd>
+		<dt>プロジェクト設定</dt><dd>プロジェクトディレクトリの.settings (デフォルトではGit管理対象)</dd>
+	</dl>
+	<h3 id="workprojfeature">それぞれの特徴</h3>
+	<p>
+		ワークスペース設定は、そのローカルPCの workspace ディレクトリのEclipse設定と考えてよいでしょう。
+		これらは Git 管理にはなりません(しません)ので、他の人と共有されません。
+		個人設定と捉えることもできますが、他の人と共有したくなるようなものもあるのがジレンマです。
+	</p>
+	<p>
+		一方で、プロジェクトの設定は、プロジェクト直下の.settingsディレクトリに保存されます。
+		Git管理にすることができるので、他の人と共有できます。つまり、最初のひとりがやっておけば、他の人はやる必要がありません。
+		強制力があるのはこちらです。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="recommendedwork">オススメのワークスペース設定</h2>
+		<p>
+			jfluteオススメの「新しいワークスペースを作ったらやっておこう設定」を紹介します。
+		</p>
+		<dl class="keymainlist">
+			<dt><a href="../coding/editorbgcolor.html">Editorの背景色</a></dt><dd>Background Color を気持ちの良い色にする <span class="frm">(好み次第)</span></dd>
+			<dt><a href="../coding/templates.html">エディターテンプレート</a></dt><dd>DBFluteの補完テンプレートを入れる</dd>
+			<dt><a href="../coding/typefilters.html">Type Filters</a></dt><dd>お決まりの除外クラスたちを設定する</dd>
+			<dt><a href="../operation/closetfile.html">隠しファイルの設定</a></dt><dd>.(ドット)始まりのファイルの表示 <span class="frm">(.settingsなどは意識したいので)</span></dd>
+			<dt><a href="../operation/pkgpresent.html">パッケージ見た目表現</a></dt><dd>デフォルトのフラットから階層構造へ <span class="frm">(好み次第)</span></dd>
+			<dt><a href="../operation/filetextsearch.html">ファイル/テキスト検索</a></dt><dd>ファイル検索はFile Searchだけ、テキスト検索はincrementalに</dd>
+			<dt><a href="../operation/toolbar.html">ツールバー</a></dt><dd>Tool Bar Visibility にて、Launch 以外はチェックを外す</dd>
+			<dt><a href="../operation/console.html">コンソール</a></dt><dd>コンソールのバッファサイズを80万くらいに</dd>
+			<dt><a href="../operation/viewlocation.html">ビューの配置</a></dt><dd>できるだけfast viewにして、コードの縦表示を長く</dd>
+		</dl>
+	</div>
+
+	<div class="inucolumn">
+		<h2 id="recommendedwork">オススメのプロジェクト設定</h2>
+		<p>
+			jfluteオススメの「新しいプロジェクトを作ったらやっておいた方が良い設定」を紹介します。
+		</p>
+		<p>
+			<span class="frm">※最初の一人がやって.settingsをgitで共有すれば、後の人はやらなくて良いです</span>
+		</p>
+		<dl class="keymainlist">
+			<dt>テキストエンコーディング</dt><dd>Resource の Text file encoding</dd>
+			<dt>改行コード</dt><dd>Resource の New text file line delimiter</dd>
+			<dt>コードフォーマッター</dt><dd><a href="./formatter.html">プロジェクトで使うコードフォーマッターの設定</a></dd>
+		</dl>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

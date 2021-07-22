@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipseのおすすめワークスペース設定 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseのおすすめワークスペース設定</h1>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	<div class="relatedpage"><a href="./workproj.html">Eclipseのワークスペースとプロジェクト</a></div>
+	${indexlist}
+
+	<h2 id="recommendedwork">おすすめのワークスペース設定</h2>
+	<p>
+		jfluteおすすめの <em class="keyword">新しいワークスペース作ったらやっておこう設定</em> を紹介します。
+	</p>
+	<ul>
+		<li><a href="#templates">DBFluteの補完テンプレートを入れる</a> <span class="frm">(スムーズなJava実装のために)</span></li>
+		<li><a href="#typefilters">使わないクラスをコード補完から除外する</a> <span class="frm">(補完ノイズを減らそう)</span></li>
+		<li><a href="#closetfile">.(ドット)始まりのファイルの表示</a> <span class="frm">(.settingsなどは意識したいので)</span></li>
+		<li><a href="#pkgpresent">パッケージの見た目を階層構造へ</a> <span class="frm">(大量のパッケージに埋もれないように)</span></li>
+		<li><a href="#searchdialog">Searchダイアログのタブは File Search だけ</a></li>
+		<li><a href="#findreplace">Find/Replace は Case sensitive, Incremental に</a></li>
+		<li><a href="#toolbarvisibility">Tool Bar Visibility は Launch だけ</a></li>
+		<li><a href="#consolepreferences">コンソールのバッファサイズを80万くらいに</a></li>
+		<li><a href="#viewlocation">fast viewうまく使ってコードの縦表示を長く</a></li>
+		<li><a href="#editorbgcolor">エディターの背景色を設定して気持ちよく</a></li>
+	</ul>
+
+	<h2 id="deeprecommended">しっかりおすすめ</h2>
+	<h3 id="templates">DBFluteの補完テンプレートを入れる</h3>
+	<p>
+		DBFlute実装だけじゃなく、純粋にJava実装をエンハンスするためのテンプレートがたくさん用意されています。
+	</p>
+	<div class="detailpage"><a href="../../../../../tutorial/eclipse/dfclipsecomp.html">DBFluteのEclipse補完テンプレート</a></div>
+	<p>
+		TODO jflute
+		「Importのまるごと入れ替え方式」向けのzipファイルを以下からダウンロードして、エディターテンプレートの設定をしてみましょう。<br>
+		<a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a>
+	</p>
+	<div class="detailpage"><a href="../coding/templates.html#importwhole">エディターテンプレート - Importのまるごと入れ替え方式</a></div>
+	<h3 id="typefilters">使わないクラスをコード補完から除外する</h3>
+	<p>
+		コード補完時に、例えば java.util.List を補完しようとしてるのに毎度毎度 "java.awt.Listとどっちを選ぶ？"
+		と聞かれたりします。Type Filters にて "java.awt.*" と設定すれば、そんなことはもう聞かれません。
+		もう、絶対に使わないのにも関わらず、わりとよく出てくる紛らわしいものを設定しておくと良いでしょう。 
+	</p>
+	<div class="detailpage"><a href="../coding/typefilters.html#recommended">Eclipseのノイズ減らし Type Filters - オススメ</a></div>
+	<h3 id="closetfile">.(ドット)始まりのファイルの表示</h3>
+	<p>
+		.project や .classpath, .settingsディレクトリなどは、デフォルトではPackage Explorer上に表示されません。
+		ですが、それらは開発者にとって重要なファイルでもありますので、常に表示すると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="../operation/closetfile.html#seedotbeginning">隠しファイルの設定 - .(ドット)始まりのファイルの表示</a></div>
+	<h3 id="pkgpresent">パッケージの見た目を階層構造へ</h3>
+	<p>
+		Package Explorer上のパッケージ表現がデフォルトではフラットになっていますが、少し大きなプロジェクトになると細かいパッケージがたくさん並んで見づらいでしょう。
+		特にDBFluteを使っている場合は自動生成クラスがたくさんのパッケージを使っているので、階層構造に変更すると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="../operation/pkgpresent.html#behierarchical">パッケージ見た目表現 - 階層構造に変更する</a></div>
+	<p>
+		<span class="frm">※ただ、フラットに慣れていて好きな方は別にそのままで</span>
+	</p>
+
+	<h2 id="nextrecommended">まあまあおすすめ</h2>
+	<p>
+		ここは「人によりけり」ありそうなところなので、"まあまあ" レベルのおすすめにしておきます。
+	</p>
+	<h3 id="searchdialog">Searchダイアログのタブは File Search だけ</h3>
+	<p>
+		control+H のファイル検索 (プロジェクト全体のファイルの中身を検索) は、ほとんど File Search しか使わないのに、毎回 File Search にタブを切り替えるワンクリックが面倒だなと感じます。
+		そもそも最初から File Search のタブだけが表示されるようにすると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="../operation/searchdialog.html#onlyfile">Searchダイアログ - File Search だけ</a></div>
+
+	<h3 id="findreplace">Find/Replace は Case sensitive, Incremental に</h3>
+	<p>
+		command+F の Find/Replace (開いているファイルのテキストを検索) は、デフォルトでは大文字小文字を区別しません。
+		Javaなど大文字小文字を区別するプログラミング言語を扱っている場合、大文字小文字を意識して検索・置換したいことが多いので、Case sensitiveにチェックを付けておくと良いでしょう。
+		<span class="frm">(特に、文字列置換に関しては、大文字小文字で事故も起きやすいので気を付けましょう)</span>
+	</p>
+	<div class="detailpage"><a href="../operation/findreplace.html#casesensitive">Find/Replace - 入力しながら検索、Incrementalに</a></div>
+	<p>
+		また、Incrementalにチェックを付けておくと、検索文字列を入力しながら検索できると打ち間違いとかもすぐにわかるので便利です。
+	</p>
+	<div class="detailpage"><a href="../operation/findreplace.html#incremental">Find/Replace - 入力しながら検索、Incrementalに</a></div>
+	<h3 id="toolbarvisibility">Tool Bar Visibility は Launch だけ</h3>
+	<p>
+		xxxxxxxxx
+	</p>
+	<div class="detailpage"><a href="../operation/toolbarvisibility.html#onlylaunch">Tool Bar Visibility - Launch のみ</a></div>
+	<h3 id="consolepreferences">コンソールのバッファサイズを80万くらいに</h3>
+	<p>
+		xxxxxxxxx
+	</p>
+	<div class="detailpage"><a href="../operation/consolepreferences.html#onlylaunch">Consoleの設定 - バッファサイズを80万くらいに</a></div>
+	<h3 id="viewlocation">fast viewうまく使ってコードの縦表示を長く</h3>
+	<p>
+		xxxxxxxxx
+	</p>
+	<div class="detailpage"><a href="../operation/viewlocation.html#codeareaheight">Viewの配置 - コードの縦表示を長く</a></div>
+	<h3 id="editorbgcolor">エディターの背景色を設定して気持ちよく</h3>
+	<p>
+		xxxxxxxxx
+	</p>
+	<div class="detailpage"><a href="../operation/editorbgcolor.html#backgroundcolor">エディターの背景色 - 背景色を設定して気持ちよく</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

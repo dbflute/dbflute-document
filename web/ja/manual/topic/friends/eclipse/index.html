@@ -33,70 +33,81 @@
 	<h2 id="overview">DBFlute と Eclipse</h2>
 	<p>
 		DBFluteは、利用上において特に Eclipse に依存してはいません。ですが、Eclipse 上で DBFlute
-		の利用を支援する EMecha が提供されていますし、Eclipse 上で実装することを想定して Example などが作成されています。
+		の利用を支援する EMecha が提供されているなど、Eclipseでの開発を支援する仕組みがあります。
 	</p>
 
-	<h2 id="plugin">Eclipseプラグイン</h2>
-	<h3 id="pluginstall">プラグインのインストール</h3>
+	<h2 id="shortcut">Eclipseショートカット</h2>
 	<p>
-		Eclipseプラグインのインストールには大きく三つのやり方が存在します。
+		Eclipseには、たくさんのショートカットが用意されています。
 	</p>
-	<dl class="textlist">
-		<dt>更新サイトを利用して自動インストール</dt>
-		<dd>
-			Eclipse自身がプラグインを簡易にインストールできるようにするための仕組みを提供しています。
-			メニューから [Help] - [Install New Software...]
-			を選択すると、更新サイトを利用したプラグインのインストール画面が起動します。
-		</dd>
-		<dd>
-			その画面でインストールしたいプラグインの更新サイトのURLを登録・選択すると、
-			その更新サイトでインストール可能なプラグインが列挙されますので、チェックして選んでインストールします。
-			<div class="relatedpage"><a href="../../../function/helper/emecha/install.html#updatesite">EMechaのインストール - 更新サイト</a></div>
-		</dd>
-		<dd>
-			プラグインのインストール画面はEclipseのバージョンによって操作方法が違う可能性があります。
-		</dd>
-		<dt>プラグインのJARファイルを dropins に配置</dt>
-		<dd>
-			プラグインのJARファイルをサイトからダウンロードしてきて、Eclipse自身のディレクトリ配下にある dropins
-			の [いいかんじのプラグインの名前(任意)]/eclipse/plugins/ ディレクトリ に、そのJARファイルを配置します。Eclipseの起動時に認識されます。
-		</dd>
-		<dd>
-			プラグインの名前を付けて配置できるので、plugins方式よりも管理しやすくなっています。
-		</dd>
-		<dt>プラグインのJARファイルを plugins に配置</dt>
-		<dd>
-			プラグインのJARファイルをサイトからダウンロードしてきて、Eclipse自身のディレクトリ配下にある plugins
-			ディレクトリにそのJARファイルを配置します。Eclipseの起動時に認識されます。
-		</dd>
-		<dd>
-			すべてのプラグインがフラットに管理されているので、ちょっと扱いづらいのが難点です。jarの直接配置なら、dropinsの方が管理しやすいでしょう。
-		</dd>
-		<dd>
-			plugins ディレクトリの場所はEclipseのバージョンやエディションによって違う可能性があります。 
-		</dd>
-	</dl>
+	<div class="detailpage"><a href="./shortcut/index.html">Eclipseショートカット</a></div>
 
-	<h2 id="textencoding">テキストエンコーディング</h2>
-	<p>
-		Eclipse上でテキストファイルを開く時のエンコーディングを指定することができます。
-	</p>
-	<p>
-		例えば UTF-8 に設定する場合、Eclipseプロジェクトのプロパティ(Eclipseプロジェクトを選択して alt + enter)の [Resource]
-		において、[Text file encoding] で [Other] を選んで UTF-8 を選択します。
-	</p>
-	<div class="relatedpage"><a href="../../programming/shortcut/operationcut.html#setting">操作ショートカット - 設定周り</a></div>
-	<p>
-		ワークスペースのエンコーディング設定 [Inherited from container] が既に UTF-8
-		になっていても、他のディベロッパーの環境では同じとは限りませんので、それぞれのプロジェクトごとに [Other]
-		を選んで明示的に設定するとプロジェクト直下の .settings ディレクトリに保存されるのでSVN経由で共有することができます。
-	</p>
-
-	<h2 id="formatter">コードフォーマッター</h2>
+	<h2 id="coding">Eclipseのコーディング</h2>
+	<h3 id="codeformatter">コードフォーマッター</h3>
 	<p>
 		Eclipseには、ソースコードを自動で整形する機能が備わっています。
 	</p>
-	<div class="detailpage"><a href="./formatter.html">コードフォーマッター</a></div>
+	<div class="detailpage"><a href="./coding/formatter.html">Eclipseコードフォーマッター</a></div>
+	<h3 id="editortemplates">エディターテンプレート</h3>
+	<p>
+		Eclipseには、コード補完をカスタマイズできる機能が備わっています。
+	</p>
+	<div class="detailpage"><a href="./coding/templates.html">Eclipseエディターフォーマッター</a></div>
+	<h3 id="typefilters">ノイズ減らし Type Filters</h3>
+	<p>
+		Eclipseには、あまり使わないクラスを補完候補から除外する機能が備わっています。
+	</p>
+	<div class="detailpage"><a href="./coding/typefilters.html">Eclipseのノイズ減らし Type Filters</a></div>
+	<h3 id="contentassist">補完微調整 Content Assist</h3>
+	<p>
+		Eclipseには、コード補完の細かい挙動を調整する機能が備わっています。
+	</p>
+	<div class="detailpage"><a href="./coding/contentassist.html">Eclipseの補完微調整 Content Assist</a></div>
+
+	<h2 id="operation">Eclipseの操作</h2>
+	<h3 id="closetfile">隠しファイルの設定</h3>
+	<p>
+		Package Explorer上に表示する/しないファイルを調整できます。
+	</p>
+	<p>
+		例えば、. (ドット)で始まるファイルやディレクトリはデフォルトでは表示されないので、よく意識するようであれば表示する設定にすると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="./operation/closetfile.html">Eclipse, 隠しファイルの設定</a></div>
+	<h3 id="pkgpresent">Package Explorer上のパッケージ表現</h3>
+	<p>
+		Package Explorer上のパッケージ表現をフラットにするか？階層構造にするか？選択できます。
+	</p>
+	<p>
+		デフォルトではフラットになっていますが、階層構造の方が扱いやすいと思う方は、階層構造に設定すると良いでしょう。
+	</p>
+	<div class="detailpage"><a href="./operation/pkgpresent.html">Eclipse, Package Explorer上のパッケージ表現</a></div>
+	<h3 id="filesearch">ファイル検索・テキスト検索</h3>
+	<p>
+		(Macなら) control + H でファイル検索、command + F でテキスト検索ができます。
+		それぞれオプションが細かくあるので、適切な設定にして利用しましょう。
+	</p>
+	<div class="detailpage"><a href="./operation/filetextsearch.html">Eclipseのファイル検索・テキスト検索</a></div>
+	<h3 id="git">Git操作</h3>
+	<p>
+		Eclipse上でGit操作ができます。
+	</p>
+	<div class="detailpage"><a href="./operation/git.html">Eclipse上でのGit操作</a></div>
+
+	<h2 id="environment">Eclipseの環境</h2>
+	<h3 id="workproj">ワークスペースとプロジェクト</h3>
+	<p>
+		ワークスペース設定とプロジェクト設定の違いや、よく使う設定など。
+	</p>
+	<p>
+		この違いをしっかり把握しておくことが大切です。
+	</p>
+	<div class="detailpage"><a href="./environment/workproj.html">Eclipseのワークスペースとプロジェクト</a></div>
+
+	<h2 id="plugin">Eclipseプラグイン</h2>
+	<p>
+		Eclipseには、プラグインで機能を追加することができます。
+	</p>
+	<div class="detailpage"><a href="./plugins/index.html">Eclipseプラグイン</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">

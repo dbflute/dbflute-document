@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipseエディターテンプレート | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseエディターテンプレート</h1>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	${indexlist}
+
+	<h2 id="about">エディターテンプレートとは？</h2>
+	<p>
+		Eclipseには、Javaエディター上のコード補完をカスタマイズする機能が備わっています。
+	</p>
+	<h3 id="completionintro">コード補完を少し紹介</h3>
+	<p>
+		標準では、ifNull などが登録されています。
+	</p>
+<pre><span class="codetitle">e.g. 標準のifnullの補完テンプレート @Java</span><code>
+String sea = ...
+<span class="literal">ifnu...</span> <span class="comment">// control+space, enter</span>
+　↓↓↓
+<span class="keyword">if</span> (sea == <span class="keyword">null</span>) {
+    
+}
+</code></pre>
+	<p>
+		独自に追加もできます。例えば、DBFluteオリジナルの _ll でLambda表現を補完してみましょう。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteオリジナルの_llの補完テンプレート @Java</span><code>
+<span class="attribute">memberBhv</span>.selectList(<span class="literal">_ll</span>) <span class="comment">// control+space, enter</span>
+　↓↓↓
+<span class="attribute">memberBhv</span>.selectList([var] -&gt; {
+    [var].[object]
+})
+</code></pre>
+	<h3 id="workspacesettings">ワークスペース設定なので各自設定</h3>
+	<p>
+		ワークスペース設定 (.metadataディレクトリ) になるので、開発者それぞれが設定する必要があります。
+		<span class="frm">(同じPCでも新しいワークスペースを作れば再設定が必要)</span>
+	</p>
+
+	<h2 id="standard">標準のテンプレート</h2>
+	<p>
+		知らずに使っているものもあれば、意外に知らずにもったいないことをしてる場合もあります。
+	</p>
+	<p>
+		ここでは、代表的なものをピックアップしてみます。
+	</p>
+	<dl class="keymainlist">
+		<dt>@author</dt><dd>JavaDocにて @author を補完、自分の名前が載る</dd>
+		<dt>ifNull</dt><dd>近くの変数で if (xxx == null) {} を補完</dd>
+		<dt>ifNotNull</dt><dd>近くの変数で if (xxx != null) {} を補完</dd>
+		<dt>foreach</dt><dd>近くのリストで for (要素型 変数 : リスト) {} を補完</dd>
+		<dt>private_method</dt><dd>privateメソッドをを補完</dd>
+		<dt>protected_method</dt><dd>privateメソッドをを補完</dd>
+		<dt>public_method</dt><dd>privateメソッドをを補完</dd>
+		<dt>test_jupiter</dt><dd>JUnit5用のテストメソッドを補完</dd>
+		<dt>sysout</dt><dd>System.out.println() を補完</dd>
+		<dt>main</dt><dd>mainメソッドを補完</dd>
+	</dl>
+
+	<h2 id="settings">エディターテンプレートの設定</h2>
+	<h3 id="preferences">Preferences の Templates画面</h3>
+	<p>
+		メニューの Preferences の Java - Editor - Templates で設定できます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" title="Eclipse EditorTemplates Settings Example"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" alt="Eclipse EditorTemplates Settings Example" width="550" height="350" /></a>
+	</p>
+	<dl class="keymainlist">
+		<dt>New...</dt><dd>新しいテンプレートを登録</dd>
+		<dt>Edit...</dt><dd>選択している既存のテンプレートを編集</dd>
+		<dt>Remove</dt><dd>選択している既存のテンプレートを削除</dd>
+		<dt>Restore Removed</dt><dd>標準のテンプレートで削除されているものを復活させる</dd>
+		<dt>Revert to Default</dt><dd>標準のテンプレートの戻す</dd>
+		<dt>Import...</dt><dd>xmlに保存されているテンプレートを取り込む</dd>
+		<dt>Export...</dt><dd>選択している既存のテンプレートをxmlに保存する</dd>
+	</dl>
+	<h3 id="importattention">Import時の重複登録に注意</h3>
+	<p>
+		同じ名前のテンプレートを複数登録できます。ゆえに、Import時に既存と同じ名前のテンプレートがxml上にもある場合、二重で登録されることになります。
+	</p>
+	<p>
+		なので、Export時に既存テンプレートを全選択してxmlを出力している場合は、Importする前に既存のテンプレートをすべて削除してからImportする
+		<em class="mark">まるごと入れ替え方式</em> にすると良いでしょう。
+	</p>
+	<p>
+		独自に追加したテンプレートだけをExportしている場合は、Importする前に Revert to Default をしてから Import する
+		<em class="mark">デフォルト付け足し方式</em> にすると良いでしょう。
+	</p>
+
+	<h2 id="importwhole">Importのまるごと入れ替え方式</h2>
+	<p>
+		Import対象のxmlに (標準テンプレートも含めて) 全てまるごと保存されている場合はこの方式で。
+	</p>
+	<p>
+		<span class="frm">
+		※まるごと入れ替え方式向けのDBFluteの補完テンプレートxmlは、こちらからダウンロードできます:<br>
+		(LastaFluteプロジェクトにあるものと同じものですが、こちらは常に最新版です)<br>
+		</span>
+		<a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a>
+	</p>
+	<h3 id="importwholeway">まるごと入れ替え方式のやり方</h3>
+	<p>
+		まず、メニューの Preferences の Java - Editor - Templates で設定画面を開きます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" title="Eclipse EditorTemplates Settings Example"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" alt="Eclipse EditorTemplates Settings Example" width="550" height="350" /></a>
+	</p>
+	<p>
+		既存のテンプレートを何か一つ選択して、(Macなら)command+A で全選択します<span class="frm">(全選択できればやり方は何でもOK)</span>。
+		そして、全選択した状態で Remove を押すと既存のテンプレートがすべて消えるので、その状態で Import... を押して、ファイル選択ダイアログでimport対象のxmlファイルを選択します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-import-whole.png" title="Eclipse EditorTemplates Settings Import Whole"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-import-whole.png" alt="Eclipse EditorTemplates Settings Import Whole" width="550" height="320" /></a>
+	</p>
+	<p>
+		期待されているテンプレートが設定されたことを確認して Apply すれば完了です。試しに近くのクラスで補完をしてみましょう。
+	</p>
+	<h3 id="importwholefeature">まるごと入れ替え方式の特徴</h3>
+	<ul>
+		<li>独自テンプレートの提供元が複数あっても、開発者は気にしなくて良い</li>
+		<li>標準テンプレートに修正が入っていても、開発者は気にしなくて良い</li>
+		<li>最新版Eclipseで追加されたテンプレートを追従するときに(管理者の)手作業が必要</li>
+	</ul>
+
+	<h2 id="importfromdefault">Importのデフォルト付け足し方式</h2>
+	<p>
+		Import対象のxmlには標準テンプレートは含まれず一部のテンプレートのみが保存されている場合はこの方式で。
+	</p>
+	<p>
+		<span class="frm">
+		※デフォルト付け足し方式向けのDBFluteの補完テンプレートxmlは、こちらからダウンロードできます:<br>
+		</span>
+		<a href="http://dbflute.seasar.org/download/misc/settings/dbflute-eclipse-editor-templates.zip">dbflute-eclipse-editor-templates.zip</a>
+	</p>
+	<h3 id="importfromdefaultway">デフォルト付け足し方式のやり方</h3>
+	<p>
+		Revert to default を押してから、Import... を押して、ファイル選択ダイアログでimport対象のxmlファイルを選択します。
+	</p>
+	<p>
+		デフォルト付け足し方式の場合は、import対象のxmlファイルが複数ある可能性が高いので、ある場合は連続してimportしましょう。
+		<span class="frm">(例えば、DBFluteの補完テンプレートやアプリ独自の補完テンプレートなど)</span>
+	</p>
+	<h3 id="importfromdefaultfeature">デフォルト付け足し方式の特徴</h3>
+	<ul>
+		<li>最新版Eclipseで追加されたテンプレートを追従が自然にできる</li>
+		<li>独自テンプレートの提供元が複数ある場合は、開発者が意識して複数のimportをする必要がある</li>
+		<li>標準テンプレートに修正が入れても消えてしまうので、その場合はこの方式は使えない</li>
+	</ul>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

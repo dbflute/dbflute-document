@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipseのノイズ減らし Type Filters | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseのノイズ減らし Type Filters</h1>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	${indexlist}
+
+	<h2 id="about">Type Filtersとは？</h2>
+	<p>
+		Eclipseには、あまり使わないクラスを補完候補から除外する機能が備わっています。
+	</p>
+	<p>
+		コード補完時に、例えば java.util.List を補完しようとしてるのに毎度毎度 "java.awt.Listとどっちを選ぶ？"
+		と聞かれたりします。Type Filters にて "java.awt.*" と設定すれば、そんなことはもう聞かれません。
+		もう、絶対に使わないのにも関わらず、わりとよく出てくる紛らわしいものを設定しておくと良いでしょう。 
+	</p>
+	<p>
+		ワークスペース設定になるので、ワークスペースを作るごとに設定する必要があります。
+	</p>
+
+	<h2 id="settings">Type Filtersの設定</h2>
+	<p>
+		Preferences の <em class="keyword">Java - Appearance - Type Filters</em> を選択。
+	</p>
+	<p>
+		<span class="frm">※Macなら command+,(カンマ) で Preferences が開きます</span>
+	</p>
+	<div class="relatedpage"><a href="../shortcut/operationcut.html#setting">Eclipse, 操作系ショートカット - 設定周り</a></div>
+	<p>
+		Add を押して、クラス型の補完で "表示させたくない" パッケージやクラスを指定します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-TypeFilters-settings-add.png" title="Eclipse TypeFilters Settings Add"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-TypeFilters-settings-add.png" alt="Eclipse TypeFilters Settings Add" width="520" height="240" /></a>
+	</p>
+
+	<h2 id="recommended">Type Filtersのオススメ</h2>
+	<h3 id="recommendedbasic">お決まりの除外クラスたち</h3>
+	<p>
+		以下は、だいたいのプロジェクトで入れておいて問題はないでしょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.awt.*</dt><dd>awtパッケージを使うことは今の開発ではまずない</dd>
+		<dt>com.sun.*</dt><dd>sunパッケージのクラスを使うことはほとんどない</dd>
+		<dt>sun.*</dt><dd>sunパッケージが意外と紛らわしい!?</dd>
+		<dt>java.lang.StringBuffer</dt><dd>文字列連結を同期化する必要性はほぼない、StringBuilder でOK</dd>
+		<dt>java.sql.Date</dt><dd>業務のプログラムでjava.sql.Dateを使うことはまずない</dd>
+		<dt>java.util.Calendar</dt><dd>LocalDateTime や (DBFluteの) HandyDate で十分でしょう</dd>
+	</dl>
+	<h3 id="recommendedjdbc">JDBCドライバのクラスなども</h3>
+	<p>
+		また、MySQLを使っている場合は、JDBCドライバのLogクラスなどが補完の邪魔にもなるので、以下も入れておくと良いです。
+	</p>
+	<dl class="keymainlist">
+		<dt>com.mysql.jdbc.log.*</dt><dd>MySQLのJDBCドライバのLogクラスを使うことはまずない</dd>
+	</dl>
+	<div class="inucolumn">
+		<h3 id="jflutelike">jflute の Type Filters</h3>
+		<p>
+			補完時に「邪魔なクラスがあるなぁ」と思った瞬間に、command+,(カンマ)で Preferences 出して Type Filters に行って登録します。
+		</p>
+		<p>
+			ノイズクラスが多くて選択に目を取られると思考の邪魔になりますし、ペアプロで若いプログラマーが別のクラスをimportしてしまって、メソッドが呼べなくて混乱してるのを何度も見てきましたので、重要機能だと思っています。
+		</p>
+		<p>
+			ワークスペース設定でなくプロジェクト設定で共有化できたらいいのになと思っています。
+		</p>
+		<p class="imgbox">
+			<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-TypeFilters-settings-of-jflute.png" title="Eclipse TypeFilters Settings of jflute"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-TypeFilters-settings-of-jflute.png" alt="Eclipse TypeFilters Settings of jflute" width="520" height="380" /></a>
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

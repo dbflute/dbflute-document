@@ -5,14 +5,14 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta name="keywords" content="DBFlute,トピック,Topic,プログラミング,ショートカット,Eclipse,IDE" />
-	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
-	<title>エディタショートカット | DBFlute</title>
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipse, エディタショートカット | DBFlute</title>
 </head>
 <body>
 <div id="container" class="ct-manual">
 <div id="mainbar"><div id="header">
 	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
-	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
 	<ul>
 		<li class="hd-introduction"><a href="#">Introduction</a></li>
 		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
@@ -24,13 +24,61 @@
 </div>
 
 <div id="content"><!-- __content-start__ -->
-	<h1>エディタショートカット</h1>
+	<h1>Eclipse, エディタショートカット</h1>
 	${indexlist}
 
 	<h2 id="about">エディタショートカットとは？</h2>
 	<p>
 		エディタとして共通的に役に立つ細かいショートカットです。
 	</p>
+
+	<h2 id="completion">コード補完 <span class="frm">(補完候補の表示)</span></h2>
+	<h3 id="dotcomp">ドット補完 <span class="frm">(自然に補完)</span></h3>
+	<p>
+		自然に補完されるドット補完があります。ドットはメソッドを呼ぶときなどに自然と打ち込むので、そのときに補完候補が表示されます。
+	</p>
+<pre><span class="codetitle">e.g. ドット補完 @Java</span><code>
+memberBhv. <span class="comment">// ここでドットを打った瞬間に補完候補が表示される</span>
+　↓↓↓
+memberBhv.selectList() <span class="comment">// 候補から選べば補完できる</span>
+</code></pre>
+	<h3 id="controlspacecomp">control+space補完 <span class="frm">(意図的に補完)</span></h3>
+	<p>
+		入力中でも control+space で任意のタイミングでコード補完ができます。
+	</p>
+<pre><span class="codetitle">e.g. control+space補完 @Java</span><code>
+me <span class="comment">// ここで control+space すると補完候補が表示される</span>
+　↓↓↓
+memberBhv <span class="comment">// 候補から選べば補完できる (続けてドットを打って補完)</span>
+</code></pre>
+	<p>
+		様々なケースで使える補完なので、Eclipseを使う場合はぜひ手に馴染ませましょう。
+	</p>
+	<ul>
+		<li>補完候補が一つに特定できる場合は、control+spaceの瞬間に補完されます</li>
+		<li>クラス名の補完のときは、自動的にimport文が定義されます</li>
+		<li>ドット補完を途中で止めて、再度補完したいときにも使えます</li>
+	</ul>
+	<p>
+		<em class="keyword">2,3文字打ったらcontrol+spaceして選ぶ</em> というスタイルがオススメです。
+	</p>
+	<p>
+		また、キャメルケースコード補完と相性が良いので、うまく連携させていきましょう。
+	</p>
+	<div class="relatedpage"><a href="../../../programming/completion/camelcase.html">プログラミング - キャメルケースコード補完</a></div>
+	<div class="inucolumn">
+		<h3 id="invalidcontrolspace">control+spaceが効かない？</h3>
+		<p>
+			特に Mac にて、control+spaceが効かないケースが報告されています。これは、Mac自体のソフトがcontrol+spaceを奪っていることが多くの原因です。
+		</p>
+		<p>
+			jflute個人の経験では、Spotlightがcontrol+spaceを奪っていたので、Mac購入直後はすぐにSpotlightのショートカットキーを変更します。
+			また、Google日本語入力がcontrol+spaceを奪っていることもあったので、キーボード環境設定でショートカットを変えています。
+		</p>
+		<p>
+			<em class="mark">"mac Eclipse control+space"</em> で検索すると詳しい記事がヒットするので参考に。
+		</p>
+	</div>
 
 	<h2 id="basic">基本操作周り</h2>
 	<dl class="textlist">

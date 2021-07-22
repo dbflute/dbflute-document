@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipse, 隠しファイルの設定 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipse, 隠しファイルの設定</h1>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	<div class="relatedpage"><a href="./environment/recomwork.html">Eclipseのおすすめワークスペース設定</a></div>
+	${indexlist}
+
+	<h2 id="about">隠しファイルとは？</h2>
+	<p>
+		Eclipse の Package Explorer上で表示されないファイルがあります。
+	</p>
+	<p>
+		例えば、.(ドット)始まりのファイルはワークスペースのデフォルト設定では表示されません。
+		ただ、それだと困る現場もあると思うので、そういったファイルを表示させる設定があります。
+	</p>
+	<p>
+		ワークスペースの設定なので、ワークスペースを作るたびに設定する必要があります。
+	</p>
+
+	<h2 id="seedotbeginning">.(ドット)始まりのファイルの表示</h2>
+	<p>
+		.project や .classpath, .settingsディレクトリなどは、デフォルトではPackage Explorer上に表示されません。
+		ですが、それらは開発者にとって重要なファイルでもありますので、常に表示するように設定もできます。
+	</p>
+	<p>
+		まず、Package Explorerの右上の「白下三角」のマークをクリックしてメニューを出して、Filters... を選択します。
+		<span class="frm">(Eclipseのバージョンによっては、マークが縦の点点点になっているかもです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-filters.png" title="Eclipse ClosetFile settings filters"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-filters.png" alt="Eclipse ClosetFile settings filters" width="520" height="280" /></a>
+	</p>
+	<p>
+		Java Element Filtersダイアログが表示されるので、「*. resources」のチェックを外します。隠すのを止める (フィルターを止める) ということです。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-remove-dotfilter.png" title="Eclipse ClosetFile settings remove dotfilter"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-remove-dotfilter.png" alt="Eclipse ClosetFile settings remove dotfilter" width="520" height="280" /></a>
+	</p>
+	<p>
+		OKすれば、Package Explorer上で、.project や .classpath, .settingsディレクトリが表示されるようになります。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
