@@ -33,11 +33,32 @@
 	<p>
 		(Macだと) control+H をすると、ワークスペースやプロジェクト全体のファイル(の中身)やクラスなどの検索をするためのダイアログが表示されます。
 	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-SearchDialog-example-filesearch.png" title="Eclipse FindReplace example filesearch"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-SearchDialog-example-filesearch.png" alt="Eclipse FindReplace example filesearch" width="520" height="280" /></a>
+	</p>
 	<p>
-		ここのでオプションはワークスペースの設定なので、ワークスペースを作るたびに設定する必要があります。
+		ファイル間での一括置換もできますのでいざってときに便利です。
+	</p>
+	<p>
+		大文字小文字の区別を付けたり正規表現などが使えるので、用途に応じてチェックしましょう。
+	</p>
+	<p>
+		検索範囲を「ワークスペース全体」や「選択されたディレクトリ配下」などに選べます。
+		ただ、Package Explorer上で選択した状態でcontrol+Hしても、自動的に「選択されたディレクトリ配下」になるわけではないので、つど検索範囲を意識しましょう。
+		<span class="frm">(よくワークスペース全体で検索してしまって、慌てて検索処理を止めたりします)</span>
+	</p>
+	<p>
+		ここのでオプションはワークスペース設定なので、ワークスペースを作るたびに設定する必要があります。
+		また、直近のオプションが記憶されるようになっています。
 	</p>
 
 	<h2 id="onlyfile">タブを File Search だけにする</h2>
+	<p>
+		<span class="frm">
+		【追記】少なくとも現時点の最新のEclipse-202106では、初期デフォルトが File Search になり、直近で使ったタブを記憶するようになっています。
+		その挙動で問題ないので、ここで書いてあることは少し前のEclipseにおける都合となります。
+		</span>
+	</p>
 	<p>
 		人によりけりですが、ほとんど File Search しか使わないという人も多いでしょう。
 		それなのに、control+Hしたときのデフォルトの選択タブが別のものになるので、つどつど File Search に切り替えるのが一手間です。

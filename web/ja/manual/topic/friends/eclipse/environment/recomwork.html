@@ -25,100 +25,241 @@
 
 <div id="content"><!-- __content-start__ -->
 	<h1>Eclipseのおすすめワークスペース設定</h1>
+	<p>
+		jfluteおすすめの <em class="keyword">新しいワークスペース作ったらやっておこう設定</em> を紹介します。
+	</p>
 	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
 	<div class="relatedpage"><a href="./workproj.html">Eclipseのワークスペースとプロジェクト</a></div>
 	${indexlist}
 
-	<h2 id="recommendedwork">おすすめのワークスペース設定</h2>
+	<h2 id="preferences">Preferencesの開き方</h2>
 	<p>
-		jfluteおすすめの <em class="keyword">新しいワークスペース作ったらやっておこう設定</em> を紹介します。
+		ワークスペース設定は、<em class="mark">Preferences</em> という名前で設定画面が用意されています。
 	</p>
-	<ul>
-		<li><a href="#templates">DBFluteの補完テンプレートを入れる</a> <span class="frm">(スムーズなJava実装のために)</span></li>
-		<li><a href="#typefilters">使わないクラスをコード補完から除外する</a> <span class="frm">(補完ノイズを減らそう)</span></li>
-		<li><a href="#closetfile">.(ドット)始まりのファイルの表示</a> <span class="frm">(.settingsなどは意識したいので)</span></li>
-		<li><a href="#pkgpresent">パッケージの見た目を階層構造へ</a> <span class="frm">(大量のパッケージに埋もれないように)</span></li>
-		<li><a href="#searchdialog">Searchダイアログのタブは File Search だけ</a></li>
-		<li><a href="#findreplace">Find/Replace は Case sensitive, Incremental に</a></li>
-		<li><a href="#toolbarvisibility">Tool Bar Visibility は Launch だけ</a></li>
-		<li><a href="#consolepreferences">コンソールのバッファサイズを80万くらいに</a></li>
-		<li><a href="#viewlocation">fast viewうまく使ってコードの縦表示を長く</a></li>
-		<li><a href="#editorbgcolor">エディターの背景色を設定して気持ちよく</a></li>
-	</ul>
+	<p>
+		(Macなら) Preferencesの設定画面は command+,(カンマ) で開きます。この後よく使うのでショートカットは覚えておきましょう。
+	</p>
+	<div class="relatedpage"><a href="../shortcut/operationcut.html#setting">Eclipse, 操作系ショートカット - 設定周り</a></div>
+	<p>
+		<span class="frm">※ただし、ワークスペース設定として扱われても、Preferences以外の画面で設定するものもあります。</span>
+	</p>
 
-	<h2 id="deeprecommended">しっかりおすすめ</h2>
-	<h3 id="templates">DBFluteの補完テンプレートを入れる</h3>
+	<h2 id="templates">DBFluteの補完テンプレートを入れる</h2>
 	<p>
-		DBFlute実装だけじゃなく、純粋にJava実装をエンハンスするためのテンプレートがたくさん用意されています。
+		Eclipseには、Javaエディター上のコード補完をカスタマイズする機能が備わっています。
 	</p>
-	<div class="detailpage"><a href="../../../../../tutorial/eclipse/dfclipsecomp.html">DBFluteのEclipse補完テンプレート</a></div>
+<pre><span class="codetitle">e.g. 標準のifnullの補完テンプレート @Java</span><code>
+String sea = ...
+<span class="literal">ifnu...</span> <span class="comment">// control+space, enter</span>
+　↓↓↓
+<span class="keyword">if</span> (sea == <span class="keyword">null</span>) {
+    
+}
+</code></pre>
 	<p>
-		TODO jflute
-		「Importのまるごと入れ替え方式」向けのzipファイルを以下からダウンロードして、エディターテンプレートの設定をしてみましょう。<br>
-		<a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a>
+		スムーズな実装のためにDBFluteオリジナルの補完テンプレートを提供しています。
+		DBFlute実装だけじゃなく純粋にJava実装のためのテンプレートも用意されているので、ぜひ活用しましょう。
 	</p>
-	<div class="detailpage"><a href="../coding/templates.html#importwhole">エディターテンプレート - Importのまるごと入れ替え方式</a></div>
-	<h3 id="typefilters">使わないクラスをコード補完から除外する</h3>
+	<div class="relatedpage"><a href="../../../../../tutorial/eclipse/dfclipsecomp.html">DBFluteのEclipse補完テンプレート</a></div>
+<pre><span class="codetitle">e.g. DBFluteオリジナルの_llの補完テンプレート @Java</span><code>
+<span class="attribute">memberBhv</span>.selectList(<span class="literal">_ll</span>) <span class="comment">// control+space, enter</span>
+　↓↓↓
+<span class="attribute">memberBhv</span>.selectList([var] -&gt; {
+    [var].[object]
+})
+</code></pre>
+	<h3 id="preparetemplatexml">補完テンプレートファイルの準備</h3>
 	<p>
-		コード補完時に、例えば java.util.List を補完しようとしてるのに毎度毎度 "java.awt.Listとどっちを選ぶ？"
-		と聞かれたりします。Type Filters にて "java.awt.*" と設定すれば、そんなことはもう聞かれません。
-		もう、絶対に使わないのにも関わらず、わりとよく出てくる紛らわしいものを設定しておくと良いでしょう。 
+		いまの開発プロジェクトで「こちらのDBFluteの補完テンプレートを入れてください」と明示的に指定されている場合は、そちらの補完テンプレートファイルを使いましょう。
+		例えば、LastaFluteのプロジェクトなら補完テンプレートファイルがアプリ内に置いてあります。<span class="frm">(その開発プロジェクトで独自に拡張されているかもしれませんので)</span>
 	</p>
-	<div class="detailpage"><a href="../coding/typefilters.html#recommended">Eclipseのノイズ減らし Type Filters - オススメ</a></div>
-	<h3 id="closetfile">.(ドット)始まりのファイルの表示</h3>
+	<div class="relatedpage"><a href="../../../../../lastaflute/tutorial/eclipse/laclipsecomp.html#setuptemplate">LastaFluteのEclipseコード補完 - 補完テンプレートの環境構築</a></div>
 	<p>
-		.project や .classpath, .settingsディレクトリなどは、デフォルトではPackage Explorer上に表示されません。
+		もし、そういった指定が特にない...もしくは「わからない」のであれば、以下から「Importのまるごと入れ替え方式」向けのテンプレートファイルをダウンロードして設定しましょう。<br>
+		<a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a><br>
+		<span class="frm">(DBFluteが提供する最新の補完テンプレートファイルです)</span>
+	</p>
+	<div class="relatedpage"><a href="../coding/templates.html#importwhole">エディターテンプレート - Importのまるごと入れ替え方式</a></div>
+	<h3 id="importtemplatexml">Importのまるごと入れ替え方式での設定</h3>
+	<p>
+		まず、メニューの Preferences の <em class="keyword">Java - Editor - Templates</em> で設定画面を開きます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" title="Eclipse EditorTemplates Settings Example"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" alt="Eclipse EditorTemplates Settings Example" width="550" height="350" /></a>
+	</p>
+	<p>
+		既存のテンプレートを何か一つ選択して、(Macなら)command+A で全選択します<span class="frm">(全選択できればやり方は何でもOK)</span>。
+		そして、全選択した状態で Remove を押すと既存のテンプレートがすべて消えるので、その状態で Import... を押して、ファイル選択ダイアログでimport対象のxmlファイルを選択します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-import-whole.png" title="Eclipse EditorTemplates Settings Import Whole"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-import-whole.png" alt="Eclipse EditorTemplates Settings Import Whole" width="550" height="320" /></a>
+	</p>
+	<p>
+		期待されているテンプレートが設定されたことを確認して Apply すれば完了です。試しに近くのクラスで補完をしてみましょう。
+	</p>
+
+	<h2 id="typefilters">使わないクラスをコード補完から除外する</h2>
+	<p>
+		コード補完時に、java.util.List を補完しようとしてるのに毎度毎度 "java.awt.Listとどっちを選ぶ？"
+		と聞かれたりします。特に多くのライブラリを使っているとたくさん選択肢が出てきて思考の妨げにもなります。
+		Type Filters で使わないクラスを設定して補完ノイズを減らしましょう。
+	</p>
+	<div class="relatedpage"><a href="../coding/typefilters.html#recommended">Eclipseのノイズ減らし Type Filters - オススメ</a></div>
+	<p>
+		Preferences の <em class="keyword">Java - Appearance - Type Filters</em> を選択。
+	</p>
+	<p>
+		Add を押して、クラス型の補完で "表示させたくない" パッケージやクラスを指定します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-TypeFilters-settings-add.png" title="Eclipse TypeFilters Settings Add"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-TypeFilters-settings-add.png" alt="Eclipse TypeFilters Settings Add" width="520" height="240" /></a>
+	</p>
+	<p>
+		とりあえず以下を設定しておくだけでも、だいぶノイズが減りますので入れておきましょう。
+	</p>
+	<dl class="keymainlist">
+		<dt>java.awt.*</dt><dd>awtパッケージを使うことは今の開発ではまずない</dd>
+		<dt>com.sun.*</dt><dd>sunパッケージのクラスを使うことはほとんどない</dd>
+		<dt>sun.*</dt><dd>sunパッケージが意外と紛らわしい!?</dd>
+		<dt>java.lang.StringBuffer</dt><dd>文字列連結を同期化する必要性はほぼなく、StringBuilderで十分</dd>
+		<dt>java.sql.Date</dt><dd>業務のプログラムでjava.sql.Dateを使うことはまずない</dd>
+	</dl>
+
+	<h2 id="closetfile">.(ドット)始まりのファイルの表示</h2>
+	<p>
+		.project や .settingsディレクトリなどは、デフォルトではPackage Explorer上に表示されません。
 		ですが、それらは開発者にとって重要なファイルでもありますので、常に表示すると良いでしょう。
 	</p>
-	<div class="detailpage"><a href="../operation/closetfile.html#seedotbeginning">隠しファイルの設定 - .(ドット)始まりのファイルの表示</a></div>
-	<h3 id="pkgpresent">パッケージの見た目を階層構造へ</h3>
+	<div class="relatedpage"><a href="../operation/closetfile.html#seedotbeginning">隠しファイルの設定 - .(ドット)始まりのファイルの表示</a></div>
+<pre><span class="codetitle">e.g. .(ドット)始まりのファイルたち @Java</span><code>
+PROJECT_ROOT
+ |-src/main/java
+ |-src/main/resources
+ |-...
+ |-<span class="subpoint">.settings</span> <span class="comment">// これらがデフォルトでは表示されない...けど大事</span>
+ |-<span class="subpoint">.gitignore</span> <span class="comment">// .gitignoreなんかは時々手で修正することもある</span>
+ |-<span class="subpoint">.project</span>
+</code></pre>
 	<p>
-		Package Explorer上のパッケージ表現がデフォルトではフラットになっていますが、少し大きなプロジェクトになると細かいパッケージがたくさん並んで見づらいでしょう。
+		まず、Package Explorerの右上の「白下三角」のマークをクリックしてメニューを出して、Filters... を選択します。
+		<span class="frm">(Eclipseのバージョンによっては、マークが縦の点点点になっているかもです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-filters.png" title="Eclipse ClosetFile settings filters"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-filters.png" alt="Eclipse ClosetFile settings filters" width="520" height="280" /></a>
+	</p>
+	<p>
+		Java Element Filtersダイアログが表示されるので、「*. resources」のチェックを外します。隠すのを止める (フィルターを止める) ということです。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-remove-dotfilter.png" title="Eclipse ClosetFile settings remove dotfilter"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-remove-dotfilter.png" alt="Eclipse ClosetFile settings remove dotfilter" width="520" height="280" /></a>
+	</p>
+
+	<h2 id="contentassist">メソッド補完時は引数名が列挙されるように</h2>
+	<p>
+		メソッドを補完したとき、メソッド引数部分の表現に２つ選択肢があります。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>推測値の自動指定</dt><dd>"型が同じ変数" や "戻り値の型が同じメソッド" が自動的に指定される</dd>
+		<dt>シンプル引数名列挙</dt><dd>単純にメソッドの引数名が列挙される</dd>
+	</dl>
+<pre><span class="codetitle">e.g. 推測値の自動指定 @Java</span><code>
+sea.han <span class="comment">// ここでhangar(Integer, String, AnyBean)を補完すると...</span>
+　↓↓↓
+<span class="comment">// 型が同じ変数、戻り値の型が同じメソッド、一致するものがなければnull</span>
+sea.hangar(<span class="subpoint">showbaseNumber</span>, <span class="subpoint">getXxxString()</span>, <span class="subpoint">null</span>);
+</code></pre>
+<pre><span class="codetitle">e.g. シンプル引数名列挙 @Java</span><code>
+sea.han <span class="comment">// ここでhangar(Integer, String, AnyBean)を補完すると...</span>
+　↓↓↓
+<span class="comment">// 単純に引数名が列挙される</span>
+sea.hangar(<span class="subpoint">stageNumber</span>, <span class="subpoint">areaName</span>, <span class="subpoint">anyBean</span>);
+</code></pre>
+	<p>
+		デフォルトでは推測値の自動指定になっています。
+		型ですべて解決するような実装スタイルなら良いですが、やはりStringやIntegerなどが混ざる世界で推測されると誤った引数指定を起こしがちです。
+		<span class="frm">(実際のレビューで、本人の意図していない変数指定やメソッド呼び出しなどのミスをよく見かけます)</span>
+	</p>
+	<p>
+		引数名が列挙される方が間違いが少なく、引数仕様をその場で理解することもできるのでおすすめです。
+	</p>
+	<p>
+		Preferences の <em class="keyword">Java - Editor - Content Assist</em> にて、<em class="mark">Insert parameter names</em>
+		の方を選択します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-ContentAssist-settings-insert-parameter-names.png" title="Eclipse ContentAssist settings insert-parameter-names"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-ContentAssist-settings-insert-parameter-names.png" alt="Eclipse ContentAssist settings insert-parameter-names" width="520" height="360" /></a>
+	</p>
+	<p>
+		<span class="frm">※ただ、推測値を管理できていて好きな方は別にそのままで</span>
+	</p>
+
+	<h2 id="pkgpresent">パッケージの見た目を階層構造へ</h2>
+	<p>
+		Package Explorer上のパッケージ表現がデフォルトでフラットになりますが、特に大きなプロジェクトになると細かいパッケージがズラッとたくさん並んでしまい、逆に探しづらくなってしまいます。
+	</p>
+	<p>
 		特にDBFluteを使っている場合は自動生成クラスがたくさんのパッケージを使っているので、階層構造に変更すると良いでしょう。
 	</p>
-	<div class="detailpage"><a href="../operation/pkgpresent.html#behierarchical">パッケージ見た目表現 - 階層構造に変更する</a></div>
+	<div class="relatedpage"><a href="../operation/pkgpresent.html#behierarchical">パッケージ見た目表現 - 階層構造に変更する</a></div>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-PackagePresentation-flat-to-hierarchical.png" title="Eclipse PackagePresentation flat to hierarchical"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-PackagePresentation-flat-to-hierarchical.png" alt="Eclipse PackagePresentation flat to hierarchical" width="520" height="280" /></a>
+	</p>
+	<p>
+		Package Explorerの右上の「白下三角」のマークをクリックしてメニュー (View Menu) を出して...
+		<span class="frm">(Eclipseのバージョンによっては、マークが縦の点点点になっているかもです)</span>
+	</p>
+	<p>
+		Package Presentation の Hierarchical を選択します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-PackagePresentation-settings-hierarchical.png" title="Eclipse PackagePresentation settings hierarchical"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-PackagePresentation-settings-hierarchical.png" alt="Eclipse PackagePresentation settings hierarchical" width="520" height="280" /></a>
+	</p>
 	<p>
 		<span class="frm">※ただ、フラットに慣れていて好きな方は別にそのままで</span>
 	</p>
 
-	<h2 id="nextrecommended">まあまあおすすめ</h2>
-	<p>
-		ここは「人によりけり」ありそうなところなので、"まあまあ" レベルのおすすめにしておきます。
-	</p>
-	<h3 id="searchdialog">Searchダイアログのタブは File Search だけ</h3>
-	<p>
-		control+H のファイル検索 (プロジェクト全体のファイルの中身を検索) は、ほとんど File Search しか使わないのに、毎回 File Search にタブを切り替えるワンクリックが面倒だなと感じます。
-		そもそも最初から File Search のタブだけが表示されるようにすると良いでしょう。
-	</p>
-	<div class="detailpage"><a href="../operation/searchdialog.html#onlyfile">Searchダイアログ - File Search だけ</a></div>
-
-	<h3 id="findreplace">Find/Replace は Case sensitive, Incremental に</h3>
+	<h2 id="findreplace">Find/Replace は Case sensitive, Incremental に</h2>
 	<p>
 		command+F の Find/Replace (開いているファイルのテキストを検索) は、デフォルトでは大文字小文字を区別しません。
-		Javaなど大文字小文字を区別するプログラミング言語を扱っている場合、大文字小文字を意識して検索・置換したいことが多いので、Case sensitiveにチェックを付けておくと良いでしょう。
+		Javaなど大文字小文字を区別するプログラミング言語を扱っている場合、大文字小文字を意識して検索・置換したいことが多いので、<em class="mark">Case sensitive</em> にチェックを付けておくと良いでしょう。
 		<span class="frm">(特に、文字列置換に関しては、大文字小文字で事故も起きやすいので気を付けましょう)</span>
 	</p>
-	<div class="detailpage"><a href="../operation/findreplace.html#casesensitive">Find/Replace - 入力しながら検索、Incrementalに</a></div>
-	<p>
-		また、Incrementalにチェックを付けておくと、検索文字列を入力しながら検索できると打ち間違いとかもすぐにわかるので便利です。
+	<div class="relatedpage"><a href="../operation/findreplace.html#casesensitive">Find/Replace - 大文字小文字を区別、Case sensitiveに</a></div>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-casesensitive.png" title="Eclipse FindReplace settings case-sensitive"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-casesensitive.png" alt="Eclipse FindReplace settings case-sensitive" width="520" height="280" /></a>
 	</p>
-	<div class="detailpage"><a href="../operation/findreplace.html#incremental">Find/Replace - 入力しながら検索、Incrementalに</a></div>
-	<h3 id="toolbarvisibility">Tool Bar Visibility は Launch だけ</h3>
 	<p>
-		xxxxxxxxx
+		また、<em class="mark">Incremental</em> にチェックを付けておくと、検索文字列を入力しながら検索できると打ち間違いとかもすぐにわかるので便利です。
 	</p>
-	<div class="detailpage"><a href="../operation/toolbarvisibility.html#onlylaunch">Tool Bar Visibility - Launch のみ</a></div>
-	<h3 id="consolepreferences">コンソールのバッファサイズを80万くらいに</h3>
-	<p>
-		xxxxxxxxx
+	<div class="relatedpage"><a href="../operation/findreplace.html#incremental">Find/Replace - 入力しながら検索、Incrementalに</a></div>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-incremental.png" title="Eclipse FindReplace settings incremental"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-incremental.png" alt="Eclipse FindReplace settings incremental" width="520" height="280" /></a>
 	</p>
-	<div class="detailpage"><a href="../operation/consolepreferences.html#onlylaunch">Consoleの設定 - バッファサイズを80万くらいに</a></div>
-	<h3 id="viewlocation">fast viewうまく使ってコードの縦表示を長く</h3>
+
+	<h2 id="console">コンソールのバッファサイズを80万くらいに</h2>
 	<p>
 		xxxxxxxxx
 	</p>
-	<div class="detailpage"><a href="../operation/viewlocation.html#codeareaheight">Viewの配置 - コードの縦表示を長く</a></div>
-	<h3 id="editorbgcolor">エディターの背景色を設定して気持ちよく</h3>
+
+	<h2 id="viewlocation">fast view使ってコードの縦表示を長く</h2>
+	<p>
+		デフォルトだと、Problemsなどの View が下に配置されていて、コードエリアが短くなっています。プログラムは縦に積み重なっていくものなので、できるだけ縦の領域を稼ぎたいです。
+		なので、Fast View を使うと良いでしょう。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ViewLocation-short-codearea-so-fastview.png" title="Eclipse ViewLocation short code-area so fast-view"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ViewLocation-short-codearea-so-fastview.png" alt="Eclipse ViewLocation short code-area so fast-view" width="530" height="350" /></a>
+	</p>
+	<p>
+		Viewは必要なときに登場しますし、見たいViewのアイコンをクリックすればいつでも見られます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ViewLocation-long-codearea-by-fastview.png" title="Eclipse ViewLocation long code-area by fast-view"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ViewLocation-long-codearea-by-fastview.png" alt="Eclipse ViewLocation long code-area by fast-view" width="550" height="340" /></a>
+	</p>
+	<p>
+		このような感じでViewの配置は簡単にカスタマイズできます。
+	</p>
+
+	<h2 id="editorbgcolor">エディターの背景色を設定して気持ちよく</h2>
 	<p>
 		xxxxxxxxx
 	</p>
