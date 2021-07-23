@@ -37,9 +37,12 @@
 		ワークスペース設定は、<em class="mark">Preferences</em> という名前で設定画面が用意されています。
 	</p>
 	<p>
-		(Macなら) Preferencesの設定画面は command+,(カンマ) で開きます。この後よく使うのでショートカットは覚えておきましょう。
+		(Macなら) Preferencesの設定画面は <em class="keyword">command+,(カンマ)</em> で開きます。
 	</p>
 	<div class="relatedpage"><a href="../shortcut/operationcut.html#setting">Eclipse, 操作系ショートカット - 設定周り</a></div>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-Preferences-dialog-example.png" title="Eclipse Preferences dialog example"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-Preferences-dialog-example.png" alt="Eclipse Preferences dialog example" width="550" height="440" /></a>
+	</p>
 	<p>
 		<span class="frm">※ただし、ワークスペース設定として扱われても、Preferences以外の画面で設定するものもあります。</span>
 	</p>
@@ -61,7 +64,7 @@ String sea = ...
 		DBFlute実装だけじゃなく純粋にJava実装のためのテンプレートも用意されているので、ぜひ活用しましょう。
 	</p>
 	<div class="relatedpage"><a href="../../../../../tutorial/eclipse/dfclipsecomp.html">DBFluteのEclipse補完テンプレート</a></div>
-<pre><span class="codetitle">e.g. DBFluteオリジナルの_llの補完テンプレート @Java</span><code>
+<pre><span class="codetitle">e.g. DBFluteオリジナルの_llの補完テンプレート、Lambda式の入力支援 _ll (あんすこえるえる) @Java</span><code>
 <span class="attribute">memberBhv</span>.selectList(<span class="literal">_ll</span>) <span class="comment">// control+space, enter</span>
 　↓↓↓
 <span class="attribute">memberBhv</span>.selectList([var] -&gt; {
@@ -70,15 +73,16 @@ String sea = ...
 </code></pre>
 	<h3 id="preparetemplatexml">補完テンプレートファイルの準備</h3>
 	<p>
-		いまの開発プロジェクトで「こちらのDBFluteの補完テンプレートを入れてください」と明示的に指定されている場合は、そちらの補完テンプレートファイルを使いましょう。
+		「こちらのDBFluteの補完テンプレートを入れてください」と明示的に指定されている場合は、そちらの補完テンプレートファイルを使いましょう。
 		例えば、LastaFluteのプロジェクトなら補完テンプレートファイルがアプリ内に置いてあります。<span class="frm">(その開発プロジェクトで独自に拡張されているかもしれませんので)</span>
 	</p>
 	<div class="relatedpage"><a href="../../../../../lastaflute/tutorial/eclipse/laclipsecomp.html#setuptemplate">LastaFluteのEclipseコード補完 - 補完テンプレートの環境構築</a></div>
 	<p>
-		もし、そういった指定が特にない...もしくは「わからない」のであれば、以下から「Importのまるごと入れ替え方式」向けのテンプレートファイルをダウンロードして設定しましょう。<br>
-		<a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a><br>
-		<span class="frm">(DBFluteが提供する最新の補完テンプレートファイルです)</span>
+		そういった指定が特にない...もしくは「わからない」なら、以下からテンプレートファイルをダウンロードして、Importのまるごと入れ替え方式で設定しましょう。
 	</p>
+	<dl class="lolongkeymainlist">
+		<dt><a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a></dt><dd><span class="frm">※最新のDBFlute補完テンプレートファイルです</span></dd>
+	</dl>
 	<div class="relatedpage"><a href="../coding/templates.html#importwhole">エディターテンプレート - Importのまるごと入れ替え方式</a></div>
 	<h3 id="importtemplatexml">Importのまるごと入れ替え方式での設定</h3>
 	<p>
@@ -96,6 +100,9 @@ String sea = ...
 	</p>
 	<p>
 		期待されているテンプレートが設定されたことを確認して Apply すれば完了です。試しに近くのクラスで補完をしてみましょう。
+	</p>
+	<p>
+		入れ替え方式なので、最新版の補完テンプレートに更新する場合も手順は同じです。
 	</p>
 
 	<h2 id="typefilters">使わないクラスをコード補完から除外する</h2>
@@ -154,13 +161,13 @@ PROJECT_ROOT
 		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-remove-dotfilter.png" title="Eclipse ClosetFile settings remove dotfilter"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ClosetFile-settings-remove-dotfilter.png" alt="Eclipse ClosetFile settings remove dotfilter" width="520" height="280" /></a>
 	</p>
 
-	<h2 id="contentassist">メソッド補完時は引数名が列挙されるように</h2>
+	<h2 id="contentassist">メソッド補完は引数名の列挙で</h2>
 	<p>
 		メソッドを補完したとき、メソッド引数部分の表現に２つ選択肢があります。
 	</p>
+	<p><!-- quick empty line --></p>
 	<dl class="shortkeymainlist">
-		<dt>推測値の自動指定</dt><dd>"型が同じ変数" や "戻り値の型が同じメソッド" が自動的に指定される</dd>
-		<dt>シンプル引数名列挙</dt><dd>単純にメソッドの引数名が列挙される</dd>
+		<dt>推測値の自動指定</dt><dd>"型が同じ変数" や "戻り値の型が同じメソッド" が自動的に指定される ↓</dd>
 	</dl>
 <pre><span class="codetitle">e.g. 推測値の自動指定 @Java</span><code>
 sea.han <span class="comment">// ここでhangar(Integer, String, AnyBean)を補完すると...</span>
@@ -168,23 +175,27 @@ sea.han <span class="comment">// ここでhangar(Integer, String, AnyBean)を補
 <span class="comment">// 型が同じ変数、戻り値の型が同じメソッド、一致するものがなければnull</span>
 sea.hangar(<span class="subpoint">showbaseNumber</span>, <span class="subpoint">getXxxString()</span>, <span class="subpoint">null</span>);
 </code></pre>
-<pre><span class="codetitle">e.g. シンプル引数名列挙 @Java</span><code>
+	<p><!-- quick empty line --></p>
+	<dl class="shortkeymainlist">
+		<dt>引数名の列挙</dt><dd>単純にメソッドの引数名が列挙される ↓</dd>
+	</dl>
+<pre><span class="codetitle">e.g. 引数名の列挙 @Java</span><code>
 sea.han <span class="comment">// ここでhangar(Integer, String, AnyBean)を補完すると...</span>
 　↓↓↓
-<span class="comment">// 単純に引数名が列挙される</span>
+<span class="comment">// シンプルに引数名が列挙される</span>
 sea.hangar(<span class="subpoint">stageNumber</span>, <span class="subpoint">areaName</span>, <span class="subpoint">anyBean</span>);
 </code></pre>
 	<p>
 		デフォルトでは推測値の自動指定になっています。
 		型ですべて解決するような実装スタイルなら良いですが、やはりStringやIntegerなどが混ざる世界で推測されると誤った引数指定を起こしがちです。
-		<span class="frm">(実際のレビューで、本人の意図していない変数指定やメソッド呼び出しなどのミスをよく見かけます)</span>
+		<span class="frm">(実際のレビューで、本人の意図していない変数指定やメソッド呼び出しなどのミスをよく見かけます。危ない...)</span>
 	</p>
 	<p>
-		引数名が列挙される方が間違いが少なく、引数仕様をその場で理解することもできるのでおすすめです。
+		引数名が列挙される方が間違いが少なく、引数仕様をその場で理解できるのでオススメです。
 	</p>
 	<p>
 		Preferences の <em class="keyword">Java - Editor - Content Assist</em> にて、<em class="mark">Insert parameter names</em>
-		の方を選択します。
+		の方を選択しましょう。
 	</p>
 	<p class="imgbox">
 		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-ContentAssist-settings-insert-parameter-names.png" title="Eclipse ContentAssist settings insert-parameter-names"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-ContentAssist-settings-insert-parameter-names.png" alt="Eclipse ContentAssist settings insert-parameter-names" width="520" height="360" /></a>
@@ -226,19 +237,35 @@ sea.hangar(<span class="subpoint">stageNumber</span>, <span class="subpoint">are
 	</p>
 	<div class="relatedpage"><a href="../operation/findreplace.html#casesensitive">Find/Replace - 大文字小文字を区別、Case sensitiveに</a></div>
 	<p class="imgbox">
-		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-casesensitive.png" title="Eclipse FindReplace settings case-sensitive"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-casesensitive.png" alt="Eclipse FindReplace settings case-sensitive" width="520" height="280" /></a>
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-casesensitive.png" title="Eclipse FindReplace settings case-sensitive"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-casesensitive.png" alt="Eclipse FindReplace settings case-sensitive" width="520" height="300" /></a>
 	</p>
 	<p>
 		また、<em class="mark">Incremental</em> にチェックを付けておくと、検索文字列を入力しながら検索できると打ち間違いとかもすぐにわかるので便利です。
 	</p>
 	<div class="relatedpage"><a href="../operation/findreplace.html#incremental">Find/Replace - 入力しながら検索、Incrementalに</a></div>
 	<p class="imgbox">
-		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-incremental.png" title="Eclipse FindReplace settings incremental"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-incremental.png" alt="Eclipse FindReplace settings incremental" width="520" height="280" /></a>
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-incremental.png" title="Eclipse FindReplace settings incremental"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-FindReplace-settings-incremental.png" alt="Eclipse FindReplace settings incremental" width="520" height="300" /></a>
 	</p>
 
-	<h2 id="console">コンソールのバッファサイズを80万くらいに</h2>
+	<h2 id="console">コンソールのバッファサイズをデカく</h2>
 	<p>
-		xxxxxxxxx
+		開発中はアプリのログを主にコンソールで見ることになるでしょう。
+	</p>
+	<p>
+		「動きがおかしい、ログを見よう、もっと前の操作でどんな挙動してたか？エラーや警告とか出てなかったか？スクロールして上の方に.....もう切れちゃってるー（＞＜」
+	</p>
+	<p>
+		コンソールに表示される文字量の限界が、意外にデフォルトだと少ないです<span class="frm">(メモリ対策？)</span>。切れて見えないのでは全く意味がないので、デカくしましょう。
+	</p>
+	<p>
+		Preferences の <em class="keyword">Run/Debug - Console</em> にて、<em class="keyword">Console buffer size</em> に 0 (ぜろ) を一つ追加しましょう。
+		<span class="frm">(8万を80万に)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-Console-settings-buffer-size-large.png" title="Eclipse Console settings buffer-size large"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-Console-settings-buffer-size-large.png" alt="Eclipse Console settings buffer-size large" width="530" height="420" /></a>
+	</p>
+	<p>
+		リミットがあるようなので、まあ80万くらいで十分です。<span class="frm">(雑に決めてます)</span>
 	</p>
 
 	<h2 id="viewlocation">fast view使ってコードの縦表示を長く</h2>
@@ -261,9 +288,53 @@ sea.hangar(<span class="subpoint">stageNumber</span>, <span class="subpoint">are
 
 	<h2 id="editorbgcolor">エディターの背景色を設定して気持ちよく</h2>
 	<p>
-		xxxxxxxxx
+		好きな色で実装するのが一番です。
 	</p>
-	<div class="detailpage"><a href="../operation/editorbgcolor.html#backgroundcolor">エディターの背景色 - 背景色を設定して気持ちよく</a></div>
+	<p>
+		Preferences の <em class="keyword">General - Editors - Text Editors</em> にて、<em class="keyword">background color</em> を選択して <em class="keyword">Color</em> を指定しましょう。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-TextEditor-settings-background-color.png" title="Eclipse TextEditor settings background-color"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-TextEditor-settings-background-color.png" alt="Eclipse TextEditor settings background-color" width="550" height="380" /></a>
+	</p>
+	<p>
+		<span class="frm">※文字が見えづらくならない色にしましょう。</span>
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="routinework">これ毎回やるのか？</h2>
+		<p>
+			って思いますよね。ぜひやってください。
+			まあワークスペースを新しく作るのって年に何度もあるようなものでもないので、そのときこのページを思い出して頂ければと。
+		</p>
+		<p>
+			ちなみに、jfluteはMacBook内にEclipseのワークスペースが二桁を超えるほどあります。
+			結構な頻度で新規ワークスペース作るので、みなさんに「やってください」と言いつつ自分でやるのはちょっとしんどいなと...m(_ _)m
+		</p>
+		<p>
+			本ページに書いてあることだけじゃなく、Keys設定とかもっともっとたくさんあるんです。
+		</p>
+		<div class="relatedpage"><a href="https://jflute.hatenadiary.jp/entry/20151205/eclipse">jfluteの日記 - Eclipseに寄付しました (Donate to Eclipse)</a></div>
+		<p>
+			一応、Preferences の Export の機能があります。Packaeg Explorer上の適当ところで右クリック Export...
+			で選択できます。ただ、出力範囲が決まっているようで(?)、本当に隅々まで引き継げるかどうかはわかりません。
+			<span class="frm">(あまり検証していません)</span>
+		</p>
+		<p>
+			なので、ちょっと裏技をやっています。
+		</p>
+		<ol>
+			<li>cp -R [既存workspace]/.metadata [新規workspace]/.metadata</li>
+			<li>新規workspaceでEclipseを起動</li>
+			<li>(この時点では、起動workspaceは新規でも、プロジェクトが既存workspaceのものを参照している)</li>
+			<li>Package Explorer上のプロジェクトをすべて論理削除 <span class="frm">(物理削除だと既存側が削除されちゃう)</span></li>
+			<li>Preferences の Team - Git の Default repository folder を新規workspaceに変更</li>
+			<li>エディター背景色も引き継がれるので見分けるために変える</li>
+			<li>これで完全に引き継ぎOK (のはず)</li>
+		</ol>
+		<p>
+			操作を一つ間違えると既存workspaceが壊れて大混乱するので真似しないでください。
+		</p>
+	</div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
