@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../css/sub.css";</style>
+	<title>DBFluteのEclipseコード補完 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteのEclipseコード補完</h1>
+	<div class="relatedpage"><a href="../index.html">LastaFluteトップページ</a></div>
+	<div class="relatedpage"><a href="../laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	${indexlist}
+
+	<h2 id="howtocomp">どう打ち込めばいい？</h2>
+	<p>
+		もし補完テンプレートが設定されていなければ、まず設定しましょう。
+	</p>
+	<div class="relatedpage"><a href="#setuptemplate">this - 補完テンプレートの環境構築</a></div>
+	<h3 id="controlspacecomp">補完文字列を打ってcontrol+space補完</h3>
+	<p>
+		エディター上で補完文字列を打ってcontrol+space補完すると、コードが補完されます。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/topic/friends/eclipse/shortcut/editorcut.html#completion">Eclipse - コード補完 (補完候補の表示)</a></div>
+<pre><span class="codetitle">e.g. DBFluteオリジナルの_llの補完テンプレート @Java</span><code>
+<span class="attribute">memberBhv</span>.selectList(<span class="literal">_ll</span>) <span class="comment">// _ll, control+space, enter</span>
+　↓↓↓
+<span class="attribute">memberBhv</span>.selectList([var] -&gt; {
+    [var].[object]
+})
+</code></pre>
+	<h3 id="javacoding">Java実装の補完文字列一覧</h3>
+	<p>
+		DBFlute関係なく利用できる補完です。★マークのものがオススメです。
+	</p>
+	<h4>Java8, Lambda/Stream系</h4>
+	<dl class="shoshortkeymainlist">
+		<dt><em class="mark">_a</em></dt><dd>Java8, Lambda式の矢印 <em class="mark">-&gt;</em></dd>
+		<dt><em class="mark">_li</em> <span class="frm">(えるあい)</span></dt><dd>Java8, Lambda式の一行スタイル (Lambda + Inline) ★★★</dd>
+		<dt><em class="mark">_ll</em> <span class="frm">(えるえる)</span></dt><dd>Java8, Lambda式の一行スタイル (Lambda + Linefeed) ★★★</dd>
+		<dt><em class="mark">_bili</em></dt><dd>Java8, 引数２つ(Bi)のLambda式の一行スタイル (Bi + Lambda + Inline)</dd>
+		<dt><em class="mark">_bill</em></dt><dd>Java8, 引数２つ(Bi)のLambda式の改行スタイル (Bi + Lambda + Line)</dd>
+		<dt><em class="mark">_kvli</em></dt><dd>Java8, MapのforEach()想定のkey-value引数のLambda式の一行スタイル</dd>
+		<dt><em class="mark">_kvll</em></dt><dd>Java8, MapのforEach()想定のkey-value引数のLambda式の改行スタイル</dd>
+		<dt><em class="mark">_foreach</em></dt><dd>Java8, ListのforEach()メソッド補完 ★</dd>
+		<dt><em class="mark">_scolist</em></dt><dd>Java8, Stream APIの .collect(Collectors.toList())</dd>
+		<dt><em class="mark">_scomap</em></dt><dd>Java8, Stream APIの .collect(Collectors.toMap(...))</dd>
+	</dl>
+	<h4>Java, コメント系</h4>
+	<dl class="shoshortkeymainlist">
+		<dt><em class="mark">_todo</em></dt><dd>Java, todoコメント // TODO jflute xxx (2021/07/23) ★★★</dd>
+		<dt><em class="mark">_trev</em></dt><dd>Java, レビューコメント // TODO you xxx by jflute (2021/07/23)</dd>
+		<dt><em class="mark">_docnotnull</em></dt><dd>Java, JavaDocの@paramや@returnでの (NotNull) ★★</dd>
+		<dt><em class="mark">_docnullall..</em></dt><dd>Java, JavaDocの@paramや@returnでの (NullAllowed) ★★</dd>
+		<dt><em class="mark">_coaaa</em></dt><dd>Java, UnitTestのArrange,Act,Assertコメント ★</dd>
+		<dt><em class="mark">_cofornow</em></dt><dd>Java, 今のところコメント // #for_now jflute xxx (2021/07/23)</dd>
+		<dt><em class="mark">_cohope</em></dt><dd>Java, 希望コメント // #hope jflute xxx (2021/07/23)</dd>
+		<dt><em class="mark">_coneedsfix</em></dt><dd>Java, 直す必要ありコメント // #needs_fix jflute xxx (2021/07/23)</dd>
+		<dt><em class="mark">_cothinking</em></dt><dd>Java, 悩ましい考えてるコメント // #thiking jflute xxx (2021/07/23)</dd>
+		<dt><em class="mark">_reardate</em></dt><dd>Java, 日付だけのコメント // (2021/07/23)</dd>
+		<dt><em class="mark">_rearuser</em></dt><dd>Java, ユーザー名だけのコメント // by jflute</dd>
+		<dt><em class="mark">_taacce</em></dt><dd>Java, タグコメント Accessor ★</dd>
+		<dt><em class="mark">_ta...</em></dt><dd>Java, その他タグコメントいっぱい</dd>
+	</dl>
+	<h4>Java, 変数定義系</h4>
+	<dl class="shoshortkeymainlist">
+		<dt><em class="mark">_prifin</em></dt><dd>Java, private final ${variableType} ${variableName}; ★★</dd>
+		<dt><em class="mark">_profin</em></dt><dd>Java, protected final ${variableType} ${variableName};</dd>
+		<dt><em class="mark">_pubfin</em></dt><dd>Java, public final ${variableType} ${variableName};</dd>
+		<dt><em class="mark">_pubstacla</em></dt><dd>Java, public static class ${variableName} ...</dd>
+		<dt><em class="mark">_pubstafin</em></dt><dd>Java, public static final ${variableType} ${variableName} ★</dd>
+		<dt><em class="mark">_logger</em></dt><dd>Java, Slf4j の static final Logger 定義 ★★</dd>
+		<dt><em class="mark">_clogger</em></dt><dd>Java, Commons Logging の static final Logger 定義</dd>
+	</dl>
+	<h4>Java, 例外系</h4>
+	<dl class="shoshortkeymainlist">
+		<dt><em class="mark">_tharg</em></dt><dd>Java, throw new IllegalArgumentException(...) ★★</dd>
+		<dt><em class="mark">_thstate</em></dt><dd>Java, throw new IllegalStateException(...) ★</dd>
+	</dl>
+	<h3 id="dbflutecoding">DBFlute装の補完文字列一覧</h3>
+	<p>
+		DBFlute実装における補完です。
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt><em class="mark">_specify</em></dt><dd>DBFlute, ${var}.specify()</dd>
+		<dt><em class="mark">_query</em></dt><dd>DBFlute, ${var}.query()</dd>
+		<dt><em class="mark">_order</em></dt><dd>DBFlute, .addOrderBy_${columnName}</dd>
+		<dt><em class="mark">_test</em></dt><dd>UTFlute, testメソッド補完、Arrange,Act,Assert付き</dd>
+		<dt><em class="mark">_exmeb</em></dt><dd>DBFlute, ExceptionMessageBuilderのまるごとテンプレート</dd>
+	</dl>
+
+	<h2 id="java8lambdastream">Java8, Lambda/Stream系</h2>
+	<h3 id="_lill">シンプルLambda式補完 <span class="frm">(_li, _ll)</span></h3>
+	<p>
+		<em class="keyword">_li</em> (Lambda Inline)
+	</p>
+<pre><span class="codetitle">e.g. xxxxxxxを補完 @Java</span><code>
+xxx
+
+　↓↓↓
+
+xxx
+</code></pre>
+	<p>
+		<em class="keyword">_ll</em> (Lambda Linefeed)
+	</p>
+<pre><span class="codetitle">e.g. xxxxxxxを補完 @Java</span><code>
+xxx
+
+　↓↓↓
+
+xxx
+</code></pre>
+
+	<h2 id="setuptemplate">補完テンプレートの環境構築</h2>
+	<h3 id="dftemplate">DBFluteの補完テンプレート</h3>
+	<p>
+		DBFluteの補完テンプレートを入れましょう。
+		<span class="frm">(ワークスペースの設定なので、workspaceディレクトリごとに設定作業する必要があります)</span>
+	</p>
+	<p>
+		もし、LastaFluteプロジェクトであれば、プロジェクト直下もしくは[app]-baseプロジェクトの <em class="mark">etc/tools/eclipse</em>
+		配下に、<em class="mark">java-editor-templates.xml</em> が置いてありますのでそちらを使いましょう。詳しくはLastaFluteの方のページを。
+	</p>
+	<div class="relatedpage"><a href="../../lastaflute/tutorial/eclipse/laclipsecomp.html#setuptemplate">LastaFluteのEclipse補完テンプレート</a></div>
+	<p>
+		そういった指定が特にない...もしくは「よくわからない」なら、以下からテンプレートファイルをダウンロードして、まるごと入れ替え方式で import しましょう。
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt><a href="http://dbflute.seasar.org/download/misc/settings/whole-eclipse-editor-templates.zip">whole-eclipse-editor-templates.zip</a></dt><dd><span class="frm">※最新のDBFlute補完テンプレートファイルです</span></dd>
+	</dl>
+	<h3 id="importwholeway">まるごと入れ替え方式のやり方</h3>
+	<p>
+		importするテンプレートファイルに標準テンプレートも含まれてる場合は、まるごと入れ替え方式で取り込みます。
+		DBFluteの補完テンプレートは、基本的にこの方式を想定しています。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/friends/eclipse/coding/templates.html#importwhole">Eclipse - Importのまるごと入れ替え方式</a></div>
+	<p>
+		まず、メニューの Preferences の <em class="keyword">Java - Editor - Templates</em> で設定画面を開きます。
+	</p>
+	<p class="imgbox">
+		<a href="../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" title="Eclipse EditorTemplates Settings Example"><img src="../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" alt="Eclipse EditorTemplates Settings Example" width="550" height="350" /></a>
+	</p>
+	<p>
+		既存のテンプレートを何か一つ選択して、(Macなら)command+A で全選択します<span class="frm">(全選択できればやり方は何でもOK)</span>。
+		そして、全選択した状態で Remove を押すと既存のテンプレートがすべて消えるので、その状態で Import... を押して、ファイル選択ダイアログでimport対象のxmlファイルを選択します。
+	</p>
+	<p class="imgbox">
+		<a href="../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-import-whole.png" title="Eclipse EditorTemplates Settings Import Whole"><img src="../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-import-whole.png" alt="Eclipse EditorTemplates Settings Import Whole" width="550" height="320" /></a>
+	</p>
+	<p>
+		期待されているテンプレートが設定されたことを確認して Apply すれば完了です。試しに近くのクラスで補完をしてみましょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

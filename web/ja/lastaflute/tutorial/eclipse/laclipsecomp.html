@@ -40,7 +40,7 @@
 	</p>
 	<div class="relatedpage"><a href="../../../manual/topic/friends/eclipse/shortcut/editorcut.html#completion">Eclipse - コード補完 (補完候補の表示)</a></div>
 <pre><span class="codetitle">e.g. DBFluteオリジナルの_llの補完テンプレート @Java</span><code>
-<span class="attribute">memberBhv</span>.selectList(<span class="literal">_ll</span>) <span class="comment">// control+space, enter</span>
+<span class="attribute">memberBhv</span>.selectList(<span class="literal">_ll</span>) <span class="comment">// _ll, control+space, enter</span>
 　↓↓↓
 <span class="attribute">memberBhv</span>.selectList([var] -&gt; {
     [var].[object]
@@ -65,9 +65,14 @@
 		<dl class="shoshortkeymainlist">
 			<dt><em class="mark">_ladany</em></dt><dd><a href="#difield"><em>DIフィールドの補完</a> :: @Resource付きのprivateフィールド</dd>
 			<dt><em class="mark">_laprop</em></dt><dd><a href="#propfield">プロパティフィールドの補完</a> :: publicプロパティの補完</dd>
-			<dt><em class="mark">_latostring</em></dt><dd><a href="#tostring">お決まりtoString()の補完 :: Form/Body, Resultクラスなどにて</a></dd>
+			<dt><em class="mark">_latostring</em></dt><dd><a href="#tostring">お決まりtoString()の補完</a> :: Form/Body, Resultクラスなどにて</dd>
 		</dl>
 	</div>
+
+	<h2 id="difield">DIフィールドの補完 <span class="frm">(_lad...)</span></h2>
+	<p>
+		TODO xxxxxxxx
+	</p>
 
 	<h2 id="executemethod">Executeメソッドの補完 <span class="frm">(_laex...)</span></h2>
 	<h3 id="_laexhtml">Execute Method で HtmlResponse <span class="frm">(_laexhtml)</span></h3>
@@ -105,6 +110,21 @@
     <span class="comment">// []部分がtabで移動して入力できる箇所、後は要件に合わせて好きなように調整</span>
 </code></pre>
 
+	<h2 id="propfield">プロパティフィールドの補完 <span class="frm">(_lap...)</span></h2>
+	<p>
+		TODO xxxxxxxx
+	</p>
+
+	<h2 id="tostring">お決まりtoString()の補完 <span class="frm">(_latostring)</span></h2>
+	<p>
+		TODO xxxxxxxx
+	</p>
+
+	<h2 id="validation">バリデーションの補完 <span class="frm">(_lav...)</span></h2>
+	<p>
+		TODO xxxxxxxx
+	</p>
+
 	<h2 id="setuptemplate">補完テンプレートの環境構築</h2>
 	<h3 id="dftemplate">DBFluteの補完テンプレート</h3>
 	<p>
@@ -127,10 +147,14 @@
 	<p>
 		このファイルを、<em class="mark">まるごと入れ替え方式</em> で import しましょう。
 	</p>
-	<div class="relatedpage"><a href="../../../manual/topic/friends/eclipse/coding/templates.html#importwhole">Eclipse - Importのまるごと入れ替え方式</a></div>
 	<h3 id="importwholeway">まるごと入れ替え方式のやり方</h3>
 	<p>
-		まず、メニューの Preferences の Java - Editor - Templates で設定画面を開きます。
+		importするテンプレートファイルに標準テンプレートも含まれてる場合は、まるごと入れ替え方式で取り込みます。
+		DBFluteの補完テンプレートは、基本的にこの方式を想定しています。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/topic/friends/eclipse/coding/templates.html#importwhole">Eclipse - Importのまるごと入れ替え方式</a></div>
+	<p>
+		まず、メニューの Preferences の <em class="keyword">Java - Editor - Templates</em> で設定画面を開きます。
 	</p>
 	<p class="imgbox">
 		<a href="../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" title="Eclipse EditorTemplates Settings Example"><img src="../../../data/model/friends/eclipse/coding/friends-Eclipse-EditorTemplates-settings-example.png" alt="Eclipse EditorTemplates Settings Example" width="550" height="350" /></a>

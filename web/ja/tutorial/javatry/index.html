@@ -116,7 +116,7 @@
 		<dt>Download Page</dt><dd><a href="https://www.eclipse.org/downloads/packages/">https://www.eclipse.org/downloads/packages/</a></dd>
 	</dl>
 	<p>
-		IntelliJの場合、特にオススメのエディションやプラグインはありません。
+		IntelliJの場合、特にオススメのエディションとプラグインはありません。
 	</p>
 	<h3 id="forkjavatry">1. 本家javatryリポジトリをフォーク</h3>
 	<p>
@@ -133,8 +133,14 @@
 		自身のGithubアカウントにフォークしたjavatryリポジトリをgit cloneします。
 	</p>
 	<p>
-		git cloneができれば、gitクライアントは何でもよいです。もし、EclipseやIntelliJなどで直接git cloneとimportを同時にやってもよいです。
+		場所は任意ではありますが、「どこにcloneしたか忘れてしまった」にならないようにしましょう。
 	</p>
+<pre><span class="codetitle">e.g. javatry用のworkspaceディレクトリ @Directory</span><code>
+~/works
+    |-dbflute
+       |-eclipse-dbflute
+       |-workspace  <span class="comment">// 例えばここ</span>
+</code></pre>
 	<dl class="keymainlist">
 	</dl>
 	<h3 id="importproject">3. Eclipse/IntelliJなどでimport</h3>
@@ -142,11 +148,12 @@
 		Eclipse や IntelliJ などの IDE にて、git cloneされた javatry を import しましょう。
 	</p>
 	<p>
-		javatryは、Mavenと呼ばれるビルドツールで管理されています。利用しているIDEで、ビルド環境を有効にしましょう。
-		IDEのバージョンやエディションにも依りますが、自動的に解決されることも多いです。
+		(Eclipseの方は) メニューの File - Import... から Existing Projects into Workspace で clone したディレクトリを指定すればOKです。 
+		<span class="frm">(.projectがすでにgitにコミットされている状態なので)</span>
 	</p>
 	<p>
-		最初は、依存ライブラリを自動ダウンロードするので、少し時間がかかる可能性があります。
+		(IntelliJの方は) ImportよりもOpenの方が良いかと思います。IntelliJのバージョンにも寄るかもですが、Importだとハンズオンで用意している.ideaディレクトリが上書きされてしまうかもしれません。
+		<span class="frm">(でも、Importでやってしまった場合は、.ideaディレクトリの上書きされたファイルをgitから復元すれば大丈夫です)</span>
 	</p>
 	<h3 id="testtest">4. テストメソッドの実行で動作確認</h3>
 	<p>
@@ -157,36 +164,22 @@
 	<p>
 		実行してコンソールに "mystic" と出力されたら環境構築成功です。
 	</p>
-	<h3 id="yoursettings">option: 好みもあるけどオススメの設定</h3>
+	<h3 id="yoursettings">5. IDEの設定</h3>
 	<p>
 		IDE上の設定は任意ですが、オススメの設定を少し書いておきます。
 	</p>
-	<dl class="textlist">
-		<dt>Package Presentation の調整 <span class="frm">(Eclipseの場合)</span></dt>
-		<dd>
-			Eclipseのデフォルトは、Package Presentation が Flat
-			で、パッケージがたくさんあるプロジェクトだと、ずらーっと並んで見づらいと感じることがあります。
-			特にjavatryはパッケージ階層が多いので Hierarchical の方が扱いやすいかもしません。
-		</dd>
-		<dd>
-			Hierarchical に変更する場合は、(Javaパースペクティブの) パッケージエクスプローラの右上の下矢印っぽいマークの部分
-			(View Menu) から、Package Presentation の Hierarchical を選択します。
-		</dd>
-		<dt>エディターテンプレートを設定</dt>
-		<dd>
-			入れておくと何かと便利なコード補完のテンプレートを設定しましょう。
-		</dd>
-		<dd>
-			Eclipseの場合、Preferences の <em class="keyword">Java - Editor - Templates</em> を選択。
-			まず、既存のテンプレートをすべて選択して、Remove してください<span class="frm">(これをやらないと二重に登録される可能性あり)</span>。
-			そして、"Import..." にて <em class="smallmark">[javatryプロジェクト]/etc/tools/eclipse/java-editor-templates.xml</em> を取り込んでください。
-			コード書くときに色々と良いことがあります。
-		</dd>
-		<dd>
-			IntelliJ用のテンプレートも用意しています。<span class="frm">(Eclipseに比べて少ないですが...)</span>
-			<div class="relatedpage"><a href="../onjava8.html#intellij">さあ、補完してみよう！ - IntelliJ IDEA なら</a></div>
-		</dd>	
-	</dl>
+	<h4>Eclipseなら</h4>
+	<p>
+		Eclipseのおすすめワークスペース設定をやっておきましょう。<br>
+		<span class="frm">(特に補完テンプレートとパッケージの見た目表現はぜひ)</span> 
+	</p>
+	<div class="detailpage"><a href="../../manual/topic/friends/eclipse/environment/recomwork.html">Eclipseのおすすめワークスペース設定</a></div>
+	<h4>IntelliJなら</h4>
+	<p>
+		IntelliJ用の補完テンプレートも用意しています。<br>
+		<span class="frm">(Eclipseに比べて少ないですが...)</span>
+	</p>
+	<div class="detailpage"><a href="../onjava8.html#intellij">さあ、補完してみよう！ - IntelliJ IDEA なら</a></div>
 
 	<h2 id="howto">javatryの進め方</h2>
 	<h3 id="stepstep">Step01から進めていく</h3>
@@ -375,6 +368,12 @@ log(sea); <span class="comment">// your answer? =&gt; <span class="point">mystic
 		コーディングポリシーを用意していますので、意識しながら実装しましょう。
 	</p>
 	<div class="detailpage"><a href="../handson/review/codingpolicy.html">ハンズオンのコーディングポリシー</a></div>
+
+	<h2 id="jflutereview">jfluteレビュー</h2>
+	<p>
+		もし、jfluteのレビューを受ける方は、以下のページを必ずご覧ください。
+	</p>
+	<div class="detailpage"><a href="../handson/review/jflutereview.html">ハンズオンのjfluteレビュー</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">

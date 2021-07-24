@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipseのおすすめプロジェクト設定 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseのおすすめプロジェクト設定</h1>
+	<p>
+		jfluteおすすめの <em class="keyword">新しいプロジェクト作ったらやっておこう設定</em> を紹介します。
+	</p>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	<div class="relatedpage"><a href="./workproj.html">Eclipseのワークスペースとプロジェクト</a></div>
+	${indexlist}
+
+	<h2 id="properties">Propertiesの開き方</h2>
+	<p>
+		プロジェクト設定は、<em class="mark">Properties</em> という名前で設定画面が用意されています。
+	</p>
+	<p>
+		Propertiesの設定画面は、Package Explorer上のプロジェクトを選択して <em class="keyword">alt + enter</em> で開きます。
+	</p>
+	<div class="relatedpage"><a href="../shortcut/operationcut.html#setting">Eclipse, 操作系ショートカット - 設定周り</a></div>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ProjectProperties-open-by-shortcut.jpg" title="Eclipse ProjectProperties open-by-shortcut"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ProjectProperties-open-by-shortcut.jpg" alt="Eclipse ProjectProperties open-by-shortcut" width="550" height="360" /></a>
+	</p>
+	<p>
+		ここで設定された内容は、基本的に .settingsディレクトリに保存されます。
+	</p>
+
+	<h2 id="encodingline">エンコーディングと改行コードの固定化</h2>
+	<p>
+		テキストエンコーディングと改行コードをよく使う値 (UTF-8, LF) に固定化しましょう。
+		プロジェクト設定にすることで、複数人で開発していても同じ設定でテキストファイルを修正することができます。
+	</p>
+	<dl class="keymainlist">
+		<dt>テキストエンコーディング</dt><dd>Resource の Text file encoding を <em class="mark">UTF-8</em> に</dd>
+		<dt>(新規ファイルの)改行コード</dt><dd>Resource の New text file line delimiter を <em class="mark">Unix (LF)</em> に</dd>
+	</dl>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ProjectProperties-settings-encoding-line.png" title="Eclipse ProjectProperties settings encoding line"><img src="../../../../../data/model/friends/eclipse/operation/friends-Eclipse-ProjectProperties-settings-encoding-line.png" alt="Eclipse ProjectProperties settings encoding line" width="550" height="360" /></a>
+	</p>
+	<p>
+		Inherit from container は、ワークスペースの設定を引き継ぐというオプションで、デフォルトになっています。
+		ただ、ワークスペースの設定はOS環境や個人個人によって設定が変わってしまう可能性があります。
+		<span class="frm">(例えば、いまMacでUTF-8だとしても、Windowsの人だとMS932になります)</span>
+	</p>
+	<p>
+		なので同じ値だとしても気にせず、Other: でしっかりプロジェクト設定を明示します。
+	</p>
+
+	<h2 id="formatter">DBFluteスタイルのコードフォーマッター</h2>
+	<p>
+		Eclipseには、ソースコードを自動整形する機能(フォーマッター)が備わっています。
+	</p>
+	<div class="relatedpage"><a href="../coding/formatter.html">Eclipseコードフォーマッター</a></div>
+	<h3 id="dbflutestyle">DBFluteスタイルの紹介</h3>
+	<p>
+		ただ、Eclipseのデフォルトのフォーマット定義は使いづらいので、DBFluteが提供するフォーマット定義を入れましょう。
+		<span class="frm">(DBFluteスタイルと言ってもDBFluteの実装とは直接関係なく、どのプロジェクトでも利用できます)</span>
+	</p>
+	<ul>
+		<li>横幅はデフォルトの80文字を140文字に <span class="frm">(80は短すぎてすぐに改行されてしまう)</span></li>
+		<li>コメントの中はフォーマットしない <span class="frm">(コメントは自然言語なので定型的なフォーマットが向かない)</span></li>
+		<li>Stream APIなどで長いメソッドチェーンのときは縦に並ぶようにしている</li>
+		<li>などなど</li>
+	</ul>
+	<h3 id="importformat">フォーマット定義のImport</h3>
+	<p>
+		以下のURLから、DBFluteスタイルのフォーマット定義xmlをダウンロードしましょう。
+	</p>
+	<p>
+		<em class="mark"><a href="http://dbflute.seasar.org/download/misc/settings/dbflute-eclipse-code-formatter.zip">dbflute-eclipse-code-formatter.zip</a></em>
+	</p>
+	<p>
+		そして、プロジェクトの Properties の <em class="keyword">Java Code Style - Formatter</em> を開きます。
+	</p>
+	<p>
+		Enable project specific settings にチェックを付けて、Import... を押してフォーマット定義xmlを選択すると反映されます。
+		<span class="frm">(Active profile: に DBFlute Style と表示されていればOKです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-CodeFormatter-settings-import.png" title="Eclipse CodeFormatter settings import"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-CodeFormatter-settings-import.png" alt="Eclipse CodeFormatter settings import" width="550" height="360" /></a>
+	</p>
+	<h3 id="saveactions">保存すると自動フォーマットされるように</h3>
+	<p>
+		フォーマッターのショートカットを覚えている人も少ないので、ファイルが保存されたら (command+S 押されたら) 自動的にフォーマットされるようにしましょう。
+	</p>
+	<p>
+		今度は、プロジェクトの Properties の <em class="keyword">Java Editor - Save Actions</em> を開きます。
+	</p>
+	<p>
+		Enable project specific settings にチェックを付けて、Perform the selected actions on save にチェックを付けて、Format source code にチェックを付けます。
+		<span class="frm">(Format all lines の方を選択)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-CodeFormatter-settings-save-actions.png" title="Eclipse CodeFormatter settings save-actions"><img src="../../../../../data/model/friends/eclipse/coding/friends-Eclipse-CodeFormatter-settings-save-actions.png" alt="Eclipse CodeFormatter settings save-actions" width="550" height="360" /></a>
+	</p>
+	<p>
+		ついでですが、Organize imports にチェックを付けておきましょう。import文も保存時に自動的に整理整頓されるようになります。
+	</p>
+	<p>
+		これで、ApplyすればOKです。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="gitignore">.settings自体のgitignore設定</h2>
+		<p>
+			.settings配下のファイルは、通常gitのコミット対象になります。共有したい設定なので修正が入ればそのままコミットしましょう。
+		</p>
+		<p>
+			ただ、.settingsの中には、プラグインが自動で出力しながらも個々のPC環境によって内容が若干変わる(ちょい残念な)設定ファイルが混じることがあります。
+		</p>
+		<p>
+			なので、.settingsディレクトリ配下に、お決まりの.gitignoreを置いています。
+		</p>
+<pre><span class="codetitle">e.g. .settingsディレクトリの.gitignoreファイル @Directory</span><code>
+.settings
+ |-<span class="point">.gitignore</span>
+ |-org.eclipse.core.resources.prefs
+ |-org.eclipse.core.runtime.prefs
+ |-<span class="abbreviation">...</span>
+</code></pre>
+<pre><span class="codetitle">e.g. .settingsディレクトリの.gitignore設定 @Config</span><code>
+.jsdtscope
+org.eclipse.wst.*
+org.eclipse.m2e.core.prefs
+org.eclipse.buildship.core.prefs
+</code></pre>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

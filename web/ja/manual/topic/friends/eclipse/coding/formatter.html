@@ -33,18 +33,20 @@
 	</p>
 	<h3 id="formattingwayintro">フォーマットの仕方を少し紹介</h3>
 	<p>
-		Javaエディタ上で "ctrl + shift + F" と押すとフォーマッターを利用できます。
+		Javaエディタ上で (Macなら) "shift + command + F" と押すとフォーマッターを利用できます。
 	</p>
 	<p>
 		ですが、Save Actions の設定がされていれば、保存ボタン (command+S) を押すだけでフォーマットされるようにもできます。
-		<span class="frm">(フォーマットはみなで統一的にやってこそ意義があるので、こちらがオススメ)</span>
+		フォーマットはみなで統一的にやってこそ意義があるので、こちらがオススメです。
+		<span class="frm">(ショートカットを手に馴染ませてる人も少ないでしょうし)</span>
 	</p>
 	<h3 id="projectsettings">プロジェクト設定なので共有できる</h3>
 	<p>
 		プロジェクト設定 (Properties: .settingsディレクトリ) に組み込むことができるので、最初の一人が設定すれば他の開発者が設定する必要はなく、共通の設定を簡単に横展開できます。
 	</p>
 	<p>
-		ただ、ワークスペース設定 (Preferences: .metadataディレクトリ) にも設定があり紛らわしいので注意しましょう。
+		ただ、ワークスペース設定 (Preferences: .metadataディレクトリ) にもフォーマッター設定があり紛らわしいので注意しましょう。
+		<span class="frm">(ワークスペース設定だと共有ができず、フォーマット定義の統一が崩れやすいので、プロジェクト設定を使うのがオススメです)</span>
 	</p>
 
 	<h2 id="overview">フォーマッターの概要</h2>
@@ -62,9 +64,9 @@
 }
 </code></pre>
 	<p>
-		Javaエディタ上で "ctrl + shift + F" と押すとフォーマッターを利用できます。
+		Javaエディタ上で (Macなら) "shift + command + F" と押すとフォーマッターを利用できます。
 	</p>
-	<div class="relatedpage"><a href="./shortcut/codejustcut.html#look">コード調整ショートカット - 見た目周り</a></div>
+	<div class="relatedpage"><a href="../shortcut/codejustcut.html#look">Eclipse, コード調整ショートカット - 見た目周り</a></div>
 	<p>
 		ただし、Eclipseのデフォルトのフォーマット定義はプロジェクトによっては若干利用しづらいものである可能性があります。
 		具体的には以下の通りです。
@@ -74,8 +76,9 @@
 		<li>コメントの中までフォーマットされてしまう</li>
 	</ul>
 	<p>
-		そのため、独自のフォーマット定義を用意した方が利用しやすいことがあります。
+		そのため、独自のフォーマット定義を用意した方が利用しやすいでしょう。
 	</p>
+	<div class="relatedpage"><a href="../environment/recomproj.html#formatter">Eclipseのおすすめプロジェクト設定 - DBFluteスタイルのコードフォーマッター</a></div>
 
 	<h2 id="setting">フォーマット定義の設定</h2>
 	<p>
@@ -83,9 +86,9 @@
 		[Java Code Style] - [Formatter] において [Enable project specific settings]
 		をチェックし、Editボタンを押すと独自のフォーマット定義を細かく設定できます。
 	</p>
-	<div class="relatedpage"><a href="./shortcut/operationcut.html#setting">操作ショートカット - 設定周り</a></div>
+	<div class="relatedpage"><a href="../shortcut/operationcut.html#setting">Eclipse, 操作ショートカット - 設定周り</a></div>
 	<p>
-		例えば DBFlute では、横幅を 120 文字に、コメント内のフォーマットを OFF にしています。
+		例えば DBFlute では、横幅を 140 文字に、コメント内のフォーマットを OFF にしています。
 	</p>
 	<p>
 		フォーマット定義は、プロジェクト直下の .setting
@@ -95,19 +98,17 @@
 	<h2 id="import">フォーマット定義のインポート</h2>
 	<p>
 		フォーマット定義をXMLファイルにエクスポートし、別のEclipseプロジェクトでインポートすることができます。フォーマット定義は .setting
-		ディレクトリに保存されるので、他のディベロッパーと共有したい場合はSVN経由で可能ですが、
+		ディレクトリに保存されるので、他のディベロッパーと共有したい場合はGit経由で可能ですが、
 		別の開発プロジェクトなどで共有したい場合は、このXMLへのエクスポート、インポート機能が利用できるでしょう。
 	</p>
 	<p>
-		例えば、DBFluteで利用しているフォーマット定義は以下からダウンロードできます。
+		例えば、おすすめプロジェクト設定では、DBFluteスタイルのフォーマット定義xmlを公開して誰でもダウンロード利用できるようにしています。
 	</p>
-	<p>
-		<a href="http://dbflute.seasar.org/download/misc/settings/dbflute-eclipse-code-formatter.zip">dbflute-eclipse-code-formatter.zip</a>
-	</p>
+	<div class="relatedpage"><a href="../environment/recomproj.html#formatter">Eclipseのおすすめプロジェクト設定 - DBFluteスタイルのコードフォーマッター</a></div>
 
-	<h2 id="formattersaveaction">保管時アクションへの関連付け</h2>
+	<h2 id="formattersaveaction">保存時アクションへの関連付け</h2>
 	<p>
-		ファイルを保存(ctrl + S)した時に、自動でフォーマットされるように設定できます。
+		ファイルを保存 (ctrl + S) した時に、自動でフォーマットされるように設定できます。
 		そうすることで、プロジェクト全体でフォーマッターの利用を統一化することができます。
 	</p>
 	<p>
@@ -119,7 +120,7 @@
 		ついでではありますが、[Organize imports] にもチェックしておくと(デフォルトでチェックがついている可能性あり)、
 		"インポートの編成" も同様に保存時に自動で実行されるようになります。
 	</p>
-	<div class="relatedpage"><a href="./shortcut/codejustcut.html#code">コード調整ショートカット - コード調整周り</a></div>
+	<div class="relatedpage"><a href="../shortcut/codejustcut.html#code">Eclipse, コード調整ショートカット - コード調整周り</a></div>
 	<p>
 		この保管時アクションの設定自体も、.settings ディレクトリに保存されるので、Git経由で共有することができます。
 	</p>

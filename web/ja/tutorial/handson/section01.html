@@ -46,119 +46,76 @@
 	</dl>
 	<h3 id="jflutereview">jfluteによるレビューのこと</h3>
 	<p>
-		jfluteにレビューしてもらう方は、こちらをお読みください。
+		jfluteにレビューしてもらう方は、こちらを必ず読んでおいてください。
 	</p>
 	<div class="detailpage"><a href="./review/jflutereview.html">ハンズオンのjfluteレビュー</a></div>
 
 	<h2 id="firstenv">前提環境</h2>
 	<h3 id="jdk">JDKのインストール <span class="frm">(もし、なければ)</span></h3>
 	<p>
-		(Java8以上の) JDKをインストールしてください。
-	</p>
-	<p>
+		Java8以上の JDK をインストールしてください。
 		Javaの開発をするには、JRE (実行環境) ではなく JDK (開発環境) が必要です。
 	</p>
 	<h3 id="maven">Mavenのインストール <span class="frm">(もし、なければ)</span></h3>
 	<p>
-		Maven がインストールしてください。
-	</p>
-	<p>
-		コマンドラインで mvn が利用できる状態にしましょう<span class="frm">(WindowsならPathの設定なども忘れずに)</span>。
+		Maven をインストールしてください。コマンドラインで mvn が利用できる状態にしましょう。
 	</p>
 	<p>
 		DBFluteハンズオンでは、Eclipseを使う場合に maven-eclipse-plugin を使って連携することを想定してます。
 		勉強のためにあえてシンプルなやり方を採用しています。IntelliJなら...不要かもしれません。
 	</p>
-	<h3 id="eclipse">Eclipseの準備 <span class="frm">(もし、Eclipseを使うなら)</span></h3>
+	<h3 id="ide">IDE, Eclipse/IntelliJの用意</h3>
 	<p>
-		Eclipse-4.6 以上を用意してください。
+		Eclipseの場合、エディションは Eclipse IDE for Java Developers がオススメです。
 	</p>
 	<p>
-		<span class="frm">※幾つかの専用の Eclipse プラグインをインストールするため、ハンズオン専用の Eclipse を用意することが推奨</span>
-	</p>
-	<h3 id="intellij">IntelliJなら？</h3>
-	<p>
-		もともと、Eclipseを前提に作られたハンズオンなので、ところどころで "IntelliJだと違うな"
-		というポイントがあるかと思いますが、そこはいい感じに空気を読んでください。IntelliJでも問題なくハンズオンは進められます。
+		IntelliJの場合、特にオススメのエディションはありません。
 	</p>
 
 	<h2 id="prepare">環境準備</h2>
 	<h3 id="workspace">workspaceの作成</h3>
 	<p>
-		新規でハンズオン専用のworkspaceを任意の場所に作成してください。
-		<span class="frm">(workspaceは、DBFluteハンズオン作業用のディレクトリと考えてOKです。後のcloneするプロジェクトをここに配置する想定です)</span>
+		新規でworkspaceディレクトリを任意の場所に作成してください。
+		<span class="frm">(後にgit cloneする場所です)</span>
 	</p>
-<pre><span class="codetitle">e.g. DBFluteハンズオン用のワークスペース @Directory</span><code>
-<span class="comment">// Windowsなら</span>
-C:\projects
-    |-dbflute
-       |-eclipse-dbflute
-       |-workspace  <span class="comment">// 例えばここ (場所は任意)</span>
-
-<span class="comment">// MacOSXなら</span>
+	<p>
+		場所は任意ではありますが、「どこにcloneしたか忘れてしまった」にならないようにしましょう。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteハンズオン用のworkspaceディレクトリ @Directory</span><code>
 ~/works
     |-dbflute
        |-eclipse-dbflute
-       |-workspace  <span class="comment">// 例えばここ (場所は任意)</span>
+       |-workspace  <span class="comment">// 例えばここ</span>
 </code></pre>
 	<p>
-		あらかじめディレクトリを作成しておきましょう。
+		(Eclipseの方は) Eclipseを起動するときにそのworkspaceディレクトリを選んでください。
+		起動直後に別のワークスペースが開いてしまう場合は、メニューの "File" - "Switch Workspace" からワークスペースを切り替えてください。
 	</p>
-	<h4 id="booteclipse">Eclipseで起動しておきましょう <span class="frm">(if Eclipse)</span></h4>
+	<h3 id="cloneimport">プロジェクトのcloneとimport</h3>
+	<h4 id="gitclone">workspace に git clone</h4>
 	<p>
-		もし Eclipse なら、 Eclipseを起動してそのディレクトリ (workspace)
-		を選んでください。起動直後に別の workspace が開いてしまう場合は、メニューの
-		"File" - "Switch Workspace" から workspace を切り替えてください。
-		workspaceの設定もハンズオンで変更するので、独立した workspace が推奨されます。
-		この時点ではプロジェクトは一つもなく空っぽの workspace となっています。
+		先ほど作った workspaceディレクトリ配下に git clone しましょう。
 	</p>
-	<p>
-		Eclipseのworkspaceで利用するJavaは、JREではなくJDKです。
-		Preferences の Installed JREs で、JDKになっているか確認しましょう。JREになっている場合はそこで調整できます。
-	</p>
-	<h3 id="clone">プロジェクトのclone</h3>
 	<dl class="longvaluemainlist">
 		<dt>GITリポジトリ</dt><dd>https://github.com/dbflute-session/dbflute-hands-on.git</dd>
 		<dt>プロジェクト</dt><dd>dbflute-hands-on</dd>
 	</dl>
 	<p>
-		<em class="keyword">※社内で別途 "gitリポジトリ" が用意されている場合は、そちらを利用してください。</em>
-	</p>
-	<p>
+		【注意】もし社内でDBFluteハンズオン用の "gitリポジトリ" が用意されている場合は、そちらを利用してください。
 		<span class="frm">(用意されているかどうかわからない場合は、近くの人に聞いてみてください)</span>
 	</p>
-	<h4 id="egitflow">もし、EGitのときの参考手順 <span class="frm">(if Eclipse)</span></h4>
+	<h4 id="ideimport">IDE にて import</h4>
 	<p>
-		EGit (GitクライアントのEclipseプラグイン) を使う場合は、このようになります。
+		そして、EclipseやIntelliJなどで、プロジェクトとしてimport (open) しましょう。
 	</p>
-	<ol>
-		<li>Preferences の Team - Git - Configuration にて autocrlf が "もし" true になら false に</li>
-		<li><em class="keyword">Gitリポジトリエクスプローラー</em>にてリポジトリのクローン (ユーザー・パスワードなし)</li>
-		<li><em class="keyword">Working Directory</em> を選択して右クリック <em class="keyword">Import Projects...</em></li>
-		<li><em class="keyword">Import as general project</em> を選択して Next, そして次も Finish でおしまい</li>
-	</ol>
 	<p>
-		<span class="frm">(<em class="keyword">dbflute-hands-on</em> を選択して右クリック、ってのが大事...あとその後、<em class="keyword">general project</em> ってのがポイント。一方で、もし社内のひな形で <em class="keyword">.project</em> が含まれている場合は、general ではなく <em class="keyword">Import existing project</em> を選択)</span>
+		(Eclipseの方は) メニューの File - Import... から Existing Projects into Workspace で clone したディレクトリを指定すればOKです。 
+		<span class="frm">(.projectがすでにgitにコミットされている状態なので)</span>
 	</p>
-	<div class="inucolumn">
-		<h3 id="gitmaster">もし、社内でひな形が用意されてる場合は...</h3>
-		<p>
-			すでに社内でひな形が用意されてる場合は、そちらを clone してください。
-		</p>
-		<p>
-			チームでハンズオンを行っていく場合は、社内のGitに hands-on
-			なるリポジトリを用意して、master
-			ブランチにプロジェクトのひな形をコミットしておいて、各人masterをもとにそれぞれのブランチを作ってハンズオンを進めていくという形がオススメです。
-		</p>
-		<p>
-			したら、コミットも自由にできてバックアップになりますし、フォローワーがレビューもしやすくなります。
-			各人が、別のPCでハンズオンの続きをやるってこともやりやすくなります。
-		</p>
-		<p>
-			実際に jflute は、コミットされたハンズオンのコードをレビューして、
-			todo形式でレビューコメントを入れてコミットして、実装者に修正してもらってまたこっちで確認して、というような運用でハンズオンを通してプログラミングのフォローを行っています。
-		</p>
-	</div>
+	<p>
+		(IntelliJの方は) ImportよりもOpenの方が良いかと思います。IntelliJのバージョンにも寄るかもですが、Importだとハンズオンで用意している.ideaディレクトリが上書きされてしまうかもしれません。
+		<span class="frm">(でも、Importでやってしまった場合は、.ideaディレクトリの上書きされたファイルをgitから復元すれば大丈夫です)</span>
+	</p>
 	<h3 id="mysql">MySQLのセットアップ</h3>
 	<p>
 		ハンズオンでは、3306ポートのMySQLではなく、専用のMySQLインスタンスを起動して利用します。
@@ -211,288 +168,100 @@ PROJECT_ROOT
 	</p>
 	<h3 id="eclipseplugin">Eclipseプラグインのセットアップ <span class="frm">(if Eclipse)</span></h3>
 	<p>
-		以下のEclipseプラグインをそれぞれインストールしてください。
+		(Eclipseの方は) 以下のEclipseプラグインをそれぞれインストールしてください。
 	</p>
+	<div class="relatedpage"><a href="../../manual/function/friends/eclipse/plugins/index.html#pluginstall">Eclipseプラグインのインストール</a></div>
 	<dl class="textlist">
 		<dt>EMecha</dt>
 		<dd>
 			DBFluteライフを支援するプラグイン
 		</dd>
-		<dd></dd>
 		<dd>
-			<em class="keyword">Java8</em> なら、DBFlute-EMecha.zip を解凍し、Eclipse の dropinsディレクトリ配下に配置:
+			以下から DBFlute-EMecha.zip を解凍し、Eclipse の dropinsディレクトリ配下に配置します。
 			<a href="https://github.com/dbflute-emecha/dbflute-emecha-eclipse/releases">https://github.com/dbflute-emecha/dbflute-emecha-eclipse/releases</a>
-		</dd>
-		<dd>
-			<em class="keyword">Java6,7</em> なら、更新サイトからインストール: <em class="keyword">http://eclipse.seasar.org/updates/3.3</em>
-		</dd>
-		<dd>
 			<div class="relatedpage"><a href="../../manual/function/helper/emecha/index.html">EMechaプラグイン</a></div>
 		</dd>
 		<dt>Quick JUnit</dt>
 		<dd>JUnitを使う際のちょっとした便利プラグイン</dd>
-		<dd>更新サイトURL: <em class="keyword">http://quick-junit.sourceforge.jp/updates/current</em></dd>
-		<dd>Help - Install New Software から更新サイトURLを指定してインストール。</dd>
+		<dd>
+			Help - Eclipse Marketplace...から Quick JUnit を検索してインストールします。
+		</dd>
 	</dl>
 
 	<h2 id="project">プロジェクトのセットアップ</h2>
 	<h3 id="makepomxml">pom.xmlの作成</h3>
 	<p>
-		Maven の設定ファイルである pom.xml を作成します。さすがに、0から作るのは大変なので、ハンズオンでひな形を用意しています。
-		<em class="smallmark">tutorial/material/eclipse/prototype-pom.xml</em> を、プロジェクト直下に <em class="mark">pom.xml</em>
-		という名前でコピーしましょう。ちなみに、pom.xml やその他幾つかのリソースは gitignore 設定となっています。
+		Maven の設定ファイルである pom.xml を作成します。
+	</p>
+	<div class="relatedpage"><a href="../../manual/topic/friends/maven/index.html#mavenrole">Maven補足資料 - Mavenの役割</a></div>
+	<p>
+		さすがに0から作るのは大変なので、ハンズオンでひな形を用意しています。
+		<em class="smallmark">tutorial/material/eclipse/prototype-pom.xml</em> をコピーして、dbflute-hands-onプロジェクト直下に <em class="mark">pom.xml</em>
+		という名前で配置しましょう。
 	</p>
 	<p>
-		pom.xmlの中身を覗いてみましょう。どんな依存ライブラリがあるのか？など把握しておくと良いでしょう。
-		もし、依存ライブラリのバージョンが古ければ、ここで最新にしても良いでしょう。
+		pom.xmlを中身を軽く覗いてみましょう。ハンズオンに限らず自分が開発するプロジェクトにどのような依存ライブラリがあるのか把握しておくのは大切です。
 	</p>
-	<p>
-		ちなみに、pom.xmlって、こんな役割のものです。
-	</p>
-<pre><span class="codetitle">e.g. pom.xml concept model @Model</span><code>
-                  Java API (Stringとか) ←こいつだけじゃ足りない！
-  E                
-  c      ... <--(Download) sea-1.1.jar -> mystic-2.1.jar -> hangar-0.8.jar
-  l  M                         ↓       -> bigband-3.4.jar
-  i  2                     sea-1.5.jar -> mystic-2.4.jar -> hangar-1.7.jar
-  p  E-(直参照)-+                       -> bigband-3.7.jar -> piari-1.3.jar
-  s          +-+
-  e          |   あ  o     land-3.2.jar -> oneman-1.8.jar -> bigband-3.5.jar
-  ↓          |   ぷ /|\
-.classpath   |   り /\     piari-1.0.jar -> dstore-2.0.jar -> oneman-2.5.jar
-  ↑          +-↓
-  |           <<< pom.xml >>> ← sea と land と piari が欲しいぞと書いてある
-  |                   ↑
-  |                  M a v e n   ------------------+
-  +-(自動生成)--   (eclipse-plugin)                 ↓↓
-                                                Mavenセントラルサーバー
-                                                +------------------+
-                                                | sea.jar pom.xml  |
-                                                | land.jar pom.xml |
-                                                +------------------+
-</code></pre>
 	<h3 id="makeproject">プロジェクトの作成</h3>
-	<h4>もし、Eclipse なら</h4>
+	<h4>Eclipse なら</h4>
 	<p>
-		Eclipseの場合は、script 配下の maven-eclipse.bat|sh を実行し、コンソールのログを見て正常終了が確認できたらEclipse上でプロジェクトをリフレッシュ(F5)してください。
+		(Eclipseの方は) scriptディレクトリ配下の <em class="smallmark">maven-eclipse.bat|sh</em> を実行し、コンソールのログを見て正常終了が確認できたらEclipse上でプロジェクトをリフレッシュ(F5)してください。
 	</p>
 	<p>
-		すると、そのプロジェクトが Maven 管理された Java プロジェクトになり、既に存在している UnitContainerTestCase がコンパイルされます。
-		ただし、この時点ではコンパイルエラーになっているはずです。コンパイルエラーで正常です。
+		<span class="frm">※ちなみに、この時点では maven-eclipse.bat|sh の "call dbflute_maihamadb/manage.bat refresh"
+		において、そんなコマンドはないとエラーが発生しますが、Mavenのコマンドさえ成功していればOKです。</span>
 	</p>
 	<p>
-		<span class="frm">(ちなみに、この時点では、maven-eclipse.bat|sh の "call dbflute_maihamadb/manage.bat refresh"
-		において、そんなコマンドはないとエラーが発生しますが、Mavenのコマンドさえ成功していればOKです)</span>
+		すると、MavenとEclipseを連携させるためのファイル(.project, .classpath)が自動生成され、Eclipseがコンパイルし始めます。
+		そのプロジェクトが Maven 管理された Java プロジェクトになり、既に存在している UnitContainerTestCase がコンパイルエラーになるはずです。<span class="frm">(コンパイルエラーで正常です)</span>
 	</p>
-	<h4>もし、IntelliJ なら</h4>
+	<h4>IntelliJ なら</h4>
 	<p>
-		IntelliJの場合は、pom.xmlを指定してMavenプロジェクトとしてimportしてください。
+		(IntelliJの方は) pom.xmlを指定してMavenプロジェクトとしてimportしてください。
 	</p>
-	<h3 id="workprojdiff">workspaceの設定とプロジェクトの設定</h3>
-	<h4>もし、Eclipse なら</h4>
+	<h3 id="workprojdiff">ワークスペース設定とプロジェクト設定 <span class="frm">(if Eclipse)</span></h3>
 	<p>
-		workspace は、そのローカルPCの workspace ディレクトリのEclipse設定と考えてよいでしょう。
-		これらは Git 管理にはなりません(しません)ので、他の人と共有されません。
-		個人設定と捉えることもできますが、他の人と共有したくなるようなものもあるのがジレンマです。
+		(Eclipseの方は) ワークスペース設定とプロジェクト設定の違いを理解しておいてください。
 	</p>
-	<p>
-		一方で、プロジェクトの設定は、プロジェクト直下の.settingsディレクトリに保存されます。
-		Git管理にすることができるので、他の人と共有できます。つまり、最初のひとりがやっておけば、他の人はやる必要がありません。
-		強制力があるのはこちらです。
-	</p>
-	<p>
-		さて、<em class="smallmark">#workspace</em> であれば workspace の設定、<em class="smallmark">#project</em> であればプロジェクトの設定、
-		いずれにせよハンズオンの環境としては最初ですから、どちらも必要です。ですが、その違いを意識しながら設定していきましょう。
-		他の人がこのプロジェクトを参照するとき、共有されるものとされないものがあるわけです。
-	</p>
-	<p>
-		DBFluteハンズオンでは、それらの設定をすること自体もエクササイズです。
-		自分で別の環境を作るときには必要ですから、内容を把握しながら設定していきましょう。
-	</p>
-	<h4>もし、IntelliJ なら</h4>
-	<p>
-		IntelliJの場合は、.idea ディレクトリの中にworkspaceの設定とプロジェクトの設定が混在しています。
-		ハンズオンでは、DBFluteを使う際に設定されておいたほうが良い IntelliJ
-		のオプションがすでにコミットされていますので、ハンズオンではそれが有効になっています。
-		<span class="frm">(逆に、そのへんの設定をするエクササイズはありません)</span>
-	</p>
-	<h3 id="encoding">エンコーディングの調整 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace #project</span></h3>
-	<p>
-		プロジェクトのエンコーディングを UTF-8 にしてください。プロジェクトを選択して、"alt + enter"
-		すると、プロジェクトの設定画面が開きますので、Resource の "Text file encoding" で UTF-8
-		を指定。また、改行コードをLFに統一したいので、"line delimiter" で Unix を指定。
-	</p>
-	<p>
-		また、参照ライブラリのJavaDocコメントなどが UTF-8 であることが多いため、ワークスペースのエンコーディングも
-		UTF-8 にします。メニューの Window - Preferences の <em class="keyword">General - Workspace</em>
-		にて同じ要領で設定できます。(Mac なら メニューの Eclipse - 環境設定...)
-	</p>
-	<p>
-		Windows なら流れるように <em class="keyword">alt -&gt; W -&gt; P</em> を押せば、Macなら <em class="keyword">command + , (カンマ)</em>
-		を押せば Preferences を開けます。<span class="frm">(この後、何度も開きますので...)</span>
-	</p>
-	<h3 id="linecolor">行番号の表示、背景色の設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
-	<p>
-		Preferences の <em class="keyword">General - Editors - Text Editors</em> を選択。
-		ここでは、テキストエディターに関する様々な調整ができます。
-	</p>
-	<p>
-		行番号は必ず表示しておきましょう。スタックトレースやログなどからソースコードを追うために行番号は頻繁に利用します。"Show line numbers"
-		にチェックを入れます。また、Background color で好きな背景色を設定するととても落ち着くでしょう。
-	</p>
-	<h3 id="typefilters">Type Filters を設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
-	<p>
-		Preferences の <em class="keyword">Java - Appearance - Type Filters</em> を選択。ここでは、クラス型の補完で "表示させたくない"
-		パッケージやクラスを定義することができます。
-	</p>
-	<p>
-		例えば java.util.List は、毎度毎度 "java.awt.Listとどっちを選ぶ？"
-		と聞かれてしまいます。Type Filters にて "java.awt.*" と設定すれば、そんなことはもう聞かれません。
-		もう、絶対に使わないのにも関わらず、わりとよく出てくる紛らわしいものを設定しておくと良いでしょう。 
-	</p>
-	<dl class="keymainlist">
-		<dt>java.awt.*</dt><dd>awtパッケージを使うことは今の開発ではまずない</dd>
-		<dt>com.sun.*</dt><dd>sunパッケージのクラスを使うことはほとんどない</dd>
-		<dt>sun.*</dt><dd>sunパッケージが意外と紛らわしい!?</dd>
-		<dt>java.sql.Date</dt><dd>業務のプログラムでjava.sql.Dateを使うことはまずない</dd>
+	<dl class="valuemainlist">
+		<dt>読み物エクササイズ</dt><dd><a href="../../manual/topic/friends/eclipse/environment/workproj.html">Eclipseのワークスペースとプロジェクト</a></dd>
 	</dl>
 	<p>
-		また、ハンズオンでは MySQL を利用しますが、MySQLのJDBCドライバのLogクラスが、commons-logging
-		のLogクラス補完時に紛れるので、com.mysql.jdbc.log.* も除外しておくと良いでしょう。
+		DBFluteハンズオンでは、IDE設定もエクササイズのひとつです。自分で別の環境を作るときには必要ですから、内容を把握しながら設定していきましょう。
 	</p>
-	<dl class="keymainlist">
-		<dt>com.mysql.jdbc.log.*</dt><dd>MySQLのJDBCドライバのLogクラスを使うことはまずない</dd>
+	<h3 id="workprojdiff">.ideaディレクトリでの設定共有は？ <span class="frm">(if IntelliJ)</span></h3>
+	<p>
+		(IntelliJの方は) DBFluteハンズオンで用意されている .ideaディレクトリを把握しておいてください。
+	</p>
+	<dl class="valuemainlist">
+		<dt>読み物エクササイズ</dt><dd><a href="../../manual/topic/friends/intellij/index.html">Friends - IntelliJ</a></dd>
 	</dl>
 	<p>
-		さらにアドリブで、こちらも外しちゃってもいいかと思います。
+		.idea ディレクトリの中にワークスペースの設定とプロジェクトの設定が混在しています。
+		ハンズオンでは、DBFluteを使う際に設定されておいたほうが良い IntelliJ のオプションがすでにコミットされていて有効になっています。
+		<span class="frm">(なので設定エクササイズはありませんが、知っておくことは大事です)</span>
 	</p>
-	<dl class="keymainlist">
-		<dt>java.lang.StringBuffer</dt><dd>文字列連結を同期化する必要性はほぼない、StringBuilder でOK</dd>
-		<dt>java.util.Calendar</dt><dd>少なくともハンズオンでは HandyDate を使ってください</dd>
+	<h3 id="recomwork">ハンズオンのワークスペース設定 <span class="frm">(if Eclipse)</span></h3>
+	<p>
+		(Eclipseの方は) 以下のページのおすすめワークスペース設定を反映していってください。<br>
+	</p>
+	<dl class="valuemainlist">
+		<dt>設定エクササイズ</dt><dd><a href="../../manual/topic/friends/eclipse/environment/recomwork.html">Eclipseのおすすめワークスペース設定</a></dd>
 	</dl>
 	<p>
-		キリがないのでこの辺にしておきますが、つどつど気付いたときに登録していくと良いでしょう。
+		少々手間がありますが、Eclipseの環境構築の勉強と思いながら設定してましょう。
+		特にDBFluteの補完テンプレートとパッケージの見た目表現は、DBFluteを使うときの重要な設定となります。
 	</p>
+	<h3 id="recomwork">ハンズオンのプロジェクト設定 <span class="frm">(if Eclipse)</span></h3>
 	<p>
-		IntelliJでやられている方でも、似たような機能があると思われるので試してみてください。
+		(Eclipseの方は) 以下のページのおすすめプロジェクト設定を反映していってください。<br>
 	</p>
-	<h3 id="mavensources">Maven の Sources の設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
-	<p>
-		Maven で管理されたライブラリのソースコードは、デフォルトではダウンロードされず関連付けもない状態である可能性があります。
-		すると、ソースコードが見られないだけでなく、パラメーターの補完などで変数名が arg0 とかになってしまうことがあります。
-	</p>
-	<p>
-		Preferences の Maven にて、Download Artifact Sources のチェックが外れていたらチェックを付けます。
-		そして、maven-eclipse.bat(sh) をもう一度叩いて、プロジェクトをF5してみましょう。
-	</p>
-	<h3 id="hierarchical">Package Presentation の調整 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
-	<p>
-		これは好みによるので任意ですが、特にFlat形式にこだわりがなければやってみましょう。
-	</p>
-	<p>
-		Eclipse のデフォルトは、Package Presentation が Flat
-		で、パッケージがたくさんあるプロジェクトだと、ずらーっと並んで見づらいと感じることがあります。
-		特にDBFluteで自動生成されるクラスは、パッケージをたくさん持っているので Hierarchical の方が扱いやすくなります。
-	</p>
-	<p>
-		Hierarchical に変更する場合は、(Java パースペクティブの)パッケージエクスプローラの右上の下矢印っぽいマークの部分 (View Menu)
-		から、Package Presentation の Hierarchical を選択します。
-	</p>
-	<p>
-		この時点では、"わからない人はまだよくわからない" と思われるので、この後DBFluteのクラスを自動生成した後に試してみると良いでしょう。
-	</p>
-	<div class="relatedpage"><a href="#generate">this - Generateタスクの実行</a></div>
-	<h3 id="editortemplates">エディターテンプレートを設定 <span class="frm">#workspace</span></h3>
-	<p>
-		DBFlute固有のコード補完のテンプレートを設定しましょう。
-	</p>
-	<h4>もし、Eclipse なら</h4>
-	<p>
-		Preferences の <em class="keyword">Java - Editor - Templates</em> を選択。
-		まず、既存のテンプレートをすべて選択して、Remove してください<span class="frm">(これをやらないと二重に登録される可能性あり)</span>。
-		そして、"Import..." にて <em class="smallmark">tutorial/material/eclipse/java-editor-templates.xml</em> を取り込んでください。
-		コード書くときに色々と良いことがあります。
-	</p>
-	<div class="relatedpage"><a href="../onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
-	<h4>もし、IntelliJ なら</h4>
-	<p>
-		IntelliJ用のテンプレートも用意しています。<span class="frm">(Eclipseに比べて少ないですが...)</span>
-	</p>
-	<div class="relatedpage"><a href="../onjava8.html#intellij">さあ、補完してみよう！ - IntelliJ IDEA なら</a></div>
-	<h3 id="miscsettings">その他いろいろworksace設定 <span class="frm">(if Eclipse)</span> <span class="frm">#workspace</span></h3>
-	<p>
-		好みもありますが、その他やっておくと良いだろうという設定を記しておきます。
-	</p>
-	<dl class="textlist">
-		<dt>ドット "." 始まりのファイルが見えるように</dt>
-		<dd>
-			デフォルトではドット "." で始まるファイルは見えないようになっているので、パッケージエクスプローラのフィルタの設定で一時的に見えるようにします。
-			(Java パースペクティブの)パッケージエクスプローラの右上の下矢印っぽいマークの部分 (View Menu) から Filters
-			を選択すると、フィルタ対象の設定が調整できます。".* resource" のチェックを外すと "." で始まるファイルが見るようになります。
-		</dd>
-		<dt>ctrl + H のカスタマイズ</dt>
-		<dd>
-			File Search だけにする。ほぼ File Search しか使わないのに、Java Search がデフォルトになるため。
-		</dd>
-		<dd>
-			プロジェクトを選択して、ctrl+Hを押すと、検索ダイアログが表示されます。左下の "Customize..." で File Search だけチェック。
-		</dd>
-		<dt>ctrl + F のカスタマイズ</dt>
-		<dd>
-			インクリメンタルサーチを有効に。便利なので。<span class="frm">(普段、ctrl+Jを使っている人はあまり気にしないかもですが)</span>
-		</dd>
-		<dd>
-			何かしらテキストファイルを開いて、ctrl+Fを押すと検索ダイアログが表示されます。
-			そこで Incremental にチェックを付ける。(その後、キャンセルしても、記憶されます)
-		</dd>
-		<dt>ツールバーの整理</dt>
-		<dd>
-			ツールバーの不要な要素を除去。多いと二行になってコード領域が狭くなるため。ツールバーで右クリック "Customize Perspective..."
-			の Tool Bar Visibility にて、Launch 以外はチェックを外す(but ここは好みで)。
-		</dd>
-		<dt>コンソールのバッファサイズ</dt>
-		<dd>
-			大きな処理だとログがあっという間に最初の方のログが切れてしまうので、Preferences の Run/Debug - Console 
-			の "Console buffer size" を 800000 (八十万) に。
-		</dd>
-		<dt>ビューの配置</dt>
-		<dd>
-			利用しているPCの画面の大きさに合わせて、いい感じに調整。Problems を Fast View (Minimize)
-			にしたりなど。通常は横長で縦が短いディスプレイが多いので、コードができるだけ縦に見通せるようにするといいでしょう。
-		</dd>
+	<dl class="valuemainlist">
+		<dt>設定エクササイズ</dt><dd><a href="../../manual/topic/friends/eclipse/environment/recomproj.html">Eclipseのおすすめプロジェクト設定</a></dd>
 	</dl>
-	<h3 id="formatter">フォーマッターのインポート <span class="frm">(if Eclipse)</span> <span class="frm">#project</span></h3>
 	<p>
-		Eclipseには、コードをフォーマットする機能があります。
+		DBFluteハンズオンをgitにコミットして共有される方は、レビューワーの環境でも同じ挙動になるようにするために、.settingsディレクトリも忘れずにコミットしましょう
 	</p>
-	<div class="relatedpage"><a href="../../manual/topic/friends/eclipse/formatter.html">Eclipse - コードフォーマッター</a></div>
-	<p>
-		ただ、Eclipseのデフォルトのフォーマット定義は <em class="keyword">かなり</em> 使いづらいため、プロジェクトのプロパティの "Java Code Style" の Formatter
-		にて、"Enable project specific settings" にチェックを入れ、import にて <em class="smallmark">tutorial/material/eclipse/code-formatter-profile.xml</em>
-		を指定して適用してください。
-	</p>
-	<p>
-		このフォーマット定義は、横幅を 140 に、コメント内のフォーマットを OFF にしています。 
-	</p>
-	<h3 id="saveaction">フォーマッターの自動化 <span class="frm">(if Eclipse)</span> <span class="frm">#project</span></h3>
-	<p>
-		<em class="mark">(Eclipseのみ)</em>
-	</p>
-	<p>
-		フォーマッタ設定やショートカットを実践したばかりでなんですが、保管時(保存: ctrl +
-		S)に自動でフォーマッタが動くように設定することができます。わざわざショートカットを打つ必要もありません。
-	</p>
-	<p>
-		プロジェクトのプロパティの "Java Editor" の "Save Actions"
-		にて、"Enable project specific settings" にチェックを入れ、さらに "Perform the selected actions on
-		save"、および、"Format source code"
-		にチェックを入れましょう。
-	</p>
-	<p>
-		さらに "Organize imports" にもチェックを入れましょう。これは import
-		文を整理してくれるアクション(ctrl + shift + O)です。
-	</p>
-	<div class="relatedpage"><a href="../../manual/topic/friends/eclipse/shortcut/codejustcut.html">Eclipse, コード調整ショートカット</a></div>
 
 	<h2 id="dfsetup">DBFluteのセットアップ</h2>
 	<h3 id="dfclient6">DBFluteクライアントの作成 <span class="frm">※Java6, 7</span></h3>
@@ -724,10 +493,8 @@ PROJECT_ROOT
 			以下、改めてチェックしてみてください。
 		</p>
 		<ul>
-			<li>Encodingや改行コードの設定、されていますか？ <span class="frm">(if Eclipse)</span></li>
 			<li>Encodingや改行コードの設定、プロジェクトの設定に入ってますか？ <span class="frm">(if Eclipse)</span></li>
-			<li>フォーマッターや自動化の設定、されていますか？ <span class="frm">(if Eclipse)</span></li>
-			<li>フォーマッターや自動化の設定、project の設定になってますか？ <span class="frm">(if Eclipse)</span></li>
+			<li>フォーマッターや自動化の設定、プロジェクトの入ってますか？ <span class="frm">(if Eclipse)</span></li>
 			<li>DBFluteクライアントのlogの ".log" ファイルたちは gitignore になってますか？</li>
 			<li>そもそもコンパイルは通ってますか？ <span class="frm">(エラーになってないですか？)</span></li>
 		</ul>
