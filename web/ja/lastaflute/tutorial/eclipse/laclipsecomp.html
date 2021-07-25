@@ -27,6 +27,7 @@
 	<h1>LastaFluteのEclipseコード補完</h1>
 	<div class="relatedpage"><a href="../index.html">LastaFluteトップページ</a></div>
 	<div class="relatedpage"><a href="../laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<div class="relatedpage"><a href="../../../tutorial/eclipse/dfclipsecomp.html">DBFluteのEclipse補完テンプレート</a></div>
 	${indexlist}
 
 	<h2 id="howtocomp">どう打ち込めばいい？</h2>
@@ -70,14 +71,14 @@
 	</div>
 
 	<h2 id="difield">DIフィールドの補完 <span class="frm">(_lad...)</span></h2>
-	<h3 id="_ladany">任意のDIフィールド <span class="frm">(_ladany)</span> ☆</h3>
+	<h3 id="_ladany">任意のDIフィールド <span class="frm">(_ladany)</span> ★★★</h3>
 	<p>
 		<em class="keyword">_ladany</em> (LAstaFlute の Di の ANYthing)
 	</p>
 <pre><span class="codetitle">e.g. 任意のDIフィールドを補完 @Java</span><code>
 <span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> HarborBaseAction {
 
-    <span class="literal">_lada</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_lada</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -96,22 +97,22 @@
 	</p>
 	<dl class="shortkeymainlist">
 		<dt><em class="mark">_ladasync</em></dt><dd>AsyncManager</dd>
-		<dt><em class="mark">_ladconf</em></dt><dd>[App]Config ☆☆ <span class="frm">(e.g. コンフィグ値を取得するとき)</span></dd>
+		<dt><em class="mark">_ladconf</em></dt><dd>[App]Config ▲▲ <span class="frm">(e.g. コンフィグ値を取得するとき)</span></dd>
 		<dt><em class="mark">_ladcookie</em></dt><dd>CookieManager</dd>
 		<dt><em class="mark">_ladjob</em></dt><dd>JobManager</dd>
 		<dt><em class="mark">_ladjson</em></dt><dd>JsonManager</dd>
 		<dt><em class="mark">_ladmessage</em></dt><dd>MessageManager</dd>
-		<dt><em class="mark">_ladpostbox</em></dt><dd>Postbox ☆ <span class="frm">(e.g. メールを送信するとき)</span></dd>
-		<dt><em class="mark">_ladprimcipher</em></dt><dd>PrimaryCipher ☆</dd>
-		<dt><em class="mark">_ladrequest</em></dt><dd>RequestManager ☆</dd>
+		<dt><em class="mark">_ladpostbox</em></dt><dd>Postbox ▲ <span class="frm">(e.g. メールを送信するとき)</span></dd>
+		<dt><em class="mark">_ladprimcipher</em></dt><dd>PrimaryCipher ▲</dd>
+		<dt><em class="mark">_ladrequest</em></dt><dd>RequestManager ▲</dd>
 		<dt><em class="mark">_ladresponse</em></dt><dd>ResponseManager</dd>
 		<dt><em class="mark">_ladsession</em></dt><dd>SessionManager</dd>
 		<dt><em class="mark">_ladtemplate</em></dt><dd>TemplateManager</dd>
-		<dt><em class="mark">_ladtime</em></dt><dd>TimeManager ☆☆☆ <span class="frm">(e.g. 現在日時を取得するとき)</span></dd>
-		<dt><em class="mark">_ladtransaction</em></dt><dd>TransactionStage ☆ <span class="frm">(e.g. トランザクションを発行するとき)</span></dd>
+		<dt><em class="mark">_ladtime</em></dt><dd>TimeManager ▲▲▲ <span class="frm">(e.g. 現在日時を取得するとき)</span></dd>
+		<dt><em class="mark">_ladtransaction</em></dt><dd>TransactionStage ▲ <span class="frm">(e.g. トランザクションを発行するとき)</span></dd>
 	</dl>
 	<p>
-		☆マークは、業務クラスの実装でもよく使うかもしれないコンポーネントなので、知っておくと良いでしょう。
+		▲マークは、業務クラスの実装でもよく使うかもしれないコンポーネントなので、知っておくと良いでしょう。
 		また、一個一個覚えてなくも補完できるということだけ知っておけば、必要になったときに補完からManagerクラスを探すことができます。
 		<span class="frm">(この補完テンプレートがちょっとしたドキュメントになります)</span>
 	</p>
@@ -124,7 +125,7 @@
 <pre><span class="codetitle">e.g. HtmlResponseのExecuteMethodを補完 @Java</span><code>
 <span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> HarborBaseAction {
 
-    <span class="literal">_laexh</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_laexh</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -141,7 +142,7 @@
 <pre><span class="codetitle">e.g. JsonResponseのExecuteMethodを補完 @Java</span><code>
 <span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> HarborBaseAction {
 
-    <span class="literal">_laexj</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_laexj</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -153,14 +154,14 @@
 </code></pre>
 
 	<h2 id="propfield">プロパティフィールドの補完 <span class="frm">(_lap...)</span></h2>
-	<h3 id="_laprop">publicプロパティのフィールド <span class="frm">(_laprop)</span> ☆</h3>
+	<h3 id="_laprop">publicプロパティのフィールド <span class="frm">(_laprop)</span> ★</h3>
 	<p>
 		<em class="keyword">_laprop</em> (LAstaFlute の (Public) PROPerty)
 	</p>
 <pre><span class="codetitle">e.g. publicプロパティのフィールドを補完 @Java</span><code>
 <span class="keyword">public class</span> SeaResult {
 
-    <span class="literal">_lapr</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_lapr</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -185,7 +186,7 @@
 <pre><span class="codetitle">e.g. @ValidなPartクラスのフィールドを補完 @Java</span><code>
 <span class="keyword">public class</span> SeaResult {
 
-    <span class="literal">_lapvalidcl</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_lapvalidcl</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -217,7 +218,7 @@
 <pre><span class="codetitle">e.g. @ValidなPartクラスのListフィールドを補完 @Java</span><code>
 <span class="keyword">public class</span> SeaResult {
 
-    <span class="literal">_lapvalidli</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_lapvalidli</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -243,7 +244,7 @@
 		こちらもJSONクラスではおなじみの構成なので、覚えておくと良いでしょう。
 	</p>
 
-	<h2 id="tostring">BeanのtoString()の補完 <span class="frm">(_latostring)</span> ☆</h2>
+	<h2 id="tostring">BeanのtoString()の補完 <span class="frm">(_latostring)</span> ★</h2>
 	<p>
 		<em class="keyword">_latostring</em> (LAstaFlute の TOSTRING)
 	</p>
@@ -252,7 +253,7 @@
 
     <span class="abbreviation">...</span>
 
-    <span class="literal">_lato</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    <span class="literal">_lato</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
@@ -278,7 +279,7 @@
 <pre><span class="codetitle">e.g. バリデーションアノテーションのクライアントエラーのgroup属性を補完 @Java</span><code>
 <span class="keyword">public class</span> SeaResult {
 
-    @Required(<span class="literal">_lavcli</span><span class="abbreviation">...</span>) <span class="comment">// control+space => enterどーん！</span>
+    @Required(<span class="literal">_lavcli</span><span class="abbreviation">...</span>) <span class="comment">// control+space, enterどーん！</span>
     <span class="keyword">public</span> String <span class="attribute">sea</span>;
 
 　↓↓↓
@@ -307,7 +308,7 @@
 
 @Execute
 <span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
-    validateApi(body, <span class="literal">_lavme</span><span class="abbreviation">...</span>) <span class="comment">// control+space => enterどーん！</span>
+    validateApi(body, <span class="literal">_lavme</span><span class="abbreviation">...</span>) <span class="comment">// control+space, enterどーん！</span>
 }
 
 　↓↓↓
@@ -338,7 +339,7 @@
 @Execute
 <span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
     validateApi(body, messages -&gt; {
-         <span class="literal">_lavmore</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+         <span class="literal">_lavmore</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
     });
 }
 
@@ -382,7 +383,7 @@
 
 @Execute
 <span class="keyword">public</span> HtmlResponse index(SeaForm form) {
-    validate(form, messages -&gt; {}, <span class="literal">_lavret</span><span class="abbreviation">...</span>) <span class="comment">// control+space => enterどーん！</span>
+    validate(form, messages -&gt; {}, <span class="literal">_lavret</span><span class="abbreviation">...</span>) <span class="comment">// control+space, enterどーん！</span>
 }
 
 　↓↓↓
@@ -400,11 +401,12 @@
 	<div class="relatedpage"><a href="../action/lavalidation.html#validatemethod">2. Action で validate() を呼ぶ</a></div>
 
 	<h2 id="setuptemplate">補完テンプレートの環境構築</h2>
-	<h3 id="dftemplate">DBFluteの補完テンプレート</h3>
+	<h3 id="dftemplatexml">DBFluteの補完テンプレートxml</h3>
 	<p>
 		DBFluteの補完テンプレートを入れましょう。
 		<span class="frm">(ワークスペースの設定なので、workspaceディレクトリごとに設定作業する必要があります)</span>
 	</p>
+	<div class="relatedpage"><a href="../../../tutorial/eclipse/dfclipsecomp.html">DBFluteのEclipse補完テンプレート</a></div>
 	<p>
 		LastaFluteプロジェクトであれば、プロジェクト直下もしくは[app]-baseプロジェクトの <em class="mark">etc/tools/eclipse</em>
 		配下に、<em class="mark">java-editor-templates.xml</em> が置いてあります。

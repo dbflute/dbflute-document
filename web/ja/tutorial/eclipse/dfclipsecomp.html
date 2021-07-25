@@ -25,8 +25,7 @@
 
 <div id="content"><!-- __content-start__ -->
 	<h1>DBFluteのEclipseコード補完</h1>
-	<div class="relatedpage"><a href="../index.html">LastaFluteトップページ</a></div>
-	<div class="relatedpage"><a href="../laimpl.html">LastaFluteの実装チュートリアル</a></div>
+	<div class="relatedpage"><a href="../../lastaflute/tutorial/eclipse/laclipsecomp.html#setuptemplate">LastaFluteのEclipse補完テンプレート</a></div>
 	${indexlist}
 
 	<h2 id="howtocomp">どう打ち込めばいい？</h2>
@@ -91,8 +90,8 @@
 	</dl>
 	<h4>Java, 例外系</h4>
 	<dl class="shoshortkeymainlist">
-		<dt><em class="mark">_tharg</em></dt><dd>Java, throw new IllegalArgumentException(...) ★★</dd>
-		<dt><em class="mark">_thstate</em></dt><dd>Java, throw new IllegalStateException(...) ★</dd>
+		<dt><em class="mark">_tharg</em></dt><dd>Java, throw new IllegalArgumentException(...) ★</dd>
+		<dt><em class="mark">_thstate</em></dt><dd>Java, throw new IllegalStateException(...)</dd>
 	</dl>
 	<h3 id="dbflutecoding">DBFlute装の補完文字列一覧</h3>
 	<p>
@@ -107,30 +106,315 @@
 	</dl>
 
 	<h2 id="java8lambdastream">Java8, Lambda/Stream系</h2>
-	<h3 id="_lill">シンプルLambda式補完 <span class="frm">(_li, _ll)</span></h3>
 	<p>
-		<em class="keyword">_li</em> (Lambda Inline)
+		代表的なものだけ
 	</p>
-<pre><span class="codetitle">e.g. xxxxxxxを補完 @Java</span><code>
-xxx
+	<h3 id="_lill">シンプルLambda式を補完 <span class="frm">(_li, _ll)</span> ★★★</h3>
+	<p>
+		<em class="keyword">_li</em> (Lambda Inline) (えるあい)
+	</p>
+<pre><span class="codetitle">e.g. 一行スタイルのLambdaを補完 @Java</span><code>
+memberList.stream().map(<span class="literal">_li</span>) <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
-xxx
+memberList.stream().map(<span class="point">[var] -&gt; [var].[object]</span>) <span class="comment">// 引数名入れて実装の続きを</span>
 </code></pre>
 	<p>
-		<em class="keyword">_ll</em> (Lambda Linefeed)
+		<em class="keyword">_ll</em> (Lambda Linefeed) (えるえる)
 	</p>
-<pre><span class="codetitle">e.g. xxxxxxxを補完 @Java</span><code>
-xxx
+<pre><span class="codetitle">e.g. 改行スタイルのLambdaを補完 @Java</span><code>
+memberBhv.selectList(<span class="literal">_ll</span>) <span class="comment">// control+space, enterどーん！</span>
 
 　↓↓↓
 
-xxx
+memberBhv.selectList(<span class="point">[var] -&gt; { <span class="comment">// 引数名入れて実装の続きを</span>
+    [var].[object]
+}</span>)
+</code></pre>
+	<p>
+		Lambda引数がない場合は、var部分を () に修正しましょう。
+	</p>
+	<p>
+		Lambdaを一行で書きたい場面か？改行で書きたい場面か？で "えるあい" か "えるえる" を使い分けると良いでしょう。
+		<span class="frm">(DBFluteのConditionBeanはほとんど改行スタイルが向いているので "えるえる" が多くはなります。一方で、Stream APIは "えるあい" が多くなるでしょう)</span>
+	</p>
+	<div class="relatedpage"><a href="../onjava8.html#jflutableeclipse">DBFlute補完テンプレートを入れたEclipse</a></div>
+	<h3 id="_bilill">引数２つのLambda式を補完 <span class="frm">(_bili, _bill)</span></h3>
+	<p>
+		<em class="keyword">_bili</em> (Lambda Bi Inline), <em class="keyword">_bill</em> (Lambda Bi Linefeed)
+	</p>
+<pre><span class="codetitle">e.g. 一行スタイルの引数２つのLambdaを補完 @Java</span><code>
+seaList.stream().reduce("harbor", accumulator, combiner)
+
+　↓↓↓
+
+<span class="comment">// control+space, enterどーん！</span>
+seaList.stream().reduce("harbor", <span class="literal">_bili</span>, combiner)
+
+　↓↓↓
+
+<span class="comment">// 実装の続きを</span>
+seaList.stream().reduce("harbor", <span class="point">(first, second) -&gt; </span>, combiner)
+</code></pre>
+	<h3 id="_foreach">ListのforEach()を補完 <span class="frm">(_foreach)</span> ★</h3>
+	<p>
+		<em class="keyword">_foreach</em>
+	</p>
+<pre><span class="codetitle">e.g. ListのforEach()を補完 @Java</span><code>
+List&lt;Sea&gt; seaList = <span class="abbreviation">...</span>
+<span class="literal">_fore</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+seaList.forEach([object] -> { <span class="comment">// 引数名入れて実装の続きを</span>
+
+});
+</code></pre>
+
+	<h2 id="javacomment">Java, コメント系</h2>
+	<p>
+		代表的なものだけ
+	</p>
+	<h3 id="_todo">todoコメントを補完 <span class="frm">(_todo)</span> ★★★</h3>
+	<p>
+		<em class="keyword">_todo</em> (TODO)
+	</p>
+<pre><span class="codetitle">e.g. todoコメントを補完 @Java</span><code>
+<span class="literal">_tod</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="comment">// TODO jflute [カーソル位置はここ] (2021/07/25)</span>
+</code></pre>
+	<p>
+		ソースコード上に気軽にtodoコメントを入れてちょっとした保留事項などを管理できると良いです。
+		ただ、後々「なんだこのtodoコメント？誰の？」と放置されてtodoノイズになりがちです。
+		<span class="frm">(書いた本人ですら忘れてしまうことも多々あり)</span>
+	</p>
+	<p>
+		todoコメントを付けるなら名前と日付を入れておきましょう。補完なら手間はありません。
+	</p>
+	<h3 id="_trev">todoレビューコメントを補完 <span class="frm">(_trev)</span></h3>
+	<p>
+		<em class="keyword">_trev</em> (Todo の REView)
+	</p>
+<pre><span class="codetitle">e.g. todoレビューコメントを補完 @Java</span><code>
+<span class="literal">_tre</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="comment">// TODO [you] [message] by jflute (2021/07/25)</span>
+</code></pre>
+	<p>
+		[you]にお相手の名前を入れて、[message]でレビューを書きます
+	</p>
+	<p>
+		javatryやDBFluteハンズオンのjfluteレビューでよく使います。<span class="frm">(業務の中ではあまり使いませんが...)</span>
+	</p>
+	<h3 id="_docnotnull">JavaDocの (NotNull) を補完 <span class="frm">(_docnotnull)</span></h3>
+	<p>
+		<em class="keyword">_docnotnull</em> (javaDOC の NOTNULL)
+	</p>
+<pre><span class="codetitle">e.g. @param の (NotNull) を補完 @Java</span><code>
+<span class="comment">/**
+ * @param sea 海ですよ <span class="literal">_docno</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+ */</span>
+
+　↓↓↓
+
+<span class="comment">/**
+ * @param sea 海ですよ <span class="point">(NotNull)</span>
+ */</span>
+</code></pre>
+	<h3 id="_docnullallowed">JavaDocの (NullAllowed) を補完 <span class="frm">(_docnullallowed)</span></h3>
+	<p>
+		<em class="keyword">_docnullallowed</em> (javaDOC の NULLALLOWED)
+	</p>
+<pre><span class="codetitle">e.g. @return の (NullAllowed) を補完 @Java</span><code>
+<span class="comment">/**
+ * @return 海ですよ <span class="literal">_docnu</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+ */</span>
+
+　↓↓↓
+
+<span class="comment">/**
+ * @return 海ですよ <span class="point">(NullAllowed)</span>
+ */</span>
+</code></pre>
+	<h3 id="_coaaa">UnitTestの Arrange,Act,Assert を補完 <span class="frm">(_coaaa)</span></h3>
+	<p>
+		<em class="keyword">_coaaa</em> (COmment の Ararnge,Act,Assert)
+	</p>
+<pre><span class="codetitle">e.g. @return の (NullAllowed) を補完 @Java</span><code>
+<span class="literal">test_ju</span><span class="abbreviation">...</span> <span class="comment">まず、JUnit5(jupiter)用のテストメソッドを補完して...</span>
+
+　↓↓↓
+
+@Test
+<span class="keyword">void</span> [testName]() <span class="keyword">throws</span> Exception {
+    <span class="literal">_coaa</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+}
+
+　↓↓↓
+
+@Test
+<span class="keyword">void</span> [testName]() <span class="keyword">throws</span> Exception {
+    <span class="comment">// ## Arrange ##</span>
+    [カーソル位置はここ]
+
+    <span class="comment">// ## Act ##</span>
+
+    <span class="comment">// ## Assert ##</span>
+}
+</code></pre>
+	<h3 id="_cothinking">#thinking のコメントを補完 <span class="frm">(_cothinking)</span></h3>
+	<p>
+		<em class="keyword">_cothinking</em> (COmment の THINKING)
+	</p>
+<pre><span class="codetitle">e.g. @return の (NullAllowed) を補完 @Java</span><code>
+<span class="literal">_coth</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="comment">// #thinking jflute [カーソル位置はここ] (2021/07/25)</span>
+</code></pre>
+	<p>
+		実装しようとしたけど保留してるとか、実装したけど最善かどうか迷ってるとか、自分自身も含めて後の人に伝えておいたほうが良い悩みを書いておくと良いでしょう。
+	</p>
+	<h3 id="_taacce">タグコメントを補完 <span class="frm">(_taacce)</span></h3>
+	<p>
+		<em class="keyword">_taacce</em> (TAg comment ACCEssor)
+	</p>
+<pre><span class="codetitle">e.g. @return の (NullAllowed) を補完 @Java</span><code>
+<span class="literal">_taacce</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="comment">// ===================================================================================
+//                                                                            Accessor
+//                                                                            ========</span>
+</code></pre>
+	<p>
+		タグコメントがよくわからない方は、サンプルコードを見てみましょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/src/main/java/org/docksidestage/app/web/signup/SignupAction.java#L44">タグコメントの例、SignupAction.java</a></div>
+	<p>
+		様々なタグコメント補完が用意されています。業務的な区分けをするときは、何か適当に補完してからタグ名部分を書き換えてしまいましょう。
+		補完テンプレートで用意されているのはあくまで定型的なものだけです。
+	</p>
+
+	<h2 id="javavardef">Java, 変数定義系</h2>
+	<p>
+		代表的なものだけ
+	</p>
+	<h3 id="_prifin">private finalのインスタンス変数を補完 <span class="frm">(_prifin)</span> ★★</h3>
+	<p>
+		<em class="keyword">_prifin</em> (PRIvate の FINal)
+	</p>
+<pre><span class="codetitle">e.g. private finalのインスタンス変数を補完してコンストラクタまで @Java</span><code>
+<span class="literal">_prif</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="keyword">private final</span> [variableType] [variableName]; <span class="comment">// 型と名前を入れる</span>
+
+　↓↓↓
+
+<span class="keyword">private final</span> String sea;
+<span class="comment">// このへんで alt + command + S して、Generate Constructor using Fields...</span>
+<span class="comment">// (右クリックメニューの Source からでもOK)</span>
+
+　↓↓↓
+
+<span class="keyword">private final</span> String <span class="attribute">sea</span>;
+
+<span class="keyword">public</span> SeaBean(String <span class="localvar">sea</span>) { <span class="comment">// コンストラクタが自動生成される</span>
+    <span class="keyword">super</span>();
+    <span class="keyword">this</span>.<span class="attribute">sea</span> = <span class="localvar">sea</span>;
+}
+</code></pre>
+	<h3 id="_pubstafin">public static finalの定数を補完 <span class="frm">(_pubstafin)</span> ★</h3>
+	<p>
+		<em class="keyword">_pubstafin</em> (PUBlic の STAtic FINal)
+	</p>
+<pre><span class="codetitle">e.g. public static finalの定数を補完 @Java</span><code>
+<span class="literal">_pubstaf</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="keyword">public static final</span> [variableType] [variableName] = [value];
+</code></pre>
+	<h3 id="_logger">Slf4j の logger変数を補完 <span class="frm">(_logger)</span> ★★</h3>
+	<p>
+		<em class="keyword">_logger</em> (LOGGER)
+	</p>
+<pre><span class="codetitle">e.g. Slf4j の logger変数を補完 @Java</span><code>
+<span class="literal">_logg</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="keyword">private static final</span> Logger <span class="attribute">logger</span> = LoggerFactory.getLogger(Sea.<span class="keyword">class</span>);
+</code></pre>
+	<p>
+		引数の.classは、現在のクラスが自動的に補完されます。
+	</p>
+
+	<h2 id="javavardef">Java, 変数定義系</h2>
+	<p>
+		代表的なものだけ
+	</p>
+	<h3 id="_tharg">引数例外のthrowを補完 <span class="frm">(_tharg)</span> ★</h3>
+	<p>
+		<em class="keyword">_tharg</em> (THrow illegal ARGument exception)
+	</p>
+<pre><span class="codetitle">e.g. 引数例外のthrowを補完 @Java</span><code>
+<span class="keyword">public void</span> showMystic(String hangar) {
+    ifnu <span class="comment">// まず ifNull の補完をして...</span>
+
+　↓↓↓
+
+<span class="keyword">public void</span> showMystic(String hangar) {
+    <span class="keyword">if</span> (hangar == <span class="keyword">null</span>) {
+        <span class="literal">_tharg</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+    }
+
+　↓↓↓
+
+<span class="keyword">public void</span> showMystic(String hangar) {
+    <span class="keyword">if</span> (hangar == <span class="keyword">null</span>) {
+        <span class="keyword">throw new</span> IllegalArgumentException(<span class="literal">"The argument 'hangar' should not be null."</span>);
+    }
+</code></pre>
+	<p>
+		[argumentName]には引数の名前が自動的に入ります。違う引数が入った場合は調整しましょう。
+	</p>
+
+	<h2 id="dbflute">DBFlute</h2>
+	<p>
+		代表的なものだけ
+	</p>
+	<h3 id="_test">UTFluteのテストメソッドを補完 <span class="frm">(_test)</span></h3>
+	<p>
+		<em class="keyword">_test</em> (TEST)
+	</p>
+<pre><span class="codetitle">e.g. UTFluteのテストメソッドを補完 @Java</span><code>
+<span class="literal">_test</span><span class="abbreviation">...</span> <span class="comment">// control+space, enterどーん！</span>
+
+　↓↓↓
+
+<span class="keyword">public void</span> test_[name]() {
+    <span class="comment">// ## Arrange ##</span>
+    [カーソル位置はここ]
+
+    <span class="comment">// ## Act ##</span>
+
+    <span class="comment">// ## Assert ##</span>
+}
 </code></pre>
 
 	<h2 id="setuptemplate">補完テンプレートの環境構築</h2>
-	<h3 id="dftemplate">DBFluteの補完テンプレート</h3>
+	<h3 id="dftemplatexml">DBFluteの補完テンプレートxml</h3>
 	<p>
 		DBFluteの補完テンプレートを入れましょう。
 		<span class="frm">(ワークスペースの設定なので、workspaceディレクトリごとに設定作業する必要があります)</span>
