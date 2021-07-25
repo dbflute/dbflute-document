@@ -54,7 +54,7 @@
 		<dt><em class="mark">_lad...</em></dt><dd><a href="#difield"><em>DIフィールドの補完</a> :: e.g. _ladany, _ladconfig, _ladreq, ...</dd>
 		<dt><em class="mark">_laex...</em></dt><dd><a href="#executemethod">Executeメソッドの補完</a> :: e.g. _laexhtml, _laexjson</dd>
 		<dt><em class="mark">_lap...</em></dt><dd><a href="#propfield">プロパティフィールドの補完</a> :: e.g. _laprop, _lapvalidclass, ...</dd>
-		<dt><em class="mark">_latostring</em></dt><dd><a href="#tostring">お決まりtoString()の補完</a> :: Form/Body, Resultクラスなどにて</dd>
+		<dt><em class="mark">_latostring</em></dt><dd><a href="#tostring">BeanのtoString()の補完</a> :: Form/Body, Resultクラスなどにて</dd>
 		<dt><em class="mark">_lav...</em></dt><dd><a href="#validation">バリデーションの補完</a> :: e.g. _lavclienterr, _lavmessages, ...</dd>
 	</dl>
 	<div class="inucolumn">
@@ -65,13 +65,55 @@
 		<dl class="shoshortkeymainlist">
 			<dt><em class="mark">_ladany</em></dt><dd><a href="#difield"><em>DIフィールドの補完</a> :: @Resource付きのprivateフィールド</dd>
 			<dt><em class="mark">_laprop</em></dt><dd><a href="#propfield">プロパティフィールドの補完</a> :: publicプロパティの補完</dd>
-			<dt><em class="mark">_latostring</em></dt><dd><a href="#tostring">お決まりtoString()の補完</a> :: Form/Body, Resultクラスなどにて</dd>
+			<dt><em class="mark">_latostring</em></dt><dd><a href="#tostring">BeanのtoString()の補完</a> :: Form/Body, Resultクラスなどにて</dd>
 		</dl>
 	</div>
 
 	<h2 id="difield">DIフィールドの補完 <span class="frm">(_lad...)</span></h2>
+	<h3 id="_ladany">任意のDIフィールド <span class="frm">(_ladany)</span> ☆</h3>
 	<p>
-		TODO xxxxxxxx
+		<em class="keyword">_ladany</em> (LAstaFlute の Di の ANYthing)
+	</p>
+<pre><span class="codetitle">e.g. 任意のDIフィールドを補完 @Java</span><code>
+<span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> HarborBaseAction {
+
+    <span class="literal">_lada</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+
+　↓↓↓
+
+    @Resource
+    <span class="keyword">private</span> [component] anything;
+</code></pre>
+	<p>
+		_lad系の一番上に出てくるので、_ladだけで補完してenterでもOKです。
+	</p>
+	<p>
+		とにかくこれだけでも覚えていれば、DIフィールドの宣言がだいぶ楽になるでしょう。
+	</p>
+	<h3 id="_ladcomp">LastaFluteコンポーネントのDIフィールド <span class="frm">(_lad...)</span></h3>
+	<p>
+		LastaFluteが提供しているコンポーネントを狙って補完できます。<span class="frm">(なんとかManagerは大体揃ってます)</span>
+	</p>
+	<dl class="shortkeymainlist">
+		<dt><em class="mark">_ladasync</em></dt><dd>AsyncManager</dd>
+		<dt><em class="mark">_ladconf</em></dt><dd>[App]Config ☆☆ <span class="frm">(e.g. コンフィグ値を取得するとき)</span></dd>
+		<dt><em class="mark">_ladcookie</em></dt><dd>CookieManager</dd>
+		<dt><em class="mark">_ladjob</em></dt><dd>JobManager</dd>
+		<dt><em class="mark">_ladjson</em></dt><dd>JsonManager</dd>
+		<dt><em class="mark">_ladmessage</em></dt><dd>MessageManager</dd>
+		<dt><em class="mark">_ladpostbox</em></dt><dd>Postbox ☆ <span class="frm">(e.g. メールを送信するとき)</span></dd>
+		<dt><em class="mark">_ladprimcipher</em></dt><dd>PrimaryCipher ☆</dd>
+		<dt><em class="mark">_ladrequest</em></dt><dd>RequestManager ☆</dd>
+		<dt><em class="mark">_ladresponse</em></dt><dd>ResponseManager</dd>
+		<dt><em class="mark">_ladsession</em></dt><dd>SessionManager</dd>
+		<dt><em class="mark">_ladtemplate</em></dt><dd>TemplateManager</dd>
+		<dt><em class="mark">_ladtime</em></dt><dd>TimeManager ☆☆☆ <span class="frm">(e.g. 現在日時を取得するとき)</span></dd>
+		<dt><em class="mark">_ladtransaction</em></dt><dd>TransactionStage ☆ <span class="frm">(e.g. トランザクションを発行するとき)</span></dd>
+	</dl>
+	<p>
+		☆マークは、業務クラスの実装でもよく使うかもしれないコンポーネントなので、知っておくと良いでしょう。
+		また、一個一個覚えてなくも補完できるということだけ知っておけば、必要になったときに補完からManagerクラスを探すことができます。
+		<span class="frm">(この補完テンプレートがちょっとしたドキュメントになります)</span>
 	</p>
 
 	<h2 id="executemethod">Executeメソッドの補完 <span class="frm">(_laex...)</span></h2>
@@ -111,19 +153,251 @@
 </code></pre>
 
 	<h2 id="propfield">プロパティフィールドの補完 <span class="frm">(_lap...)</span></h2>
+	<h3 id="_laprop">publicプロパティのフィールド <span class="frm">(_laprop)</span> ☆</h3>
 	<p>
-		TODO xxxxxxxx
+		<em class="keyword">_laprop</em> (LAstaFlute の (Public) PROPerty)
+	</p>
+<pre><span class="codetitle">e.g. publicプロパティのフィールドを補完 @Java</span><code>
+<span class="keyword">public class</span> SeaResult {
+
+    <span class="literal">_lapr</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+
+　↓↓↓
+
+    <span class="comment">/** [xxx_property_description_xxx] e.g. [xxx_example_value_xxx] */</span>
+    @Required
+    <span class="keyword">public</span> [xxx_PropertyType_xxx] [xxx_propertyName_xxx];
+
+    <span class="comment">// []部分がtabで移動して入力できる箇所 (JavaDoc内も同様)</span>
+    <span class="comment">// デフォルトで@Requiredになるが、必須じゃなければ削除してOK</span>
+</code></pre>
+	<p>
+		JavaDocコメントも補完され、e.g.デフォルト値の欄もあるので、ぜひ書いていきましょう。
+	</p>
+	<div class="relatedpage"><a href="../../howto/action/laswagger.html#javadoceg">JavaDocにe.g.でデフォルト値を記載</a></div>
+	<p>
+		補完後に修正抜けあっても目立つように、変数部分にxxxを付けています。
+	</p>
+	<h3 id="_lapvalidclass">@ValidなPartクラスのフィールド <span class="frm">(_lapvalidclass)</span></h3>
+	<p>
+		<em class="keyword">_lapvalidclass</em> (LAstaFlute の Property の VALID CLASS)
+	</p>
+<pre><span class="codetitle">e.g. @ValidなPartクラスのフィールドを補完 @Java</span><code>
+<span class="keyword">public class</span> SeaResult {
+
+    <span class="literal">_lapvalidcl</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+
+　↓↓↓
+
+    <span class="comment">/** [xxx_object_description_xxx] */</span>
+    @Required
+    @Valid
+    <span class="keyword">public</span> [xxx_PartName_xxxPart] [xxx_partName_xxx];
+
+    <span class="comment">/**
+     * @author jflute
+     */</span>
+    <span class="keyword">public static class</span> [xxx_PartName_xxx]Part {
+
+        <span class="comment">/** [xxx_property_description_xxx] e.g. [xxx_example_value_xxx] */</span>
+        @Required
+        <span class="keyword">public</span> [xxx_PropertyType_xxx] [xxx_propertyName_xxx];
+    }
+
+    <span class="comment">// []部分がtabで移動して入力できる箇所 (JavaDoc内も同様)</span>
+    <span class="comment">// デフォルトで@Requiredになるが、必須じゃなければ削除してOK</span>
+</code></pre>
+	<p>
+		補完なしで定義するとなるとかなり面倒な構成ですが、特にJSONクラスでは定義することも多いと思われるので、覚えておくと良いでしょう。
+	</p>
+	<h3 id="_lapvalidlist">@ValidなPartクラスのListフィールド <span class="frm">(_lapvalidlist)</span></h3>
+	<p>
+		<em class="keyword">_lapvalidlist</em> (LAstaFlute の Property の VALID LIST)
+	</p>
+<pre><span class="codetitle">e.g. @ValidなPartクラスのListフィールドを補完 @Java</span><code>
+<span class="keyword">public class</span> SeaResult {
+
+    <span class="literal">_lapvalidli</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+
+　↓↓↓
+
+    <span class="comment">/** [xxx_list_description_xxx] */</span>
+    @NotNull
+    @Valid
+    <span class="keyword">public</span> List&lt;[xxx_PartName_xxxPart]&gt; [xxx_partListName_xxx];
+
+    <span class="comment">/**
+     * @author jflute
+     */</span>
+    <span class="keyword">public static class</span> [xxx_PartName_xxx]Part {
+
+        <span class="comment">/** [xxx_property_description_xxx] e.g. [xxx_example_value_xxx] */</span>
+        @Required
+        <span class="keyword">public</span> [xxx_PropertyType_xxx] [xxx_propertyName_xxx];
+    }
+
+    <span class="comment">// []部分がtabで移動して入力できる箇所 (JavaDoc内も同様)</span>
+    <span class="comment">// デフォルトで@Requiredになるが、必須じゃなければ削除してOK</span>
+</code></pre>
+	<p>
+		こちらもJSONクラスではおなじみの構成なので、覚えておくと良いでしょう。
 	</p>
 
-	<h2 id="tostring">お決まりtoString()の補完 <span class="frm">(_latostring)</span></h2>
+	<h2 id="tostring">BeanのtoString()の補完 <span class="frm">(_latostring)</span> ☆</h2>
 	<p>
-		TODO xxxxxxxx
+		<em class="keyword">_latostring</em> (LAstaFlute の TOSTRING)
 	</p>
+<pre><span class="codetitle">e.g. toString()を補完、Form,Body,ResultなどのBeanクラスにて @Java</span><code>
+<span class="keyword">public class</span> SeaResult {
+
+    <span class="abbreviation">...</span>
+
+    <span class="literal">_lato</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+
+　↓↓↓
+
+    @Override
+    <span class="keyword">public</span> String toString() {
+        <span class="keyword">return</span> Lato.string(<span class="keyword">this</span>);
+    }
+</code></pre>
+	<p>
+		Form,Body,Resultなどの入れ物クラスに付けましょう。
+		何かとデバッグログで出力される機会があります。中のデータを出力しておくことで、デバッグに役立つことが多々あります。
+	</p>
+	<p>
+		外側クラスだけに付けておけば、ネストしたクラスの内容も一緒に出力されます。
+	</p>
+	<div class="detailpage"><a href="../../impldesign/beandesign.html#latostring">Beanの実装デザイン - 気軽なtoString()</a></div>
 
 	<h2 id="validation">バリデーションの補完 <span class="frm">(_lav...)</span></h2>
+	<h3 id="_lavclienterr">クライアントエラーのgroups属性 <span class="frm">(_lavclienterr)</span></h3>
 	<p>
-		TODO xxxxxxxx
+		<em class="keyword">_lavclienterr</em> (LAstaFlute の Validation の CLIENTERRor)
 	</p>
+<pre><span class="codetitle">e.g. バリデーションアノテーションのクライアントエラーのgroup属性を補完 @Java</span><code>
+<span class="keyword">public class</span> SeaResult {
+
+    @Required(<span class="literal">_lavcli</span><span class="abbreviation">...</span>) <span class="comment">// control+space => enterどーん！</span>
+    <span class="keyword">public</span> String <span class="attribute">sea</span>;
+
+　↓↓↓
+
+    @Required(groups = ClientError.<span class="keyword">class</span>)
+    <span class="keyword">public</span> String <span class="attribute">sea</span>;
+</code></pre>
+	<p>
+		システム項目のバリデーションアノテーションに付けるお決まりのgroups属性を補完できます。
+	</p>
+	<div class="relatedpage"><a href="../action/lavalidation.html#clienterror">見通しのValidation - システム項目は groups=ClientError.class</a></div>
+	<p>
+		<span class="frm">(ただ、特に汎用的なJSON APIだとバリデーションエラーなのかクライアントエラーなのか区別せずに実装することも多いので、ちょっとレアな機能かもしれません)</span>
+	</p>
+	<h3 id="_lavmessages">validate()のmoreValidationLambda <span class="frm">(_lavmessages)</span></h3>
+	<p>
+		<em class="keyword">_lavmessages</em> (LAstaFlute の Validation の CLIENTERRor)
+	</p>
+<pre><span class="codetitle">e.g. バリデーションメソッドのmoreValidationLambdaを補完 @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, moreValidationLambda) <span class="comment">// 引数名が補完されて...</span>
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, <span class="literal">_lavme</span><span class="abbreviation">...</span>) <span class="comment">// control+space => enterどーん！</span>
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, <span class="point">messages -&gt; {}</span>); <span class="comment">// セミコロン入れておしまい...?</span>
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, messages -&gt; { <span class="comment">// moreValidateするなら改行入れて続きを</span>
+         <span class="literal">_lavmore</span><span class="abbreviation">...</span> <span class="comment">// 次の補完に続く</span>
+    });
+}
+</code></pre>
+	<p>
+		手打ちで引数名を意識してLambdaを書くのはわりと大変なので、補完できるとスムーズに書けます。
+	</p>
+	<div class="relatedpage"><a href="../action/lavalidation.html#validatemethod">2. Action で validate() を呼ぶ</a></div>
+	<h3 id="_lavmorevalidate">validate()のmoreValidationLambda続き <span class="frm">(_lavmorevalidate)</span></h3>
+	<p>
+		<em class="keyword">_lavmorevalidate</em> (LAstaFlute の Validation の MOREVALIDATE)
+	</p>
+<pre><span class="codetitle">e.g. バリデーションのmoreValidationLambdaのmoreValidate()を補完 @Java</span><code>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, messages -&gt; {
+         <span class="literal">_lavmore</span><span class="abbreviation">...</span> <span class="comment">// control+space => enterどーん！</span>
+    });
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, messages -&gt; {
+         <span class="point">moreValidate</span>([localVar], messages) <span class="comment">// localVarは form か body に</span>
+    });
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;SeaResult&gt; index(SeaBody body) {
+    validateApi(body, messages -&gt; {
+         moreValidate(body, messages) <span class="comment">// command+1 で Create method</span>
+    });
+}
+
+<span class="keyword">private void</span> moreValidate(SeaBody body, HangarMessages messages) {
+    <span class="comment">// command+1から生成されるメソッド、ここで実装の続きを</span>
+}
+</code></pre>
+	<p>
+		お決まりのmoreValidate()メソッドの生成、先にメソッド呼び出しを補完してから、Eclipse標準のcommand+1補完でメソッドを作成すると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="../action/lavalidation.html#morevalidation">3. Lambdaで、もっとValidation</a></div>
+	<h3 id="_lavreterrorhtml">validate()のvalidationErrorLambda <span class="frm">(_lavreterrorhtml)</span></h3>
+	<p>
+		<em class="keyword">_lavreterrorhtml</em> (LAstaFlute の Validation の RETurn ERROR HTML)
+	</p>
+<pre><span class="codetitle">e.g. バリデーションのvalidationErrorLambdaのasHtml()を補完 @Java</span><code>
+@Execute
+<span class="keyword">public</span> HtmlResponse index(SeaForm form) {
+    validate(form, messages -&gt; {}, validationErrorLambda) <span class="comment">// 引数名が補完されて...</span>
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index(SeaForm form) {
+    validate(form, messages -&gt; {}, <span class="literal">_lavret</span><span class="abbreviation">...</span>) <span class="comment">// control+space => enterどーん！</span>
+}
+
+　↓↓↓
+
+@Execute
+<span class="keyword">public</span> HtmlResponse index(SeaForm form) {
+    validate(form, messages -&gt; {}, () -&gt; {
+         <span class="keyword">return</span> asHtml([path_]); <span class="comment">// すぐ control+space で path_ の続きを補完</span>
+    });  <span class="comment">// セミコロンも忘れずに</span>
+}
+</code></pre>
+	<p>
+		HtmlResponseのときのお決まりのasHtml()呼び出し、ぜひ補完で実装しましょう。
+	</p>
+	<div class="relatedpage"><a href="../action/lavalidation.html#validatemethod">2. Action で validate() を呼ぶ</a></div>
 
 	<h2 id="setuptemplate">補完テンプレートの環境構築</h2>
 	<h3 id="dftemplate">DBFluteの補完テンプレート</h3>
