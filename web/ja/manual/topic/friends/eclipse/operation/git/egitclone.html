@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse,Git,EGit" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>Eclipseでgit clone | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseでgit clone</h1>
+	<div class="relatedpage"><a href="../index.html">Friends - Eclipse</a></div>
+	<div class="relatedpage"><a href="../gitroutine.html">Eclipseで日常git操作</a></div>
+	${indexlist}
+
+	<h2 id="clonedir">(0. clone先ディレクトリの設定)</h2>
+	<p>
+		TODO jflute Preferences - Version Control (Team) - Git
+	</p>
+
+	<h2 id="gitperspective">1. Git Perspectiveを開く</h2>
+	<p>
+		TODO jflute 右上の+ボタンで Git Perspective を Open します。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitPerspective-add-button.png" title="Eclipse GitPerspective add-button"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitPerspective-add-button.png" alt="Eclipse GitPerspective add-button" width="520" height="360" /></a>
+	</p>
+	<p>
+		Git を選ぶと...
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitPerspective-add-selection.png" title="Eclipse GitPerspective add-selection"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitPerspective-add-selection.png" alt="Eclipse GitPerspective add-selection" width="520" height="360" /></a>
+	</p>
+	<p>
+		すると、Git Perspective が開き、右上の Perspective アイコンに Git が追加されます。 
+		<span class="frm">(ここで、Java Perspective と Git Perspective を行き来することができます)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitPerspective-added-view.png" title="Eclipse Git Perspective added view"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitPerspective-added-view.png" alt="Eclipse GitPerspective added view" width="520" height="360" /></a>
+	</p>
+
+	<h2 id="gitrepositories">2. Git Repositories Viewでペースト</h2>
+	<p>
+		まず、clone対象のGitリポジトリのURLをクリップボードにコピーしましょう。
+	</p>
+	<p>
+		このドキュメントでは、HTTPSを想定します。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>想定されるURL形式</dt><dd>https://[...]/[...][...].git</dd>
+	</dl>
+	<p>
+		その状態で、Git Repositories View で右クリックして、Paste Repository Path or URI を選択します。
+		<span class="frm">(Git Repositories View にカーソルを当ててペースト(Macならcommand+v)でもOKです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-right-click-paste-uri.png" title="Eclipse Git Repositories right-click paste-uri"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-right-click-paste-uri.png" alt="Eclipse Git Repositories right-click paste-uri" width="520" height="360" /></a>
+	</p>
+	<p>
+		すると、git cloneウィザード画面が表示されます。
+	</p>
+
+	<h2 id="gitclonewizard">3. git cloneウィザードでclone</h2>
+	<p>
+		Git Repositories Viewでペーストされてからの続きです。
+	</p>
+	<h3 id="wizardbasic">3-1. リポジトリ基本情報を入力</h3>
+	<p>
+		Location, Connectionは自動で入力されます。あまり修正する必要はないでしょう。
+	</p>
+	<p>
+		Authentication の User, Password は、clone対象のGitリポジトリの認証情報を入れましょう。
+		<span class="frm">(Github上のpublicリポジトリで、読み取りするだけであれば空欄でもOKです)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-wizard-1st-source.png" title="Eclipse Git Repositories wizard source"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-wizard-1st-source.png" alt="Eclipse Git Repositories wizard source" width="520" height="400" /></a>
+	</p>
+	<p>
+		Store in Secure Store は、入力した認証情報を記憶するかどうか？です。
+		Commit や Pull するたびに認証情報を入れるのは少々手間だと思うので、チェックを付けておくと良いとは思います。
+	</p>
+	<h3 id="wizardbranch">3-2. ブランチを選択</h3>
+	<p>
+		cloneするブランチを選択します。clone後にブランチを切り替えたりなどできるので、ここではそんなに気にせずデフォルトでも良いでしょう。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-wizard-2nd-branch.png" title="Eclipse Git Repositories wizard branch"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-wizard-2nd-branch.png" alt="Eclipse Git Repositories wizard branch" width="520" height="400" /></a>
+	</p>
+
+	<h3 id="wizarddest">3-3. clone先の調整とimportのチェック</h3>
+	<p>
+		clone先ディレクトリは、Preferencesで設定したディレクトリが指定されています。それで問題なければ特に修正する必要はありません。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-wizard-3rd-dest.png" title="Eclipse Git Repositories wizard destination"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitRepositories-wizard-3rd-dest.png" alt="Eclipse Git Repositories wizard destination" width="520" height="400" /></a>
+	</p>
+	<p>
+		cloneするリポジトリに Eclipse の制御ファイル.projectが含まれているのであれば、cloneと同時に自動importすることもできます。
+		Import all existing Eclipse projects after clone finishes にチェックを付けましょう。
+		<span class="frm">(わからなければ、とりあえずチェックを付けておくでも大丈夫です。"Importできるならする"
+		という感じになります。DBFluteのExampleやハンズオンプロジェクトでは、大抵は.projectを含んでいます)</span>
+	</p>
+	<p>
+		Finishすると clone されます。
+	</p>
+	<h3 id="confirmclone">3-4. cloneされたことを確認</h3>
+	<p>
+		Git Repositories View に clone されたリポジトリが表示されていればOKです。
+	</p>
+	<h3 id="returntojava">3-5. Java Perspectiveに戻る</h3>
+	<p>
+		右上のアイコンを押して、Java Perspective へ戻りましょう。
+	</p>
+	<p>
+		自動importされていれば、Package Explorer に clone したプロジェクトが展開されています。
+	</p>
+	<p>
+		もし Package Explorer に何もなければ、自動importはされていないので、メニューの File - Import... から手動で import しましょう。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
