@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse,Git,EGit" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../../css/sub.css";</style>
+	<title>Eclipseで日常git操作 | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseで日常Git操作</h1>
+	<p>
+		すでに git clone されて、Eclipseに import されていることが前提です。
+	</p>
+	<div class="relatedpage"><a href="./egitclone.html">Eclipseでgit clone</a></div>
+	<div class="relatedpage"><a href="../index.html">Friends - Eclipse</a></div>
+	${indexlist}
+
+	<h2 id="egit">組み込みのEGitプラグイン</h2>
+	<p>
+		ここでは、Eclipseに組み込まれている EGitプラグインを前提としています。
+	</p>
+	<p>
+		(おそらく)どのエディションでも組み込まれているので、新たにインストールする必要はないでしょう。<span class="frm">(一番シンプルな for Java Developer で入っているので)</span>
+	</p>
+
+	<h2 id="gitmenu">Package Explorer上のGitメニュー</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team</em> を選択すると、Gitのメニューが表示されます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-basic.png" title="Eclipse GitContextMenu basic"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-basic.png" alt="Eclipse GitContextMenu basic" width="550" height="420" /></a>
+	</p>
+
+	<h2 id="branchnew">新しいブランチを作成</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Switch to - New Branch...</em> を選択すると、ブランチ作成ダイアログが開きます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-new-menu.png" title="Eclipse GitContextMenu branch-new menu"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-new-menu.png" alt="Eclipse GitContextMenu branch-new menu" width="550" height="420" /></a>
+	</p>
+	<p>
+		デフォルトで現在のブランチが Source となり、新しいブランチ名を入力して Finish すると、ブランチ作成ができます。
+		<span class="frm">(Check out new branchにチェックが入っていれば、自動的に新しいブランチに切り替わります)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-new-opendialog.png" title="Eclipse GitContextMenu branch-new open-dialog"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-new-opendialog.png" alt="Eclipse GitContextMenu branch-new open-dialog" width="550" height="420" /></a>
+	</p>
+	<p>
+		この時点では、まだローカルリポジトリ(ローカルPC上のGitリポジトリ)にしか作成されていません。
+		接続しているサーバーリポジトリに新しいブランチを反映させるためには、ブランチのプッシュをする必要があります。
+		<span class="frm">(コミットのプッシュとは操作が違いますので注意)</span>
+	</p>
+
+	<h2 id="branchpush">新しいブランチをプッシュ</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Push Branch '現在のブランチ名'...</em> を選択すると、現在のブランチのプッシュができます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-push.png" title="Eclipse GitContextMenu branch-push"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-push.png" alt="Eclipse GitContextMenu branch-push" width="550" height="420" /></a>
+	</p>
+	<p>
+		ダイアログが開きますが、基本的にはデフォルトでNext/NextしてFinishで良いでしょう。
+	</p>
+	<p>
+		このプッシュは、ブランチ作成後の最初の一回だけです。コミットのプッシュは別操作になります。
+	</p>
+
+	<h2 id="branchswitch">ブランチを切り替える</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Switch to - [切り替えたいブランチ名]</em> を選択すると、選択したブランチに切り替わります。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-switch.png" title="Eclipse GitContextMenu branch-switch"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-branch-switch.png" alt="Eclipse GitContextMenu branch-switch" width="550" height="420" /></a>
+	</p>
+	<p>
+		メニュー上に切り替えたいブランチがない場合は、Other... を選択するとすべてのブランチを選択することができます。
+	</p>
+
+	<h2 id="gitpull">git pull</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Pull</em> を選択すると、git pullができます。
+		<span class="frm">(Pull... ではなく Pull の方で)</span>
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-pull.png" title="Eclipse GitContextMenu pull"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-pull.png" alt="Eclipse GitContextMenu pull" width="550" height="420" /></a>
+	</p>
+
+	<h2 id="gitcommit">git commit</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Commit...</em> を選択すると、git commitができます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-commit.png" title="Eclipse GitContextMenu commit"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-commit.png" alt="Eclipse GitContextMenu commit" width="550" height="420" /></a>
+	</p>
+	<p>
+		コミットダイアログが表示されますので、コミットしたいファイルを Staged Changes に入れて、コミットメッセージを入れて Commit
+		しましょう。もし、そのまま一緒にプッシュしても良いのであれば、Commit & Push すると良いです。
+	</p>
+
+	<h2 id="gitpush">git push</h2>
+	<p>
+		Package Explorerの対象プロジェクトを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Push to Upstream</em> を選択すると、git pushができます。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-push.png" title="Eclipse GitContextMenu push"><img src="../../../../../../data/model/friends/eclipse/operation/git/friends-Eclipse-GitContextMenu-push.png" alt="Eclipse GitContextMenu push" width="550" height="420" /></a>
+	</p>
+
+	<h2 id="githistory">Gitの履歴(History)を見る</h2>
+	<p>
+		Package Explorer上で履歴を見たいファイルを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Show in History</em> を選択すると、そのファイルの履歴が見れます。
+	</p>
+
+	<h2 id="gitcomparelocal">ローカル修正とGit最新の差分を見る</h2>
+	<p>
+		Package Explorer上で履歴を見たいファイルを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Compare With - HEAD Revision</em> を選択すると、差分が見れます。
+		<span class="frm">(Teamじゃないので注意)</span>
+	</p>
+
+	<h2 id="gitreplacelocal">ローカル修正をGit最新に置き換える <span class="frm">(破棄)</span></h2>
+	<p>
+		Package Explorer上でローカル修正を履きしたいファイルを選択して、controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Replace With - HEAD Revision</em> を選択すると、ローカル修正が破棄されます。
+		<span class="frm">(元に戻せないので注意しましょう。本当に破棄していいのでしょうか？)</span>
+	</p>
+
+	<h2 id="conflict">コンフリクト時の対応</h2>
+	<p>
+		コンフリクトした場合は、コンフリクトしたファイルをマージして、そのファイルを選択して controlクリック (右クリック)
+		でコンテキストメニューを表示して、<em class="keyword">Team - Add to Index</em> を選択すると、コンフリクトしたファイルがコミット可能ファイルになります。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

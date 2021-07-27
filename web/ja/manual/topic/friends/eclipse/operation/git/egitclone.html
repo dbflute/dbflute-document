@@ -25,9 +25,20 @@
 
 <div id="content"><!-- __content-start__ -->
 	<h1>Eclipseでgit clone</h1>
+	<p>
+		コミットやプッシュなどの日常Git操作は別ページです。ここではgit cloneのみを紹介しています。
+	</p>
+	<div class="relatedpage"><a href="./egitroutine.html">Eclipseで日常git操作</a></div>
 	<div class="relatedpage"><a href="../index.html">Friends - Eclipse</a></div>
-	<div class="relatedpage"><a href="../gitroutine.html">Eclipseで日常git操作</a></div>
 	${indexlist}
+
+	<h2 id="egit">組み込みのEGitプラグイン</h2>
+	<p>
+		ここでは、Eclipseに組み込まれている EGitプラグインを前提としています。
+	</p>
+	<p>
+		(おそらく)どのエディションでも組み込まれているので、新たにインストールする必要はないでしょう。<span class="frm">(一番シンプルな for Java Developer で入っているので)</span>
+	</p>
 
 	<h2 id="clonedir">(0. clone先ディレクトリの設定)</h2>
 	<p>
@@ -90,7 +101,7 @@
 		<dt>想定されるURL形式</dt><dd>https://[...]/[...][...].git</dd>
 	</dl>
 	<p>
-		その状態で、Git Repositories View で controlクリック (右クリック) して、Paste Repository Path or URI を選択します。
+		その状態で、Git Repositories View にて controlクリック (右クリック) でコンテキストメニューを表示して、Paste Repository Path or URI を選択します。
 		<span class="frm">(Git Repositories View にカーソルを当ててペースト(Macならcommand+v)でもOKです)</span>
 	</p>
 	<p class="imgbox">
