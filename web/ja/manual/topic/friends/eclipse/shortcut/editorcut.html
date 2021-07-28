@@ -83,7 +83,7 @@ memberBhv <span class="comment">// 候補から選べば補完できる (続け�
 	<h2 id="basic">基本操作周り</h2>
 	<dl class="textlist">
 		<dt>行コピー</dt>
-		<dd><em class="keyword">ctrl + alt + 上矢印(or 下矢印)</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd><em class="keyword">alt + command(ctrl) + 上矢印(or 下矢印)</em></dd>
 		<dd>
 			カーソルの存在する行の内容を矢印の方向にコピーする。
 			複数行選択されている場合は、複数行コピーとなる。<span class="frm">(OSレベルのショートカットとバッティングする場合も)</span>
@@ -95,7 +95,7 @@ memberBhv <span class="comment">// 候補から選べば補完できる (続け�
 			複数行選択されている場合は、複数行移動となる。
 		</dd>
 		<dt>一行削除</dt>
-		<dd><em class="keyword">ctrl + D</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd><em class="keyword">command(ctrl) + D</em></dd>
 		<dd>
 			どこにカーソルがあっても、そのカーソルの行を削除する。
 		</dd>
@@ -104,23 +104,31 @@ memberBhv <span class="comment">// 候補から選べば補完できる (続け�
 		<dd>
 			どこにカーソルがあっても、そのカーソルの行から次の行に空行を作って移動する。
 		</dd>
+		<dt>前に戻る</dt>
+		<dd><em class="keyword">alt + command + 左矢印</em> <span class="frm">(Windowsだとaltだけ)</span></dd>
+		<dd>
+			前にフォーカスした箇所に戻る。(前のファイルに戻る)
+		</dd>
+		<dd>
+			command + click で別のファイルのソースコードを見た後、さっきのファイルに戻るときに使える。
+		</dd>
 	</dl>
 
 	<h2 id="file">ファイル周り</h2>
 	<dl class="textlist">
 		<dt>現在のファイルのウィンドウを最大化</dt>
-		<dd><em class="keyword">ctrl + M</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd><em class="keyword">control + M</em></dd>
 		<dd>
 			現在開いているファイルのウィンドウを最大化して見やすくする。戻す時も同じ。
 			ファイルだけでなく、コンソールなどのウィンドウも同じように最大化できる。
 		</dd>
 		<dt>現在のファイルを閉じる</dt>
-		<dd><em class="keyword">ctrl + W</em> <span class="frm">(ctrl -&gt; command in Mac)</span></dd>
+		<dd><em class="keyword">command(ctrl) + W</em></dd>
 		<dd>
 			現在開いているファイルを閉じる。
 		</dd>
 		<dt>隣のファイルへ行く</dt>
-		<dd><em class="keyword">ctrl + shift + fn + 上矢印(or 下矢印)</em> <span class="frm">(ctrl -&gt; control in Mac)</span></dd>
+		<dd><em class="keyword">control + shift + fn + 上矢印(or 下矢印)</em></dd>
 		<dd>
 			上矢印の場合は左のファイルへ、下矢印の場合は右のファイルへ。
 		</dd>
