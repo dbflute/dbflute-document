@@ -154,6 +154,43 @@
 		コンフリクトした場合は、コンフリクトしたファイルをマージして、そのファイルを選択して controlクリック (右クリック)
 		でコンテキストメニューを表示して、<em class="keyword">Team - Add to Index</em> を選択すると、コンフリクトしたファイルがコミット可能ファイルになります。
 	</p>
+
+	<div class="inucolumn">
+		<h2 id="jflutegit">jfluteなショートカットでgit操作</h2>
+		<p>
+			そもそもgit操作はあまりEclipseでやらず、汎用的なgitコマンドやSource Treeでやる人が多いでしょう。
+			その方が別のプログラミング言語を使う時に操作に困らないですから。
+		</p>
+		<p>
+			それでも「Eclipse上でgit操作をしたい！」という猛者の方には、ショートカットで操作することがオススメです。
+			Eclipse上でgit操作する一番のメリットは手軽さですから、それを最大限活かさないと。右クリックしている場合ではありません。
+		</p>
+		<p>
+			ただ、デフォルトではショートカットがほとんど割り当てられていません。
+			なので興味のある猛者は、ワークスペース設定の <em class="mark">Preferences</em> の <em class="mark">Keys</em> 設定画面にて割り当ててみましょう。Mac想定となります。
+		</p>
+		<div class="relatedpage"><a href="../../environment/workproj.html">Eclipseのワークスペースとプロジェクト</a></div>
+		<dl class="shortvaluemainlist">
+			<dt><em class="mark">Fetch from Upstream</em></dt><dd>shift + alt + U <span class="frm">(Update: Fetch)</span></dd>
+			<dt><em class="mark">Pull</em> ☆</dt><dd>shift + alt + P <span class="frm">(Pull)</span></dd>
+			<dt><em class="mark">Commit...</em> ☆</dt><dd>shift + alt + C <span class="frm">(Commit)</span></dd>
+			<dt><em class="mark">Push to Upstream</em> ☆</dt><dd>shift + alt + V <span class="frm">(Cの隣だから、CommitしてPushの流れ)</span></dd>
+			<dt><em class="mark">Push (new) Branch</em></dt><dd>shift + alt + B <span class="frm">(Branch)</span></dd>
+			<dt><em class="mark">Check out Branch</em> ☆</dt><dd>shift + alt + command + B <span class="frm">(checkout Branch)</span></dd>
+			<dt><em class="mark">Compare with Head Rev.</em> ☆</dt><dd>shift + alt + L <span class="frm">(Local difference)</span></dd>
+			<dt><em class="mark">Show in History</em></dt><dd>shift + alt + H <span class="frm">(History)</span></dd>
+		</dl>
+		<p>
+			<span class="frm">※ローカル修正を破棄する Replace with Head Rev. は気軽にできると危ないのでショートカット化していません。</span>
+		</p>
+		<p>
+			日常的に使う☆マークが付いているものだけでも良いでしょう。
+			これを手に馴染ませて息を吸うかのごとくできるようになると、Eclipse利用中にgit操作が出てきても本当に楽に過ごせます。
+		</p>
+		<p>
+			ただ、別のプログラミング言語では使えないので、汎用的な方法はちゃんと覚えておきましょう。
+		</p>
+	</div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
