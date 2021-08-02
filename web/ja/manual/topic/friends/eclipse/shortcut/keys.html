@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipse, ショートカットキー設定(Keys) | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipse, ショートカットキー設定(Keys)</h1>
+	<div class="relatedpage"><a href="./index.html">Friends - Eclipse</a></div>
+	${indexlist}
+
+	<h2 id="keys">Keysとは？</h2>
+	<p>
+		ワークスペース設定の Preferences の <em class="keyword">Keys</em> にて、ショートカットキーをカスタマイズできます。
+	</p>
+	<div class="relatedpage"><a href="../environment/workproj.html">Eclipseのワークスペースとプロジェクト</a></div>
+	<p class="imgbox">
+		<a href="../../../../../data/model/friends/eclipse/shortcut/friends-Eclipse-Keys-settings-basic.png" title="Eclipse Keys settings basic"><img src="../../../../../data/model/friends/eclipse/shortcut/friends-Eclipse-Keys-settings-basic.png" alt="Eclipse Keys settings basic" width="520" height="380" /></a>
+	</p>
+	<p>
+		よく使うけどデフォルトでショートカットキーが割り当てられていない、もしくは、使いづらいキーになっている、というような場合に調整すると良いでしょう。
+	</p>
+	<p>
+		ただ、これはワークスペースの設定なので、あんまりやり過ぎると毎回設定するのが大変だったり、他の人と指の会話ができなくなるので気を付けましょう。
+	</p>
+	<div class="relatedpage"><a href="../environment/recomwork.html#routinework">これ毎回やるのか？</a></div>
+
+	<div class="inucolumn">
+		<h2 id="jflutekeys">jfluteなEclipseショートカットキー</h2>
+		<p>
+			増やし過ぎないように...できるだけデフォルトを使うように...と思っても積み重なるとけっこうありますね。
+			<span class="frm">(Macの日本語キーボードを前提にしています)</span>
+		</p>
+		<dl class="shortvaluemainlist">
+			<dt><em class="mark">コンソールを開く</em></dt><dd>shift + command + _ (ろ) <span class="frm">:: Show in (Console)</span></dd>
+			<dt><em class="mark">エディターにカーソル移動</em></dt><dd>shift + command + * (け) <span class="frm">:: Activate Editor</span></dd>
+			<dt><em class="mark">Package Explorerを開く</em></dt><dd>shift + command + + (れ) <span class="frm">:: Show in (Package Explorer)</span></dd>
+			<dt><em class="mark">Search結果を開く</em></dt><dd>shift + command + - (ほ) <span class="frm">:: Show in (Search)</span></dd>
+			<dt><em class="mark">Problemsを開く</em></dt><dd>shift + command + ^ (へ) <span class="frm">:: Show in (Problems)</span></dd>
+			<dt><em class="mark">Tasksを開く</em></dt><dd>shift + command + ¥ (|) <span class="frm">:: Show in (Tasks)</span></dd>
+			<dt><em class="mark">Perspectiveを行き来</em></dt><dd>shift + command + @<span class="frm">:: Next Perspective</span></dd>
+			<dt><em class="mark">Cleanコンパイル</em></dt><dd>alt + B <span class="frm">:: Clean</span></dd>
+			<dt><em class="mark">アプリの実行</em></dt><dd>control + R <span class="frm">:: Run</span></dd>
+			<dt><em class="mark">mainメソッドの実行</em></dt><dd>control + 8 <span class="frm">:: Run Java Application</span></dd>
+			<dt><em class="mark">直近テストの再実行</em></dt><dd>control + 4 <span class="frm">:: Rerun JUnit (Quick JUnit)</span></dd>
+		</dl>
+		<p>
+			<span class="frm">※例えば、"コンソールを開く" であれば、Keys設定で Show in (Console) で検索すれば設定できます。</span>
+		</p>
+		<p>
+			shift+command系のカーソル移動やViewへの移動など、jfluteは移動スピードは譲れないので徹底して指に叩き込んでいます。
+		</p>
+		<p>
+			MacBookのスクリーンだとそこまで画面も大きくないのでコンソールは Fast View で普段は隠しておいて、見たくなったらすぐに
+			shift + command + _ (ろ) を押して、見終わったらすぐに shift + command + * (け)
+			を押してエディターに戻ります。これを息を吸うかのごとくやります。
+		</p>
+		<p>
+			さらに、git操作に関しては、こちらのコラムにて詳しく書いています。
+		</p>
+		<div class="detailpage"><a href="../operation/git/egitroutine.html#jflutegit">jfluteなショートカットでgit操作</a></div>
+		<p>
+			大昔は、新しいワークスペースを作るたびに毎回設定して記憶だけで設定できるくらいになってしまいましたが、"これ毎回やるのか？" のコラムの通り最近は裏技でずっと引き継がれるようになっています。
+		</p>
+		<div class="detailpage"><a href="../environment/recomwork.html#routinework">これ毎回やるのか？</a></div>
+		<p>
+			でもそれのおかげで、いつも指の動きは順調で速いです。覚悟のある方だけ真似てくださいませ。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
