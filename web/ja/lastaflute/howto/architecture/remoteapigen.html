@@ -1,0 +1,550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>リモートAPIの自動生成 (RemoteApiGen) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>リモートAPIの自動生成 (RemoteApiGen)</h1>
+	<p>
+		Lasta RemoteApiライブラリを想定した自動生成ツールです。
+	</p>
+	<div class="relatedpage"><a href="./remoteapicall.html">定まったリモートAPI呼び出し (RemoteApi Call)</a></div>
+	${indexlist}
+
+	<h2 id="about">RemoteApiGenとは？</h2>
+	<h3 id="genremoteclasses">リモートAPIクラスの自動生成</h3>
+	<p>
+		リモートAPIのクラス、BehaviorやParam/Returnクラスを手動で作るのは大変です。
+		リモートサーバーのAPIスキーマ定義があるなら自動生成してしまいましょう。それが RemoteApiGen です。
+	</p>
+	<h3 id="freegenmodule">RemoteApiGenはFreeGenモジュール</h3>
+	<p>
+		RemoteApiGenは、DBFluteのFreeGenを利用してクラスを自動生成します。
+	</p>
+	<p>
+		DBFluteクライアントのfreegen配下にRemoteApiGenのモジュールを配置し、freeGenMap.dfpropにFreeGen定義をして、
+		<span class="frm">(RemoteApiGenに必要なアプリのファイルを用意した上で)</span>自動生成を行っていきます。
+	</p>
+	<h3 id="fwrepository">RemoteApiGenの本家リポジトリ</h3>
+	<p>
+		RemoteApiGenはjarライブラリ形式ではないので、Exampleの中で最新版を管理しています。
+	</p>
+	<dl class="valuemainlist">
+		<dt>本家リポジトリ</dt><dd><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen">dbflute-example-with-remoteapi-gen</a></dd>
+	</dl>
+	<p>
+		最新版はこのリポジトリの <em class="keyword">DBFluteクライアントのfreegenディレクトリのremoteapiディレクトリ</em>
+		にあります。アップグレードする際は、ここからコピーして現場のプロジェクトのものと入れ替えをしましょう。
+	</p>
+	<p>
+		そのままExampleにもなっているので、設定など参考にしましょう。
+	</p>
+
+	<h2 id="architecture">RemoteApiGenのアーキテクチャ</h2>
+	<h3 id="overviewmodel">RemoteApiGenの全体像</h3>
+	<p>
+		ざっくりこのようになっています。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/model/lastaflute/remoteapi/lastaflute-remoteapigen-architecture-map.png" title="LastaFlute RemoteApiGen Architecture"><img src="../../../../data/model/lastaflute/remoteapi/lastaflute-remoteapigen-architecture-map.png" alt="LastaFlute RemoteApiGen Architecture" width="550" height="380" /></a>
+	</p>
+	<h3 id="givemeswaggerjson">リモートサーバーのswagger.jsonをもらう</h3>
+	<p>
+		リモートサーバーから swagger.json をもらうことが前提です。外部APIなどで swagger.json がもらえない場合は、インターフェース仕様書などから swagger.json
+		を作成すれば自動生成できます。どうしても swagger.json を用意できない場合は RemoteApiGen は利用できません。
+	</p>
+	<h3 id="definerulejs">自動生成を調整するrule.jsを定義する</h3>
+	<p>
+		...rule.js という自動生成の振る舞いを調整するための設定ファイルを定義します。
+		JavaScriptで表現された設定ファイルとなっています。RemoteApiGenがFreeGen実行の中でJavaScriptを評価します。
+	</p>
+	<p>
+		アプリのrule.jsとフレームワークのrule.jsがあり、アプリのrule.jsでJavaScript関数のオーバーライドを行ってデフォルトの振る舞いを変更します。
+	</p>
+	<dl class="keymainlist">
+		<dt>アプリのrule.js</dt><dd>関数をオーバーライドして自動生成の振る舞いをアプリに合わせていく</dd>
+		<dt>フレームワークのrule.js</dt><dd>デフォルトの挙動、このコードを読んでアプリのrule.jsの参考に</dd>
+	</dl>
+	<h3 id="generationgapbhv">Behaviorはジェネレーションギャップ</h3>
+	<p>
+		それぞれのBehaviorは、DBFluteと同じようにBs/Exクラスがジェネレーションギャップで自動生成されますので、Exクラス側で手動修正で調整することができます。
+	</p>
+	<p>
+		また、すべてのBehaviorが継承するスーパークラスも自動生成され、これも手動修正をすることができます。yourDefaultRule()などそのリモートサーバーで共通の設定を実装しましょう。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>Abstract...Bhv</dt><dd>自動生成(上書きされない)、yourDefaultRule() などの設定を</dd>
+		<dt>Bs...Bhv</dt><dd>自動生成(上書きされる)、requestメソッドなどが定義される</dd>
+		<dt>...Bhv</dt><dd>自動生成(上書きされない)、必要に応じてruleOfメソッドなどをオーバーライド</dd>
+	</dl>
+
+	<h2 id="filestructure">RemoteApiGenのファイル構成</h2>
+	<p>
+		ざっくりこのようになっています。☆マークの付いてるファイルが重要ファイルです。
+	</p>
+<pre><span class="codetitle">e.g. RemoteApiGen file structure @Directory</span><code>
+[PROJECT_ROOT]
+ |-src/main/java
+ |  |-[application-package]
+ |  |  |-app
+ |  |  |-bizfw
+ |  |  |-dbflute
+ |  |  |-mylasta
+ |  |  |-remote
+ |  |  |  |-[remote-server-package]
+ |  |  |  |  |-[business-packages]
+ |  |  |  |  |  |-Bs[Business]Bhv.java <span class="comment">// 自動生成されたBehaviorのBsクラス、人が修正しない</span>
+ |  |  |  |  |  |-[Business]Bhv.java <span class="comment">// 自動生成されたBehaviorのExクラス、必要に応じて人が修正</span>
+ |  |  |  |  |
+ |  |  |  |  | <span class="comment">// 自動生成されたスーパークラス、すべてのBehaviorが継承している</span>
+ |  |  |  |  | <span class="comment">// yourDefaultRule()などの実装をする、人が修正しまくる</span>
+ |  |  |  |  |-<span class="subpoint">AbstractRemote[RemoteServer]Bhv.java</span>
+ |
+ |-src/main/resources
+ |  |-...
+ |  |-remoteapi
+ |  |  |-di
+ |  |  |  | <span class="comment">// 自動生成されたDi xml, remote_api.xmlからincludeされる、人が修正しない</span>
+ |  |  |  |-remoteapi_[remote-server].xml
+ |  |  |
+ |  |  |-schema
+ |  |  |  |
+ |  |  |  | <span class="comment">// アプリのrule.js, 自動生成の振る舞いを定義、人が修正しまくる ☆☆☆</span>
+ |  |  |  | <span class="comment">// フレームワークのRemoteApiRule.jsの関数をオーバーライドしてアプリに合うように調整する</span>
+ |  |  |  |-<span class="subpoint">remoteapi_schema_[remote-server]_rule.js</span>
+ |  |  |  |
+ |  |  |  | <span class="comment">// リモートサーバーからもらったswagger.json, 基本的に人が修正しない(もらうだけ) ☆☆</span>
+ |  |  |  |-<span class="subpoint">remoteapi_schema_[remote-server]_swagger.json</span>
+ |  |-...
+ |  |-app.xml <span class="comment">// アプリの基点となるDi xml, remote_api.xml を include, 人が修正する</span>
+ |  |-remote_api.xml <span class="comment">// 自動生成されたDi xmlをincludeするDi xml, 人が作成する</span>
+ |
+ |-dbflute_[xxxdb]
+ |  |-dfprop
+ |  |  |-...
+ |  |  |-freeGenMap.dfprop <span class="comment">// FreeGen定義、リモートサーバーごとに設定を追加、人が修正する ☆</span>
+ |  |
+ |  |-freegen <span class="comment">// FreeGenモジュールのディレクトリ、アップグレード以外では人は修正しない</span>
+ |  |  |-remoteapi
+ |  |  |  |-container <span class="comment">// 自動生成されるDi xmlのVelocityテンプレートのディレクトリ</span>
+ |  |  |  |-doc       <span class="comment">// 自動生成されるドキュメントのVelocityテンプレートのディレクトリ</span>
+ |  |  |  |
+ |  |  |  |-ControlFreeGenRemoteApiJava.js <span class="comment">// RemoteApiGenの自動生成処理の根幹ロジック ☆</span>
+ |  |  |  |-ControlFreeGenRemoteApiJava.vm <span class="comment">// FreeGenの制御ファイル</span>
+ |  |  |  |-README.md        <span class="comment">// 読んでください</span>
+ |  |  |  |-...vm            <span class="comment">// 自動生成されるBehaviorやBeanなどのVelocityテンプレート</span>
+ |  |  |  |-<span class="subpoint">RemoteApiRule.js</span> <span class="comment">// フレームワークのrule.js, アプリ側はこれをオーバーライドする ☆☆</span>
+ |
+</code></pre>
+
+	<h2 id="howtorulejs">rule.jsの書き方</h2>
+	<p>
+		rule.jsは、JavaScriptで記述されているので、定義の仕方に少々特徴があります。
+	</p>
+	<h3 id="howtooverride">関数のオーバーライドの仕方</h3>
+	<p>
+		フレームワークの RemoteApiRule.js の関数をオーバーライドする場合はこのようになります。
+	</p>
+<pre><span class="codetitle">e.g. how to override in rule.js @JavaScript</span><code>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// フレームワークのRemoteApiRule.jsでの定義</span>
+<span class="comment">// (objectの定義になっている)</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+
+    target: function(api) {
+        <span class="abbreviation">...</span>
+    },
+
+　↓↓↓
+
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/</span>
+<span class="comment">// アプリのrule.jsでのオーバーライド定義</span>
+<span class="comment">// (関数を代入しているので "=" になっている)</span>
+<span class="comment">// (@Overrideコメントは慣習)</span>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/</span>
+
+<span class="comment">// @Override</span>
+remoteApiRule.target = function(api) {
+    <span class="abbreviation">...</span>
+    
+    <span class="comment">// フレームワーク側の処理を呼び出すなら、baseRuleで参照できる</span>
+    <span class="comment">// (Javaのsuperみたいな感じ)</span>
+    <span class="comment">//return baseRule.target(api);</span>
+
+    <span class="abbreviation">...</span>
+} <span class="comment">// ここのカンマは不要、こっちはオブジェクト定義ではないので</span>
+</code></pre>
+	<h3 id="howtovar">アプリ独自のオブジェクトの定義</h3>
+	<p>
+		アプリのrule.jsで独自に定義したオブジェクトを利用する場合はこのようになります。
+	</p>
+<pre><span class="codetitle">e.g. how to override in rule.js @JavaScript</span><code>
+<span class="comment">// name and type mapping for e.g. classification</span>
+var <span class="point">manualMappingClassMap</span> = {
+    'memberStatus': 'org.docksidestage.dbflute.allcommon.CDef.MemberStatus',
+    'selectedReason': 'org.docksidestage.dbflute.allcommon.CDef.WithdrawalReason'
+};
+
+<span class="comment">// @Override</span>
+remoteApiRule.pathVariableManualMappingClass = function(api, pathVariable) {
+    return <span class="subpoint">manualMappingClassMap</span>[pathVariable.name];
+}
+
+<span class="comment">// @Override</span>
+remoteApiRule.beanPropertyManualMappingClass = function(api, beanClassName, property) {
+    return <span class="subpoint">manualMappingClassMap</span>[property.name];
+}
+</code></pre>
+	<h3 id="howtoorganize">rule.jsを綺麗に整理整頓</h3>
+	<p>
+		重要なファイルなので綺麗に保ちましょう。タグコメント入れたり、定義順序をRemoteApiRule.jsに合わせることをオススメします。
+	</p>
+	<p>
+		また、何のためのオーバーライドか？何を変更しているのか？のコメントもしっかり書くと良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. how to override in rule.js @JavaScript</span><code>
+<span class="comment">// _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+// RemoteApiGen your rule settings as ECMAScript5 (related to RemoteApiRule.js in freegen)
+// _/_/_/_/_/_/_/_/_/_/</span>
+
+<span class="comment">// ======================================================================================
+//                                                                                  Const
+//                                                                                  =====</span>
+<span class="abbreviation">...Constタグコメントの関数のオーバーライドをここに</span>
+
+
+
+<span class="comment">// ======================================================================================
+//                                                                                  Base
+//                                                                                 ======</span>
+<span class="comment">// @Override</span>
+remoteApiRule.target = function(api) { <span class="comment">// you can select generated API</span> 
+<span class="abbreviation">...</span>
+
+<span class="abbreviation">...Baseタグコメントの関数のオーバーライドをここに</span>
+
+
+
+<span class="comment">// ======================================================================================
+//                                                                               Behavior
+//                                                                               ========</span>
+<span class="comment">// generate hierarchical behaviors if resources hanving many nests</span>
+<span class="comment">// @Override</span>
+remoteApiRule.behaviorSubPackage = function(api) {
+<span class="abbreviation">...</span>
+
+<span class="abbreviation">...Behaviorタグコメントの関数のオーバーライドをここに</span>
+
+
+
+<span class="comment">// =======================================================================================
+//                                                                            Param/Return
+//                                                                            ============</span>
+<span class="comment">// extends common super class for e.g. HTTP headers</span>
+<span class="comment">// @Override</span>
+remoteApiRule.returnExtendsClass = function(api, properties) {
+<span class="abbreviation">...</span>
+
+<span class="abbreviation">...Param/Returnタグコメントの関数のオーバーライドをここに</span>
+
+
+
+<span class="comment">// =======================================================================================
+//                                                                                  Option
+//                                                                                  ======</span>
+<span class="comment">// @Override</span>
+remoteApiRule.typeMap = function() {
+<span class="abbreviation">...</span>
+
+<span class="abbreviation">...Optionタグコメントの関数のオーバーライドをここに</span>
+</code></pre>
+
+	<h3 id="fwrulejsbehavior">RemoteApiRule.jsの細かい挙動</h3>
+	<p>
+		フレームワークのrule.jsである RemoteApiRule.js の関数の細かい挙動に関して調べたい場合は、RemoteApiRule.js自体のソースコードを読むのに加えて、それを制御している
+		<em class="mark">ControlFreeGenRemoteApiJava.js</em> を読むと良いです。
+	</p>
+
+	<h2 id="rulejspattern">rule.jsのお決まりパターン</h2>
+	<h3 id="selectapi">自動生成するAPIを絞り込む</h3>
+	<p>
+		デフォルトでは、すべてのpathが自動生成対象になります。
+	</p>
+	<p>
+		絞り込むためには、target()関数をオーバーライドします。<span class="frm">(Baseタグコメント配下)</span>
+	</p>
+<pre><span class="codetitle">e.g. how to override target() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Baseタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// @Override</span>
+remoteApiRule.target = <span class="keyword">function</span>(api) { <span class="comment">// you can select generated API</span> 
+    <span class="keyword">if</span> (api.url.indexOf('/method/onbodyjson') !== -1 && api.httpMethod === 'get') { <span class="comment">// get$onbodyjson()</span>
+        <span class="keyword">return false</span>; <span class="comment">// unsupported at RemoteApiGen for now (you can request by your manual method)</span>
+    }
+    <span class="keyword">return true;</span>
+}
+</code></pre>
+	<p>
+		api.urlでpathが取得できるので、対象や除外をうまく調整しましょう。
+	</p>
+	<h3 id="hierarchicalbehavior">階層ごとにBehaviorを自動生成する</h3>
+	<p>
+		デフォルトでは、1階層分のBehaviorしか自動生成されず、リモートサーバーがRESTful APIなどで階層が深い場合は、それぞれ巨大なBehaviorになってしまいます。
+	</p>
+	<p>
+		階層ごとにBehaviorを自動生成するには、behaviorSubPackage()関数をオーバーライドします。
+	</p>
+<pre><span class="codetitle">e.g. how to override behaviorSubPackage() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Behaviorタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// generate hierarchical behaviors if resources hanving many nests</span>
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="point">behaviorSubPackage</span> = <span class="keyword">function</span>(api) {
+    <span class="keyword">return</span> <span class="keyword">this</span>.subPackage(api).replace(/^([^.]*)\.(.+)/, '$1<span class="subpoint">.$2</span>'); <span class="comment">// default is $1 only</span>
+}
+</code></pre>
+	<p>
+		$1に対して、.$2を追加しただけです。少しオーバーライドの範囲が広いので、アップグレードしたときはフレームワーク内の修正を追従しましょう。
+	</p>
+	<h3 id="alwayshttpmethod">requestメソッドにHTTP Methodを必ず付ける</h3>
+	<p>
+		デフォルトでは、同じpathに対して複数のHTTP Methodが存在する場合にだけHTTP Methodがrequestメソッドに付与されます。
+		<span class="frm">(protectedのruleOfメソッドも同様です)</span>
+	</p>
+	<p>
+		リモートサーバーがRESTful APIなどHTTP Methodが存分に使っている場合は、運用途中の再自動生成でメソッド名が変わってしまう可能性もあります。
+	</p>
+	<p>
+		requestメソッドにHTTP Methodを必ず付けるには、behaviorRequestMethodName()関数をオーバーライドします。
+		同時に、ruleOfメソッドもHTTP Methodを必ず付けるようにしておいたほうが良いので、behaviorRuleMethodName()関数もオーバーライドします。
+	</p>
+<pre><span class="codetitle">e.g. how to override behaviorSubPackage() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Behaviorタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// always HTTP Method on request method</span>
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="point">behaviorRequestMethodName</span> = function(api) {
+    <span class="keyword">var</span> methodPart = manager.camelize(<span class="keyword">this</span>.subPackage(api).replace(<span class="keyword">this</span>.behaviorSubPackage(api), '').replace(/\./g, '_'));
+    <span class="keyword">return</span> 'request' + manager.initCap(methodPart) + (api.httpMethod ? manager.initCap(api.httpMethod) : '');
+}
+
+<span class="comment">// always HTTP Method on rule method</span>
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="subpoint">behaviorRuleMethodName</span> = function(api) {
+    <span class="keyword">var</span> methodPart = manager.camelize(<span class="keyword">this</span>.subPackage(api).replace(this.behaviorSubPackage(api), '').replace(/\./g, '_'));
+    <span class="keyword">return</span> 'ruleOf' + manager.initCap(methodPart) + (api.httpMethod ? manager.initCap(api.httpMethod) : '');
+}
+</code></pre>
+	<p>
+		multipleHttpMethodかどうかの判定をやめて固定でHTTP Methodが入るようにしています。少しオーバーライドの範囲が広いので、アップグレードしたときはフレームワーク内の修正を追従しましょう。
+	</p>
+	<h3 id="returnsuperclass">Returnクラスにスーパークラスを定義する</h3>
+	<p>
+		デフォルトでは、Returnクラスには特に何もスーパークラスは付与されません。
+	</p>
+	<p>
+		Returnクラスにスーパークラスを定義するには、returnExtendsClass()関数をオーバーライドします。
+	</p>
+<pre><span class="codetitle">e.g. how to override returnExtendsClass() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Param/Returnタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// extends common super class for e.g. HTTP headers</span>
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="point">returnExtendsClass</span> = <span class="keyword">function</span>(api, properties) {
+    <span class="keyword">if</span> (api.httpMethod === 'get' && !api.url.endsWith('}/')) { <span class="comment">// means List GET</span>
+        <span class="keyword">return</span> <span class="literal">"org.docksidestage.bizfw.paging.AbstractListGetReturn"</span>;
+    } <span class="keyword">else</span> {
+        <span class="keyword">return</span> baseRule.returnExtendsClass(api, properties);
+    }
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>ここでは、RESTful API の List GET のときだけスーパークラスを定義している</li>
+	</ul>
+	<p>
+		スーパークラスは、bizfwパッケージ配下のどこかの業務的なパッケージに置くと良いでしょう。
+	</p>
+	<p>
+		固定的にレスポンスのHTTP Headerなどの値をReturnに持たせたいときなどに使うと良いです。
+		rule.handleHeaderResponse()とコラボレーションさせましょう。
+	</p>
+	<h3 id="returninterface">Returnクラスにインターフェースを定義する</h3>
+	<p>
+		デフォルトでは、Returnクラスには特に何もインターフェースは付与されません。
+	</p>
+	<p>
+		Returnクラスにインターフェースを定義するには、paramImplementsClasses()関数をオーバーライドします。
+		<span class="frm">(Param/Returnタグコメント配下)</span>
+	</p>
+	<p>
+		スーパークラスの returnExtendsClass()関数と同じような感じで定義できます。
+	</p>
+	<h3 id="fieldnamingrule">フィールド名のキャメル変換ルールを変える</h3>
+	<p>
+		デフォルトでは、パスパラメーターやJSON上の項目名を小文字スネークケースであることを前提にして、Javaクラスのフィールドではキャメルケースで自動生成します。
+	</p>
+	<p>
+		フィールド名のキャメル変換ルールを変えるには、fieldNamingMapping()関数をオーバーライドします。
+	</p>
+<pre><span class="codetitle">e.g. how to override typeMap() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Optionタグコメント配下に定義すると良いでしょう</span>
+
+remoteApiRule.<span class="point">fieldNamingMapping</span> = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> {
+        'path': <span class="keyword">this</span>.FIELD_NAMING.CAMEL_TO_LOWER_SNAKE,
+        'query': <span class="keyword">this</span>.FIELD_NAMING.CAMEL_TO_LOWER_SNAKE,
+        'formData': <span class="keyword">this</span>.FIELD_NAMING.CAMEL_TO_LOWER_SNAKE,
+        'json': <span class="subpoint">null</span>,
+        'xml': <span class="keyword">this</span>.FIELD_NAMING.CAMEL_TO_LOWER_SNAKE
+    };
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>ここでは、JSONだけ変換をしないようにしている</li>
+	</ul>
+	<p>
+		path, query, jsonなどそれぞれに設定が分かれていて、変換を止めたい場合は null にします。
+	</p>
+	<p>
+		JSONをパースするのはLastaFluteのJsonManager(Gson)になりますので、そちらの変換ルールと合っていないといけません。
+		<span class="frm">([App]JsonResourceProviderにて設定できます)</span>
+	</p>
+	<h3 id="changeutillist">java.util.Listを別のリストにする</h3>
+	<p>
+		デフォルトでは、リスト項目は java.util.List で生成されます。
+	</p>
+	<p>
+		java.util.Listを別のリストにするには、typeMap()関数をオーバーライドします。
+	</p>
+<pre><span class="codetitle">e.g. how to override typeMap() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Optionタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="point">typeMap</span> = <span class="keyword">function</span>() {
+    <span class="keyword">var</span> typeMap = baseRule.typeMap();
+    typeMap[<span class="subpoint">'array'</span>] = <span class="literal">'org.eclipse.collections.api.list.ImmutableList'</span>;
+    <span class="keyword">return</span> typeMap;
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>ここでは、Eclipse Collections の ImmutableList を利用している</li>
+	</ul>
+	<p>
+		JSONをパースするのはLastaFluteのJsonManager(Gson)になりますので、例えば Eclipse Collections の ImmutableList
+		で受け取るのであれば、LastaFlute側の設定で ImmutableList を解釈できるようにしておきましょう。
+		<span class="frm">([App]JsonResourceProviderにて設定できます)</span>
+	</p>
+	<h3 id="classificationproperty">区分値項目をCDef型で定義する</h3>
+	<p>
+		デフォルトでは、区分値項目もStringなどで生成されます。
+		swagger.jsonの情報だけでは「どのCDefクラスに紐付くのか？」わからないためです。
+	</p>
+	<p>
+		区分値項目をCDef型で定義するには、pathVariableManualMappingClass()関数とbeanPropertyManualMappingClass()関数をオーバーライドします。
+	</p>
+<pre><span class="codetitle">e.g. how to override ...ManualMappingClass() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Optionタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// name and type mapping for e.g. classification</span>
+<span class="keyword">var</span> <span class="subpoint">manualMappingClassMap</span> = {
+    <span class="literal">'memberStatus'</span>: <span class="literal">'org.docksidestage.dbflute.allcommon.CDef.MemberStatus'</span>,
+    <span class="literal">'selectedReason'</span>: <span class="literal">'org.docksidestage.dbflute.allcommon.CDef.WithdrawalReason'</span>
+};
+
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="point">pathVariableManualMappingClass</span> = <span class="keyword">function</span>(api, pathVariable) {
+    <span class="keyword">return</span> manualMappingClassMap[pathVariable.name];
+}
+
+<span class="comment">// @Override</span>
+remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span class="keyword">function</span>(api, beanClassName, property) {
+    <span class="keyword">return</span> manualMappingClassMap[property.name];
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>パッケージ名の指定が冗長だと思ったら、ここは自由なJavaScriptなのでお好きなように最適化を</li>
+	</ul>
+	<p>
+		関連付けるのはアプリ区分値のCDefでもOKです。<span class="frm">(というかその方が良いでしょう)</span>
+	</p>
+	<p>
+		パスパラメーターとBeanプロパティで関数が分かれていますので、それぞれの ...ManualMappingClass をオーバーライドして、CDefとの関連付けを行います。
+		そのために、独自のオブジェクトを宣言して、そこで関連付けを定義しています。
+	</p>
+	<p>
+		項目名に対しての関連付けなので、項目名が曖昧なものだと関連付けるのが難しくなります。
+		<span class="frm">(オーバーライドした関数の中で他の要素を使ってピンポイントで判定することはできるかもしれませんが複雑になるかもしれません)</span>
+	</p>
+	<p>
+		ここは開発者がつどつど追加修正していく箇所になるかと思いますので、しっかりわかるようにコメントなどを付けたり綺麗に保つようにしましょう。
+	</p>
+	<h3 id="variousrulejs">その他いろいろなrule.js設定</h3>
+	<p>
+		Exampleの remoteapi_schema_tricky_rule.js を参考に。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/blob/develop/src/main/resources/remoteapi/schema/remoteapi_schema_tricky_rule.js">remoteapi_schema_tricky_rule.js | Github</a></div>
+
+	<h2 id="exampleproject">Exampleプロジェクト</h2>
+	<p>
+		本家リポジトリがそのままExampleになります。
+	</p>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/">dbflute-example-with-remoteapi-gen | Github</a></div>
+	<p>
+		lastaflute-test-fortressプロジェクト <span class="frm">(テスト用のプロジェクト)</span>
+		に、RemoteHarborBhv という RemoteApi の Example コードもあります。 
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress">lastaflute-test-fortress | Github</a></div>
+	<dl class="longkeymainlist">
+		<dt>RemoteHarborBhv</dt><dd>手動作成、単一プロジェクト (harbor)</dd>
+		<dt>RemoteMaihamaHangarBhv</dt><dd>手動作成、マルチプロジェクト (maihama - hangar)</dd>
+		<dt>RemoteMaihamaShowbaseBhv</dt><dd>自動生成, マルチプロジェクト (maihama - showbase)</dd>
+		<dt>RemoteSwaggerPetstoreBhv</dt><dd>自動生成, petstoreを使った動作確認用</dd>
+		<dt>RemoteSwaggerTrickyBhv</dt><dd>自動生成, トリッキーな動作確認用</dd>
+	</dl>
+
+	<h2 id="greatthanks">Great Thanks</h2>
+	<p>
+		RemoteApiGenは、"LUXA" より、コントリビュート頂きました。
+	</p>
+	<div class="detailpage"><a href="https://luxa.jp/">LUXA (ルクサ)</a></div>
+	<p>
+		ありがとうございます！
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
