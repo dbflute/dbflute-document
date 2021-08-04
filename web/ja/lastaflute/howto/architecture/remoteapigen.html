@@ -45,6 +45,7 @@
 		DBFluteクライアントのfreegen配下にRemoteApiGenのモジュールを配置し、freeGenMap.dfpropにFreeGen定義をして、
 		<span class="frm">(RemoteApiGenに必要なアプリのファイルを用意した上で)</span>自動生成を行っていきます。
 	</p>
+	<div class="relatedpage"><a href="../../../manual/function/generator/task/freegen/index.html">FreeGenタスク</a></div>
 	<h3 id="fwrepository">RemoteApiGenの本家リポジトリ</h3>
 	<p>
 		RemoteApiGenはjarライブラリ形式ではないので、Exampleの中で最新版を管理しています。
@@ -85,6 +86,9 @@
 		<dt>アプリのrule.js</dt><dd>関数をオーバーライドして自動生成の振る舞いをアプリに合わせていく</dd>
 		<dt>フレームワークのrule.js</dt><dd>デフォルトの挙動、このコードを読んでアプリのrule.jsの参考に</dd>
 	</dl>
+	<p>
+		アプリのrule.jsは手動で作成します。<span class="frm">(一番最初はExampleのrule.jsを参考にしましょう)</span>
+	</p>
 	<h3 id="generationgapbhv">Behaviorはジェネレーションギャップ</h3>
 	<p>
 		それぞれのBehaviorは、DBFluteと同じようにBs/Exクラスがジェネレーションギャップで自動生成されますので、Exクラス側で手動修正で調整することができます。
@@ -156,6 +160,42 @@
  |  |  |  |-<span class="subpoint">RemoteApiRule.js</span> <span class="comment">// フレームワークのrule.js, アプリ側はこれをオーバーライドする ☆☆</span>
  |
 </code></pre>
+
+	<h2 id="howtofreegen">freeGenMap.dfpropの書き方</h2>
+	<p>
+		freeGenMap.dfprop での RemoteApiGen向けのFreeGen定義は、このように書きます。
+	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/dfprop/freegen/index.html">freeGenMap.dfprop</a></div>
+<pre><span class="codetitle">e.g. how to define freeGen definition, to maihama-showbase application @dfporp</span><code>
+; RemoteApiMaihamaShowbase = map:{
+    ; resourceMap = map:{
+        ; baseDir = ../src/main
+        ; resourceType = SWAGGER
+        ; resourceFile = <span class="attribute">$$baseDir$$</span>/resources/remoteapi/schema/remoteapi_schema_maihama-showbase_swagger.json
+    }
+    ; outputMap = map:{
+        ; outputDirectory = <span class="attribute">$$baseDir$$</span>/java
+        ; package = org.docksidestage.remote
+    }
+    ; optionMap = map:{
+        ; ruleJsPath = ../src/main/resources/remoteapi/schema/remoteapi_schema_maihama-showbase_rule.js
+    }
+}
+</code></pre>
+	<p>
+		ひとつのリモートサーバーに対して、一つのFreeGen定義をします。
+	</p>
+	<dl class="keymainlist">
+		<dt>FreeGenリクエスト名</dt><dd>RemoteApi[相手のリモートサーバーの名前]が慣習</dd>
+		<dt>resourceType</dt><dd>必ず SWAGGER を指定 <span class="frm">(swagger.jsonを読み込むため)</span></dd>
+		<dt>resourceFile</dt><dd>リモートサーバーの swagger.json のファイルを相対パスで指定</dd>
+		<dt>package</dt><dd>自動生成するクラスのベースとなるパッケージを指定</dd>
+		<dt>ruleJsPath</dt><dd>rule.jsファイルを相対パスで指定</dd>
+	</dl>
+	<p>
+		ここで定義さえすれば自由にディレクトリやファイル名、パッケージなどを変更できますが、アプリケーションの都合が無い限りは慣習通りに定義することをオススメします。
+		<span class="frm">(ドキュメントやExampleと合っていたほうがわかりやすいと思いますので)</span>
+	</p>
 
 	<h2 id="howtorulejs">rule.jsの書き方</h2>
 	<p>
