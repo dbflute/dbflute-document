@@ -429,7 +429,7 @@ remoteApiRule.<span class="subpoint">behaviorRuleMethodName</span> = function(ap
 <span class="comment">// @Override</span>
 remoteApiRule.<span class="point">returnExtendsClass</span> = <span class="keyword">function</span>(api, properties) {
     <span class="keyword">if</span> (api.httpMethod === 'get' && !api.url.endsWith('}/')) { <span class="comment">// means List GET</span>
-        <span class="keyword">return</span> <span class="literal">"org.docksidestage.bizfw.paging.AbstractListGetReturn"</span>;
+        <span class="keyword">return</span> <span class="literal">"org.docksidestage.bizfw.remoteapi.AbstractListGetReturn"</span>;
     } <span class="keyword">else</span> {
         <span class="keyword">return</span> baseRule.returnExtendsClass(api, properties);
     }
