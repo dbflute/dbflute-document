@@ -73,7 +73,7 @@
 	<dl class="valuemainlist">
 		<dt>ドメイン</dt><dd>docksidestage.org</dd>
 		<dt>サービス名</dt><dd>maihama</dd>
-		<dt>アプリ名</dt><dd>dockside, hangar</dd>
+		<dt>アプリ名</dt><dd>dockside, hangar, orleans, showbase</dd>
 	</dl>
 	<p>
 		あとで直すのは大変なので、慎重に決めてください。
@@ -89,13 +89,18 @@
 		以下のどちらか、アプリで採用するスタイルに該当する方を選びます。
 	</p>
 	<dl class="shortkeymainlist">
-		<dt>dockside</dt><dd>サーバーサイドでHTMLを戻す "HTMLスタイル"</dd>
-		<dt>hangar</dt><dd>サーバーサイドはJSONを戻す "JSON APIスタイル"</dd>
+		<dt>dockside</dt><dd>サーバーサイドでHTMLを戻す <em class="mark">HTMLスタイル</em></dd>
+		<dt>hangar</dt><dd>サーバーサイドはJSONを戻す <em class="mark">JSON APIスタイル</em></dd>
+		<dt>showbase</dt><dd>"JSON APIスタイル" かつ <em class="mark">RESTful APIスタイル</em></dd>
 	</dl>
 	<p>
 		そして、該当するアプリプロジェクトの StartupTest.java
 		にて、ドメインとサービス名と "最初の一つ目のアプリ名"
 		の値を書き換えます。(ここでは、まずは一つ目のアプリの環境だけ作ります)
+	</p>
+	<p>
+		<span class="frm">※LastaJobが入っている orleans のスタートアップは用意されていませんので、Jobアプリを作るのであれば上記のどれかを選びつつ
+		LastaJob の環境を付け足していきましょう。(orleansアプリを参考に)</span>
 	</p>
 	<h3 id="execstartup">StartupTestを実行</h3>
 	<p>
@@ -170,6 +175,7 @@
 	<p>
 		OverthewavesBaseActionクラスにて、APP_TYPE と USER_TYPE を定義します。
 	</p>
+	<div class="relatedpage"><a href="../architecture/logincontrol.html#loginonoff">組み込みログイン制御 (Login Control) - ログイン制御のON/OFF</a></div>
 	<dl class="shortkeymainlist">
 		<dt>APP_TYPE</dt><dd>アプリの種別、mythicaなら MYC など三文字(推奨)のコード</dd>
 		<dt>USER_TYPE</dt><dd>ログインユーザの種別、会員(member)なら M など一文字(推奨)のコード</dd>

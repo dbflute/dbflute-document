@@ -100,8 +100,36 @@
 }
 </code></pre>
 	<p>
-		ログインの処理は、<em class="mark">[App]LoginAssist</em> に集約されています。
+		ログインの処理は、<em class="mark">[App]LoginAssist</em> に集約されています。(詳しくは後述)
 	</p>
+	<p>
+		ログインユーザーの情報は、<em class="mark">[App]UserBean</em> に保持されています。(詳しくは後述)
+	</p>
+
+	<h2 id="nonloginaction">ログインなしアクセスを許すAction</h2>
+	<p>
+		ログイン制御を有効にしたアプリでは、ログイン画面以外のActionはログインが必須になります。
+	</p>
+	<h3 id="allowanyoneaction">Actionクラスに@AllowAnyoneAccessアノテーションを</h3>
+	<p>
+		ログイン画面以外のActionでも、ログインしていない状態でアクセスを許したい場合は、Actionクラスに @AllowAnyoneAccess を付与します。
+	</p>
+<pre><span class="codetitle">e.g. ログイン必須ではないActionに、@AllowAnyoneAccessアノテーションを付与 @Java</span><code>
+<span class="point">@AllowAnyoneAccess</span>
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+</code></pre>
+	<p>
+		<span class="frm">※ @AAA と打って補完すると楽に打ち込めます</span>
+	</p>
+	<h3 id="allowanyoneaction">Executeメソッドに@AllowAnyoneAccessアノテーションを</h3>
+	<p>
+		メソッド単位で制御したい場合は、Executeメソッドの方に付与します。
+	</p>
+<pre><span class="codetitle">e.g. ログイン必須ではないExecuteメソッドに、@AllowAnyoneAccessアノテーションを付与 @Java</span><code>
+<span class="point">@AllowAnyoneAccess</span>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsRowResult&gt;&gt; get$index(ProductsSearchForm form) {
+</code></pre>
 
 	<h2 id="loginrequired">ログイン必須チェック</h2>
 	<h3 id="loginrequiredbyhook">ActionHookでチェックされる</h3>
@@ -153,34 +181,109 @@
 		<span class="frm">(ログインリダイレクトと呼んでいます)</span>
 	</p>
 
-	<h2 id="nonloginaction">ログインなしアクセスを許すAction</h2>
+	<h2 id="loginonoff">ログイン制御のON/OFF</h2>
+	<h3 id="baseaction">[App]BaseActionにて指定</h3>
 	<p>
-		ログイン制御を有効にしたアプリでは、ログイン画面以外のActionはログインが必須になります。
+		[App]BaseActionにて、UserBean や LoginManager を指定するとログイン制御が有効になります。
 	</p>
-	<h3 id="allowanyoneaction">Actionクラスに@AllowAnyoneAccessアノテーションを</h3>
+	<dl class="keymainlist">
+		<dt>USER_TYPE定数の定義</dt><dd>USER_TYPE = "M" <span class="frm">(OFFなら定義しない)</span></dd>
+		<dt>[App]LoginAssistのDI</dt><dd>@Resource ... [App]LoginAssist loginAssist; <span class="frm">(OFFなら定義しない)</span></dd>
+		<dt>getUserBean()の戻り</dt><dd>return loginAssist.getSavedUserBean(); <span class="frm">(OFFならempty()を戻す)</span></dd>
+		<dt>myUserType()の戻り</dt><dd>return OptionalThing.of(USER_TYPE); <span class="frm">(OFFならempty()を戻す)</span></dd>
+		<dt>myLoginManager()の戻り</dt><dd>return OptionalThing.of(loginAssist); <span class="frm">(OFFならempty()を戻す)</span></dd>
+	</dl>
+	<h3 id="usertypedef">USER_TYPE定数の定義</h3>
 	<p>
-		ログイン画面以外のActionでも、ログインしていない状態でアクセスを許したい場合は、Actionクラスに @AllowAnyoneAccess を付与します。
+		まず、[App]BaseActionのDefinitionタグコメントのところで USER_TYPE を定義します。これ自体はログイン制御と直接は関係しないですが、ログインユーザーとして AccessContext
+		のユーザートレースの一部として利用されますので定義しておきましょう。
 	</p>
-<pre><span class="codetitle">e.g. ログイン必須ではないActionに、@AllowAnyoneAccessアノテーションを付与 @Java</span><code>
-<span class="point">@AllowAnyoneAccess</span>
-<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
+<pre><span class="codetitle">e.g. [App]BaseAction の USER_TYPE の定義 @Java</span><code>
+<span class="comment">// ===================================================================================
+//                                                                          Definition
+//                                                                          ==========</span>
+<span class="abbreviation">...(ここにはAPP_TYPEが定義されている)</span>
+
+<span class="comment">/** The user type for Member, e.g. used by access context. */</span>
+<span class="keyword">protected static final</span> String <span class="point">USER_TYPE</span> = <span class="literal">"M"</span>; <span class="comment">// #change_it_first (can delete if no login)</span>
 </code></pre>
 	<p>
-		<span class="frm">※ @AAA と打って補完すると楽に打ち込めます</span>
+		ユーザートレースのユーザーIDのEntity(テーブル)を識別する一文字を定義します。例えば、Memberであればユーザートレース上では M:1 となり、MemberテーブルのIDが1番を表現します。
+		一文字だとわかりづらい場合は、文字数を増やしても問題ありません。
 	</p>
-	<h3 id="allowanyoneaction">Executeメソッドに@AllowAnyoneAccessアノテーションを</h3>
 	<p>
-		メソッド単位で制御したい場合は、Executeメソッドの方に付与します。
+		そのそもログイン制御を行わないアプリ (ユーザートレースでログインユーザーを含めないアプリ) であれば、USER_TYPEは定義しなくてOKです。
 	</p>
-<pre><span class="codetitle">e.g. ログイン必須ではないExecuteメソッドに、@AllowAnyoneAccessアノテーションを付与 @Java</span><code>
-<span class="point">@AllowAnyoneAccess</span>
-@Execute
-<span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsRowResult&gt;&gt; get$index(ProductsSearchForm form) {
+	<p>	
+		#change_it_firstコメントが付いているので、(基本的には)スタートアップ直後に修正されることが想定されます。
+		定義したら直したことを示すために #change_it_first を #changed と修正しておきましょう。
+	</p>
+	<div class="relatedpage"><a href="../startup/single.html#changeitfirst">5. #change_it_first で検索</a></div>
+	<h3 id="loginassistdi">[App]LoginAssistのDI</h3>
+	<p>
+		Attributeタグコメントのところに、[App]LoginAssistをDIしましょう。
+	</p>
+<pre><span class="codetitle">e.g. [App]BaseAction の LoginAssit のDI定義、Docksideプロジェクトなら @Java</span><code>
+<span class="comment">// ===================================================================================
+//                                                                           Attribute
+//                                                                           =========</span>
+<span class="abbreviation">...</span>
+@Resource
+<span class="keyword">private</span> DocksideLoginAssist <span class="attribute">loginAssist</span>;
+
 </code></pre>
+	<p>
+		※LoginAssistの実装に関しては後述
+	</p>
+	<div class="relatedpage"><a href="#loginassist">this - とにかく LoginAssist</a></div>
+	<p>
+		そのそもログイン制御を行わないアプリであれば、[App]LoginAssist自体を削除してしまってOKです。
+	</p>
+	<h3 id="logininforeturn">ログイン情報メソッドのOptional戻り</h3>
+	<p>
+		そして、[App]BaseAction の Login Infoタグコメントのところで、ログイン情報メソッドたちの戻りを定義します。
+	</p>
+<pre><span class="codetitle">e.g. [App]BaseAction の Login Infoのメソッドたち、Docksideプロジェクトなら @Java</span><code>
+<span class="comment">// -----------------------------------------------------
+//                                            Login Info
+//                                            ----------</span>
+<span class="comment">// #app_customize return empty if login is unused</span>
+@Override
+<span class="keyword">protected</span> OptionalThing&lt;DocksideUserBean&gt; getUserBean() { <span class="comment">// application may call, overriding for co-variant</span>
+    <span class="keyword">return</span> <span class="attribute">loginAssist</span>.getSavedUserBean();
+}
+
+@Override
+<span class="keyword">protected</span> OptionalThing&lt;String&gt; myUserType() { <span class="comment">// for framework</span>
+    <span class="keyword">return</span> OptionalThing.of(<span class="attribute">USER_TYPE</span>);
+}
+
+@Override
+<span class="keyword">protected</span> OptionalThing&lt;LoginManager&gt; myLoginManager() { <span class="comment">// for framework</span>
+    <span class="keyword">return</span> OptionalThing.of(<span class="attribute">loginAssist</span>);
+}
+</code></pre>
+	<p>
+		#app_customizeコメントは、アプリでカスタマイズすることを想定している箇所を示します。
+	</p>
+	<p>
+		getUserBean()は、loginAssist の getSavedUserBean() をそのまま戻すと良いでしょう<span class="frm">(戻り値がすでにOptionalThingになっています)</span>。
+		Genericの共変戻り値を使ってアプリ側で管理している[App]UserBean型を定義すると利用するプログラムでダウンキャストが発生しません。
+	</p>
+	<p>
+		myUserType()は、先ほど定義した USER_TYPE を OptionalThing で包んで戻します。ユーザートレースを構築するための情報として利用されます。
+	</p>
+	<p>
+		myLoginManager()は、loginAssistを OptionalThing で包んで戻します。これにより、フレームワーク内で loginAssist
+		を利用することができて、ログイン必須チェックなどが有効になります。
+	</p>
+	<p>
+		そのそもログイン制御を行わないアプリであれば、これらのメソッドはすべて OptionalThing.empty() を戻します。
+	</p>
 
 	<h2 id="loginassist">とにかく LoginAssist</h2>
 	<p>
-		どうやら、この [App]LoginAssist がとにかくログインの処理を一手に引き受けているようです。
+		とにかく、この [App]LoginAssist がログインの処理を一手に引き受けています。
 	</p>
 	<p>
 		ログインのAction や ActionHook でのログイン必須チェックから呼び出されます。
@@ -191,15 +294,16 @@
 		それぞれのWebプロジェクトに LoginAssist があり、例えば Maihama プロジェクトの Dockside
 		Webアプリであれば、DocksideLoginAssist となります。
 	</p>
-<pre><span class="codetitle">e.g. LoginLogic の階層構造、Maihamaプロジェクトなら @Structure</span><code>
+<pre><span class="codetitle">e.g. LoginAssistの階層構造、Maihamaプロジェクトなら @Structure</span><code>
 LoginManager  <span class="comment">// ログインの操作が定義されているインターフェース</span>
  |   |
  |   +------------------------------------------------------------+
  |                                                                |
  |                                                                |
- |-TypicalLoginAssist <span class="comment">// フレームワーク提供の典型的なベースクラス</span>          |
+ |-TypicalLoginAssist <span class="comment">// フレームワーク提供の典型的なベースクラス</span>         |
     |                                                             |
-    |-<span class="subpoint">MaihamaLoginAssist</span> <span class="comment">// プロジェクト共通のベースクラス</span>               |
+    |-<span class="subpoint">MaihamaLoginAssist</span> <span class="comment">// プロジェクト共通のベースクラス</span>              |
+       |                <span class="comment">// app.web.base.loginパッケージ</span>             |
        |                                                          |
        |      +---------------------------------------------------+
        |      |
@@ -207,7 +311,14 @@ LoginManager  <span class="comment">// ログインの操作が定義されて�
        |     PrimaryLoginManager <span class="comment">// 主要のLoginManager (複数あったら一つだけに)</span>
        |      |
        |-<span class="spotlight"><span class="point">DocksideLoginAssist</span></span> <span class="comment">// Webアプリのクラス (スマートデプロイ対象)</span>
+                                <span class="comment">// app.web.base.loginパッケージ</span>
 </code></pre>
+	<p>
+		PrimaryLoginManager は、ひとつのWEBアプリ内で LoginAssist
+		が複数あったときに、主要な Assist をユニークに識別するためのインターフェースです。
+		そういう状況にならない限りはあまり重要なものではありませんが、しっかりと付けておきましょう。
+	</p>
+	<h3 id="typeicalloginassist">TypicalLoginAssistの役割</h3>
 	<p>
 		LastaFluteが提供する TypicalLoginAssist に、おおよそのロジックが組み込まれていて、それぞれのプロジェクトにフィットさせる部分を、
 		サブクラスで実装していくような形です。
@@ -218,10 +329,9 @@ LoginManager  <span class="comment">// ログインの操作が定義されて�
 		もちろん、とある処理だけをオーバーライドして独自の挙動にすることもできます(権限チェックなどはそのように)。
 	</p>
 	<p>
-		PrimaryLoginManager は、ひとつのWEBアプリ内で LoginAssist
-		が複数あったときに、主要な Assist をユニークに識別するためのインターフェースです。
-		そういう状況にならない限りはあまり重要なものではありませんが、しっかりと付けておきましょう。
+		LastaFluteの組み込みログイン制御において、一番重要なクラスと言っても過言ではないので、ソースコードを読んで把握しておくと良いでしょう。
 	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/login/TypicalLoginAssist.java">TypicalLoginAssist.java | Github</a></div>
 	<h3 id="asssitfitting">LoginAssistの現場フィット</h3>
 	<p>
 		アプリにフィットさせるための [App]LoginAssist のポイントはこちら。
@@ -233,6 +343,14 @@ LoginManager  <span class="comment">// ログインの操作が定義されて�
 		<dt>ログイン履歴の処理</dt><dd>saveLoginHistory() でいい感じに</dd>
 		<dt>アプリ固有のクラス指定</dt><dd>getUserBeanType() や getLoginActionType() など</dd>
 	</dl>
+	<p>
+		ExampleのLoginAssistを参考に実装しましょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-dockside/src/main/java/org/docksidestage/app/web/base/login/DocksideLoginAssist.java">DocksideLoginAssist.java | Github</a></div>
+	<p>	
+		#change_itコメントが付いているので、(基本的には)スタートアップ直後に修正されることが想定されます。
+		定義したら直したことを示すために #change_it を #changed と修正しておきましょう。
+	</p>
 	<h3 id="assistmethod">LoginAssistのpublicメソッド</h3>
 	<p>
 		大きくは以下の四つ：
@@ -254,14 +372,73 @@ LoginManager  <span class="comment">// ログインの操作が定義されて�
 		<dt>findLoginUser()</dt><dd>ログインできるユーザーを探す <span class="frm">(ログインできなければempty)</span></dd>
 	</dl>
 	<p>
-		メソッドの一覧が見たければ、<em class="smallmark">LoginManager</em> のソースを読むとよいでしょう。
+		メソッドの一覧が見たいときは、<em class="smallmark">LoginManager</em> のソースを読むとよいでしょう。
 		詳しい処理に関しては、<em class="smallmark">TypicalLoginAssist</em> を読んでみましょう。
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/login/LoginManager.java">LoginManager.java | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/login/TypicalLoginAssist.java">TypicalLoginAssist.java | Github</a></div>
 	<h3 id="abouttypical">Typicalは提案!?</h3>
 	<p>
 		厳密には、TypicalLoginAssist を使わなければならないわけではありません。基本的に Typical
 		と付いているものは、もし現場にフィットするなら使ってみてください、というニュアンスのものです。
 		ですが、多くの処理をオーバーライドなどで拡張できるようにしているので、よほど特殊でなければフィットさせることができるのではないかと想定しています。
+	</p>
+
+	<h2 id="userbean">でもって UserBean</h2>
+	<p>
+		セッション管理されるログインユーザー情報を保持するのが [App]UserBean です。
+	</p>
+	<p>
+		LoginAssistにて、DB検索されたユーザー情報を元に生成され、セッションにて管理されます。
+		それぞれのActionクラスでは getUserBean() で参照されます。
+	</p>
+	<h3 id="beanhierarchy">LoginAssistの階層構造</h3>
+	<p>
+		それぞれのWebプロジェクトに UserBean があり、例えば Maihama プロジェクトの Dockside
+		Webアプリであれば、DocksideUserBean となります。
+	</p>
+<pre><span class="codetitle">e.g. UserBeanの階層構造、Maihamaプロジェクトなら @Structure</span><code>
+UserBean  <span class="comment">// フレームワークのインターフェース</span>
+ |
+ |-TypicalUserBean <span class="comment">// フレームワーク提供の典型的なベースクラス</span>
+    |
+    |-<span class="subpoint">MaihamaUserBean</span> <span class="comment">// プロジェクト共通のベースクラス</span>
+       |             <span class="comment">// mylasta.actionパッケージ</span>
+       |
+       |-<span class="spotlight"><span class="point">DocksideUserBean</span></span> <span class="comment">// Webアプリのクラス (スマートデプロイ対象)</span>
+                            <span class="comment">// mylasta.actionパッケージ</span>
+</code></pre>
+	<h3 id="typeicaluserbean">TypicalUserBeanの役割</h3>
+	<p>
+		LastaFluteが提供する TypicalUserBean では、5分おきにログイン可否の同期チェックを行う LastestSyncCheck
+		が定義されています。例えばユーザーがログイン後に何かしらの理由でログインが許されない状態に変わったとき、5分以内に強制的にログアウトさせる仕組みです。
+		TypicalLoginAssistと自動的に連動するように作られています。
+	</p>
+	<p>
+		また、TypicalUserBean では、ユーザーLocale/TimeZoneのプロパティが定義されています。
+		これはアプリで保持する必要がある場合は、LoginAssistでUserBeanを生成するときなどにセットすると良いでしょう。
+	</p>
+	<p>
+		そんなにたいそうな実装はありませんので、サッとソースコードを読んで把握しておくと良いでしょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute/blob/develop/src/main/java/org/lastaflute/web/login/TypicalUserBean.java">TypicalUserBean.java | Github</a></div>
+	<h3 id="beanfitting">UserBeanの現場フィット</h3>
+	<p>
+		アプリにフィットさせるための [App]UserBean のポイントはこちら。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>PKの型</dt><dd>Genericで指定、メソッドの引数に影響 <span class="frm">(Exampleテンプレートでは Integer)</span></dd>
+		<dt>コンストラクタ</dt><dd>ユーザー情報はコンストラクタで受け取ってImmutableにすると良い</dd>
+		<dt>getUserId()</dt><dd>フレームワークがユーザーを識別するために使う</dd>
+		<dt>持たせる情報は？</dt><dd>セッションの中に入ることを想定してアプリで必要な情報だけを持たせる</dd>
+	</dl>
+	<p>
+		ExampleのLoginAssistを参考に実装しましょう。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-dockside/src/main/java/org/docksidestage/mylasta/action/DocksideUserBean.java">DocksideUserBean.java | Github</a></div>
+	<p>	
+		#change_itコメントが付いているので、(基本的には)スタートアップ直後に修正されることが想定されます。
+		定義したら直したことを示すために #change_it を #changed と修正しておきましょう。
 	</p>
 
 	<h2 id="permission">権限チェックの実装</h2>

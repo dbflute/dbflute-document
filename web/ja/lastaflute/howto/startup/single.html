@@ -55,6 +55,7 @@
 	</ol>
 
 	<h2 id="prepareexample">1. Exampleプロジェクトを準備</h2>
+	<h3 id="harbor">オーソドックスなharborプロジェクト</h3>
 	<p>
 		シングルプロジェクトのExampleである、harbor を clone します。
 	</p>
@@ -62,6 +63,21 @@
 		<dt>プロジェクト</dt><dd>harbor</dd>
 		<dt>Gitリポジトリ</dt><dd><a href="https://github.com/lastaflute/lastaflute-example-harbor">https://github.com/lastaflute/lastaflute-example-harbor.git</a></dd>
 	</dl>
+	<p>
+		Thymeleafやログイン制御などが最初から入っています。利用しない場合はスタートアップ後にリソースを削除しましょう。
+		一方で、Swaggerなどは入ってないので必要なものは付け足しましょう。
+	</p>
+	<h3 id="lostriver">RDBなしのlostriverプロジェクト</h3>
+	<p>
+		RDBなしのExampleである、lostriver も用意されています。
+	</p>
+	<dl class="lolongvaluemainlist">
+		<dt>プロジェクト</dt><dd>lostriver</dd>
+		<dt>Gitリポジトリ</dt><dd><a href="https://github.com/lastaflute/lastaflute-example-lostriver">https://github.com/lastaflute/lastaflute-example-lostriver.git</a></dd>
+	</dl>
+	<p>
+		DBFluteはFreeGenだけ使う想定です。その他Thymeleafやログイン制御なども入ってないので、スタートアップ後に必要なものを付け足していきましょう。
+	</p>
 
 	<h2 id="domainservice">2. ドメインとサービス名を決める</h2>
 	<p>
@@ -138,16 +154,15 @@
 
 	<h2 id="changeitfirst">5. #change_it_first で検索</h2>
 	<p>
-		プロジェクト全体を、<em class="keyword">#change_it_first</em> で grep
-		します。
+		プロジェクト全体を、<em class="keyword">#change_it_first</em> で grep します。
 	</p>
 	<p>
 		これは、プロジェクト環境を作ったときに真っ先に直すべき箇所に記載されています。
 		その部分のソースコードをよく読み、自分のプロジェクトではどうするかしっかり考えて直しましょう。
 	</p>
 	<p>
-		直したときは、#change_it_first コメントを削除しましょう。
-		すぐに決められないものとかあった場合、あとで何を直して何を保留したのかがわからなくなってしまうので。
+		直したときは、#change_it_first コメントを #changed に修正しましょう。
+		<span class="frm">(すぐに決められないものとかあった場合、あとで何を直して何を保留したのかがわからなくなってしまうので)</span>
 	</p>
 	<p>
 		ここでは、代表的なものを紹介します。
@@ -164,6 +179,7 @@
 	<p>
 		MythicaBaseActionクラスにて、APP_TYPE と USER_TYPE を定義します。
 	</p>
+	<div class="relatedpage"><a href="../architecture/logincontrol.html#loginonoff">組み込みログイン制御 (Login Control) - ログイン制御のON/OFF</a></div>
 	<dl class="shortkeymainlist">
 		<dt>APP_TYPE</dt><dd>アプリの種別、mythicaなら MYC など三文字(推奨)のコード</dd>
 		<dt>USER_TYPE</dt><dd>ログインユーザの種別、会員(member)なら M など一文字(推奨)のコード</dd>
@@ -221,8 +237,8 @@
 		すぐに修正しなくてもいいけど、いつかはちゃんとアプリにフィットさせないといけない場所に記載されています。
 	</p>
 	<p>
-		こちらも、#change_it_first のときと同様に、直したら削除しましょう。
-		直したけど、まだ後で調整が必要(かも)というときは、(Eclipseなら _to => ctrl+space で補完して)todoコメントを入れましょう。
+		こちらも、#change_it_first のときと同様に、直したら #changed に修正しましょう。
+		直したけど、まだ後で調整が必要(かも)というときは、(Eclipseなら _todo => ctrl+space で補完して)todoコメントを入れましょう。
 	</p>
 	<h3 id="bonvoyage">Bon voyage</h3>
 	<p>
