@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,チュートリアル,Tutorial,Deveploer,Architect" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/lasub.css";</style>
+	<title>lasta-docからlasta-metaへの移行 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>lasta-docからlasta-metaへの移行</h1>
+	<div class="relatedpage"><a href="./index.html">LastaFluteの移行情報</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		LastaDocやswagger.jsonを生成するライブラリとしてlasta-docを提供していましたが、lasta-metaという名前に変更されました。(2021年)
+	</p>
+	<p>
+		今後は、lasta-metaとしてリリースしていきますので、移行をお願いします。
+	</p>
+
+	<h2 id="nonmigcase">移行しなくても良いケース</h2>
+	<p>
+		lasta-docライブラリに明示的な依存をせず、かつ、Swaggerも使っていない場合は、<span class="frm">(おそらく)</span>移行作業は必要ありません。
+		<span class="frm">(harborやmaihama-docksideのようなアプリの場合)</span>
+	</p>
+	<p>
+		明示的な依存をしていない場合は、UTFlute経由で依存をしていることになりますので、UTFluteをアップグレードしたら自然と移行されます。
+	</p>
+	<p>
+		※UTFluteは、バージョン 0.9.2 より lasta-meta を参照しています。
+	</p>
+
+	<h2 id="buildsettings">1. MavenやGradleの設定</h2>
+	<p>
+		groupId と artifactId などが変わっています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>groupId</dt><dd>org.lastaflute.doc → <em class="mark">org.lastaflute.meta</em></dd>
+		<dt>artifactId</dt><dd>lasta-doc → <em class="mark">lasta-meta</em></dd>
+		<dt>version</dt><dd>0.3.7 <span class="frm">(これにてstop)</span> → <em class="mark">0.5.x</em> <span class="frm">(最新を指定しましょう)</span></dd>
+	</dl>
+
+	<h2 id="swagger">2. Swaggerクラスでimportし直し</h2>
+	<p>
+		lasta-metaのクラスはすべてパッケージが変わっていますので、そのままライブラリを差し替えるとSwaggerActionなどでコンパイルエラーになるはずです。
+	</p>
+	<p>
+		ただ、クラス名自体は変わってないので、コンパイルエラーになったクラスはimportし直すことで移行ができます。
+	</p>
+
+	<h2 id="utflute">3. UTFluteを最新版に</h2>
+	<p>
+		UTFluteは、バージョン 0.9.2 より lasta-meta を参照しています。UTFluteを最新版にアップグレードお願いします。
+		<span class="frm">(古いバージョンのままだと lasta-doc が混在してしまって、同名別クラスでコンパイルエラーになってしまいます)</span>
+	</p>
+	<p>
+		逆に、UTFluteを最新版にしたら、lasta-metaの移行も必須になります。
+	</p>
+
+	<div class="inucolumn">
+		<h2 id="naming">LastaDocと言うと？</h2>
+		<p>
+			今後「らすたどっく」と言うと、自動生成されたHTMLのドキュメントのLastaDocを指します。
+		</p>
+		<p>
+			今までそこが曖昧になってしまい、会話がしづらい問題がありました。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
