@@ -28,6 +28,34 @@
 	${indexlist}
 
       <div class="release">
+        <h2>DBFlute-1.2.5 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2021/08/15</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Runtime: JavaPropertiesReader supports multiple line comments</li>
+            <li>DBFlute Runtime: add methods of Optional (over java8) to OptionalThing</li>
+            <li>DBFlute Engine: fix ReplaceSchema inherit table drop for newest PostgreSQL</li>
+            <li>DBFlute Engine: Lasta properties can use multiple line comment</li>
+            <li>DBFlute Engine: refCls exists can inherit attributes</li>
+            <li>DBFlute Engine: support included overriding in AppCls's refCls</li>
+            <li>DBFlute Engine: appcls can refers namedcls by refCls in classification dfprop</li>
+            <li>DBFlute Engine: you can use clientcls of LastaFlute FreeGen</li>
+            <li>DBFlute Engine: can inherit group for all types in appcls</li>
+            <li>DBFlute Engine: stop redundant comment in appcls</li>
+            <li>DBFlute Engine: config and messages, unneeded for package scope</li>
+            <li>DBFlute Engine: call ZipSecureFile@setMinInflateRatio() for large xlsx <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, resolve cost of TSV too-many lines in value <span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, support TSV failure retry <span class="frm">*前回パッチ</span></li>
+          </ul>
+          <h3>BUG</h3>
+          <ul>
+            <li>DBFlute Runtime: fix Srl@extractScopeWide() endIndex bug</li>
+            <li>DBFlute Runtime: fix Srl.decamelize() bug e.g. fooDName</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
         <h2>DBFlute-1.2.4 <span class="frm">※Java8</span></h2>
         <p class="releas5date">2021/01/01</p>
         <div class="new">
