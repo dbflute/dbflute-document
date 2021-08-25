@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="LastaFlute,DBFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/lasub.css";</style>
+	<title>Nashornからsaiへの移行 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Nashornからsaiへの移行</h1>
+	<div class="relatedpage"><a href="./index.html">LastaFluteの移行情報</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<h3 id="lastauses">LastaFluteでNashornを使ってるところ</h3>
+	<p>
+		Java組み込みのJavaScriptエンジン <em class="mark">Nashorn</em> というものがあります。
+	</p>
+	<p>
+		LastaFluteでは、以下の状況で使っています。
+	</p>
+	<dl class="keymainlist">
+		<dt>LastaFlute向けのFreeGen</dt><dd>LastaDocやRemoteApiGenで使っている <span class="frm">(JSONの書き出しなど)</span></dd>
+		<dt>Lasta Di の Di xml</dt><dd>複雑なスクリプト表現で使っている</dd>
+	</dl>
+	<h3 id="nashornremoved">NashornがJava15から外された</h3>
+	<p>
+		<em class="keyword">ですが、その Nashorn が Java15 より外されて、デフォルトでは利用できません。</em>
+	</p>
+	<p>
+		<span class="frm">(なので、Java15以上の環境で、FreeGenを実行したり、Lasta Di を起動したりすると落ちます)</span>
+	</p>
+	<h3 id="saifork">Nashornをforkしたsaiが登場</h3>
+	<p>
+		Nashornをforkした <em class="mark">sai</em> というライブラリがあり、それを利用していくことをオススメしています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>Github</dt><dd><a href="https://github.com/codelibs/sai">https://github.com/codelibs/sai</a></dd>
+	</dl>
+
+	<h2 id="freegen">FreeGen環境のsai移行</h2>
+	<p>
+		以下のような流れで移行できます。
+	</p>
+	<ol>
+		<li>DBFlute を 1.2.4 以上にアップグレードする</li>
+		<li>sai の jarファイルたちをダウンロードする</li>
+		<li>extlib に sai の jarファイルたちを配置する</li>
+	</ol>
+	<h3 id="dbflutesai">DBFlute-1.2.4より sai を有効に</h3>
+	<p>
+		DBFlute-1.2.4 より、クラスパスに sai が存在すれば sai を利用するようにしました。
+	</p>
+	<p>
+		なので、まずはDBFluteを最新版にアップグレードをしましょう。
+	</p>
+	<h3 id="saidownload">sai の jarファイルたちをダウンロード</h3>
+	<p>
+		色々なやり方があります。saiだけじゃなく、saiの依存ライブラリもダウンロードする必要があるので、Mavenなどのビルドツールを一時的に利用してダウンロードする方が楽でしょう。
+	</p>
+	<p>
+		例えば Maven であれば、pom.xmlにsaiのdependencyを追加して...
+	</p>
+<pre><span class="codetitle">e.g. pom.xmlにsaiのdependencyを追加 @Xml</span><code>
+&lt;dependencies&gt;
+    <span class="abbreviation">...</span>
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;<span class="literal">org.codelibs</span>&lt;/groupId&gt;
+        &lt;artifactId&gt;<span class="literal">sai</span>&lt;/artifactId&gt;
+        &lt;version&gt;<span class="literal">0.2.0</span>&lt;/version&gt;
+    &lt;/dependency&gt;
+
+    <span class="abbreviation">...</span>
+&lt;/dependencies&gt;
+</code></pre>
+	<p>
+		copy-dependencies を実行すると、(デフォルトであれば)target/dependency配下にjarファイルがダウンロードされます。
+	</p>
+<pre><span class="codetitle">e.g. 依存ライブラリをすべてダウンロードするMavenコマンド @Command</span><code>
+mvn dependency:copy-dependencies
+</code></pre>
+	<p>
+		そのMavenプロジェクトの依存ライブラリがすべてダウンロードされるので、その中からsaiに関連するjarファイルだけを抽出しましょう。
+		sai-0.2.0においては、全部で6つになります。
+	</p>
+	<ul>
+		<li>asm-7.1.jar</li>
+		<li>asm-analysis-7.1.jar</li>
+		<li>asm-commons-7.1.jar</li>
+		<li>asm-tree-7.1.jar</li>
+		<li>asm-util-7.1.jar</li>
+		<li>sai-0.2.0.jar</li>
+	</ul>
+	<p>
+		<span class="frm">※ちなみに、「そもそも DBFlute Engine に組み込めば？」と思われるかもですが、ライセンス的に組み込めません。</span>
+	</p>
+	<h3 id="dbfluteextlib">DBFluteクライアントのextlibに配置</h3>
+	<p>
+		DBFlute Engineの実行クラスパスにjarファイルを追加することのできる "DBFluteクライアントの extlib ディレクトリ"
+		に、sai のjarファイルたちを配置します。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteクライアントの extlib に sai を配置 @Directory</span><code>
+dbflute_maihamadb
+ |-dfprop
+ |-<span class="abbreviation">...</span>
+ |-<span class="point">extlib</span>
+ |  |-<span class="subpoint">asm-7.1.jar</span>
+ |  |-<span class="subpoint">asm-analysis-7.1.jar</span>
+ |  |-<span class="subpoint">asm-commons-7.1.jar</span>
+ |  |-<span class="subpoint">asm-tree-7.1.jar</span>
+ |  |-<span class="subpoint">asm-util-7.1.jar</span>
+ |  |-<span class="subpoint">sai-0.2.0.jar</span>
+ |-<span class="abbreviation">...</span>
+ |-log
+</code></pre>
+	<p>
+		これにて、LastaFluteのFreeGenは、saiを使って実行するようになります。
+	</p>
+	<p>
+		DBFlute Engineのソースコードで関連するクラスは、DfFrgJavaScriptJsonEngineです。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/blob/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen/table/json/engine/DfFrgJavaScriptJsonEngine.java">dbflute-engine - DfFrgJavaScriptJsonEngine.java | Github</a></div>
+	<h3 id="olddbflute">DBFluteをアップグレードできない場合</h3>
+	<p>
+		どうしてもDBFluteをアップグレードできない場合は、Nashornのjarファイルたちをextlibに配置すると動くかもしれません。
+		<span class="frm">(ただ、試したことはないです)</span>
+	</p>
+
+	<h2 id="lastadixml">Lasta Diのsai移行</h2>
+	<h3 id="newlastadi">いま起動しても落ちないのであれば？</h3>
+	<p>
+		まず、Java15以降でLastaFluteのプロジェクトを起動して落ちていないのであれば、ひとまず移行はしなくても良いかもしれません。
+	</p>
+	<p>
+		Lasta Di の新しいバージョンでは、Lasta Di内部で使っている Di xml では、JavaScript表現を使わないように修正されています。
+		なので、アプリケーションの中の Di xml でJavaScript表現を使わない限り sai を入れる必要はありません。
+	</p>
+	<p>
+		Di xmlは起動時にすべて読み込まれますから、起動して落ちていないということはアプリケーションでも使っていない可能性が高いです。
+		そもそも、Di xml でJavaScript表現を使うことは稀です。
+	</p>
+	<h3 id="bootfailurenow">いま起動で落ちるのであれば？</h3>
+	<p>
+		まずは、Lasta Di (LastaFlute) を最新版にアップグレードしましょう。
+	</p>
+	<p>
+		先の通り、Lasta Di の新しいバージョンでは、内部の Di xml でJavaScript表現を使わないようにしているので、アップグレードするだけで解決するかもしれません。
+	</p>
+	<p>
+		アップグレードしても落ちる<span class="frm">(アプリでJavaScript表現を使っている)</span>、もしくは、アップグレードがどうしてもできないのでれば、saiを入れましょう。
+	</p>
+	<h3 id="saidependency">saiを依存ライブラリに追加</h3>
+	<p>
+		例えば Maven であれば、pom.xmlにsaiのdependencyを追加します。
+	</p>
+<pre><span class="codetitle">e.g. pom.xmlにsaiのdependencyを追加 @Xml</span><code>
+<span class="comment">&lt;!-- javascript engine (instead of nashorn)
+ you can get the jar files including dependencies by mvn dependency:copy-dependencies
+ --&gt;</span>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;<span class="literal">org.codelibs</span>&lt;/groupId&gt;
+        &lt;artifactId&gt;<span class="literal">sai</span>&lt;/artifactId&gt;
+        &lt;version&gt;<span class="literal">0.2.0</span>&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
+	<h3 id="lastadiprop">lasta_di.properties に sai を設定</h3>
+	<p>
+		lasta_di.properties に、dixml.script.managed.engine.nameプロパティを追加して、sai を設定しましょう。
+	</p>
+<pre><span class="codetitle">e.g. lasta_di.properties に sai を設定 @Xml</span><code>
+<span class="comment"># name of engine managed by Lasta Di for script on Di xml</span>
+dixml.script.managed.engine.name = sai
+</code></pre>
+	<p>
+		これにて Lasta Di は、JavaScript表現が必要なときに sai を使うようになります。
+	</p>
+	<p>
+		Lasta Diのソースコードで関連するクラスは、JavaScriptExpressionEngineです。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lasta-di/blob/develop/src/main/java/org/lastaflute/di/core/expression/engine/JavaScriptExpressionEngine.java">lasta-di - JavaScriptExpressionEngine.java | Github</a></div>
+	<p>
+		もしかしたら、将来の Lasta Di では、この properties の設定をしなくてもデフォルトで sai を使うようになるかもしれません。
+		<span class="frm">(sai あれば使う、なければ Nashorn を探す、というようなロジックにするかも。ただ、どのみちMavenやGradleなどの依存ライブラリには追加しないといけません)</span>
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
