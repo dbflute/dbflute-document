@@ -73,7 +73,31 @@
 	</p>
 	<h3 id="saidownload">sai の jarファイルたちをダウンロード</h3>
 	<p>
-		色々なやり方があります。saiだけじゃなく、saiの依存ライブラリもダウンロードする必要があるので、Mavenなどのビルドツールを一時的に利用してダウンロードする方が楽でしょう。
+		まず、sai-0.2.0においては、全部で6つのjarファイルのダウンロードが必要です。
+	</p>
+	<ul>
+		<li><em class="mark">asm-7.1.jar</em></li>
+		<li><em class="mark">asm-analysis-7.1.jar</em></li>
+		<li><em class="mark">asm-commons-7.1.jar</em></li>
+		<li><em class="mark">asm-tree-7.1.jar</em></li>
+		<li><em class="mark">asm-util-7.1.jar</em></li>
+		<li><em class="mark">sai-0.2.0.jar</em></li>
+	</ul>
+	<p>
+		mvnrepository のサイトに、jarファイルへのダウンロードリンクが貼られていますので、そこからそれぞれダウンロードすることができます。
+		<span class="frm">(該当バージョンを間違えずにダウンロードしましょう)</span>
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>asm</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm">https://mvnrepository.com/artifact/org.ow2.asm/asm</a></dd>
+		<dt>asm-analysis</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis">https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis</a></dd>
+		<dt>asm-commons</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-commons">https://mvnrepository.com/artifact/org.ow2.asm/asm-commons</a></dd>
+		<dt>asm-tree</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-tree">https://mvnrepository.com/artifact/org.ow2.asm/asm-tree</a></dd>
+		<dt>asm-util</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-util">https://mvnrepository.com/artifact/org.ow2.asm/asm-util</a></dd>
+		<dt>sai</dt><dd><a href="https://mvnrepository.com/artifact/org.codelibs/sai">https://mvnrepository.com/artifact/org.codelibs/sai</a></dd>
+	</dl>
+	<p>
+		バージョン合わせてのダウンロードが面倒だと思われる方は、Mavenなどのビルドツールを一時的に利用してダウンロードする方法でも良いでしょう。
+		<span class="frm">(jfluteはいつもこうしてます)</span>
 	</p>
 	<p>
 		例えば Maven であれば、pom.xmlにsaiのdependencyを追加して...
@@ -97,18 +121,6 @@
 <pre><span class="codetitle">e.g. 依存ライブラリをすべてダウンロードするMavenコマンド @Command</span><code>
 mvn dependency:copy-dependencies
 </code></pre>
-	<p>
-		そのMavenプロジェクトの依存ライブラリがすべてダウンロードされるので、その中からsaiに関連するjarファイルだけを抽出しましょう。
-		sai-0.2.0においては、全部で6つになります。
-	</p>
-	<ul>
-		<li>asm-7.1.jar</li>
-		<li>asm-analysis-7.1.jar</li>
-		<li>asm-commons-7.1.jar</li>
-		<li>asm-tree-7.1.jar</li>
-		<li>asm-util-7.1.jar</li>
-		<li>sai-0.2.0.jar</li>
-	</ul>
 	<p>
 		<span class="frm">※ちなみに、「そもそも DBFlute Engine に組み込めば？」と思われるかもですが、ライセンス的に組み込めません。</span>
 	</p>
