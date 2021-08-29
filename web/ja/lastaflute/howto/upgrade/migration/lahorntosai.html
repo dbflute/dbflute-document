@@ -83,18 +83,27 @@
 		<li><em class="mark">asm-util-7.1.jar</em></li>
 		<li><em class="mark">sai-0.2.0.jar</em></li>
 	</ul>
+	<h4>DBFlute-1.2.5 (patch 2021/08/30) 以降なら</h4>
 	<p>
-		mvnrepository のサイトに、jarファイルへのダウンロードリンクが貼られていますので、そこからそれぞれダウンロードすることができます。
-		<span class="frm">(該当バージョンを間違えずにダウンロードしましょう)</span>
+		manageタスクにて、sai (31) を実行しましょう。
+	</p>
+	<p>
+		必要なjarファイルたちがDBFluteクライアントのextlibディレクトリにダウンロードされます。
+		なので、次のステップの "extlibに配置" も要りません。これで FreeGen を実行できるようになります。
+	</p>
+	<h4>手作業ダウンロードなら</h4>
+	<p>
+		mvnrepository のサイトに、jarファイルへのダウンロードリンク (Files の jar) が貼られていますので、そこからそれぞれダウンロードすることができます。
 	</p>
 	<dl class="shortkeymainlist">
-		<dt>asm</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm">https://mvnrepository.com/artifact/org.ow2.asm/asm</a></dd>
-		<dt>asm-analysis</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis">https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis</a></dd>
-		<dt>asm-commons</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-commons">https://mvnrepository.com/artifact/org.ow2.asm/asm-commons</a></dd>
-		<dt>asm-tree</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-tree">https://mvnrepository.com/artifact/org.ow2.asm/asm-tree</a></dd>
-		<dt>asm-util</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-util">https://mvnrepository.com/artifact/org.ow2.asm/asm-util</a></dd>
-		<dt>sai</dt><dd><a href="https://mvnrepository.com/artifact/org.codelibs/sai">https://mvnrepository.com/artifact/org.codelibs/sai</a></dd>
+		<dt>asm</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm/7.1">https://mvnrepository.com/artifact/org.ow2.asm/asm/7.1</a></dd>
+		<dt>asm-analysis</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis/7.1">https://mvnrepository.com/artifact/org.ow2.asm/asm-analysis/7.1</a></dd>
+		<dt>asm-commons</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-commons/7.1">https://mvnrepository.com/artifact/org.ow2.asm/asm-commons/7.1</a></dd>
+		<dt>asm-tree</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-tree/7.1">https://mvnrepository.com/artifact/org.ow2.asm/asm-tree/7.1</a></dd>
+		<dt>asm-util</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-util/7.1">https://mvnrepository.com/artifact/org.ow2.asm/asm-util/7.1</a></dd>
+		<dt>sai</dt><dd><a href="https://mvnrepository.com/artifact/org.codelibs/sai/0.2.0">https://mvnrepository.com/artifact/org.codelibs/sai/0.2.0</a></dd>
 	</dl>
+	<h4>Mavenのcopy-dependenciesなら</h4>
 	<p>
 		バージョン合わせてのダウンロードが面倒だと思われる方は、Mavenなどのビルドツールを一時的に利用してダウンロードする方法でも良いでしょう。
 		<span class="frm">(jfluteはいつもこうしてます)</span>
@@ -150,6 +159,14 @@ dbflute_maihamadb
 		DBFlute Engineのソースコードで関連するクラスは、DfFrgJavaScriptJsonEngineです。
 	</p>
 	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/blob/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen/table/json/engine/DfFrgJavaScriptJsonEngine.java">dbflute-engine - DfFrgJavaScriptJsonEngine.java | Github</a></div>
+	<h3 id="jargitmanaged">jarをgitにコミットするかしないか？</h3>
+	<p>
+		どちらも大丈夫です。プロジェクトの都合に合わせましょう。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>gitにコミットする</dt><dd>他の人は配置作業せずにFreeGenが実行できる</dd>
+		<dt>gitignoreにする</dt><dd>他の人もダウンロードして配置する必要あるが、gitは軽くなる</dd>
+	</dl>
 	<h3 id="olddbflute">DBFluteをアップグレードできない場合</h3>
 	<p>
 		どうしてもDBFluteをアップグレードできない場合は、Nashornのjarファイルたちをextlibに配置すると動くかもしれません。
