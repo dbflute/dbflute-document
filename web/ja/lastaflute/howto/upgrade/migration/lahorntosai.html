@@ -236,6 +236,26 @@ dixml.script.managed.engine.name = sai
 		もしかしたら、将来の Lasta Di では、この properties の設定をしなくてもデフォルトで sai を使うようになるかもしれません。
 		<span class="frm">(sai あれば使う、なければ Nashorn を探す、というようなロジックにするかも。ただ、どのみちMavenやGradleなどの依存ライブラリには追加しないといけません)</span>
 	</p>
+
+	<div class="inucolumn">
+		<h2 id="licensecare">念のため、ライセンスに注目</h2>
+		<p>
+			Sai は <em class="mark">The GNU General Public License ("CLASSPATH" EXCEPTION)</em> です。
+		</p>
+		<div class="relatedpage"><a href="https://raw.githubusercontent.com/codelibs/sai/master/LICENSE">Sai LICENSE | Github</a></div>
+		<p>
+			いわゆる GPL に "CLASSPATH" EXCEPTION が付いています。
+			開発しているアプリケーションの配布形式など、ライセンスが適合するか確認するようにしてください。
+		</p>
+		<p>
+			<span class="frm">(DBFluteクライアントのextlibに関しては、DBFlute Engineも含めてまるごと配布するようなアプリでなければ、特に問題はないと思われます。
+			また、Lasta Diのクラスパスに関しては、アプリケーションのwarファイルをまるごと配布するようなアプリでなければ、特に問題はないと思われます。ただ、アプリケーション側で確認はして、自己責任で判断してください)</span>
+		</p>
+		<p>
+			ASMは <em class="mark">3-Clause BSD License</em> です。
+		</p>
+		<div class="relatedpage"><a href="https://asm.ow2.io/license.html">ASM LICENSE | ASM Official</a></div>
+	</div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">

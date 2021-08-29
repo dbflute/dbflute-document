@@ -151,6 +151,17 @@
 		そして、MythicaBootというクラスの main() を実行すると、Jettyが起動します。
 		起動ログの最後に表示される url をブラウザからアクセスしてみましょう。ひとまず、何かしら画面が表示されればOKです。
 	</p>
+	<h3 id="firstfreegen">さらに、FreeGenの実行確認</h3>
+	<p>
+		LastaFluteで大切な機能である FreeGen が動くか確認しておきましょう。
+		manageタスクで 12 (freegen) を実行して特にエラーなければ問題なしです。
+		<span class="frm">(AppCDefなどが上書きされてるはずです)</span>
+	</p>
+	<p>
+		もしJava15以上であれば、"JavaScript Engineが見つからなかった" エラーが発生するはずです。
+		manageタスクで 31 (sai) を実行してから、もう一度 FreeGen を実行してみてください。
+	</p>
+	<div class="detailpage"><a href="../upgrade/migration/lahorntosai.html">Nashornからsaiへの移行</a></div>
 
 	<h2 id="changeitfirst">5. #change_it_first で検索</h2>
 	<p>
@@ -196,17 +207,6 @@
 	<p>
 		もちろん、デフォルトのままでよければ、そのままでOKです。
 	</p>
-
-	<div class="inucolumn">
-		<h2 id="sincejava15">Java15以上を利用される方へ</h2>
-		<p>
-			FreeGenが実行できないので、saiへの移行をする必要があります。
-		</p>
-		<div class="detailpage"><a href="../upgrade/migration/lahorntosai.html">Nashornからsaiへの移行</a></div>
-		<p>
-			できれば意識せず解決できるようにしたいところですが、まだ道半ばです。
-		</p>
-	</div>
 
 	<h2 id="dbandgenerate">6. DB設計、そして自動生成</h2>
 	<h3 id="changedbms">もし、DBを MySQL から別のDBMSに変更するなら</h3>
