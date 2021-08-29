@@ -151,17 +151,6 @@
 		そして、MythicaBootというクラスの main() を実行すると、Jettyが起動します。
 		起動ログの最後に表示される url をブラウザからアクセスしてみましょう。ひとまず、何かしら画面が表示されればOKです。
 	</p>
-	<h3 id="firstfreegen">さらに、FreeGenの実行確認</h3>
-	<p>
-		LastaFluteで大切な機能である FreeGen が動くか確認しておきましょう。
-		manageタスクで 12 (freegen) を実行して特にエラーなければ問題なしです。
-		<span class="frm">(AppCDefなどが上書きされてるはずです)</span>
-	</p>
-	<p>
-		もしJava15以上であれば、"JavaScript Engineが見つからなかった" エラーが発生するはずです。
-		manageタスクで 31 (sai) を実行してから、もう一度 FreeGen を実行してみてください。
-	</p>
-	<div class="detailpage"><a href="../upgrade/migration/lahorntosai.html">Nashornからsaiへの移行</a></div>
 
 	<h2 id="changeitfirst">5. #change_it_first で検索</h2>
 	<p>
@@ -234,7 +223,17 @@
 		コンパイルエラーになるところは適宜アプリにフィットさせていきましょう。さあ、ここから開発の始まりです。
 	</p>
 
-	<h2 id="fitting">7. アプリにフィットさせていく</h2>
+	<h2 id="java15sai">7. もし、Java15以降なら sai を</h2>
+	<p>
+		もしJava15以上であれば、FreeGenの実行時に "JavaScript Engineが見つからなかった" エラーが発生するはずです。
+		<span class="frm">(Java15より、NashornがJava本体から外れたことによる影響です)</span>
+	</p>
+	<p>
+		manageタスクで 31 (sai) を実行してから、もう一度 FreeGen を実行してみてください。
+	</p>
+	<div class="detailpage"><a href="../upgrade/migration/lahorntosai.html">Nashornからsaiへの移行</a></div>
+
+	<h2 id="fitting">8. アプリにフィットさせていく</h2>
 	<h3 id="anywayfit">ひたすらフィット</h3>
 	<p>
 		ここからは、動かしながら気付いた点をひたすらアプリにフィットさせていきます。
