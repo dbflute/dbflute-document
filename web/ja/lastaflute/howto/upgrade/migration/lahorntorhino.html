@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="LastaFlute,DBFlute" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/lasub.css";</style>
+	<title>NashornからRhinoへの移行 | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>NashornからRhinoへの移行</h1>
+	<div class="relatedpage"><a href="./index.html">LastaFluteの移行情報</a></div>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		<em class="keyword">
+		【追記】まだ課題あり。saiを使ってください。by jflute (2021/09/02)
+		</em>
+	</p>
+	<div class="detailpage"><a href="./lahorntosai.html">Nashornからsaiへの移行</a></div>
+	<h3 id="lastauses">LastaFluteでNashornを使ってるところ</h3>
+	<p>
+		Java組み込みのJavaScriptエンジン <em class="mark">Nashorn</em> というものがあります。
+	</p>
+	<p>
+		LastaFluteでは、以下の状況で使っています。
+	</p>
+	<dl class="keymainlist">
+		<dt>LastaFlute向けのFreeGen</dt><dd>LastaDocやRemoteApiGenで使っている <span class="frm">(JSONの書き出しなど)</span></dd>
+		<dt>Lasta Di の Di xml</dt><dd>複雑なスクリプト表現で使っている</dd>
+	</dl>
+	<h3 id="nashornremoved">NashornがJava15から外された</h3>
+	<p>
+		<em class="keyword">ですが、その Nashorn が Java15 より外されて、デフォルトでは利用できません。</em>
+	</p>
+	<p>
+		<span class="frm">(なので、Java15以上の環境で、FreeGenを実行したり、Lasta Di を起動したりすると落ちます)</span>
+	</p>
+	<h3 id="rhino">RhinoがJavaScript Engineをサポート</h3>
+	<p>
+		Nashornが非推奨になったことを受けて、Mozilla Foundationが提供している <em class="mark">Rhino</em> が、Javaにおける JavaScript Engine
+		をサポートしました。今後はそれを利用していくことをオススメしています。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>Github</dt><dd><a href="https://github.com/mozilla/rhino">https://github.com/mozilla/rhino</a></dd>
+	</dl>
+	<p>
+		<span class="frm">(Nashornをforkしたsaiもありますが、状況回避的なforkであるためJavaScriptの進化への追従などが厳しいですし、
+		DBFluteにとってライセンス的にも扱いやすいRhinoがサポートしたということから)</span>
+	</p>
+	<h3 id="since">ただし、Lasta Di, DBFluteを最新に</h3>
+	<p>
+		ただ、NashornとRhinoで少し挙動や仕様が違う部分がありましたので、Lasta Di や DBFlute Engineにて (できる範囲で) その違いを吸収するようにしています。
+	</p>
+	<p>
+		ゆえに、Rhinoが利用できるのは、それぞれ以下のバージョン以降になります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>Lasta Di</dt><dd>@since 0.8.5</dd>
+		<dt>DBFlute Engine</dt><dd>@since 1.2.5 patch 2021/09/01</dd>
+	</dl>
+	<p>
+		もし、上記のバージョンにアップグレードできない環境で、かつ、Java15以降となる場合は、Nashornをforkしたsaiを利用することになります。
+	</p>
+	<div class="relatedpage"><a href="./lahorntosai.html">Nashornからsaiへの移行</a></div>
+
+	<h2 id="freegen">FreeGen環境のRhino移行</h2>
+	<p>
+		以下のような流れで移行できます。
+	</p>
+	<ol>
+		<li>DBFlute を 1.2.5 patch 2021/09/01 以上にアップグレードする</li>
+		<li>manageタスクの 31 (sai) を実行して jarファイルたちをextlibにダウンロードする</li>
+	</ol>
+	<h3 id="dbfluterhino">DBFlute-1.2.5 patch 2021/09/01 より</h3>
+	<p>
+		DBFlute-1.2.5 patch 2021/09/01 より、クラスパスに Rhino が存在すれば Rhino を利用するようにしました。
+		<span class="frm">(また、若干のRhinoに合わせた対応もしています)</span>
+	</p>
+	<p>
+		なので、まずはDBFluteを最新版にアップグレードをしましょう。
+	</p>
+	<h3 id="saidownload">manageタスクの 31 (sai) で extlib にダウンロード</h3>
+	<p>
+		<em class="keyword">manageタスクにて、sai (31) を実行しましょう。</em>
+	</p>
+	<p>
+		すると、DBFluteクライアントの extlibディレクトリ配下に Rhino のjarファイルたちがダウンロードされます。
+		<span class="frm">(RhinoのバージョンはDBFlute Engineのバージョンごとに固定です)</span>
+	</p>
+<pre><span class="codetitle">e.g. DBFluteクライアントの extlib に rhino を配置、ドキュメント執筆時の最新版 @Directory</span><code>
+dbflute_maihamadb
+ |-dfprop
+ |-<span class="abbreviation">...</span>
+ |-<span class="point">extlib</span>
+ |  |-<span class="subpoint">rhino-1.7.13.jar</span>
+ |  |-<span class="subpoint">rhino-engine-1.7.13.jar</span>
+ |-<span class="abbreviation">...</span>
+ |-log
+</code></pre>
+	<p>
+		これにて、FreeGen を実行できるようになります。
+	</p>
+	<h3 id="jargitmanaged">jarをgitにコミットするかしないか？</h3>
+	<p>
+		どちらも大丈夫です。プロジェクトの都合に合わせましょう。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>gitにコミットする</dt><dd>他の人は配置作業せずにFreeGenが実行できる</dd>
+		<dt>gitignoreにする</dt><dd>他の人もダウンロードして配置する必要あるが、gitは軽くなる</dd>
+	</dl>
+	<h3 id="handydownload">もし、手作業ダウンロードするのであれば</h3>
+	<p>
+		もし、Rhinoの最新版を使いたいなどで、手作業ダウンロードするのであれば、	mvnrepository
+		のサイトにjarファイルへのダウンロードリンク (Files の jar) が貼られていますので、そこからそれぞれダウンロードすることができます。
+	</p>
+	<dl class="shortkeymainlist">
+		<dt>rhino</dt><dd><a href="https://mvnrepository.com/artifact/org.mozilla/rhino">https://mvnrepository.com/artifact/org.mozilla/rhino</a></dd>
+		<dt>rhino-engine</dt><dd><a href="https://mvnrepository.com/artifact/org.mozilla/rhino-engine">https://mvnrepository.com/artifact/org.mozilla/rhino-engine</a></dd>
+	</dl>
+	<p>
+		<span class="frm">※バージョンや依存関係に注意</span>
+	</p>
+	<h3 id="enginesource">関連するDBFlute Engineのソースコードは？</h3>
+	<p>
+		内部的な挙動を確認したい場合の参考として、DBFlute Engineのソースコードで関連する主なクラスは、DfFrgJavaScriptJsonEngineとなります。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/dbflute/dbflute-core/blob/master/dbflute-engine/src/main/java/org/dbflute/logic/manage/freegen/table/json/engine/DfFrgJavaScriptJsonEngine.java">dbflute-engine - DfFrgJavaScriptJsonEngine.java | Github</a></div>
+
+	<h2 id="lastadixml">Lasta DiのRhino移行</h2>
+	<h3 id="newlastadi">いま起動しても落ちないのであれば？</h3>
+	<p>
+		まず、Java15以降でLastaFluteのプロジェクトを起動して落ちていないのであれば、ひとまず移行はしなくても良いかもしれません。
+	</p>
+	<p>
+		Lasta Di の新しいバージョンでは、Lasta Di内部で使っている Di xml では、JavaScript表現を使わないように修正されています。
+		なので、アプリケーションの中の Di xml でJavaScript表現を使わない限り Rhino を入れる必要はありません。
+	</p>
+	<p>
+		Di xmlは起動時にすべて読み込まれますから、起動して落ちていないということはアプリケーションでも使っていない可能性が高いです。
+		そもそも、Di xml でJavaScript表現を使うことは稀です。
+	</p>
+	<h3 id="bootfailurenow">いま起動で落ちるのであれば？</h3>
+	<p>
+		まずは、Lasta Di (LastaFlute) を最新版にアップグレードしましょう。
+	</p>
+	<p>
+		先の通り、Lasta Di の新しいバージョンでは、内部の Di xml でJavaScript表現を使わないようにしているので、アップグレードするだけで解決するかもしれません。
+	</p>
+	<p>
+		アップグレードしても落ちる<span class="frm">(アプリでJavaScript表現を使っている)</span>、もしくは、アップグレードがどうしてもできないのでれば Rhino を入れましょう。
+	</p>
+	<h3 id="rhinodependency">Rhinoを依存ライブラリに追加</h3>
+	<p>
+		例えば Maven であれば、pom.xmlにsaiのdependencyを追加します。
+	</p>
+<pre><span class="codetitle">e.g. pom.xmlにRhinoのdependencyを追加、ドキュメント執筆時の最新版 @Xml</span><code>
+<span class="comment">&lt;!-- javascript engine (instead of nashorn) --&gt;</span>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;<span class="literal">org.mozilla</span>&lt;/groupId&gt;
+        &lt;artifactId&gt;<span class="literal">rhino-engine</span>&lt;/artifactId&gt;
+        &lt;version&gt;<span class="literal">1.7.13</span>&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
+	<p>
+		これにて Lasta Di は、JavaScript表現が必要なときに Rhino を使うようになります。
+		<span class="frm">(Rhinoがクラスパスに存在していれば、自動的に Rhino を使うようになります)</span>
+	</p>
+	<h3 id="lastadisource">関連するLasta Diのソースコードは？</h3>
+	<p>
+		Lasta Diのソースコードで関連する主なクラスは、JavaScriptExpressionEngineです。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lasta-di/blob/develop/src/main/java/org/lastaflute/di/core/expression/engine/JavaScriptExpressionEngine.java">lasta-di - JavaScriptExpressionEngine.java | Github</a></div>
+
+	<div class="inucolumn">
+		<h2 id="licensecare">念のため、ライセンスに注目</h2>
+		<p>
+			Rhino は <em class="mark">Mozilla Public License Version 2.0</em> です。
+		</p>
+		<div class="relatedpage"><a href="https://github.com/mozilla/rhino/blob/master/LICENSE.txt">Rhino LICENSE | Github</a></div>
+		<p>
+			改変などしない限りは制約の少ないライセンスではありますが、一応しっかり知っておきましょう。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>

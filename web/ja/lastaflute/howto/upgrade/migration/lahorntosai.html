@@ -26,9 +26,21 @@
 <div id="content"><!-- __content-start__ -->
 	<h1>Nashornからsaiへの移行</h1>
 	<div class="relatedpage"><a href="./index.html">LastaFluteの移行情報</a></div>
+	<!-- #pending
+	<div class="relatedpage"><a href="./lahorntorhino.html">NashornからRhinoへの移行</a></div>
+	 -->
 	${indexlist}
 
 	<h2 id="overview">概要</h2>
+	<!-- #pending
+	<p>
+		<em class="keyword">【追記】sai ではなく、Rhino をオススメするようにしました。</em>
+	</p>
+	<div class="detailpage"><a href="./lahorntorhino.html">NashornからRhinoへの移行</a></div>
+	<p>
+		Lasta Di や DBFlute Engine のバージョンを上げることができないときに sai を使います。
+	</p>
+	 -->
 	<h3 id="lastauses">LastaFluteでNashornを使ってるところ</h3>
 	<p>
 		Java組み込みのJavaScriptエンジン <em class="mark">Nashorn</em> というものがあります。
@@ -49,7 +61,7 @@
 	</p>
 	<h3 id="saifork">Nashornをforkしたsaiが登場</h3>
 	<p>
-		Nashornをforkした <em class="mark">sai</em> というライブラリがあり、それを利用していくことをオススメしています。
+		Nashornをforkした <em class="mark">sai</em> というライブラリが利用できます。
 	</p>
 	<dl class="shortkeymainlist">
 		<dt>Github</dt><dd><a href="https://github.com/codelibs/sai">https://github.com/codelibs/sai</a></dd>
@@ -83,15 +95,17 @@
 		<li><em class="mark">asm-util-7.1.jar</em></li>
 		<li><em class="mark">sai-0.2.0.jar</em></li>
 	</ul>
-	<h4>DBFlute-1.2.5 (patch 2021/08/30) 以降なら</h4>
+	<h4>もし、DBFlute-1.2.5 patch 2021/08/29 以降なら</h4>
 	<p>
-		manageタスクにて、sai (31) を実行しましょう。
+		<em class="keyword">saiタスクを使って移行できます。</em>
 	</p>
 	<p>
-		必要なjarファイルたちがDBFluteクライアントのextlibディレクトリにダウンロードされます。
-		なので、次のステップの "extlibに配置" も要りません。これで FreeGen を実行できるようになります。
+		<em class="mark">manageタスクの 31 (sai)</em> を実行して jarファイルたちをextlibにダウンロードしましょう。
 	</p>
-	<h4>手作業ダウンロードなら</h4>
+	<p>
+		これで終了です。FreeGenを実行できます。
+	</p>
+	<h4>もし、手作業ダウンロードなら</h4>
 	<p>
 		mvnrepository のサイトに、jarファイルへのダウンロードリンク (Files の jar) が貼られていますので、そこからそれぞれダウンロードすることができます。
 	</p>
