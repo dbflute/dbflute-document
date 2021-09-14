@@ -46,37 +46,6 @@
 		<span class="frm">(RemoteApiGenに必要なアプリのファイルを用意した上で)</span>自動生成を行っていきます。
 	</p>
 	<div class="relatedpage"><a href="../../../manual/function/generator/task/freegen/index.html">FreeGenタスク</a></div>
-	<h3 id="fwrepository">RemoteApiGenの本家リポジトリ</h3>
-	<p>
-		RemoteApiGenはjarライブラリ形式ではないので、Exampleの中で最新版を管理しています。
-	</p>
-	<dl class="valuemainlist">
-		<dt>本家リポジトリ</dt><dd><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen">dbflute-example-with-remoteapi-gen</a></dd>
-	</dl>
-	<p>
-		最新版はこのリポジトリの <em class="keyword">DBFluteクライアントの freegenディレクトリの remoteapiディレクトリ</em>
-		にあります。
-	</p>
-	<p>
-		そのままExampleプロジェクトになっているので、設定ファイルなど参考にしましょう。
-	</p>
-	<h3 id="setup">RemoteApiGenのセットアップ</h3>
-	<ol>
-		<li>本家リポジトリから <em class="keyword">[DBFluteクライアント]/freegen/remoteapiディレクトリ</em> をコピー</li>
-		<li>それをアプリの同じディレクトリに配置 <span class="frm">(すでにある場合はディレクトリごと入れ替え)</span></li>
-		<li>freeGenMap.dfprop に RemoteApiGen の FreeGenリクエストを定義</li>
-		<li><em class="keyword">src/main/resources/remoteapi/schema</em> にrule.jsを作成 <span class="frm">(Exampleを参考に)</span></li>
-		<li>同じくschemaディレクトリに、リモートサーバーのswagger.jsonを配置</li>
-		<li>manageタスクで freegen (12) を実行 <span class="frm">成功すると remoteパッケージにクラスが自動生成される</span></li>
-		<li>自動生成された Abstract...Bhv.java にて yourDefaultRule() を適切に実装</li>
-	</ol>
-	<h3 id="upgrade">RemoteApiGenのアップグレード</h3>
-	<p>
-		本家リポジトリの <em class="keyword">[DBFluteクライアント]/freegen/remoteapiディレクトリ</em> をコピーして、アプリの同じディレクトリと入れ替えます。
-	</p>
-	<p>
-		アプリのfreegen/remoteapiディレクトリ配下は手動で修正を入れていないことが前提です。
-	</p>
 
 	<h2 id="architecture">RemoteApiGenのアーキテクチャ</h2>
 	<h3 id="overviewmodel">RemoteApiGenの全体像</h3>
@@ -177,6 +146,38 @@
  |  |  |  |-<span class="subpoint">RemoteApiRule.js</span> <span class="comment">// フレームワークのrule.js, アプリ側はこれをオーバーライドする ☆☆</span>
  |
 </code></pre>
+
+	<h2 id="setup">RemoteApiGenのセットアップ</h2>
+	<h3 id="download">RemoteApiGenのダウンロード</h3>
+	<p>
+		本家リポジトリのreleasesからzipファイルがダウンロードできます。
+	</p>
+	<dl class="valuemainlist">
+		<dt>本家のreleases</dt><dd><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/releases">dbflute-example-with-remoteapi-gen - releases</a></dd>
+	</dl>
+	<h3 id="howtouse">RemoteApiGenの使い方</h3>
+	<ol>
+		<li>ダウンロードしたzipを解凍して <em class="keyword">[DBFluteクライアント]/freegen/remoteapi</em> に配置</li>
+		<li>freeGenMap.dfprop に RemoteApiGen の FreeGenリクエストを定義</li>
+		<li><em class="keyword">src/main/resources/remoteapi/schema</em> にrule.jsを作成 <span class="frm">(Exampleを参考に)</span></li>
+		<li>同じくschemaディレクトリに、リモートサーバーのswagger.jsonを配置</li>
+		<li>manageタスクで freegen (12) を実行 <span class="frm">成功すると remoteパッケージにクラスが自動生成される</span></li>
+		<li>自動生成された Abstract...Bhv.java にて yourDefaultRule() を適切に実装</li>
+	</ol>
+	<p>
+		ファイル構成ドキュメントを参考に。
+	</p>
+	<div class="relatedpage"><a href="#filestructure">this - RemoteApiGenのファイル構成</a></div>
+	<h3 id="upgrade">RemoteApiGenのアップグレード</h3>
+	<p>
+		古いRemoteApiGenを削除して、新しいRemoteApiGenを配置します。
+	</p>
+	<p>
+		releasesからダウンロードしたzipを解凍して <em class="keyword">[DBFluteクライアント]/freegen/remoteapiディレクトリ</em> を <em class="mark">完全入れ替え</em> すればアップグレード完了です。
+	</p>
+	<p>
+		<span class="frm">※freegen/remoteapiディレクトリ配下はアプリで独自に修正していないことが前提です。</span>
+	</p>
 
 	<h2 id="howtofreegen">freeGenMap.dfpropの書き方</h2>
 	<p>
