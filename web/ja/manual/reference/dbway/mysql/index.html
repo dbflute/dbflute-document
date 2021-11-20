@@ -397,11 +397,11 @@ LikeSearchOption option = <span class="keyword">new</span> LikeSearchOption() {
 	<p>
 		DBFluteプロパティで、全ての queryUpdate(), queryDelete()
 		の実処理の直前に select count(*) して0件だったら更新処理しない、というチェックが入れることができます<span class="frm">(@since 0.9.9.7F)</span>。
-		littleAdjustmentMap.dfprop の isCheckCountBeforeQueryUpdate を true に設定して再自動生成するとそのようになります。
+		littleAdjustmentMap.dfprop の isQueryUpdateCountPreCheck を true に設定して再自動生成するとそのようになります。
 		ただ、デッドロックとは縁のない queryUpdate() や queryDelete() でも、select count(*) のチェックが入ってしまいます。
 	</p>
 	<p>
-		DBFluteプロパティを設定せず、その場その場の実装で対応するのであれば、ConditionBean で enableCheckCountBeforeQueryUpdate()
+		DBFluteプロパティを設定せず、その場その場の実装で対応するのであれば、ConditionBean で enableQueryUpdateCountPreCheck()
 		を呼び出すと、その時の queryUpdate(), queryDelete() だけに select count(*) のチェックを入れることができます<span class="frm">(@since 1.0.4D)</span>。
 	</p>
 	<h3 id="unionboolean">Sql2EntityでunionしたBoolean型</h3>
