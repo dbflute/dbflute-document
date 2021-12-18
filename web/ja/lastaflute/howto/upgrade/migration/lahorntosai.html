@@ -66,6 +66,10 @@
 	<dl class="shortkeymainlist">
 		<dt>Github</dt><dd><a href="https://github.com/codelibs/sai">https://github.com/codelibs/sai</a></dd>
 	</dl>
+	<p>
+		saiはJava11でコンパイルされているので、Java11以降の環境であれば利用できます。
+		<span class="frm">(Java8の環境の場合は、そもそもsaiを利用する必要がありません)</span>
+	</p>
 
 	<h2 id="freegen">FreeGen環境のsai移行</h2>
 	<p>
@@ -117,7 +121,7 @@
 		<dt>asm-util</dt><dd><a href="https://mvnrepository.com/artifact/org.ow2.asm/asm-util/7.1">https://mvnrepository.com/artifact/org.ow2.asm/asm-util/7.1</a></dd>
 		<dt>sai</dt><dd><a href="https://mvnrepository.com/artifact/org.codelibs/sai/0.2.0">https://mvnrepository.com/artifact/org.codelibs/sai/0.2.0</a></dd>
 	</dl>
-	<h4>Mavenのcopy-dependenciesなら</h4>
+	<h4>もし、Mavenのcopy-dependenciesなら</h4>
 	<p>
 		バージョン合わせてのダウンロードが面倒だと思われる方は、Mavenなどのビルドツールを一時的に利用してダウンロードする方法でも良いでしょう。
 		<span class="frm">(jfluteはいつもこうしてます)</span>
@@ -181,6 +185,14 @@ dbflute_maihamadb
 		<dt>gitにコミットする</dt><dd>他の人は配置作業せずにFreeGenが実行できる</dd>
 		<dt>gitignoreにする</dt><dd>他の人もダウンロードして配置する必要あるが、gitは軽くなる</dd>
 	</dl>
+	<h3 id="sincejava11">_project.shでJava11指定にした方が良い？</h3>
+	<p>
+		もし、MacOSのPCでJava8も同時にインストールされている環境であれば、_project.sh
+		の設定次第でJava8が優先利用されてsaiが動かない可能性があります。<span class="frm">(saiはJava11)</span>
+	</p>
+	<p>
+		そのときは、_project.sh の JAVA_HOME の設定を変更すると良いでしょう。
+	</p>
 	<h3 id="olddbflute">DBFluteをアップグレードできない場合</h3>
 	<p>
 		どうしてもDBFluteをアップグレードできない場合は、Nashornのjarファイルたちをextlibに配置すると動くかもしれません。
