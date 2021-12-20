@@ -220,8 +220,9 @@
 	</p>
 
 	<h2 id="thanksframework">Thanks, Frameworks!</h2>
+	<h3 id="codeuse">コード利用のフレームワーク</h3>
 	<p>
-		DBFluteの開発に欠かせなかったフレームワークです。
+		DBFluteの実装でコード利用させてもらってるフレームワークです。
 	</p>
 	<ul>
 		<li><a href="http://db.apache.org/torque/">Apache Torque</a></li>
@@ -229,10 +230,36 @@
 	</ul>
 	<p>
 		DBFluteは、Torque の自動生成の仕組みをベースに作られています。また、2Way-SQL の実現には S2Dao
-		のロジックを参考にさせてもらっています。
+		のコードを利用させてもらっています。
 	</p>
+	<h3 id="libuse">依存しているライブラリ</h3>
 	<p>
-		これらのフレームワークがなければ、今の DBFlute は存在していないでしょう。
+		DBFlute Engineが依存しているライブラリです。
+	</p>
+	<ul>
+		<li><a href="https://poi.apache.org">Apache POI</a></li>
+		<li><a href="https://velocity.apache.org">Apache Velocity</a></li>
+		<li><a href="https://commons.apache.org/proper/commons-compress/">Apache Commons Compress</a></li>
+		<li><a href="https://commons.apache.org/proper/commons-collections/">Apache Commons Collections</a></li>
+		<li><a href="https://xerces.apache.org">Apache Xerces</a></li>
+		<li><a href="http://slf4j.org">Slf4j</a></li>
+		<li><a href="https://logging.apache.org/log4j/2.x/">Apache Log4j (v1)</a></li>
+		<li><a href="https://ant.apache.org	">Apache Ant</a> <span class="frm">(also module use)</span></li>
+		<li><a href="http://db.apache.org/torque/">Apache Torque</a> <span class="frm">(code use)</span></li>
+		<li><a href="https://junit.org">JUnit</a> <span class="frm">(test only)</span></li>
+	</ul>
+	<p>
+		DBFlute Runtimeが依存しているライブラリです。
+	</p>
+	<ul>
+		<li><a href="http://slf4j.org">Slf4j</a></li>
+		<li><a href="http://s2dao.seasar.org/">S2Dao</a> <span class="frm">(code use)</span></li>
+		<li><a href="https://logging.apache.org/log4j/2.x/">Apache Log4j (v1)</a> <span class="frm">(test only)</span></li>
+		<li><a href="https://junit.org">JUnit</a> <span class="frm">(test only)</span></li>
+	</ul>
+	<h3 id="bigthanks">最大の感謝</h3>
+	<p>
+		これらのフレームワーク/ライブラリがなければ、今の DBFlute は存在していないでしょう。
 	</p>
 
 	<h2 id="thanksfriends">Thanks, Friends!</h2>
