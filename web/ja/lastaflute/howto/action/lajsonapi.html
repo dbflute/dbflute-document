@@ -426,65 +426,25 @@
 		allowOrigin は、環境ごとに変わるのであれば [app]_env.properties に定義すると良いでしょう。
 	</p>
 
-	<h2 id="restapi">REST APIにするには？</h2>
-	<h3 id="restmethod">HTTPメソッドごとにマッピングする方法</h3>
+	<h2 id="restfulapi">RESTful APIにするには？</h2>
 	<p>
-		例えば、/sea/land/ というURL で、GET のときと POST のときで処理を切り替えるためには、(SeaActionを前提として)Executeメソッド名を以下のようにします。
+		専用の機能を提供しています。
 	</p>
-	<dl class="valuemainlist">
-		<dt>GET</dt><dd>get$land()</dd>
-		<dt>POST</dt><dd>post$land()</dd>
-	</dl>
-	<p>
-		indexでも使えます。例えば、/sea/ の GET であれば get$index() となります。
-	</p>
-	<h3 id="restword">Pathパラメーターの場所を入れ替える方法</h3>
-	<p>
-		例えば、/sea/3/land/ というように、Pathパラメーターを固定のキーワードの途中に挟むためには、urlPattern で @word
-		を使います。メソッド名に相当するキーワードの位置を調整できます。
-	</p>
-<pre><span class="codetitle">e.g. word in urlPattern for REST API @Java</span><code>
-<span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> DocksideBaseAction {
+	<div class="detailpage"><a href="../action/larestfulapi.html">規約縛りのRESTful API</a></div>
+<pre><span class="codetitle">e.g. RESTful action for /products/ @Java</span><code>
+<span class="point">@RestfulAction</span>
+<span class="keyword">public class</span> ProductsAction <span class="keyword">extends</span> ShowbaseBaseAction {
 
-    @Execute(urlPattern=<span class="literal">"{}/@word"</span>) <span class="comment">// /sea/3/land/</span>
-    <span class="keyword">public</span> JsonResponse&lt;<span class="abbreviation">...</span>&gt; get$land(Integer seaId) {
-    }
-}
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;List&lt;ProductsResult&gt;&gt; <span class="subpoint">get$index</span>(ProductsSearchForm <span class="localvar">form</span>) {
+    <span class="abbreviation">...</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;ProductsResult&gt; <span class="subpoint">get$index</span>(Integer <span class="localvar">productId</span>) {
+    <span class="abbreviation">...</span>
+    @Execute
+    <span class="keyword">public</span> JsonResponse&lt;Void&gt; <span class="point">post$index</span>(ProductsPostBody body) {
+    <span class="abbreviation">...</span>
 </code></pre>
-	<p>
-		例えば、/sea/3/land/4/piari というように、メソッド名に相当するキーワードが二つある場合は、メソッド名の中でキャメルケースで含めて、@word
-		を二つ使います。
-	</p>
-<pre><span class="codetitle">e.g. double words in urlPattern for REST API @Java</span><code>
-<span class="keyword">public class</span> SeaAction <span class="keyword">extends</span> DocksideBaseAction {
-
-    @Execute(urlPattern=<span class="literal">"{}/@word/{}/@word"</span>) <span class="comment">// /sea/3/land/4/piary</span>
-    <span class="keyword">public</span> JsonResponse&lt;<span class="abbreviation">...</span>&gt; get$landPiari(Integer seaId, Integer landId) {
-    }
-}
-</code></pre>
-	<p>
-		一つのURLの要素にキャメルケース、例えば seaLand を含めることはできません。/sea/land/ と分解するか、/sealand/
-		と小文字にするかの対応が必要です。そもそも "RESTっぽいURL"
-		を目指しているのであれば、そもそもキャメルケースで要素を表現すること自体があまり馴染まないと思うので、サポートする予定も今のところありません。
-	</p>
-	<p>
-		<span class="frm">(一方で、REST自体、単純な CRUD の JSON API であればフィットしやすいですが、業務ロジックがゴリゴリ入った JSON API
-		だとけっこう無理が出てきてしまうと考えているので、サポートの優先度は下げています)</span>
-	</p>
-	<p>
-		TODO jflute この機能はもっと使いやすさを追求していかなければならない <span class="frm">(Actionクラスのwordを...)</span>
-	</p>
-	<h3 id="restver">バージョンをURLに埋め込む方法</h3>
-	<p>
-		例えば、/v1/sea/ という URL で、v1 はバージョンだとしたときは、ActionAdjustmentProvider
-		の customizeActionMappingRequestPath() にて調整します。
-	</p>
-	<p>
-		このメソッドでバージョンを抜き出して、マッピングのためのURLは filter
-		し、抜き出したバージョンはリクエスト属性に入れるなりして Action に引き継いで利用するとよいでしょう。
-	</p>
-	<div class="relatedpage"><a href="./adjustment.html#actionmapping">Actionマッピングの調整</a></div>
 
 	<h2 id="apifailurehook">忘れられないApiFailureHook</h2>
 	<p>
