@@ -16,3 +16,4 @@ Fix the HTML files directly.
 
 o #hope jflute will migrate from Apache Ant to something else (2019/01/02)  
 o #hope jflute will migrate from 'dbflute-www' to github pages (2019/01/02)  
+
