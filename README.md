@@ -14,5 +14,5 @@ Fix the HTML files directly.
 2. execute 'html' task of 'script/build-document.xml' by Apache Ant
 3. commit and push 'dbflute-www' modification, and publish in Seasar management site
 
- #hope jflute will migrate from Apache Ant to something else (2019/01/02)  
- #hope jflute will migrate from 'dbflute-www' to github pages (2019/01/02)  
+o #hope jflute will migrate from Apache Ant to something else (2019/01/02)  
+o #hope jflute will migrate from 'dbflute-www' to github pages (2019/01/02)  
