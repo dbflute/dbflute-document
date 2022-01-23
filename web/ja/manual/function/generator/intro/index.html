@@ -29,6 +29,9 @@
 		Alto DBFlute の利用を支援するための、IDEなどに依存しない独立したGUIツールです。
 	</p>
 	<div class="relatedpage"><a href="../../../../introduction/altodbflute.html">Alto DBFlute</a></div>
+	<p>
+		一方で、O/RマッパーとしてDBFluteを使う場合も、DBFlute Introは大いに活躍します。
+	</p>
 	${indexlist}
 
 	<h2 id="about">DBFlute Introとは？</h2>
@@ -164,8 +167,17 @@
 		を入力する画面が <em class="mark">ブラウザ</em> で表示されます。<span class="frm">(起動に少し時間がかかるのでお待ちください)</span>
 	</p>
 	<h3 id="welcomesnapshot">Welcome画面</h3>
+	<p>
+		まず表示されるのが <em class="mark">Welcome画面</em> です。
+	</p>
+	<p>
+		ここで必要な情報を入力して、DBFluteを利用するための初期セットアップ <span class="frm">(DBFluteエンジンのダウンロードとDBFluteクライアントのセットアップ)</span> を行います。
+	</p>
 	<p class="imgbox">Welcome画面
 		<a href="../../../../data/snapshot/intro/welcome/intro-welcome-initial-snapshot.png" title="DBFluteIntro Welcome Initial"><img src="../../../../../data/snapshot/intro/welcome/intro-welcome-initial-snapshot.png" alt="DBFluteIntro Welcome Initial" width="550" height="360" /></a>
+	</p>
+	<p>
+		<span class="frm">(そのディレクトリにDBFluteが何もセットアップされていない場合は、必ずこのWelcome画面)</span>
 	</p>
 	<h3 id="welcomeitem">セットアップするための最低限の項目</h3>
 	<dl class="shortkeymainlist">
@@ -178,6 +190,10 @@
 		<dt>*User</dt><dd>データベースに接続するときのユーザ</dd>
 		<dt>Password</dt><dd>データベースに接続するときのパスワード</dd>
 	</dl>
+	<p>
+		迷う場合は、"DBMSごとの取扱い" の該当DBMSのページを参考に。
+	</p>
+	<div class="relatedpage"><a href="../../../reference/dbway/index.html">DBMSごとの取扱い</a></div>
 	<h3 id="welcomejdbcjar">JDBCドライバのパスの補足</h3>
 	<p>
 		DBFlute Intro は "JDBCドライバ" を利用して接続するため、JDBCドライバが DBFlute
@@ -186,7 +202,7 @@
 	<dl class="shortkeymainlist">
 		<dt>MySQL</dt><dd>同梱されているので指定不要</dd>
 		<dt>PostgreSQL</dt><dd>同梱されているので指定不要</dd>
-		<dt>Oracle</dt><dd>"ojdbc7.jar ダウンロード" で検索してダウンロード画面へ</dd>
+		<dt>Oracle</dt><dd>"ojdbc.jar ダウンロード" で検索してダウンロード画面へ</dd>
 		<dt>DB2</dt><dd>"db2jcc.jar ダウンロード" で検索してダウンロード画面へ</dd>
 		<dt>SQLServer</dt><dd>"sqljdbc4.jar ダウンロード" で検索してダウンロード画面へ</dd>
 		<dt>H2 Database</dt><dd>同梱されているので指定不要</dd>
@@ -245,6 +261,12 @@
  |
  |-<span class="abbreviation">...</span>
 </code></pre>
+	<h3 id="iformdbflute">O/Rマッパー利用ならセットアップへ</h3>
+	<p>
+		もし、DBFluteをO/Rマッパー利用する ORM DBFluteスタイルなのであれば、セットアップのページに行きましょう。
+		DBFluteランタイムの依存設定や、O/Rマッパー固有のdfpropの設定など行っていきます。
+	</p>
+	<div class="detailpage"><a href="../../../../environment/setup/byintro.html">DBFlute Introによるセットアップ</a></div>
 
 	<h2 id="firstdoc">とりあえず、テーブル定義ドキュメント <span class="frm">(SchemaHTML)</span></h2>
 	<h3 id="topsnapshot">トップ画面</h3>

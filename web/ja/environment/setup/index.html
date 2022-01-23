@@ -25,6 +25,14 @@
 
 <div id="content"><!-- __content-start__ -->
 	<h1>DBFluteのセットアップ <span class="frm">(インストール)</span></h1>
+	<p>
+		ここでは、O/Rマッパーとして利用する <em class="mark">ORM DBFluteスタイル</em>
+		を想定しています。
+	</p>
+	<p>
+		<em class="smallmark">Alto DBFluteスタイル</em> であれば、Altoのページをご覧ください。
+	</p>
+	<div class="relatedpage"><a href="../../introduction/altodbflute.html">Alto DBFluteスタイル</a></div>
 	${indexlist}
 
 	<h2 id="target">セットアップの定義</h2>
@@ -49,19 +57,23 @@
 
 	<h2 id="way">セットアップ方法</h2>
 	<p>
-		DBFluteのセットアップには大きく三つの方法があります。
+		DBFluteのセットアップには大きく四つの方法があります。
 	</p>
 	<div class="relatedpage"><a href="../supported.html">DBFluteのサポート情報</a></div>
 	<dl class="textlist">
-		<!-- 
-		<dt><a href="../../manual/function/helper/intro/index.html">DBFlute Intro で GUI からセットアップ</a> <span class="frm">※Java8 (1.1.x) はこちら、Alto DBFlute はこちら</span></dt>
+		<dt><a href="../../manual/function/generator/intro/index.html">DBFlute Intro で GUI からセットアップ</a> <span class="frm">※オーソドックス！</span></dt>
 		<dd>
 			DBFlute Intro 起動して、画面から必要な情報を入力してDBFluteクライアントを作成します。
 		</dd>
-		 -->
-		<dt><a href="./maven.html">Maven DBFlute Plugin でコマンドからセットアップ</a> <span class="frm">※Java8 (1.1.x) はこちら</span></dt>
+		<dd>
+			ORM DBFluteスタイルでも、Alto DBFluteスタイルでも、どちらでも使えるセットアップ方法です。
+		</dd>
+		<dt><a href="./maven.html">Maven DBFlute Plugin でコマンドからセットアップ</a></dt>
 		<dd>
 			Maven の pom.xml に必要な情報を記述し、DBFluteクライアントを作成します。
+		</dd>
+		<dd>
+			Mavenを使って管理したい場合に便利です。セットアップだけじゃなく、日々のタスク実行もMaven経由でできるようになります。
 		</dd>
 		<dt><a href="./emecha.html">EMecha (Eclipse Plugin) で Eclipse にてセットアップ</a> <span class="frm">※Java6,7 (1.0.x) はこちら</span></dt>
 		<dd>

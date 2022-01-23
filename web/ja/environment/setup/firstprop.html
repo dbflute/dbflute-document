@@ -27,21 +27,33 @@
 	<h1>セットアップ - 特定環境適用プロパティ</h1>
 	<p>
 		最初の自動生成の前に考慮すべき特定の環境に適用するためのプロパティを設定します。
-		<span class="frm">(ほとんどのケースで不要であると想定され、特殊な環境でなければ、もしくは、よくわからなければとりあえずスキップでもOK)</span>
 	</p>
-	<div class="relatedpage"><a href="./emecha.html">EMechaによるセットアップ</a></div>
 	${indexlist}
+
+	<h2 id="recommended">オススメのtrue設定</h2>
+	<p>
+		DBFluteとしては、どうしてもデフォルトで有効にできなかった機能があります。
+	</p>
+	<p>
+		でも、ほとんどの現場ではtrueにして機能の恩恵を受けたほうが良いものばかりなので、ぜひ確認して設定しておきましょう。
+	</p>
+	<p>
+		詳しくは、"アーキテクトのためのチュートリアル" ページのコラムをご覧ください。
+	</p>
+	<div class="detailpage"><a href="../../tutorial/architect.html#almosttrue">デフォルトfalseだが、ほとんどtrueでOKのプロパティ</a></div>
 
 	<h2 id="basic">basicInfoMap.dfpropの編集</h2>
 	<p>
 		DBFluteプロパティ basicInfoMap.dfprop をエディタで開いて、ある特定の環境に適用するためのプロパティを必要であれば修正します。
-		(EMechaがインストールされていれば、DBFluteプロパティの色付け・入力支援をするエディタ機能が .dfpropファイル に関連付いています)
 	</p>
-	<div class="relatedpage"><a href="../../manual/reference/dfprop/basicinfo/index.html">basicInfoMap.dfprop</a></div>
 	<p>
 		もし、複数DB対応を前提としている場合は、複数DB対応の調整もこの時点で考慮しておきます。
 	</p>
 	<div class="detailpage"><a href="../../manual/function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+	<p>
+		ちなみに、Eclipseを利用している場合、EMechaがインストールされていれば、DBFluteプロパティの色付け・入力支援をするエディタ機能が .dfpropファイル に関連付いています。
+	</p>
+	<div class="relatedpage"><a href="../../manual/reference/dfprop/basicinfo/index.html">basicInfoMap.dfprop</a></div>
 
 	<h2 id="generate">自動生成クラスの出力先</h2>
 	<p>

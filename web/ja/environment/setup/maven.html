@@ -36,7 +36,7 @@
 		<dt>Java8</dt><dd>DBFlute は Apache Ant を利用するため、Java8 以上の実行環境が必要</dd>
 		<dt>Maven</dt><dd>コマンドラインで mvn -version が打てる必要あり</dd>
 		<dt>pom.xml</dt><dd>アプリ用の pom.xml が既に用意されている必要あり</dd>
-		<dt>インターネット</dt><dd>Maven経由でDBFluteモジュールをダウンロードするため</dd>
+		<dt>インターネット</dt><dd>Maven経由でDBFlute Engineをダウンロードするため</dd>
 	</dl>
 	<p>
 		もし、複数DB対応をする場合、事前にポイントを抑えておきましょう。
@@ -46,59 +46,9 @@
 	<h2 id="procedure">セットアップ手順</h2>
 	<h3 id="runtime">1. DBFluteランタイムの設定 <span class="frm">(JDBCドライバも)</span></h3>
 	<p>
-		まずは pom.xml の dependencies に "DBFluteランタイム" の dependency を入れます。
+		アプリケーションのクラスパスにDBFluteランタイム(JAR)を追加して下さい。
 	</p>
-	<p>
-		propertiesタグに dbflute.version プロパティを定義しておくと、dbflute-maven-plugin
-		がダウンロードするDBFluteエンジンのバージョンが同じになります。
-		<span class="frm">(もし、propertiesがない場合、プラグインはruntimeの定義に関わらず最新バージョンをダウンロードします)</span>
-	</p>
-	<div class="relatedpage"><a href="../newest.html">DBFluteの最新バージョン</a></div>
-	<div class="relatedpage"><a href="../../manual/function/ormapper/runtime/index.html">DBFluteランタイム</a></div>
-<pre><span class="codetitle">e.g. DBFluteランタイム-1.1.x の dependency を定義 @pom.xml</span><code>
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project&gt;
-<span class="abbreviation">...</span>
-    &lt;properties&gt;
-        <span class="abbreviation">...</span>
-        <span class="subpoint">&lt;dbflute.version&gt;<span class="literal">1.1.0-sp8</span>&lt;/dbflute.version&gt;</span>
-        <span class="abbreviation">...</span>
-    &lt;/properties&gt;
-    
-    <span class="abbreviation">...</span>
-
-    &lt;dependencies&gt;
-        <span class="abbreviation">...</span>
-        <span class="subpoint">&lt;dependency&gt;</span>
-            &lt;groupId&gt;<span class="literal">org.dbflute</span>&lt;/groupId&gt;
-            &lt;artifactId&gt;<span class="literal">dbflute-runtime</span>&lt;/artifactId&gt;
-            &lt;version&gt;<span class="literal">${dbflute.version}</span>&lt;/version&gt;
-        <span class="subpoint">&lt;/dependency&gt;</span>
-        <span class="abbreviation">...</span>
-    &lt;/dependencies&gt;
-<span class="abbreviation">...</span>
-&lt;/project&gt;
-</code></pre>
-	<p>
-		まだ、利用する DBMS に対応する "JDBCドライバ" の dependency
-		を設定していないのであれば、この時点で入れておきましょう。以下は MySQL の例。
-	</p>
-<pre><span class="codetitle">e.g. MySQL のJDBCドライバのdependencyを定義 @pom.xml</span><code>
-    &lt;dependencies&gt;
-        <span class="abbreviation">...</span>
-        &lt;dependency&gt;
-            <span class="comment">(いまさっき設定したDBFluteランタイムのdependency)</span>
-        &lt;/dependency&gt;
-        <span class="subpoint">&lt;dependency&gt;</span>
-            &lt;groupId&gt;<span class="literal">mysql</span>&lt;/groupId&gt;
-            &lt;artifactId><span class="literal">mysql-connector-java</span>&lt;/artifactId&gt;
-            &lt;version><span class="literal">5.1.33</span>&lt;/version&gt;
-            &lt;scope><span class="literal">runtime</span>&lt;/scope&gt;
-        <span class="subpoint">&lt;/dependency&gt;</span>
-        <span class="abbreviation">...</span>
-    &lt;/dependencies&gt;
-</code></pre>
-
+	<div class="detailpage"><a href="./runtime.html">セットアップ - DBFluteランタイムの準備</a></div>
 	<h3 id="mavenplugin">2. DBFlute Maven Plugin のインストール</h3>
 	<p>
 		そして、pom.xml の plugins に、"DBFlute Maven Plugin" を入れます。
@@ -154,12 +104,12 @@
  |-src/main/resources
  |-...
  |-mydbflute
-    |-<span class="point">dbflute-1.1.0-sp8</span> <span class="comment">// これをDBFluteエンジンと呼ぶ</span>
+    |-<span class="point">dbflute-1.2.5</span> <span class="comment">// これをDBFluteエンジンと呼ぶ</span>
        |-ant
        |-...
        |-templates
        |-build-torque.xml
-       |-product-is-dbflute-1.1.0-sp8
+       |-product-is-dbflute-1.2.5
 </code></pre>
 	<h3 id="client">4. DBFluteクライアントの作成</h3>
 	<p>
@@ -181,7 +131,7 @@
     |-dfprop     <span class="comment">// DBFluteプロパティ(dfprop)がたくさん置いてあるディレクトリ</span>
     |-...
  |-mydbflute
-    |-dbflute-1.1.0-sp8 <span class="comment">// こちらはDBFluteエンジンと呼ぶ</span>
+    |-dbflute-1.2.5 <span class="comment">// こちらはDBFluteエンジンと呼ぶ</span>
 </code></pre>
 	<h3 id="dfprop">5. DBFluteプロパティの基本設定 <span class="frm">(DB接続情報やDIコンテナなど)</span></h3>
 	<p>
@@ -249,7 +199,7 @@
 		プラグインである "EMecha" で dfprop を開けば、dfpropの色付けや重複キーや閉じ括弧チェックがされて編集しやすくなります。
 	</p>
 	<div class="relatedpage"><a href="../../manual/function/helper/emecha/index.html">EMecha (Eclipseプラグイン)</a></div>
-	<h3 id="firstprop">6. 特定環境適用プロパティ <span class="frm">(必要であれば)</span></h3>
+	<h3 id="firstprop">6. 特定環境適用プロパティ</h3>
 	<p>
 		ここからは、DBFlute Maven Plugin に関係なく、どのセットアップ方法でも必要な手順です。
 	</p>
@@ -257,7 +207,6 @@
 		dfpropは、実際に使い始めてからつどつど微調整していく形でOKですが、
 		さすがに自動生成前にやっておいたほうがいいだろう "特定環境適用プロパティ"
 		もあるので、そちらのページをサッと目を通して必要であれば直しておきましょう。
-		<span class="frm">(ほとんどのケースで不要であると想定され、特殊な環境でなければ、もしくは、よくわからなければとりあえずスキップでもOK)</span>
 	</p>
 	<div class="detailpage"><a href="./firstprop.html">セットアップ - 特定環境適用プロパティ</a></div>
 	<h3 id="jdbcdriver">7. JDBCドライバの準備 <span class="frm">(Oracle や DB2 などであれば)</span></h3>
@@ -269,9 +218,9 @@
 	<p>
 		H2, MySQL, PostgreSQL は同梱されているので、この手順はスキップしてOKです。
 	</p>
-	<h3 id="generate">8. クラスの自動生成 <span class="frm">(ReplaceSchema & Generate)</span></h3>
+	<h3 id="generate">8. クラスの自動生成</h3>
 	<p>
-		それでは、自動生成をしてみましょう。
+		それでは、自動生成 <span class="frm">(ReplaceSchema & Generate)</span> をしてみましょう。
 	</p>
 	<div class="detailpage"><a href="./generate.html">セットアップ - クラスの自動生成</a></div>
 	<p>
@@ -285,7 +234,7 @@
 		アプリケーションで利用しているDIコンテナの環境にDBFluteのクラスを認識させて下さい。
 	</p>
 	<div class="detailpage"><a href="./injection.html">セットアップ - DI環境の調整</a></div>
-	<h3 id="thenafter">x. その後の設定</h3>
+	<h3 id="thenafter">10. その後の設定</h3>
 	<p>
 		ひとまず、アプリケーション上でDBFluteのクラスを利用することができるようになりました。
 		しかし、ディベロッパーに横展開するまでには、まだあともうちょい頑張りが必要です。

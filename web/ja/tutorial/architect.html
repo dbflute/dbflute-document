@@ -279,28 +279,12 @@
 	<div class="inucolumn">
 		<h3 id="almosttrue">デフォルトfalseだが、ほとんどtrueでOKのプロパティ</h3>
 		<p>
-			DBFluteとしては、どうしてもデフォルトで true
-			にしづらいプロパティがあります。万が一のケースでトラブりやすいと考えられるものです。
-			レアケースはいえ true にできないもの。
+			DBFluteとしては、どうしてもデフォルトで有効にできなかった機能があります。
 		</p>
 		<p>
-			例えば、区分値において、区分値解決メソッドとCDef型の引数のメソッドがあれば、ネイティヴ型のメソッドは既に不要なものです。
-			ですが、DBFluteの区分値定義に存在していなくてDB上にだけ存在する "隠れ区分値"
-			のようなものがあった場合(別システムで利用されるとか)、そして、そのアプリでもその値が検索したり設定したりするようなことがある場合、ネイティヴ型のメソッドがないと扱うことができません。
-			そんなことまずあり得ないと思われますが、万が一そういう現場があるかもしれないと考えると true にできないのです。
-		</p>
-		<p>
-			感覚値ですが9割以上の現場で問答無用でネイティヴ型のメソッドは削除して良いでしょう。
-			そういった感じのプロパティをここで幾つか特集したいと思います。(本当にOKか確認はしましょう)
+			でも、ほとんどの現場ではtrueにして機能の恩恵を受けたほうが良いものばかりなので、ぜひ確認して設定しておきましょう。
 		</p>
 		<dl class="textlist">
-			<dt>区分値のネイティヴ型のメソッドの削除と例外検知</dt>
-			<dd>
-				隠れ区分値がなければ。<span class="frm">(そもそもそんな区分値があるとややこしい)</span>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#isforceclassificationsetting">littleAdjustmentMap.dfprop - isForceClassificationSetting</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#ischeckselectedclassification">littleAdjustmentMap.dfprop - isCheckSelectedClassification</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/classificationdefinition/index.html#ischeckimplicitset">littleAdjustmentMap.dfprop - isCheckImplicitSet</a></div>
-			</dd>
 			<dt>空文字は null に変換して登録・更新</dt>
 			<dd>
 				空文字に意味を持たせないで良いのであれば。<span class="frm">(そもそも持たせるとややこしい)</span>
@@ -309,31 +293,25 @@
 			<dt>別名(和名)の設定やDBコメントの扱い</dt>
 			<dd>
 				DBコメントの中に、どういう形式で別名(和名)を含めるかを確認して設定しましょう。
-				isEntityJavaDocDbCommentValid に関しては、別名の設定に関わらず、とりあえず true にして自動生成してコンパイルエラーがなければOKという感じです。<span class="frm">(ぜひDBコメントは活用したい)</span>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#aliasdelimiterindbcomment">documentDefinitionMap.dfprop - aliasDelimiterInDbComment</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#isdbcommentonaliasbasis">documentDefinitionMap.dfprop - isDbCommentOnAliasBasis</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#isentityjavadocdbcommentvalid">documentDefinitionMap.dfprop - isEntityJavaDocDbCommentValid</a></div>
-			</dd>
-			<dt>外だしSQLのコメントは必須に</dt>
-			<dd>
-				OutsideSqlTestタスクで、外だしSQLのコメントの有無をチェックできます。<span class="frm">(コメント必須)</span>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isrequiredsqltitle">outsideSqlDefinitionMap.dfprop - isRequiredSqlTitle</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isrequiredsqldescription">outsideSqlDefinitionMap.dfprop - isRequiredSqlDescription</a></div>
-			</dd>
-			<dt>ストアドプロシージャを使うのであれば</dt>
-			<dd>
-				プロシージャ使うならとりあえず設定するでOK。<span class="frm">(実際に使ってみて何かあれば微調整で良い)</span>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#ischeckprocedurediff">documentDefinitionMap.dfprop - isCheckProcedureDiff</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isgenerateprocedureparameterbean">outsideSqlDefinitionMap.dfprop - isGenerateProcedureParameterBean</a></div>
-				<div class="relatedpage"><a href="../manual/reference/dfprop/outsidesqldefinition/index.html#isgenerateprocedurecustomizeentity">outsideSqlDefinitionMap.dfprop - isGenerateProcedureCustomizeEntity</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#aliasdelimiterindbcomment">documentMap.dfprop - aliasDelimiterInDbComment</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/documentdefinition/index.html#isdbcommentonaliasbasis">documentMap.dfprop - isDbCommentOnAliasBasis</a></div>
 			</dd>
 			<dt>DBMSの挙動に関わらずテーブル名を大文字に</dt>
 			<dd>
 				主に MySQL にて、"テーブル名大文字小文字区別なしモード" にするとメタデータが小文字になってしまうので。
-				<span class="frm">(もちろんもともと小文字でいいのなら関係ないですが、もし、ERDなどドキュメントが大文字なのであれば、SchemaHTML 上のテーブル名も合わせて大文字にしたいので)</span>
+				<span class="frm">(もちろん小文字のままでいいのであれば関係ないですが、もし、ERDなどドキュメントが大文字なのであれば、SchemaHTML上のテーブル名も合わせて大文字にした方が良いでしょう)</span>
 				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#istabledispnameuppercase">littleAdjustmentMap.dfprop - isTableDispNameUpperCase</a></div>
 				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#istablesqlnameuppercase">littleAdjustmentMap.dfprop - isTableSqlNameUpperCase</a></div>
 				<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#iscolumnsqlnameuppercase">littleAdjustmentMap.dfprop - isColumnSqlNameUpperCase</a></div>
+			</dd>
+			<dt>ConditionBeanのメソッド調整</dt>
+			<dd>
+				true/falseものではないですが、通常はあまり使われないConditionBeanのquery系メソッドを自動生成されないようにしましょう。
+			</dd>
+			<dd>
+				Exampleの設定を丸ごとコピーして使ってOKです。<span class="frm">(何かあればつど微調整で)</span>
+				<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/master/dbflute_maihamadb/dfprop/conditionBeanMap.dfprop">lastaflute-example-harbor の conditionBeanMap.dfprop | Github</a></div>
+				<div class="relatedpage"><a href="../manual/reference/dfprop/includequery/index.html">conditionBeanMap.dfprop</a></div>
 			</dd>
 		</dl>
 	</div>

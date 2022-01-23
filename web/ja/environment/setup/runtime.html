@@ -31,6 +31,9 @@
 	${indexlist}
 
 	<h2 id="maven">Mavenでクラスパスを管理している場合</h2>
+	<p>
+		<span class="frm">※Gradleの場合は、うまく読み替えてください。</span>
+	</p>
 	<h3 id="repository">repositoryの定義 <span class="frm">(1.0.x のみ、1.1.x では不要)</span></h3>
 	<p>
 		pom.xmlにDBFluteランタイムが管理されているrepositoryを定義して下さい。
@@ -73,6 +76,27 @@
     <span class="abbreviation">...</span>
 &lt;/dependencies&gt;
 </code></pre>
+	<h3 id="jdbcdriver">JDBCドライバの定義</h3>
+	<p>
+		まだ、利用する DBMS に対応する "JDBCドライバ" の dependency
+		を設定していないのであれば、この時点で入れておきましょう。以下は MySQL の例。
+	</p>
+<pre><span class="codetitle">e.g. MySQL のJDBCドライバのdependencyを定義 @pom.xml</span><code>
+    &lt;dependencies&gt;
+        <span class="abbreviation">...</span>
+        &lt;dependency&gt;
+            <span class="comment">(いまさっき設定したDBFluteランタイムのdependency)</span>
+        &lt;/dependency&gt;
+        <span class="subpoint">&lt;dependency&gt;</span>
+            &lt;groupId&gt;<span class="literal">mysql</span>&lt;/groupId&gt;
+            &lt;artifactId><span class="literal">mysql-connector-java</span>&lt;/artifactId&gt;
+            &lt;version><span class="literal">8.0.16</span>&lt;/version&gt;
+            &lt;scope><span class="literal">runtime</span>&lt;/scope&gt;
+        <span class="subpoint">&lt;/dependency&gt;</span>
+        <span class="abbreviation">...</span>
+    &lt;/dependencies&gt;
+</code></pre>
+
 	<h2 id="plain">手動でクラスパスに追加する場合</h2>
 	<p>	
 		DBFluteランタイムをダウンロードして手動でクラスパスに追加して下さい。
