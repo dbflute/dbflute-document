@@ -261,8 +261,17 @@
 	</p>
 	<div class="relatedpage"><a href="../../../function/generator/task/sql2entity/index.html#refsql">Sql2Entity - 外だしSQLを参照</a></div>
 	<p>
-		SQLファイルが配置場所が、デフォルトの設定とは違う場合に有効です。
+		ここで言うディレクトリは、ソースディレクトリ(Javaで言うclasspath対象のディレクトリ)を指します。
+		例えば、../src/main/java や ../src/main/resources のことです。
 	</p>
+	<p>
+		もし、../src/main/sql という独自のソースディレクトリに (パッケージにまとめられているかに関わらず)
+		SQLファイルが配置されているのであれば、この sqlDirectory プロパティで指定します。
+	</p>
+	<p>
+		そのソースディレクトリ配下のサブディレクトリ(パッケージ)で外だしSQLを区別したいときは、sqlDirectoryプロパティではなく、sqlPackageプロパティになります。
+	</p>
+	<div class="relatedpage"><a href="#sqlpackage">this - sqlPackage</a></div>
 	<dl class="textlist">
 		<dt>値候補</dt><dd>DBFluteクライアントディレクトリからの相対パス</dd>
 		<dt>デフォルト</dt><dd>*Sql2Entityのページを参照</dd>
