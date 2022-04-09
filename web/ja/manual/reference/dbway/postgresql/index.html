@@ -31,9 +31,23 @@
 	<dl class="valuemainlist">
 		<dt>対応バージョン</dt><dd>PostgreSQL 8.1 以上</dd>
 		<dt>JDBCドライバの同梱</dt><dd>あり</dd>
-		<dt>(同梱)JDBCドライバ</dt><dd>postgresql-8.4-701.jdbc3.jar</dd>
+		<dt>(同梱)JDBCドライバ</dt><dd>postgresql-9.4-1212.jre6.jar</dd>
 	</dl>
 	<div class="relatedword"><a href="../../dictionary/alphabet/wj.html#jdbcdriver">JDBCドライバ</a></div>
+	<h3>もし認証エラーが発生した場合</h3>
+	<p>
+		自動生成時に、"認証型 10 はサポートされません" というエラーが発生した場合、PostgreSQL本体に対して、JDBCドライバーが古いことが原因である可能性があります。
+	</p>
+	<p>
+		一方で、最新のJDBCドライバーにすると、PostgreSQLのJDBCドライバーの挙動変更により、ストアドファンクションに対応する ParameterBean の自動生成がされなくなります。
+	</p>
+	<p>
+		ゆえに、両方の問題を回避できるギリギリのJDBCのバージョン <em class="mark">42.2.10</em> にすると良いです。 
+	</p>
+	<p>
+		mydbfluteの下のDBFluteエンジンのlib配下のPostgreSQLのJDBCドライバーを差し替えてください。
+		<span class="frm">(DBFlute-1.2.6 より、そのバージョンが組み込まれます)</span>
+	</p>
 
 	<h2 id="setting">データベース接続設定</h2>
 	<p>
@@ -173,6 +187,11 @@
 	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetparameter">ResultSetパラメータ</a></div>
 	<div class="relatedword"><a href="../../dictionary/alphabet/wr.html#resultsetreturn">ResultSetリターン</a></div>
 	<div class="relatedword"><a href="../../dictionary/alphabet/wn.html#notparamresult">NotParamResult(Set)</a></div>
+	<h3 id="realprocedure">本当のストアドプロシージャは？</h3>
+	<p>
+		PostgreSQL-11 からサポートされたストアドプロシージャは、DBFlute-1.2.5の時点で未対応です。
+		<span class="frm">(いずれ procedure と function を両方ともしっかりサポートしたいと考えております)</span>
+	</p>
 	<h3 id="nextprocedure">別スキーマのプロシージャ</h3>
 	<p>
 		別スキーマのプロシージャもオプションで自動生成できます。
