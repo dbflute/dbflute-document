@@ -197,17 +197,16 @@ List&lt;Member&gt; memberList = memberBhv.<span class="point">selectList</span>(
 	<h3 id="outerquery">外側クエリーでの絞り込みを忘れずに</h3>
 	<p>
 		絞り込み条件としては、あくまで単一のカラムだけで絞り込みをしているだけです。なので例えば、"一番若い正式会員"
-		と言った場合でも、生年月日カラムがユニークでなければ、複数の会員が対象となる可能性があります。
-		そういった場合は、一件検索ではなくリスト検索になります。結果件数の可能性を考慮して、Behavior のメソッドを選んで下さい。
+		と言った場合でも、外側クエリーにも正式会員の条件を入れなければ、たまたま同じ生年月日で別のステータスの会員が紛れてしまいます。
 	</p>
-<pre><span class="codetitle">e.g. 会員ステータスごとに一番若い会員 @Java</span><code>
+<pre><span class="codetitle">e.g. ScalarConditionを使って一番若い正式会員(のレコード)を取得 @Java</span><code>
 cb.query().scalar_Equal().max(memberCB -&gt; { <span class="comment">// 一番若い正式会員</span>
     memberCB.specify().columnBirthdate(); <span class="comment">// 比較対象カラムの指定</span>
     memberCB.query().<span class="subpoint">setMemberStatusCode_Equal_Formalized()</span>; <span class="comment">// 絞り込み条件</span>
 });
 cb.query().<span class="point">setMemberStatusCode_Equal_Formalized</span>(); <span class="comment">// 外側の絞り込み条件</span>
 </code></pre>
-<pre><span class="codetitle">e.g. ScalarConditionを使って一番若い正式会員(のレコード)を取得 @DisplaySql</span><code>
+<pre><span class="codetitle">e.g. 一番若い正式会員(のレコード)を取得するときのSQL @DisplaySql</span><code>
 <span class="abbreviation">...</span>
   <span class="keyword">from</span> MEMBER dfloc
  <span class="keyword">where</span> dfloc.BIRTHDATE = (<span class="keyword">select</span> max(sub1loc.BIRTHDATE)
