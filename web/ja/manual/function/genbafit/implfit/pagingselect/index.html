@@ -146,15 +146,18 @@ PagingResultBean&lt;SimpleMember&gt; page
 	<p class="imgbox">図 : ページングナビゲーションの対応図 (PageRange)
 		<a href="../../../../../data/model/genba/genba-implfit-PagingNavigation-mapping.png" title="ページングナビゲーションの対応図 (PageRange)"><img src="../../../../../data/model/genba/genba-implfit-PagingNavigation-mapping.png" alt="ページングナビゲーションの対応図 (PageRange)" width="550" height="280" /></a>
 	</p>
+	<ul class="codeoutro">
+		<li>↑画像の中のメソッド名が古いですが<span class="frm">(Java6版のものになってる)</span>、あくまでイメージということで</li>
+		<li>isExistPrePage() → existsPreviousPage()</li>
+		<li>isExistNextPage() → existsNextPage()</li>
+		<li>setPageRangeSize(5) → pageRange(op -> op.rangeSize(5)).createPageNum...</li>
+	</ul>
 
 	<h2 id="example">Exampleのススメ</h2>
 	<p>
-		dbflute-basic-example では、テストケースの中で実際にページング検索を利用しています。
-		また、dbflute-ymir-example や dbflute-sastruts-example では、WEBフレームワークと合わせた場合のページング検索のExampleがあります。
-		(他の多くのExampleでも同様に利用されています)
+		Webフレームワークとの連携Exampleの中で実際にページング検索を利用していますので、コードを見て詳しく学びたい方はぜひそちらを。
 	</p>
-	<div class="detailpage"><a href="../../../../reference/example/index.html#dicontainer">DBFlute Example - DIコンテナ</a></div>
-	<div class="detailpage"><a href="../../../../reference/example/index.html#friends">DBFlute Example - 他のフレームワーク</a></div>
+	<div class="detailpage"><a href="../../../../reference/example/index.html#withweb">DBFlute Example - Webフレームワークとの連携Example</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
