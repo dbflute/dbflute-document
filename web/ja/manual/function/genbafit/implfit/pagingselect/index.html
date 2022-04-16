@@ -50,7 +50,7 @@ PagingResultBean&lt;Member&gt; page = <span class="attribute">memberBhv</span>.s
 <span class="comment">// ページング結果の計算処理</span>
 <span class="keyword">int</span> allRecordCount = page.getAllRecordCount(); <span class="comment">// 総レコード数</span>
 <span class="keyword">int</span> allPageCount = page.getAllPageCount(); <span class="comment">// 総ページ数</span>
-<span class="keyword">boolean</span> existsPrePage = page.existsPrePage(); <span class="comment">// 前のページがあるか？</span>
+<span class="keyword">boolean</span> existsPreviousPage = page.existsPreviousPage(); <span class="comment">// 前のページがあるか？</span>
 <span class="keyword">boolean</span> existsNextPage = page.existsNextPage(); <span class="comment">// 次のページがあるか？</span>
 <span class="keyword">for</span> (Member member : page) { <span class="comment">// 実データのループ(java.util.Listの実装型)</span>
     <span class="abbreviation">...</span>
@@ -97,7 +97,7 @@ PagingResultBean&lt;SimpleMember&gt; page
 <span class="comment">// ページング結果の計算処理</span>
 <span class="keyword">int</span> allRecordCount = page.getAllRecordCount(); <span class="comment">// 総レコード数</span>
 <span class="keyword">int</span> allPageCount = page.getAllPageCount(); <span class="comment">// 総ページ数</span>
-<span class="keyword">boolean</span> existsPrePage = page.existsPrePage(); <span class="comment">// 前のページがあるか？</span>
+<span class="keyword">boolean</span> existsPreviousPage = page.existsPreviousPage(); <span class="comment">// 前のページがあるか？</span>
 <span class="keyword">boolean</span> existsNextPage = page.existsNextPage(); <span class="comment">// 次のページがあるか？</span>
 <span class="keyword">for</span> (Member member : page) { <span class="comment">// 実データのループ(java.util.Listの実装型)</span>
     <span class="abbreviation">...</span>
