@@ -239,6 +239,22 @@ dbflute-seadb.xml   <span class="comment">// この名前で自動生成され�
     &lt;property name="maxWait"&gt;            provider.config().getOrDefault(<span class="literal">"<span class="point">seadb</span>.jdbc.connection.pooling.max.wait"</span>, null)            &lt;/property&gt;
     &lt;property name="timeout"&gt;            provider.config().getOrDefault(<span class="literal">"<span class="point">seadb</span>.jdbc.connection.pooling.timeout"</span>, null)            &lt;/property&gt;
 </code></pre>
+	<h3 id="runtimebyname">DBFluteランタイムコンポーネントを byName に</h3>
+	<p>
+		Google Guice の場合に必要です。
+	</p>
+	<p>
+		Google Guice の DBFluteModule では、DBFluteランタイムコンポーネントたち (BehaviorSelectorなど)
+		は、デフォルトで byType でDI登録されます。複数DBの場合、型による重複コンポーネントにならないように名前で識別する必要があります。
+	</p>
+	<p>
+		dependencyInjectionMap.dfprop の isDBFluteModuleGuiceRuntimeComponentByName を true
+		にすることで、それらコンポーネントは byName でDI登録されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#isdbflutemoduleguiceruntimecomponentbyname">dfprop - isDBFluteModuleGuiceRuntimeComponentByName</a></div>
+	<p>
+		ただし、byNameで登録するとbyTypeでのDIができなくなるので、すでに開発が進んでいる最初のDB(メインDB)があるのであれば、念のための互換のために新しく追加するサブDBのみで設定するのが良いでしょう。
+	</p>
 	<h3 id="prefixunique">クラス名の prefix を <span class="frm">(必要であれば)</span> 設定する</h3>
 	<p>
 		それぞれの basicInfoMap.dfprop で、どのDBかを識別できる <em class="mark">projectPrefix</em> を設定します。
@@ -344,8 +360,9 @@ xxx-project
 	</p>
 	<dl class="valuemainlist">
 		<dt>Spring Framework</dt><dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-oracle">dbflute-test-dbms-oracle</a> <span class="frm">(Oracle利用)</span></dd>
-		<dt>Lasta Di</dt><dd><a href="https://github.com/lastaflute/lastaflute-test-fortress">lastaflute-test-fortress</a> <span class="frm">(MySQL利用)</span></dd>
+		<dt>Google Guice</dt><dd><a href="https://github.com/dbflute-test/dbflute-test-active-hangar">dbflute-test-active-hangar</a> <span class="frm">(H2利用)</span></dd>
 		<dt>Seasar(S2Container)</dt><dd><a href="https://github.com/dbflute-test/dbflute-test-dbms-mysql">dbflute-test-dbms-mysql</a> <span class="frm">(MySQL利用)</span></dd>
+		<dt>Lasta Di</dt><dd><a href="https://github.com/lastaflute/lastaflute-test-fortress">lastaflute-test-fortress</a> <span class="frm">(MySQL利用)</span></dd>
 	</dl>
 	<div class="relatedpage"><a href="../../../../reference/example/index.html">DBFlute Example</a></div>
 <!-- __content-end__ --></div></div>

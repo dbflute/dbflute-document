@@ -78,6 +78,26 @@
 	</p>
 	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
 
+	<h2 id="guice">Guiceのプロパティ</h2>
+	<p>
+		Google GuiceのDI設定はクラスになるため、拡張はオーバーライド方式で気軽に実現できます。
+		ゆえに、dfpropによる調整は少なめです。
+	</p>
+	<div class="relatedpage"><a href="../../diway/guice/index.html">Google Guice</a></div>
+	<h3 id="isdbflutemoduleguiceruntimecomponentbyname">isDBFluteModuleGuiceRuntimeComponentByName</h3>
+	<p>
+		Google Guice の DBFluteModule の DBFluteランタイムコンポーネントたち (BehaviorSelectorなど) を byName でDI登録します。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false</dd>
+	</dl>
+	<p>
+		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。
+		(DIコンテナで管理されるコンポーネントをユニークにするために)
+	</p>
+	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+
 	<h2 id="seasar">Seasar(S2Container)のプロパティ</h2>
 	<h3 id="dbflutediconnamespace">dbfluteDiconNamespace</h3>
 	<p>
@@ -205,14 +225,6 @@
 ; rdbDiXmlResourceName = rdb-seadb.dicon
 </code></pre>
 	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
-
-	<h2 id="guice">Google Guiceは？</h2>
-	<p>
-		Google Guiceは、DIのための設定ファイルが存在しないため、DBFluteプロパティで調整することもありません。
-		拡張は、プログラム上でオーバーライド方式で実現することができます。
-		DBFluteは、DBFluteのコンポーネントを登録するためのGuice専用モジュールを自動生成します。
-	</p>
-	<div class="detailpage"><a href="../../diway/guice/index.html">Google Guice</a></div>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
