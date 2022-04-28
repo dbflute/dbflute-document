@@ -157,7 +157,6 @@ xxx-project
 	</dl>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#dbflutebeansfilename">dfprop - dbfluteBeansFileName</a></div>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#dbflutedixmlfilename">dfprop - dbfluteDiXmlFileName</a></div>
-	<div class="relatedpage"><a href="../dienvironment/index.html#difilename">現場フィット - DIEnvironment - DI設定ファイル名</a></div>
 	<p>
 		dfpropを設定してGenerateすると、自動生成されるファイル名が変わります。
 	</p>
@@ -189,7 +188,6 @@ xxx-project
 	</dl>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#dbflutebeansdatasourcename">dfprop - dbfluteBeansDataSourceName</a></div>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#rdbdixmlresourcename">dfprop - rdbDiXmlResourceName</a></div>
-	<div class="relatedpage"><a href="../dienvironment/index.html#datasource">現場フィット - DIEnvironment - DataSource</a></div>
 	<p>
 		dfpropを設定してGenerateすると、それぞれのDI設定ファイルから参照するDataSourceのコンポーネント名が変わります。
 	</p>
@@ -241,37 +239,65 @@ dbflute-seadb.xml   <span class="comment">// この名前で自動生成され�
     &lt;property name="maxWait"&gt;            provider.config().getOrDefault(<span class="literal">"<span class="point">seadb</span>.jdbc.connection.pooling.max.wait"</span>, null)            &lt;/property&gt;
     &lt;property name="timeout"&gt;            provider.config().getOrDefault(<span class="literal">"<span class="point">seadb</span>.jdbc.connection.pooling.timeout"</span>, null)            &lt;/property&gt;
 </code></pre>
-	<h3 id="prefixunique">クラス名の prefix を(必要であれば)設定する</h3>
+	<h3 id="prefixunique">クラス名の prefix を <span class="frm">(必要であれば)</span> 設定する</h3>
 	<p>
-		それぞれの basicInfoMap.dfprop の <em class="mark">projectPrefix</em>
-		をユニークにします。
+		それぞれの basicInfoMap.dfprop で、どのDBかを識別できる <em class="mark">projectPrefix</em> を設定します。
 	</p>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/basicinfo/index.html#projectprefix">dfprop - projectPrefix</a></div>
 	<p>
-		ただし、これは必須ではありません。<em class="keyword">別DB同名テーブル</em> が存在する場合
-		や、別DBであることを <em class="keyword">実装上明示的に区別したい</em> という場合
-		などに利用します。複数DBが、メインとサブというように業務的に分かられるような場合は、サブのDBの方にだけ設定するのも良いでしょう。
+		メインDBとサブDBというように分けられるなら、サブDBの方にだけ設定でも良いです。
+		<span class="frm">(後から2個目のDBが追加されるケースは、自然とそのようになるでしょう)</span>
 	</p>
-	<div class="relatedpage"><a href="../projectprefix/index.html">現場フィット - ProjectPrefix</a></div>
-<pre><span class="codetitle">e.g. 複数DB対応のクラス名の prefix {Se,La,MEMBER} @Directory</span><code>
+	<p>
+		全体的にクラス名やコンポーネント名にprefixが付き、どのDBに対応するクラスなのか？がわかりやすくなります。
+		同じテーブル名がある場合などはprefixがないとコード上でややこしくなるでしょう。
+		また、ユニークなコンポーネント名が求められるDIコンテナの場合は必須となります。
+	</p>
+<pre><span class="codetitle">e.g. 複数DB対応のクラス名の projectPrefix {Se,La} @Directory</span><code>
 xxx-project
  |-dbflute_seadb
  |-dbflute_landdb
- |-mydbflute
  |-src/main/java
  |  |-org.docksidestage.xxx.dbflute.seadb.exentity
- |     |-<span class="point">SeMember.java</span>
+ |     |-<span class="point">SeMystic.java</span> <span class="comment">// 元々は Mystic.java</span>
  |-src/main/java
  |  |-org.docksidestage.xxx.dbflute.landdb.exentity
- |     |-<span class="point">LaMember.java</span>
+ |     |-<span class="point">LaOneman.java</span> <span class="comment">// 元々は Oneman.java</span>
  |-<span class="abbreviation">...</span>
 </code></pre>
 	<p>
-		一方で、全体的なprefixは一切付けないようにして、でも allcommon のクラスだけは prefix を付けたいというような場合は、
-		basicInfoMap.dfprop の allcommonPrefix を使うと良いでしょう。
-		<span class="frm">(CDefクラスなどが同じ名前になると扱いづらいので、allcommonだけはprefixを付けたいということがあります)
+		一方で、全体ではなく allcommon のクラスだけに限定するのであれば、<em class="mark">allcommonPrefix</em> を使うと良いでしょう。
+		<span class="frm">(CDefクラスなどが同じ名前になると扱いづらいので、そこだけは識別できる方が良いです)
 	</p>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/basicinfo/index.html#allcommonprefix">dfprop - allcommonPrefix</a></div>
+<pre><span class="codetitle">e.g. 複数DB対応のクラス名の allcommonPrefix {Se,La} @Directory</span><code>
+xxx-project
+ |-dbflute_seadb
+ |-dbflute_landdb
+ |-src/main/java
+ |  |-org.docksidestage.xxx.dbflute.seadb.allcommon
+ |     |-<span class="point">SeCDef.java</span> <span class="comment">// 元々は CDef.java</span>
+ |  |-org.docksidestage.xxx.dbflute.seadb.exentity
+ |     |-<span class="point">Mystic.java</span>
+ |-src/main/java
+ |  |-org.docksidestage.xxx.dbflute.landdb.allcommon
+ |     |-<span class="point">LaCDef.java</span> <span class="comment">// 元々は CDef.java</span>
+ |  |-org.docksidestage.xxx.dbflute.landdb.exentity
+ |     |-<span class="point">Oneman.java</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		projectPrefix もしくは allcommonPrefix が環境的に必要かどうかはDIコンテナよって変わります。
+	</p>
+	<dl class="keymainlist">
+		<dt>Spring</dt><dd><span class="existscloset">必要</span> <span class="frm">(メインDBは設定しなくてもいい)</span></dd>
+		<dt>Lasta Di</dt><dd>不要</dd>
+		<dt>Seasar</dt><dd>不要</dd>
+		<dt>Google Guice</dt><dd>必要 <span class="frm">(メインDBは設定しなくてもいい)</span></dd>
+	</dl>
+	<p>
+		全体でユニークなコンポーネント名が必要かどうか？次第です。
+	</p>
 	<h3 id="outsidesqlunique">外だしSQLの対象パッケージを(必要であれば)設定する</h3>
 	<p>
 		それぞれの outsideSqlMap.dfprop の <em class="keyword">sqlPackage</em>
@@ -279,7 +305,6 @@ xxx-project
 		配下の全てのSQLを対象とするため、別のDBのSQLを処理対象としないようにするために、明示的に設定します。
 	</p>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/outsidesqldefinition/index.html#sqlpackage">dfprop - sqlPackage</a></div>
-	<div class="relatedpage"><a href="../../../ormapper/outsidesql/genbafit/outsidesqlpackage/index.html">OutsideSql - OutsideSqlPackage</a></div>
 	<p>
 		設定値は、基本的に <em class="keyword">$$PACKAGE_BASE$$</em> とだけ設定すれば良いでしょう。
 	</p>
