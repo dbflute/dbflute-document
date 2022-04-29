@@ -91,12 +91,24 @@
 	<dl class="textlist">
 		<dt>値候補</dt><dd>true or false</dd>
 		<dt>デフォルト</dt><dd>false</dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>trueの場合、projectPrefixもしくはallcommonPrefixのどちらかが必須</li>
+				<li>コンポーネント名はprefixのみになる <span class="frm">(Guiceは型指定が前提で名前を使うため)</span></li>
+			</ul>
+		</dd>
 	</dl>
 	<p>
 		複数DB対応時などは、少なくともどちらか片方のDBにおいては、このプロパティを利用する必要があります。
 		(DIコンテナで管理されるコンポーネントをユニークにするために)
 	</p>
 	<div class="relatedpage"><a href="../../../function/genbafit/projectfit/multipledb/index.html">現場フィット - 複数DB</a></div>
+	<p>
+		basicInfoMap.dfprop の projectPrefix もしくは allcommonPrefix のどちらかが指定されていることが前提となります。
+	</p>
+	<div class="relatedpage"><a href="../basicinfo/index.html#projectprefix">basicInfoMap - projectPrefix</a></div>
+	<div class="relatedpage"><a href="../basicinfo/index.html#allcommonprefix">basicInfoMap - allcommonPrefix</a></div>
 
 	<h2 id="seasar">Seasar(S2Container)のプロパティ</h2>
 	<h3 id="dbflutediconnamespace">dbfluteDiconNamespace</h3>

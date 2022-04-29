@@ -239,22 +239,6 @@ dbflute-seadb.xml   <span class="comment">// この名前で自動生成され�
     &lt;property name="maxWait"&gt;            provider.config().getOrDefault(<span class="literal">"<span class="point">seadb</span>.jdbc.connection.pooling.max.wait"</span>, null)            &lt;/property&gt;
     &lt;property name="timeout"&gt;            provider.config().getOrDefault(<span class="literal">"<span class="point">seadb</span>.jdbc.connection.pooling.timeout"</span>, null)            &lt;/property&gt;
 </code></pre>
-	<h3 id="runtimebyname">DBFluteランタイムコンポーネントを byName に</h3>
-	<p>
-		Google Guice の場合に必要です。
-	</p>
-	<p>
-		Google Guice の DBFluteModule では、DBFluteランタイムコンポーネントたち (BehaviorSelectorなど)
-		は、デフォルトで byType でDI登録されます。複数DBの場合、型による重複コンポーネントにならないように名前で識別する必要があります。
-	</p>
-	<p>
-		dependencyInjectionMap.dfprop の isDBFluteModuleGuiceRuntimeComponentByName を true
-		にすることで、それらコンポーネントは byName でDI登録されます。
-	</p>
-	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#isdbflutemoduleguiceruntimecomponentbyname">dfprop - isDBFluteModuleGuiceRuntimeComponentByName</a></div>
-	<p>
-		ただし、byNameで登録するとbyTypeでのDIができなくなるので、すでに開発が進んでいる最初のDB(メインDB)があるのであれば、念のための互換のために新しく追加するサブDBのみで設定するのが良いでしょう。
-	</p>
 	<h3 id="prefixunique">クラス名の prefix を <span class="frm">(必要であれば)</span> 設定する</h3>
 	<p>
 		それぞれの basicInfoMap.dfprop で、どのDBかを識別できる <em class="mark">projectPrefix</em> を設定します。
@@ -313,6 +297,26 @@ xxx-project
 	</dl>
 	<p>
 		全体でユニークなコンポーネント名が必要かどうか？次第です。
+	</p>
+	<h3 id="runtimebyname">DBFluteランタイムコンポーネントを byName に</h3>
+	<p>
+		Google Guice の場合に必要です。
+	</p>
+	<p>
+		Google Guice の DBFluteModule では、DBFluteランタイムコンポーネントたち (BehaviorSelectorなど)
+		は、デフォルトで byType でDI登録されます。複数DBの場合、型による重複コンポーネントにならないように名前で識別する必要があります。
+	</p>
+	<p>
+		dependencyInjectionMap.dfprop の isDBFluteModuleGuiceRuntimeComponentByName を true
+		にすることで、それらコンポーネントは byName でDI登録されます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/dependencyinjection/index.html#isdbflutemoduleguiceruntimecomponentbyname">dfprop - isDBFluteModuleGuiceRuntimeComponentByName</a></div>
+	<p>
+		projectPrefix や allcommonPrefix を付けていることが前提になるので、prefixを付けていないメインDBでは不要です。
+		<span class="frm">(prefixがないのにtrueにすると自動生成時に例外になります)</span>
+	</p>
+	<p>
+		また、byNameで登録するとbyTypeでのDIができなくなるので、すでに開発が進んでいる最初のDB(メインDB)があるのであれば、念のための互換のために新しく追加するサブDBのみで設定するのが良いでしょう。
 	</p>
 	<h3 id="outsidesqlunique">外だしSQLの対象パッケージを(必要であれば)設定する</h3>
 	<p>
