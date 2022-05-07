@@ -28,6 +28,44 @@
 	${indexlist}
 
       <div class="release">
+        <h2>DBFlute-1.2.6 <span class="frm">※Java8</span></h2>
+        <p class="releas5date">2022/05/08</p>
+        <div class="new">
+          <h3>NEW</h3>
+          <ul>
+            <li>DBFlute Engine: avoid Git conflict of history diffmap #129</li>
+            <li>DBFlute Engine: upgrade ESFlute to 2022/05 version #146</li>
+            <li>DBFlute Engine: support multipleDB for Google Guice #144</li>
+            <li>DBFlute Runtime: make Cursor interface for OutsideSql cursor class #125</li>
+            <li>DBFlute Engine: remove log4j v1 dependency (velocity.log) from source code #134</li>
+            <li>DBFlute Runtime: improve throwNonSetupSelectRelationAccessException() message #128</li>
+            <li>DBFlute Runtime: remove codeOf() dependencies to generated classes #143</li>
+            <li>DBFlute Engine: remove codeOf() dependencies from generated codes #142</li>
+            <li>DBFlute Engine: CDef old style methods are deprecated (except codeOf()) #141</li>
+            <li>DBFlute Engine: CDef inGroup() and groupOf() are case insensitive (from sensitive) #140</li>
+            <li>DBFlute Engine: slim CDef.java, old style option #137</li>
+            <li>DBFlute Engine: change log4j v1 to reload4j #136</li>
+            <li>DBFlute Engine: show procedure retry exception with main exception</li>
+            <li>DBFlute Engine: adjustPostgreSQLVoidReturn() for real procedure</li>
+            <li>DBFlute Engine: upgrade PostgreSQL JDBC to 42.2.10 for auth and function</li>
+            <li>DBFlute Engine: comment about commonColumnMap.dfprop mistake</li>
+            <li>DBFlute Runtime: UpdateOption@precheckInsertOrUpdateCount()</li>
+            <li>DBFlute Engine: forcedly isSuppressRedundantCommentStop=true when LastaDoc<span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: make isInsertOrUpdateCountPreCheck in littleAdjustment<span class="frm">*前回パッチ</span></li>
+            <li>DBFlute Engine: ReplaceSchema, DataLoading error was shadowed by rollback error <span class="frm">*前回パッチ</span></li>
+          </ul>
+          <h3>BUG</h3>
+          <ul>
+            <li>DBFlute Engine: FreeGen, fix overrideMap boolean handling #139</li>
+            <li>DBFlute Runtime: fix Srl@splitList()/removeEmptyLine() to avoid illegal</li>
+            <li>DBFlute Runtime: fix Srl@delimiter() to avoid infinity loop</li>
+            <li>DBFlute Runtime: fix Srl@count() to avoid infinity loop</li>
+            <li>DBFlute Runtime: fix Srl@replace() to avoid infinity loop</li>
+            <li>DBFlute Runtime: fix trim(a,b) to avoid infinity loop</li>
+          </ul>
+        </div>
+      </div>
+      <div class="release">
         <h2>DBFlute-1.2.5 <span class="frm">※Java8</span></h2>
         <p class="releas5date">2021/08/15</p>
         <div class="new">
