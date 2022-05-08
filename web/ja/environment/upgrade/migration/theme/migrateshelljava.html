@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,移行時の注意,Migration,Attention" />
+	<style type="text/css" title="currentStyle">@import "../../../../../css/sub.css";</style>
+	<title>移行 _project.shのJAVA_HOME | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-setup"><a href="#">Setup</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>移行 _project.shのJAVA_HOME</h1>
+	${indexlist}
+
+	<h2 id="clientmainte">DBFluteクライアントのメンテ？</h2>
+	<p>
+		DBFluteランタイムやDBFluteエンジンはアップグレードされても、DBFluteクライアントはアップグレードされません。
+		アプリの情報を保存しておく場所なので、基本的にはそれで問題ありません。
+	</p>
+	<p>
+		ただ、何年も続くプロジェクトだと大昔のDBFluteで作ったDBFluteクライアントが時々ギャップになることもあるかもしれないので、その代表的な例を一つお話します。
+	</p>
+	<p>
+		<span class="frm">(最新のDBFluteにアップグレードしたときに、DBFluteクライアントの最新テンプレートとアプリのものを比べる習慣があると理想ではあります)</span>
+	</p>
+
+	<h2 id="projectsh">そもそも _project.shとは？</h2>
+	<p>
+		MacやLinuxなどシェルベースのOSにて manage.sh を実行する時に、真っ先に呼び出されるファイルです。
+		DBFluteタスクをシェルから実行する上で必要な設定がされます。
+	</p>
+<pre><span class="codetitle">e.g. _project.sh @Shell</span><code>
+<span class="comment">#!/bin/bash</span>
+
+<span class="keyword">export</span> ANT_OPTS=-Xmx512m
+
+<span class="keyword">export</span> DBFLUTE_HOME=../mydbflute/dbflute-1.2.6
+
+<span class="keyword">export</span> MY_PROPERTIES_PATH=build.properties
+
+JAVA_VERSION=<span class="literal">1.8+</span>
+
+# auto-setting for JAVA_HOME (keeping exiting JAVA_HOME)
+<span class="keyword">if</span> [[ -z "${JAVA_HOME}" ]]; <span class="keyword">then</span>
+  <span class="keyword">if</span> [[ `uname` = "Darwin" ]]; <span class="keyword">then</span>
+    <span class="keyword">export</span> JAVA_HOME=$(/usr/libexec/java_home -v ${JAVA_VERSION})
+  <span class="keyword">fi</span>
+<span class="keyword">fi</span>
+</code></pre>
+	<ul class="codeoutro">
+		<li>Apache Ant のメモリ設定</li>
+		<li>DBFluteエンジンの場所</li>
+		<li>内部propertiesの名前</li>
+		<li>JAVA_HOMEの調整 (DBFluteエンジンが実行されるJavaのバージョンを決める)</li>
+	</ul>
+	<p>
+		内部的なものが多いですが、アプリ側で一番意識する可能性があるのは、JAVA_HOMEでしょう。
+	</p>
+
+	<h2 id="migjavahome">JAVA_HOME調整の移行</h2>
+	<p>
+		JAVA_HOMEの調整部分は、昔と変わっている部分があります。
+	</p>
+	<h3 id="firstcode">昔の書き方</h3>
+	<p>
+		以前は、"MacだったらJava8を使う" になっていました。
+		<span class="frm">(ただし、Java8がなければ無視されます)</span>
+	</p>
+<pre><span class="codetitle">e.g. 昔の_project.shのJAVA_HOME調整 @Shell</span><code>
+<span class="keyword">if</span> [ `uname` = "Darwin" ]; <span class="keyword">then</span>
+  <span class="keyword">export</span> JAVA_HOME=$(/usr/libexec/java_home -v <span class="literal">1.8</span>)
+<span class="keyword">fi</span>
+</code></pre>
+	<p>
+		これは、開発者のPCにまだ Java6,7 が入ってることが多い時代、Java8版のDBFluteがJava6,7で実行されないようにするためのものでした。
+		Java6,7の時代は過ぎても、DBFluteをJava8で実行するのは一番マッチしているので、この処理はそのまま利用されていました。
+	</p>
+	<p>
+		ただ、今度はJava8が開発者のPCに入っていないケースも多くなってきました。PC上のJAVA_HOMEも開発プロジェクトに合わせた(より新しい)Javaが指定されていることも多くなりました。
+	</p>
+	<p>
+		ですが、昔の調整処理だと、PC上のJAVA_HOMEを無視してJava8を指定してしまいます。
+		Java8がたまたま入っている人はJava8で動き、そうでない人は別のJavaのバージョンで実行されます。
+	</p>
+	<p>
+		それでも、ほとんどの場合は問題ありませんが、時々実行するJavaのバージョンの違いで結果が変わってしまう可能性もあるので、それで不都合が生じることもあります。
+	</p>
+	<h3 id="secondcode">今の書き方</h3>
+	<p>
+		いまは、"JAVA_HOMEが設定されてなくてMacだったらJava8以上を使う" になります。
+	</p>
+<pre><span class="codetitle">e.g. 今の_project.shのJAVA_HOME調整 @Shell</span><code>
+JAVA_VERSION=<span class="literal">1.8+</span>
+
+# auto-setting for JAVA_HOME (keeping exiting JAVA_HOME)
+<span class="keyword">if</span> [[ -z "${JAVA_HOME}" ]]; <span class="keyword">then</span>
+  <span class="keyword">if</span> [[ `uname` = "Darwin" ]]; <span class="keyword">then</span>
+    <span class="keyword">export</span> JAVA_HOME=$(/usr/libexec/java_home -v ${JAVA_VERSION})
+  <span class="keyword">fi</span>
+<span class="keyword">fi</span>
+</code></pre>
+	<p>
+		つまり、すでにPCで既存のJAVA_HOMEが設定されていれば、それを優先するということです。
+	</p>
+	<p>
+		開発プロジェクトがJava8よりも新しいJavaバージョンを使っていて、開発者みんなでJAVA_HOMEを合わせているのであれば、こちらの調整の方がバージョン違い可能性は減ります。
+	</p>
+	<p>
+		ゆえに、もし既存のDBFluteクライアントの_project.shが、昔の書き方になっているのであれば、今の書き方も修正することを検討しても良いでしょう。
+	</p>
+	<h3 id="appcode">アプリ独自の書き方</h3>
+	<p>
+		開発者同士でPC上のJAVA_HOMEを統一してるわけではないけどJava8より新しいバージョンで統一したい...とかであれば逆に昔の書き方でJavaのバージョンだけ変えてベタッと強制させても良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. アプリで独自に_project.shのJAVA_HOME調整 @Shell</span><code>
+<span class="keyword">if</span> [ `uname` = "Darwin" ]; <span class="keyword">then</span>
+  <span class="keyword">export</span> JAVA_HOME=$(/usr/libexec/java_home -v <span class="point">17</span>)
+<span class="keyword">fi</span>
+</code></pre>
+	<p>
+		ただし、アプリのJavaのバージョンがアップされたときに、こちらも修正し忘れないようにしましょう。
+		<span class="frm">(忘れても大抵は問題ないでしょうが、結局みんなでバージョンがバラバラになる可能性があります)</span>
+	</p>
+	<p>
+		このように、開発現場の都合に合わせてうまくJAVA_HOMEを調整してもOKです。ベストプラクティスは現場次第です。
+	</p>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
