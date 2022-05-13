@@ -54,15 +54,15 @@
 		<li>[xxx]の[]は単なる表現上(ドキュメント上)の囲み</li>
 	</ul>
 	<p>
-		以下、実際のExampleプロジェクトでの設定例です。
+		以下、実際のテストプロジェクトでの設定例です。
 	</p>
-<pre><span class="codetitle">e.g. dbflute-oracle-exampleの場合 {host=localhost,port=1521,SID=XE} @databaseInfoMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. dbflute-test-dbms-oracle {host=localhost,port=1521,SID=XE} @databaseInfoMap.dfprop</span><code>
 <span class="keyword">map:</span>{
     ; driver   = oracle.jdbc.OracleDriver
     ; url      = jdbc:oracle:thin:@localhost:1521:XE
-    ; schema   = EXAMPLEDB
-    ; user     = exampledb
-    ; password = exampledb
+    ; schema   = MAIHAMADB
+    ; user     = maihamadb
+    ; password = maihamadb
 }
 </code></pre>
 
@@ -449,7 +449,7 @@ member.FORMALIZED_DATETIME &gt;= <span class="comment">/*pmb.fromFormalizedDate*
 
 	<h2 id="example">Exampleのススメ</h2>
 	<p>
-		Oracle を使ったExample実装 <em class="keyword">dbflute-oracle-example</em> があります。
+		Oracle を使ったテストプロジェクト <em class="keyword">dbflute-test-dbms-oracle</em> があります。
 	</p>
 	<div class="detailpage"><a href="../../example/index.html#database">DBFlute Example - データベース</a></div>
 

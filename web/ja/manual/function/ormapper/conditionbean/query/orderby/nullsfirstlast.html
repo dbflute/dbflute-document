@@ -61,14 +61,17 @@ MemberCB cb = <span class="keyword">new</span> MemberCB();
 cb.query().addOrderBy_Birthdate_Asc().wi <span class="comment">// .wi まで打ってメソッドを選択</span>
 --
 cb.query().addOrderBy_Birthdate_Asc().<span class="point">withNullsFirst()</span>
+<span class="abbreviation">...</span>
 </code></pre>
 <pre><span class="codetitle">e.g. 生年月日の昇順で null を先に並べる {PostgreSQL} @DisplaySql</span><code>
 <span class="abbreviation">...</span>
  <span class="keyword">order by</span> dfloc.BIRTHDATE <span class="keyword">asc</span> <span class="point">nulls first</span>
+<span class="abbreviation">...</span>
 </code></pre>
 <pre><span class="codetitle">e.g. 生年月日の昇順で null を先に並べる {MySQL} @DisplaySql</span><code>
 <span class="abbreviation">...</span>
  <span class="keyword">order by</span> <span class="point">case when</span> dfloc.BIRTHDATE <span class="keyword">is not null</span> <span class="point">then</span> <span class="literal">1</span> <span class="point">else</span> <span class="literal">0</span> <span class="point">end</span> <span class="keyword">asc</span>, dfloc.BIRTHDATE <span class="keyword">asc</span>
+<span class="abbreviation">...</span>
 </code></pre>
 	<h3 id="specifiedderived">SpecifiedDerivedOrderBy との組み合わせ</h3>
 	<p>
@@ -79,6 +82,7 @@ cb.query().addOrderBy_Birthdate_Asc().<span class="point">withNullsFirst()</span
 <pre><span class="codetitle">e.g. 最終ログイン日時の昇順で、ログインしたことない人を後に並べる @Java</span><code>
 <span class="abbreviation">...</span>
 cb.query().addSpecifiedDerivedOrderBy_Asc(Member.ALIAS_latest<span class="abbreviation">...</span>).<span class="point">withNullsLast()</span>;
+<span class="abbreviation">...</span>
 </code></pre>
 
 	<h2 id="methodspec">メソッド仕様</h2>
