@@ -755,11 +755,12 @@
 		リクエストで受け取るパラメーターを、JSONで受け取るか？Formで受け取るか？
 	</p>
 	<h3 id="jsonbody">JSON Body受け取り方式</h3>
-	<h4>リクエストボディでJSON</h4>
 	<p>
 		リクエストボディに直接定義された JSON で受け取ります。<span class="frm">(HTTPメソッド的には必ず POST に)</span>
 	</p>
-	<h4>JSON Body受け取り方式のメリット</h4>
+	<p>
+		JSON Body受け取り方式のメリットは以下の通り。
+	</p>
 	<dl class="textlist">
 		<dt>複雑なデータを送信しやすい</dt>
 		<dd>
@@ -770,11 +771,13 @@
 			データ型の変換などJSONとFormで若干違う可能性もあるので、IN/OUT統のほうが世話ない。
 		</dd>
 	</dl>
-	<h4>Form受け取り方式</h4>
+	<h3 id="formparameter">Form受け取り方式</h3>
 	<p>
 		HTTPの普通のリクエストパラメーターを受け取る方式です。
 	</p>
-	<h4>Form受け取り方式のメリット</h4>
+	<p>
+		Form受け取り方式のメリットは以下の通り。
+	</p>
 	<dl class="textlist">
 		<dt>今までと一緒</dt>
 		<dd>
