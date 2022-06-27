@@ -562,6 +562,83 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 	</p>
 	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/blob/develop/src/main/resources/remoteapi/schema/remoteapi_schema_tricky_rule.js">remoteapi_schema_tricky_rule.js | Github</a></div>
 
+	<h2 id="unsupported">対応できてないこと</h2>
+	<p>
+		<em class="keyword">こちらの欄、まだ推敲中です。</em>
+	</p>
+	<h3 id="openapi3">OpenAPI v3.x <span class="frm">(2.0に変換が必要)</span></h3>
+	<p>
+		直接3.xの定義は読み込めませんが、OpenAPI(Swagger) v2.0に変換することで自動生成できます。
+	</p>
+	<p>
+		<span class="frm">(memo: 変換方法は、ググれば出てくるはず。ただ、今後よくありそうなので変換方法もドキュメントに書きたい)</span>
+	</p>
+	<p>
+		ただし、OpenAPI v3.Xには、OpenAPI(Swagger) v2.0 に存在しない機能 (複数のサーバー、oneOf/ anyOf、メディアタイプごとの異なるスキーマなど)
+		があるため、OpenAPI v3.Xの定義とOpenAPI(Swagger) v2.00の変換後の定義は厳密には等価ではありません。
+	</p>
+	<h3 id="allof">allOf <span class="frm">(限定自動生成)</span></h3>
+	<p>
+		allOfは、現状(2022/06/27時点)では、1件目の設定されているschemaのみが自動生成対象になります。
+		また、$refのみサポートで、フラットは未対応です。
+	</p>
+	<p>
+		つまり、以下の例だと "$ref": "#/definitions/ErrorModel" のみが対象になります。
+	</p>
+<pre><span class="codetitle">e.g. allOf pattern @swagger.json</span><code>
+"ExtendedErrorModel": {
+    "allOf": [
+        {
+            "$ref": "#/definitions/ErrorModel"
+        },
+        {
+            "$ref": "#/definitions/ErrorModelSecond"
+        },
+    ]
+}
+
+...
+
+"ExtendedErrorModel": {
+    "allOf": [
+        {
+            "type": "object",
+            "required": [
+                "rootCause"
+            ],
+            "properties": {
+                "rootCause": {
+                    "type": "string"
+                }
+            }
+        }
+    ]
+}
+</code></pre>
+	<h3 id="wholepathprop">パス全体に対するproperty <span class="frm">(パラメーターやHTTPヘッダー)</span></h3>
+	<p>
+		自動生成対象外です。
+	</p>
+	<p>
+		パス全体に対するpropertyがある場合、HTTPメソッド(GET，POSTなど)相当で判断されるため、rule.jsで除外する必要があります。
+	</p>
+	<h3 id="httpheader">Httpヘッダー</h3>
+	<p>
+		RemoteApiGenとしては自動生成対象外ですが、RemoteApiRuleでリクエスト/レスポンスのHTTPヘッダーのハンドリングはできるので、手動作成Behaviorでれば扱えます。
+	</p>
+	<h3 id="fileupload">ファイルアップロード <span class="frm">(手動作成が必要)</span></h3>
+	<p>
+		RemoteApiGenとしては自動生成対象外ですが、手動作成Behaviorでうまく工夫すればリクエストを実現することはできます。
+	</p>
+	<p>
+		Exampleが lastaflute-test-fortress にありますので参考に。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/c6fea88a893c49356c88b0dc90b26e091fc22593/src/main/java/org/docksidestage/remote/fortressman/RemoteFortressBhv.java#L99">RemoteFortressBhv.java | Github</a></div>
+	<h3 id="multipleres">レスポンスのschemaが複数 <span class="frm">(限定自動生成)</span></h3>
+	<p>
+		レスポンスのschemaが複数あっても1件目 <span class="frm">(HTTPステータスコード200?) </span> のみが自動生成されます。
+	</p>
+
 	<h2 id="exampleproject">Exampleプロジェクト</h2>
 	<p>
 		本家リポジトリがそのままExampleになります。
