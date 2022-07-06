@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,GIT,Version Management,Conflict,バージョン管理,コンフリクト" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>DBFluteでgitコンフリクト | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFluteでgitコンフリクト (Conflict)</h1>
+	${indexlist}
+
+	<h2 id="overview">概要</h2>
+	<p>
+		DBFluteでgitコンフリクトが起きた場合、起きないようにする方法など。
+	</p>
+
+	<h2 id="filecategory">DBFluteのファイルは大きく四つ</h2>
+	<dl class="longkeymainlist">
+		<dt>自動生成ファイル <span class="frm">(by DBFlute)</span></dt><dd>BehaviorやEntity, SchemaHTMLなど</dd>
+		<dt>元ファイル <span class="frm">(by 人間)</span></dt><dd>dfpropファイルやDDLやTSVなど</dd>
+		<dt>蓄積ファイル <span class="frm">(by DBFlute)</span></dt><dd>履歴のdiffmap, decomment-pickup, (SchemaXML)</dd>
+		<dt>一時ファイル <span class="frm">(by DBFlute)</span></dt><dd>playsqlのdfmarkなど</dd>
+	</dl>
+	<h3 id="flowfiles">DB変更から自動生成までの関連ファイル</h3>
+<pre><span class="codetitle">e.g. DB変更から自動生成までの関連ファイル @Java</span><code>
+
+  o                       +---------------------+
+ /|\ -------------------> | ERD tool (ERFlute)  | --(save)--> .erm file
+　/\                      +---------------------+
+　|                                |
+  |                                +--(export)-----------------+
+  |                                                            |
+  |          +--- DBFlute Client -----------------------------/T\-------+
+  |          |                                                 |
+  |          |     +---- dfprop ------------------------------/T\---+
+  |          |     |                                           |
+  +-(mod)---/T\--> |   additioinalForeignKey.dfprop            |
+  |          |     |   basicInfoMap.dfprop                     |
+  |          |     |   ...                                     |
+  |          |     +------------------------------------------/T\
+  |          |                                                 |
+  |          |                                                 |
+  |          |     +---- playsql -----------------------------/T\----+
+  |          |     |                                           |
+  |          |     |            NextDDL  <--(export)-----------+
+  |          |     |
+  |          |     |                            <--(ref)---+
+  +-(mod)---/T\---------------> TSV (test data)            |
+  |          |     |                                       |
+  |          |     |                                    ReplaceSchema
+  |          |     |
+  +-(mod)---/T\---------------> AlterDDL        <--(ref)---+
+  |          |     |                                       |
+  |          |     |                                    AlterCheck
+  |          |     |
+  |          |     +-------------------------------------------------+
+(Replace     |
+  Schema)    |
+  |          |
+  |          |     +---- schema -------------------------------------+
+  |          |     |
+(JDBC)------/T\--> |   SchemaXML (project-schema-...xml)
+  |          |     |   HistoryDiffmap (project-history-...diffmap)
+  |          |     |                             ^
+  |          |     |                             | (make)
+  |          |     |                             +- JDBC
+  |          |     |   CraftDiffMeta (previous|next.tsv)
+  |          |     |
+  |      +--/T\---/T\--> DecommentPickup (decomment-pickup.dfmap)
+  |      |   |     |                             ^
+  |      |   |     |                             | (make from pieces)
+  |      |   |     |                             +- Doc
+  |      |   |     |
+  |      |   |     +-------------------------------------------------+
+  |      |   |
+  |      |   |
+  |      |   |     +---- output/doc ---------------------------------+
+  |      |   |     |
+(Doc)----+--/T\--> |   SchemaHTML (schema-...html)
+  |          |     |   HistoryHTML (history-...html)
+  |          |     |   PropertiesHTML (properties-...html)
+  |          |     |                             ^
+  |          |     |                             | (make)
+  |          |     |                             +- Doc
+  |          |     |
+  |          |     +-------------------------------------------------+
+  |          |
+  |          +----------------------------------------------------------+
+  |
+  |            +---- src/main/java or resources --------------------+
+  |            |
+  |            |    +-- base world ------------------------------+
+(Generate)---> |    |  allcommon
+  |            |    |  bsbhv
+(Sql2Entity)-> |    |  bsentity
+  |            |    |  cbean.bs
+  |            |    |  cbean.cq.bs
+  |            |    |  cbean.cq.ciq
+  |            |    |  cbean.cq.nss
+  |            |    +--------------------------------------------+
+  |            |
+  |            |    +-- extended world --------------------------+
+  |            |    |  cbean
+  +--(mod)----/T\-> |  cbean.cq
+  |            |    |  exbhv
+  |            |    |  exentity
+  |            |    +--------------------------------------------+
+  |            |
+  |            |    +-- resouces --------------------------------+
+  |            |    |  Di xml (if Lasta)
+  |            |    +--------------------------------------------+
+  |            |
+  |            |                             ^
+  |            |                             | (make)
+  |            |                             +- Generate
+  |            |                                Sql2Entity
+  |            |
+  |            +----------------------------------------------------+
+</code></pre>
+
+	<h2 id="conflictnow">コンフリクトが発生した場合</h2>
+	<p>
+		ひとまず今コンフリクトが発生してしまった場合のアプローチを紹介します。
+	</p>
+	<h3 id="conflictgenerated">自動生成されたファイルは自動生成し直し</h3>
+	<p>
+		自動生成されたファイルは丁寧にマージする必要はありません。
+	</p>
+	<ul>
+		<li>dbfluteパッケージのbase系クラスたち <span class="frm">(allcommon, bsbhvなど)</span></li>
+		<li>output/docのHTMLファイルたち <span class="frm">(SchemaHTMLなど)</span></li>
+	</ul>
+	<p>
+		自動生成の元になっているファイルたち <span class="frm">(dfpropなど)</span> がコンフリクトしていたら、それらを先にマージして自動生成し直せばOKです。
+	</p>
+	<ol>
+		<li>元ファイル、蓄積ファイルのコンフリクトを丁寧にマージ</li>
+		<li>もういちど自動生成を実行して上書き</li>
+	</ol>
+	<h3 id="conflictdfprop">dfpropファイルは丁寧にマージ</h3>
+	<p>
+		その元ファイルの代表です。dfpropファイルは人が修正していますから、他人の修正と自分の修正をマージしましょう。
+	</p>
+	<h3 id="conflictschema">schema配下のSchemaXMLは丁寧にマージ</h3>
+	<p>
+		schema配下は基本的に蓄積ファイルと言えます。丁寧にマージしないとデータをロスしてしまいます。
+	</p>
+	<p>
+		SchemaXMLはDDLから導出されるものなので、一瞬マージしなくてもいいように思えますがHistoryDiffmapの導出に利用されるので、できるだけ手動でマージしましょう。
+	</p>
+	<p>
+		<span class="frm">(どうしても難しければ、playsqlのマージを先にやってReplaceSchemaだけを実行して導出しても良いとは思います)</span>
+	</p>
+	<h3 id="conflictdiffmap">schema配下のHistoryDiffmapは丁寧にマージ</h3>
+	<p>
+		HistoryDiffmap (project-history...diffmap) は、DBFluteクライアント/output/doc配下に作成されるHistoryHTMLの元データです。
+		DBFluteによって出力されますが、これは自動生成ファイルではなく蓄積ファイルなので丁寧にマージしましょう。
+		<span class="frm">(@until 1.2.5)</span>
+	</p>
+	<p>
+		DBFlute-1.2.6よりファイル構成が変わり、コンフリクトしないように調整されました。
+	</p>
+	<h3 id="conflictcraftmeta">schema配下のcraft-metaファイルは丁寧にマージ</h3>
+	<p>
+		これもdiffmapと似たようなもので、DBFluteが集めたDBデータの差分の蓄積データです。丁寧にマージしましょう。
+	</p>
+	<h3 id="conflictdecomment">schema配下decommentのpickupファイルは丁寧にマージ</h3>
+	<p>
+		これもdiffmapと似たようなもので、DBFluteが集めたdecommentの蓄積データです。丁寧にマージしましょう。
+		ただ、pickupDatetimeの日時がコンフリクトしてるだけのケースが多いでしょう。日時は最新の方を優先でOKです。
+	</p>
+	<h3 id="conflictplaysql">playsql配下のファイル <span class="frm">(DDLやTSVなど)</span> は丁寧にマージ</h3>
+	<p>
+		playsqlも元ファイルと言えます。これらファイルからスキーマが作成されて自動生成につながります。
+	</p>
+	<p>
+		DDLがERDツールなどから自動生成されている場合は、ERDファイル自体をマージしましょう。
+		<span class="frm">(ERFluteであれば、大抵の場合は自動マージが可能です)</span>
+	</p>
+	<p>
+		一方で、tsv-data-result.dfmarkなどのReplaceSchemaのデータ登録処理の出力結果などは、一時的な出力情報ということなので、ReplaceSchemaし直して上書きすればOKです。
+	</p>
+
+	<h2 id="avoidconflict">コンフリクトしないためには？</h2>
+	<h3 id="serialgen">A. 自動生成タスクは代わりばんこに</h3>
+	<p>
+		例えば、alter_dbブランチというDB変更や自動生成を実施する専用のブランチを作成して、複数の人が同時に自動生成を実行しないようにします。
+	</p>
+	<p>
+		ただ、人間的な運用が必要です。そのブランチの修正者が同時に必ず一人になるようにチーム内でうまく情報共有しましょう。
+	</p>
+	<p>
+		<span class="frm">(これが一番多いパターンです)</span>
+	</p>
+	<p>
+		長いスパンの別ブランチ開発があってどうしても並列でDB変更と自動生成を行う場合は、本線とマージするときにコンフリクトが発生し自動生成し直しと丁寧マージが必要にはなるでしょう。
+		<span class="frm">(そこは時々なので許容してマージ頑張るということになるでしょう)</span>
+	</p>
+	<h3 id="gitignoregen">B. 自動生成クラスのBsクラスをgitignoreに</h3>
+	<p>
+		自動生成されるクラスやファイルをgitignoreにすることで、自動生成ファイルのコンフリクトは発生しません。
+		ただ、各開発者にはブランチを切り替えるたびにつどつど自動生成 (renewal or regenerate) をしてもらう必要があります。
+	</p>
+	<ul>
+		<li>allcommonパッケージ</li>
+		<li>bsbhvパッケージ</li>
+		<li>bsentityパッケージ</li>
+		<li>cbean.bsパッケージ</li>
+		<li>cbean.cq.bsパッケージ</li>
+		<li>cbean.cq.ciqパッケージ</li>
+		<li>cbean.nssパッケージ</li>
+		<li>DIコンテナ用の設定ファイル <span class="frm">(e.g. dbflute.xml)</span></li>
+		<li>SchemaHTML: DBFluteクライアント/output/doc/schema-*.html</li>
+		<li>HistoryHTML: DBFluteクライアント/output/doc/history-*.html</li>
+		<li>PropertiesHTML: DBFluteクライアント/output/doc/properties-*.html</li>
+		<li>LastaDoc: DBFluteクライアント/output/doc/lasta-*.html <span class="frm">(Lastaのみ)</span></li>
+		<li>playsql/data配下のdfmark: <span class="frm">(e.g. xls-data-result.dfmark, tsv-data-result.dfmark)</span></li>
+	</ul>
+<pre><span class="codetitle">e.g. src/main/javaのdbfluteパッケージ配下の.gitignore @Java</span><code>
+<span class="comment"># DBFlute GenIgnored</span>
+<span class="comment">## Base packages</span>
+/allcommon
+/bsbhv
+/bsentity
+/cbean/bs
+/cbean/cq/bs
+/cbean/cq/ciq
+/cbean/nss
+</code></pre>
+<pre><span class="codetitle">e.g. src/main/resources配下の.gitignore (LastaFluteの場合のみ) @Java</span><code>
+<span class="comment"># DBFlute GenIgnored</span>
+<span class="comment">## Di xml for LastaFlute</span>
+/dbflute*.xml
+</code></pre>
+<pre><span class="codetitle">e.g. DBFluteクライアントのoutput/doc配下の.gitignore @Java</span><code>
+<span class="comment"># DBFlute GenIgnored</span>
+<span class="comment">## output documents</span>
+/schema-*.html
+/history-*.html
+/properties-*.html
+/lastadoc-*.html
+</code></pre>
+	<p>
+		ただし、HistoryHTMLの履歴データである schema/project-history-*.diffmap は、ignoreにしてはいけません。
+		これはDDLだけでは再現できない情報なので蓄積させる必要があります。また、decommentやhacommentのpieceファイルやpickupファイルも同様です。
+		これらは、自動生成ファイルというよりは、DBFluteが保存しているファイルと言えます。
+	</p>
+	<p>
+		一方で、自動生成ではないファイルのコンフリクトは変わらず丁寧にマージする必要はあります。
+	</p>
+	<p>
+		また、SavePreviousのファイルは、自動生成とは別のライフサイクルなので一概にignoreにはできないでしょう。
+		<span class="frm">(クラスの自動生成と SavePrevious は別物と考えたほうが良いです)</span>
+	</p>
+	<h3 id="deepmerge">C. 自動生成し直しと丁寧マージをしっかり</h3>
+	<p>
+		割り切ってみんなで丁寧にマージしていこうというやり方も可能性としてはあります。
+	</p>
+	<p>
+		本ページのコンフリクトが発生した場合を参考に、各々が自動生成し直しマージを実施します。
+	</p>
+
+	<div class="inucolumn">
+		<h2 class="harfnoway">中途半端なignoreは非推奨</h2>
+		<p>
+			例えば、SchemaHTMLだけignore、HistoryHTMLだけignore、というような中途半端なignoreはオススメしていません。強く非推奨です。
+		</p>
+		<p>
+			各開発者がローカルで自動生成を行う義務がなければ、結局それらファイルはローカルに存在しないことになり、それら機能が活用されなくなってしまうからです。
+		</p>
+		<p>
+			DBFluteの機能は地味なものだらけで、その機能のためにわざわざ狙って何か実行するってことにはなりにくいのですが、目の前にあれば便利だなって感じるような機能が多いです。
+			ゆえに、開発者としては、中途半端なignoreは避けてもらいたいという気持ちがあります。
+			<span class="frm">(ignoreにするなら、全ての自動生成ファイルをignoreにするようにした方が良いのかなと)</span>
+		</p>
+		<p>
+			一方で、decommentサーバー方式を採用していて、SchemaHTMLなどは社内サーバー上の
+			DBFlute Intro経由で閲覧するような仕組みになっていればまた話は別です。
+		</p>
+		<p>
+			一方で一方で、playsql/data配下のdfmarkなどは元々一時的な出力のものなので、これらはピンポイントでignoreしても良いでしょう。
+		</p>
+	</div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
