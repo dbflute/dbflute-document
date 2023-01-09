@@ -416,6 +416,25 @@ remoteApiRule.<span class="subpoint">behaviorRuleMethodName</span> = function(ap
 	<p>
 		multipleHttpMethodかどうかの判定をやめて固定でHTTP Methodが入るようにしています。少しオーバーライドの範囲が広いので、アップグレードしたときはフレームワーク内の修正を追従しましょう。
 	</p>
+	<h3 id="paramreturnsuffix">Param/Returnクラスのsuffixを変更する</h3>
+	<p>
+		デフォルトでは、Param/Returnというsuffixのクラスが生成されますが、例えばBody/Resultに変更したい場合は、以下のように設定します。
+	</p>
+<pre><span class="codetitle">e.g. how to override returnExtendsClass() in rule.js @JavaScript</span><code>
+<span class="abbreviation">...Param/Returnタグコメント配下に定義すると良いでしょう</span>
+
+<span class="comment">// change suffix 'Param' to 'Body' for Parameter class</span>
+// @Override
+remoteApiRule.<span class="point">paramClassName</span> = function(api, detail) {
+    <span class="keyword">return</span> baseRule.paramClassName(api).replace(<span class="literal">/Param$/g</span>, <span class="literal">'Body'</span>);
+}
+
+<span class="comment">// change suffix 'Return' to 'Result' for Return class</span>
+// @Override
+remoteApiRule.<span class="point">returnClassName</span> = function(api, detail) {
+    <span class="keyword">return</span> baseRule.returnClassName(api).replace(<span class="literal">/Return$/g</span>, <span class="literal">'Result'</span>);
+}
+</code></pre>
 	<h3 id="returnsuperclass">Returnクラスにスーパークラスを定義する</h3>
 	<p>
 		デフォルトでは、Returnクラスには特に何もスーパークラスは付与されません。
@@ -560,7 +579,7 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 	<p>
 		Exampleの remoteapi_schema_example_rule.js を参考に。
 	</p>
-	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/blob/develop/src/main/resources/remoteapi/schema/remoteapi_schema_example_rule.js">remoteapi_schema_tricky_rule.js | Github</a></div>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/blob/develop/src/main/resources/remoteapi/schema/remoteapi_schema_example_rule.js">remoteapi_schema_example_rule.js | Github</a></div>
 	<p>
 		様々なパターンの設定が書かれているので、こちらをコピーしてカスタマイズして利用すると良いでしょう。
 	</p>
