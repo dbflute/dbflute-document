@@ -159,8 +159,8 @@
 	<ol>
 		<li>ダウンロードしたzipを解凍して <em class="keyword">[DBFluteクライアント]/freegen/remoteapi</em> に配置</li>
 		<li>freeGenMap.dfprop に RemoteApiGen の FreeGenリクエストを定義</li>
-		<li><em class="keyword">src/main/resources/remoteapi/schema</em> にrule.jsを作成 <span class="frm">(Exampleを参考に)</span></li>
 		<li>同じくschemaディレクトリに、リモートサーバーのswagger.jsonを配置</li>
+		<li><em class="keyword">src/main/resources/remoteapi/schema</em> にrule.jsを作成 <span class="frm">(Exampleを参考に)</span></li>
 		<li>manageタスクで freegen (12) を実行 <span class="frm">成功すると remoteパッケージにクラスが自動生成される</span></li>
 		<li>自動生成された Abstract...Bhv.java にて yourDefaultRule() を適切に実装</li>
 	</ol>
@@ -217,7 +217,7 @@
 
 	<h2 id="howtorulejs">rule.jsの書き方</h2>
 	<p>
-		rule.jsは、JavaScriptで記述されているので、定義の仕方に少々特徴があります。
+		rule.jsは、JavaScript (ECMAScript 5.1ベース: Nashorn、Sai上での実行のため) で記述されているので、定義の仕方に少々特徴があります。
 	</p>
 	<h3 id="howtooverride">関数のオーバーライドの仕方</h3>
 	<p>
@@ -384,7 +384,7 @@ remoteApiRule.<span class="point">behaviorSubPackage</span> = <span class="keywo
 	<p>
 		$1に対して、.$2を追加しただけです。少しオーバーライドの範囲が広いので、アップグレードしたときはフレームワーク内の修正を追従しましょう。
 	</p>
-	<h3 id="alwayshttpmethod">requestメソッドにHTTP Methodを必ず付ける</h3>
+	<h3 id="alwayshttpmethod">requestメソッドにHTTPメソッドを必ず付ける</h3>
 	<p>
 		デフォルトでは、同じpathに対して複数のHTTP Methodが存在する場合にだけHTTP Methodがrequestメソッドに付与されます。
 		<span class="frm">(protectedのruleOfメソッドも同様です)</span>
@@ -403,14 +403,14 @@ remoteApiRule.<span class="point">behaviorSubPackage</span> = <span class="keywo
 <span class="comment">// @Override</span>
 remoteApiRule.<span class="point">behaviorRequestMethodName</span> = function(api) {
     <span class="keyword">var</span> methodPart = manager.camelize(<span class="keyword">this</span>.subPackage(api).replace(<span class="keyword">this</span>.behaviorSubPackage(api), '').replace(/\./g, '_'));
-    <span class="keyword">return</span> 'request' + manager.initCap(methodPart) + (api.httpMethod ? manager.initCap(api.httpMethod) : '');
+    <span class="keyword">return</span> 'request' + manager.initCap(methodPart) + manager.initCap(api.httpMethod);
 }
 
 <span class="comment">// always HTTP Method on rule method</span>
 <span class="comment">// @Override</span>
 remoteApiRule.<span class="subpoint">behaviorRuleMethodName</span> = function(api) {
     <span class="keyword">var</span> methodPart = manager.camelize(<span class="keyword">this</span>.subPackage(api).replace(this.behaviorSubPackage(api), '').replace(/\./g, '_'));
-    <span class="keyword">return</span> 'ruleOf' + manager.initCap(methodPart) + (api.httpMethod ? manager.initCap(api.httpMethod) : '');
+    <span class="keyword">return</span> 'ruleOf' + manager.initCap(methodPart) + manager.initCap(api.httpMethod);
 }
 </code></pre>
 	<p>
@@ -558,9 +558,12 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 	</p>
 	<h3 id="variousrulejs">その他いろいろなrule.js設定</h3>
 	<p>
-		Exampleの remoteapi_schema_tricky_rule.js を参考に。
+		Exampleの remoteapi_schema_example_rule.js を参考に。
 	</p>
-	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/blob/develop/src/main/resources/remoteapi/schema/remoteapi_schema_tricky_rule.js">remoteapi_schema_tricky_rule.js | Github</a></div>
+	<div class="detailpage"><a href="https://github.com/dbflute-example/dbflute-example-with-remoteapi-gen/blob/develop/src/main/resources/remoteapi/schema/remoteapi_schema_example_rule.js">remoteapi_schema_tricky_rule.js | Github</a></div>
+	<p>
+		様々なパターンの設定が書かれているので、こちらをコピーしてカスタマイズして利用すると良いでしょう。
+	</p>
 
 	<h2 id="unsupported">対応できてないこと</h2>
 	<p>
@@ -568,14 +571,15 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 	</p>
 	<h3 id="openapi3">OpenAPI v3.x <span class="frm">(2.0に変換が必要)</span></h3>
 	<p>
-		直接3.xの定義は読み込めませんが、OpenAPI(Swagger) v2.0に変換することで自動生成できます。
+		OpenAPI(Swagger) v2.0に変換して利用してください。
 	</p>
 	<p>
-		<span class="frm">(memo: 変換方法は、ググれば出てくるはず。ただ、今後よくありそうなので変換方法もドキュメントに書きたい)</span>
+		ただし、OpenAPI v3.XにはOpenAPI(Swagger) v2.0に存在しない機能 (複数のサーバー、oneOf/anyOf、メディアタイプごとの異なるスキーマなど) があるため、変換後の定義は厳密には等価ではないです。
 	</p>
 	<p>
-		ただし、OpenAPI v3.Xには、OpenAPI(Swagger) v2.0 に存在しない機能 (複数のサーバー、oneOf/ anyOf、メディアタイプごとの異なるスキーマなど)
-		があるため、OpenAPI v3.Xの定義とOpenAPI(Swagger) v2.00の変換後の定義は厳密には等価ではありません。
+		<span class="frm">memo: 変換方法を書く。
+		たしかlasta-metaのdiffの機能を作ったときにv2とv3の比較もできた気がするので、javaで変換できるしれない。
+		外部ツールでの変換とjavaでの変換で整理。(有償ツール、Saasは避けたい)</span>
 	</p>
 	<h3 id="allof">allOf <span class="frm">(限定自動生成)</span></h3>
 	<p>
@@ -624,7 +628,7 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 	</p>
 	<h3 id="httpheader">Httpヘッダー</h3>
 	<p>
-		RemoteApiGenとしては自動生成対象外ですが、RemoteApiRuleでリクエスト/レスポンスのHTTPヘッダーのハンドリングはできるので、手動作成Behaviorでれば扱えます。
+		RemoteApiGenとしては自動生成対象外ですが、RemoteApiRuleでリクエスト/レスポンスのHTTPヘッダーのハンドリングはできるので、手動作成のBehaviorであれば扱えます。
 	</p>
 	<h3 id="fileupload">ファイルアップロード <span class="frm">(手動作成が必要)</span></h3>
 	<p>
