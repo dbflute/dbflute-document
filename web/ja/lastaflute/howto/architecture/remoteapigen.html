@@ -424,13 +424,13 @@ remoteApiRule.<span class="subpoint">behaviorRuleMethodName</span> = function(ap
 <span class="abbreviation">...Param/Returnタグコメント配下に定義すると良いでしょう</span>
 
 <span class="comment">// change suffix 'Param' to 'Body' for Parameter class</span>
-// @Override
+<span class="comment">// @Override</span>
 remoteApiRule.<span class="point">paramClassName</span> = function(api, detail) {
     <span class="keyword">return</span> baseRule.paramClassName(api).replace(<span class="literal">/Param$/g</span>, <span class="literal">'Body'</span>);
 }
 
 <span class="comment">// change suffix 'Return' to 'Result' for Return class</span>
-// @Override
+<span class="comment">// @Override</span>
 remoteApiRule.<span class="point">returnClassName</span> = function(api, detail) {
     <span class="keyword">return</span> baseRule.returnClassName(api).replace(<span class="literal">/Return$/g</span>, <span class="literal">'Result'</span>);
 }
