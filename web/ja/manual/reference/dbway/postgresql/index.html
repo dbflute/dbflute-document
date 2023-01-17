@@ -313,6 +313,26 @@ cb.query().setMemberName_LikeSearch(<span class="literal">"s"</span>, <span clas
 <span class="comment"># - - - - - - - - - -/</span>
 </code></pre>
 	<div class="detailpage"><a href="../../dfprop/replaceschemadefinition/index.html#initializefirstsqllist">dfprop - initializeFirstSqlList</a></div>
+	<h3 id="genmateview">マテリアライズドビューを自動生成するには？</h3>
+	<p>
+		PostgreSQL のマテリアライズドビュー (Materialized View) 対応のクラスを自動生成する場合は、databaseInfoMap.dfprop の objectTypeTargetList
+		にて、MATERIALIZED VIEW と定義をすると自動生成対象になります。
+		<span class="frm">(他のDBMSだと、VIEWだけでマテビューも含まれたりしますが、PostgreSQLは区別されているようです)</span>
+	</p>
+<pre><span class="codetitle">e.g. スキーマ初期化前に extension を drop @replaceSchemaDefinitionMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+    ; variousMap = <span class="keyword">map:</span>{
+        <span class="comment"># o objectTypeTargetList: (NotRequired - Default list:{TABLE;VIEW})
+        #  If you want to include other object types in generating target,
+        #  you should specify the list of included object types as adding.
+        #    e.g. Synonym of Oracle --> list:{TABLE ; VIEW ; SYNONYM}
+        #  This is only for the main schema. Additional schemas are unconcerned.
+        #  However ReplaceSchema and Sql2Entity task also uses this.
+        #  But you can set ReplaceSchema-original setting in its own dfprop.
+        #</span>
+        ; objectTypeTargetList = list:{TABLE ; <span class="point">MATERIALIZED VIEW</span>}
+<span class="abbreviation">...</span>
+</code></pre>
 
 	<h2 id="example">Exampleのススメ</h2>
 	<p>
