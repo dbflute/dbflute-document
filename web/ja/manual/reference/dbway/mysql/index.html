@@ -68,6 +68,14 @@
 }
 </code></pre>
 	<div class="relatedpage"><a href="../../dfprop/databaseinfo/index.html">databaseInfoMap.dfprop</a></div>
+	<p>
+		SSLExpceptionが発生する場合、かつ、接続にSSLを使わないのであれば、useSSLをfalseにすることで回避できます。
+		<span class="frm">(MySQL-8.0.13からはuseSSLが非推奨なので、sslMode=DISABLEDの方が推奨)</span>
+	</p>
+	<p>
+		さらに、MySQLNonTransientConnectionException で "Public Key Retrieval is not allowed" が出る場合は、allowPublicKeyRetrieval=true
+		で回避できます。
+	</p>
 
 	<h2 id="datatype">データ型マッピング</h2>
 	<p>
