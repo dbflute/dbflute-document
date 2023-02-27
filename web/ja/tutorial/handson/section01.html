@@ -157,6 +157,11 @@ PROJECT_ROOT
 <pre><span class="codetitle">Macのときの MySQL-8.0 での初期化コマンド @Command</span><code>
 ./bin/mysqld --defaults-file=../my.cnf --datadir=./data --basedir=./ --initialize-insecure
 </code></pre>
+	<p>
+		もし、Macにて <em class="keyword">“mysqld”は、開発元を検証できないため開けません。</em>
+		というようなエラーダイアログが出た場合は、いったんダイアログをキャンセルしてから、mysqlディレクトリにて <em class="mark">xattr -rc *</em> と実行してから、もう一度 mysqld
+		を再実行してみてください。<span class="frm">(MacOSに問題ない開発元であることを教えてあげるということです)</span>
+	</p>
 	<h4>MySQLを起動してみましょう</h4>
 	<p>
 		そして、<em class="smallmark">localdb/boot-mysql.bat|sh</em> を実行し、MySQL を起動してください。
