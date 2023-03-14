@@ -710,6 +710,30 @@ cb.query().setMemberName_Equal_EmptyString();
 			</ul>
 		</dd>
 	</dl>
+
+	<!-- _/_/_/_/_/_/_/_/_/_/ -->
+	<!-- migration properties -->
+	<!-- _/_/_/_/_/_/_/_/_/_/ -->
+	<h2 id="migrationproperty">移行系プロパティ</h2>
+	<h3 id="ismigrateoldjavaxtojakarta">isMigrateOldJavaxToJakarta <span class="frm">@since 1.2.7</span></h3>
+	<p>
+		自動生成クラスが参照している古い "javaxパッケージ" を "jakartaパッケージ" に移行します。
+	</p>
+	<p>
+		(例えば)Tomcat10からは、多くのjavaxパッケージがjakartaパッケージに変わりました。
+		それに伴い、DBFluteが参照するパッケージも変更する必要があります。
+		自動生成してその部分がコンパイルエラーになるようでしたが、このプロパティを設定してみましょう。
+	</p>
+	<dl class="textlist">
+		<dt>値候補</dt><dd>true or false</dd>
+		<dt>デフォルト</dt><dd>false <span class="frm">(将来のバージョンではデフォルトtrueになる可能性あり)</span></dd>
+		<dt>補足</dt>
+		<dd>
+			<ul class="supplementlist">
+				<li>DBFlute-1.2.6 2023/03/13 パッチに含まれている</li>
+			</ul>
+		</dd>
+	</dl>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
