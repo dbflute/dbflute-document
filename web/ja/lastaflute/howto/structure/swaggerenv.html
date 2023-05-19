@@ -48,24 +48,24 @@
 		<span class="frm">(Jettyが、どうやら WEB-INF/lib の jar しか探してくれない!?)</span>
 		<span class="frm">(また、ローカルで動かないことと無関係ですが、Jetty の場合は web.xml の metadata-complete="true" になっていると動きません)</span>
 	</p>
-	<h3 id="pomxml">1. pom.xmlにて、lasta-doc.jarを</h3>
+	<h3 id="pomxml">1. pom.xmlにて、lasta-meta.jarを</h3>
 	<p>
-		LastaFluteでSwaggerを使うために最適化されたライブラリである lasta-doc.jar を pom.xml にて依存ライブラリに追加します。
+		LastaFluteでSwaggerを使うために最適化されたライブラリである lasta-meta.jar を pom.xml にて依存ライブラリに追加します。
 		<span class="frm">(Exampleで書いてるバージョンが古いかもしれないので、必ず最新版の確認を)</span>
 	</p>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/blob/master/maihama-showbase/pom.xml">maihama-showbase - pom.xml | Github</a></div>
-<pre><span class="codetitle">e.g. add lasta-doc.jar library @pom.xml</span><code>
+<pre><span class="codetitle">e.g. add lasta-meta.jar library @pom.xml</span><code>
         <span class="abbreviation">...</span>
 
-        &lt;lasta.doc.version&gt;<span class="literal">0.2.7</span>&lt;/lasta.doc.version&gt;
-        &lt;swagger.ui.version&gt;<span class="literal">2.2.8</span>&lt;/swagger.ui.version&gt;
+        &lt;lasta.meta.version&gt;<span class="literal">0.6.0</span>&lt;/lasta.meta.version&gt;
+        &lt;swagger.ui.version&gt;<span class="literal">3.35.0</span>&lt;/swagger.ui.version&gt;
 
         <span class="abbreviation">...</span>
 
         &lt;dependency&gt; <span class="comment">&lt;!-- utflute depends but runtime scope here for swagger --&gt;</span>
-            &lt;groupId&gt;<span class="literal">org.lastaflute.doc</span>&lt;/groupId&gt;
-            &lt;artifactId&gt;<span class="literal">lasta-doc</span>&lt;/artifactId&gt;
-            &lt;version&gt;<span class="literal">${lasta.doc.version}</span>&lt;/version&gt;
+            &lt;groupId&gt;<span class="literal">org.lastaflute.meta</span>&lt;/groupId&gt;
+            &lt;artifactId&gt;<span class="literal">lasta-meta</span>&lt;/artifactId&gt;
+            &lt;version&gt;<span class="literal">${lasta.meta.version}</span>&lt;/version&gt;
             &lt;scope&gt;<span class="literal">runtime</span>&lt;/scope&gt;
         &lt;/dependency&gt;
 
@@ -83,7 +83,7 @@
 	<p>
 		Exampleで書いてるバージョンが古いかもしれないので、必ず最新版の確認をしましょう。
 	</p>
-	<div class="detailpage"><a href="https://github.com/lastaflute/lasta-doc/">lasta-doc.jar | Github</a></div>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lasta-meta/">lasta-meta.jar | Github</a></div>
 	<p>
 		実際には、UTFluteが依存していますが、UTFlute自体はtestスコープなので、そのままだとアプリ実行環境で使えないので、明示的に宣言をしてスコープを変えています。
 		<span class="frm">(また、UTFluteが依存しているバージョンが古いかもしれないですし)</span>
