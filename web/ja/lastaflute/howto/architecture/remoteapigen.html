@@ -600,6 +600,11 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 		たしかlasta-metaのdiffの機能を作ったときにv2とv3の比較もできた気がするので、javaで変換できるしれない。
 		外部ツールでの変換とjavaでの変換で整理。(有償ツール、Saasは避けたい)</span>
 	</p>
+	<p>
+		<span class="frm">その後、ユーザーの方から npm の <a href="https://www.npmjs.com/package/api-spec-converter">api-spec-converter</a>
+		を使ったら変換できてRemoteApiGenの自動生成もできたとのフィードバックがあった。thanks!
+		(v3固有の機能をあまり使ってないswagger定義だったのかもしれないが...) (2023/06/20)</span>
+	</p>
 	<h3 id="allof">allOf <span class="frm">(限定自動生成)</span></h3>
 	<p>
 		allOfは、現状(2022/06/27時点)では、1件目の設定されているschemaのみが自動生成対象になります。
@@ -672,6 +677,49 @@ remoteApiRule.<span class="point">beanPropertyManualMappingClass</span> = <span 
 		</p>
 		<div class="detailpage"><a href="../../../manual/topic/office/feedback.html">質問、相談、要望などフィードバック！</a></div>
 	</div>
+
+	<h2 id="forcommitter">コミッター向け</h2>
+	<p>
+		内部的な挙動は、だいたいこんな感じです。<span class="frm">@since 0.9.1</span>
+	</p>
+<pre><span class="codetitle">e.g. internal flow since 0.9.1 @model</span><code>
+ +-------------------+
+ | ControlFreeGen.vm | read by DBFlute FreeGen
+ +-------------------+
+    |
+    |   +--------------------------------+
+    +-> | ControlFreeGenRemoteApiJava.vm | sets $scriptEngine 
+        +--------------------------------+ puts 'generator', 'manager'
+               |
+               v
+   +------------------------------------------+
+   | ControlFreeGenRemoteApiJava.js@process() | uses DfFreeGenRequest
+   +------------------------------------------+
+       |-request loop
+       |-eval RemoteApiRule.js       )
+       |-eval RemoteApiLogic.js      )--------------------+-------------------------+
+       |-eval [app]_rule.js          )                    |                         |
+       |-processHull() --+                                v                         |
+       |-clean()         |                              +------------------+        |
+                         v                              | RemoteApiRule.js |        |
+   +----------------------------------------------+     |                  |        |
+   | ControlFreeGenRemoteApiJava.js@processHull() |     |  merged with     |   o    |
+   +----------------------------------------------+  +->|  [app]_rule.js <--- /|\   |
+       |-processBean()                               |  +------------------+  / \   |
+       |   |-RemoteApiBean.vm                     )  |                       (you)  |
+       |                                          )  |                              |
+       |-processBhv()                             )  |    +-------------------+     |
+       |   |-RemoteApiAbstractBehavior.vm         )--+--> | RemoteApiLogic.js | <---+
+       |   |-RemoteApiBsBehavior.vm               )       +-------------------+
+       |   |-RemoteApiExBehavior.vm               )           indent()
+       |   |-RemoteApiExBehaviorTest.vm           )           deriveCategolizedImportClassList()
+       |   |-RemoteApiDiXml.vm (Lasta Di)         )           deriveBehaviorMethodList()
+       |                                          )           deriveBeanImportList()
+       |-processDoc()                             )           deriveBeanProperty()
+       |   |-RemoteApiDocHtml.vm                  )
+       |   |-(write it to LastaDoc)
+
+</code></pre>
 
 	<h2 id="exampleproject">Exampleプロジェクト</h2>
 	<h3 id="officialrepository">本家リポジトリ</h3>
