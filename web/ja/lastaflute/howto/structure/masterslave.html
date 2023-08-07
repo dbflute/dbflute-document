@@ -34,22 +34,30 @@
 	</p>
 	<h3 id="masterslaveprecondition">master/slaveの目的</h3>
 	<p>
-		そもそもの Master/SlaveDB の目的として、以下のことを想定しています。
+		そもそもの master/slave の目的として、以下のことを想定しています。
 	</p>
 	<ul>
 		<li>A. MasterDB に障害が発生したら SlaveDB が代わってサービス継続</li>
-		<li>B. 検索の一部をslaveにして、DBサーバーの負荷分散 ☆ポイント！</li>
+		<li>B. 検索の一部をslaveにして、DBサーバーの負荷分散</li>
 	</ul>
 	<p>
-		A だけであればアプリは意識しないのであまり関係ありませんが、B を(アプリで)やるのであれば、意識する必要があります。
+		A だけであればアプリは意識しないのであまり関係ありませんが、B を<span class="frm">(アプリで)</span>やるのであれば意識する必要があります。
+		<span class="frm">(アプリとDBの間にロードバランサーがいて自動で振り分けるなら意識しない)</span>
 	</p>
 	<h3 id="masterslaveflow">master/slave対応の流れ</h3>
 	<p>
 		LastaFluteでの master/slave 対応は、以下のような流れです。
 	</p>
 	<ul>
+		<li>master/slaveごとのDataSourceを統合した切り替え可能DataSource作成</li>
+		<li>アプリ実行時にどっちを使うかを指定する <span class="frm">(明示か暗黙かはアプリの都合次第)</span></li>
+	</ul>
+	<p>
+		それを、LastaFluteでのオーソドックスな実装に当てはめるとこのようになります。
+	</p>
+	<ul>
 		<li>SelectableDataSourceProxy を想定した Di xml 構造を構築する</li>
-		<li>SlaveDBAccessor で SlaveDB に検索する</li>
+		<li>SlaveDBAccessor で SlaveDB に検索する <span class="frm">(ここはアプリの都合の良い形にカスタマイズ)</span></li>
 	</ul>
 	<h3 id="keypointclass">キーポイント: SelectableDataSourceProxy</h3>
 	<p>
@@ -65,7 +73,7 @@
 		ただ、実際にコンポーネント登録するクラスは、SelectableDataSourceProxy を継承して、
 		master/slave に最適化させた <em class="mark">MasterBasisSelectableDataSource</em> です。
 	</p>
-<pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @Dixml</span><code>
+<pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @ClassModel</span><code>
 javax.sql.DataSource
  ^
  |-SelectableDataSourceProxy <span class="comment">// 冗長化複数DBのためのクラス</span>
@@ -73,10 +81,71 @@ javax.sql.DataSource
     |-MasterBasisSelectableDataSource <span class="comment">// master/slaveのためのクラス</span>
 </code></pre>
 
-	<h2 id="howto">Master/SlaveDBの設定方法</h2>
+	<h2 id="strategy">master/slaveの実装戦略</h2>
+	<p>
+		アプリでmaster/slaveを導入する場合、<em class="keyword">アプリの業務コードでどのようにmasterとslaveを意識して実装するか？</em>
+		それによって準備する内容が変わります。
+	</p>
+	<h3 id="expectedstrategy">想定戦略パターン</h3>
+	<p>
+		大きく四つの戦略パターンを想定しています:
+	</p>
+	<dl class="lolongkeymainlist">
+		<dt>A. master基軸でslaveつど指定</dt><dd>slaveにしたい検索だけ狙って切り替え</dd>
+		<dt>B. slave基軸でmasterアノテーション指定</dt><dd>Action単位でmaster or slave</dd>
+		<dt>C. slave基軸で更新時master自動切り替え</dt><dd>更新系を実行した時点でmasterに</dd>
+		<dt>D. インフラ側で自動切り替え</dt><dd>ロードバランサーなどで自動的に振り分け</dd>
+	</dl>
+	<h3 id="lastaflutebasicstrategy">LastaFluteの基本想定</h3>
+	<p>
+		LastaFluteで提供しているクラスは、"A" の "master基軸でslaveつど指定" を基本想定としています。
+		もちろん、"B" や "C" も実現できますが、アプリ側で少し実装を入れて適用させます。
+	</p>
+	<p>
+		オフィシャルのドキュメントとしては、まずは "A" を前提として、"B" や "C" に関しては追加で説明を入れていきます。
+	</p>
+	<p>
+		"D" の場合は、もはやアプリもフレームワークも何もする必要がない (と思われる) ので、特に書くことはありません。
+	</p>
+	<h3 id="basicimplimage">基本想定の実装イメージ</h3>
+	<p>
+		SlaveDBAccessorというインターフェースを使ったやり方の実装イメージです。
+		<span class="frm">(戦略が変われば、これは使わないので、あくまで基本想定の理解のために)</span>
+	</p>
+<pre><span class="codetitle">e.g. SlaveDBAccessorを使ってSlaveDBを狙ってアクセス @Java</span><code>
+@Resource
+<span class="keyword">private</span> SlaveDBAccessor <span class="attribute">slaveDBAccessor</span>;
+
+<span class="keyword">public void</span> sea() { <span class="comment">// デフォルトはmasterを向いている</span>
+    <span class="comment">// 必ず slave に対して検索</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessFixedly(() -&gt; {
+        <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb -&gt; <span class="abbreviation">...</span>);
+    });
+
+    <span class="comment">// 引数の判定次第で slave に対して検索</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessIfNeeds(() -&gt; {
+        <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb -&gt; <span class="abbreviation">...</span>);
+    }, isSlaveDB()); <span class="comment">// 何かしらアプリケーション的な判定</span>
+
+    <span class="comment">// 引数の数値次第で半々に slave に対して検索</span>
+    List&lt;Member&gt; memberList = <span class="attribute">slaveDBAccessor</span>.accessRandomFifty(() -&gt; {
+        <span class="keyword">return</span> <span class="attribute">memberBhv</span>.selectList(cb -&gt; <span class="abbreviation">...</span>);
+    }, getDeterminationNumber()); <span class="comment">// ランダム判定のためのlong</span>
+}
+</code></pre>
+	<p>
+		複数DB構成のときは、DIするSlaveDBAccessorの変数の型は、アプリでDBごとの継承クラス(具象クラス)になるかもしれません。
+		<span class="frm">(仕組みの設計次第ですが、基本的にはそうなります)</span>
+	</p>
+
+	<h2 id="howto">master/slaveの設定方法</h2>
+	<p>
+		まず、<em class="mark">単一DB構成</em>、もしくは、<em class="mark">複数DBであってもメインスキーマ</em>
+		であることを前提にした設定方法です。複数DB構成でのサブスキーマでのmaster/slaveはつどつど補足します。
+	</p>
 	<h3 id="dixmlstructure">Di xml構造</h3>
 	<p>
-		こういう、Di xml構成を作ります。
+		こういう Di xml構成を作ります。
 	</p>
 <pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @Dixml</span><code>
 app.xml <span class="comment">// 手作り: アプリの Di xml のルート</span>
@@ -106,7 +175,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 </code></pre>
 	<h3 id="dixmljdbcplus">jdbc+.xml</h3>
 	<p>
-		アプリで、jdbc+.xml を作成します。<span class="frm">("+" を付けると、LastaFlute組込みの jdbc.xml が完全上書きされます)</span>
+		アプリで jdbc+.xml を作成します。<span class="frm">("+" を付けると、LastaFlute組込みの jdbc.xml が完全上書きされます)</span>
 	</p>
 	<p>
 		ここで SelectableDataSourceProxy をコンポーネント定義することで、
@@ -115,7 +184,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	</p>
 	<div class="relatedpage"><a href="../../lastadi/dixmlexp.html">Di xml の Expression</a></div>
 <pre><span class="codetitle">e.g. jdbc+.xml for master/slave  @Dixml</span><code>
-&lt;components&gt;
+&lt;components namespace=<span class="literal">"jdbc"</span>&gt;
     &lt;include path=<span class="literal">"plugin/selectable_datasource.xml"</span>/&gt;
     &lt;include path=<span class="literal">"jdbc-master.xml"</span>/&gt;
     &lt;include path=<span class="literal">"jdbc-slave.xml"</span>/&gt;
@@ -131,12 +200,33 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	</p>
 	<p>
 		SelectableDataSourceProxy が、SelectableDataSourceHolder を利用するので、LastaFlute組込みの
-		plugin/selectable_datasource.xml を include します。
+		plugin/selectable_datasource.xml を include します。<span class="frm">(複数DBでサブスキーマの場合はここの設定が変わります: 後述)</span>
 	</p>
 	<p>
 		SelectableDataSourceProxy のコンポーネント名は、DBFluteがDataSourceをDIするときに使う名前にします。
 		複数DB構成とかにしていなければ、多くの場合デフォルトの "dataSource" でOKです。
-		<span class="frm">(厳密には、DBFluteも型でDIしたりするので、あまり名前は関係ないかもですが、しっかり合わせておきましょう)</span>
+		<span class="frm">(厳密には、DBFluteも型でDIするので、複数DBであってもあまり名前は関係ないかもです)</span>
+	</p>
+	<p>
+		slaveDBAccessorは、(単一DB構成なら)組み込みのSlaveDBAccessorImplでも基本的には問題ないですが、もし将来、複数DB構成かつ
+		"複数DB master/slave" になったら "SlaveDBAccessorインターフェース" でのDIが曖昧になってしまいます。
+		なので、将来DB増えてあっちでもこっちでもmaster/slaveやりそうという想像ができるのであれば、
+		最初からSlaveDBAccessorImplを継承したアプリでDBごとのクラスを作成して登録します。
+	</p>
+	<h4 id="dixmljdbcplusmultipledb">複数DB構成の場合 <span class="frm">(jdbc+.xml)</span></h4>
+	<p>
+		複数DB構成でサブスキーマの場合、selectable_datasource.xml は include せず、
+		ThreadLocalSelectableDataSourceHolder を継承したアプリでDBごとのクラスを作成して登録します。
+		<span class="frm">(ThreadLocalをDBごとに独立させるため: でないとmaster/slaveの向き先が混在してしまう)</span>
+	</p>
+	<p>
+		dataSourceのコンポーネント名は、サブスキーマであっても "dataSource" で問題ないかもですが、名前でDIをする場面などアプリで必要であれば
+		"[スキーマ名]DataSource" にしておきましょう。
+	</p>
+	<p>
+		slaveDBAccessorは、SlaveDBAccessorImplを継承したアプリでDBごとのクラスを作成して登録します。
+		サブスキーマだけでなくメインスキーマも作成した方が無難です。
+		<span class="frm">(アプリ内でSlaveDBAccessorインターフェースでDIが曖昧になるため、DBごとの具象クラスでDIできるように)</span>
 	</p>
 	<h3 id="dixmljdbcmaster">jdbc-master.xml</h3>
 	<p>
@@ -147,11 +237,24 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	</p>
 	<p>
 		ただ、DataSourceコンポーネントに関しては<span class="frm">(xaDataSourceの方ではありません)</span>、コンポーネント名を masterDataSource
-		に変更します。仕組みの中では、そのコンポーネント名で特定します。
+		に変更します。仕組みの中では、そのコンポーネント名で特定しますので重要です。
 	</p>
 	<p>
-		また、provider.config().getXxx() 部分も、master用のプロパティを定義して FreeGen でメソッドを自動生成しましょう。
-		<span class="frm">(デフォルトの接続設定をmasterにするとかであれば、そのままでも)</span>
+		また、provider.config().getXxx() 部分は、デフォルトの接続設定をmasterのものとして扱うのであればそのままでOKです。
+		<span class="frm">([app]_env.properties上で master.jdbc... と明示したいのであれば修正してFreeGenしてDi xml上も直します)</span>
+	</p>
+	<h4 id="dixmljdbcmastermultipledb">複数DB構成の場合 <span class="frm">(jdbc-master.xml)</span></h4>
+	<p>
+		複数DB構成の場合は、サブスキーマの方は jdbc-[スキーマ名]-master.xml という名前にして区別できるようにします。
+	</p>
+	<p>
+		また、DataSourceコンポーネント名も master[スキーマ名]DataSource という名前にして区別できるようにします。
+		ここは切り替えする際に参照される名前なので重要です。
+	</p>
+	<p>
+		メインスキーマであっても jdbc-[スキーマ名]-master.xml という名前にした方が紛らわしくないです。
+		一方で、メインスキーマのDataSourceコンポーネント名は、SlaveDBAccessorのデフォルト設定に合わせて masterDataSource
+		のままでOKです。(アプリで拡張して名前設定を変えていなければ)
 	</p>
 	<h3 id="dixmljdbcslave">jdbc-slave.xml</h3>
 	<p>
@@ -165,12 +268,26 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		に変更します。仕組みの中では、そのコンポーネント名で特定します。
 	</p>
 	<p>
-		また、provider.config().getXxx() 部分も、slave用のプロパティを定義して FreeGen でメソッドを自動生成しましょう。
+		また、provider.config().getXxx() 部分は、それぞれ [app]_env.propertiesにて slave用のプロパティを定義して FreeGen
+		でメソッドを自動生成して、それに合わせて Di xml での参照も修正しましょう。
 	</p>
 	<p>
-		もし、SlaveDB が複数になるケースでは、ファイル名やコンポーネント名の "slave" 部分を slaveSea や slaveLand
+		すべて slave.jdbc... と分離させるのか？slave固有のものだけslave用プロパティを作成して共通のものはmasterの設定を再利用するか？
+		ここはアプリの要件に合わせて調整すると良いです。
+	</p>
+	<h4 id="dixmljdbcslavemultipleslave">複数SlaveDBの場合 <span class="frm">(jdbc-slave.xml)</span></h4>
+	<p>
+		もし、複数SlaveDB (一つのDBスキーマに付き、複数のSlaveDBがあるケース) では、ファイル名やコンポーネント名の "slave" 部分を slaveSea や slaveLand
 		などにして、SlaveDBの数だけ追加します。ただし、そのケースでは SlaveDBAccessor はそのままでは利用できません。
-		<span class="frm">(SlaveDBAccessor は、slaveが一つであることを前提に実装されています)</span>
+		<span class="frm">(SlaveDBAccessorは、基本的にslaveが一つであることを前提に実装されています)</span>
+	</p>
+	<p>
+		何かしら複数のslaveに自動で振り分ける仕組みを別途挟み込む必要があるでしょう。
+		<span class="frm">(アプリ作成のSlaveDBAccessorの継承クラスで、そういった仕組みを実装するとか)</span>
+	</p>
+	<h4 id="dixmljdbcslavemultipledb">複数DB構成の場合 <span class="frm">(jdbc-slave.xml)</span></h4>
+	<p>
+		複数DB構成に関しては、先述のmasterの方と同じ話となります。
 	</p>
 	<h3 id="whenupgradelasta">LastaFluteをアップグレードするとき</h3>
 	<p>
@@ -178,10 +295,64 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		のアップグレードをするときには必ずmaster/slave周りを意識して動作確認をしてください。<span class="frm">(万が一、構造や名前が変わったりしたときのために)</span>
 	</p>
 
+	<h2 id="appextended">アプリでの継承クラスの作り方</h2>
+	<p>
+		主に複数DB構成の場合は、LastaFluteで組み込まれてるクラスをアプリで継承して固有のクラスとして扱うことが多いです。
+	</p>
+	<h3 id="bizfwpackage">bizfwパッケージ</h3>
+	<p>
+		それら継承クラスは、bizfwパッケージ配下に (例えば) masterslave というパッケージを作って、その下に配置すると良いでしょう。
+	</p>
+	<p>
+		さらに、その配下にDBスキーマごとのパッケージを作って、DBスキーマ依存のクラスを区別できるようにすると良いでしょう。
+	</p>
+<pre><span class="codetitle">e.g. bizfw配下のパッケージ構成 @Dixml</span><code>
+[root]
+ |-app
+ |-bizfw
+ |  |-<span class="abbreviation">...</span>
+ |  |-masterslave
+ |  |  |
+ |  |  |-maihamadb    <span class="comment">// main schema</span>
+ |  |  |  |-MaihamadbSlaveDBAccessor.java
+ |  |  |
+ |  |  |-resortlinedb <span class="comment">// sub schema</span>
+ |  |  |  |-ResortlineSlaveDBAccessor.java
+ |  |  |  |-ResortlineDBSelectableDataSourceHolder.java
+ |  |
+ |  |-<span class="abbreviation">...</span>
+ |  |
+ |-dbflute
+ |-mylasta
+</code></pre>
+	<h3 id="slavedbaccessor">SlaveDBAccessor</h3>
+	<p>
+		基本的には組み込みのSlaveDBAccessorImplを継承します。
+	</p>
+	<p>
+		メインスキーマの場合、特にオーバーライドするものはありません。
+		固有クラスを作ってDIするときに型でインスタンスを判別できれば良いだけなので、中の実装は空っぽでもOKです。
+		<span class="frm">(もちろん、メインスキーマでもDataSourceコンポーネント名にスキーマ名が入っていればその限りではなく、サブスキーマと同じ実装をする必要があります)</span>
+	</p>
+	<p>
+		サブスキーマの場合、mySchemaKeyword()メソッドをオーバーライドします。
+		DataSourceコンポーネント名を識別するためのキーワードを戻すようにします。
+		先頭文字は小文字でOKです。コンポーネント名の構築時に自動的に先頭大文字になります。
+	</p>
+	<p>
+		toString()のオーバーライドは必須ではありませんが、ログなどでDBを識別するのに使うこともあるので、オーバーライドしてスキーマが区別しやすい文字列にしておくと良いです。
+		<span class="frm">(メインスキーマでもサブスキーマでも)</span>
+	</p>
+	<h3 id="slavedbaccessor">SelectableDataSourceHolder</h3>
+	<p>
+		xxx
+	</p>
+	
 	<h2 id="appimpl">アプリでの実装方法</h2>
 	<h3 id="betaway">ひとまず、ベタなやり方</h3>
 	<p>
-		アプリでの、非常に単純で <em class="keyword">ベタな実装方法</em> は以下のようになります。
+		まずやらない方法ですが、<em class="keyword">アプリでの非常に単純でベタな実装方法</em> は以下のようになります。
+		<span class="frm">(仕組みの理解のために説明します)</span>
 	</p>
 <pre><span class="codetitle">e.g. SelectableDataSourceHolder を直接使ったベタな実装方法 @Java</span><code>
 @Resource
@@ -206,7 +377,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	</p>
 	<h3 id="accessorway">SlaveDBAccessorを使ったやり方</h3>
 	<p>
-		現実的には、DBアクセスのたびに指定するのはあり得ない感じなので、LastaFluteで提供されている SlaveDBAccessor
+		ベタなやり方だと内部構造に依存しまくりで使いやすくもないので、LastaFluteで提供されている SlaveDBAccessor
 		を使うと良いでしょう。
 	</p>
 <pre><span class="codetitle">e.g. SlaveDBAccessorを使ってSlaveDBを狙ってアクセス @Java</span><code>
@@ -236,8 +407,8 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	</p>
 	<h3 id="originalway">独自に振り分けるやり方</h3>
 	<p>
-		現実的には、DBアクセスのたびに指定するのはあり得ない感じなので、Interceptor
-		などの共通処理で切り替えます。デフォルトのDBの設定と切り替えのロジックを実装します。
+		明示するのではなく何かのきっかけで自動的に切り替えるなど、独自のルールで切り替えるときは、(LastaFluteなら)ActionHookなどの共通処理で切り替えます。
+		デフォルトのDBの設定と切り替えのロジックを実装します。
 	</p>
 	<p>
 		例えば、通常は MasterDB の方にDBアクセスし、SlaveDB
