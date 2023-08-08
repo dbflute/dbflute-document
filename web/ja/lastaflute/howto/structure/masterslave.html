@@ -147,6 +147,7 @@ javax.sql.DataSource
 	<p>
 		こういう Di xml構成を作ります。
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/function/masterslave_basic/src/main/resources">master/slaveのDi xmlの基本構成の実装例 (maihamadb/resortlinedb) | Github</a></div>
 <pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @Dixml</span><code>
 app.xml <span class="comment">// 手作り: アプリの Di xml のルート</span>
  |
@@ -182,7 +183,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		DBFlute が利用する DataSource がProxy化され、masterに接続するのかslaveに接続するのか切り分けられます。
 		また、SlaveDBAccessor も定義することで、アプリで SlaveDB に狙ってアクセスできます。
 	</p>
-	<div class="relatedpage"><a href="../../lastadi/dixmlexp.html">Di xml の Expression</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/resources/jdbc%2B.xml">jdbc+.xmlの実装例 (maihamadb) | Github</a></div>
 <pre><span class="codetitle">e.g. jdbc+.xml for master/slave  @Dixml</span><code>
 &lt;components namespace=<span class="literal">"jdbc"</span>&gt;
     &lt;include path=<span class="literal">"plugin/selectable_datasource.xml"</span>/&gt;
@@ -210,14 +211,24 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		slaveDBAccessorは、(単一DB構成なら)組み込みのSlaveDBAccessorImplでも基本的には問題ないですが、もし将来、複数DB構成かつ
 		"複数DB master/slave" になったら "SlaveDBAccessorインターフェース" でのDIが曖昧になってしまいます。
-		なので、将来DB増えてあっちでもこっちでもmaster/slaveやりそうという想像ができるのであれば、
-		最初からSlaveDBAccessorImplを継承したアプリでDBごとのクラスを作成して登録します。
+		<span class="frm">(app.xmlでの DBFlute の Di xml のinclude順序に依存してしまいます。
+		メインスキーマを最初にincludeしていれば、SlaveDBAccessorの実体もメインスキーマとなりますが、あまりそこに依存しない方が良いです)</span>
 	</p>
-	<h4 id="dixmljdbcplusmultipledb">複数DB構成の場合 <span class="frm">(jdbc+.xml)</span></h4>
+	<p>
+		なので、"将来DB増えてあっちでもこっちでもmaster/slaveやりそう"
+		なのであれば、最初からSlaveDBAccessorImplを継承した(DBごとの)slaveDBAccessorをアプリで作成して登録した方が良いです。
+	</p>
+	<h4 id="dixmljdbcplusmultipledb">複数DB構成の場合 <span class="frm">(jdbc+.xmlではなくjdbc-[schema].xml])</span></h4>
+	<p>
+		複数DB構成の場合、jdbc+.xml ではなく jdbc-[schema].xml となります。
+		<span class="frm">(アプリ作成のrdb-[schema].xmlからincludeされている想定: これはmaster/slave関係なく複数DBの話)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/resources/jdbc-resola.xml">サブスキーマのjdbc-[schema].xmlの実装例 (resortlinedb) | Github</a></div>
 	<p>
 		複数DB構成でサブスキーマの場合、selectable_datasource.xml は include せず、
-		ThreadLocalSelectableDataSourceHolder を継承したアプリでDBごとのクラスを作成して登録します。
+		ThreadLocalSelectableDataSourceHolder を継承した(DBごとの)クラスをアプリで作成して登録します。
 		<span class="frm">(ThreadLocalをDBごとに独立させるため: でないとmaster/slaveの向き先が混在してしまう)</span>
+		<span class="frm">(厳密には、インスタンスが独立さえすれば継承したクラスでなく動作はしますが、holderをDIして制御する必要が出てきた時に必要になるので、あらかじめ作っておいたほうが良いです)</span>
 	</p>
 	<p>
 		dataSourceのコンポーネント名は、サブスキーマであっても "dataSource" で問題ないかもですが、名前でDIをする場面などアプリで必要であれば
@@ -232,6 +243,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		アプリで、jdbc-master.xml を作成します。
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/resources/jdbc-maihamadb-master.xml">メインスキーマのjdbc-master.xmlの実装例 (maihamadb) | Github</a></div>
 	<p>
 		内容は、LastaFlute組込みの jdbc.xml を参考にして、master用に書き換えたものにします。
 	</p>
@@ -260,6 +272,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		アプリで、jdbc-slave.xml を作成します。
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/resources/jdbc-maihamadb-slave.xml">メインスキーマのjdbc-slave.xmlの実装例 (maihamadb) | Github</a></div>
 	<p>
 		内容は、LastaFlute組込みの jdbc.xml を参考にして、slave用に書き換えたものにします。
 	</p>
@@ -306,6 +319,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		さらに、その配下にDBスキーマごとのパッケージを作って、DBスキーマ依存のクラスを区別できるようにすると良いでしょう。
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/function/masterslave_basic/src/main/java/org/docksidestage/bizfw/masterslave">bizfw.masterslaveの実装例 (maihamadb, resortlinedb) | Github</a></div>
 <pre><span class="codetitle">e.g. bizfw配下のパッケージ構成 @Dixml</span><code>
 [root]
  |-app
@@ -334,51 +348,124 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		固有クラスを作ってDIするときに型でインスタンスを判別できれば良いだけなので、中の実装は空っぽでもOKです。
 		<span class="frm">(もちろん、メインスキーマでもDataSourceコンポーネント名にスキーマ名が入っていればその限りではなく、サブスキーマと同じ実装をする必要があります)</span>
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/MaihamaSlaveDBAccessor.java">メインスキーマのSlaveDBAccessor実装例 (maihamadb) | Github</a></div>
 	<p>
 		サブスキーマの場合、mySchemaKeyword()メソッドをオーバーライドします。
 		DataSourceコンポーネント名を識別するためのキーワードを戻すようにします。
 		先頭文字は小文字でOKです。コンポーネント名の構築時に自動的に先頭大文字になります。
 	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/java/org/docksidestage/bizfw/masterslave/resortlinedb/ResortlineSlaveDBAccessor.java">サブスキーマのSlaveDBAccessor実装例 (resortlinedb) | Github</a></div>
 	<p>
 		toString()のオーバーライドは必須ではありませんが、ログなどでDBを識別するのに使うこともあるので、オーバーライドしてスキーマが区別しやすい文字列にしておくと良いです。
 		<span class="frm">(メインスキーマでもサブスキーマでも)</span>
 	</p>
 	<h3 id="slavedbaccessor">SelectableDataSourceHolder</h3>
 	<p>
-		xxx
+		基本的には組み込みのThreadLocalSelectableDataSourceHolderを継承します。
 	</p>
-	
+	<p>
+		メインスキーマでは作らない(作らなくてもいい)ので、サブスキーマでのmaster/slaveの話になります。
+		<span class="frm">(ただ、別にメインスキーマでも作って登録してもOKです。もしholderを直接DIというときに区別が明確になるというメリットがあります。その場合は、plugin/selectable_datasource.xmlはincludeしません)</span>
+	</p>
+	<p>
+		ただ、メインスキーマでもサブスキーマでも、サブクラス側で実装は何も必要ありません。単に継承して型が明確になってインスタンスが独立すれば良いだけなので。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/java/org/docksidestage/bizfw/masterslave/resortlinedb/ResortlineDBSelectableDataSourceHolder.java">サブスキーマのSelectableDataSourceHolder実装例 (resortlinedb) | Github</a></div>
+
+	<h2 id="howtoslavebasis">slave基軸での設定方法</h2>
+	<h3 id="slavebasisoverview">slave基軸の実装概要</h3>
+	<p>
+		実装戦略が以下の場合:
+	</p>
+	<ul>
+		<li>B. slave基軸でmasterアノテーション指定</li>
+		<li>C. slave基軸で更新時master自動切り替え</li>
+	</ul>
+	<p>
+		今までやった設定方法に加えて、少し手を入れます。
+	</p>
+	<ul>
+		<li>slavebasicのライブラリクラスをExampleからコピー</li>
+		<li>master用のアノテーションを作成 (Bの場合のみ)</li>
+		<li>MasterSlaveManagerクラスを作成</li>
+		<li>[App]BaseActionのActionHookで利用</li>
+		<li>UnitTest環境での切り替え有効化</li>
+	</ul>
+	<p>
+		こちらは、webのみを想定しています。
+		<span class="frm">(jobはslave基軸にせず、ピンポイントでSlaveDBAccessorを使ってアクセスする方が合うと想定しています。
+		ただ、やろうと思えば LastaJob の拡張ポイントに仕掛けることはできるとは思います)</span>
+	</p>
+	<h3 id="slavebasislib">slave基軸のライブラリクラス</h3>
+	<p>
+		ライブラリ (LastaFluteのjarファイル) には含まれていませんが、slave基軸を実現するための汎用的なクラスがテストプロジェクトの lastaflute-test-fortress
+		に含まれています。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/function/masterslave_slavebasis_ondemand/src/main/java/org/docksidestage/bizfw/masterslave/slavebasis">slave基軸のライブラリクラスの実装例 | Github</a></div>
+	<p>
+		slavebasisパッケージごとコピーしてOKです。
+	</p>
+	<h3 id="slavebasismasteranno">master用のアノテーションを作成 <span class="frm">(Bの場合のみ)</span></h3>
+	<p>
+		こちらもテストプロジェクトのものを参考に。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_annotation/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/MaihamaMasterDB.java">slave基軸のmaster用のアノテーションの実装例 | Github</a></div>
+	<h3 id="slavebasismanager">MasterSlaveManagerクラスを作成</h3>
+	<p>
+		こちらもテストプロジェクトのものを参考に。
+	</p>
+	<p>
+		アノテーション方式 (Annotation way) の場合:
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_annotation/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/MaihamaDBMasterSlaveManager.java">slave基軸のアノテーション方式のmanagerの実装例 | Github</a></div>
+	<p>
+		自動切り替え方式 (OnDemand way) の場合:
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_ondemand/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/MaihamaDBMasterSlaveManager.java">slave基軸の自動切り替え方式のmanagerの実装例 | Github</a></div>
+	<p>
+		基本的にはnewするagentが変わるだけです。
+	</p>
+	<h3 id="slavebasishook">[App]BaseActionのActionHookで利用</h3>
+	<p>
+		こちらもテストプロジェクトのものを参考に。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_annotation/src/main/java/org/docksidestage/app/web/base/FortressBaseAction.java">slave基軸の[App]BaseActionでの実装例 | Github</a></div>
+	<p>
+		おおまかには以下の通り:
+	</p>
+	<ul>
+		<li>それぞれのDBごとのmanagerをDI</li>
+		<li>hookBefore()でbegin</li>
+		<li>hookFinally()でend</li>
+		<li>superに対して外側で呼ぶの推奨</li>
+	</ul>
+	<h3 id="slavebasisunittest">UnitTest環境での切り替え有効化</h3>
+	<p>
+		UnitTest環境でslave基軸の切り替えが有効になるようにするためには、ActionHookでやったことをUnitTestのスーパークラスで実装する必要があります。
+		<span class="frm">(UnitTestでは、ActionHookは呼ばれないので)</span>
+	</p>
+	<h4 id="slavebasisunittestanno">アノテーション方式の場合</h4>
+	<p>
+		TODO jflute こちらまだ課題です。test-fortressである程度の実装があるので参考に。(アノテーション方式で難あり) (2023/08/08)
+	</p>
+	<h4 id="slavebasisunittestonde">自動切り替え方式の場合</h4>
+	<p>
+		特に問題ないので、UnitFortressBasicTestCase を参考に。
+	</p>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_ondemand/src/test/java/org/docksidestage/unit/UnitFortressBasicTestCase.java">slave基軸のUnit[App]TestCaseでの実装例 | Github</a></div>
+	<h3 id="slavebasisexample">何にせよExampleを</h3>
+	<p>
+		テストプロジェクトの lastaflute-test-fortress でブランチを分けてExampleがあるので、細かくはそちらを参考に。
+	</p>
+	<p>
+		<span class="frm">(わからないことあったら、jfluteに問い合わせくださいm(_ _)m)</span>
+	</p>
+
 	<h2 id="appimpl">アプリでの実装方法</h2>
-	<h3 id="betaway">ひとまず、ベタなやり方</h3>
+	<h3 id="appimplaccessorway">Aのmaster基軸でslaveつど指定のアプリ実装</h3>
 	<p>
-		まずやらない方法ですが、<em class="keyword">アプリでの非常に単純でベタな実装方法</em> は以下のようになります。
-		<span class="frm">(仕組みの理解のために説明します)</span>
-	</p>
-<pre><span class="codetitle">e.g. SelectableDataSourceHolder を直接使ったベタな実装方法 @Java</span><code>
-@Resource
-<span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
-@Resource
-<span class="keyword">private</span> SelectableDataSourceHolder <span class="attribute">selectableDataSourceHolder</span>; <span class="comment">// injected</span>
-
-<span class="keyword">public void</span> fooAndBar() {
-    <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(<span class="literal">"master"</span>);
-    <span class="attribute">memberBhv</span>.update(member); <span class="comment">// master の会員を更新</span>
-
-    <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(<span class="literal">"slave"</span>);
-    <span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.select(cb -&gt; <span class="abbreviation">...</span>); <span class="comment">// slave の会員を検索</span>
-}
-</code></pre>
-	<p>
-		SelectableDataSourceHolder は、LastaFlute に組み込まれている plugin/selectable_datasource.xml にて定義されています。
-		デフォルトでは何の DataSource とも関連付いていないため、DBアクセスする前は必ず何かしらの DB を指定する必要があります。
-	</p>
-	<p>
-		ただ、通常このような利用はあり得ず、仕組みをわかりやすく理解するための Example です。
-	</p>
-	<h3 id="accessorway">SlaveDBAccessorを使ったやり方</h3>
-	<p>
-		ベタなやり方だと内部構造に依存しまくりで使いやすくもないので、LastaFluteで提供されている SlaveDBAccessor
-		を使うと良いでしょう。
+		master/slaveの実装戦略が <em class="keyword">A. master基軸でslaveつど指定</em> であれば、デフォルトはmasterに向いているので、slaveに向けたい検索処理だけ
+		SlaveDBAccessor で囲ってアクセスします。
 	</p>
 <pre><span class="codetitle">e.g. SlaveDBAccessorを使ってSlaveDBを狙ってアクセス @Java</span><code>
 @Resource
@@ -402,71 +489,29 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 }
 </code></pre>
 	<p>
+		もし、DB固有のSlaveDBAccessorの実装クラスがあるのであれば、それをDIしましょう。少なくともサブスキーマであれば必ず存在するはずです。
+		<span class="frm">(単一DB構成やメインスキーマでも作成してるかもしれないので確認しましょう)</span>
+	</p>
+<pre><span class="codetitle">e.g. DB固有のSlaveDBAccessorを使ってSlaveDBを狙ってアクセス @Java</span><code>
+@Resource
+<span class="keyword">private</span> MaihamaSlaveDBAccessor <span class="attribute">maihamaSlaveDBAccessor</span>;
+</code></pre>
+	<h4 id="stopslaveupdate">slaveの更新は自動切り替え</h4>
+	<p>
 		万が一、SlaveDBのメソッド内で更新処理をしてしまったとしても、更新処理は自動的に master にアクセスします。
-		SlaveDBAccessorには、そういった安全対策が施されています。
+		SlaveDBAccessorには、そういった安全対策が施されています。<span class="frm">(ただし、そこに頼らないようにしましょう)</span>
 	</p>
-	<h3 id="originalway">独自に振り分けるやり方</h3>
+	<h3 id="appimplslavebasisannotationway">Bのslave基軸でアノテーションを使ったアプリ実装</h3>
 	<p>
-		明示するのではなく何かのきっかけで自動的に切り替えるなど、独自のルールで切り替えるときは、(LastaFluteなら)ActionHookなどの共通処理で切り替えます。
-		デフォルトのDBの設定と切り替えのロジックを実装します。
-	</p>
-	<p>
-		例えば、通常は MasterDB の方にDBアクセスし、SlaveDB
-		を示すアノテーションがメソッドに定義されていたら、そのメソッド内だけ SlaveDB
-		にDBアクセスするというやり方が考えられます。
-	</p>
-<pre><span class="codetitle">e.g. 独自に振り分けるアプリのInterceptorの実装 @Java</span><code>
-@Resource
-<span class="keyword">private</span> SelectableDataSourceHolder <span class="attribute">selectableDataSourceHolder</span>; <span class="comment">// injected</span>
-
-<span class="keyword">public</span> Object invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable {
-    String current = <span class="attribute">selectableDataSourceHolder</span>.getSelectableDataSourceName();
-    <span class="keyword">try</span> {
-        String selectableName = deriveSelectableDataSourceKey();
-        <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(selectableName);
-        <span class="keyword">return</span> invocation.proceed();
-    } <span class="keyword">finally</span> {
-        <span class="attribute">selectableDataSourceHolder</span>.switchSelectableDataSourceKey(current);
-    }
-}
-
-<span class="keyword">protected</span> String deriveSelectableDataSourceKey(MethodInvocation invocation) {
-    <span class="keyword">if</span> (hasSlaveAnnotation(invocation)) {
-        <span class="keyword">return</span> <span class="literal">"slave"</span>;
-    } <span class="keyword">else</span> {
-        <span class="keyword">return</span> <span class="literal">"master"</span>; <span class="comment">// MasterDB as default</span>
-    }
-}
-
-<span class="keyword">protected</span> <span class="keyword">boolean</span> hasSlaveAnnotation(MethodInvocation invocation) {
-    <span class="comment">// メソッドに SlaveDB を示すアノテーションが付いていたら true</span>
-    <span class="comment">// (そのアノテーションは自作)</span>
-    <span class="keyword">return</span> <span class="abbreviation">...</span>
-}
-</code></pre>
-<pre><span class="codetitle">e.g. 独自に振り分けたときのアプリの実装 (Logic) @Java</span><code>
-@Resource
-<span class="keyword">private</span> MemberBhv <span class="attribute">memberBhv</span>;
-@Resource
-<span class="keyword">private</span> PurchaseBhv <span class="attribute">purchaseBhv</span>;
-
-<span class="point">@SlaveDB</span>
-<span class="keyword">public</span> void selectHeavy() { <span class="comment">// このメソッド内のDBアクセスは全て SlaveDB へ</span>
-    MemberCB cb = <span class="abbreviation">...</span>
-    <span class="abbreviation">...</span> = <span class="attribute">memberBhv</span>.selectList(cb);
-    PurchaseCB cb = <span class="abbreviation">...</span>
-    <span class="abbreviation">...</span> = <span class="attribute">purchaseBhv</span>.selectList(cb);
-}
-</code></pre>
-	<p>
-		この Interceptor は、DBアクセスをする可能性のあるプロセスの入り口となるコンポーネント、
-		および、DBアクセス先を切り替える可能性のあるコンポーネントに関連付けます。例えば、Page, Action, Service, Logicクラスなどです。
-		バリデーションやバリデーションエラーなどの処理の中でDBアクセスをする場合は、それらメソッドにも関連付ける必要があります。
+		master/slaveの実装戦略が <em class="keyword">B. slave基軸でmasterアノテーション指定</em> であれば、masterアクセスしたときにアノテーションを付与します。
 	</p>
 	<p>
-		一方で、SlaveDBに更新処理を実行しないように注意する必要があります。ここでの例で言えば、SlaveDB
-		アノテーションが付与されているメソッド内で insert() や upadte() を呼び出してはいけません。
-		SlaveDBAccessorの中でやっているような、"すべり止め" 処理も入れると良いでしょう。
+		masterアクセスしたいActionクラスもしくはExecuteメソッドにmaster用のアノテーションを付けます。
+		<span class="frm">(どういうアノテーションにするか？どういうルールにするか？はbizfwの実装次第でアプリで自由に変更できますので、現場ごとに確認しましょう)</span>
+	</p>
+	<h3 id="appimplslavebasisondemandway">Cのslave基軸で自動切り替えを使ったアプリ実装</h3>
+	<p>
+		master/slaveの実装戦略が <em class="keyword">C. slave基軸で更新時master自動切り替え</em> であれば、更新時に自動でmasterに切り替わるので、アプリの業務コードでは何も気にせず実装します。
 	</p>
 
 	<h2 id="attentionplease">ちょこちょこ注意点</h2>
@@ -499,15 +544,20 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		しょっちゅう出てくる問題ではないと思うので、問題が出てくるまでお茶を濁すか、ローカルだけは SlaveDBAccessorNothing
 		を使うようにするとか、工夫が必要でしょう。<span class="frm">(ローカルで簡単にmaster/slaveができちゃえば一番世話ないですが)</span>
 	</p>
-	<h3 id="multipledb">複数DB構成だと、どうする？</h3>
+	<h3 id="ondemandtxscope">Cのslave基軸の自動切り替えのすれ違い？</h3>
 	<p>
-		いくつか注意が必要です。ざっくり書いておきます
+		実装戦略が "C" のslave基軸の更新時master自動切り替えの場合は、厳密な一貫性に注意です。
 	</p>
-	<ul>
-		<li>組込みjdbc.xmlではないので、jdbc+.xmlじゃなく、jdbc-[スキーマ名].xml を作成することになる</li>
-		<li>コンポーネント名が、シンプルだとバッティングするので、[スキーマ名]DataSource など修飾することになる</li>
-		<li>SlaveDBAccessor をスキーマごとにクラスを作って、mySchemaKeyword() をオーバーライド</li>
-	</ul>
+	<ol>
+		<li>select (slave)</li>
+		<li>update (master)</li>
+		<li>select (master)</li>
+		<li>update (master)</li>
+	</ol>
+	<p>
+		というように、最初のupdateより前のselectはslaveになります。
+		slaveのちょっとした遅延などでデータの一貫性が崩れる可能性はありますので、それを許容できるか？を考えた上で利用しましょう。
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
