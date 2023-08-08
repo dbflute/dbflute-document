@@ -189,6 +189,8 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
     &lt;include path=<span class="literal">"plugin/selectable_datasource.xml"</span>/&gt;
     &lt;include path=<span class="literal">"jdbc-master.xml"</span>/&gt;
     &lt;include path=<span class="literal">"jdbc-slave.xml"</span>/&gt;
+
+    <span class="comment">&lt;-- main cast --&gt;</span>
     &lt;component name=<span class="literal">"dataSource"</span> class=<span class="literal">"org.lastaflute.db.replication.slavedb.MasterBasisSelectableDataSource"</span>/&gt;
     &lt;component name=<span class="literal">"slaveDBAccessor"</span> class=<span class="literal">"org.lastaflute.db.replication.slavedb.SlaveDBAccessorImpl"</span>/&gt;
 &lt;/components&gt;
@@ -331,8 +333,9 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
  |  |  |  |-MaihamadbSlaveDBAccessor.java
  |  |  |
  |  |  |-resortlinedb <span class="comment">// sub schema</span>
+ |  |  |  |-backstage
+ |  |  |  |  |-ResortlineDBSelectableDataSourceHolder.java
  |  |  |  |-ResortlineSlaveDBAccessor.java
- |  |  |  |-ResortlineDBSelectableDataSourceHolder.java
  |  |
  |  |-<span class="abbreviation">...</span>
  |  |
@@ -370,7 +373,7 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		ただ、メインスキーマでもサブスキーマでも、サブクラス側で実装は何も必要ありません。単に継承して型が明確になってインスタンスが独立すれば良いだけなので。
 	</p>
-	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/java/org/docksidestage/bizfw/masterslave/resortlinedb/ResortlineDBSelectableDataSourceHolder.java">サブスキーマのSelectableDataSourceHolder実装例 (resortlinedb) | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/java/org/docksidestage/bizfw/masterslave/resortlinedb/backstage/ResortlineDBSelectableDataSourceHolder.java">サブスキーマのSelectableDataSourceHolder実装例 (resortlinedb) | Github</a></div>
 
 	<h2 id="howtoslavebasis">slave基軸での設定方法</h2>
 	<h3 id="slavebasisoverview">slave基軸の実装概要</h3>
@@ -417,11 +420,11 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		アノテーション方式 (Annotation way) の場合:
 	</p>
-	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_annotation/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/MaihamaDBMasterSlaveManager.java">slave基軸のアノテーション方式のmanagerの実装例 | Github</a></div>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_annotation/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/backstage/MaihamaDBMasterSlaveManager.java">slave基軸のアノテーション方式のmanagerの実装例 | Github</a></div>
 	<p>
 		自動切り替え方式 (OnDemand way) の場合:
 	</p>
-	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_ondemand/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/MaihamaDBMasterSlaveManager.java">slave基軸の自動切り替え方式のmanagerの実装例 | Github</a></div>
+	<div class="detailpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_slavebasis_ondemand/src/main/java/org/docksidestage/bizfw/masterslave/maihamadb/backstage/MaihamaDBMasterSlaveManager.java">slave基軸の自動切り替え方式のmanagerの実装例 | Github</a></div>
 	<p>
 		基本的にはnewするagentが変わるだけです。
 	</p>
