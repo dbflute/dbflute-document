@@ -145,7 +145,7 @@ javax.sql.DataSource
 	</p>
 	<h3 id="dixmlstructure">Di xml構造</h3>
 	<p>
-		こういう Di xml構成を作ります。
+		"組み込みDi xml" と "自動生成Di xml" と "手作りDi xml" を組み合わせて構築します。
 	</p>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/function/masterslave_basic/src/main/resources">master/slaveのDi xmlの基本構成の実装例 (maihamadb/resortlinedb) | Github</a></div>
 <pre><span class="codetitle">e.g. Master/SlaveDBの DI xml の include 構成 @Dixml</span><code>
@@ -173,6 +173,43 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
  |  |  |  |  |-jta.xml <span class="comment">// masterと同じ</span>
  |  |  |  |  |-lastaflute_assist.xml <span class="comment">// masterと同じ</span>
 <span class="abbreviation">...</span> 
+</code></pre>
+	<h3 id="basicclasses">クラス概念図</h3>
+	<p>
+		DBFluteとの関係性、アプリとの関係性、クラス階層の参考に。
+	</p>
+<pre><span class="codetitle">e.g. master/slave basic classes @Model</span><code>
+DBFlute --+
+          | get
+          v                   (jdbc+.xml)
+   +----------------------------------------+      (jdbc-master/slave.xml)
+   |  javax.sql.DataSource                  |     +----------------------+
+   |       ^                                |     |                      |
+   |    SelectableDataSourceProxy           |<>---+  master DataSource   |
+   |          ^                             |     |                      |
+   |       MasterBasisSelectableDataSource  |     |   slave DataSource   |
+   +----------------------------------------+     |                      |
+            | ref                                 +----------------------+
+            |
+            v  (plugin/selectable_datasource.xml)
+    +------------------------------------------+
+    | SelectableDataSourceHolder               |    +----------------------+
+    |     ^                                    |    |  << thread local >>  |
+    |   ThreadLocalSelectableDataSourceHolder  |<>--+                      |
+    |         ^                                |    |  dataSource keyword  |
+    |       (Schema Impl)                      |    |                      |
+    +------------------------------------------+    |  (master or slave)   |
+                       ^                            +----------------------+
+                       | switch
+                       |
+                       |    (jdbc+.xml)
+                   +-------------------------+
+  app -----------> |  SlaveDBAccessor        |
+        access     |       ^                 |
+                   |     SlaveDBAccessorImpl |
+                   |          ^              |
+                   |       (Schema Impl)     |
+                   +-------------------------+
 </code></pre>
 	<h3 id="dixmljdbcplus">jdbc+.xml</h3>
 	<p>
@@ -286,10 +323,44 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		また、provider.config().getXxx() 部分は、それぞれ [app]_env.propertiesにて slave用のプロパティを定義して FreeGen
 		でメソッドを自動生成して、それに合わせて Di xml での参照も修正しましょう。
 	</p>
+	<h4 id="dixmljdbcslaveprop">[app]_env.propertiesでのslave</h4>
 	<p>
 		すべて slave.jdbc... と分離させるのか？slave固有のものだけslave用プロパティを作成して共通のものはmasterの設定を再利用するか？
 		ここはアプリの要件に合わせて調整すると良いです。
 	</p>
+	<p>
+		例えば、ConnectionPoolのサイズとReadOnlyの設定はslaveで独立していた方が良いでしょう。
+		<span class="frm">(ReadOnlyにしておけば、間違ってslaveで更新処理が走ってもDBMSによってはエラーになってくれます)</span>
+	</p>
+<pre><span class="codetitle">e.g. [app]_env.propertiesでのmaster/slaveの設定 @Properties</span><code>
+<span class="comment"># The driver FQCN to connect database for JDBC</span>
+jdbc.driver = com.mysql.cj.jdbc.Driver
+
+<span class="comment"># The URL of database connection for JDBC</span>
+jdbc.url = jdbc:mysql://localhost:3306/maihamadb?allowPublicKeyRetrieval=true&useSSL=false
+
+<span class="comment"># The user of database connection for JDBC</span>
+jdbc.user = maihamadb
+
+<span class="comment"># @Secure The password of database connection for JDBC</span>
+jdbc.password = maihamadb
+
+<span class="comment"># The (max) pooling size of connection pool</span>
+jdbc.connection.pooling.size = 10
+
+<span class="comment"># The URL of database connection for JDBC as slave</span>
+<span class="subpoint">slave.jdbc.url</span> = <span class="literal">jdbc:mysql://localhost:3306/maihamadb?allowPublicKeyRetrieval=true&useSSL=false</span>
+
+<span class="comment"># The user of database connection for JDBC as slave</span>
+<span class="subpoint">slave.jdbc.user</span> = <span class="literal">maihamadb</span>
+
+<span class="comment"># The (max) pooling size of connection pool as slave</span>
+<span class="subpoint">slave.jdbc.connection.pooling.size</span> = <span class="literal">12</span>
+
+<span class="comment"># Does it treat the slave schema as read only?</span>
+<span class="subpoint">slave.jdbc.connection.pooling.read.only</span> = <span class="literal">true</span>
+
+</code></pre>
 	<h4 id="dixmljdbcslavemultipleslave">複数SlaveDBの場合 <span class="frm">(jdbc-slave.xml)</span></h4>
 	<p>
 		もし、複数SlaveDB (一つのDBスキーマに付き、複数のSlaveDBがあるケース) では、ファイル名やコンポーネント名の "slave" 部分を slaveSea や slaveLand
@@ -385,6 +456,54 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		<li>C. slave基軸で更新時master自動切り替え</li>
 	</ul>
 	<p>
+		ActionHookにて、Actionの開始時点をslaveにしつつ、master用アノテーションもしくは更新フック(BehaviorCommandHook)でmaster切り替えの制御を入れます。
+	</p>
+<pre><span class="codetitle">e.g. slave basis  classes @Model</span><code>
+                             (jdbc+.xml)
+  +----------------------------------------+
+  |  [App]BaseAction                       |
+  |      |                                 |
+  |      |-hookBefore()                    |
+  |      |  o to slave                     |
+  |      |  o annotation or update hook    |
+  |      |                                 |
+  |      |-hookFinally()                   |
+  |      |  o clear                        |
+  |                                        |
+  +----------------------------------------+
+           | call
+           |                      +-----------------------+
+           |                      | Unit[App]TestCase     |
+           |                      |   setUp()/tearDown()  |
+           |                      +-----------------------+
+           |                                      | call
+           v     (jdbc+.xml/jdbc-[schema].xml)    |
+   +------------------------------------------+   |
+   | [Schema]MasterSlaveManager               | <-+
+   +------------------------------------------+
+                      | new (choose)
+                      | call
+                      |
+                      v
+  +-----------------------------------+
+  |  SlaveBasisAgent                  |
+  |   ^     ^                         |
+  |   |   SlaveBasisAnnotationAgent   | // master by annotation
+  |   |                               |
+  |  SlaveBasisOnDemandAgent          | // master by update hook
+  +-----------------------------------+
+                    | uses
+                    v
+           SlaveDBAccessor
+                SelectableDataSourceHolder
+</code></pre>
+	<p>
+		こちらは、webのみを想定しています。
+		<span class="frm">(jobはslave基軸にせず、ピンポイントでSlaveDBAccessorを使ってアクセスする方が合うと想定しています。
+		ただ、やろうと思えば LastaJob の拡張ポイントに仕掛けることはできるとは思います)</span>
+	</p>
+	<h3 id="slavebasisosetup">slave基軸のセットアップ</h3>
+	<p>
 		今までやった設定方法に加えて、少し手を入れます。
 	</p>
 	<ul>
@@ -394,11 +513,6 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 		<li>[App]BaseActionのActionHookで利用</li>
 		<li>UnitTest環境での切り替え有効化</li>
 	</ul>
-	<p>
-		こちらは、webのみを想定しています。
-		<span class="frm">(jobはslave基軸にせず、ピンポイントでSlaveDBAccessorを使ってアクセスする方が合うと想定しています。
-		ただ、やろうと思えば LastaJob の拡張ポイントに仕掛けることはできるとは思います)</span>
-	</p>
 	<h3 id="slavebasislib">slave基軸のライブラリクラス</h3>
 	<p>
 		ライブラリ (LastaFluteのjarファイル) には含まれていませんが、slave基軸を実現するための汎用的なクラスがテストプロジェクトの lastaflute-test-fortress
@@ -460,6 +574,11 @@ app.xml <span class="comment">// 手作り: アプリの Di xml のルート</sp
 	<p>
 		テストプロジェクトの lastaflute-test-fortress でブランチを分けてExampleがあるので、細かくはそちらを参考に。
 	</p>
+	<dl class="longkeymainlist">
+		<dt>Bのslave基軸のアノテーション方式</dt><dd><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/function/masterslave_slavebasis_annotation">function/masterslave_slavebasis_annotation</a></dd>
+		<dt>Cのslave基軸の自動切り替え方式</dt><dd><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/function/masterslave_slavebasis_ondemand">function/masterslave_slavebasis_ondemand</a></dd>
+	</dl>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/">lastaflute-test-fortress | Github</a></div>
 	<p>
 		<span class="frm">(わからないことあったら、jfluteに問い合わせくださいm(_ _)m)</span>
 	</p>
