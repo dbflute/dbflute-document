@@ -284,7 +284,7 @@ DBFlute --+
 	</p>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/function/masterslave_basic/src/main/resources/jdbc-maihamadb-master.xml">メインスキーマのjdbc-master.xmlの実装例 (maihamadb) | Github</a></div>
 	<p>
-		内容は、LastaFlute組込みの jdbc.xml を参考にして、master用に書き換えたものにします。
+		内容は、LastaFlute組み込みの jdbc.xml を参考にして、master用に書き換えたものにします。
 	</p>
 	<p>
 		ただ、DataSourceコンポーネントに関しては<span class="frm">(xaDataSourceの方ではありません)</span>、コンポーネント名を masterDataSource
@@ -293,6 +293,12 @@ DBFlute --+
 	<p>
 		また、provider.config().getXxx() 部分は、デフォルトの接続設定をmasterのものとして扱うのであればそのままでOKです。
 		<span class="frm">([app]_env.properties上で master.jdbc... と明示したいのであれば修正してFreeGenしてDi xml上も直します)</span>
+	</p>
+	<p>
+		そして、connectionPoolのプロパティで、provider.config().getOrDefault(...)になっている部分は、特に指定しないのであれば削除でOKです。
+		逆に指定するのであれば、getOrDefault()は使わず、FreeGenでメソッドを自動生成して provider.config().getXxx()
+		形式にしましょう。その方が、プロパティ名などを間違えた時に起動時エラーで検知できます。
+		<span class="frm">(LastaFlute組み込みでgetOrDefault()を利用している理由は、組み込みとしての都合上のものなので、アプリ作成のDi xmlで使う必要はありません)</span>
 	</p>
 	<h4 id="dixmljdbcmastermultipledb">複数DB構成の場合 <span class="frm">(jdbc-master.xml)</span></h4>
 	<p>
