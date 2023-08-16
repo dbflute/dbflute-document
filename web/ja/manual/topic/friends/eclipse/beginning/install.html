@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,Eclipse" />
+	<style type="text/css" title="currentStyle">@import "../../../../../../css/sub.css";</style>
+	<title>Eclipseおすすめインストール＆ビルドまで | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>Eclipseおすすめインストール＆ビルドまで</h1>
+	<div class="relatedpage"><a href="../index.html">Friends - Eclipse</a></div>
+	<div class="relatedpage"><a href="../environment/recomwork.html">Eclipseのおすすめワークスペース設定</a></div>
+	${indexlist}
+
+	<h2 id="download">ダウンロード</h2>
+	<p>
+		まず、"Eclipse download" でググって、Eclipseのダウンロードのページに行きます。
+	</p>
+	<h3 id="downloadpackages">click Download Packages</h3>
+	<p>
+		そして、<em class="mark">Download Packages</em> のリンクをクリックして、パッケージのダウンロードページに行きます。
+	</p>
+	<p class="imgbox">図 : Download Packagesをクリック
+		<a href="../../../../../../data/snapshot/friends/eclipse/install/eclipse-download-entry-snapshot.png" title="Download Packagesをクリック"><img src="../../../../../../data/snapshot/friends/eclipse/install/eclipse-download-entry-snapshot.png" alt="Download Packagesをクリック" width="550" height="360" /></a>
+	</p>
+	<h3 id="downloaddeveloper">download Java Developers</h3>
+	<p>
+		Eclipse IDE for Java Developersをダウンロードします。自分のOSに合わせたリンクをクリックしましょう。
+	</p>
+	<p class="imgbox">図 : for Java Developersをダウンロード
+		<a href="../../../../../../data/snapshot/friends/eclipse/install/eclipse-download-packages-snapshot.png" title="for Java Developersをダウンロード"><img src="../../../../../../data/snapshot/friends/eclipse/install/eclipse-download-packages-snapshot.png" alt="for Java Developersをダウンロード" width="550" height="480" /></a>
+	</p>
+	<div class="inucolumn">
+		<h3 id="downloadrecommended">シンプルなEclipseがおすすめ</h3>
+		<p>
+			まず、インストーラーは使わない。インストーラーを使うと、変にインストーラーとのつながりでハマりやすいので単純に置いて使う形式のものを使う方がおすすめです。
+		</p>
+		<p>
+			そして、一番シンプルなJava Developersエディションがおすすめです。プラグインは必要なものを後で追加する方が、管理しやすく軽いのでおすすめです。
+		</p>
+	</div>
+
+	<h2 id="location">Eclipseの配置</h2>
+	<h3 id="locationdir">基本のディレクトリ構成を作成</h3>
+	<p>
+		ローカルPCの任意の場所に以下のようなディレクトリ構成を作ります。
+	</p>
+<pre><span class="codetitle">e.g. Eclipse用のディレクトリ構成 @Directory</span><code>
+~/works       <span class="comment">// 任意の場所、ここでは例えばユーザーディレクトリ配下のworks</span>
+    |-dbflute <span class="comment">// プロジェクト名、ここでは例えばdbflute関連のハンズオンを想定</span>
+       |-eclipse-dbflute  <span class="comment">// eclipse-[プロジェクト名] というディレクトリ名</span>
+       |-workspace        <span class="comment">// 後述、ここに実際のプロジェクトをgit cloneする</span>
+</code></pre>
+	<p>
+		このページではサンプルとして、dbflute関連のハンズオンをやる想定で、プロジェクト名を dbflute としています。
+		実業務で使う場合は、これから開発するサービスの名前などを入れると良いでしょう。
+	</p>
+	<h3 id="locationcopy">Eclipseをコピーして配置</h3>
+	<p>
+		ダウンロードした Eclipse を eclipse-[プロジェクト名] 配下にコピー。
+	</p>
+	<p>
+		そして、Macだったら .app ファイルの名前も修正。Eclipse-[プロジェクト名]-[バージョン].app にしましょう。
+		<span class="frm">(.appという拡張子が非表示の設定になっていれば見えないのでお気にせず)</span>
+	</p>
+	<p class="imgbox">図 : Eclipseをコピー＆リネーム
+		<a href="../../../../../../data/snapshot/friends/eclipse/install/eclipse-location-copyrename-snapshot.png" title="Eclipseをコピー＆リネーム"><img src="../../../../../../data/snapshot/friends/eclipse/install/eclipse-location-copyrename-snapshot.png" alt="Eclipseをコピー＆リネーム" width="550" height="280" /></a>
+	</p>
+
+	<h2 id="open">Eclipseを起動</h2>
+	<p>
+		Macなら、.appファイルをオープンします。(ダブルクリックなど)
+	</p>
+	<h3 id="macsaidbroken">Macに "壊れている" 言われたら</h3>
+	<p>
+		もしMacでEclipseを開く時に "壊れているため開けません" 的なダイアログが出てきた時は、Eclipse.app に対して、ターミナル上で xattr -rc を実行してあげましょう。
+	</p>
+<pre><span class="codetitle">e.g. Eclipse.app に xattr -rc を実行 @Command</span><code>
+xattr -rc ~/works/dbflute/eclipse-dbflute/Eclipse-dbflute-202306.app
+</code></pre>
+	<h3 id="selectworkspace">workspaceの選択</h3>
+	<p>
+		一番最初の起動時には、"ワークスペースどこで起動するの？" と聞かれます。
+	</p>
+	<p>
+		先ほど作った workspace ディレクトリを選択しましょう。
+	</p>
+	<p class="imgbox">図 : Eclipse起動時のワークスペースの選択
+		<a href="../../../../../../data/snapshot/friends/eclipse/install/eclipse-open-selectworkspace.png" title="Eclipse起動時のワークスペースの選択"><img src="../../../../../../data/snapshot/friends/eclipse/install/eclipse-open-selectworkspace.png" alt="Eclipse起動時のワークスペースの選択" width="550" height="320" /></a>
+	</p>
+	<p>
+		また、次回以降同じworkspaceで自動的に起動するために、Useのチェックを付けておくと良いでしょう。
+		こうすることで、実質的に "そのworkspace専用のEclipse" という感じなります。
+	</p>
+	<h3 id="welcomehide">Welcome画面をhide</h3>
+	<p class="imgbox">図 : 初期起動時のWelcome画面をhide
+		<a href="../../../../../../data/snapshot/friends/eclipse/install/eclipse-welcome-hide-snapshot.png" title="初期起動時のWelcome画面をhide"><img src="../../../../../../data/snapshot/friends/eclipse/install/eclipse-welcome-hide-snapshot.png" alt="初期起動時のWelcome画面をhide" width="550" height="360" /></a>
+	</p>
+	<h3 id="zoneshow">しょっぱなの画面が表示される</h3>
+	<p class="imgbox">図 : 何もしてないしょっぱなの画面
+		<a href="../../../../../../data/snapshot/friends/eclipse/install/eclipse-zone-show-snapshot.png" title="何もしてないしょっぱなの画面"><img src="../../../../../../data/snapshot/friends/eclipse/install/eclipse-zone-show-snapshot.png" alt="何もしてないしょっぱなの画面" width="550" height="360" /></a>
+	</p>
+
+	<h2 id="workspacegit">workspaceディレクトリにgit clone</h2>
+	<p>
+		これはEclipse操作ではありません。<span class="frm">(Eclipse上でもできますが、それは知ってる人だけ)</span>
+	</p>
+	<p>
+		これからEclipseで扱う予定のプロジェクトを、workspaceディレクトリ配下にgit cloneしましょう。
+	</p>
+<pre><span class="codetitle">e.g. Eclipse用のディレクトリ構成 @Directory</span><code>
+~/works
+    |-dbflute
+       |-eclipse-dbflute
+       |  |-Eclipse-dbflute-202306.app
+       |
+       |-workspace    <span class="comment">// ここで git clone</span>
+          |
+          |-javatry     <span class="comment">// 例えば、javatryというリポジトリからgit cloneされたもの</span>
+          |  |-.git     <span class="comment">// こういう位置関係になるように</span>
+          |  |-src/main/java
+          |  |-src/test/java
+          |  |-<span class="abbreviation">...</span>
+          |
+          |-lastaflute-example-maihama <span class="comment">// マルチプロジェクトならこんな感じ</span>
+          |  |-.git
+          |  |-maihama-base
+          |  |-maihama-common
+          |  |-maihama-dockside
+          |  |-<span class="abbreviation">...</span>
+</code></pre>
+	<div class="inucolumn">
+		<h3 id="workspacedriven">Eclipseはワークスペースドリブン</h3>
+		<p>
+			Eclipseは、シングルプロジェクトでもマルチプロジェクトでも、(Eclipseの)ワークスペースという枠組みでコードを管理します。
+		</p>
+		<p>
+			他のIDEでは、git cloneしたプロジェクトのディレクトリに対して Open することが多いですが、Eclipseの場合は開くは常にワークスペースです。
+			そのワークスペースの下にプロジェクトが並びます。
+		</p>
+		<p>
+			一つのワークスペースで複数のプロジェクトを扱うことができるのが特徴です。
+			<span class="frm">(一方で、一個しかプロジェクトがなくてワークスペースで開きます)</span>
+		</p>
+		<p>
+			ワークスペースに対応するディレクトリは、workspaceという名前でなくても良いのですが、わかりやすさのために一致させています。
+			ドキュメント上は、概念的なワークスペースはカタカナ、物理的なディレクトリはそのままworkspaceと表現しています。<span class="frm">(だいたいなんとなく)</span>
+		</p>
+	</div>
+
+	<h2 id="workspaceimport">workspaceのプロジェクトをimport</h2>
+	<p>
+		これはEclipse操作です。git cloneされたプロジェクトをEclipseに認識させます。
+	</p>
+	<p>
+		TODO jflute making...
+	</p>
+	
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
