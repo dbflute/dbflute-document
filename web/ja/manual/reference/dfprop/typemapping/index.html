@@ -140,6 +140,35 @@
 	</p>
 	<div class="detailpage"><a href="../../../function/ormapper/runtime/allcommon/dbfluteconfig.html#valuetype">DBFluteConfig - ValueType</a></div>
 	
+	<h3 id="pointtypemapping">カラム名でJDBC型をポイント指定</h3>
+	<p>
+		実は、"このカラム名だったらこのJDBC型" という設定もできます。
+	</p>
+	<p>
+		時分秒を含んだ日付型しかないDBMS(Oracleなど)の場合に、カラム名の規則でDATEとTIMESTAMPを使い分けたいときなどに使うと良いです。
+		<span class="frm">(時分秒が不要なのにLocalDateTime型で取り扱うのは何かとやりづらいですからね)</span>
+	</p>
+<pre><span class="codetitle">カラム名でJDBC型を指定 @databaseInfoMap.dfprop</span><code>
+# point type mapping, table/column and JDBC type
+; $$df:point$$ = map:{
+    ; WHITE_TYPE_MAPPING_POINT = map:{
+        ; suffix:_LONG_INTEGER = INTEGER
+        ; POINT_DATETIME_DATE = DATE
+    }
+    # example for naming policy type
+    #; $$ALL$$ = map:{
+    #    ; suffix:_DATE = DATE
+    #    ; suffix:_DATETIME = TIMESTAMP
+    #}
+}
+</code></pre>
+	<ul class="codeoutro">
+		<li>WHITE_TYPE_MAPPING_POINTという名前のテーブル</li>
+		<li>そのテーブルの _LONG_INTEGER で終わるカラムはINTEGER型に <span class="frm">(実際の型はLONGだとして)</span></li>
+		<li>そのテーブルの POINT_DATETIME_DATEカラムはDATE型に <span class="frm">(実際の型はTIMESTAMPだとして)</span></li>
+		<li>$$ALL$$ で "すべてのテーブル" という条件にすることもできる</li>
+	</ul>
+
 	<h2 id="defaultmapping">JDBC型とプログラム型のデフォルトマッピング</h2>
 <pre><span class="codetitle">JDBC型とプログラム型のデフォルトのマッピング</span><code>
  --------------------------------------------------------
