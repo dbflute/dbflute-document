@@ -104,6 +104,71 @@
 		<li>リストの場合は、[a, b, c] という[]形式で書く</li>
 		<li>nullと書いたら、nullという文字列ではなく、指定してないのと同じ</li>
 	</ul>
+
+	<h2 id="throwsresponse">@throwsレスポンスのススメ</h2>
+	<p>
+		呼び出し側の開発者に対して、<em class="keyword">どんなときに400か？どんなときに404か？</em>
+		のエラーレスポンスの情報を、Swaggerを経由して伝えることができたらリモート呼び出しがよりスムーズになるでしょう。
+	</p>
+	<p>
+		<em class="keyword">JavaDoc の @throws</em> を使って、Swagger UI上で400/404などの説明を表示できます。<br>
+		<span class="frm">(@since lasta-meta-0.6.1)</span>
+	</p>
+	<p>
+		SwaggerUI上の <em class="mark">Responses</em> の欄におけるHTTPステータスコードごとの説明の箇所です。
+	</p>
+	<p class="imgbox">
+		<a href="../../../../data/snapshot/lastaflute/swagger/lastaflute-swagger-ui-throws-responses.png" title="SwaggerUIの@throwsレスポンス"><img src="../../../../data/snapshot/lastaflute/swagger/lastaflute-swagger-ui-throws-responses.png" alt="SwaggerUIの@throwsレスポンス" width="550" height="280" /></a>
+	</p>
+	<p>
+		元々デフォルトで表示されているLastaFlute自体が戻すクライアントエラー系のレスポンス情報に加えて、該当のActionクラスの "Executeメソッド" のJavaDoc上の
+		@throwsで書いた情報を載せることができます。"::" の後がそれら情報になります。
+	</p>
+	<p>
+		各Actionクラスの開発者が、呼び出し側の開発者にSwaggerを経由して具体的なエラーレスポンスの情報を伝えることができるようになります。
+	</p>
+	<h3 id="throwsresponsehowto">@throwsレスポンスの書き方</h3>
+	<p>
+		ActionのExecuteメソッドのJavaDocにおいて、(JavaDoc標準の)@throwsを記載します。
+		その行の最後に "その例外が紐付くHTTPステータス" を (...) 形式で表現します。
+	</p>
+<pre><span class="codetitle">e.g. throws response format @Java</span><code>
+<span class="comment">/**
+ * <span class="subpoint">@throws</span> 例外クラス名 どんな時に発生するかの説明 <span class="point">(HTTPステータスコード)</span>
+ */</span>
+</code></pre>
+<pre><span class="codetitle">e.g. use throws response in javadoc in Maven @Java</span><code>
+<span class="comment">/**
+ * This is the first line of execute method java-doc. &lt;br&gt;
+ * And the second line is here.
+ * @param body Oh yeah nice body (NotNull)
+ * @return same as body (tekito) (NotNull)
+ * <span class="subpoint">@throws</span> EntityAlreadyDeletedException When the resource is not found. <span class="point">(404)</span>
+ * @throws EntityAlreadyUpdatedException When the resource already has been updated. (400)
+ * @throws EntityAlreadyExistsException When the resource already exists. (400)
+ */</span>
+@Execute
+<span class="keyword">public</span> JsonResponse&lt;WxLastametaHascladocBody&gt; index(WxLastametaHascladocBody body) {
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		このように書いておくと、SwaggerUI上にも @throws の説明が表示されるようになります。
+	</p>
+	<h3 id="throwsresponsewhatstatus">例外とHTTPステータスの関係性</h3>
+	<p>
+		どの例外でどのHTTPステータスになるか？は、アプリ上の[App]ApiFailureHookの実装などによって変わりますので、そこはActionクラスの開発者が把握して正確に書きましょう。
+	</p>
+	<div class="relatedpage"><a href="./apifailure.html">忘れられないApiFailureHook | LastaFlute</a></div>
+	<p>
+		ちなみに、LastaFluteのExampleデフォルトでは、基本的に業務例外は400で戻すようになっています。
+		現場での実装も同じであれば、"こういう状況は400, ああいう状況も400"
+		というように、ひたすら400に対して "どんな時に400になるか？" の説明を追加していくことが想像されます。
+	</p>
+	<p>
+		ただ、キリがないものではあるので、全部の可能性を列挙するというよりも...
+		"呼び出し側に伝えておいた方が良いだろう"
+		というものに限定して記載するのが現実的ではあると想定しています。
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">
