@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
+	<title>LastaFluteのJakarta対応 (Java21) | LastaFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>LastaFluteのJakarta対応 (Java21)</h1>
+	<div class="relatedpage"><a href="../index.html">LastaFluteトップページ</a></div>
+	<p>
+		Jakarta対応しました。Java21でコンパイルしています。
+	</p>
+	${indexlist}
+
+	<h2 id="lajakarta">Jakarta版LastaFlute</h2>
+	<p>
+		LastaFluteのライブラリは、全体的に 2.0.0 以降がJakarta対応です。
+	</p>
+	<h3 id="releaselist">リリース一覧</h3>
+	<dl class="longvaluemainlist">
+		<dt><a href="../../lastadi/index.html">Lasta Di</a></dt><dd>2.0.0 <span class="frm">(LastaFlute組み込み)</span> <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="../architecture/typesafemail.html">MailFlute</a></dt><dd>2.0.0 <span class="frm">(LastaFlute組み込み)</span> <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="../architecture/jobscheduling.html">Lasta Job</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="../action/lathymeleaf.html">Lasta Thymeleaf</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="../architecture/remoteapicall.html">Lasta RemoteApi</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="https://github.com/lastaflute/lasta-meta/">Lasta Meta</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="https://github.com/lastaflute/lasta-taglib/">Lasta Taglib</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="https://github.com/dbflute-session/jetty-boot/">JettyBoot</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="https://github.com/dbflute-session/tomcat-boot/">TomcatBoot</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+		<dt><a href="../../../manual/function/helper/utflute/index.html">UTFlute</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
+	</dl>
+	<h3 id="syncjava8">Java8版との整合性</h3>
+	<p>
+		しばらくは、Java8版と機能面での差は出さないような運用をしていきます。<span class="frm">(2024/08/04)</span>
+	</p>
+	<p>
+		新機能や修正は、Java8版で実装してからJakarta版にマージしていきます。
+	</p>
+	<dl class="keymainlist">
+		<dt>masterブランチ</dt><dd>Java8版</dd>
+		<dt>developブランチ</dt><dd>Java8版</dd>
+		<dt>jakartaブランチ</dt><dd>Jakarta版 (Java21)</dd>
+	</dl>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute">lastaflute - develop | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute/tree/jakarta">lastaflute - jakarta | Github</a></div>
+	<h3 id="syncexample">exampleやtestも</h3>
+	<p>
+		exampleやtestプロジェクトもブランチで分けてマージ管理していきます。
+	</p>
+	<dl class="keymainlist">
+		<dt>masterブランチ</dt><dd>Java8版でJava8実行 <span class="frm">(必須)</span></dd>
+		<dt>javax11ブランチ</dt><dd>Java8版でJava11実行 <span class="frm">(あったりなかったり)</span></dd>
+		<dt>javax17ブランチ</dt><dd>Java8版でJava17実行 <span class="frm">(あったりなかったり)</span></dd>
+		<dt>javax21ブランチ</dt><dd>Java8版でJava21実行 <span class="frm">(あったりなかったり)</span></dd>
+		<dt>jakarta21ブランチ</dt><dd>Jakarta版でJava21実行 <span class="frm">(必須)</span></dd>
+	</dl>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/tree/jakarta21">lastaflute-example-harbor - jakarta21 | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-maihama/tree/jakarta21">lastaflute-example-maihama - jakarta21 | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/tree/jakarta21">lastaflute-test-fortress - jakarta21 | Github</a></div>
+
+	<h2 id="libjakarta">依存ライブラリをJakartaに</h2>
+	<p>
+		Jakarta版に移行するにあたって、LastaFluteが依存(利用)している周辺ライブラリもJakarta対応のバージョンに変更する必要があります。
+	</p>
+	<h3 id="libjakartscope">依存スコープに夜じゃなくて寄る</h3>
+	<p>
+		LastaFluteやLastaライブラリがcompileスコープやruntimeスコープで依存しているものに関しては、アプリで意識しなくても推移的依存で解決されます。
+	</p>
+	<p>
+		providedスコープやoptionalで指定されている "列挙ライブラリ" は、アプリ側で設定する必要があります。
+		<span class="frm">(アプリで列挙する必要があるので、ここでは列挙ライブラリと呼ぶこととします)</span>
+	</p>
+	<h3 id="libjakartaver">列挙ライブラリのJakartaバージョン</h3>
+	<p>
+		主な列挙ライブラリは以下の通りです。
+	</p>
+	<dl class="shoshortkeymainlist">
+		<dt>Servlet</dt><dd>jakarta.servlet:jakarta.servlet-api:6.0.0 <span class="frm">(まあ必須)</span></dd>
+		<dt>Annotation</dt><dd>jakarta.annotation:jakarta.annotation-api:2.1.1 <span class="frm">(まあ必須)</span></dd>
+		<dt>JTA</dt><dd>jakarta.transaction:jakarta.transaction-api:2.0.1 <span class="frm">(そりゃ必須)</span></dd>
+		<dt>FileUpload</dt><dd>org.apache.commons:commons-fileupload2-jakarta-servlet6:2.0.0-M2</dd>
+		<dt>JAXB</dt><dd>jakarta.xml.bind:jakarta.xml.bind-api:4.0.2</dd>
+	</dl>
+	<p>
+		バージョンは執筆時点の最新版で、LastaFluteが開発時に参照しているバージョンです。
+		アプリ側でこれより高いバージョンにするのは、(互換性が崩れていなければ)多くの場合は問題ないでしょう。
+	</p>
+	<p>
+		まあ必須、そりゃ必須の意味がわからないと思います。状況に寄って必須かどうかは変わりますので、この後の詳細を読みましょう。
+	</p>
+	<h3 id="jakartaservlet">Jakarta Servlet <span class="frm">(まあ必須)</span></h3>
+	<p>
+		TomcatやLastaFluteががっつり利用しているクラスが含まれるライブラリで、LastaFluteを動かすには必須です。
+	</p>
+	<p>
+		ですが、Tomcatに組み込まれていますので、TomcatBootをcompileスコープで依存しているプロジェクトでは依存定義は不要になります。
+		一方で、マルチプロジェクト構成の(Tomcat非依存でもweb依存の)commonプロジェクトでは必要になります。
+		実際に実行される環境はTomcatなのでcommonプロジェクトだけでprovided依存を定義すればOKです。
+	</p>
+	<p>
+		ただ、その辺を細かく意識していくのは大変ではありますので、Tomcat依存してるかどうか気にせず一律全体的にprovided依存しても大きな問題にはなりにくいとは思います。
+		<span class="frm">(providedなのでwarファイルに含まれるわけではないですし、バージョンがズレてもそこまで大きな変化は考えにくいので)</span>
+	</p>
+	<ul>
+		<li>LastaFluteで想定しているServletのバージョン <span class="frm">(TomcatのServletよりも古い可能性)</span></li>
+		<li>アプリで利用したいServletのバージョン <span class="frm">(新しいServletのメソッド使いたいか？)</span></li>
+		<li>Tomcatに組み込まれてるServletのバージョン <span class="frm">(実際にアプリ実行時に参照されるServlet)</span></li>
+	</ul>
+	<p>
+		これらバージョンをどう制御したいかに寄って、アプリでの依存定義の仕方を変えると良いでしょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/pom.xml#L317">lastaflute-example-harbor jakarta.servlet | Github</a></div>
+	<h3 id="jakartaannotation">Jakarta Annotation <span class="frm">(まあ必須)</span></h3>
+	<p>
+		@Resourceアノテーションなど Lasta Di がよく利用しているアノテーションが含まれるライブラリで、LastaFluteを動かすには必須です。
+	</p>
+	<p>
+		基本的には、Servletと同じ話になります。
+	</p>
+	<p>
+		一方で、Java8環境ではJava標準に組み込まれていて定義が不要だったので、Jakarta版に移行すると同時にJavaのバージョンもJava9以降にする場合は、新しく依存定義を追加することになるでしょう。
+	</p>
+	<p>
+		一方で一方で、Jakarta Annotationを組み込んでない他のアプリサーバーを使っているプロジェクトの場合は、compileスコープでの依存が必要になるでしょう。<span class="frm">(やったことないのですが...)</span>
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/pom.xml#L297">lastaflute-example-harbor - jakarta.annotation | Github</a></div>
+	<h3 id="jakartatx">JTA (transaction) <span class="frm">(そりゃ必須)</span></h3>
+	<p>
+		TransactionManagerなど Lasta Di がよく利用しているクラスが含まれるライブラリで、LastaFluteを動かすには必須です。
+	</p>
+	<p>
+		こちらは組み込みTomcatにも含まれていないので、Tomcat使ってるプロジェクトなら依存定義は必要になります。
+		compileスコープで定義するとよいでしょう。<span class="frm">(マルチプロジェクトなら全体的に一律で)</span>
+	</p>
+	<p>
+		一方で、JTAが含まれているアプリサーバーなら、扱い的にはServletと似た感じになるはずです。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/pom.xml#L290">lastaflute-example-harbor - jakarta.transaction | Github</a></div>
+	<h3 id="fileupload">Commons FileUpload</h3>
+	<p>
+		こちらはLastaFlute自体は直接利用するわけではありませんが、アプリでファイルアップロードをする際に手軽に利用できるライブラリということで、exampleプロジェクトで参考実装として使っているものです。
+	</p>
+	<p>
+		ファイルアップロードをしているのであれば、exampleプロジェクトを参考に定義と実装を用意しましょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/pom.xml#L339">lastaflute-example-harbor - fileupload2 | Github</a></div>
+	<h3 id="jaxbxml">JAXB (xml)</h3>
+	<p>
+		こちらは Lasta RemoteApi が optional として依存しているもので、リモートサーバーとXMLでのやり取りするときに依存定義が必要になります。
+	</p>
+	<p>
+		XMLがどうしても必要になったときに定義しましょう。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/javax21/pom.xml#L498">lastaflute-example-harbor - jaxb | Github</a></div>
+
+	<h2 id="java8to21">そもそもJava8からJava21の移行</h2>
+	<h3 id="addedannotation">@Resourceを追加</h3>
+	<p>
+		Java9より、@Resourceアノテーションを提供している javax.annotation
+		がJava標準から外れました。ゆえにアプリがJava9以降の場合は明示的に依存定義を追加する必要があります。
+	</p>
+	<p>
+		LastaFluteが、Jakarta版なら jakarta.annotation, Java8版なら javax.annotation となります。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/javax21/pom.xml#L421">lastaflute-test-fortress - javax.annotation | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/jakarta21/pom.xml#L421">lastaflute-test-fortress - jakarta.annotation | Github</a></div>
+	<h3 id="addedjaxb">@XmlElementを追加 <span class="frm">(必要なら)</span></h3>
+	<p>
+		Java9以降のどこかにより、@XmlElementを提供しているJAXBがJava標準から外れました。
+		ゆえにアプリがJava9どこか以降の場合で、Lasta RemoteApi で XML の機能を利用している場合は、明示的に依存定義を追加する必要があります。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/javax21/pom.xml#L498">lastaflute-test-fortress - javax.xml.bind | Github</a></div>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-test-fortress/blob/jakarta21/pom.xml#L498">lastaflute-test-fortress - jakarta.xml.bind | Github</a></div>
+	<h3 id="addedsai">saiを追加 <span class="frm">(必要なら)</span></h3>
+	<p>
+		Java15より、Javaに組み込まれていたJavaScriptエンジンのNashornがJava標準から外れました。
+		ゆえにアプリがJava15以降で、Di xmlでJavaScriptの記法を使っている場合は、saiの依存定義を追加する必要があります。
+	</p>
+	<div class="relatedpage"><a href="./migration/lahorntosai.html">Nashornからsaiへの移行</a></div>
+
+	<h2 id="dbkarta">DBFluteをJakartaに</h2>
+	<p>
+		DBFluteが自動生成するクラスでJakartaクラスを参照している箇所があります。
+		デフォルトではjavaxパッケージでの参照になっているので、Jakarta環境ではコンパイルエラーになります。
+	</p>
+	<p>
+		littleAdjustmentMap.dfpropにて、isMigrateOldJavaxToJakartaをtrueにするとjakartaパッケージでの参照になります。
+	</p>
+<pre><span class="codetitle">e.g. DBFluteの自動生成クラスをjakarta対応させる @littleAdjustmentMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+<span class="comment"># o relationalNullObjectMap: (NotRequired - Default map:{})
+# o cursorSelectFetchSize: (NotRequired - Default null)
+# o refreshMap: (NotRequired - Default map:{})
+# o optimisticLockMap: (NotRequired - Default map:{})
+#
+# *The line that starts with '#' means comment-out.
+#</span>
+<span class="keyword">map:</span>{
+    <span class="comment"># to use #jakarta package on generated classes by DBFlute</span>
+    ; <span class="point">isMigrateOldJavaxToJakarta</span> = <span class="keyword">true</span>
+
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o isAvailableAddingSchemaToTableSqlName: (NotRequired - Default false)</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		LastaFluteのexampleにて利用されていますので参考に。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/dbflute_maihamadb/dfprop/littleAdjustmentMap.dfprop#L30">lastaflute-example-harbor - dfprop | Github</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
