@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="Content-Style-Type" content="text/css" />
-	<meta name="keywords" content="DBFlute,LastaFlute,Java,Lean Startup,Incremental Development" />
+	<meta name="keywords" content="DBFlute,LastaFlute,Java,Jakarta,Jakarta EE,JavaEE,Java21,Servlet6" />
 	<style type="text/css" title="currentStyle">@import "../../../../css/sub.css";</style>
 	<title>LastaFluteのJakarta対応 (Java21) | LastaFlute</title>
 </head>
@@ -27,9 +27,29 @@
 	<h1>LastaFluteのJakarta対応 (Java21)</h1>
 	<div class="relatedpage"><a href="../index.html">LastaFluteトップページ</a></div>
 	<p>
-		Jakarta対応しました。Java21でコンパイルしています。
+		Jakarta対応しました。(Java21コンパイル、Tomcat10対応、Servlet6対応)
 	</p>
 	${indexlist}
+
+	<h2 id="aboutjakarta">そもそもJakarta対応とは？</h2>
+	<p>
+		Java標準のフレームワークであって JavaEE が、オープンソースコミュニティ Eclipse Foundation に寄贈され、JakartaEE というオープンソースとして生まれ変わりました。
+	</p>
+	<p>
+		その際、javax.始まりのパッケージが、jakarta.始まりのパッケージに変わるなど、利用者が意識せざるを得ない修正が入りました。
+		そして、多くのフレームワークがJavaEEの一部機能を利用しているため、JavaEEを使っていない開発者にも大きな影響があります。
+	</p>
+	<dl class="keymainlist">
+		<dt>Jakarta Servlet</dt><dd>Tomcatそのもの、多くのWebフレームワークが利用</dd>
+		<dt>Jakarta Annotation</dt><dd>LastaFluteでよく使っている@Resourceアノテーション</dd>
+		<dt>Jakarta Transaction</dt><dd>Lasta Diでよく使っているTransactionの仕組み</dd>
+		<dt>Jakarta Mail</dt><dd>MailFluteで使っているJavaにおける基本のメールエンジン</dd>
+		<dt>など</dt><dd>など</dd>
+	</dl>
+	<p>
+		ゆえに、(ほぼ)どのフレームワークも、互換性を崩してJakarta対応をしたバージョンを提供しないといけなくなりました。
+		LastaFluteもその一つです。
+	</p>
 
 	<h2 id="lajakarta">Jakarta版LastaFlute</h2>
 	<p>
@@ -37,6 +57,7 @@
 	</p>
 	<h3 id="releaselist">リリース一覧</h3>
 	<dl class="longvaluemainlist">
+		<dt><a href="../../lastadi/index.html">LastaFlute</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
 		<dt><a href="../../lastadi/index.html">Lasta Di</a></dt><dd>2.0.0 <span class="frm">(LastaFlute組み込み)</span> <span class="frm">(2024/08/21)</span></dd>
 		<dt><a href="../architecture/typesafemail.html">MailFlute</a></dt><dd>2.0.0 <span class="frm">(LastaFlute組み込み)</span> <span class="frm">(2024/08/21)</span></dd>
 		<dt><a href="../architecture/jobscheduling.html">Lasta Job</a></dt><dd>2.0.0 <span class="frm">(2024/08/21)</span></dd>
@@ -205,6 +226,7 @@
 	<p>
 		littleAdjustmentMap.dfpropにて、isMigrateOldJavaxToJakartaをtrueにするとjakartaパッケージでの参照になります。
 	</p>
+	<div class="relatedpage"><a href="../../../manual/reference/dfprop/littleadjustment/index.html#ismigrateoldjavaxtojakarta">littleAdjustmentMap.dfprop - isMigrateOldJavaxToJakarta</a></div>
 <pre><span class="codetitle">e.g. DBFluteの自動生成クラスをjakarta対応させる @littleAdjustmentMap.dfprop</span><code>
 <span class="abbreviation">...</span>
 <span class="comment"># o relationalNullObjectMap: (NotRequired - Default map:{})
@@ -226,6 +248,54 @@
 		LastaFluteのexampleにて利用されていますので参考に。
 	</p>
 	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/dbflute_maihamadb/dfprop/littleAdjustmentMap.dfprop#L30">lastaflute-example-harbor - dfprop | Github</a></div>
+	<p>
+		一応、専用のページあります。
+	</p>
+	<div class="relatedpage"><a href="../../../tutorial/dbkarta.html">DBFlute on Jakarta</a></div>
+
+	<h2 id="freegen">FreeGenのFluteたちは？</h2>
+	<p>
+		KVSFlute や RemoteApiGen たちは？
+	</p>
+	<h3 id="freegenlist">FreeGenFluteの対応リスト</h3>
+	<dl class="keymainlist">
+		<dt>KVSFlute</dt><dd>2024/08/05時点で未対応</dd>
+		<dt>RemoteApiGen</dt><dd>2024/08/05時点で未対応</dd>
+	</dl>
+	<p>
+		対応でき次第、情報を更新していきます。
+	</p>
+	<h3 id="freegenself">自分でFreeGenテンプレート修正する方法</h3>
+	<p>
+		未対応であっても、FreeGenのテンプレートは目の前にありますので、修正することはそこまで難しくはありません。
+	</p>
+<pre><span class="codetitle">e.g. RemoteApiGenのアノテーションをjakarta対応させる @Velocity</span><code>
+#set($added = $importList.add('javax.validation.constraints.NotNull'))
+ ↓↓↓
+#set($notNullAnnotation = <span class="point">${manager.currentJakartaPackage}</span> + '.validation.constraints.NotNull')
+#set($added = $importList.add(${notNullAnnotation}))
+
+<span class="abbreviation">...</span>
+
+#generateIndent($nestList.size())@javax.validation.Valid
+ ↓↓↓
+#generateIndent($nestList.size())@<span class="point">${manager.currentJakartaPackage}</span>.validation.Valid
+</code></pre>
+<pre><span class="codetitle">e.g. RemoteApiGenのRemoteApiRule.jsをjakarta対応させる @Velocity</span><code>
+     importOrderList: function() {
+         return ['java', 'javax', 'junit', 'org', 'com', 'net', 'ognl', 'mockit', 'jp'];
+     },
+ ↓↓↓
+     importOrderList: function() {
+         return ['java', 'javax', <span class="point">'jakarta'</span>, 'junit', 'org', 'com', 'net', 'ognl', 'mockit', 'jp'];
+     },
+</code></pre>
+	<p>
+		いざとなったら、こういう要領で直すと良いでしょう。
+	</p>
+	<p>
+		ただし、manager.currentJakartaPackage は、DBFlute-1.2.7から利用可能なメソッドなので、それより古い場合はDBFluteを最新にアップグレードしましょう。
+	</p>
 <!-- __content-end__ --></div></div>
 
 <div id="sidebar">

@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta name="keywords" content="DBFlute,ディベロッパー,Developer,チュートリアル,Tutorial,使い方,ドキュメント" />
+	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
+	<title>DBFlute on Jakarta | DBFlute</title>
+</head>
+<body>
+<div id="container" class="ct-manual">
+<div id="mainbar"><div id="header">
+	<a href="#">DBFlute<span>DB変更に強いO/Rマッパー</span></a>
+	<img src="../../image/logo-content.gif" alt="logo"/>
+	<ul>
+		<li class="hd-introduction"><a href="#">Introduction</a></li>
+		<li class="hd-tutorial"><a href="#">Tutorial</a></li>
+		<li><ul><li class="hd-architect"><a href="#">for Architect</a></li><li class="hd-developer"><a href="#">for Developer</a></li></ul></li>
+		<li class="hd-environment"><a href="#">Environment</a></li>
+		<li><ul><li class="hd-install"><a href="#">Install</a></li><li class="hd-upgrade"><a href="#">Upgrade</a></li></ul></li>
+		<li class="hd-manual"><a href="#">Manual</a></li>
+	</ul>
+</div>
+
+<div id="content"><!-- __content-start__ -->
+	<h1>DBFlute on Jakarta</h1>
+	<p>
+		自動生成したら javax.パッケージのimport文がコンパイルエラーになってませんか？
+	</p>
+	<p>
+		Jakarta対応のプロパティを使ってください。
+	</p>
+	${indexlist}
+
+	<h2 id="aboutjakarta">そもそもJakarta対応とは？</h2>
+	<p>
+		Java標準のフレームワークであって JavaEE が、オープンソースコミュニティ Eclipse Foundation に寄贈され、JakartaEE というオープンソースとして生まれ変わりました。
+	</p>
+	<p>
+		その際、javax.始まりのパッケージが、jakarta.始まりのパッケージに変わるなど、利用者が意識せざるを得ない修正が入りました。
+		そして、多くのフレームワークがJavaEEの一部機能を利用しているため、JavaEEを使っていない開発者にも大きな影響があります。
+	</p>
+	<dl class="longkeymainlist">
+		<dt>Jakarta Annotation</dt><dd>LastaFluteでよく使っている@Resourceアノテーション</dd>
+		<dt>Jakarta Dependency Injection</dt><dd>CDIでよく使っている@Injectアノテーション</dd>
+		<dt>など</dt><dd>など</dd>
+	</dl>
+	<p>
+		ゆえに、DBFluteもケースによっては javax. ではなく jakarta. で自動生成しないといけなくなりました。
+		そのための対応がされています。<span class="frm">(@since 1.2.7)</span>
+	</p>
+
+	<h2 id="dbkarta">DBFluteをJakartaに</h2>
+	<p>
+		DBFluteが自動生成するクラスでJakartaクラスを参照している箇所があります。
+		デフォルトではjavaxパッケージでの参照になっているので、Jakarta環境ではコンパイルエラーになります。
+	</p>
+	<p>
+		littleAdjustmentMap.dfpropにて、isMigrateOldJavaxToJakartaをtrueにするとjakartaパッケージでの参照になります。<span class="frm">(@since 1.2.7)</span>
+	</p>
+	<div class="relatedpage"><a href="../manual/reference/dfprop/littleadjustment/index.html#ismigrateoldjavaxtojakarta">littleAdjustmentMap.dfprop - isMigrateOldJavaxToJakarta</a></div>
+<pre><span class="codetitle">e.g. DBFluteの自動生成クラスをjakarta対応させる @littleAdjustmentMap.dfprop</span><code>
+<span class="abbreviation">...</span>
+<span class="comment"># o relationalNullObjectMap: (NotRequired - Default map:{})
+# o cursorSelectFetchSize: (NotRequired - Default null)
+# o refreshMap: (NotRequired - Default map:{})
+# o optimisticLockMap: (NotRequired - Default map:{})
+#
+# *The line that starts with '#' means comment-out.
+#</span>
+<span class="keyword">map:</span>{
+    <span class="comment"># to use #jakarta package on generated classes by DBFlute</span>
+    ; <span class="point">isMigrateOldJavaxToJakarta</span> = <span class="keyword">true</span>
+
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o isAvailableAddingSchemaToTableSqlName: (NotRequired - Default false)</span>
+<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		LastaFluteのexampleにて利用されていますので参考に。
+	</p>
+	<div class="relatedpage"><a href="https://github.com/lastaflute/lastaflute-example-harbor/blob/jakarta21/dbflute_maihamadb/dfprop/littleAdjustmentMap.dfprop#L30">lastaflute-example-harbor - dfprop | Github</a></div>
+
+	<h2 id="freekarta">FreeGenのJakarta対応は？</h2>
+	<p>
+		FreeGenのテンプレートの中で、isMigrateOldJavaxToJakartaの値を利用することができます。
+	</p>
+	<p>
+		以下のような要領で修正しましょう。
+	</p>
+<pre><span class="codetitle">e.g. RemoteApiGenのアノテーションをjakarta対応させる @Velocity</span><code>
+#set($added = $importList.add('javax.validation.constraints.NotNull'))
+ ↓↓↓
+#set($notNullAnnotation = <span class="point">${manager.currentJakartaPackage}</span> + '.validation.constraints.NotNull')
+#set($added = $importList.add(${notNullAnnotation}))
+
+<span class="abbreviation">...</span>
+
+#generateIndent($nestList.size())@javax.validation.Valid
+ ↓↓↓
+#generateIndent($nestList.size())@<span class="point">${manager.currentJakartaPackage}</span>.validation.Valid
+</code></pre>
+
+	<h2 id="lakarta">LastaFluteのJakarta対応は？</h2>
+	<p>
+		さらに、LastaFluteを利用している場合は、専用のページをご覧ください。
+	</p>
+	<div class="detailpage"><a href="../lastaflute/howto/upgrade/lakarta.html">LastaFluteのJakarta対応 (Java21)</a></div>
+<!-- __content-end__ --></div></div>
+
+<div id="sidebar">
+	<ul>
+		<li><a href="#">inu</a></li>
+		<li><a href="#">neko</a></li>
+	</ul>
+</div>
+<div id="footer">
+	<ul>
+		<li><a href="#">SiteMap</a></li>
+		<li><a href="https://www.seasar.org/issues/browse/DBFLUTE">BTS</a></li>
+		<li><a href="http://d.hatena.ne.jp/jflute">Author's Blog</a></li>
+	</ul>
+</div>
+</div>
+</body>
+</html>
