@@ -6,7 +6,7 @@
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta name="keywords" content="DBFlute,ディベロッパー,Developer,チュートリアル,Tutorial,使い方,ドキュメント" />
 	<style type="text/css" title="currentStyle">@import "../../css/sub.css";</style>
-	<title>DBFlute on Jakarta | DBFlute</title>
+	<title>DBFlute with Jakarta | DBFlute</title>
 </head>
 <body>
 <div id="container" class="ct-manual">
@@ -24,7 +24,7 @@
 </div>
 
 <div id="content"><!-- __content-start__ -->
-	<h1>DBFlute on Jakarta</h1>
+	<h1>DBFlute with Jakarta</h1>
 	<p>
 		自動生成したら javax.パッケージのimport文がコンパイルエラーになってませんか？
 	</p>
@@ -52,6 +52,16 @@
 	</p>
 
 	<h2 id="dbkarta">DBFluteをJakartaに</h2>
+	<h3 id="neededor">まず必要かどうか？</h3>
+	<p>
+		まず、自動生成してみてコンパイルエラーになってないのであれば、そもそも対応が必要ないかもしれません。
+	</p>
+	<p>
+		例えば、Spring Framework の場合、jakartaパッケージを利用するようなコードを DBFlute
+		が自動生成しないようにしているので<span class="frm">(@since 1.2.7)</span>、この後に紹介するプロパティを使わなくても利用できるかもしれません。
+		<span class="frm">(ただし、今後の変化で単純に自動生成コード上のパッケージだけの問題に留まるとは限らないので、ずっと何もしなくて良いとは断言できないところではあります)</span>
+	</p>
+	<h3 id="dfpropkarta">dfpropでJakarta移行</h3>
 	<p>
 		DBFluteが自動生成するクラスでJakartaクラスを参照している箇所があります。
 		デフォルトではjavaxパッケージでの参照になっているので、Jakarta環境ではコンパイルエラーになります。
