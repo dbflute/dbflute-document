@@ -51,7 +51,7 @@
 		</dd>
 		<dd>
 			整合性のとれたテストデータを手動で作成していくのは大変な作業です。
-			既に信頼できるアプリの画面があるのであれば、その画面で登録したデータをエクセルにできれば、効率的にテストケースを増やしていけます。
+			既に信頼できるアプリの画面があるのであれば、その画面で登録したデータをTSVやエクセルにできれば、効率的にテストケースを増やしていけます。
 			アプリが完璧でないにしても、出力後に人が目視で確認して業務的な微調整をすれば良いでしょう。それは同時にアプリの動作レビューにもなります。
 		</dd>
 	</dl>
@@ -208,17 +208,23 @@ dbflute_maihamadb
 		<span class="frm">(元々はXLSファイルがメインだったこともあり)</span>
 	</p>
 
-	<h2 id="synchronizeorigindate">DateAdjustmentの同期</h2>
+	<h2 id="synchronizeorigindate">日付調整のoriginDateを自動同期</h2>
+	<h3 id="repsdateadjustment">ReplaceSchemaの日付調整との連携</h3>
 	<p>
-		データ登録制御 (loadingControlMap.dataprop) の相対的な日付調整における基準日を、自動的に同期することができます。
-		日付調整が有効の状態で LoadDataReverse すると、調整された後のデータがエクセルデータとして出力されます。
-		よって、基準日は LoadDataReverse を実行した日付にするのがベストであると言えます。
+		ReplaceSchemaにおけるデータ登録制御 (loadingControlMap.dataprop) の相対的な日付調整の基準日 (originDate) を、LoadDataReverse実行時に自動的に同期することができます。
 	</p>
+	<div class="relatedpage"><a href="../replaceschema/loadingcontrol.html#dateadjustmentmap">ReplaceSchema - データ登録制御 (loadingControl) - dateAdjustmentMap</a></div>
+	<h3 id="needsorigindate">日付調整の基準日は同期が必要</h3>
+	<p>
+		ReplaceSchemaで日付調整を利用している場合にそのまま LoadDataReverse すると、LoadDataReverseはDBに登録されているデータをそのまま出力しますから、調整された後の日付データが出力されてしまいます。
+		ゆえに、loadingControlMap.dataprop の originDate を更新しないと、その後の ReplaceSchema にてさらに二重で日付が調整されてしまうことになります。
+		originDate は LoadDataReverse を実行した日付にしてリセットするのがベストです。
+	</p>
+	<h3 id="lreverseorigindate">自動でLoadDataReverseした日をoriginDateに</h3>
 	<p>
 		isSynchronizeOriginDate
-		を true に設定すると、基準日が実行した日付に修正され、実行のたびにつどつど手動で修正する必要がなくなり、修正忘れも防ぐことができます。
+		を true に設定すると、originDateが実行した日付に自動的に修正され、実行のたびにつどつど手動で修正する必要がなくなります。
 	</p>
-	<div class="relatedpage"><a href="../replaceschema/loadxls.html#dateadjustment">ReplaceSchema - datapropにて相対値の指定 (DateAdjustment)</a></div>
 	<p>
 		同期処理の結果は、LoadDataReverse
 		を実行したときに作成される出力結果の確認ドキュメント(reverse-data-result.dfmark)に記載されるので、
@@ -226,10 +232,10 @@ dbflute_maihamadb
 	</p>
 
 	<h2 id="consideration">いろいろな考慮</h2>
-	<h3 id="exceptcommon">commonのテーブルは出力対象外</h3>
+	<h3 id="exceptcommon">commonにあるテーブルは出力対象外</h3>
 	<p>
-		common配下のエクセルデータで定義されているテーブルは出力されません。
-		ReplaceSchemaの直接利用を想定したときに不要と思われるためです。<span class="frm">(出力してしまうと、重複したデータとなってしまう)</span>
+		common配下のデータで定義されているテーブルは出力されません。
+		ReplaceSchemaの直接利用する場合は不要なためです。<span class="frm">(出力してしまうと、重複したデータとなってしまう)</span>
 	</p>
 	<h3 id="backupprevious">一つ前の出力結果をバックアップ</h3>
 	<p>
@@ -324,13 +330,13 @@ dbflute_exampledb
 		それを超えるテーブル名がある場合は、ReplaceSchema の長いテーブル名対応の機能に沿った tableNameMap.dataprop
 		を生成します。その場合のシート名は DBFlute が決め打った仮の名前になっているので、これを土台にする場合は手動で微調整すると良いでしょう。
 	</p>
-	<h3 id="largedataxls">XLSの限界超えるレコード数だと？</h3>
 	<div class="relatedpage"><a href="../replaceschema/loadxls.html#tablenamemap">エクセルデータ - エクセルシート名制限回避の設定(dataprop)</a></div>
+	<h3 id="largedataxls">XLSの限界超えるレコード数だと？</h3>
 	<p>
 		DBFluteがサポートしているエクセルの最大行数が 655xx なので、出力最大レコード数を 65000
-		と決め打ちで絞っています。もし、それを超える件数のデータが入っていて、かつ、recordLimit
+		で絞っています。もし、それを超える件数のデータが入っていて、かつ、recordLimit
 		をそれ以上に設定した場合は、別途TSVデータとして出力されます<span class="frm">(@since 0.9.8.3)</span>。
-		TSVファイルは、reversetsvディレクトリに出力されます<span class="frm">(@since 1.0.4B)</span>。<span class="frm">(1.0.4Bより前のバージョンでは、tsvに出力されます)</span>
+		TSVファイルは、reversetsvディレクトリに出力されます<span class="frm">(@since 1.0.4B)</span>。<span class="frm">(1.0.4Bより前のバージョンでは、tsvディレクトリに出力されます)</span>
 	</p>
 	<p>
 		TSV データへの出力は、一件ずつのフェッチ式になっているため、大量件数でもメモリ不足になることは基本的にありません。
@@ -351,14 +357,6 @@ dbflute_exampledb
 		基本的には LoadDataReverse はそのような大容量のデータを落とすための機能ではありません。
 	</p>
 	<div class="relatedpage"><a href="../index.html#memory">DBFluteタスク - タスクのメモリ設定</a></div>
-
-	<h2 id="adjustment">いろいろな調整、微調整</h2>
-	<h3 id="removenormalxls">xlsディレクトリの方はもう要らない</h3>
-	<p>
-		既に ReplaceSchema 運用していて循環テストデータ運用を始める際に、同じ dataLoadingType (通常は ut) の xls
-		ディレクトリ配下のエクセルデータをそのまま置いておくと reversexls
-		の方のデータと内容が重複してしまいます。xlsディレクトリの方のエクセルデータは削除しておきましょう。
-	</p>
 
 	<h2 id="spec">細かい仕様</h2>
 	<p>
