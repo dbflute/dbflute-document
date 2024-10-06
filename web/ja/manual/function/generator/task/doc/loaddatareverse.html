@@ -234,8 +234,10 @@ dbflute_maihamadb
 	<h2 id="consideration">いろいろな考慮</h2>
 	<h3 id="exceptcommon">commonにあるテーブルは出力対象外</h3>
 	<p>
-		common配下のデータで定義されているテーブルは出力されません。
-		ReplaceSchemaの直接利用する場合は不要なためです。<span class="frm">(出力してしまうと、重複したデータとなってしまう)</span>
+		ReplaceSchemaのディレクトリに直接出力する場合、common配下のデータで定義されているテーブルはLoadDataReverseでは出力されません。<span class="frm">(TSVファイルにおいては @since 1.2.7)</span>
+	</p>
+	<p>
+		でないと、ReplaceSchemaのデータ登録時にcommonのデータが重複してしまうためです。commonは手動で固定的に管理されるデータということで、循環テストデータの対象外です。
 	</p>
 	<h3 id="backupprevious">一つ前の出力結果をバックアップ</h3>
 	<p>
