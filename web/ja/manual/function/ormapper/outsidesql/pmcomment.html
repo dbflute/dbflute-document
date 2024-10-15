@@ -274,7 +274,7 @@
 		<li>OR条件で条件連結できる <span class="frm">e.g. /*IF pmb.isPaging() || pmb.memberId != null*/</span></li>
 		<li>AND条件とOR条件の(一つのIFコメント内での)併用はできない</li>
 	</ul>
-	<h3 id="alternatebool">複雑な条件はメソッド化</h3>
+	<h3 id="alternatebool">複雑な条件はメソッド化 <span class="frm">(代理判定メソッド)</span></h3>
 	<p>
 		複雑な条件を記述する場合は、ParameterBeanのExクラスにメソッドを定義して、そのメソッドをIFコメントで呼び出すようにするのが推奨されます。
 		これのメソッドを、(複雑な条件の) <em class="keyword">代理判定メソッド</em> と呼びます。
@@ -298,7 +298,7 @@
 	<p>
 		IFコメント上に書かれた代理判定メソッドを自動判別して、Exクラスでのメソッドの定義漏れを防ぐ支援機能(AutoDetect)も存在します。
 	</p>
-	<div class="detailpage"><a href="../../generator/task/sql2entity/parameterbean.html#alternatebool">ParameterBean - 代理判定メソッド</a></div>
+	<div class="detailpage"><a href="../../generator/task/sql2entity/pmbautodetect.html#alternatebool">ParameterBeanの自動判別 - 代理判定メソッドの自動判別</a></div>
 	<h3 id="ifnest">IFコメントのネスト</h3>
 	<p>
 		IFコメントは、ネストさせて利用することができます。但し、単なる AND
