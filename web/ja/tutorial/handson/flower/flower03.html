@@ -411,8 +411,8 @@ dbflute-hands-on
             <span class="localvar">cb</span>.setupSelect_Product().withProductStatus();
             <span class="localvar">cb</span>.setupSelect_Product().withProductCategory().withProductCategorySelf();
             <span class="localvar">cb</span>.columnQuery(<span class="localvar">colCB</span> -&gt; <span class="localvar">colCB</span>.specify().columnPurchaseDatetime())
-                    .greaterEqual(<span class="localvar">colCB</span> -&gt; <span class="localvar">colCB</span>.specify().specifyMember().columnFormalizedDatetime()) <span class="comment">// ぴったしは含むとする</span>
-            <span class="localvar">cb</span>.columnQuery(<span class="localvar">colCB</span> -&gt; <span class="localvar">colCB</span>.specify().columnPurchaseDatetime()
+                    .greaterEqual(<span class="localvar">colCB</span> -&gt; <span class="localvar">colCB</span>.specify().specifyMember().columnFormalizedDatetime()); <span class="comment">// ぴったしは含むとする</span>
+            <span class="localvar">cb</span>.columnQuery(<span class="localvar">colCB</span> -&gt; <span class="localvar">colCB</span>.specify().columnPurchaseDatetime())
                     .lessThan(<span class="localvar">colCB</span> -&gt; <span class="localvar">colCB</span>.specify().specifyMember().columnFormalizedDatetime())
                     .convert(<span class="localvar">op</span> -&gt; <span class="localvar">op</span>.truncTime().addDay(<span class="literal">8</span>)); <span class="comment">// 24*7 hours + あるふぁ</span>
         });
@@ -485,7 +485,7 @@ dbflute-hands-on
             LocalDate <span class="localvar">birthdate</span> = <span class="localvar">member</span>.getBirthdate();
             <span class="keyword">if</span> (<span class="localvar">birthdate</span> != <span class="keyword">null</span>) {
                 assertTrue(<span class="localvar">birthdate</span>.isBefore(<span class="localvar">overDate</span>));
-                <span class="keyword">if</span> (<span class="localvar">birthdate</span>.isEqual(limitDate) {
+                <span class="keyword">if</span> (<span class="localvar">birthdate</span>.isEqual(limitDate)) {
                     <span class="localvar">existsLimitDate</span> = <span class="keyword">true</span>;
                 }
             }
@@ -495,7 +495,7 @@ dbflute-hands-on
     }
 
     <span class="keyword">private</span> LocalDate adjustExercise8_Birthdate_asLimitDate(LocalDate <span class="localvar">targetDate</span>) {
-        LocalDate limitDate = <span class="keyword">new</span> HandyDate(targetDate).moveToYearTerminal().getLocalDate())
+        LocalDate limitDate = <span class="keyword">new</span> HandyDate(targetDate).moveToYearTerminal().getLocalDate();
         Member <span class="localvar">member</span> = <span class="keyword">new</span> Member();
         <span class="localvar">member</span>.setMemberId(<span class="literal">3</span>);
         <span class="localvar">member</span>.setBirthdate(limitDate);
@@ -584,7 +584,7 @@ dbflute-hands-on
         // MySQL's found_rows() is used here
         //  data  : select sql_calc_found_rows ... limit 0, 3
         //  count : select found_rows()</span>
-        PagingResultBean<Member> page = <span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> -> {
+        PagingResultBean&lt;Member&gt; page = <span class="attribute">memberBhv</span>.selectPage(<span class="localvar">cb</span> -> {
             <span class="localvar">cb</span>.setupSelect_MemberStatus();
             <span class="localvar">cb</span>.query().addOrderBy_MemberId_Asc();
             <span class="localvar">cb</span>.paging(pageSize, pageNumber);
