@@ -73,13 +73,34 @@
 	</p>
 
 	<h2 id="prepare">環境準備</h2>
+	<h3 id="forkrepository">Githubリポジトリのfork</h3>
+	<p>
+		自分のGithubアカウントで、以下のリポジトリをforkしましょう。
+	</p>
+	<dl class="longvaluemainlist">
+		<dt>GITリポジトリ</dt><dd><a href="https://github.com/dbflute-session/dbflute-hands-on">https://github.com/dbflute-session/dbflute-hands-on</a></dd>
+		<dt>プロジェクト</dt><dd>dbflute-hands-on</dd>
+	</dl>
+	<p>
+		forkした後は自分で管理するリポジトリとなりますので、自由にコミットができます。
+		一人プロジェクトになりますから、master(main)ブランチにそのままコミットしても問題ありません。
+		エクササイズの成果をちょくちょく適切なタイミングでコミットしていきましょう。
+	</p>
+	<p>
+		<span class="frm">(※業務でハンズオンをやるなどjfluteにレビューしてもらうことになってる方は、jfluteにwrite権限を与えてください)</span>
+	</p>
+	<h4>もし社内でハンズオン専用リポジトリが用意されてるなら</h4>
+	<p>
+		もし社内でDBFluteハンズオン用の "gitリポジトリ" が用意されている場合は、そちらを利用してください。
+		forkじゃなくて自分専用のbranchを作ってそこにコミットするやり方もありますので、わからなければ近くの人に聞いてみてください。
+	</p>
 	<h3 id="workspace">workspaceの作成</h3>
 	<p>
 		新規でworkspaceディレクトリを任意の場所に作成してください。
 		<span class="frm">(後にgit cloneする場所です)</span>
 	</p>
 	<p>
-		場所は任意ではありますが、「どこにcloneしたか忘れてしまった」にならないようにしましょう。
+		場所は任意ではありますが、"どこにcloneしたか忘れてしまった" にならないようにしましょう。
 	</p>
 <pre><span class="codetitle">e.g. DBFluteハンズオン用のworkspaceディレクトリ @Directory</span><code>
 ~/works
@@ -91,24 +112,15 @@
 		(Eclipseの方は) Eclipseを起動するときにそのworkspaceディレクトリを選んでください。
 		起動直後に別のワークスペースが開いてしまう場合は、メニューの "File" - "Switch Workspace" からワークスペースを切り替えてください。
 	</p>
-	<h3 id="cloneimport">プロジェクトのcloneとimport</h3>
-	<h4 id="gitclone">workspace に git clone</h4>
+	<h3 id="gitclone">workspace に git clone</h3>
 	<p>
-		先ほど作った workspaceディレクトリ配下に git clone しましょう。
-	</p>
-	<dl class="longvaluemainlist">
-		<dt>GITリポジトリ</dt><dd>https://github.com/dbflute-session/dbflute-hands-on.git</dd>
-		<dt>プロジェクト</dt><dd>dbflute-hands-on</dd>
-	</dl>
-	<p>
-		【注意】もし社内でDBFluteハンズオン用の "gitリポジトリ" が用意されている場合は、そちらを利用してください。
-		<span class="frm">(用意されているかどうかわからない場合は、近くの人に聞いてみてください)</span>
+		先ほど作った workspaceディレクトリ配下に、forkしたリポジトリを git clone しましょう。
 	</p>
 	<p>
 		もしGit操作がよくわからない方で、Eclipseを使っている方は、参考になるドキュメントがあります。
 	</p>
 	<div class="relatedpage"><a href="../../manual/topic/friends/eclipse/operation/git/egitclone.html">Eclipseでgit clone</a></div>
-	<h4 id="ideimport">IDE にて import</h4>
+	<h3 id="ideimport">IDE にて import</h3>
 	<p>
 		そして、EclipseやIntelliJなどで、プロジェクトとしてimport (open) しましょう。
 	</p>
