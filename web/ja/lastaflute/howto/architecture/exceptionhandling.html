@@ -427,6 +427,10 @@ verifyOrClientError(<span class="literal">"<span class="abbreviation">...</span>
 	</p>
 	<h4>JSONレスポンスなら</h4>
 	<p>
+		HTTPステータスは、基本的に 400 を想定していますが、厳密にはアプリのポリシーによって変わります。
+		(アプリの実装によって変えることができます)
+	</p>
+	<p>
 		JSONで戻す場合は、リダイレクトしたり show_errors.html を戻してもしょうがないので、ApiFailureHook
 		で Hook して JSON を戻すようにします。HTTPステータスやJSONの形などは、そのアプリのポリシー次第です。
 		Failure統一パターンなのか、共通ヘッダーパターンなのか、それ以外なのか、よく検討しましょう。
