@@ -71,10 +71,17 @@ PROJECT_ROOT
  |  |-dfprop
  |  |-<span class="abbreviation">...</span>
  |  |-playsql
- |  |  |-data
+ |  |  |-<span class="point">data</span>
  |  |  |  |-common
- |  |  |     |-xls
- |  |  |        |-<span class="point">10-master.xls</span>
+ |  |  |     |-tsv
+ |  |  |        |-UTF-8
+ |  |  |           |-<span class="subpoint">acyclic_01_01-member_status.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_02-product_category.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_03-product_status.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_04-region.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_05-service_rank.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_06-withdrawal_reason.tsv</span>
+ |  |  |
  |  |  |-replace-schema-00-system.sql
  |  |  |-replace-schema-10-basic.sql
  <span class="abbreviation">...</span>
@@ -197,12 +204,23 @@ PROJECT_ROOT
  |  |-playsql
  |  |  |-data
  |  |  |  |-common
- |  |  |  |  |-xls
- |  |  |  |     |-10-master.xls
+ |  |  |  |  |-tsv
+ |  |  |  |     |-UTF-8
+ |  |  |  |        |-acyclic_01_01-member_status.tsv
+ |  |  |  |        |-....tsv
  |  |  |  |-ut
- |  |  |     |-xls
- |  |  |        |-<span class="point">20-member.xls</span>
- |  |  |        |-<span class="point">30-product.xls</span>
+ |  |  |     |-reversetsv
+ |  |  |        |-UTF-8
+ |  |  |           |-<span class="subpoint">cyclic_01_01-product.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_01-member.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_02-member_address.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_03-member_login.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_04-member_security.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_05-member_service.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_06-member_withdrawal.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_03_01-purchase.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_03_02-purchase_payment.tsv</span>
+ |  |  |
  |  |  |-replace-schema-00-system.sql
  |  |  |-replace-schema-10-basic.sql
  <span class="abbreviation">...</span>
@@ -244,7 +262,7 @@ PROJECT_ROOT
 		原因わかりましたでしょうか？...どういう風に解決していきましょうか。
 	</p>
 	<p>
-		20-member.xls を開いてみてみてください。NotNull制約のついている共通カラムのデータがありません。
+		cyclic_02_01-member.tsv を開いてみてみてください。NotNull制約のついている共通カラムのデータがありません。
 		ここでは、(DB上ではなく)ReplaceSchemaにデフォルト値を設定して解決しましょう。
 		同じディレクトリに以下の内容で defaultValueMap.dataprop というファイルを作成して、ReplaceSchemaを再実行してみましょう。
 	</p>
@@ -252,9 +270,9 @@ PROJECT_ROOT
 <pre><span class="codetitle">e.g. 共通カラムのデフォルトテストデータの設定 @defaultValueMap.dataprop</span><code>
 <span class="keyword">map:</span>{
     ; REGISTER_DATETIME = sysdate
-    ; REGISTER_USER     = foo
+    ; REGISTER_USER     = sea
     ; UPDATE_DATETIME   = sysdate
-    ; UPDATE_USER       = foo
+    ; UPDATE_USER       = land
     ; VERSION_NO        = 0
 }
 </code></pre>

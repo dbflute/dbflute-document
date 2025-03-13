@@ -156,13 +156,14 @@ select max(login.LOGIN_DATETIME)
 	</p>
 	<div class="relatedpage"><a href="../../manual/function/generator/task/replaceschema/takefinally.html">ReplaceSchema - 最終チェック</a></div>
 	<p>
-		DBFluteクライアント/playsql配下の 20-member.xls
+		[DBFluteクライアント]/playsql配下の cyclic_02_01-member.tsv
 		にて、<em class="keyword">とある有効終了日が一つ後の有効期間の有効開始日を超える日</em>
 		を指定して、ReplaceSchemaを実行してみましょう。
 		当然のことながら、正常に登録されてしまうはずです。
+		<span class="frm">(テストデータのファイル形式、以前はエクセルでしたがTSVに変更しました。エクセルのままの方は 20-member.xls になります)</span>
 	</p>
 	<p>
-		今度は、以下のSQLをDBFluteクライアント/playsql/take-finally.sql
+		今度は、以下のSQLを [DBFluteクライアント]/playsql/take-finally.sql
 		に記述して再実行してみましょう。ログに注目です。じっくり読んでみましょう。
 	</p>
 <pre><span class="codetitle">e.g. 会員住所情報で同時点で住所が重複しないようにチェック @take-finally.sql</span><code>

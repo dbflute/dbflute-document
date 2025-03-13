@@ -278,8 +278,9 @@
 
 	<h2 id="changecls">区分値の追加と変更</h2>
 	<p>
-		実際に、区分値を追加して再自動生成してみましょう。DBFluteクライアント/playsql/data/common/xls/10-master.xls
+		実際に、区分値を追加して再自動生成してみましょう。[DBFluteクライアント]/playsql/data/common/tsv/UTF-8/acyclic_01_01-member_status.tsv
 		の MEMBER_STATUS にレコードを追加してください。
+		<span class="frm">(テストデータのファイル形式、以前はエクセルでしたがTSVに変更しました。エクセルのままの方は 10-master.xls になります)</span>
 	</p>
 	<dl class="keymainlist">
 		<dt>会員ステータスコード</dt><dd>HAN</dd>
@@ -294,7 +295,7 @@
 		の条件を(適当に)組み立ててみてください。(JavaDocコメントに "説明" の内容が表示されていることも確認) 
 	</p>
 	<p>
-		それができたら、今度はエクセルでそのレコードを削除して、同じように ReplaceSchemaからGenerateタスクまで実行して、
+		それができたら、今度はTSVでそのレコードを削除して、同じように ReplaceSchemaからGenerateタスクまで実行して、
 		SchemaHTML の区分値一覧から消えて、かつ、そのテストメソッドがコンパイルエラーになることを確認してください。
 		(元の状態に戻ります)
 	</p>
@@ -344,7 +345,7 @@
 	<h3 id="java6impcheck">Java6,7 (DBFlute-1.0.x) では</h3>
 	<p>
 		暗黙の区分値は、データ登録時には何の制約もありません。
-		アプリ実装ではDBFluteの区分値メソッドを使ってタイプセーフにできますが、ReplaceSchemaのエクセルデータ作成ではケアレスミスが簡単に起きてしまいます。
+		アプリ実装ではDBFluteの区分値メソッドを使ってタイプセーフにできますが、ReplaceSchemaのTSVデータ作成ではケアレスミスが簡単に起きてしまいます。
 		DBFluteのオプションで登録時に自動チェックすることができます。
 	</p>
 	<div class="detailpage"><a href="../../manual/function/genbafit/implfit/classification/index.html#checkimplicitset">現場フィット - 区分値 - 暗黙の区分値チェック</a></div>
@@ -355,7 +356,7 @@
 	<h3 id="java8impcheck">Java8 (DBFlute-1.1) からは</h3>
 	<p>
 		先ほどの classificationUndefinedHandlingType
-		で既にチェックされるようになっています。そのままReplaceSchemaのエクセルデータを一時的に修正してチェックされることを確認してみましょう。
+		で既にチェックされるようになっています。そのままReplaceSchemaのTSVデータを一時的に修正してチェックされることを確認してみましょう。
 	</p>
 
 	<h2 id="grouping">グルーピング判定</h2>
