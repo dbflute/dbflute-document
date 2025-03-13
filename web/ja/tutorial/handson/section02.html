@@ -75,12 +75,12 @@ PROJECT_ROOT
  |  |  |  |-common
  |  |  |     |-tsv
  |  |  |        |-UTF-8
- |  |  |           |-<span class="subpoint">acyclic_01_01-member_status.tsv</span>
- |  |  |           |-<span class="subpoint">acyclic_01_02-product_category.tsv</span>
- |  |  |           |-<span class="subpoint">acyclic_01_03-product_status.tsv</span>
- |  |  |           |-<span class="subpoint">acyclic_01_04-region.tsv</span>
- |  |  |           |-<span class="subpoint">acyclic_01_05-service_rank.tsv</span>
- |  |  |           |-<span class="subpoint">acyclic_01_06-withdrawal_reason.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_01-MEMBER_STATUS.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_02-PRODUCT_CATEGORY.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_03-PRODUCT_STATUS.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_04-REGION.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_05-SERVICE_RANK.tsv</span>
+ |  |  |           |-<span class="subpoint">acyclic_01_06-WITHDRAWAL_REASON.tsv</span>
  |  |  |
  |  |  |-replace-schema-00-system.sql
  |  |  |-replace-schema-10-basic.sql
@@ -206,20 +206,20 @@ PROJECT_ROOT
  |  |  |  |-common
  |  |  |  |  |-tsv
  |  |  |  |     |-UTF-8
- |  |  |  |        |-acyclic_01_01-member_status.tsv
+ |  |  |  |        |-acyclic_01_01-MEMBER_STATUS.tsv
  |  |  |  |        |-....tsv
  |  |  |  |-ut
  |  |  |     |-reversetsv
  |  |  |        |-UTF-8
- |  |  |           |-<span class="subpoint">cyclic_01_01-product.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_02_01-member.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_02_02-member_address.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_02_03-member_login.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_02_04-member_security.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_02_05-member_service.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_02_06-member_withdrawal.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_03_01-purchase.tsv</span>
- |  |  |           |-<span class="subpoint">cyclic_03_02-purchase_payment.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_01_01-PRODUCT.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_01-MEMBER.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_02-MEMBER_ADDRESS.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_03-MEMBER_LOGIN.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_04-MEMBER_SECURITY.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_05-MEMBER_SERVICE.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_02_06-MEMBER_WITHDRAWAL.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_03_01-PURCHASE.tsv</span>
+ |  |  |           |-<span class="subpoint">cyclic_03_02-PURCHASE_PAYMENT.tsv</span>
  |  |  |
  |  |  |-replace-schema-00-system.sql
  |  |  |-replace-schema-10-basic.sql
@@ -262,7 +262,7 @@ PROJECT_ROOT
 		原因わかりましたでしょうか？...どういう風に解決していきましょうか。
 	</p>
 	<p>
-		cyclic_02_01-member.tsv を開いてみてみてください。NotNull制約のついている共通カラムのデータがありません。
+		cyclic_02_01-MEMBER.tsv を開いてみてみてください。NotNull制約のついている共通カラムのデータがありません。
 		ここでは、(DB上ではなく)ReplaceSchemaにデフォルト値を設定して解決しましょう。
 		同じディレクトリに以下の内容で defaultValueMap.dataprop というファイルを作成して、ReplaceSchemaを再実行してみましょう。
 	</p>
