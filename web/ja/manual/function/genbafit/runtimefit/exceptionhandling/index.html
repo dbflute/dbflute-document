@@ -38,11 +38,12 @@
 	</p>
 	<h3 id="exclusive">排他制御の例外</h3>
 	<p>
-		排他制御の業務的なスコープ次第で変わりますが、基本的には以下の二つを想定しています。
+		排他制御の業務的なスコープ次第で変わりますが、基本的には以下の三つを想定しています。
 	</p>
 	<ul>
 		<li>org.seasar.dbflute.exception.EntityAlreadyUpdatedException</li>
 		<li>org.seasar.dbflute.exception.EntityAlreadyDeletedException</li>
+		<li>org.seasar.dbflute.exception.EntityAlreadyExistsException</li>
 	</ul>
 	<h3 id="updated">EntityAlreadyUpdatedException</h3>
 	<p>
@@ -67,6 +68,21 @@
 	<div class="relatedpage"><a href="../../../ormapper/behavior/select/selectentity.html">Behavior - selectEntity(CB)</a></div>
 	<div class="relatedpage"><a href="../../../ormapper/outsidesql/select/selectentity.html">外だしSQL - selectEntity()</a></div>
 	<p>
+		この例外を実際に業務的なすれ違いとして扱うかどうかは、
+		アプリで考慮する排他制御のスコープ、業務的に(かつ、仕組み的に)あり得るのか否か、などに左右されます。
+		もし、業務的なすれ違いとして扱うときは、EntityAlreadyUpdatedException と同様の考慮をする必要があります。
+	</p>
+	<h3 id="exists">EntityAlreadyExistsException</h3>
+	<p>
+		登録を行う insert() や batchInsert() などにおいて、対象レコードがすでに存在していた場合 (ユニーク制約違反) に発生する例外です。
+		この例外は、開発環境と本番環境で意味が異なります。
+	</p>
+	<dl class="valuemainlist">
+		<dt>開発環境</dt><dd>登録処理のバグ or データバグ</dd>
+		<dt>本番環境</dt><dd>業務的なすれ違い <span class="frm">(処理直前に別の人が登録した場合など)</span></dd>
+	</dl>
+	<p>
+		<span class="frm">(EntityAlreadyDeletedExceptionと同様に)</span>
 		この例外を実際に業務的なすれ違いとして扱うかどうかは、
 		アプリで考慮する排他制御のスコープ、業務的に(かつ、仕組み的に)あり得るのか否か、などに左右されます。
 		もし、業務的なすれ違いとして扱うときは、EntityAlreadyUpdatedException と同様の考慮をする必要があります。
