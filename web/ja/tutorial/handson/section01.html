@@ -139,7 +139,7 @@
 	</p>
 	<h4>ダウンロードと配置</h4>
 	<p>
-		MySQLのオフィシャルサイトからローカル環境に対応する MySQL のインストーラー無し版(ZIPアーカイブ版など)をダウンロードし、localdb/mysql に配置します。
+		MySQLのオフィシャルサイトからローカル環境に対応する MySQL のインストーラー無し版(tarアーカイブ版など)をダウンロードし、localdb/mysql に配置します。
 		<span class="frm">(以下の配置であれば、MySQL本体は Git のコミット対象になりません。gitignore に登録されています。間違っても MySQL 本体を Git にコミットしないように)</span>
 	</p>
 	<p>
@@ -344,9 +344,9 @@ PROJECT_ROOT
 		ここでは、localhostの43376ポートのmaihamadbデータベース(スキーマ)にSSL接続OFFで接続しようとしています。
 	</p>
 	<div class="relatedpage"><a href="../../manual/reference/dfprop/databaseinfo/index.html#url">databaseInfoMap - url (*)</a></div>
-	<h4>MySQL-8.0.17以降の予約語対応</h4>
+	<h4>MySQL-8.0.17 と MySQL-8.0.18 の予約語対応</h4>
 	<p>
-		MySQL-8.0.17より MEMBER が予約語となりましたので、(該当バージョンであれば)その対応を入れます。
+		MySQL-8.0.17 と MySQL-8.0.18 だけ MEMBER が予約語となっていますので、該当バージョンであればその対応を入れます。
 		<em class="mark">littleAdjustmentMap.dfprop</em> のプロパティ値を修正します。<em class="keyword">(忘れずに)</em>
 	</p>
 <pre><span class="codetitle">e.g. quoteTableNameList の設定 @littleAdjustmentMap.dfprop</span><code>
