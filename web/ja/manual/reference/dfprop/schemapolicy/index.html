@@ -866,9 +866,28 @@ column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
 </code></pre>
 	<h3 id="insteadofidentity">identityIfPureIDPK で除外テーブル</h3>
 	<p>
-		備え付けの theme は使わず、column.statement で細かく設定すればテーブル除外ありの identityIfPureIDPK
+		備え付けの theme は使わず、statement で細かく設定すればテーブル除外ありの identityIfPureIDPK
 		を実現することができます。
 	</p>
+	<h4>DBFlute-1.1.8以降であれば</h4>
+<pre><span class="codetitle">e.g. identityIfPureIDPK をテーブル除外 @schemaPolicyMap.dfprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+
+    ; <span class="localvar">tableMap</span> = <span class="keyword">map:</span>{
+        ; <span class="localvar">themeList</span> = <span class="keyword">list:</span>{
+            <span class="comment"># unused here, see check it by table.statement to except specified tables</span> 
+            <span class="comment">#; identityIfPureIDPK</span>
+        }
+        ; <span class="localvar">statementList</span> = <span class="keyword">list:</span>{
+            <span class="abbreviation">...</span>
+            <span class="comment"># ID column</span>
+            <span class="point">; if tableName is not prefix:MST_ then identityIfPureIDPK</span>
+        }
+    }
+}
+</code></pre>
+	<h4>DBFlute-1.1.8より前であれば</h4>
 <pre><span class="codetitle">e.g. identityIfPureIDPK をテーブル除外 @schemaPolicyMap.dfprop</span><code>
 <span class="keyword">map:</span>{
     <span class="abbreviation">...</span>
