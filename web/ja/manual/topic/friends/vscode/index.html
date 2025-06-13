@@ -39,22 +39,18 @@
 	<h2 id="shareformatter">フォーマッター設定の共有</h2>
 	<h3 id="witheclipse">Eclipseの設定に合わせる</h3>
 	<p>
-		とりあえずこれで、ほぼEclipseと同じ感じになった。
+		とりあえずこれで、ほぼEclipseと同じ感じになりました。
 	</p>
 <pre><span class="codetitle">e.g. VSCodeのフォーマッターに関する設定ファイルの構成 @settings.json</span><code>
 {
-  "editor.defaultFormatter": <span class="literal">"vscjava.vscode-java-pack"</span>,
-  "java.format.settings.profile": <span class="literal">"DBFlute Style"</span>,
-  "java.format.settings.url": <span class="literal">"https://dbflute.org/meta/friends/eclipse/dbflute-eclipse-code-formatter.xml"</span>,
+  "editor.defaultFormatter": <span class="literal">"redhat.java"</span>,
+  "java.format.settings.url": <span class="literal">""</span>,
   "editor.formatOnSave": <span class="literal">true</span>,
   "java.saveActions.organizeImports": <span class="literal">true</span>
 }
 </code></pre>
 	<p>
-		import文の定義順序は、デフォルトのままでEclipseとほぼ一緒っぽい？
-	</p>
-	<p>
-		defaultFormatterはjava-packでいいのか？みなさんVSCodeでJavaやるときはjava-pack？
+		VSCodeは、java.format.settings.url が空っぽの場合、Eclipse の.settingsディレクトリの内容を直接読み込んでフォーマット設定をするようです。
 	</p>
 <!-- __content-end__ --></div></div>
 <div id="sidebar">
