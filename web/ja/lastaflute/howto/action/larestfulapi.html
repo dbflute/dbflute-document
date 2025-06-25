@@ -393,7 +393,7 @@ app.web
 			先ほど、正式会員になったときの更新、membersのPATCHではなく、formalizeds(造語)のPOSTとも言えるかもしれません。
 		</p>
 		<dl class="textlist">
-			<dt>リソースがDB構造が一致 <span class="frm">(リソースはDBそのもの)</span></dt>
+			<dt>リソースがDB構造と一致 <span class="frm">(リソースはDBそのもの)</span></dt>
 			<dd>会員テーブルの更新だから、あくまで PATCH /members/1/(formalized/) で更新</dd>
 			<dd>でもDB変更で MEMBER_FORMALIZED というテーブルに切り出されたらAPIも変更する？</dd>
 			<dt>リソースはDB構造と似てるだけ <span class="frm">(リソースはDBインターフェース)</span></dt>
