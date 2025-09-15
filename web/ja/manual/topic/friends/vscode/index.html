@@ -52,6 +52,59 @@
 	<p>
 		VSCodeは、java.format.settings.url が空っぽの場合、Eclipse の.settingsディレクトリの内容を直接読み込んでフォーマット設定をするようです。
 	</p>
+	<h3 id="singleproject">シングルプロジェクトなら</h3>
+	<p>
+		.vscodeディレクトリを .settingsディレクトリとフラットに並べます。
+	</p>
+<pre><span class="codetitle">e.g. .vscodeと.settingsの位置関係、シングルプロジェクト @Directory</span><code>
+[PROJECT_ROOT]
+ |
+ |-.settings  <span class="comment">// Eclipseの設定ディレクトリ</span>
+ |   |-org.eclipse.core.resources.prefs
+ |   |-org.eclipse.core.runtime.prefs
+ |   |-org.eclipse.jdt.core.prefs
+ |   |-org.eclipse.jdt.ui.prefs
+ |
+ |-<span class="point">.vscode</span>  <span class="comment">// VSCodeの設定ディレクトリ</span>
+ |   |-settings.json
+</code></pre>
+	<h3 id="multiproject">マルチプロジェクトなら</h3>
+	<p>
+		.vscodeディレクトリは、(gitの)リポジトリルートに置きます。
+	</p>
+	<p>
+		<span class="frm">(.settingsディレクトリは各プロジェクトに配置されていると想定して)</span>
+	</p>
+<pre><span class="codetitle">e.g. .vscodeと.settingsの位置関係、マルチプロジェクト @Directory</span><code>
+[REPOSITORY_ROOT]
+ |
+ |-<span class="point">.vscode</span>  <span class="comment">// VSCodeの設定ディレクトリ</span>
+ |   |-settings.json
+ |
+ |-[PROJECT_ROOT]
+ |  |-src/main/java
+ |  |-src/test/java
+ |  |-.settings  <span class="comment">// Eclipseの設定ディレクトリ</span>
+ |      |-org.eclipse.core.resources.prefs
+ |      |-org.eclipse.core.runtime.prefs
+ |      |-org.eclipse.jdt.core.prefs
+ |      |-org.eclipse.jdt.ui.prefs
+ |
+ |-[PROJECT_ROOT]
+ |  |-src/main/java
+ |  |-src/test/java
+ |  |-.settings  <span class="comment">// Eclipseの設定ディレクトリ</span>
+ |      |-org.eclipse.core.resources.prefs
+ |      |-org.eclipse.core.runtime.prefs
+ |      |-org.eclipse.jdt.core.prefs
+ |      |-org.eclipse.jdt.ui.prefs
+</code></pre>
+	<p>
+		この構造で VSCode にて REPOSITORY_ROOT で Open すると、各プロジェクトごとの .settings の設定に従ってフォーマットがされます。
+	</p>
+	<p>
+		この場合、[PROJECT_ROOT] を単体で Open しないようにしましょう。
+	</p>
 <!-- __content-end__ --></div></div>
 <div id="sidebar">
 	<ul>
