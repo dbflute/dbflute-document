@@ -105,7 +105,7 @@ PROJECT_ROOT
 		このプロジェクトでは、メソッド名が test で始まることで、それがテストメソッドであると認識されます。
 		今後、テストを作成する際は、必ず "test何々" という形式でメソッドを作成してください。 
 	</p>
-	<h3>テストメソッドの雛形</h3>
+	<h3 id="complementtestmethod">テストメソッドの雛形</h3>
 	<p>
 		セクション１で設定した、補完テンプレートが入っていることを前提とします。
 		ここでは、テストメソッドの雛形を作る補完を使います。IDEによって若干補完文字が違うのでご注意を。
@@ -142,7 +142,7 @@ PROJECT_ROOT
 		実はこれは、セクション１で DBFlute のエディターテンプレートを設定したからです。
 	</p>
 	<div class="relatedpage"><a href="./section01.html#editortemplates">セクション１ - エディターテンプレートを設定</a></div>
-	<h3>メソッド名とBehaviorの宣言</h3>
+	<h3 id="methodnameandbhv">メソッド名とBehaviorの宣言</h3>
 	<p>
 		テストメソッド名は、"test_existsTestData()" とし、MemberBhv を private のインスタンス変数として宣言してください。
 		Lasta Di では、@Resource というアノテーションを付けるとDI対象フィールドとなります。<span class="frm">(_ladany という補完を使うと少し楽になるかも)</span>
