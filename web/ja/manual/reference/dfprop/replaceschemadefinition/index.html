@@ -433,13 +433,30 @@ additionalUserMap = <span class="keyword">map</span>:{
 	</p>
 	<div class="relatedpage"><a href="../../../function/generator/task/replaceschema/arrangebeforereps.html">ReplaceSchema実行前の調整</a></div>
 <pre><span class="codetitle">e.g. arrangeBeforeRepsMapの仕様 @replaceSchemaDefinitionMap.dfprop</span><code>
+<span class="comment">#</span>
+<span class="comment"># path はすべて、クライアントからの相対パス or 絶対パス</span>
+<span class="comment">#</span>
 ; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
     ; define = <span class="keyword">map:</span>{
         ; [from-string] = [to-string]
     }
     ; copy = <span class="keyword">map:</span>{
-        <span class="comment"># DBFluteクライアントからの相対パス or 絶対パス</span>
         ; [src-path] = [dest-path]
+    }
+    ; filterText = <span class="keyword">map:</span>{
+        ; replaceLinely = <span class="keyword">map:</span>{
+            ; [file-path] = <span class="keyword">map:</span>{
+                ; [before] = [after]
+            }
+        }
+        ; replaceWholly = <span class="keyword">map:</span>{
+            ; [file-path] = <span class="keyword">map:</span>{
+                ; [before] = [after]
+            }
+        }
+    }
+    ; script = <span class="keyword">map:</span>{
+        ; [script-path] = dummy
     }
 }
 </code></pre>
@@ -459,6 +476,7 @@ additionalUserMap = <span class="keyword">map</span>:{
 				<li>dest のファイルが既に存在している場合は、上書き処理される</li>
 				<li>src, dest 共にパス表現(一つ以上のスラッシュを含む)であること</li>
 				<li>copyにて、おもむろに df:clean を付けるとそのディレクトリのファイルを削除してからコピー</li>
+				<li>filterTextにて、replaceLinely, replaceWholly が利用可能 <span class="frm">@since 1.3.1</span></li>
 			</ul>
 		</dd>
 	</dl>

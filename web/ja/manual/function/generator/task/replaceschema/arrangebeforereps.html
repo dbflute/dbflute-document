@@ -38,11 +38,11 @@
 
 	<h2 id="copy">コピー</h2>
 	<p>
-		replaceSchemaDefinitionMap.dfprop の arrangeBeforeRepsMap にて、
+		replaceSchemaMap.dfprop の arrangeBeforeRepsMap にて、
 		copy指定すると、ReplaceSchemaの最初の処理でそのコピーが実行されます。
 	</p>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#arrangebeforerepsmap">dfprop - arrangeBeforeRepsMap</a></div>
-<pre><span class="codetitle">e.g. foo.ddl を replace-schema-10-basic.sql にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. foo.ddl を replace-schema-10-basic.sql にコピー @replaceSchemaMap.dfprop</span><code>
 ; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
     ; copy = <span class="keyword">map:</span>{
         ; ../erd/foo.ddl = ./playsql/replace-schema-10-basic.sql
@@ -67,14 +67,14 @@
 			<span class="frm">@since 0.9.9.1A</span>
 		</dd>
 	</dl>
-<pre><span class="codetitle">e.g. foo.ddl を replace-schema-10-basic.sql にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. foo.ddl を replace-schema-10-basic.sql にコピー @replaceSchemaMap.dfprop</span><code>
 ; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
     ; copy = <span class="keyword">map:</span>{
         ; ../erd/*.ddl = ./playsql/replace-schema-10-basic.sql
     }
 }
 </code></pre>
-<pre><span class="codetitle">e.g. playsql の .sql ファイルを全て ../tmp 配下にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. playsql の .sql ファイルを全て ../tmp 配下にコピー @replaceSchemaMap.dfprop</span><code>
 ; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
     ; copy = <span class="keyword">map:</span>{
         ; ./playsql/*.sql = ../tmp
@@ -87,7 +87,7 @@
 		で始まる場合は、絶対パスとなります。DDLの出力先を絶対パスで保存してしまうERDツールで複数人で利用するような場合に、例えばDDLの出力先を
 		"/tmp/foo/bar.sql" と固定して、それをReplaceSchemaでコピーするような仕組みにすると、煩雑な出力先指定を軽減できます。
 	</p>
-<pre><span class="codetitle">e.g. tmp配下の bar.sql を replace-schema-10-basic.sql にコピー @replaceSchemaDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. tmp配下の bar.sql を replace-schema-10-basic.sql にコピー @replaceSchemaMap.dfprop</span><code>
 ; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
     ; copy = <span class="keyword">map:</span>{
         ; /tmp/foo/bar.sql = ./playsql/replace-schema-10-basic.sql
@@ -95,13 +95,49 @@
 }
 </code></pre>
 
+	<h2 id="filtertext">テキストフィルター <span class="frm">@since 1.3.1</span></h2>
+	<p>
+		replaceSchemaMap.dfprop の arrangeBeforeRepsMap にて、filterText指定すると、テキストファイルのフィルターができます。
+	</p>
+	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#arrangebeforerepsmap">dfprop - arrangeBeforeRepsMap</a></div>
+<pre><span class="codetitle">e.g. sea を land に一括置換、mystic を oneman に一括置換 @replaceSchemaMap.dfprop</span><code>
+; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
+    ; filterText = <span class="keyword">map:</span>{
+        ; replaceLinely = <span class="keyword">map:</span>{
+            ; ./playsql/maihama.sql = <span class="keyword">map:</span>{
+                ; sea = land
+                ; mystic = oneman
+            }
+        }
+        ; replaceWholly = <span class="keyword">map:</span>{
+            ; ./playsql/maihama.sql = <span class="keyword">map:</span>{
+                ; sea = land
+                ; mystic = oneman
+            }
+        }
+    }
+}
+</code></pre>
+	<p>
+		replaceLinely の方は、一行ずつ一括置換していきます。なので改行をまたいだ置換はできません。
+	</p>
+	<p>
+		replaceWholly の方は、テキストファイルまるごとの文字列に対して一括置換していきます。なので改行またぎの置換ができます。
+	</p>
+	<p>
+		改行またぎをしない場合はどちらも変わりはありませんが、サイズが大きいテキストファイルのときにパフォーマンス的な相性があるかもしれないので、とりあえず二つの方法を用意しています。
+	</p>
+	<p>
+		コピー処理よりも後に動作するので、コピー後のファイルに対してフィルターすることができます。
+	</p>
+
 	<h2 id="script">スクリプト実行 <span class="frm">@since 1.0.4H</span></h2>
 	<p>
-		replaceSchemaDefinitionMap.dfprop の arrangeBeforeRepsMap にて、
+		replaceSchemaMap.dfprop の arrangeBeforeRepsMap にて、
 		script指定すると、ReplaceSchemaの最初の処理でそのスクリプトが実行されます。
 	</p>
 	<div class="relatedpage"><a href="../../../../reference/dfprop/replaceschemadefinition/index.html#arrangebeforerepsmap">dfprop - arrangeBeforeRepsMap</a></div>
-<pre><span class="codetitle">e.g. maven-install.sh を実行 @replaceSchemaDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. maven-install.sh を実行 @replaceSchemaMap.dfprop</span><code>
 ; arrangeBeforeRepsMap = <span class="keyword">map:</span>{
     ; script = <span class="keyword">map:</span>{
         ; ../maven-install.sh = dummy
