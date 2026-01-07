@@ -33,6 +33,11 @@
         <div class="new">
           <h3>NEW</h3>
           <ul>
+            <li>DBFlute Engine: dbCommentOnAliasBasisOptionMap, forcedAliasBasisColumnListMap #310 <span class="frm">*2026/01/08パッチ</span></li>
+            <li>DBFlute Engine: dbCommentOnAliasBasisOptionMap, forcedAliasBasisTableList #309 <span class="frm">*2026/01/08パッチ</span></li>
+            <li>DBFlute Engine: dbCommentOnAliasBasisOptionMap, aliasBasisIfFirstDateAfter #308 <span class="frm">*2026/01/08パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, column default constraint determination #307 <span class="frm">*2026/01/08パッチ</span></li>
+            <li>DBFlute Engine: SchemaPolicyCheck, column commonColumn determination #306 <span class="frm">*2026/01/08パッチ</span></li>
             <li>DBFlute Runtime: DateUpdateAdjuster needs restoring modifiedProperties #302</li>
             <li>DBFlute Engine: BehaviorFilter should be before dateUpdateAdjuster #303 <span class="frm">*前回パッチ</span></li>
             <li>DBFlute Engine: SchemaHTML, CLS top comment line-separated #286 <span class="frm">*前回パッチ</span></li>
@@ -45,55 +50,6 @@
             <li>DBFlute Intro: decomment, non-pickup option isSuppressDecommentPickup in documentMap.dfprop #281 <span class="frm">*前回パッチ</span></li>
             <li>DBFlute Engine: Classification, add various characters e.g. chuten to JavaNameFilter #279 <span class="frm">*前回パッチ</span></li>
             <li>DBFlute Engine: Classification, add full-with ! to JavaNameFilter #278 <span class="frm">*前回パッチ</span></li>
-          </ul>
-          <h3>BUG</h3>
-          <ul>
-          </ul>
-        </div>
-      </div>
-      <div class="release">
-        <h2>DBFlute-1.2.9 <span class="frm">※Java8</span></h2>
-        <p class="releasedate">2025/05/23</p>
-        <div class="new">
-          <h3>NEW</h3>
-          <ul>
-            <li>DBFlute Intro: decomment, ignore database comment conflict when database comment deleted #272 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Intro: decomment, database comment conflict cannot be resolved by rear line separator #271 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Intro: decomment, database comment not displayed when conflict with database comment #269 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Engine: show decomment on javadoc supported #266 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Engine: decomment alias e.g. dfalias:{ sea } supported #265 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Engine: dfprop split, isUseSubDirectory #264 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Engine: documentMap.dfprop, deprecatedTableMap #261 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Engine: documentMap, isDbCommentNumberAliasTreatedAsDescription #258 <span class="frm">*2025/07/26パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse, tableTargetList #253 <span class="frm">*2025/06/29パッチ</span></li>
-            <li>DBFlute Engine: SchemaSyncCheck, tableExceptList #252 <span class="frm">*2025/06/29パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse,isFrameworkDebug for e.g. table order #252 <span class="frm">*2025/06/29パッチ</span></li>
-            <li>DBFlute Engine: PropertiesHTML, isSuppressPropertiesHtmlGenerateForcedly #251 <span class="frm">*2025/06/29パッチ</span></li>
-            <li>DBFlute Engine: SchemaSyncCheck, ignore diff pieces #250 <span class="frm">*2025/06/29パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse, improve table order when cyclic reference exists #249 <span class="frm">*2025/06/29パッチ</span></li>
-            <li>DBFlute Engine: convertValueMap.dataprop, can specify tableName prefix #248 <span class="frm">*2025/06/24パッチ</span></li>
-            <li>DBFlute Engine, LoadDataReverse TSV output, cursorSelectFetchSize #245 <span class="frm">*2025/06/24パッチ</span></li>
-            <li>DBFlute Engine: SchemaPolicyCheck, improve various feedbacks #244 <span class="frm">*2025/06/24パッチ</span></li>
-            <li>DBFlute Runtime: UpdateOption@disableOptimisticLockAutoUpdate() #235</li>
-            <li>DBFlute Runtime: FileToken performance, like ReplaceSchema LoadData #234</li>
-            <li>DBFlute Engine: ReplaceSchema TSV, isAvailableAddingSchemaToTableSqlName #233 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse, isIncludeAdditionalSchema #232 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: ReplaceSchema, loading TSV with schema prefix #231 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: Oracle Procedure (function), return property name "arg1" to "returnValue" #230 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: pointTypeMapping for Sql2Entity, "procedure:" prefix #229 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: Oracle, procedure parameter like e.g. MAIHAMA.SEA_ID%TYPE #228 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: procedureParameterPointJdbcTypeMappingMap on outsideSqlMap.dfprop #227 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: typeMappingMap's pointTypeMapping for Sql2Entity #226 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: Oracle, DisplaySqlBuilder's logDateFormat as timestamp is unneeded #225 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: additionalDbComment, $$schema$$ #219 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: additionalDbCommentMap.dfprop #218 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse, support sectionTableGuidelineLimit #216 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse's isOverrideExistingDataFile for TSV #213 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse's isDelimiterDataBasis #214 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: improve Final Message to show JDBC driver version #211 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: non-SQLException handling for Procedure meta data #209 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: Sql2Entity procedure error on mysql-8.0.x and jdbc-8.0.x #208 <span class="frm">*前回パッチ</span></li>
-            <li>DBFlute Engine: LoadDataReverse, option of TSV (delimiter data) minimally quoted #205 <span class="frm">*前回パッチ</span></li>
           </ul>
           <h3>BUG</h3>
           <ul>
