@@ -548,6 +548,7 @@ column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
 		<dt>dbType</dt><dd>カラムのデータ型 <span class="frm">e.g. if dbType is CHAR</span></dd>
 		<dt>size</dt><dd>カラムのデータサイズ、小数点はカンマ空白<span class="frm">(*B)</span> <span class="frm">e.g. if size is 3</span></dd>
 		<dt>dbType_with_size</dt><dd>カラムのデータ型サイズ付き <span class="frm">e.g. if dbType_with_size is CHAR(3)</span></dd>
+		<dt>defaultValue</dt><dd>デフォルト制約の値 <span class="frm">e.g. if defaultValue is sea</span> <span class="frm">@since 1.3.2</span></dd>
 		<dt>firstDate</dt><dd>カラムの登録日<span class="frm">(*C)</span> <span class="frm">e.g. if firstDate is after:2018/05/03</span> <span class="frm">@since 1.1.8</span></dd>
 	</dl>
 	<p>
@@ -585,10 +586,15 @@ column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
 		<dt>identity</dt><dd>identityカラム(連番) <span class="frm">e.g. then identity</span></dd>
 		<dt>pk</dt><dd>PK制約 <span class="frm">e.g. then pk</span></dd>
 		<dt>singlePK</dt><dd>単一カラムのPK制約 <span class="frm">e.g. then singlePK</span> <span class="frm">@since 1.1.9</span></dd>
-		<dt>fk</dt><dd>FK制約 <span class="frm">e.g. then fk</span></dd>
+		<dt>fk</dt><dd>FK制約 (擬似FKも物理FKも両方含む) <span class="frm">e.g. then fk</span></dd>
+		<dt>additionalFK</dt><dd>擬似FK制約 (AdditionalForeignKey) <span class="frm">e.g. then additionalFK</span> <span class="frm">@since 1.3.2</span></dd>
+		<dt>realFK</dt><dd>物理FK制約 (DB上のFK) <span class="frm">e.g. then realFK</span> <span class="frm">@since 1.3.2</span></dd>
 		<dt>unique</dt><dd>UQ制約 <span class="frm">e.g. then unique</span></dd>
 		<dt>index</dt><dd>インデックス <span class="frm">e.g. then index</span></dd>
 		<dt>classification</dt><dd>区分値 <span class="frm">e.g. then classification</span></dd>
+		<dt>classification(区分値名)</dt><dd>区分値を特定 <span class="frm">e.g. then classification(MemberStatus)</span></dd>
+		<dt>commonColumn</dt><dd>共通カラム <span class="frm">e.g. then commonColumn</span> <span class="frm">@since 1.3.2</span></dd>
+		<dt>hasDefaultValue</dt><dd>デフォルト制約を持っている <span class="frm">e.g. then hasDefaultValue</span> <span class="frm">@since 1.3.2</span></dd>
 		<dt>upperCaseBasis</dt><dd>カラム名が大文字 <span class="frm">e.g. then upperCaseBasis</span> <span class="frm">@since 1.1.8</span></dd>
 		<dt>lowerCaseBasis</dt><dd>カラム名が小文字 <span class="frm">e.g. then lowerCaseBasis</span> <span class="frm">@since 1.1.8</span></dd>
 		<dt>hasAlias</dt><dd>別名がある <span class="frm">e.g. then hasAlias</span> <span class="frm">@since 1.1.8</span></dd>
@@ -619,6 +625,7 @@ column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
 		<dt>dbType</dt><dd>カラムのデータ型 <span class="frm">e.g. then dbType is CHAR</span></dd>
 		<dt>size</dt><dd>カラムのデータサイズ、小数点はカンマ空白<span class="frm">(*C)</span> <span class="frm">e.g. then size is 3</span></dd>
 		<dt>dbType_with_size</dt><dd>カラムのデータ型サイズ付き <span class="frm">e.g. then dbType_with_size is CHAR(3)</span></dd>
+		<dt>defaultValue</dt><dd>デフォルト制約の値 <span class="frm">e.g. then defaultValue is sea</span> <span class="frm">@since 1.3.2</span></dd>
 		<dt>comment</dt><dd>カラムのDBコメント(別名抜き) <span class="frm">e.g. then comment is contain:sea</span></dd>
 	</dl>
 	<p>
@@ -651,10 +658,15 @@ column.statement: if columnName is suffix:_FLG then dbType is BOOLEAN
 		<dt>identity</dt><dd>identityカラム(連番) <span class="frm">e.g. if column is identity</span></dd>
 		<dt>pk</dt><dd>PK制約 <span class="frm">e.g. if column is pk</span></dd>
 		<dt>singlePK</dt><dd>単一カラムのPK制約 <span class="frm">e.g. then singlePK</span> <span class="frm">@since 1.1.9</span></dd>
-		<dt>fk</dt><dd>FK制約 <span class="frm">e.g. if column is fk</span></dd>
+		<dt>fk</dt><dd>FK制約 (擬似FKも物理FKも両方含む) <span class="frm">e.g. if column is fk</span></dd>
+		<dt>additionalFK</dt><dd>擬似FK (AdditionalForeignKey) <span class="frm">e.g. if column is additionalFK</span> <span class="frm">@since 1.3.2</span></dd>
+		<dt>realFK</dt><dd>物理FK (DB上のFK) <span class="frm">e.g. if column is realFK</span> <span class="frm">@since 1.3.2</span></dd>
 		<dt>unique</dt><dd>UQ制約 <span class="frm">e.g. if column is unique</span></dd>
 		<dt>index</dt><dd>インデックス <span class="frm">e.g. if column is index</span></dd>
 		<dt>classification</dt><dd>区分値 <span class="frm">e.g. if column is classification</span></dd>
+		<dt>classification(区分値名)</dt><dd>区分値を特定 <span class="frm">e.g. if column is classification(MemberStatus)</span></dd>
+		<dt>commonColumn</dt><dd>共通カラム <span class="frm">e.g. if column is commonColumn</span> <span class="frm">@since 1.3.2</span></dd>
+		<dt>hasDefaultValue</dt><dd>デフォルト制約を持っている <span class="frm">e.g. if column is hasDefaultValue</span> <span class="frm">@since 1.3.2</span></dd>
 	</dl>
 	<h3 id="columnstatementnot">否定表現 (not) <span class="frm">(of column)</span></h3>
 	<p>
