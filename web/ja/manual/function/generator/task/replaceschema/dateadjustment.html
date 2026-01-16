@@ -61,13 +61,21 @@
     ; dateAdjustmentMap = <span class="keyword">map:</span>{
         ; df:originDate = 2008/01/01
         ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{
+            <span class="comment"># 全てのカラムに対して、originDateから現在日付までの日数分足して登録する</span>
+            <span class="comment"># (明示的にテーブルやカラムを指定しているものが優先、これはあくまでデフォルト)</span>
             ; <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(<span class="attribute">$distance</span>)</span>
-            ; FORMALIZED_DATETIME = <span class="literal">addDay(0)</span>
-            ; LOGIN_DATETIME = <span class="literal">addDay(0)</span>
+
+            <span class="comment"># 全テーブルの FORMALIZED_DATETIME という名前のカラムに対して、7日足して登録する</span>
+            ; FORMALIZED_DATETIME = <span class="literal">addDay(7)</span>
+
+            <span class="comment"># 全テーブルの LOGIN_DATETIME という名前のカラムに対して、3日足して登録する</span>
+            ; LOGIN_DATETIME = <span class="literal">addDay(3)</span>
         }
-        ; MEMBER = <span class="keyword">map:</span>{ BIRTHDATE = <span class="literal">addDay(0)</span> }
+        <span class="comment"># MEMBERテーブルの BIRTHDATEカラムに対して、1ヶ月足して登録する</span>
+        ; MEMBER = <span class="keyword">map:</span>{ BIRTHDATE = <span class="literal">addMonth(1)</span> }
+
+        <span class="comment"># MEMBER_ADDRESSテーブルのすべてのカラムは動かなさい (打ち消し)</span>
         ; MEMBER_ADDRESS = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(0)</span> }
-        ; WHITE_XLS_MAN = <span class="keyword">map:</span>{ <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(0)</span> }
     }
 }
 </code></pre>
