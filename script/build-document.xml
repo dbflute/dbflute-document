@@ -2,7 +2,7 @@
 
 	<property name="web.dir" value="../web"/>
 	<property name="preview.dir" value="../preview"/>
-	<property name="www.dir" value="../../dbflute-www"/>
+	<property name="www.dir" value="../../dbflute.github.io"/>
 	<property name="script.dir" value="./"/>
 	<property name="createhtml.script" value="createhtml.groovy"/>
 	<property name="deletetmpfile.script" value="deletetmpfile.groovy"/>
@@ -137,7 +137,7 @@
 		</copy>
 
 		<!-- index.html.ja for www  -->
-		<copy tofile="${www.dir}/index.html.ja" file="${web.dir}/index.ja.html" overwrite="true"/>
+		<copy tofile="${www.dir}/index.html" file="${web.dir}/index.ja.html" overwrite="true"/>
 		<delete dir="./output" quiet="true"/>
 	</target>
 
