@@ -200,6 +200,47 @@
 		この日付調整の機能を使って、常に決まったタイミングのデータが保たれるようにしておくといいでしょう。
 	</p>
 
+	<h2 id="myorgin">基準日をカラムごとに設定 <span class="frm">@since 1.3.2</span></h2>
+	<p>
+		フィットする基準日がカラムごとに違う場合は、originDateをカラムごとに設定することもできます。
+		また、レコードを特定して適用させることもできます。
+	</p>
+<pre><span class="codetitle">e.g. データ登録の制御のプロパティ設定 @loadingControlMap.dataprop</span><code>
+<span class="keyword">map:</span>{
+    <span class="abbreviation">...</span>
+
+    <span class="comment"># dateAdjustmentMap = <span class="keyword">map:</span>{
+    #     ; df:originDate = 2013/03/09
+    #     ; $$ALL$$ = map:{
+    #         ; $$ALL$$ = addDay($distance)
+    #     }
+    #     ; MEMBER = map:{ BIRTHDATE = addDay(0) }
+    # }</span>
+    ; dateAdjustmentMap = <span class="keyword">map:</span>{
+        ; df:originDate = 2008/01/01
+        ; <span class="attribute">$$ALL$$</span> = <span class="keyword">map:</span>{
+            <span class="comment"># 全てのカラムに対して、originDateから現在日付までの日数分足して登録する</span>
+            <span class="comment"># (明示的にテーブルやカラムを指定しているものが優先、これはあくまでデフォルト)</span>
+            ; <span class="attribute">$$ALL$$</span> = <span class="literal">addDay(<span class="attribute">$distance</span>)</span>
+
+            <span class="comment"># 基準日を 2026/01/22 に変更してdistanceする</span>
+            ; FORMALIZED_DATETIME = <span class="literal">addDay($distance) df:myOriginDate(2026/01/22)</span>
+
+            <span class="comment"># 会員IDが2から3のレコードにて、基準日を 2026/01/22 に変更してdistanceする</span>
+            ; LOGIN_DATETIME = <span class="literal">addDay($distance) df:myOriginDate(2026/01/22, where MEMBER_ID from 2 to 3</span>
+        }
+        ; MEMBER = <span class="keyword">map:</span>{
+            <span class="comment"># 会員IDが1から3のレコードにて、基準日を 2026/01/22 に変更してdistanceする。</span>
+            <span class="comment"># 会員IDが5から6のレコードにて、基準日を 2026/01/29 に変更してdistanceする。</span>
+            <span class="comment"># それ以外のレコードは、rootの基準日を使う。(もしuseの指定がない場合は0日distance)</span>
+            ; BIRTHDATE = <span class="literal">addDay($distance) df:myOriginDate(2026/01/22, where MEMBER_ID from 1 to 3)</span>
+                                            <span class="literal">df:myOriginDate(2026/01/29, where MEMBER_ID from 5 to 6)</span>
+                                            <span class="literal">df:useRootOriginIfNoHit()</span>
+        }
+    }
+}
+</code></pre>
+
 	<h2 id="miscspec">その他、細かい仕様</h2>
 	<h3 id="nonadjusteddefault">デフォルトsysdateのカラムは対象外</h3>
 	<p>
