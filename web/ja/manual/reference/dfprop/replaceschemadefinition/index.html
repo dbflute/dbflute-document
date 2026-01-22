@@ -166,6 +166,7 @@
 		<dd>
 			<ul class="supplementlist">
 				<li>emptyTableMapで、空っぽのテーブルに対するアサート</li>
+				<li>nullOnlyColumnで、空っぽのテーブルに対するアサート <span class="frm">@since 1.3.2</span></li>
 			</ul>
 		</dd>
 	</dl>
@@ -205,6 +206,31 @@
 		比較対象となるテーブル作成日(firstDate)は、SchemaPolicyCheck における firstDate と仕組みは同じです。
 	</p>
 	<div class="relatedpage"><a href="../../../function/genbafit/implfit/schemapolicy/index.html#firstdate">DB設計のチェックスタイル - これから追加されるものだけチェック</a></div>
+	<p>
+		テストデータにnullしか入ってないカラムを検知することもできます。<span class="frm">@1.3.2</span>
+	</p>
+<pre><span class="codetitle">e.g. テストデータでnullしか入ってないカラムがあったらエラー @replaceSchemaMap.dfprop</span><code>
+    <span class="comment"># /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # o conventionalTakeAssertMap: (NotRequired - Default map:{})
+    #  Does it assert data by conventional rule in take-finally
+    #  For example, you can check empty table (no-data).
+    #</span>
+    ; conventionalTakeAssertMap = <span class="keyword">map:</span>{
+        ; <span class="point">nullOnlyColumnMap</span> = <span class="keyword">map:</span>{
+            ; isFailure = <span class="keyword">true</span>
+            ; workableRepsEnvTypeList = <span class="keyword">list:</span>{ut}
+            ; tableExceptList = <span class="keyword">list:</span>{}
+            ; tableTargetList = <span class="keyword">list:</span>{}
+            ; isSkipIfEmptyTable = <span class="keyword">false</span>
+            ; errorIfTableFirstDateAfter = <span class="keyword">null</span>
+            ; errorIfColumnFirstDateAfter = <span class="keyword">2026/01/22</span>
+        }
+    }
+    <span class="comment"># - - - - - - - - - -/</span>
+    <p>
+    	カラムの firstDate を使って、新規カラムだけチェックするというようにするこも可能です。
+    </p>
+</code></pre>
 	<h3 id="isincrementsequencetodatamax">isIncrementSequenceToDataMax</h3>
 	<p>
 		テーブルのPKに関連付けたシーケンスの次の採番値を、登録したデータの最大値に 1
