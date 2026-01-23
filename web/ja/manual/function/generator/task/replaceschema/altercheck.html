@@ -297,7 +297,7 @@ dbflute_maihamadb
     |  |-<span class="abbreviation">...</span>
 </code></pre>
 	<p>
-		もし、同じスプリント内ですでに別の人がDB変更をしていたら、その内容が復元されます。
+		もし、同じスプリント内ですでに別の人がDB変更をしていたら、その内容が復元されます<span class="frm">(AlterCheck前に先に手動でファイルを作っていたら復元されないので注意)</span>。
 		SQLファイルは分割できるので複数ファイルが展開される可能性もあります。
 	</p>
 <pre><span class="codetitle">e.g. alter-schema-[チケット番号].sql 形式で、別の人のSQLファイルが復元された場合 @playsql</span><code>
@@ -459,6 +459,39 @@ dbflute_maihamadb
 	<p>
 		AlterCheck正常終了後のDBは、PreviousDB に AlterDDL を適用させたものとなっています。
 		そのままアプリを起動してテストを行えば、より本番に近い状態のテスト環境として利用できます。
+	</p>
+	<h3 id="secondcheck">(9. 次のDB変更をするなら)</h3>
+	<p>
+		1回目のDB変更が完全に終わった後、2回目のDB変更をする場合も手順は同じです。
+	</p>
+	<p>
+		CreateDDLの修正が終わったら、AlterDDLのファイルを作る前に、まずAlterCheckを実行しましょう。
+	</p>
+	<p>
+		すると、1回目のDB変更の時のAlterDDLが、alterディレクトリに復元されます。
+		<span class="frm">(復元しないとAlterCheckの差分結果が、1回目のDB変更の差分も含んでしまうので、復元する必要があります。
+		逆にしっかり復元されていれば、差分結果が2回目のDB変更だけの差分になります)</span>
+	</p>
+<pre><span class="codetitle">e.g. AlterDDLが保存されるHistoryのunreleased-checked-alter @playsql</span><code>
+dbflute_maihamadb
+ |-playsql
+    |-data
+    |-migration
+    |  |-alter
+    |  |  |-alter-schema.sql              <span class="comment">// unreleasedから復元される</span>
+    |  |  |-alter-schema-[チケット番号].sql <span class="comment">// わたしも</span>
+    |  |-history
+    |  |  |-<span class="point">unreleased-checked-alter</span>
+    |  |     |-DONT_EDIT_HERE.dfmark
+    |  |     |-for-previous-20120804-1746.dfmark
+    |  |     |-<span class="subpoint">READONLY_alter-schema.sql</span>
+    |  |     |-<span class="subpoint">READONLY_alter-schema-[チケット番号].sql</span>
+    |  |-previous
+    |  |-schema
+</code></pre>
+	<p>
+		その上で、2回目のDB変更のalter文を、復元されたファイルに追記してもいいですし、新しくファイルを作ってもいいです。
+		<span class="frm">(そこは現場でのポリシー次第)</span>
 	</p>
 
 	<h2 id="ngseries">そもそもDDLがNGだったら</h2>
