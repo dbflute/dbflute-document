@@ -446,15 +446,7 @@ cb.setupSelect_MemberAddressAsValid(currentDate);
 	<p>
 		かなり大きくなってきたら、会員系、商品系、レポート系など、カテゴリごとにファイルを分割すると良いでしょう。
 	</p>
-<pre><span class="codetitle">e.g. カテゴリごとにファイルを分割 @Directory</span><code>
-dfprop
- |-<span class="abbreviation">...</span>
- |-additionalForeignKeyMap_<span class="point">land</span>.dfprop  <span class="comment">// ランド系</span>
- |-additionalForeignKeyMap_<span class="point">sea</span>.dfprop   <span class="comment">// シー系</span>
- |-additionalForeignKeyMap.dfprop       <span class="comment">// 本体</span>
- |-<span class="abbreviation">...</span>
-</code></pre>
-<pre><span class="codetitle">e.g. ファイル分割の設定を本体のdfpropにて @classificationDefinitionMap.dfprop</span><code>
+<pre><span class="codetitle">e.g. ファイル分割の設定を本体のdfpropにて @additionalForeignKey.dfprop</span><code>
 <span class="keyword">map:</span>{
     ; <span class="attribute">$$split$$</span> = <span class="keyword">map:</span>{
         ; <span class="point">land</span> = dummy
@@ -474,11 +466,48 @@ dfprop
     <span class="abbreviation">...</span>
 }
 </code></pre>
+<pre><span class="codetitle">e.g. カテゴリごとにファイルを分割 @Directory</span><code>
+dfprop
+ |-<span class="abbreviation">...</span>
+ |-additionalForeignKeyMap_<span class="point">land</span>.dfprop  <span class="comment">// ランド系</span>
+ |-additionalForeignKeyMap_<span class="point">sea</span>.dfprop   <span class="comment">// シー系</span>
+ |-additionalForeignKeyMap.dfprop       <span class="comment">// 本体</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
 	<p>
 		dummyは、将来拡張のための固定値です。
 	</p>
 	<p>
 		EMechaによるキー重複チェックが、ファイル間では効かないので設定ミスに注意しましょう。
+	</p>
+	<h3 id="dosplitsub">サブディレクトリに分割 <span class="frm">@since 1.3.0</span></h3>
+	<p>
+		dfprop直下のフラットではなく、サブディレクトリに分けることもできます。
+	</p>
+<pre><span class="codetitle">e.g. サブディレクトリにてファイル分割する設定を本体のdfpropにて @additionalForeignKey.dfprop</span><code>
+<span class="keyword">map:</span>{
+    ; <span class="attribute">$$split$$</span> = <span class="keyword">map:</span>{
+        ; df:header = <span class="keyword">map:</span>{
+            ; <span class="point">isUseSubDirectory</span> = <span class="keyword">true</span>
+        }
+        ; land = dummy
+        ; sea = dummy
+    }
+
+    <span class="abbreviation">...</span>
+}
+</code></pre>
+<pre><span class="codetitle">e.g. サブディレクトリにて、カテゴリごとにファイルを分割 @Directory</span><code>
+dfprop
+ |-<span class="abbreviation">...</span>
+ |-_dfsplit
+ |   |-additionalForeignKey_<span class="point">land</span>.dfprop  <span class="comment">// ランド系</span>
+ |   |-additionalForeignKey_<span class="point">sea</span>.dfprop   <span class="comment">// シー系</span>
+ |-additionalForeignKey.dfprop       <span class="comment">// 本体</span>
+ |-<span class="abbreviation">...</span>
+</code></pre>
+	<p>
+		_dfsplit ディレクトリィの名前は固定です。
 	</p>
 
 	<h2 id="example">Example</h2>
