@@ -78,10 +78,7 @@
   |          |     +---- schema -------------------------------------+
   |          |     |
 (JDBC)------/T\--> |   SchemaXML (project-schema-...xml)
-  |          |     |   HistoryDiffmap (project-history-...diffmap)
-  |          |     |                             ^
-  |          |     |                             | (make)
-  |          |     |                             +- JDBC
+  |          |     |   SchemaDiffmap (schemadiff/diffpiece-...diffmap)
   |          |     |   CraftDiffMeta (previous|next.tsv)
   |          |     |
   |      +--/T\---/T\--> DecommentPickup (decomment-pickup.dfmap)
@@ -159,44 +156,61 @@
 	<p>
 		その元ファイルの代表です。dfpropファイルは人が修正していますから、他人の修正と自分の修正をマージしましょう。
 	</p>
-	<h3 id="conflictschema">schema配下のSchemaXMLは丁寧にマージ</h3>
 	<p>
-		schema配下は基本的に蓄積ファイルと言えます。丁寧にマージしないとデータをロスしてしまいます。
+		その他、loadingControlMap.dataprop などの ReplaceSchema で使っている datapropファイルも同様です。
+		<span class="frm">(これらも人が手で修正する設定ファイルです)</span>
+	</p>
+	<h3 id="conflicterm">ERDツールのファイルは丁寧にマージ</h3>
+	<p>
+		もし、ERFluteなどのERDツールを使ってDDLを出力している場合は、そのERDのファイルをマージしましょう。
+		<span class="frm">(ERFluteなら、ermファイルはあまりコンフリクトは発生しませんが、とはいえ可能性はゼロではないです)</span>
 	</p>
 	<p>
-		SchemaXMLはDDLから導出されるものなので、一瞬マージしなくてもいいように思えますがHistoryDiffmapの導出に利用されるので、できるだけ手動でマージしましょう。
-	</p>
-	<p>
-		<span class="frm">(どうしても難しければ、playsqlのマージを先にやってReplaceSchemaだけを実行して導出しても良いとは思います)</span>
-	</p>
-	<h3 id="conflictdiffmap">schema配下のHistoryDiffmapは丁寧にマージ</h3>
-	<p>
-		HistoryDiffmap (project-history...diffmap) は、DBFluteクライアント/output/doc配下に作成されるHistoryHTMLの元データです。
-		DBFluteによって出力されますが、これは自動生成ファイルではなく蓄積ファイルなので丁寧にマージしましょう。
-		<span class="frm">(@until 1.2.5)</span>
-	</p>
-	<p>
-		DBFlute-1.2.6よりファイル構成が変わり、コンフリクトしないように調整されました。
-	</p>
-	<h3 id="conflictcraftmeta">schema配下のcraft-metaファイルは丁寧にマージ</h3>
-	<p>
-		これもdiffmapと似たようなもので、DBFluteが集めたDBデータの差分の蓄積データです。丁寧にマージしましょう。
-	</p>
-	<h3 id="conflictdecomment">schema配下decommentのpickupファイルは丁寧にマージ</h3>
-	<p>
-		これもdiffmapと似たようなもので、DBFluteが集めたdecommentの蓄積データです。丁寧にマージしましょう。
-		ただ、pickupDatetimeの日時がコンフリクトしてるだけのケースが多いでしょう。日時は最新の方を優先でOKです。
+		ERDツールから出力されたDDLは、自動生成ファイルと言えるので、これらがコンフリクトしても、ERDを正しくマージしていれば、DDL出力し直せば良いだけです。
 	</p>
 	<h3 id="conflictplaysql">playsql配下のファイル <span class="frm">(DDLやTSVなど)</span> は丁寧にマージ</h3>
 	<p>
-		playsqlも元ファイルと言えます。これらファイルからスキーマが作成されて自動生成につながります。
+		もし、ReplaceSchemaを利用している場合、playsqlも元ファイルと言えます。これらファイルからスキーマが作成されて自動生成につながります。
 	</p>
 	<p>
-		DDLがERDツールなどから自動生成されている場合は、ERDファイル自体をマージしましょう。
-		<span class="frm">(ERFluteであれば、大抵の場合は自動マージが可能です)</span>
+		DDLがERDツールなどから自動生成されている場合は、元ファイル扱いではなく自動生成ファイル扱いになるので、ERDファイル自体をマージして出力し直しましょう。
 	</p>
 	<p>
 		一方で、tsv-data-result.dfmarkなどのReplaceSchemaのデータ登録処理の出力結果などは、一時的な出力情報ということなので、ReplaceSchemaし直して上書きすればOKです。
+		<span class="frm">(そもそも tsv-data-result.dfmark は gitignore して良いでしょう)</span>
+	</p>
+	<h3 id="conflictschema">schema配下のSchemaXMLはDB直してJDBCタスクし直し</h3>
+	<p>
+		SchemaXMLは、MySQL自体のスキーマから導出されるものなので、スキーマの元になっているDDLのコンフリクトを修正して、MySQLに反映させてからJDBCタスクをし直せば、マージされたSchemaXMLができあがります。
+	</p>
+	<p>
+		ReplaceSchemaを利用している場合は、ReplaceSchemaの元になっているDDLやデータTSVファイルのコンフリクトをマージしてから ReplaceSchema を実行して、そして、JDBCタスクを実行しましょう。
+	</p>
+	<p>
+		ただ、他のコンフリクトが解消してから実施しましょう。
+		<span class="frm">(他のコンフリクトが残ってると、そもそもReplaceSchemaもJDBCも落ちたり変な結果を出したりするかもしれませんので)</span>
+	</p>
+	<h3 id="conflictdiffmap">schema配下の SchemaDiffmap は...バージョン次第</h3>
+	<p>
+		DBFluteが集めたスキーマ差分の蓄積データですが、DBFluteのバージョンに寄ります。
+	</p>
+	<p>
+		DBFlute-1.2.6 以降であれば、そもそもコンフリクトしません。スキーマ差分のファイル (SchemaDiffmap)
+		は個別に独立しているためです。<span class="frm">(ミリ秒単位のファイル名になっている)</span>
+	</p>
+	<p>
+		DBFlute-1.2.5 までであれば、スキーマ差分が一つにまとまっている (HistoryDiffmap) ので、このファイルは丁寧にマージする必要があります。
+	</p>
+	<h3 id="conflictcraftmeta">schema配下のCraftDiffMeta (tsv) は丁寧にマージ</h3>
+	<p>
+		DBFluteが集めたDBデータの差分の蓄積データです。丁寧にマージしましょう。
+	</p>
+	<h3 id="conflictdecomment">schema配下decommentのpickupファイルは丁寧にマージ</h3>
+	<p>
+		DBFluteが集めたdecommentの蓄積データです。丁寧にマージしましょう。
+	</p>
+	<p>
+		ただ、pickupDatetimeの日時がコンフリクトしてるだけのケースが多いでしょう。日時は最新の方を優先でOKです。
 	</p>
 
 	<h2 id="avoidconflict">コンフリクトしないためには？</h2>
