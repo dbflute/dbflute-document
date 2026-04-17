@@ -157,6 +157,17 @@ Optional&lt;MemberWithdrawal&gt; optWdl = optMember.flatMap(mb -&gt; mb.getMembe
  |     +------------------------------+   |
  +----------------------------------------+
 
+ without flat:
+ +- Optional&lt;Member&gt; --------------------+                               +- Optional&lt;Optional&lt;MemberWithdrawal&gt;&gt; -+
+ |                                       |                               |                                        |
+ |  mb:{1, "sea"}                        | ----------- map() ----------&gt; |   +- Optional&lt;MemberWithdrawal&gt; -+     |
+ |   |                                   | mb.getMemberWithdrawalAsOne() |   | {101, 1, ...}                |     |
+ |   |                                   |                               |   +------------------------------+     |
+ |   | +- Optional&lt;MemberWithdrawal&gt; -+  |                               |       ^                                |
+ |   +-| wdl:{1, 2016/7/20, ...}      |-/`\--&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;--/`\--&gt;---^                                |
+ |     +------------------------------+  |                               |                                        |
+ +---------------------------------------+                               +----------------------------------------+
+
  +- Optional&lt;Member&gt; ---------------------+                               +- Optional&lt;MemberWithdrawal&gt; ----+
  |                                        |                               |                                 |
  |  mb:{1, "sea"}                         | -------- flatMap() ---------&gt; |   *empty                        |
@@ -172,17 +183,6 @@ Optional&lt;MemberWithdrawal&gt; optWdl = optMember.flatMap(mb -&gt; mb.getMembe
  |  *empty                                | -------- flatMap() ---------&gt; |   *empty                        |
  |                                        | mb.getMemberWithdrawalAsOne() |                                 |
  +----------------------------------------+                               +---------------------------------+
-
- without flat:
- +- Optional&lt;Member&gt; --------------------+                               +- Optional&lt;Optional&lt;MemberWithdrawal&gt;&gt; -+
- |                                       |                               |                                        |
- |  mb:{1, "sea"}                        | ----------- map() ----------&gt; |   +- Optional&lt;MemberWithdrawal&gt; -+     |
- |   |                                   | mb.getMemberWithdrawalAsOne() |   | {101, 1, ...}                |     |
- |   |                                   |                               |   +------------------------------+     |
- |   | +- Optional&lt;MemberWithdrawal&gt; -+  |                               |       ^                                |
- |   +-| wdl:{1, 2016/7/20, ...}      |-/`\--&gt;---&gt;---&gt;---&gt;---&gt;---&gt;---&gt;--/`\--&gt;---^                                |
- |     +------------------------------+  |                               |                                        |
- +---------------------------------------+                               +----------------------------------------+
 
  detail:
  +- Optional&lt;Member&gt; -------------+                                             +- Optional&lt;MemberWithdrawal&gt; -+
