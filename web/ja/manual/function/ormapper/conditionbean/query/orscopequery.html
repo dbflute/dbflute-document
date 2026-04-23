@@ -168,6 +168,39 @@ cb.<span class="point">orScopeQuery</span>(orCB -&gt; {
 		(ネストした OrScopeQuery はサポートされていません)
 	</p>
 	<div class="relatedpage"><a href="#invalidcall">this - 無効な呼び出し</a></div>
+	<h3 id="andpartor">or 条件の中の and 条件の中の or 条件</h3>
+	<p>
+		先述の通り、AndPart 内での OrScopeQuery の呼び出しは利用できませんので、orScopeQuery で "or 条件の中の and 条件の中の or 条件"
+		を実現することはできません。
+	</p>
+	<p>
+		ただ、汎用orであるorScopeQueryとは枠組みが別の "定型or" の機能と組み合わせて実現できる可能性があります。
+	</p>
+	<dl class="keymainlist">
+		<dt>汎用or</dt><dd>orScopeQuery</dd>
+		<dt>定型or</dt><dd>FromToOptionのorIsNull, IsNullOrEmpty など</dd>
+	</dl>
+	<p>
+		特に、FromToOptionのorIsNullは、併用するケースをよく見かけます。
+	</p>
+<pre><span class="codetitle">e.g. OrScopeQueryAntPart で FromToOption の orIsNull と合わせてみた @Java</span><code>
+LocalDateTime toDatetime = toLocalDateTime("2026/05/23 12:34:56");
+cb.<span class="subpoint">orScopeQuery</span>(orCB -> {
+    <span class="comment">// 生年月日がnot null、もしくは、(...)</span>
+    orCB.query().setBirthdate_IsNotNull();
+    orCB.<span class="subpoint">orScopeQueryAndPart</span>(andCB -> {
+        <span class="comment">// (アカウントが'Pixy'、かつ、(正式会員日時が指定日時まで、もしくはnull))</span>
+        andCB.query().setMemberAccount_Equal("Pixy");
+        andCB.query().setFormalizedDatetime_FromTo(null, toDatetime, op -> {
+            op.allowOneSide().<span class="point">orIsNull()</span>;
+        });
+    });
+});
+</code></pre>
+	<p>
+		<span class="frm">("or 条件の中の and 条件の中の or 条件" の問い合わせが来た場合、多くの場合はこの orIsNull
+		パターンの印象です。ネストが深いところで業務的なorをするというより、そのカラムのnullを含めるためとかの事務的なorが多いのかも!?)</span>
+	</p>
 	<h3 id="splitby">LikeSearch の SplitBy</h3>
 	<p>
 		LikeSearch の SplitBy は、それ自身で and か or を選択できる特殊な機能です。OrScopeQuery
