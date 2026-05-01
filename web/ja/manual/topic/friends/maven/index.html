@@ -56,7 +56,7 @@
   s          +-+
   e          |   あ  o     land-3.2.jar -> oneman-1.8.jar -> bigband-3.5.jar
   ↓          |   ぷ /|\
-.classpath   |   り /\     piari-1.0.jar -> dstore-2.0.jar -> oneman-2.5.jar
+.classpath   |   り / \    piari-1.0.jar -> dstore-2.0.jar -> oneman-2.5.jar
   ↑          +-↓
   |           <<< pom.xml >>> ← sea と land と piari が欲しいぞと書いてある
   |                   ↑
@@ -64,9 +64,10 @@
   +-(自動生成)--   (eclipse-plugin)                 ↓↓
                                                 Mavenセントラルサーバー
                                                 +------------------+
-                                                | sea.jar pom.xml  |
-                                                | land.jar pom.xml |
-                                                +------------------+
+                                  o             | sea.jar pom.xml  |
+                                 /|\  --------> | land.jar pom.xml |
+                                 / \   deploy   +------------------+
+                               OSS開発者
 </code></pre>
 	<h3 id="m2repo">M2_REPOの設定</h3>
 	<p>
